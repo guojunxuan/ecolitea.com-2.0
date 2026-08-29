@@ -8,8 +8,9 @@
  * Next.js image optimization treats them as local rather than fetching
  * through `remotePatterns`, which blocks private IPs since Next.js 16.
  */
-export const getMediaUrl = (url: string | null | undefined, cacheTag?: string | null): string => {
+export const getMediaUrl = (url: string | null | undefined, cacheTag?: string | null, baseUrl?: string): string => {
   if (!url) return ''
+  if (baseUrl && !/^https?:\/\//.test(url)) url = `${baseUrl.replace(/\/+$/, '')}/${url.replace(/^\/+/, '')}`
 
   if (cacheTag && cacheTag !== '') {
     cacheTag = encodeURIComponent(cacheTag)
