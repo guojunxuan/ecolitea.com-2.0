@@ -29,6 +29,9 @@ jobs:
     env:
       DATABASE_URI: mongodb://127.0.0.1:27017/ecolitea-ci
       PAYLOAD_SECRET: ci-only-payload-secret-that-is-at-least-32-characters
+      NEXT_PUBLIC_SERVER_URL: http://localhost:3000
+      CRON_SECRET: ci-only-cron-secret
+      PREVIEW_SECRET: ci-only-preview-secret
       NEXT_PUBLIC_SITE_URL: ${{ vars.NEXT_PUBLIC_SITE_URL }}
       NEXT_PUBLIC_CMS_URL: ${{ vars.NEXT_PUBLIC_CMS_URL }}
       PAYLOAD_PUBLIC_APP_URL: ${{ vars.NEXT_PUBLIC_SITE_URL }}
