@@ -27,10 +27,15 @@ const generateURL: GenerateURL<Post | Page> = ({ doc }) => {
 
 export const plugins: Plugin[] = [
   s3Storage({
-    collections: { media: { disablePayloadAccessControl: true, generateFileURL: ({ filename, prefix }) => `${serverEnv.R2_PUBLIC_URL}/${prefix ? `${prefix}/` : ''}${filename}` } },
+    collections: { media: true },
     bucket: serverEnv.R2_BUCKET,
-    config: { credentials: { accessKeyId: serverEnv.R2_ACCESS_KEY_ID, secretAccessKey: serverEnv.R2_SECRET_ACCESS_KEY }, endpoint: serverEnv.R2_ENDPOINT, forcePathStyle: true, region: 'auto' },
-  }),
+    config: {
+      credentials: { accessKeyId: serverEnv.R2_ACCESS_KEY_ID, secretAccessKey: serverEnv.R2_SECRET_ACCESS_KEY },
+      endpoint: serverEnv.R2_ENDPOINT,
+      forcePathStyle: true,
+      region: 'auto',
+    },
+  }).init as unknown as Plugin,
   redirectsPlugin({
     collections: ['pages', 'posts'],
     overrides: {

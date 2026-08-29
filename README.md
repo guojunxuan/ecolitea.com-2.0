@@ -25,6 +25,16 @@ Core features:
 
 ## Quick Start
 
+### Runtime prerequisites
+
+- Node.js `24.20.0` LTS (the project requires Node `>=24.15.0`)
+- pnpm `9.15.4` via Corepack
+- A running MongoDB instance; local development does not start MongoDB through this project's Compose file
+
+## Production deployment
+
+See [docs/deployment.md](docs/deployment.md) for the Docker Compose, MongoDB, Cloudflare R2, upgrade, rollback, and backup runbook.
+
 To spin up this example locally, follow these steps:
 
 ### Clone
@@ -40,8 +50,8 @@ pnpx create-payload-app my-project -t website
 ### Development
 
 1. First [clone the repo](#clone) if you have not done so already
-1. `cd my-project && cp .env.example .env` to copy the example environment variables
-1. `pnpm install && pnpm dev` to install dependencies and start the dev server
+1. `cd my-project && cp .env.example .env` to copy the example environment variables, then set `DATABASE_URI` to your running MongoDB instance
+1. `pnpm install && pnpm generate:importmap && pnpm dev` to install dependencies, generate the Payload Admin import map, and start the dev server
 1. open `http://localhost:3000` to open the app in your browser
 
 That's it! Changes made in `./src` will be reflected in your app. Follow the on-screen instructions to login and create your first admin user. Then check out [Production](#production) once you're ready to build and serve your app, and [Deployment](#deployment) when you're ready to go live.
@@ -174,7 +184,7 @@ Core features:
 
 ### Cache
 
-Although Next.js includes a robust set of caching strategies out of the box, Payload Cloud proxies and caches all files through Cloudflare using the [Official Cloud Plugin](https://www.npmjs.com/package/@payloadcms/payload-cloud). This means that Next.js caching is not needed and is disabled by default. If you are hosting your app outside of Payload Cloud, you can easily reenable the Next.js caching mechanisms by removing the `no-store` directive from all fetch requests in `./src/app/_api` and then removing all instances of `export const dynamic = 'force-dynamic'` from pages files, such as `./src/app/(pages)/[slug]/page.tsx`. For more details, see the official [Next.js Caching Docs](https://nextjs.org/docs/app/building-your-application/caching).
+This project is self-hosted and does not use Payload Cloud. Cloudflare is used only for DNS/CDN/TLS and R2 media storage. Next.js and Payload run together in the application container, with cache invalidation handled by the application hooks.
 
 ## Development
 
@@ -214,13 +224,7 @@ This command will check for any migrations that have not yet been run and try to
 
 ### Docker
 
-Alternatively, you can use [Docker](https://www.docker.com) to spin up this template locally. To do so, follow these steps:
-
-1. Follow [steps 1 and 2 from above](#development), the docker-compose file will automatically use the `.env` file in your project root
-1. Next run `docker-compose up`
-1. Follow [steps 4 and 5 from above](#development) to login and create your first admin user
-
-That's it! The Docker instance will help you get up and running quickly while also standardizing the development environment across your teams.
+For local development, keep MongoDB running separately and start only Payload/Next with `pnpm dev`. The production Compose file is intended for a self-hosted server deployment and should not be used to replace an existing local MongoDB container.
 
 ### Seed
 

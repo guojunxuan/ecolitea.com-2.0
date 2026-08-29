@@ -53,25 +53,28 @@ jobs:
       - name: Check out the selected branch
         uses: actions/checkout@v4
 
-      - name: Set up Node.js
+      - name: Set up Node.js 24
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24.15.0
 
       - name: Enable Corepack
         run: corepack enable
 
       - name: Install dependencies
-        run: corepack pnpm@9.15.4 install --frozen-lockfile
+        run: corepack pnpm install --frozen-lockfile
 
-      - name: Run JavaScript tests
-        run: corepack pnpm@9.15.4 exec node --test test/*.test.mjs
+      - name: Install Playwright browsers
+        run: corepack pnpm exec playwright install --with-deps chromium
 
-      - name: Run TypeScript tests
-        run: corepack pnpm@9.15.4 exec tsx --test test/*.test.ts test/*.test.tsx
+      - name: Run integration tests
+        run: corepack pnpm test:int
+
+      - name: Run end-to-end tests
+        run: corepack pnpm test:e2e
 
       - name: Type-check
-        run: corepack pnpm@9.15.4 exec tsc --noEmit --incremental false
+        run: corepack pnpm exec tsc --noEmit --incremental false
 
       - name: Build
-        run: corepack pnpm@9.15.4 build:skipDocs
+        run: corepack pnpm build

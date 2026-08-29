@@ -10,6 +10,7 @@ import { createFolderField } from 'payload'
 import { anyone } from '../access/anyone'
 import { authenticated } from '../access/authenticated'
 
+
 export const Media: CollectionConfig = {
   slug: 'media',
   access: {
