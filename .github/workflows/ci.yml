@@ -1,0 +1,77 @@
+name: CI Ecolitea
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    name: Test, type-check, and build
+    runs-on: ubuntu-latest
+
+    services:
+      mongodb:
+        image: mongo:7.0
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd "mongosh --quiet --eval 'db.adminCommand({ ping: 1 }).ok'"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      DATABASE_URI: mongodb://127.0.0.1:27017/ecolitea-ci
+      PAYLOAD_SECRET: ci-only-payload-secret-that-is-at-least-32-characters
+      NEXT_PUBLIC_SITE_URL: ${{ vars.NEXT_PUBLIC_SITE_URL }}
+      NEXT_PUBLIC_CMS_URL: ${{ vars.NEXT_PUBLIC_CMS_URL }}
+      PAYLOAD_PUBLIC_APP_URL: ${{ vars.NEXT_PUBLIC_SITE_URL }}
+      R2_BUCKET: ci-only-bucket
+      R2_ACCESS_KEY_ID: ci-only-access-key
+      R2_SECRET_ACCESS_KEY: ci-only-secret-key
+      R2_ENDPOINT: https://ci-only-account.r2.cloudflarestorage.com
+      R2_PUBLIC_URL: ${{ vars.R2_PUBLIC_URL }}
+      NEXT_PUBLIC_ENABLE_CLOUD: "false"
+      NEXT_PUBLIC_ENABLE_DOCS: "false"
+      NEXT_PUBLIC_ENABLE_COMMUNITY_HELP: "false"
+      NEXT_PUBLIC_ENABLE_PARTNERS: "false"
+      NEXT_PUBLIC_ENABLE_STYLEGUIDE: "false"
+      NEXT_PUBLIC_SKIP_BUILD_DOCS: "true"
+      NEXT_PUBLIC_SKIP_BUILD_HELPS: "true"
+      NEXT_PRIVATE_DRAFT_SECRET: ci-only-draft-secret
+      NEXT_PRIVATE_REVALIDATION_KEY: ci-only-revalidation-secret
+      REVALIDATION_KEY: ci-only-revalidation-secret
+      GA_USE_DEMO_DATA: "false"
+
+    steps:
+      - name: Check out the selected branch
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Install dependencies
+        run: corepack pnpm@9.15.4 install --frozen-lockfile
+
+      - name: Run JavaScript tests
+        run: corepack pnpm@9.15.4 exec node --test test/*.test.mjs
+
+      - name: Run TypeScript tests
+        run: corepack pnpm@9.15.4 exec tsx --test test/*.test.ts test/*.test.tsx
+
+      - name: Type-check
+        run: corepack pnpm@9.15.4 exec tsc --noEmit --incremental false
+
+      - name: Build
+        run: corepack pnpm@9.15.4 build:skipDocs

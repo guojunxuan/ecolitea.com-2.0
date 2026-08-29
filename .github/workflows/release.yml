@@ -1,0 +1,193 @@
+name: Release Ecolitea
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Optional new semantic version, for example v1.1.0 (leave blank for validation only)
+        required: false
+        default: ""
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: validate-or-release-${{ inputs.version || github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  checks:
+    name: Test, type-check, and build
+    runs-on: ubuntu-latest
+
+    services:
+      mongodb:
+        image: mongo:7.0
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd "mongosh --quiet --eval 'db.adminCommand({ ping: 1 }).ok'"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      RELEASE_VERSION: ${{ inputs.version }}
+      DATABASE_URI: mongodb://127.0.0.1:27017/ecolitea-ci
+      PAYLOAD_SECRET: ci-only-payload-secret-that-is-at-least-32-characters
+      NEXT_PUBLIC_SITE_URL: ${{ vars.NEXT_PUBLIC_SITE_URL }}
+      NEXT_PUBLIC_CMS_URL: ${{ vars.NEXT_PUBLIC_CMS_URL }}
+      PAYLOAD_PUBLIC_APP_URL: ${{ vars.NEXT_PUBLIC_SITE_URL }}
+      R2_BUCKET: ci-only-bucket
+      R2_ACCESS_KEY_ID: ci-only-access-key
+      R2_SECRET_ACCESS_KEY: ci-only-secret-key
+      R2_ENDPOINT: https://ci-only-account.r2.cloudflarestorage.com
+      R2_PUBLIC_URL: ${{ vars.R2_PUBLIC_URL }}
+      NEXT_PUBLIC_ENABLE_CLOUD: "false"
+      NEXT_PUBLIC_ENABLE_DOCS: "false"
+      NEXT_PUBLIC_ENABLE_COMMUNITY_HELP: "false"
+      NEXT_PUBLIC_ENABLE_PARTNERS: "false"
+      NEXT_PUBLIC_ENABLE_STYLEGUIDE: "false"
+      NEXT_PUBLIC_SKIP_BUILD_DOCS: "true"
+      NEXT_PUBLIC_SKIP_BUILD_HELPS: "true"
+      NEXT_PRIVATE_DRAFT_SECRET: ci-only-draft-secret
+      NEXT_PRIVATE_REVALIDATION_KEY: ci-only-revalidation-secret
+      REVALIDATION_KEY: ci-only-revalidation-secret
+      GA_USE_DEMO_DATA: "false"
+
+    steps:
+      - name: Check out the selected branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Validate the new version
+        if: ${{ inputs.version != '' }}
+        run: |
+          if [[ "$GITHUB_REF" != "refs/heads/main" ]]; then
+            echo "A version can only be released from main: $GITHUB_REF" >&2
+            exit 1
+          fi
+
+          if [[ ! "$RELEASE_VERSION" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Version must use semantic format such as v1.1.0: $RELEASE_VERSION" >&2
+            exit 1
+          fi
+
+          if git ls-remote --exit-code --tags origin "refs/tags/$RELEASE_VERSION" >/dev/null 2>&1; then
+            echo "Tag already exists: $RELEASE_VERSION" >&2
+            exit 1
+          fi
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Install dependencies
+        run: corepack pnpm@9.15.4 install --frozen-lockfile
+
+      - name: Run JavaScript tests
+        run: corepack pnpm@9.15.4 exec node --test test/*.test.mjs
+
+      - name: Run TypeScript tests
+        run: corepack pnpm@9.15.4 exec tsx --test test/*.test.ts test/*.test.tsx
+
+      - name: Type-check
+        run: corepack pnpm@9.15.4 exec tsc --noEmit --incremental false
+
+      - name: Build
+        run: corepack pnpm@9.15.4 build:skipDocs
+
+      - name: Set up Docker Buildx
+        if: ${{ inputs.version != '' }}
+        uses: docker/setup-buildx-action@v3
+
+      - name: Validate the container image build
+        if: ${{ inputs.version != '' }}
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          network: host
+          allow: network.host
+          push: false
+          build-args: |
+            NEXT_PUBLIC_SITE_URL=${{ vars.NEXT_PUBLIC_SITE_URL }}
+            NEXT_PUBLIC_CMS_URL=${{ vars.NEXT_PUBLIC_CMS_URL }}
+            R2_PUBLIC_URL=${{ vars.R2_PUBLIC_URL }}
+            NEXT_PUBLIC_GA_MEASUREMENT_ID=${{ vars.NEXT_PUBLIC_GA_MEASUREMENT_ID }}
+            NEXT_PUBLIC_GTM_MEASUREMENT_ID=${{ vars.NEXT_PUBLIC_GTM_MEASUREMENT_ID }}
+            NEXT_PUBLIC_FACEBOOK_PIXEL_ID=${{ vars.NEXT_PUBLIC_FACEBOOK_PIXEL_ID }}
+            NEXT_PUBLIC_RECAPTCHA_SITE_KEY=${{ vars.NEXT_PUBLIC_RECAPTCHA_SITE_KEY }}
+            DATABASE_URI=mongodb://127.0.0.1:27017/ecolitea-ci
+
+  publish:
+    name: Tag, publish image, and create release
+    if: ${{ inputs.version != '' && github.ref == 'refs/heads/main' }}
+    needs: checks
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+    env:
+      RELEASE_VERSION: ${{ inputs.version }}
+
+    steps:
+      - name: Check out the validated commit
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Create and push the release tag
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag -a "$RELEASE_VERSION" -m "Ecolitea $RELEASE_VERSION"
+          git push origin "$RELEASE_VERSION"
+
+      - name: Read the release commit
+        id: commit
+        run: echo "short_sha=$(git rev-parse --short=7 HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and push the image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          network: host
+          allow: network.host
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository }}:${{ inputs.version }}
+            ghcr.io/${{ github.repository }}:sha-${{ steps.commit.outputs.short_sha }}
+            ghcr.io/${{ github.repository }}:latest
+          build-args: |
+            NEXT_PUBLIC_SITE_URL=${{ vars.NEXT_PUBLIC_SITE_URL }}
+            NEXT_PUBLIC_CMS_URL=${{ vars.NEXT_PUBLIC_CMS_URL }}
+            R2_PUBLIC_URL=${{ vars.R2_PUBLIC_URL }}
+            NEXT_PUBLIC_GA_MEASUREMENT_ID=${{ vars.NEXT_PUBLIC_GA_MEASUREMENT_ID }}
+            NEXT_PUBLIC_GTM_MEASUREMENT_ID=${{ vars.NEXT_PUBLIC_GTM_MEASUREMENT_ID }}
+            NEXT_PUBLIC_FACEBOOK_PIXEL_ID=${{ vars.NEXT_PUBLIC_FACEBOOK_PIXEL_ID }}
+            NEXT_PUBLIC_RECAPTCHA_SITE_KEY=${{ vars.NEXT_PUBLIC_RECAPTCHA_SITE_KEY }}
+            DATABASE_URI=mongodb://127.0.0.1:27017/ecolitea-ci
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$RELEASE_VERSION" \
+            --title "$RELEASE_VERSION" \
+            --generate-notes
