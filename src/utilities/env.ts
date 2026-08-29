@@ -40,5 +40,5 @@ const testDefaults: NodeJS.ProcessEnv = {
 }
 
 export const serverEnv = parseServerEnv(
-  process.env.NODE_ENV === 'test' ? { ...testDefaults, ...process.env } : process.env,
+  process.env.NODE_ENV === 'test' || process.env.VITEST ? { ...testDefaults, ...process.env } : process.env,
 )
