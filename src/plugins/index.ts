@@ -12,6 +12,8 @@ import { beforeSyncWithSearch } from '@/search/beforeSync'
 
 import { Page, Post } from '@/payload-types'
 import { getServerSideURL } from '@/utilities/getURL'
+import { s3Storage } from '@payloadcms/storage-s3'
+import { serverEnv } from '@/utilities/env'
 
 const generateTitle: GenerateTitle<Post | Page> = ({ doc }) => {
   return doc?.title ? `${doc.title} | Payload Website Template` : 'Payload Website Template'
@@ -24,6 +26,11 @@ const generateURL: GenerateURL<Post | Page> = ({ doc }) => {
 }
 
 export const plugins: Plugin[] = [
+  s3Storage({
+    collections: { media: { disablePayloadAccessControl: true, generateFileURL: ({ filename, prefix }) => `${serverEnv.R2_PUBLIC_URL}/${prefix ? `${prefix}/` : ''}${filename}` } },
+    bucket: serverEnv.R2_BUCKET,
+    config: { credentials: { accessKeyId: serverEnv.R2_ACCESS_KEY_ID, secretAccessKey: serverEnv.R2_SECRET_ACCESS_KEY }, endpoint: serverEnv.R2_ENDPOINT, forcePathStyle: true, region: 'auto' },
+  }),
   redirectsPlugin({
     collections: ['pages', 'posts'],
     overrides: {
