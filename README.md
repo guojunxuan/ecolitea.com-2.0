@@ -25,6 +25,10 @@ Core features:
 
 ## Quick Start
 
+## Production deployment
+
+See [docs/deployment.md](docs/deployment.md) for the Docker Compose, MongoDB, Cloudflare R2, upgrade, rollback, and backup runbook.
+
 To spin up this example locally, follow these steps:
 
 ### Clone

@@ -1,105 +1,22 @@
-FROM node:20-bookworm-slim AS base
-
-ENV PNPM_HOME=/pnpm
-ENV PATH=$PNPM_HOME:$PATH
-ENV NEXT_TELEMETRY_DISABLED=1
-
+FROM node:24.15.0-alpine AS base
+ENV PNPM_HOME=/pnpm PATH=$PNPM_HOME:$PATH NEXT_TELEMETRY_DISABLED=1
 WORKDIR /app
-
 RUN corepack enable && corepack prepare pnpm@9.15.4 --activate
-
-
-# -----------------------------
-# Dependencies
-# -----------------------------
-
-FROM base AS dependencies
-
+FROM base AS deps
 COPY package.json pnpm-lock.yaml ./
-
 RUN pnpm install --frozen-lockfile
-
-
-# -----------------------------
-# Builder
-# -----------------------------
-
-FROM dependencies AS builder
-
-ARG NEXT_PUBLIC_SITE_URL
-ARG NEXT_PUBLIC_CMS_URL
-ARG R2_PUBLIC_URL
-
-ARG NEXT_PUBLIC_GA_MEASUREMENT_ID
-ARG NEXT_PUBLIC_GTM_MEASUREMENT_ID
-ARG NEXT_PUBLIC_RECAPTCHA_SITE_KEY
-
-RUN : "${NEXT_PUBLIC_SITE_URL:?NEXT_PUBLIC_SITE_URL build argument is required}" \
-    && : "${NEXT_PUBLIC_CMS_URL:?NEXT_PUBLIC_CMS_URL build argument is required}" \
-    && : "${R2_PUBLIC_URL:?R2_PUBLIC_URL build argument is required}"
-
-ENV NEXT_PUBLIC_SITE_URL=$NEXT_PUBLIC_SITE_URL
-ENV NEXT_PUBLIC_CMS_URL=$NEXT_PUBLIC_CMS_URL
-ENV R2_PUBLIC_URL=$R2_PUBLIC_URL
-
-ENV NEXT_PUBLIC_GA_MEASUREMENT_ID=$NEXT_PUBLIC_GA_MEASUREMENT_ID
-ENV NEXT_PUBLIC_GTM_MEASUREMENT_ID=$NEXT_PUBLIC_GTM_MEASUREMENT_ID
-ENV NEXT_PUBLIC_RECAPTCHA_SITE_KEY=$NEXT_PUBLIC_RECAPTCHA_SITE_KEY
-
-ENV PAYLOAD_PUBLIC_APP_URL=$NEXT_PUBLIC_SITE_URL
-ENV NEXT_PUBLIC_IS_LIVE=true
-
-ENV NEXT_PUBLIC_ENABLE_CLOUD=false
-ENV NEXT_PUBLIC_ENABLE_DOCS=false
-
-ENV NEXT_PUBLIC_SKIP_BUILD_DOCS=true
-ENV NEXT_PUBLIC_SKIP_BUILD_HELPS=true
-
-# Build-only values
-ENV PAYLOAD_SECRET=build-only-payload-secret-that-is-at-least-32-characters
-
-ENV R2_BUCKET=build-only-bucket
-ENV R2_ACCESS_KEY_ID=build-only-access-key
-ENV R2_SECRET_ACCESS_KEY=build-only-secret-key
-ENV R2_ENDPOINT=https://build-only-account.r2.cloudflarestorage.com
-
-COPY . ./
-
-RUN pnpm build:puck-css \
-    && pnpm exec next build --experimental-build-mode compile \
-    && pnpm exec next build --experimental-build-mode generate-env \
-    && pnpm prune --prod
-
-
-# -----------------------------
-# Runner
-# -----------------------------
-
-FROM base AS runner
-
-ENV NODE_ENV=production
-ENV PORT=3000
-ENV HOSTNAME=0.0.0.0
-
-RUN groupadd --gid 1001 ecolitea \
-    && useradd \
-      --uid 1001 \
-      --gid ecolitea \
-      --create-home \
-      ecolitea
-
-COPY --from=builder --chown=ecolitea:ecolitea /app/package.json ./
-COPY --from=builder --chown=ecolitea:ecolitea /app/next.config.js ./
-COPY --from=builder --chown=ecolitea:ecolitea /app/redirects.js ./
-COPY --from=builder --chown=ecolitea:ecolitea /app/tsconfig.json ./
-
-COPY --from=builder --chown=ecolitea:ecolitea /app/src ./src
+FROM deps AS builder
+COPY . .
+ENV NODE_ENV=production PAYLOAD_SECRET=build-only-payload-secret-32-characters-long DATABASE_URI=mongodb://localhost:27017/build R2_BUCKET=build-only R2_ACCESS_KEY_ID=build-only R2_SECRET_ACCESS_KEY=build-only R2_ENDPOINT=https://example.invalid R2_PUBLIC_URL=https://example.invalid NEXT_PUBLIC_SERVER_URL=http://localhost:3000 CRON_SECRET=build-only PREVIEW_SECRET=build-only
+RUN pnpm build
+FROM node:24.15.0-alpine AS runner
+ENV NODE_ENV=production PORT=3000 HOSTNAME=0.0.0.0 NEXT_TELEMETRY_DISABLED=1
+WORKDIR /app
+RUN addgroup -S ecolitea && adduser -S ecolitea -G ecolitea
+COPY --from=builder --chown=ecolitea:ecolitea /app/.next/standalone ./
+COPY --from=builder --chown=ecolitea:ecolitea /app/.next/static ./.next/static
 COPY --from=builder --chown=ecolitea:ecolitea /app/public ./public
-COPY --from=builder --chown=ecolitea:ecolitea /app/.next ./.next
-COPY --from=builder --chown=ecolitea:ecolitea /app/node_modules ./node_modules
-
 USER ecolitea
-
 EXPOSE 3000
-
-CMD ["pnpm", "start"]
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=5 CMD node -e "fetch('http://127.0.0.1:3000/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
+CMD ["node", "server.js"]
