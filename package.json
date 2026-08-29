@@ -27,6 +27,7 @@
     "@payloadcms/live-preview-react": "4.0.0-canary.29",
     "@payloadcms/next": "4.0.0-canary.29",
     "@payloadcms/plugin-form-builder": "4.0.0-canary.29",
+    "@payloadcms/plugin-cloud-storage": "4.0.0-canary.29",
     "@payloadcms/plugin-nested-docs": "4.0.0-canary.29",
     "@payloadcms/plugin-redirects": "4.0.0-canary.29",
     "@payloadcms/plugin-search": "4.0.0-canary.29",

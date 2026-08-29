@@ -20,6 +20,9 @@ importers:
       '@payloadcms/next':
         specifier: 4.0.0-canary.29
         version: 4.0.0-canary.29(@types/react@19.2.14)(graphql@16.14.2)(monaco-editor@0.56.0)(next@16.3.3(@babel/core@7.29.7)(@playwright/test@1.59.1)(@types/node@24.12.3)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(sass@1.77.4))(payload@4.0.0-canary.29(graphql@16.14.2)(typescript@6.0.3))(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(typescript@6.0.3)
+      '@payloadcms/plugin-cloud-storage':
+        specifier: 4.0.0-canary.29
+        version: 4.0.0-canary.29(@types/react@19.2.14)(monaco-editor@0.56.0)(payload@4.0.0-canary.29(graphql@16.14.2)(typescript@6.0.3))(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(typescript@6.0.3)
       '@payloadcms/plugin-form-builder':
         specifier: 4.0.0-canary.29
         version: 4.0.0-canary.29(@types/react@19.2.14)(monaco-editor@0.56.0)(payload@4.0.0-canary.29(graphql@16.14.2)(typescript@6.0.3))(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(typescript@6.0.3)
