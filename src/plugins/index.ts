@@ -13,8 +13,6 @@ import { beforeSyncWithSearch } from '@/search/beforeSync'
 import { Page, Post } from '@/payload-types'
 import { getServerSideURL } from '@/utilities/getURL'
 import { s3Storage } from '@payloadcms/storage-s3'
-import { cloudStoragePlugin } from '@payloadcms/plugin-cloud-storage'
-import type { Adapter } from '@payloadcms/plugin-cloud-storage/types'
 import { serverEnv } from '@/utilities/env'
 
 const generateTitle: GenerateTitle<Post | Page> = ({ doc }) => {
@@ -28,22 +26,16 @@ const generateURL: GenerateURL<Post | Page> = ({ doc }) => {
 }
 
 export const plugins: Plugin[] = [
-  cloudStoragePlugin({
-    collections: {
-      media: {
-        adapter: s3Storage({
-          collections: { media: true },
-          bucket: serverEnv.R2_BUCKET,
-          config: {
-            credentials: { accessKeyId: serverEnv.R2_ACCESS_KEY_ID, secretAccessKey: serverEnv.R2_SECRET_ACCESS_KEY },
-            endpoint: serverEnv.R2_ENDPOINT,
-            forcePathStyle: true,
-            region: 'auto',
-          },
-        }) as unknown as Adapter,
-      },
+  s3Storage({
+    collections: { media: true },
+    bucket: serverEnv.R2_BUCKET,
+    config: {
+      credentials: { accessKeyId: serverEnv.R2_ACCESS_KEY_ID, secretAccessKey: serverEnv.R2_SECRET_ACCESS_KEY },
+      endpoint: serverEnv.R2_ENDPOINT,
+      forcePathStyle: true,
+      region: 'auto',
     },
-  }),
+  }) as unknown as Plugin,
   redirectsPlugin({
     collections: ['pages', 'posts'],
     overrides: {
