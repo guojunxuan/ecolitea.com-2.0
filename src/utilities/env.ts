@@ -23,4 +23,22 @@ export function parseServerEnv(env: NodeJS.ProcessEnv): ServerEnv {
   out.NEXT_PUBLIC_SERVER_URL = out.NEXT_PUBLIC_SERVER_URL.replace(/\/+$/, '')
   return out
 }
-export const serverEnv = parseServerEnv(process.env)
+// Integration tests run without production credentials. Keep the explicit
+// parser strict while supplying isolated, non-routable defaults only in test
+// mode so importing Payload config does not require a developer `.env` file.
+const testDefaults: NodeJS.ProcessEnv = {
+  DATABASE_URI: 'mongodb://127.0.0.1:27017/ecolitea-test',
+  PAYLOAD_SECRET: 'ci-only-payload-secret-that-is-at-least-32-characters',
+  NEXT_PUBLIC_SERVER_URL: 'http://localhost:3000',
+  CRON_SECRET: 'ci-only-cron-secret',
+  PREVIEW_SECRET: 'ci-only-preview-secret',
+  R2_BUCKET: 'ci-only-bucket',
+  R2_ACCESS_KEY_ID: 'ci-only-access-key',
+  R2_SECRET_ACCESS_KEY: 'ci-only-secret-key',
+  R2_ENDPOINT: 'https://ci-only-account.r2.cloudflarestorage.com',
+  R2_PUBLIC_URL: 'https://media.example.invalid',
+}
+
+export const serverEnv = parseServerEnv(
+  process.env.NODE_ENV === 'test' ? { ...testDefaults, ...process.env } : process.env,
+)
