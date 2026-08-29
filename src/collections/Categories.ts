@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload'
+import { revalidateCategories, revalidateDelete } from './hooks/revalidateCategories'
 
 import { anyone } from '../access/anyone'
 import { authenticated } from '../access/authenticated'
@@ -27,4 +28,5 @@ export const Categories: CollectionConfig = {
       admin: { position: undefined },
     },
   ],
+  hooks: { afterChange: [revalidateCategories], afterDelete: [revalidateDelete] },
 }
