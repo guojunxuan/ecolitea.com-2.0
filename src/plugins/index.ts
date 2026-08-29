@@ -35,7 +35,7 @@ export const plugins: Plugin[] = [
       forcePathStyle: true,
       region: 'auto',
     },
-  }) as unknown as Plugin,
+  }).init as unknown as Plugin,
   redirectsPlugin({
     collections: ['pages', 'posts'],
     overrides: {
