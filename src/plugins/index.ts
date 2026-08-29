@@ -27,6 +27,7 @@ const generateURL: GenerateURL<Post | Page> = ({ doc }) => {
 
 export const plugins: Plugin[] = [
   s3Storage({
+    enabled: process.env.DISABLE_R2_STORAGE !== 'true',
     collections: { media: true },
     bucket: serverEnv.R2_BUCKET,
     config: {
