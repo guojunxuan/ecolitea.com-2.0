@@ -1,11 +1,25 @@
 services:
   ecolitea:
-    image: ghcr.io/${GHCR_REPOSITORY}:${IMAGE_TAG}
+    image: ${ECOLITEA_IMAGE:-ghcr.io/ecolitea/ecolitea}:${IMAGE_TAG:-latest}
     ports: ['127.0.0.1:3000:3000']
     environment:
       DATABASE_URI: ${MONGODB_URI}
       PAYLOAD_SECRET: ${PAYLOAD_SECRET}
       NEXT_PUBLIC_SERVER_URL: ${NEXT_PUBLIC_SERVER_URL}
+      NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL}
+      NEXT_PUBLIC_CMS_URL: ${NEXT_PUBLIC_CMS_URL}
+      PAYLOAD_PUBLIC_APP_URL: ${PAYLOAD_PUBLIC_APP_URL}
+      SITEMAP_URL: ${SITEMAP_URL}
+      NEXT_PRIVATE_DRAFT_SECRET: ${NEXT_PRIVATE_DRAFT_SECRET}
+      NEXT_PRIVATE_REVALIDATION_KEY: ${NEXT_PRIVATE_REVALIDATION_KEY}
+      REVALIDATION_KEY: ${REVALIDATION_KEY}
+      NEXT_PUBLIC_ENABLE_CLOUD: ${NEXT_PUBLIC_ENABLE_CLOUD}
+      NEXT_PUBLIC_ENABLE_DOCS: ${NEXT_PUBLIC_ENABLE_DOCS}
+      NEXT_PUBLIC_SKIP_BUILD_DOCS: ${NEXT_PUBLIC_SKIP_BUILD_DOCS}
+      NEXT_PUBLIC_SKIP_BUILD_HELPS: ${NEXT_PUBLIC_SKIP_BUILD_HELPS}
+      NEXT_PUBLIC_IS_LIVE: ${NEXT_PUBLIC_IS_LIVE}
+      GA_USE_DEMO_DATA: ${GA_USE_DEMO_DATA}
+      ENABLE_ANALYTICS_DASHBOARD: ${ENABLE_ANALYTICS_DASHBOARD:-false}
       CRON_SECRET: ${CRON_SECRET}
       PREVIEW_SECRET: ${PREVIEW_SECRET}
       R2_BUCKET: ${R2_BUCKET}
@@ -13,16 +27,43 @@ services:
       R2_SECRET_ACCESS_KEY: ${R2_SECRET_ACCESS_KEY}
       R2_ENDPOINT: ${R2_ENDPOINT}
       R2_PUBLIC_URL: ${R2_PUBLIC_URL}
+      SENDGRID_API_KEY: ${SENDGRID_API_KEY:-}
+      EMAIL_FROM_NAME: ${EMAIL_FROM_NAME:-Ecolitea}
+      EMAIL_FROM_ADDRESS: ${EMAIL_FROM_ADDRESS:-}
+      NEXT_PUBLIC_GA_MEASUREMENT_ID: ${NEXT_PUBLIC_GA_MEASUREMENT_ID:-}
+      NEXT_PUBLIC_GTM_MEASUREMENT_ID: ${NEXT_PUBLIC_GTM_MEASUREMENT_ID:-}
+      NEXT_PUBLIC_RECAPTCHA_SITE_KEY: ${NEXT_PUBLIC_RECAPTCHA_SITE_KEY:-}
+      NEXT_PRIVATE_RECAPTCHA_SECRET_KEY: ${NEXT_PRIVATE_RECAPTCHA_SECRET_KEY:-}
+      NEXT_PRIVATE_HUBSPOT_PORTAL_KEY: ${NEXT_PRIVATE_HUBSPOT_PORTAL_KEY:-}
+      NODE_ENV: production
+      PORT: 3000
+      HOSTNAME: 0.0.0.0
     depends_on:
       mongodb: { condition: service_healthy }
     restart: unless-stopped
     healthcheck:
       test: ['CMD', 'node', '-e', "fetch('http://127.0.0.1:3000/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    networks: [internal]
   mongodb:
     image: mongo:7.0
     volumes: [mongodb_data:/data/db]
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
     restart: unless-stopped
     healthcheck:
-      test: ['CMD', 'mongosh', '--quiet', '--eval', 'db.adminCommand({ ping: 1 })']
+      test: ['CMD-SHELL', 'mongosh --quiet --username "$$MONGO_INITDB_ROOT_USERNAME" --password "$$MONGO_INITDB_ROOT_PASSWORD" --authenticationDatabase admin --eval "db.adminCommand({ ping: 1 }).ok"']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks: [internal]
 volumes:
   mongodb_data:
+networks:
+  internal:
+    driver: bridge
