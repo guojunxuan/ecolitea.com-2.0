@@ -30,10 +30,10 @@ corepack pnpm install --frozen-lockfile
 corepack pnpm generate:importmap
 ```
 
-The existing local Docker MongoDB is exposed on port `27018`. Start the development server with:
+The existing local Docker MongoDB is exposed on port `27017`. Start the development server with:
 
 ```bash
-DATABASE_URI=mongodb://127.0.0.1:27018/ecolitea corepack pnpm dev
+DATABASE_URI=mongodb://127.0.0.1:27017/ecolitea2 corepack pnpm dev
 ```
 
 - Website: `http://localhost:3000`

@@ -27,7 +27,7 @@ export function parseServerEnv(env: NodeJS.ProcessEnv): ServerEnv {
 // parser strict while supplying isolated, non-routable defaults only in test
 // mode so importing Payload config does not require a developer `.env` file.
 const testDefaults: Record<(typeof required)[number], string> = {
-  DATABASE_URI: 'mongodb://127.0.0.1:27017/ecolitea-test',
+  DATABASE_URI: 'mongodb://127.0.0.1:27017/ecolitea2-test',
   PAYLOAD_SECRET: 'ci-only-payload-secret-that-is-at-least-32-characters',
   NEXT_PUBLIC_SERVER_URL: 'http://localhost:3000',
   CRON_SECRET: 'ci-only-cron-secret',
