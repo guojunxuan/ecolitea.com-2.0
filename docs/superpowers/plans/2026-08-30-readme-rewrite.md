@@ -1,3 +1,28 @@
+# Ecolitea 2.0 README Rewrite Implementation Plan
+
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+
+**Goal:** Replace the inherited Payload template README with an English, project-focused guide for Ecolitea 2.0.
+
+**Architecture:** Keep the detailed operational runbook in `docs/deployment.md` and make the root README the concise entry point for development and deployment. Document only commands and behavior that exist in the current repository.
+
+**Tech Stack:** Markdown, Next.js 16, Payload CMS 4, MongoDB 7, Cloudflare R2, Docker Compose, Caddy, pnpm.
+
+---
+
+### Task 1: Rewrite and verify the root README
+
+**Files:**
+- Modify: `README.md`
+- Reference: `package.json`
+- Reference: `.env.example`
+- Reference: `docs/deployment.md`
+
+- [ ] **Step 1: Replace the inherited template content**
+
+Write a concise English README with these exact sections and facts:
+
+````markdown
 # Ecolitea 2.0
 
 Ecolitea 2.0 is a self-hosted website and content-management application. Next.js serves the
@@ -98,3 +123,44 @@ Docker Compose runs the application, MongoDB, and Caddy. MongoDB data is stored 
 
 See [`docs/deployment.md`](docs/deployment.md) for initial server setup, releases, upgrades,
 rollbacks, backups, recovery, and health checks.
+````
+
+- [ ] **Step 2: Verify documented commands and references**
+
+Run:
+
+```bash
+rg -n '"(dev|test:int|test:e2e|lint|build|start)"' package.json
+test -f .env.example
+test -f docs/deployment.md
+```
+
+Expected: every documented script appears in `package.json`, and both referenced files exist.
+
+- [ ] **Step 3: Check for obsolete template content**
+
+Run:
+
+```bash
+rg -n 'Payload Website Template|create-payload-app|Postgres|Vercel|Discord' README.md
+```
+
+Expected: no matches.
+
+- [ ] **Step 4: Check Markdown diff quality**
+
+Run:
+
+```bash
+git diff --check -- README.md
+wc -l README.md
+```
+
+Expected: no whitespace errors and approximately 80–120 lines.
+
+- [ ] **Step 5: Commit the README and plan**
+
+```bash
+git add README.md docs/superpowers/plans/2026-08-30-readme-rewrite.md
+git commit -m "docs: replace template README"
+```
