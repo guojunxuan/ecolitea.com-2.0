@@ -9,6 +9,7 @@ import {
   validateAbsoluteHttpURL,
 } from '@/SiteSettings/fields'
 import { brandingTab } from '@/SiteSettings/fields/branding'
+import { revalidateSiteSettings } from '@/SiteSettings/hooks/revalidateSiteSettings'
 import type { User } from '@/payload-types'
 
 describe('Site Settings Global', () => {
@@ -52,7 +53,7 @@ describe('Site Settings Global', () => {
     expect(await updateAccess(authenticatedAccessArgs)).toBe(true)
     expect(SiteSettings.admin?.group).toBeUndefined()
     expect(SiteSettings.fields).toEqual([siteSettingsTabs])
-    expect(SiteSettings.hooks?.afterChange).toHaveLength(1)
+    expect(SiteSettings.hooks?.afterChange).toEqual([revalidateSiteSettings])
     expect(SiteSettings.versions).toBe(false)
   })
 
