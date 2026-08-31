@@ -159,11 +159,13 @@ export interface Config {
   globals: {
     header: Header;
     footer: Footer;
+    'site-settings': SiteSetting;
     'payload-jobs-stats': PayloadJobsStat;
   };
   globalsSelect: {
     header: HeaderSelect<false> | HeaderSelect<true>;
     footer: FooterSelect<false> | FooterSelect<true>;
+    'site-settings': SiteSettingsSelect<false> | SiteSettingsSelect<true>;
     'payload-jobs-stats': PayloadJobsStatsSelect<false> | PayloadJobsStatsSelect<true>;
   };
   locale: null;
@@ -1728,6 +1730,57 @@ export interface Footer {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "site-settings".
+ */
+export interface SiteSetting {
+  id: string;
+  siteName: string;
+  legalCompanyName?: string | null;
+  tagline?: string | null;
+  /**
+   * A general company description, not a default SEO description.
+   */
+  siteDescription?: string | null;
+  logo: string | Media;
+  logoDark?: (string | null) | Media;
+  /**
+   * Use a square image suitable for a browser icon.
+   */
+  favicon?: (string | null) | Media;
+  salesEmail?: string | null;
+  /**
+   * Include the international dialing code.
+   */
+  phone?: string | null;
+  /**
+   * Include the international dialing code.
+   */
+  whatsapp?: string | null;
+  address?: string | null;
+  /**
+   * Include the timezone when it helps international buyers.
+   */
+  businessHours?: string | null;
+  socialLinks?:
+    | {
+        platform: 'linkedin' | 'facebook' | 'instagram' | 'youtube' | 'whatsapp' | 'wechat' | 'xiaohongshu';
+        /**
+         * Optional public label. The platform name can be used when empty.
+         */
+        label?: string | null;
+        url: string;
+        id?: string | null;
+      }[]
+    | null;
+  copyrightText?: string | null;
+  companyRegistrationNumber?: string | null;
+  privacyPolicyPage?: (string | null) | Page;
+  termsPage?: (string | null) | Page;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-jobs-stats".
  */
 export interface PayloadJobsStat {
@@ -1786,6 +1839,39 @@ export interface FooterSelect<T extends boolean = true> {
             };
         id?: T;
       };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "site-settings_select".
+ */
+export interface SiteSettingsSelect<T extends boolean = true> {
+  siteName?: T;
+  legalCompanyName?: T;
+  tagline?: T;
+  siteDescription?: T;
+  logo?: T;
+  logoDark?: T;
+  favicon?: T;
+  salesEmail?: T;
+  phone?: T;
+  whatsapp?: T;
+  address?: T;
+  businessHours?: T;
+  socialLinks?:
+    | T
+    | {
+        platform?: T;
+        label?: T;
+        url?: T;
+        id?: T;
+      };
+  copyrightText?: T;
+  companyRegistrationNumber?: T;
+  privacyPolicyPage?: T;
+  termsPage?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
