@@ -4,7 +4,7 @@ import React from 'react'
 import type { LogoImage } from './types'
 
 interface Props {
-  image: LogoImage | null | undefined
+  image: LogoImage | null
   className?: string
   loading?: 'lazy' | 'eager'
   priority?: 'auto' | 'high' | 'low'
