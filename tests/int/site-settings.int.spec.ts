@@ -8,6 +8,7 @@ import {
   siteSettingsTabs,
   validateAbsoluteHttpURL,
 } from '@/SiteSettings/fields'
+import { brandingTab } from '@/SiteSettings/fields/branding'
 import type { User } from '@/payload-types'
 
 describe('Site Settings Global', () => {
@@ -53,6 +54,34 @@ describe('Site Settings Global', () => {
     expect(SiteSettings.fields).toEqual([siteSettingsTabs])
     expect(SiteSettings.hooks).toBeUndefined()
     expect(SiteSettings.versions).toBe(false)
+  })
+
+  it('uses the dedicated brand asset store and filters each branding purpose', () => {
+    const [logo, logoDark, favicon] = brandingTab.fields
+
+    expect(logo).toMatchObject({
+      name: 'logo',
+      type: 'upload',
+      relationTo: 'brand-assets',
+      required: true,
+      filterOptions: { mimeType: { equals: 'image/svg+xml' } },
+    })
+    expect(logoDark).toMatchObject({
+      name: 'logoDark',
+      type: 'upload',
+      relationTo: 'brand-assets',
+      filterOptions: { mimeType: { equals: 'image/svg+xml' } },
+    })
+    expect(favicon).toMatchObject({
+      name: 'favicon',
+      type: 'upload',
+      relationTo: 'brand-assets',
+      filterOptions: {
+        mimeType: {
+          in: ['image/svg+xml', 'image/png', 'image/x-icon', 'image/vnd.microsoft.icon'],
+        },
+      },
+    })
   })
 
   it('is registered in the root Payload config', async () => {
