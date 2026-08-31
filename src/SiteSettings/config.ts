@@ -4,6 +4,7 @@ import { anyone } from '@/access/anyone'
 import { authenticated } from '@/access/authenticated'
 
 import { siteSettingsTabs } from './fields'
+import { revalidateSiteSettings } from './hooks/revalidateSiteSettings'
 
 export const SiteSettings: GlobalConfig = {
   slug: 'site-settings',
@@ -15,8 +16,8 @@ export const SiteSettings: GlobalConfig = {
     read: anyone,
     update: authenticated,
   },
-  admin: {
-    group: 'Settings',
+  hooks: {
+    afterChange: [revalidateSiteSettings],
   },
   fields: [siteSettingsTabs],
   versions: false,

@@ -50,9 +50,9 @@ describe('Site Settings Global', () => {
     expect(await readAccess(guestAccessArgs)).toBe(true)
     expect(await updateAccess(guestAccessArgs)).toBe(false)
     expect(await updateAccess(authenticatedAccessArgs)).toBe(true)
-    expect(SiteSettings.admin?.group).toBe('Settings')
+    expect(SiteSettings.admin?.group).toBeUndefined()
     expect(SiteSettings.fields).toEqual([siteSettingsTabs])
-    expect(SiteSettings.hooks).toBeUndefined()
+    expect(SiteSettings.hooks?.afterChange).toHaveLength(1)
     expect(SiteSettings.versions).toBe(false)
   })
 
