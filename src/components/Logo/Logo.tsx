@@ -1,14 +1,19 @@
 import clsx from 'clsx'
 import React from 'react'
 
+import type { LogoImage } from './types'
+
 interface Props {
+  image: LogoImage | null | undefined
   className?: string
   loading?: 'lazy' | 'eager'
   priority?: 'auto' | 'high' | 'low'
 }
 
 export const Logo = (props: Props) => {
-  const { loading: loadingFromProps, priority: priorityFromProps, className } = props
+  const { image, loading: loadingFromProps, priority: priorityFromProps, className } = props
+
+  if (!image) return null
 
   const loading = loadingFromProps || 'lazy'
   const priority = priorityFromProps || 'low'
@@ -16,14 +21,14 @@ export const Logo = (props: Props) => {
   return (
     /* eslint-disable @next/next/no-img-element */
     <img
-      alt="Payload Logo"
-      width={193}
-      height={34}
+      src={image.src}
+      alt={image.alt}
+      width={image.width}
+      height={image.height}
       loading={loading}
       fetchPriority={priority}
       decoding="async"
-      className={clsx('max-w-[9.375rem] w-full h-[34px]', className)}
-      src="https://raw.githubusercontent.com/payloadcms/payload/main/packages/ui/src/assets/payload-logo-light.svg"
+      className={clsx('block h-auto w-auto max-w-full', className)}
     />
   )
 }
