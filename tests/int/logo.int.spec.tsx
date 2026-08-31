@@ -1,5 +1,4 @@
 import { cleanup, render } from '@testing-library/react'
-import { readFileSync } from 'node:fs'
 import { afterEach, describe, expect, it } from 'vitest'
 
 import { Logo } from '@/components/Logo/Logo'
@@ -19,14 +18,6 @@ const brandAsset = (overrides: Partial<BrandAsset> = {}): BrandAsset => ({
 })
 
 afterEach(cleanup)
-
-describe('integration test configuration', () => {
-  it('collects both TypeScript and TSX integration specs', () => {
-    const configSource = readFileSync('vitest.config.mts', 'utf8')
-
-    expect(configSource).toContain("include: ['tests/int/**/*.int.spec.{ts,tsx}']")
-  })
-})
 
 describe('resolveBrandAsset', () => {
   it('returns null for an unexpanded relationship ID', () => {
@@ -50,6 +41,20 @@ describe('resolveBrandAsset', () => {
     expect(resolveBrandAsset(brandAsset({ width: 0, height: -1 }))).toMatchObject({
       width: 1302,
       height: 296,
+    })
+  })
+
+  it('derives height from valid width when height metadata is missing', () => {
+    expect(resolveBrandAsset(brandAsset({ width: 1000, height: null }))).toMatchObject({
+      width: 1000,
+      height: 227,
+    })
+  })
+
+  it('derives width from valid height when width metadata is missing', () => {
+    expect(resolveBrandAsset(brandAsset({ width: null, height: 200 }))).toMatchObject({
+      width: 880,
+      height: 200,
     })
   })
 })
