@@ -552,8 +552,8 @@ Run:
 
 ```bash
 git status --short
-git diff --check HEAD~4..HEAD
-git diff --stat HEAD~4..HEAD
+git diff --check c271257..HEAD
+git diff --stat c271257..HEAD
 ```
 
 Expected: no whitespace errors; only the Site Settings source, test, root config, generated types, and approved documentation are included. Existing untracked `AGENTS.md` and `CLAUDE.md` remain untouched.
