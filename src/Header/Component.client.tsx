@@ -7,13 +7,17 @@ import React, { useEffect, useState } from 'react'
 import type { Header } from '@/payload-types'
 
 import { Logo } from '@/components/Logo/Logo'
+import { selectLogo } from '@/components/Logo/selectLogo'
+import type { LogoImage } from '@/components/Logo/types'
 import { HeaderNav } from './Nav'
 
 interface HeaderClientProps {
   data: Header
+  logo: LogoImage | null
+  logoDark: LogoImage | null
 }
 
-export const HeaderClient: React.FC<HeaderClientProps> = ({ data }) => {
+export const HeaderClient: React.FC<HeaderClientProps> = ({ data, logo, logoDark }) => {
   /* Storing the value in a useState to avoid hydration errors */
   const [theme, setTheme] = useState<string | null>(null)
   const { headerTheme, setHeaderTheme } = useHeaderTheme()
@@ -29,11 +33,18 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ data }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [headerTheme])
 
+  const selectedLogo = selectLogo(logo, logoDark, theme === 'dark')
+
   return (
     <header className="container relative z-20   " {...(theme ? { 'data-theme': theme } : {})}>
       <div className="py-8 flex justify-between">
         <Link href="/">
-          <Logo loading="eager" priority="high" className="invert dark:invert-0" />
+          <Logo
+            image={selectedLogo}
+            loading="eager"
+            priority="high"
+            className="h-7 w-auto max-w-full sm:h-8 lg:h-10"
+          />
         </Link>
         <HeaderNav data={data} />
       </div>
