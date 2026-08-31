@@ -159,7 +159,7 @@ export interface Config {
   globals: {
     header: Header;
     footer: Footer;
-    'site-settings': SiteSetting;
+    'site-settings': SiteSettings;
     'payload-jobs-stats': PayloadJobsStat;
   };
   globalsSelect: {
@@ -1732,7 +1732,7 @@ export interface Footer {
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "site-settings".
  */
-export interface SiteSetting {
+export interface SiteSettings {
   id: string;
   siteName: string;
   legalCompanyName?: string | null;
