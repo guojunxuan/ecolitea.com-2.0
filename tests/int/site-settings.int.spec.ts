@@ -1,13 +1,14 @@
 import { describe, expect, it } from 'vitest'
+import type { AccessArgs, PayloadRequest } from 'payload'
 
 import { anyone } from '@/access/anyone'
 import { authenticated } from '@/access/authenticated'
-import configPromise from '@/payload.config'
 import { SiteSettings } from '@/SiteSettings/config'
 import {
   siteSettingsTabs,
   validateAbsoluteHttpURL,
 } from '@/SiteSettings/fields'
+import type { User } from '@/payload-types'
 
 describe('Site Settings Global', () => {
   it('uses five unnamed tabs so persisted fields remain flat', () => {
@@ -23,32 +24,38 @@ describe('Site Settings Global', () => {
   })
 
   it('registers the expected Global identity and access behavior', async () => {
-    const guestRequest = { req: { payload: { config: {} } } }
-    const authenticatedRequest = { req: { payload: { config: {} }, user: {} } }
+    const guestRequest = { payload: { config: {} } } as PayloadRequest
+    const authenticatedRequest = {
+      payload: { config: {} },
+      user: {} as User,
+    } as PayloadRequest
+    const guestAccessArgs: AccessArgs = { req: guestRequest, slug: 'site-settings' }
+    const authenticatedAccessArgs: AccessArgs = {
+      req: authenticatedRequest,
+      slug: 'site-settings',
+    }
     const readAccess = SiteSettings.access?.read
     const updateAccess = SiteSettings.access?.update
+
+    expect(readAccess).toBe(anyone)
+    expect(updateAccess).toBe(authenticated)
 
     if (!readAccess || !updateAccess) {
       throw new Error('Site Settings must define read and update access functions.')
     }
 
     expect(SiteSettings.slug).toBe('site-settings')
-    expect(await readAccess(guestRequest as never)).toBe(
-      anyone(guestRequest as never),
-    )
-    expect(await updateAccess(guestRequest as never)).toBe(
-      authenticated(guestRequest as never),
-    )
-    expect(await updateAccess(authenticatedRequest as never)).toBe(
-      authenticated(authenticatedRequest as never),
-    )
+    expect(await readAccess(guestAccessArgs)).toBe(true)
+    expect(await updateAccess(guestAccessArgs)).toBe(false)
+    expect(await updateAccess(authenticatedAccessArgs)).toBe(true)
     expect(SiteSettings.admin?.group).toBe('Settings')
-    expect(SiteSettings.fields).toContain(siteSettingsTabs)
-    expect(Object.values(SiteSettings.hooks ?? {}).every((hooks) => hooks.length === 0)).toBe(true)
+    expect(SiteSettings.fields).toEqual([siteSettingsTabs])
+    expect(SiteSettings.hooks).toBeUndefined()
     expect(SiteSettings.versions).toBe(false)
   })
 
   it('is registered in the root Payload config', async () => {
+    const { default: configPromise } = await import('@/payload.config')
     const config = await configPromise
     expect(config.globals.some((global) => global.slug === SiteSettings.slug)).toBe(true)
   })
