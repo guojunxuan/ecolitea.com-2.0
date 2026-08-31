@@ -45,6 +45,7 @@ describe('Site Settings Global', () => {
     }
 
     expect(SiteSettings.slug).toBe('site-settings')
+    expect(SiteSettings.typescript?.interface).toBe('SiteSettings')
     expect(await readAccess(guestAccessArgs)).toBe(true)
     expect(await updateAccess(guestAccessArgs)).toBe(false)
     expect(await updateAccess(authenticatedAccessArgs)).toBe(true)

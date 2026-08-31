@@ -8,6 +8,9 @@ import { siteSettingsTabs } from './fields'
 export const SiteSettings: GlobalConfig = {
   slug: 'site-settings',
   label: 'Site Settings',
+  typescript: {
+    interface: 'SiteSettings',
+  },
   access: {
     read: anyone,
     update: authenticated,
