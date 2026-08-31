@@ -11,9 +11,11 @@ export const socialPlatformOptions = [
 ] satisfies SelectField['options']
 
 const invalidURLMessage = 'Enter a complete URL beginning with http:// or https://.'
+const requiredURLMessage = 'This field is required.'
 
 export const validateAbsoluteHttpURL = (value: null | string | undefined): string | true => {
-  if (!value) return true
+  if (!value) return requiredURLMessage
+  if (!/^https?:\/\//i.test(value)) return invalidURLMessage
 
   try {
     const url = new URL(value)

@@ -32,7 +32,15 @@ describe('Site Settings Global', () => {
   it('accepts only absolute HTTP and HTTPS social URLs', () => {
     expect(validateAbsoluteHttpURL('https://www.linkedin.com/company/ecolitea')).toBe(true)
     expect(validateAbsoluteHttpURL('http://example.com/profile')).toBe(true)
+    expect(validateAbsoluteHttpURL(undefined)).toBe('This field is required.')
+    expect(validateAbsoluteHttpURL('')).toBe('This field is required.')
     expect(validateAbsoluteHttpURL('/relative-profile')).toBe(
+      'Enter a complete URL beginning with http:// or https://.',
+    )
+    expect(validateAbsoluteHttpURL('https:example.com')).toBe(
+      'Enter a complete URL beginning with http:// or https://.',
+    )
+    expect(validateAbsoluteHttpURL('https:/example.com')).toBe(
       'Enter a complete URL beginning with http:// or https://.',
     )
     expect(validateAbsoluteHttpURL('javascript:alert(1)')).toBe(
