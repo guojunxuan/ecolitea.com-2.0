@@ -120,6 +120,7 @@ export interface Config {
     pages: Page;
     posts: Post;
     media: Media;
+    'brand-assets': BrandAsset;
     categories: Category;
     'case-studies': CaseStudy;
     users: User;
@@ -139,6 +140,7 @@ export interface Config {
     pages: PagesSelect<false> | PagesSelect<true>;
     posts: PostsSelect<false> | PostsSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
+    'brand-assets': BrandAssetsSelect<false> | BrandAssetsSelect<true>;
     categories: CategoriesSelect<false> | CategoriesSelect<true>;
     'case-studies': CaseStudiesSelect<false> | CaseStudiesSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
@@ -695,6 +697,25 @@ export interface Textarea {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "brand-assets".
+ */
+export interface BrandAsset {
+  id: string;
+  alt: string;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "case-studies".
  */
 export interface CaseStudy {
@@ -967,6 +988,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'media';
         value: string | Media;
+      } | null)
+    | ({
+        relationTo: 'brand-assets';
+        value: string | BrandAsset;
       } | null)
     | ({
         relationTo: 'categories';
@@ -1307,6 +1332,24 @@ export interface MediaSelect<T extends boolean = true> {
               filename?: T;
             };
       };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "brand-assets_select".
+ */
+export interface BrandAssetsSelect<T extends boolean = true> {
+  alt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  url?: T;
+  thumbnailURL?: T;
+  filename?: T;
+  mimeType?: T;
+  filesize?: T;
+  width?: T;
+  height?: T;
+  focalX?: T;
+  focalY?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1741,12 +1784,18 @@ export interface SiteSettings {
    * A general company description, not a default SEO description.
    */
   siteDescription?: string | null;
-  logo: string | Media;
-  logoDark?: (string | null) | Media;
   /**
-   * Use a square image suitable for a browser icon.
+   * Upload a horizontal SVG logo with a tight viewBox.
    */
-  favicon?: (string | null) | Media;
+  logo: string | BrandAsset;
+  /**
+   * Optional SVG variant for dark backgrounds. Falls back to Logo.
+   */
+  logoDark?: (string | null) | BrandAsset;
+  /**
+   * Use a square SVG, PNG, or ICO image suitable for a browser icon.
+   */
+  favicon?: (string | null) | BrandAsset;
   salesEmail?: string | null;
   /**
    * Include the international dialing code.
