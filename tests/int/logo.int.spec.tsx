@@ -320,7 +320,10 @@ describe('branding integration', () => {
       </HeaderThemeProvider>,
     )
 
-    expect(getByRole('link', { name: 'Primary logo' }).classList).toContain('shrink-0')
+    const homeLink = getByRole('link', { name: 'Primary logo' })
+
+    expect(homeLink.className).toBe('shrink-0')
+    expect(homeLink.getAttribute('href')).toBe('/')
   })
 
   it('omits the Header home link when no logo presentation data resolves', () => {
