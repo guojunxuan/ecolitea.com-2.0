@@ -1,6 +1,6 @@
 import type { GlobalConfig } from 'payload'
 
-import { link } from '@/fields/link'
+import { navigationColumns } from '@/fields/navigationColumns'
 import { revalidateFooter } from './hooks/revalidateFooter'
 
 export const Footer: GlobalConfig = {
@@ -9,22 +9,22 @@ export const Footer: GlobalConfig = {
     read: () => true,
   },
   fields: [
-    {
-      name: 'navItems',
-      type: 'array',
-      fields: [
-        link({
-          appearances: false,
-        }),
-      ],
-      maxRows: 6,
-      admin: {
-        initCollapsed: true,
-        components: {
-          RowLabel: '@/Footer/RowLabel#RowLabel',
-        },
+    navigationColumns({
+      name: 'columns',
+      label: 'Navigation columns',
+      description:
+        'Manage footer navigation here. Branding, contact details, social links, company details, and copyright are managed in Site Settings.',
+      minRows: 1,
+      maxRows: 4,
+      navItems: {
+        minRows: 1,
+        maxRows: 8,
       },
-    },
+      rowLabels: {
+        column: '@/Footer/RowLabel#ColumnRowLabel',
+        navItem: '@/Footer/RowLabel#NavItemRowLabel',
+      },
+    }),
   ],
   hooks: {
     afterChange: [revalidateFooter],
