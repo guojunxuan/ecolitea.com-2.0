@@ -18,10 +18,12 @@ import { HeaderClient } from '@/Header/Component.client'
 import { Header } from '@/Header/Component'
 import { Logo } from '@/components/Logo/Logo'
 import { resolveBrandAsset } from '@/components/Logo/resolveBrandAsset'
+import { resolveFavicon } from '@/components/Logo/resolveFavicon'
 import { selectLogo } from '@/components/Logo/selectLogo'
 import type { LogoImage } from '@/components/Logo/types'
 import type { BrandAsset, Footer as FooterData, Header as HeaderData } from '@/payload-types'
 import { HeaderThemeProvider } from '@/providers/HeaderTheme'
+import { buildSiteMetadata } from '@/utilities/buildSiteMetadata'
 
 const brandAsset = (overrides: Partial<BrandAsset> = {}): BrandAsset => ({
   id: 'brand-asset-id',
@@ -110,6 +112,61 @@ describe('resolveBrandAsset', () => {
     expect(resolveBrandAsset(brandAsset({ width: null, height: 200 }))).toMatchObject({
       width: 880,
       height: 200,
+    })
+  })
+})
+
+describe('resolveFavicon', () => {
+  it('resolves a populated PNG asset with its MIME type and cache-tagged URL', () => {
+    expect(
+      resolveFavicon(
+        brandAsset({
+          mimeType: 'image/png',
+          url: '/api/brand-assets/file/favicon.png',
+        }),
+      ),
+    ).toEqual({
+      url: '/api/brand-assets/file/favicon.png?2026-09-01T01%3A02%3A03.000Z',
+      type: 'image/png',
+    })
+  })
+
+  it('returns null for a missing or unexpanded relationship', () => {
+    expect(resolveFavicon(undefined)).toBeNull()
+    expect(resolveFavicon('brand-asset-id')).toBeNull()
+    expect(resolveFavicon(brandAsset({ url: null }))).toBeNull()
+  })
+})
+
+describe('buildSiteMetadata', () => {
+  it('uses a configured favicon and preserves the existing root metadata', () => {
+    const metadata = buildSiteMetadata({
+      url: '/api/brand-assets/file/favicon.png?cache-tag',
+      type: 'image/png',
+    })
+
+    expect(metadata.icons).toEqual({
+      icon: [
+        {
+          url: '/api/brand-assets/file/favicon.png?cache-tag',
+          type: 'image/png',
+        },
+      ],
+    })
+    expect(metadata.metadataBase).toEqual(new URL('http://localhost:3000'))
+    expect(metadata.openGraph).toBeDefined()
+    expect(metadata.twitter).toEqual({
+      card: 'summary_large_image',
+      creator: '@payloadcms',
+    })
+  })
+
+  it('uses the existing static favicon pair when no configured asset resolves', () => {
+    expect(buildSiteMetadata(null).icons).toEqual({
+      icon: [
+        { url: '/favicon.ico', sizes: '32x32' },
+        { url: '/favicon.svg', type: 'image/svg+xml' },
+      ],
     })
   })
 })
