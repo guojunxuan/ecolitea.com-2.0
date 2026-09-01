@@ -24,9 +24,11 @@ export async function Footer() {
   return (
     <footer className="mt-auto border-t border-border bg-black dark:bg-card text-white">
       <div className="container py-8 gap-8 flex flex-col md:flex-row md:justify-between">
-        <Link className="flex items-center" href="/">
-          <Logo image={logo} className="h-7 w-auto max-w-full sm:h-8 lg:h-10" />
-        </Link>
+        {logo && (
+          <Link className="flex items-center" href="/">
+            <Logo image={logo} className="h-7 sm:h-8 lg:h-10" />
+          </Link>
+        )}
 
         <div className="flex flex-col-reverse items-start md:flex-row gap-4 md:items-center">
           <ThemeSelector />

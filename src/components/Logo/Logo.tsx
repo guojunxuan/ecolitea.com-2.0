@@ -28,7 +28,7 @@ export const Logo = (props: Props) => {
       loading={loading}
       fetchPriority={priority}
       decoding="async"
-      className={clsx('block h-auto w-auto max-w-full', className)}
+      className={clsx('block w-auto max-w-full', className)}
     />
   )
 }

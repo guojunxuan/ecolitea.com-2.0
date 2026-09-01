@@ -1,4 +1,5 @@
 import { cleanup, render, waitFor } from '@testing-library/react'
+import Link from 'next/link'
 import React from 'react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
@@ -122,7 +123,7 @@ describe('Logo', () => {
       height: 296,
     }
     const { getByRole } = render(
-      <Logo image={image} loading="eager" priority="high" className="max-h-12" />,
+      <Logo image={image} loading="eager" priority="high" className="h-7 sm:h-8 lg:h-10" />,
     )
 
     const logo = getByRole('img')
@@ -134,8 +135,7 @@ describe('Logo', () => {
     expect(logo.getAttribute('loading')).toBe('eager')
     expect(logo.getAttribute('fetchpriority')).toBe('high')
     expect(logo.getAttribute('decoding')).toBe('async')
-    expect(logo.className).toContain('block h-auto w-auto max-w-full')
-    expect(logo.className).toContain('max-h-12')
+    expect(logo.className).toBe('block w-auto max-w-full h-7 sm:h-8 lg:h-10')
   })
 
   it('renders nothing when image data is missing', () => {
@@ -174,7 +174,13 @@ describe('branding integration', () => {
     url: '/api/brand-assets/file/inverse.svg',
   })
 
-  const useGlobalFixtures = () => {
+  const useGlobalFixtures = ({
+    logo = primaryAsset,
+    logoDark = inverseAsset,
+  }: {
+    logo?: BrandAsset | string | null
+    logoDark?: BrandAsset | string | null
+  } = {}) => {
     getCachedGlobalMock.mockImplementation((slug: string, depth: number) => {
       if (depth !== 1) throw new Error(`Expected depth 1 for ${slug}`)
 
@@ -184,8 +190,8 @@ describe('branding integration', () => {
         'site-settings': {
           id: 'site-settings',
           siteName: 'Ecolitea',
-          logo: primaryAsset,
-          logoDark: inverseAsset,
+          logo,
+          logoDark,
         },
       }
 
@@ -227,7 +233,7 @@ describe('branding integration', () => {
       width: 1302,
       height: 296,
     })
-    expect(logo?.props.className).toBe('h-7 w-auto max-w-full sm:h-8 lg:h-10')
+    expect(logo?.props.className).toBe('h-7 sm:h-8 lg:h-10')
   })
 
   it('switches the Header presentation to the inverse logo for a dark local theme', async () => {
@@ -246,7 +252,25 @@ describe('branding integration', () => {
     const logo = getByRole('img')
     expect(logo.getAttribute('loading')).toBe('eager')
     expect(logo.getAttribute('fetchpriority')).toBe('high')
-    expect(logo.className).toContain('h-7 w-auto max-w-full sm:h-8 lg:h-10')
+    expect(logo.className).toBe('block w-auto max-w-full h-7 sm:h-8 lg:h-10')
     expect(logo.className).not.toContain('invert')
+  })
+
+  it('omits the Header home link when no logo presentation data resolves', () => {
+    const { container } = render(
+      <HeaderThemeProvider>
+        <HeaderClient data={headerData} logo={null} logoDark={null} />
+      </HeaderThemeProvider>,
+    )
+
+    expect(container.querySelector('a[href="/"]')).toBeNull()
+  })
+
+  it('omits the Footer home link when no logo presentation data resolves', async () => {
+    useGlobalFixtures({ logo: 'unexpanded-brand-id', logoDark: null })
+
+    const footer = await Footer()
+
+    expect(findElementByType(footer, Link)).toBeNull()
   })
 })
