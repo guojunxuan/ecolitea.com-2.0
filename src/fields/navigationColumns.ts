@@ -1,67 +1,50 @@
 import type { ArrayField } from 'payload'
 
+import deepMerge from '@/utilities/deepMerge'
 import { link } from '@/fields/link'
 
-type NavigationColumnsType = (options: {
-  description?: string
-  label: string
-  maxRows: number
-  minRows: number
-  name: string
-  navItems: {
-    maxRows: number
-    minRows: number
-  }
-  rowLabels: {
-    column: string
-    navItem: string
-  }
+type NavigationColumnsType = (options?: {
+  navItemsOverrides?: Partial<ArrayField>
+  overrides?: Partial<ArrayField>
 }) => ArrayField
 
 export const navigationColumns: NavigationColumnsType = ({
-  description,
-  label,
-  maxRows,
-  minRows,
-  name,
-  navItems,
-  rowLabels,
-}) => ({
-  name,
-  type: 'array',
-  label,
-  interfaceName: 'NavigationColumn',
-  required: true,
-  minRows,
-  maxRows,
-  admin: {
-    description,
-    initCollapsed: true,
-    components: {
-      RowLabel: rowLabels.column,
-    },
-  },
-  fields: [
-    {
-      name: 'label',
-      type: 'text',
-      label: 'Column heading',
-      required: true,
-    },
+  navItemsOverrides = {},
+  overrides = {},
+} = {}) => {
+  const navItems: ArrayField = deepMerge(
     {
       name: 'navItems',
       type: 'array',
       label: 'Links',
       required: true,
-      minRows: navItems.minRows,
-      maxRows: navItems.maxRows,
       admin: {
         initCollapsed: true,
-        components: {
-          RowLabel: rowLabels.navItem,
-        },
       },
       fields: [link({ appearances: false })],
     },
-  ],
-})
+    navItemsOverrides,
+  )
+
+  const columns: ArrayField = {
+    name: 'columns',
+    type: 'array',
+    label: 'Navigation columns',
+    interfaceName: 'NavigationColumn',
+    required: true,
+    admin: {
+      initCollapsed: true,
+    },
+    fields: [
+      {
+        name: 'label',
+        type: 'text',
+        label: 'Column heading',
+        required: true,
+      },
+      navItems,
+    ],
+  }
+
+  return deepMerge(columns, overrides)
+}

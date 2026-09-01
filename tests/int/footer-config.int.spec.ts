@@ -2,6 +2,48 @@ import { describe, expect, it } from 'vitest'
 
 import { Footer } from '@/Footer/config'
 import { revalidateFooter } from '@/Footer/hooks/revalidateFooter'
+import { navigationColumns } from '@/fields/navigationColumns'
+
+describe('navigationColumns field', () => {
+  it('keeps its stable identity while merging top-level and nested overrides', () => {
+    const columns = navigationColumns({
+      overrides: {
+        minRows: 2,
+        admin: {
+          description: 'Configured columns',
+        },
+      },
+      navItemsOverrides: {
+        maxRows: 7,
+        admin: {
+          components: {
+            RowLabel: '@/Example#NavItemRowLabel',
+          },
+        },
+      },
+    })
+
+    expect(columns).toMatchObject({
+      name: 'columns',
+      label: 'Navigation columns',
+      interfaceName: 'NavigationColumn',
+      minRows: 2,
+    })
+
+    const navItems = columns.fields.find((field) => 'name' in field && field.name === 'navItems')
+
+    expect(navItems).toMatchObject({
+      name: 'navItems',
+      maxRows: 7,
+      admin: {
+        initCollapsed: true,
+        components: {
+          RowLabel: '@/Example#NavItemRowLabel',
+        },
+      },
+    })
+  })
+})
 
 describe('Footer Global', () => {
   it('only exposes grouped navigation at the top level', () => {

@@ -10,19 +10,25 @@ export const Footer: GlobalConfig = {
   },
   fields: [
     navigationColumns({
-      name: 'columns',
-      label: 'Navigation columns',
-      description:
-        'Manage footer navigation here. Branding, contact details, social links, company details, and copyright are managed in Site Settings.',
-      minRows: 1,
-      maxRows: 4,
-      navItems: {
+      overrides: {
+        minRows: 1,
+        maxRows: 4,
+        admin: {
+          description:
+            'Manage footer navigation here. Branding, contact details, social links, company details, and copyright are managed in Site Settings.',
+          components: {
+            RowLabel: '@/Footer/RowLabel#ColumnRowLabel',
+          },
+        },
+      },
+      navItemsOverrides: {
         minRows: 1,
         maxRows: 8,
-      },
-      rowLabels: {
-        column: '@/Footer/RowLabel#ColumnRowLabel',
-        navItem: '@/Footer/RowLabel#NavItemRowLabel',
+        admin: {
+          components: {
+            RowLabel: '@/Footer/RowLabel#NavItemRowLabel',
+          },
+        },
       },
     }),
   ],
