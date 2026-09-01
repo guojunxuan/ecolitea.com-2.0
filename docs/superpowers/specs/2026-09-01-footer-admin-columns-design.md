@@ -21,14 +21,13 @@ Newsletter fields are not introduced in this scope because they are not part of 
 The navigation structure will be implemented as a reusable, typed field factory rather than as an inline object in the Footer global:
 
 ```text
-src/fields/navigationColumns/
-  config.ts
-  RowLabels.tsx
+src/fields/navigationColumns.ts
+src/Footer/RowLabel.tsx
 ```
 
-`navigationColumns()` accepts the field name, label, column bounds, and link bounds. It composes the existing shared `link()` field factory and owns the generic Admin row labels. The Footer global only supplies Footer-specific configuration values and does not depend on row-label implementation details.
+`navigationColumns()` accepts the field name, label, Payload-style row bounds, nested `navItems` bounds, and optional row-label component paths. It composes the existing shared `link()` field factory without depending on Footer. Footer-specific row-label components remain in the existing Footer domain directory and are passed into the factory as configuration.
 
-The array sets `interfaceName: 'NavigationColumns'` so Payload generates a stable reusable TypeScript and GraphQL type for the structure.
+The array sets `interfaceName: 'NavigationColumn'` so Payload generates a stable reusable TypeScript and GraphQL type for a navigation-column row.
 
 ## Data Model
 
