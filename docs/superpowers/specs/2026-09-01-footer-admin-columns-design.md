@@ -4,7 +4,7 @@
 
 Redesign the Payload Admin `footer` global so it manages only grouped footer navigation. All non-navigation footer content will remain owned by the existing `site-settings` global.
 
-This change is limited to the CMS schema and its supporting generated types, Admin row labels, and focused schema tests. It must not change the frontend Footer component or its rendering behavior.
+This change is limited to the CMS schema and its supporting generated types, Admin row labels, and focused schema tests. It must not change the frontend Footer component or its rendering behavior. The frontend is intentionally migrated in the immediately following task, so this Admin-only stage may temporarily leave the existing frontend consumer incompatible with the newly generated Footer type.
 
 ## Ownership Boundary
 
@@ -15,6 +15,20 @@ The `footer` global owns one field only:
 The `site-settings` global remains the single source of truth for branding, contact details, social links, company identity, and legal or copyright content. This design does not duplicate those fields in `footer`.
 
 Newsletter fields are not introduced in this scope because they are not part of the agreed Footer navigation array and do not currently have an established owner in `site-settings`.
+
+## Reusable Field Module
+
+The navigation structure will be implemented as a reusable, typed field factory rather than as an inline object in the Footer global:
+
+```text
+src/fields/navigationColumns/
+  config.ts
+  RowLabels.tsx
+```
+
+`navigationColumns()` accepts the field name, label, column bounds, and link bounds. It composes the existing shared `link()` field factory and owns the generic Admin row labels. The Footer global only supplies Footer-specific configuration values and does not depend on row-label implementation details.
+
+The array sets `interfaceName: 'NavigationColumns'` so Payload generates a stable reusable TypeScript and GraphQL type for the structure.
 
 ## Data Model
 
@@ -44,19 +58,17 @@ The array order is authoritative: column order controls future visual ordering, 
 - Each nested row uses the existing shared link editor and displays the link label through a dedicated Footer link row label where needed.
 - Admin descriptions explain that branding, social, contact, company, and copyright content are managed in Site Settings.
 
-The schema allows at most four columns and at most eight links per column. These limits keep the eventual desktop and mobile footer navigation manageable while still covering the old project's structure.
+The Footer config passes one to four columns and one to eight links per column to the field factory. These business limits remain configuration inputs rather than hard-coded behavior inside the reusable module.
 
 ## Existing Data
 
 The current Footer global stores a flat `navItems` array. Changing the schema does not attempt to reinterpret those links automatically because there is no reliable way to infer column titles or grouping.
 
-Implementation will change the schema contract only. Existing flat data may remain in the database as unused legacy data until an explicit content migration or manual Admin update is performed. No database mutation is authorized by this design.
+Implementation removes `navItems` from the Payload schema and replaces it with `columns`. Existing flat data may remain in MongoDB as unused legacy data until an explicit content migration or cleanup is authorized. No database mutation is authorized by this design.
 
 ## Frontend Exclusion
 
-`src/Footer/Component.tsx` remains unchanged. It can continue reading the old generated property until the separately scoped frontend Footer redesign is implemented. Consequently, the project may temporarily have a schema/frontend mismatch after type generation; implementation must avoid broadening this task to resolve the mismatch by editing frontend rendering.
-
-If generated types make the existing frontend fail TypeScript compilation because `navItems` no longer exists, the implementation plan must stop and report that boundary conflict rather than silently modifying the frontend. The preferred resolution is to separate schema verification from frontend migration and obtain approval for the next scope.
+`src/Footer/Component.tsx` remains unchanged. Payload types are regenerated from the new schema, so TypeScript is expected to identify the existing frontend's `footer.navItems` access as the known boundary to be resolved by the immediately following frontend Footer task. This known transitional failure does not authorize editing frontend rendering in the Admin-only task.
 
 ## Validation and Testing
 
@@ -67,10 +79,11 @@ Focused schema tests will verify:
 - column `label` is required;
 - nested `navItems` has `minRows: 1` and `maxRows: 8`;
 - nested links reuse the shared link field;
+- the reusable field factory honors configured bounds and exposes `interfaceName`;
 - the Footer revalidation hook remains configured;
 - the frontend Footer component is not modified in this task.
 
-Payload types and the Admin import map will be regenerated only as required by the schema and row-label changes. Relevant focused tests and static checks will be run, with known sandbox restrictions for Payload/MongoDB handled using the already established test procedure.
+Payload types and the Admin import map will be regenerated from the schema. Relevant focused tests and static checks will be run. Full frontend type/build verification is deferred to the immediately following frontend task because its known consumer still uses the removed field.
 
 ## Out of Scope
 

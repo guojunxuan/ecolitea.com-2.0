@@ -4,7 +4,7 @@
 
 **Goal:** Replace the Payload Admin Footer global's flat navigation array with a grouped `columns → navItems → link` editor without changing frontend Footer rendering.
 
-**Architecture:** The Footer global remains the owner of navigation structure only. A top-level `columns` array contains a required title and a bounded nested link array built with the existing shared `link` field; local Admin row-label components avoid depending on temporarily stale generated Payload types. Because the current frontend still reads `footer.navItems`, Payload type generation is deliberately deferred until the separately approved frontend migration.
+**Architecture:** The Footer global remains the owner of navigation content only and composes a reusable `navigationColumns()` field factory. The factory owns the nested Array structure, configurable bounds, shared `link()` composition, stable `interfaceName`, and generic Admin row labels. Payload types are regenerated immediately; the unchanged frontend's resulting `footer.navItems` type error is an accepted transition that the immediately following frontend Footer task will resolve.
 
 **Tech Stack:** Payload CMS 4 canary, TypeScript 6, React 19, Vitest 4, Payload Admin custom row labels
 
@@ -12,16 +12,19 @@
 
 ## Scope Guard
 
-Do not modify `src/Footer/Component.tsx`, `src/SiteSettings/**`, `src/payload-types.ts`, or `src/endpoints/seed/index.ts`.
+Do not modify `src/Footer/Component.tsx`, `src/SiteSettings/**`, or `src/endpoints/seed/index.ts`.
 
-Do not run `pnpm generate:types` in this scope. Regenerating the Footer type would remove `footer.navItems` while the unchanged frontend component still reads it. Type generation belongs to the later frontend Footer migration, where schema and consumer can move together.
+Run `pnpm generate:types` after changing the schema. The generated removal of `Footer.navItems` and resulting frontend consumer error are explicitly accepted until the immediately following frontend Footer task.
 
 ## File Map
 
 - Create `tests/int/footer-config.int.spec.ts`: focused contract tests for the Admin-only Footer schema.
-- Modify `src/Footer/config.ts`: replace top-level `navItems` with the bounded `columns` array and nested link editor.
-- Modify `src/Footer/RowLabel.tsx`: expose local, generated-type-independent labels for columns and nested links.
+- Create `src/fields/navigationColumns/config.ts`: reusable typed Array field factory with configurable bounds.
+- Create `src/fields/navigationColumns/RowLabels.tsx`: generic column and link row labels.
+- Modify `src/Footer/config.ts`: compose the reusable field factory with Footer-specific limits.
+- Delete `src/Footer/RowLabel.tsx`: remove the Footer-specific and Header-coupled row label.
 - Modify `src/app/(payload)/admin/importMap.js`: generated registration for the two row-label components.
+- Modify `src/payload-types.ts`: generated schema types, including `NavigationColumns`.
 - Keep `src/Footer/Component.tsx` unchanged as an explicit scope assertion.
 
 ### Task 1: Specify the Footer Admin schema contract
@@ -59,9 +62,10 @@ describe('Footer Global Admin schema', () => {
     const columns = getNamedField('columns') as ArrayField
     expect(columns).toMatchObject({
       type: 'array', required: true, minRows: 1, maxRows: 4,
+      interfaceName: 'NavigationColumns',
       admin: {
         initCollapsed: true,
-        components: { RowLabel: '@/Footer/RowLabel#FooterColumnRowLabel' },
+        components: { RowLabel: '@/fields/navigationColumns/RowLabels#NavigationColumnRowLabel' },
       },
     })
     const label = columns.fields.find(
@@ -81,7 +85,7 @@ describe('Footer Global Admin schema', () => {
       required: true, minRows: 1, maxRows: 8,
       admin: {
         initCollapsed: true,
-        components: { RowLabel: '@/Footer/RowLabel#FooterLinkRowLabel' },
+        components: { RowLabel: '@/fields/navigationColumns/RowLabels#NavigationLinkRowLabel' },
       },
     })
     const link = navItems?.fields.find(
@@ -111,31 +115,53 @@ git add tests/int/footer-config.int.spec.ts
 git commit -m "test: specify footer admin columns"
 ```
 
-### Task 2: Implement grouped Footer navigation fields
+### Task 2: Implement the reusable navigation columns field
 
 **Files:**
+- Create: `src/fields/navigationColumns/config.ts`
 - Modify: `src/Footer/config.ts`
 - Test: `tests/int/footer-config.int.spec.ts`
 
-- [ ] **Step 1: Replace the flat array with the columns schema**
+- [ ] **Step 1: Create the typed field factory**
 
-Replace the `fields` value in `src/Footer/config.ts` with:
+Create `src/fields/navigationColumns/config.ts` with:
 
 ```ts
-fields: [
-  {
-    name: 'columns',
+import type { ArrayField } from 'payload'
+
+import { link } from '@/fields/link'
+
+type NavigationColumnsOptions = {
+  description?: string
+  label: string
+  maxColumns: number
+  maxLinks: number
+  minColumns: number
+  minLinks: number
+  name: string
+}
+
+export const navigationColumns = ({
+  description,
+  label,
+  maxColumns,
+  maxLinks,
+  minColumns,
+  minLinks,
+  name,
+}: NavigationColumnsOptions): ArrayField => ({
+    name,
     type: 'array',
-    label: 'Navigation columns',
+    label,
+    interfaceName: 'NavigationColumns',
     required: true,
-    minRows: 1,
-    maxRows: 4,
+    minRows: minColumns,
+    maxRows: maxColumns,
     admin: {
-      description:
-        'Manage footer navigation here. Branding, contact details, social links, company details, and copyright are managed in Site Settings.',
+      description,
       initCollapsed: true,
       components: {
-        RowLabel: '@/Footer/RowLabel#FooterColumnRowLabel',
+        RowLabel: '@/fields/navigationColumns/RowLabels#NavigationColumnRowLabel',
       },
     },
     fields: [
@@ -150,24 +176,42 @@ fields: [
         type: 'array',
         label: 'Links',
         required: true,
-        minRows: 1,
-        maxRows: 8,
+        minRows: minLinks,
+        maxRows: maxLinks,
         admin: {
           initCollapsed: true,
           components: {
-            RowLabel: '@/Footer/RowLabel#FooterLinkRowLabel',
+            RowLabel: '@/fields/navigationColumns/RowLabels#NavigationLinkRowLabel',
           },
         },
         fields: [link({ appearances: false })],
       },
     ],
-  },
+  })
+```
+
+- [ ] **Step 2: Compose the field in Footer config**
+
+Import `navigationColumns` in `src/Footer/config.ts`, remove the direct `link` import, and replace `fields` with:
+
+```ts
+fields: [
+  navigationColumns({
+    name: 'columns',
+    label: 'Navigation columns',
+    description:
+      'Manage footer navigation here. Branding, contact details, social links, company details, and copyright are managed in Site Settings.',
+    minColumns: 1,
+    maxColumns: 4,
+    minLinks: 1,
+    maxLinks: 8,
+  }),
 ],
 ```
 
 Leave access, hooks, and `versions: false` unchanged.
 
-- [ ] **Step 2: Run the focused test**
+- [ ] **Step 3: Run the focused test**
 
 Run:
 
@@ -177,22 +221,23 @@ pnpm exec vitest run tests/int/footer-config.int.spec.ts --config ./vitest.confi
 
 Expected: PASS for the serializable schema assertions.
 
-- [ ] **Step 3: Commit the schema implementation**
+- [ ] **Step 4: Commit the schema implementation**
 
 ```bash
-git add src/Footer/config.ts
+git add src/fields/navigationColumns/config.ts src/Footer/config.ts
 git commit -m "feat: group footer admin navigation"
 ```
 
-### Task 3: Add generated-type-independent Admin row labels
+### Task 3: Add reusable Admin row labels
 
 **Files:**
-- Modify: `src/Footer/RowLabel.tsx`
+- Create: `src/fields/navigationColumns/RowLabels.tsx`
+- Delete: `src/Footer/RowLabel.tsx`
 - Test: `tests/int/footer-config.int.spec.ts`
 
-- [ ] **Step 1: Replace the Header-dependent row label with two local components**
+- [ ] **Step 1: Create two generic row-label components**
 
-Replace `src/Footer/RowLabel.tsx` with:
+Create `src/fields/navigationColumns/RowLabels.tsx` with:
 
 ```tsx
 'use client'
@@ -200,23 +245,23 @@ Replace `src/Footer/RowLabel.tsx` with:
 import type { RowLabelProps } from '@payloadcms/ui'
 import { useRowLabel } from '@payloadcms/ui'
 
-type FooterColumnRow = { label?: string | null }
-type FooterLinkRow = { link?: { label?: string | null } | null }
+type NavigationColumnRow = { label?: string | null }
+type NavigationLinkRow = { link?: { label?: string | null } | null }
 
-export const FooterColumnRowLabel: React.FC<RowLabelProps> = () => {
-  const { data } = useRowLabel<FooterColumnRow>()
+export const NavigationColumnRowLabel: React.FC<RowLabelProps> = () => {
+  const { data } = useRowLabel<NavigationColumnRow>()
   return <div>{data?.label?.trim() || 'Navigation group'}</div>
 }
 
-export const FooterLinkRowLabel: React.FC<RowLabelProps> = () => {
-  const { data, rowNumber } = useRowLabel<FooterLinkRow>()
+export const NavigationLinkRowLabel: React.FC<RowLabelProps> = () => {
+  const { data, rowNumber } = useRowLabel<NavigationLinkRow>()
   const position = rowNumber === undefined ? '' : ` ${rowNumber + 1}`
   const linkLabel = data?.link?.label?.trim()
   return <div>{linkLabel ? `Link${position}: ${linkLabel}` : `Link${position}`}</div>
 }
 ```
 
-This removes the incorrect `Header` type import and keeps the Admin components valid before later coordinated Payload type generation.
+Delete `src/Footer/RowLabel.tsx`. The reusable components must not import generated Header or Footer types.
 
 - [ ] **Step 2: Run focused tests**
 
@@ -233,7 +278,7 @@ Expected: both test files PASS.
 Run:
 
 ```bash
-pnpm exec eslint src/Footer/config.ts src/Footer/RowLabel.tsx tests/int/footer-config.int.spec.ts
+pnpm exec eslint src/Footer/config.ts src/fields/navigationColumns/config.ts src/fields/navigationColumns/RowLabels.tsx tests/int/footer-config.int.spec.ts
 ```
 
 Expected: exit code 0 with no errors.
@@ -241,7 +286,7 @@ Expected: exit code 0 with no errors.
 - [ ] **Step 4: Commit row labels**
 
 ```bash
-git add src/Footer/RowLabel.tsx
+git add src/Footer/RowLabel.tsx src/fields/navigationColumns/RowLabels.tsx
 git commit -m "feat: label footer admin navigation rows"
 ```
 
@@ -259,14 +304,14 @@ Run:
 pnpm generate:importmap
 ```
 
-Expected: exit code 0; the import map registers both Footer row-label exports.
+Expected: exit code 0; the import map registers both generic navigation row-label exports.
 
 - [ ] **Step 2: Verify both component references are present**
 
 Run:
 
 ```bash
-rg -n "FooterColumnRowLabel|FooterLinkRowLabel" 'src/app/(payload)/admin/importMap.js'
+rg -n "NavigationColumnRowLabel|NavigationLinkRowLabel" 'src/app/(payload)/admin/importMap.js'
 ```
 
 Expected: import and mapping entries exist for both exports.
@@ -281,10 +326,20 @@ git diff --exit-code f75a5df -- src/Footer/Component.tsx
 
 Expected: exit code 0 and no output.
 
-- [ ] **Step 4: Commit the generated import map**
+- [ ] **Step 4: Generate Payload types**
+
+Run:
 
 ```bash
-git add 'src/app/(payload)/admin/importMap.js'
+pnpm generate:types
+```
+
+Expected: `src/payload-types.ts` contains `Footer.columns` and the reusable `NavigationColumns` interface, and no longer contains top-level `Footer.navItems`.
+
+- [ ] **Step 5: Commit generated artifacts**
+
+```bash
+git add 'src/app/(payload)/admin/importMap.js' src/payload-types.ts
 git commit -m "chore: register footer admin row labels"
 ```
 
@@ -293,8 +348,10 @@ git commit -m "chore: register footer admin row labels"
 **Files:**
 - Test: `tests/int/footer-config.int.spec.ts`
 - Verify: `src/Footer/config.ts`
-- Verify: `src/Footer/RowLabel.tsx`
+- Verify: `src/fields/navigationColumns/config.ts`
+- Verify: `src/fields/navigationColumns/RowLabels.tsx`
 - Verify: `src/app/(payload)/admin/importMap.js`
+- Verify: `src/payload-types.ts`
 
 - [ ] **Step 1: Run the integration suite**
 
@@ -330,9 +387,11 @@ git diff --check f75a5df..HEAD
 Expected implementation paths:
 
 ```text
-src/Footer/RowLabel.tsx
 src/Footer/config.ts
+src/fields/navigationColumns/RowLabels.tsx
+src/fields/navigationColumns/config.ts
 src/app/(payload)/admin/importMap.js
+src/payload-types.ts
 tests/int/footer-config.int.spec.ts
 ```
 
@@ -343,7 +402,7 @@ The existing untracked `AGENTS.md`, `CLAUDE.md`, and `tsconfig.tsbuildinfo` are 
 The final report must state:
 
 ```text
-Payload type generation is intentionally deferred. The next frontend Footer task must update src/Footer/Component.tsx to consume footer.columns, then run pnpm generate:types and verify the full build in the same change.
+Payload types now reflect footer.columns. The unchanged frontend Footer still consumes footer.navItems by explicit scope decision; the immediately following frontend task must migrate that consumer and verify the full build.
 ```
 
 No additional commit is required if the worktree is clean apart from the pre-existing untracked environment files.
