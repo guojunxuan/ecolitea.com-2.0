@@ -313,6 +313,16 @@ describe('branding integration', () => {
     expect(logo.className).not.toContain('invert')
   })
 
+  it('keeps the Header home link from shrinking the logo on narrow screens', () => {
+    const { getByRole } = render(
+      <HeaderThemeProvider>
+        <HeaderClient data={headerData} logo={primaryLogo} logoDark={inverseLogo} />
+      </HeaderThemeProvider>,
+    )
+
+    expect(getByRole('link', { name: 'Primary logo' }).classList).toContain('shrink-0')
+  })
+
   it('omits the Header home link when no logo presentation data resolves', () => {
     const { container } = render(
       <HeaderThemeProvider>
