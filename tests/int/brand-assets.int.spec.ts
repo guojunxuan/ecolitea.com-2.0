@@ -30,4 +30,33 @@ describe('Brand Assets Collection', () => {
 
     expect(config.collections.some((collection) => collection.slug === BrandAssets.slug)).toBe(true)
   })
+
+  it('uses the R2 S3 storage adapter for media and brand assets', async () => {
+    const { default: configPromise } = await import('@/payload.config')
+    const config = await configPromise
+    const uploadStorage = Object.fromEntries(
+      config.collections
+        .filter(({ slug }) => ['media', BrandAssets.slug].includes(slug))
+        .map(({ slug, upload }) => [
+          slug,
+          typeof upload === 'object'
+            ? {
+                adapter: upload.adapter,
+                disableLocalStorage: upload.disableLocalStorage,
+              }
+            : upload,
+        ]),
+    )
+
+    expect(uploadStorage).toMatchObject({
+      media: {
+        adapter: 's3',
+        disableLocalStorage: true,
+      },
+      [BrandAssets.slug]: {
+        adapter: 's3',
+        disableLocalStorage: true,
+      },
+    })
+  })
 })

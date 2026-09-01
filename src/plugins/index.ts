@@ -28,7 +28,7 @@ const generateURL: GenerateURL<Post | Page> = ({ doc }) => {
 export const plugins: Plugin[] = [
   s3Storage({
     enabled: process.env.DISABLE_R2_STORAGE !== 'true',
-    collections: { media: true },
+    collections: { media: true, 'brand-assets': true },
     bucket: serverEnv.R2_BUCKET,
     config: {
       credentials: { accessKeyId: serverEnv.R2_ACCESS_KEY_ID, secretAccessKey: serverEnv.R2_SECRET_ACCESS_KEY },
