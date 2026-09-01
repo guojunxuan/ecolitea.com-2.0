@@ -7,6 +7,34 @@
  */
 
 /**
+ * Manage footer navigation here. Branding, contact details, social links, company details, and copyright are managed in Site Settings.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "NavigationColumn".
+ */
+export type NavigationColumn = {
+  label: string;
+  navItems: {
+    link: {
+      type?: ('reference' | 'custom') | null;
+      newTab?: boolean | null;
+      reference?:
+        | ({
+            relationTo: 'pages';
+            value: string | Page;
+          } | null)
+        | ({
+            relationTo: 'posts';
+            value: string | Post;
+          } | null);
+      url?: string | null;
+      label: string;
+    };
+    id?: string | null;
+  }[];
+  id?: string | null;
+}[];
+/**
  * Supported timezones in IANA format.
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1748,26 +1776,7 @@ export interface Header {
  */
 export interface Footer {
   id: string;
-  navItems?:
-    | {
-        link: {
-          type?: ('reference' | 'custom') | null;
-          newTab?: boolean | null;
-          reference?:
-            | ({
-                relationTo: 'pages';
-                value: string | Page;
-              } | null)
-            | ({
-                relationTo: 'posts';
-                value: string | Post;
-              } | null);
-          url?: string | null;
-          label: string;
-        };
-        id?: string | null;
-      }[]
-    | null;
+  columns: NavigationColumn;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -1874,6 +1883,17 @@ export interface HeaderSelect<T extends boolean = true> {
  * via the `definition` "footer_select".
  */
 export interface FooterSelect<T extends boolean = true> {
+  columns?: T | NavigationColumnSelect<T>;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "NavigationColumn_select".
+ */
+export interface NavigationColumnSelect<T extends boolean = true> {
+  label?: T;
   navItems?:
     | T
     | {
@@ -1888,9 +1908,7 @@ export interface FooterSelect<T extends boolean = true> {
             };
         id?: T;
       };
-  updatedAt?: T;
-  createdAt?: T;
-  globalType?: T;
+  id?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
