@@ -22,10 +22,11 @@ describe('Footer Global', () => {
       required: true,
       minRows: 1,
       maxRows: 4,
+      interfaceName: 'NavigationColumn',
       admin: {
         initCollapsed: true,
         components: {
-          RowLabel: '@/Footer/RowLabel#FooterColumnRowLabel',
+          RowLabel: '@/Footer/RowLabel#ColumnRowLabel',
         },
       },
     })
@@ -61,7 +62,7 @@ describe('Footer Global', () => {
       admin: {
         initCollapsed: true,
         components: {
-          RowLabel: '@/Footer/RowLabel#FooterLinkRowLabel',
+          RowLabel: '@/Footer/RowLabel#NavItemRowLabel',
         },
       },
     })
