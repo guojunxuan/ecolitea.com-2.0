@@ -14,6 +14,9 @@ next-env.d.ts
 # Payload default media upload directory
 public/media/
 
+# Payload local fallback brand asset upload directory
+/brand-assets/
+
 public/robots.txt
 public/sitemap*.xml
 
