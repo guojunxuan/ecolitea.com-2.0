@@ -1,8 +1,16 @@
-import { describe, expect, it } from 'vitest'
+import { afterAll, describe, expect, it, vi } from 'vitest'
 
 import { anyone } from '@/access/anyone'
 import { authenticated } from '@/access/authenticated'
 import { BrandAssets } from '@/collections/BrandAssets'
+
+const testR2PublicURL = 'https://media.example.invalid'
+
+vi.stubEnv('R2_PUBLIC_URL', `${testR2PublicURL}/`)
+
+afterAll(() => {
+  vi.unstubAllEnvs()
+})
 
 describe('Brand Assets Collection', () => {
   it('is a hidden native upload collection for supported brand file types', () => {
@@ -31,32 +39,28 @@ describe('Brand Assets Collection', () => {
     expect(config.collections.some((collection) => collection.slug === BrandAssets.slug)).toBe(true)
   })
 
-  it('uses the R2 S3 storage adapter for media and brand assets', async () => {
-    const { default: configPromise } = await import('@/payload.config')
-    const config = await configPromise
-    const uploadStorage = Object.fromEntries(
-      config.collections
-        .filter(({ slug }) => ['media', BrandAssets.slug].includes(slug))
-        .map(({ slug, upload }) => [
-          slug,
-          typeof upload === 'object'
-            ? {
-                adapter: upload.adapter,
-                disableLocalStorage: upload.disableLocalStorage,
-              }
-            : upload,
-        ]),
-    )
+  it('builds public R2 URLs with and without a collection prefix', async () => {
+    const { generateR2FileURL } = await import('@/plugins')
 
-    expect(uploadStorage).toMatchObject({
-      media: {
-        adapter: 's3',
-        disableLocalStorage: true,
-      },
-      [BrandAssets.slug]: {
-        adapter: 's3',
-        disableLocalStorage: true,
-      },
+    expect(generateR2FileURL({ filename: 'logo.svg', prefix: 'brand-assets' })).toBe(
+      `${testR2PublicURL}/brand-assets/logo.svg`,
+    )
+    expect(generateR2FileURL({ filename: 'favicon.ico' })).toBe(
+      `${testR2PublicURL}/favicon.ico`,
+    )
+    expect(generateR2FileURL({ filename: 'favicon.ico', prefix: '' })).toBe(
+      `${testR2PublicURL}/favicon.ico`,
+    )
+  })
+
+  it('shares the public R2 collection options between media and brand assets', async () => {
+    const { generateR2FileURL, r2StorageCollections } = await import('@/plugins')
+
+    expect(Object.keys(r2StorageCollections).sort()).toEqual(['brand-assets', 'media'])
+    expect(r2StorageCollections.media).toBe(r2StorageCollections['brand-assets'])
+    expect(r2StorageCollections.media).toMatchObject({
+      disablePayloadAccessControl: true,
+      generateFileURL: generateR2FileURL,
     })
   })
 })

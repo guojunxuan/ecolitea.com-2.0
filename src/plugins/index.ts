@@ -12,7 +12,7 @@ import { beforeSyncWithSearch } from '@/search/beforeSync'
 
 import { Page, Post } from '@/payload-types'
 import { getServerSideURL } from '@/utilities/getURL'
-import { s3Storage } from '@payloadcms/storage-s3'
+import { s3Storage, type S3StorageOptions } from '@payloadcms/storage-s3'
 import { serverEnv } from '@/utilities/env'
 
 const generateTitle: GenerateTitle<Post | Page> = ({ doc }) => {
@@ -25,10 +25,23 @@ const generateURL: GenerateURL<Post | Page> = ({ doc }) => {
   return doc?.slug ? `${url}/${doc.slug}` : url
 }
 
+export const generateR2FileURL = ({ filename, prefix }: { filename: string; prefix?: string }) =>
+  `${serverEnv.R2_PUBLIC_URL}/${prefix ? `${prefix}/` : ''}${filename}`
+
+const r2CollectionOptions = {
+  disablePayloadAccessControl: true,
+  generateFileURL: generateR2FileURL,
+} as const
+
+export const r2StorageCollections = {
+  media: r2CollectionOptions,
+  'brand-assets': r2CollectionOptions,
+} satisfies S3StorageOptions['collections']
+
 export const plugins: Plugin[] = [
   s3Storage({
     enabled: process.env.DISABLE_R2_STORAGE !== 'true',
-    collections: { media: true, 'brand-assets': true },
+    collections: r2StorageCollections,
     bucket: serverEnv.R2_BUCKET,
     config: {
       credentials: { accessKeyId: serverEnv.R2_ACCESS_KEY_ID, secretAccessKey: serverEnv.R2_SECRET_ACCESS_KEY },
