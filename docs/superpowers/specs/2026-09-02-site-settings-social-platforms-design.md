@@ -2,92 +2,178 @@
 
 ## Goal
 
-Replace the hard-coded social platform select options with database-backed social platform records that editors can create from the Site Settings Social tab, while preserving each social link's `platform`, optional `label`, and `url` semantics. Frontend Footer rendering is explicitly out of scope.
+Replace hard-coded social platform options with database-backed platform records that editors create and reuse from `Site Settings > Social`. Preserve each Social Link's `platform`, optional `label`, and `url` semantics while adding a configurable SVG icon. Frontend Footer rendering remains out of scope.
 
 ## Scope
 
-This change covers only Payload configuration, Admin behavior, generated types, seed compatibility, and focused automated tests.
+This change covers the Social Platform data model, Site Settings Social fields, the Social Platform creation Modal in Payload Admin, generated Payload types, seed/sample data compatibility, and focused automated tests.
 
-It does not change the frontend Footer, define social icon rendering, or redesign any public page.
+It does not change the public Footer, render social icons, add analytics, add SEO schema, or expose a Social Platforms item in the Admin navigation.
 
 ## Data Model
 
 ### Social Platforms collection
 
-Add a `social-platforms` collection with these fields:
+Register a `social-platforms` Collection in the root Payload configuration. It is a normal database model and API resource with these fields:
 
-- `name`: required text used as the Admin title, such as `LinkedIn`.
-- `key`: required, unique text used as a stable machine-readable identifier, such as `linkedin`.
+- `id`: generated automatically by Payload;
+- `platform`: required text used as the Admin title, such as `LinkedIn`;
 - `icon`: required upload relationship to `brand-assets`, filtered to SVG assets.
 
-The collection is readable publicly because the eventual frontend Footer needs populated platform metadata. Create, update, and delete operations require authentication.
+No additional `key` field is included. Payload's generated `id` is sufficient for the current internal relationship. A stable cross-environment key can be added later if analytics, external APIs, imports, or SEO integrations require one.
 
-The collection is hidden from the primary Admin navigation. Editors manage its records through the `platform` relationship field in Site Settings. Payload's relationship drawer supplies the standard `Create New` workflow; no custom button or custom persistence endpoint is introduced.
+The Collection uses:
 
-### Site Settings social links
+```ts
+admin: {
+  hidden: true,
+  useAsTitle: 'platform',
+}
+```
+
+`hidden: true` hides only the standalone Admin navigation entry. The Collection remains registered and available to MongoDB, Payload APIs, generated types, access control, and Site Settings relationships.
+
+Guests may read platform records because the eventual frontend needs populated platform and icon data. Create, update, and delete operations require authentication.
+
+### Site Settings Social Links
 
 Keep `site-settings.socialLinks` as an array. Each row contains:
 
-- `platform`: required relationship to `social-platforms`.
-- `label`: optional text override for the public or accessible label.
-- `url`: required absolute HTTP or HTTPS URL using the existing validation behavior.
+- `platform`: required relationship to `social-platforms`;
+- `label`: optional text override for the eventual public or accessible label;
+- `url`: required absolute HTTP or HTTPS URL using the existing validator.
 
-Payload continues to generate an `id` for each array row. The relationship field stores a Social Platform document ID in MongoDB and can return either that ID or a populated Social Platform object according to query depth.
+Payload continues to generate an `id` for each Social Link array row. The relationship stores a Social Platform document ID and may return either that ID or a populated platform object according to query depth.
 
-## Admin Workflow
+## Admin Information Architecture
 
-1. An authenticated editor opens `Site Settings > Social`.
-2. The editor adds or expands a Social Link array row.
-3. The editor selects an existing platform from the `platform` relationship field.
-4. If it does not exist, the editor uses Payload's standard `Create New` action in the relationship control.
-5. The editor enters the platform name and key, uploads or selects an SVG icon through `brand-assets`, and saves the platform.
-6. The new platform becomes selectable in the Social Link row and in future rows.
-7. The editor optionally supplies a label, supplies the account URL, and saves Site Settings.
+Editors manage Social Links only from `Site Settings > Social`. `Social Platforms` does not appear as an independent item under Collections.
 
-## Reuse and Coupling
+The Social tab contains:
 
-Social platform identity and its icon are stored once and reused by any Social Link that references it. Account-specific data remains in Site Settings: the optional label and destination URL are not stored on the reusable platform record.
+- the existing Social Links array;
+- a visible `Create Social Platform` action near the Social Links heading;
+- a Platform relationship control in each Social Link row;
+- a `Create Social Platform` action in the footer of the Platform relationship options popover;
+- the existing `Add Social Link` array action.
 
-The existing hidden `brand-assets` upload collection remains the physical asset store. Site Settings manages the relationship to the platform, and the platform creation drawer manages the relationship to its SVG asset. This follows Payload's standard upload and relationship model instead of embedding files in a Global document.
+Both platform creation entry points open the same Modal. They do not navigate to a standalone Collection page and do not open Payload's default half-width Document Drawer.
 
-No platform names or icon mappings remain hard-coded in `SiteSettings/fields/social.ts`. Adding a new platform requires database content only, not a code change or deployment.
+## Create Social Platform Modal
+
+The Modal is intentionally compact because the platform document has only two business fields.
+
+### Layout
+
+- centered at approximately 520 pixels wide on desktop;
+- responsive width with safe viewport margins on smaller screens;
+- rendered through a top-level portal so its position is relative to the viewport, not the Admin content column;
+- backdrop covers the complete Payload Admin, including its collapsible navigation sidebar;
+- remains centered whether the Admin sidebar is expanded, collapsed, or replaced by the mobile menu;
+- background content and navigation are inert while open.
+
+### Content
+
+The Modal contains:
+
+- title: `Create Social Platform`;
+- close control in the top-right;
+- required `Platform` text input;
+- required `Icon` upload relationship;
+- SVG-only filtering for Icon;
+- Payload-style Icon actions: `Create New`, `Choose from existing`, and drag-and-drop;
+- footer actions aligned to the bottom-right: `Cancel`, then primary `Save`.
+
+The Modal does not contain a key field, tabs, document metadata, publishing controls, or unrelated actions.
+
+### Interaction
+
+- `Cancel`, the close control, and `Escape` dismiss the Modal without creating a platform;
+- `Save` validates required fields and creates the platform through Payload;
+- validation errors remain inside the Modal and preserve entered values;
+- saving from a Social Link row closes the Modal and assigns the newly created platform to that row;
+- saving from the top-level Social action closes the Modal and refreshes available relationship options;
+- focus is trapped inside the open Modal;
+- closing returns focus to the entry point that opened it;
+- double submission is prevented while saving.
+
+## Payload Integration Boundary
+
+Payload continues to own the `social-platforms` Collection schema, authentication and access control, server-side validation, database persistence, SVG upload relationships through `brand-assets`, generated API and TypeScript types, and relationship value storage.
+
+Payload's Relationship field normally uses a Document Drawer for `allowCreate`. This design disables that default creation action to avoid two competing creation experiences:
+
+```ts
+admin: {
+  allowCreate: false,
+}
+```
+
+A focused custom Admin component owns only the Modal presentation, the two creation entry points, submission state, and relationship refresh or assignment. It does not reimplement Payload's database model, permissions, or the general Social Link array.
+
+Because Payload does not expose an official option for replacing the default Relationship create Drawer with a custom Modal, the implementation must keep the customization local to Site Settings Social. It must not apply global click interception, global Drawer CSS overrides, or modifications to Payload package files.
+
+## Data Flow
+
+1. Payload loads Site Settings and available Social Platform relationships.
+2. The editor opens the Modal from the Social heading or a Social Link relationship context.
+3. The editor enters `platform` and creates, selects, or uploads an SVG Brand Asset for `icon`.
+4. Save submits the platform through an authenticated Payload operation.
+5. Payload validates and persists the Social Platform document.
+6. The Admin UI refreshes platform options.
+7. If the Modal was opened for a specific Social Link row, that row receives the new platform ID.
+8. Site Settings saves `platform`, optional `label`, and `url` in its Social Link array.
 
 ## Validation and Access
 
-- `name`, `key`, and `icon` are required on Social Platform records.
-- `key` is unique so future rendering or integrations have a stable identifier.
-- `icon` accepts only `image/svg+xml` assets from `brand-assets`.
+- Social Platform `platform` is required.
+- Social Platform `icon` is required and restricted to `image/svg+xml` Brand Assets.
+- Social Link `platform` is required.
+- Social Link `label` remains optional.
 - Social Link `url` retains the current absolute HTTP/HTTPS validator.
 - Guests may read Social Platforms.
 - Only authenticated users may create, update, or delete Social Platforms.
-- Site Settings retains its existing public-read and authenticated-update access.
+- Site Settings retains public read and authenticated update access.
 
 ## Existing Data
 
-Existing Social Link rows currently store a string in `platform`. The new field stores a relationship ID, so existing string values are not valid references. The implementation will update seed/sample data to use Social Platform records and will document that existing development data must be recreated or migrated before those rows can be edited successfully.
+Existing Social Link rows currently store a select string in `platform`. The new relationship stores a Social Platform document ID, so the existing values are not valid relationships.
 
-No automatic production migration is included because this branch is still establishing the new Site Settings structure and the user approved adopting the new model directly. The implementation must not silently invent platform records or icons for existing strings.
+The implementation will update seed/sample data to create the necessary platform and SVG asset records before assigning Social Link relationships. It will not silently invent platform records or icons for unknown existing values.
+
+No production migration is included because this branch is still establishing the new Site Settings structure and the user approved adopting the new data model directly. Existing development Social data must be recreated or explicitly migrated before editing those rows.
 
 ## Cache Behavior
 
-Saving Site Settings continues to invalidate `global_site-settings`. The new Social Platforms collection does not add frontend cache invalidation in this scope because frontend rendering is deferred. Cache invalidation for platform updates will be added together with the frontend Footer data dependency so it can target the exact cache contract in use.
+Saving Site Settings continues to invalidate `global_site-settings`. Social Platform updates do not add frontend cache invalidation in this scope because the public Footer does not yet consume the relationship. Platform cache invalidation will be added with the frontend Footer implementation against the exact data-fetching contract used there.
 
 ## Testing
 
-Focused integration/configuration tests will verify:
+Tests will be written and observed failing before production implementation. Focused tests will cover:
 
-- `social-platforms` is registered in the Payload configuration.
-- Its access rules, hidden Admin configuration, title field, unique key, and SVG icon relationship are correct.
-- Site Settings uses a required relationship field instead of a hard-coded select.
-- The optional label and required validated URL remain present.
-- Generated Payload types represent the new relationship correctly.
-
-Tests will be written and observed failing before production configuration changes are made.
+- registration of `social-platforms` in the Payload configuration;
+- hidden Admin navigation and `platform` as the Admin title;
+- public read and authenticated write access;
+- required Platform and SVG-only Icon fields;
+- Site Settings using a required Relationship instead of a hard-coded Select;
+- preservation of optional Label and validated URL;
+- disabling the default Relationship create Drawer;
+- Modal open and cancel behavior;
+- Modal validation and error preservation;
+- successful platform creation;
+- relationship refresh and row assignment after creation;
+- Modal accessibility behavior where practical;
+- generated Payload types for the new Collection and relationship.
 
 ## Success Criteria
 
-- An editor can create a new reusable platform from the Social Link platform control using Payload's standard `Create New` drawer.
-- The platform and icon persist in the database and are available for selection in subsequent Social Link rows.
-- A Social Link still consists of a platform, optional label, and URL.
-- No frontend Footer code changes are included.
+- Editors can create reusable Social Platforms without leaving Site Settings.
+- Both creation entry points open one consistent compact Modal.
+- The Modal covers the entire Admin context, including the collapsible sidebar.
+- Cancel and Save appear at the bottom-right in that order.
+- Successful row-context creation automatically selects the new platform.
+- Platform and Icon persist in the database and are reusable in later Social Links.
+- Social Link data remains `platform + optional label + url`.
+- Social Platforms remains absent from standalone Admin navigation.
+- No public Footer code changes are included.
 - Focused tests and Payload type generation complete successfully.
