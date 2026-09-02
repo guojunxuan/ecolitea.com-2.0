@@ -29,8 +29,9 @@ const modalState = vi.hoisted(() => {
 
 const relationshipFieldState = vi.hoisted(() => ({
   path: 'socialLinks.0.platform',
+  resolvedPaths: {} as Record<string, string>,
   setValue: vi.fn(),
-  value: 'existing-platform',
+  value: 'existing-platform' as null | string,
 }))
 
 vi.mock('@payloadcms/ui', () => {
@@ -90,6 +91,7 @@ vi.mock('@payloadcms/ui', () => {
           <div
             aria-labelledby="social-platform-dialog-title"
             data-close-on-esc={String(closeOnEsc)}
+            data-modal-slug={slug}
             data-size={size}
             role="dialog"
           >
@@ -126,7 +128,11 @@ vi.mock('@payloadcms/ui', () => {
         ]) ?? []
 
       return (
-        <div data-allow-create={String(allowCreate)} data-value={value?.value || ''}>
+        <div
+          data-allow-create={String(allowCreate)}
+          data-relationship-input="true"
+          data-value={value?.value || ''}
+        >
           {options.map((option) => (
             <button
               data-relationship-option="true"
@@ -141,6 +147,7 @@ vi.mock('@payloadcms/ui', () => {
               {option.label}
             </button>
           ))}
+          <button onClick={() => onChange(null as never)}>Clear relationship</button>
         </div>
       )
     },
@@ -190,7 +197,12 @@ vi.mock('@payloadcms/ui', () => {
       </div>
     ),
     useConfig: () => ({ config: { routes: { api: '/api' }, serverURL: 'https://cms.test' } }),
-    useField: () => relationshipFieldState,
+    useField: ({ potentiallyStalePath }: { potentiallyStalePath?: string } = {}) => ({
+      ...relationshipFieldState,
+      path:
+        relationshipFieldState.resolvedPaths[potentiallyStalePath || ''] ||
+        relationshipFieldState.path,
+    }),
     useModal: () => ({ closeModal: modalState.closeModal, openModal: modalState.openModal }),
   }
 })
@@ -330,6 +342,7 @@ describe('social platform creation entry points', () => {
   beforeEach(() => {
     modalState.reset()
     relationshipFieldState.path = 'socialLinks.0.platform'
+    relationshipFieldState.resolvedPaths = {}
     relationshipFieldState.value = 'existing-platform'
     vi.stubGlobal('fetch', vi.fn())
   })
@@ -364,11 +377,75 @@ describe('social platform creation entry points', () => {
       'X',
       'Create Social Platform',
     ])
+    expect(
+      screen
+        .getByRole('button', { name: 'Clear relationship' })
+        .parentElement?.getAttribute('data-allow-create'),
+    ).toBe('false')
 
     fireEvent.click(options.at(-1)!)
 
     expect(relationshipFieldState.setValue).not.toHaveBeenCalled()
     expect(await screen.findByRole('dialog', { name: 'Create Social Platform' })).toBeTruthy()
+  })
+
+  it('preserves Payload selection, reselection, and clear modification semantics', () => {
+    const field = {
+      name: 'platform',
+      relationTo: 'social-platforms',
+      type: 'relationship',
+    } as const
+    const { unmount } = render(
+      <SocialPlatformRelationshipField field={field} path="socialLinks.0.platform" />,
+    )
+
+    fireEvent.click(screen.getByRole('button', { name: 'GitHub' }))
+    expect(relationshipFieldState.setValue).toHaveBeenLastCalledWith('github', false)
+
+    relationshipFieldState.value = 'github'
+    unmount()
+    render(<SocialPlatformRelationshipField field={field} path="socialLinks.0.platform" />)
+    fireEvent.click(screen.getByRole('button', { name: 'GitHub' }))
+    expect(relationshipFieldState.setValue).toHaveBeenLastCalledWith('github', true)
+
+    fireEvent.click(screen.getByRole('button', { name: 'Clear relationship' }))
+    expect(relationshipFieldState.setValue).toHaveBeenLastCalledWith(null, false)
+
+    relationshipFieldState.value = null
+    cleanup()
+    render(<SocialPlatformRelationshipField field={field} path="socialLinks.0.platform" />)
+    fireEvent.click(screen.getByRole('button', { name: 'Clear relationship' }))
+    expect(relationshipFieldState.setValue).toHaveBeenLastCalledWith(null, true)
+  })
+
+  it('uses resolved row paths to isolate modal state across relationship rows', async () => {
+    relationshipFieldState.resolvedPaths = {
+      'stale-row-a.platform': 'socialLinks.3.platform',
+      'stale-row-b.platform': 'socialLinks.7.platform',
+    }
+    const field = {
+      name: 'platform',
+      relationTo: 'social-platforms',
+      type: 'relationship',
+    } as const
+    render(
+      <>
+        <SocialPlatformRelationshipField field={field} path="stale-row-a.platform" />
+        <SocialPlatformRelationshipField field={field} path="stale-row-b.platform" />
+      </>,
+    )
+
+    const createOptions = screen.getAllByRole('button', { name: 'Create Social Platform' })
+    fireEvent.click(createOptions[0])
+    const firstDialog = await screen.findByRole('dialog', { name: 'Create Social Platform' })
+    const firstSlug = firstDialog.getAttribute('data-modal-slug')
+    expect(firstSlug).toContain('socialLinks-3-platform')
+
+    fireEvent.click(createOptions[1])
+    const dialogs = await screen.findAllByRole('dialog', { name: 'Create Social Platform' })
+    const secondSlug = dialogs[1].getAttribute('data-modal-slug')
+    expect(secondSlug).toContain('socialLinks-7-platform')
+    expect(secondSlug).not.toBe(firstSlug)
   })
 
   it('selects the newly created platform and closes the relationship modal', async () => {

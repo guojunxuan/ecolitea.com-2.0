@@ -95,14 +95,19 @@ export const SocialPlatformRelationshipField = ({
   )
   const handleChange = useCallback(
     (newValue: ValueWithRelation) => {
+      if (!newValue) {
+        setValue(null, newValue === value)
+        return
+      }
+
       if (newValue?.value === createSocialPlatformSentinel) {
         openModal(modalSlug)
         return
       }
 
-      setValue(newValue ? newValue.value : null)
+      setValue(newValue.value, value === newValue.value)
     },
-    [modalSlug, openModal, setValue],
+    [modalSlug, openModal, setValue, value],
   )
 
   return (
