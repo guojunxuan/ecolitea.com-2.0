@@ -31,6 +31,10 @@ The design must follow the current project's Payload conventions, prefer native 
 - Arbitrarily deep recursive navigation.
 - Payload Admin replacement views or custom field editors.
 
+## Implementation Workspace
+
+Implementation will be performed directly in the current checkout and current branch, `main`. Do not create a separate feature branch or Git worktree for this change. Existing unrelated working-tree files and changes must remain untouched.
+
 ## Source Models
 
 The design combines three established patterns:
