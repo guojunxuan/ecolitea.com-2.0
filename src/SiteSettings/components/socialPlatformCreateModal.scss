@@ -1,0 +1,21 @@
+.social-platform-create-modal {
+  width: min(520px, calc(100vw - (var(--base) * 4)));
+
+  &__fields {
+    display: grid;
+    gap: calc(var(--base) * 1.25);
+  }
+
+  &__error {
+    color: var(--theme-error-500);
+    margin: 0;
+  }
+
+  &__actions {
+    align-items: center;
+    display: flex;
+    gap: var(--base);
+    justify-content: flex-end;
+    width: 100%;
+  }
+}
