@@ -27,10 +27,19 @@ const modalState = vi.hoisted(() => {
   }
 })
 
+const relationshipFieldState = vi.hoisted(() => ({
+  path: 'socialLinks.0.platform',
+  setValue: vi.fn(),
+  value: 'existing-platform',
+}))
+
 vi.mock('@payloadcms/ui', () => {
   const DialogSlugContext = React.createContext('')
 
   return {
+    Button: ({ children, onClick }: React.PropsWithChildren<{ onClick?: () => void }>) => (
+      <button onClick={onClick}>{children}</button>
+    ),
     DialogBody: ({ children }: React.PropsWithChildren) => <div>{children}</div>,
     DialogCancel: ({ label, onClick }: { label?: string; onClick?: () => void }) => (
       <button onClick={onClick}>{label}</button>
@@ -89,6 +98,52 @@ vi.mock('@payloadcms/ui', () => {
         </DialogSlugContext.Provider>
       ) : null
     },
+    mergeFieldStyles: () => undefined,
+    RelationshipInput: ({
+      allowCreate,
+      formatDisplayedOptions,
+      onChange,
+      value,
+    }: {
+      allowCreate?: boolean
+      formatDisplayedOptions?: (options: Array<{ label: string; options: unknown[] }>) => Array<{
+        label: string
+        relationTo?: string
+        value: number | string
+      }>
+      onChange: (value: { relationTo: string; value: number | string }) => void
+      value?: { relationTo: string; value: number | string }
+    }) => {
+      const options =
+        formatDisplayedOptions?.([
+          {
+            label: 'Social Platforms',
+            options: [
+              { allowEdit: true, label: 'GitHub', relationTo: 'social-platforms', value: 'github' },
+              { allowEdit: true, label: 'X', relationTo: 'social-platforms', value: 'x' },
+            ],
+          },
+        ]) ?? []
+
+      return (
+        <div data-allow-create={String(allowCreate)} data-value={value?.value || ''}>
+          {options.map((option) => (
+            <button
+              data-relationship-option="true"
+              key={option.value}
+              onClick={() =>
+                onChange({
+                  relationTo: option.relationTo || 'social-platforms',
+                  value: option.value,
+                })
+              }
+            >
+              {option.label}
+            </button>
+          ))}
+        </div>
+      )
+    },
     TextInput: ({
       label,
       onChange,
@@ -135,11 +190,21 @@ vi.mock('@payloadcms/ui', () => {
       </div>
     ),
     useConfig: () => ({ config: { routes: { api: '/api' }, serverURL: 'https://cms.test' } }),
+    useField: () => relationshipFieldState,
     useModal: () => ({ closeModal: modalState.closeModal, openModal: modalState.openModal }),
   }
 })
 
 import { SocialPlatformCreateModal } from '@/SiteSettings/components/SocialPlatformCreateModal'
+import { SocialPlatformCreateActions } from '@/SiteSettings/components/SocialPlatformCreateActions'
+import { SocialPlatformRelationshipField } from '@/SiteSettings/components/SocialPlatformRelationshipField'
+
+const completeForm = () => {
+  fireEvent.change(screen.getByRole('textbox', { name: 'Platform' }), {
+    target: { value: 'LinkedIn' },
+  })
+  fireEvent.click(screen.getByRole('button', { name: 'Choose test icon' }))
+}
 
 describe('SocialPlatformCreateModal', () => {
   beforeEach(() => {
@@ -163,13 +228,6 @@ describe('SocialPlatformCreateModal', () => {
     await screen.findByRole('dialog', { name: 'Create Social Platform' })
     return onCreated
   }
-  const completeForm = () => {
-    fireEvent.change(screen.getByRole('textbox', { name: 'Platform' }), {
-      target: { value: 'LinkedIn' },
-    })
-    fireEvent.click(screen.getByRole('button', { name: 'Choose test icon' }))
-  }
-
   it('passes the required dialog and upload configuration to Payload UI', async () => {
     await renderModal()
     const dialog = screen.getByRole('dialog', { name: 'Create Social Platform' })
@@ -265,5 +323,71 @@ describe('SocialPlatformCreateModal', () => {
     expect(screen.getByRole<HTMLInputElement>('textbox', { name: 'Platform' }).value).toBe('')
     expect(screen.getByRole('group', { name: 'Icon' }).getAttribute('data-value')).toBe('')
     expect(screen.queryByRole('alert')).toBeNull()
+  })
+})
+
+describe('social platform creation entry points', () => {
+  beforeEach(() => {
+    modalState.reset()
+    relationshipFieldState.path = 'socialLinks.0.platform'
+    relationshipFieldState.value = 'existing-platform'
+    vi.stubGlobal('fetch', vi.fn())
+  })
+
+  afterEach(() => {
+    cleanup()
+    vi.clearAllMocks()
+    vi.unstubAllGlobals()
+  })
+
+  it('opens the shared modal from the top-level create action', async () => {
+    render(<SocialPlatformCreateActions />)
+
+    fireEvent.click(screen.getByRole('button', { name: 'Create Social Platform' }))
+
+    expect(await screen.findByRole('dialog', { name: 'Create Social Platform' })).toBeTruthy()
+  })
+
+  it('appends one final create option that opens the modal without changing the value', async () => {
+    render(
+      <SocialPlatformRelationshipField
+        field={{ name: 'platform', relationTo: 'social-platforms', type: 'relationship' }}
+        path="socialLinks.0.platform"
+      />,
+    )
+
+    const options = screen
+      .getAllByRole('button')
+      .filter((button) => button.hasAttribute('data-relationship-option'))
+    expect(options.map((option) => option.textContent)).toEqual([
+      'GitHub',
+      'X',
+      'Create Social Platform',
+    ])
+
+    fireEvent.click(options.at(-1)!)
+
+    expect(relationshipFieldState.setValue).not.toHaveBeenCalled()
+    expect(await screen.findByRole('dialog', { name: 'Create Social Platform' })).toBeTruthy()
+  })
+
+  it('selects the newly created platform and closes the relationship modal', async () => {
+    vi.mocked(fetch).mockResolvedValue(
+      Response.json({ doc: { id: 'platform-id', platform: 'LinkedIn' } }),
+    )
+    render(
+      <SocialPlatformRelationshipField
+        field={{ name: 'platform', relationTo: 'social-platforms', type: 'relationship' }}
+        path="socialLinks.0.platform"
+      />,
+    )
+
+    fireEvent.click(screen.getByRole('button', { name: 'Create Social Platform' }))
+    await screen.findByRole('dialog', { name: 'Create Social Platform' })
+    completeForm()
+    fireEvent.click(screen.getByRole('button', { name: 'Save' }))
+
+    await waitFor(() => expect(relationshipFieldState.setValue).toHaveBeenCalledWith('platform-id'))
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull())
   })
 })
