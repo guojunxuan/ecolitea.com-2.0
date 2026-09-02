@@ -12,7 +12,7 @@ import {
   useConfig,
   useModal,
 } from '@payloadcms/ui'
-import { type ChangeEvent, useEffect, useRef, useState } from 'react'
+import { type ChangeEvent, useEffect, useState } from 'react'
 
 import { socialPlatformsSlug } from '@/collections/SocialPlatforms'
 
@@ -56,20 +56,16 @@ export const SocialPlatformCreateModal = ({
   const [platform, setPlatform] = useState('')
   const [icon, setIcon] = useState<null | number | string>(null)
   const [error, setError] = useState<string | null>(null)
-  const [saving, setSaving] = useState(false)
-  const savingRef = useRef(false)
 
   useEffect(() => {
     if (open) openModal(modalSlug)
   }, [modalSlug, open, openModal])
 
   const handleCancel = () => {
-    if (!savingRef.current) closeModal(modalSlug)
+    closeModal(modalSlug)
   }
 
   const handleSave = async () => {
-    if (savingRef.current) return
-
     const normalizedPlatform = platform.trim()
     if (!normalizedPlatform) {
       setError('Platform is required.')
@@ -77,8 +73,12 @@ export const SocialPlatformCreateModal = ({
       return
     }
 
-    savingRef.current = true
-    setSaving(true)
+    if (!icon) {
+      setError('Icon is required.')
+      setTimeout(() => openModal(modalSlug), 0)
+      return
+    }
+
     setError(null)
 
     try {
@@ -105,17 +105,14 @@ export const SocialPlatformCreateModal = ({
     } catch {
       setError('Unable to create the social platform.')
       setTimeout(() => openModal(modalSlug), 0)
-    } finally {
-      savingRef.current = false
-      setSaving(false)
     }
   }
 
   return (
-    <DialogModal className="social-platform-create-modal" size="medium" slug={modalSlug}>
+    <DialogModal className="social-platform-create-modal" closeOnEsc size="medium" slug={modalSlug}>
       <DialogHeader showClose title="Create Social Platform" />
       <DialogBody>
-        <div aria-busy={saving} className="social-platform-create-modal__fields">
+        <div className="social-platform-create-modal__fields">
           <TextInput
             label="Platform"
             onChange={(event: ChangeEvent<HTMLInputElement>) => {
@@ -124,7 +121,7 @@ export const SocialPlatformCreateModal = ({
             }}
             path="platform"
             required
-            showError={Boolean(error)}
+            showError={error === 'Platform is required.'}
             value={platform}
           />
           <UploadInput
@@ -134,9 +131,14 @@ export const SocialPlatformCreateModal = ({
             }}
             hasMany={false}
             label="Icon"
-            onChange={(value) => setIcon(value ?? null)}
+            onChange={(value) => {
+              setIcon(value ?? null)
+              if (error) setError(null)
+            }}
             path="icon"
             relationTo="brand-assets"
+            required
+            showError={error === 'Icon is required.'}
             value={icon ?? undefined}
           />
           {error ? (
