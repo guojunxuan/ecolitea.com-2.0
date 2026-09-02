@@ -11,7 +11,6 @@ import { post2 } from './post-2'
 import { post3 } from './post-3'
 
 const collections: CollectionSlug[] = [
-  'brand-assets',
   'categories',
   'media',
   'pages',
@@ -19,12 +18,142 @@ const collections: CollectionSlug[] = [
   'forms',
   'form-submissions',
   'search',
-  'social-platforms',
 ]
 
 const globals = ['header', 'footer'] as const satisfies GlobalSlug[]
 
 const categories = ['Technology', 'News', 'Finance', 'Design', 'Software', 'Engineering']
+
+const svgFile = (name: string, title: string, body: string): File => {
+  const source = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>${title}</title>${body}</svg>`
+  const data = Buffer.from(source)
+
+  return {
+    name,
+    data,
+    mimetype: 'image/svg+xml',
+    size: data.byteLength,
+  }
+}
+
+export const seedSocialSettings = async (payload: Payload) => {
+  const assetFixtures = [
+    {
+      name: 'site-logo',
+      alt: 'Ecolitea seed logo',
+      file: svgFile(
+        'payload-seed-ecolitea-logo.svg',
+        'Ecolitea',
+        '<rect width="24" height="24" rx="6" fill="#163d2b"/><path d="M6 12c3-6 9-6 12-3-1 6-6 9-12 6 3-1 6-2 9-5-4 2-6 5-6 8" fill="none" stroke="#fff" stroke-width="1.5"/>',
+      ),
+    },
+    {
+      name: 'linkedin',
+      alt: 'LinkedIn icon',
+      file: svgFile(
+        'payload-seed-linkedin.svg',
+        'LinkedIn',
+        '<rect width="24" height="24" rx="3" fill="#0a66c2"/><path fill="#fff" d="M6 9h3v9H6zm1.5-4.5a1.75 1.75 0 1 1 0 3.5 1.75 1.75 0 0 1 0-3.5zM11 9h3v1.2c.8-1 1.8-1.5 3.2-1.5 2.4 0 3.8 1.5 3.8 4.5V18h-3v-4.4c0-1.5-.5-2.3-1.8-2.3-1.4 0-2.2.9-2.2 2.7v4h-3z"/>',
+      ),
+    },
+    {
+      name: 'facebook',
+      alt: 'Facebook icon',
+      file: svgFile(
+        'payload-seed-facebook.svg',
+        'Facebook',
+        '<circle cx="12" cy="12" r="12" fill="#0866ff"/><path fill="#fff" d="M13.8 20v-7h2.4l.4-2.8h-2.8V8.4c0-.8.2-1.4 1.4-1.4h1.5V4.5c-.3 0-1.2-.1-2.2-.1-2.2 0-3.7 1.3-3.7 3.8v2.1H8.3V13h2.5v7z"/>',
+      ),
+    },
+    {
+      name: 'instagram',
+      alt: 'Instagram icon',
+      file: svgFile(
+        'payload-seed-instagram.svg',
+        'Instagram',
+        '<rect width="24" height="24" rx="6" fill="#e4405f"/><rect x="5" y="5" width="14" height="14" rx="4" fill="none" stroke="#fff" stroke-width="2"/><circle cx="12" cy="12" r="3.5" fill="none" stroke="#fff" stroke-width="2"/><circle cx="17" cy="7" r="1" fill="#fff"/>',
+      ),
+    },
+  ] as const
+  const platformFixtures = [
+    {
+      name: 'linkedin',
+      platform: 'LinkedIn',
+      profileURL: 'https://www.linkedin.com/company/ecolitea',
+    },
+    {
+      name: 'facebook',
+      platform: 'Facebook',
+      profileURL: 'https://www.facebook.com/ecolitea',
+    },
+    {
+      name: 'instagram',
+      platform: 'Instagram',
+      profileURL: 'https://www.instagram.com/ecolitea',
+    },
+  ] as const
+
+  payload.logger.info(`— Resolving seeded brand assets...`)
+  const assetsByFixtureName = new Map<string, Awaited<ReturnType<Payload['create']>>>()
+
+  for (const fixture of assetFixtures) {
+    const existing = await payload.find({
+      collection: 'brand-assets',
+      depth: 0,
+      limit: 1,
+      where: { filename: { equals: fixture.file.name } },
+    })
+    const asset =
+      existing.docs[0] ??
+      (await payload.create({
+        collection: 'brand-assets',
+        data: { alt: fixture.alt },
+        file: fixture.file,
+      }))
+    assetsByFixtureName.set(fixture.name, asset)
+  }
+
+  payload.logger.info(`— Resolving seeded social platforms...`)
+  const platformsByFixtureName = new Map<string, Awaited<ReturnType<Payload['create']>>>()
+
+  for (const fixture of platformFixtures) {
+    const icon = assetsByFixtureName.get(fixture.name)
+    if (!icon) throw new Error(`Missing seeded icon for ${fixture.name}`)
+
+    const existing = await payload.find({
+      collection: 'social-platforms',
+      depth: 0,
+      limit: 1,
+      where: {
+        and: [{ platform: { equals: fixture.platform } }, { icon: { equals: icon.id } }],
+      },
+    })
+    const platform =
+      existing.docs[0] ??
+      (await payload.create({
+        collection: 'social-platforms',
+        data: { platform: fixture.platform, icon: icon.id },
+      }))
+    platformsByFixtureName.set(fixture.name, platform)
+  }
+
+  const currentSettings = await payload.findGlobal({ slug: 'site-settings', depth: 0 })
+  const fallbackLogo = assetsByFixtureName.get('site-logo')
+  if (!fallbackLogo) throw new Error('Missing seeded fallback site logo')
+
+  return payload.updateGlobal({
+    slug: 'site-settings',
+    data: {
+      ...(!currentSettings.siteName ? { siteName: 'Ecolitea' } : {}),
+      ...(!currentSettings.logo ? { logo: fallbackLogo.id } : {}),
+      socialLinks: platformFixtures.map((fixture) => {
+        const platform = platformsByFixtureName.get(fixture.name)
+        if (!platform) throw new Error(`Missing seeded social platform for ${fixture.name}`)
+        return { platform: platform.id, label: fixture.platform, url: fixture.profileURL }
+      }),
+    },
+  })
+}
 
 // Next.js revalidation errors are normal when seeding the database without a server running
 // i.e. running `yarn seed` locally instead of using the admin UI within an active app
@@ -100,68 +229,7 @@ export const seed = async ({
     ),
   ])
 
-  const socialPlatformFixtures = [
-    {
-      name: 'linkedin',
-      platform: 'LinkedIn',
-      iconURL:
-        'https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/linkedin.svg',
-      profileURL: 'https://www.linkedin.com/company/ecolitea',
-    },
-    {
-      name: 'facebook',
-      platform: 'Facebook',
-      iconURL:
-        'https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/facebook.svg',
-      profileURL: 'https://www.facebook.com/ecolitea',
-    },
-    {
-      name: 'instagram',
-      platform: 'Instagram',
-      iconURL:
-        'https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/instagram.svg',
-      profileURL: 'https://www.instagram.com/ecolitea',
-    },
-  ] as const
-
-  payload.logger.info(`— Seeding brand assets...`)
-
-  const socialPlatformIcons = new Map(
-    await Promise.all(
-      socialPlatformFixtures.map(async (fixture) => {
-        const icon = await payload.create({
-          collection: 'brand-assets',
-          data: {
-            alt: `${fixture.platform} icon`,
-          },
-          file: await fetchFileByURL(fixture.iconURL),
-        })
-
-        return [fixture.name, icon] as const
-      }),
-    ),
-  )
-
-  payload.logger.info(`— Seeding social platforms...`)
-
-  const socialPlatforms = new Map(
-    await Promise.all(
-      socialPlatformFixtures.map(async (fixture) => {
-        const icon = socialPlatformIcons.get(fixture.name)
-        if (!icon) throw new Error(`Missing seeded icon for ${fixture.name}`)
-
-        const platform = await payload.create({
-          collection: 'social-platforms',
-          data: {
-            platform: fixture.platform,
-            icon: icon.id,
-          },
-        })
-
-        return [fixture.name, platform] as const
-      }),
-    ),
-  )
+  await seedSocialSettings(payload)
 
   const [demoAuthor, image1Doc, image2Doc, image3Doc, imageHomeDoc] = await Promise.all([
     payload.create({
@@ -337,21 +405,6 @@ export const seed = async ({
         ],
       },
     }),
-    payload.updateGlobal({
-      slug: 'site-settings',
-      data: {
-        socialLinks: socialPlatformFixtures.map((fixture) => {
-          const platform = socialPlatforms.get(fixture.name)
-          if (!platform) throw new Error(`Missing seeded social platform for ${fixture.name}`)
-
-          return {
-            platform: platform.id,
-            label: fixture.platform,
-            url: fixture.profileURL,
-          }
-        }),
-      },
-    }),
   ])
 
   payload.logger.info('Seeded database successfully!')
@@ -359,7 +412,6 @@ export const seed = async ({
 
 async function fetchFileByURL(url: string): Promise<File> {
   const res = await fetch(url, {
-    credentials: 'include',
     method: 'GET',
   })
 
