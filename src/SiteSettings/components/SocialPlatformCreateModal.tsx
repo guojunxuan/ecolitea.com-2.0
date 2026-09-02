@@ -12,7 +12,7 @@ import {
   useConfig,
   useModal,
 } from '@payloadcms/ui'
-import { type ChangeEvent, useEffect, useState } from 'react'
+import { type ChangeEvent, useEffect, useRef, useState } from 'react'
 
 import { socialPlatformsSlug } from '@/collections/SocialPlatforms'
 
@@ -56,12 +56,43 @@ export const SocialPlatformCreateModal = ({
   const [platform, setPlatform] = useState('')
   const [icon, setIcon] = useState<null | number | string>(null)
   const [error, setError] = useState<string | null>(null)
+  const reopenTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const clearReopenTimer = () => {
+    if (reopenTimer.current) {
+      clearTimeout(reopenTimer.current)
+      reopenTimer.current = null
+    }
+  }
+
+  const scheduleReopen = () => {
+    clearReopenTimer()
+    reopenTimer.current = setTimeout(() => {
+      reopenTimer.current = null
+      openModal(modalSlug)
+    }, 0)
+  }
+
+  const resetForm = () => {
+    setPlatform('')
+    setIcon(null)
+    setError(null)
+  }
 
   useEffect(() => {
     if (open) openModal(modalSlug)
   }, [modalSlug, open, openModal])
 
+  useEffect(
+    () => () => {
+      if (reopenTimer.current) clearTimeout(reopenTimer.current)
+    },
+    [],
+  )
+
   const handleCancel = () => {
+    clearReopenTimer()
+    resetForm()
     closeModal(modalSlug)
   }
 
@@ -69,17 +100,18 @@ export const SocialPlatformCreateModal = ({
     const normalizedPlatform = platform.trim()
     if (!normalizedPlatform) {
       setError('Platform is required.')
-      setTimeout(() => openModal(modalSlug), 0)
+      scheduleReopen()
       return
     }
 
     if (!icon) {
       setError('Icon is required.')
-      setTimeout(() => openModal(modalSlug), 0)
+      scheduleReopen()
       return
     }
 
     setError(null)
+    let createdDocument: CreatedSocialPlatform
 
     try {
       const endpoint = `${serverURL || ''}${api}/${socialPlatformsSlug}`
@@ -97,15 +129,20 @@ export const SocialPlatformCreateModal = ({
         setError(getResponseError(result))
         // DialogConfirm closes after its callback resolves. Re-open after that
         // close so a rejected Payload submission remains editable.
-        setTimeout(() => openModal(modalSlug), 0)
+        scheduleReopen()
         return
       }
 
-      onCreated(result.doc)
+      createdDocument = result.doc
     } catch {
       setError('Unable to create the social platform.')
-      setTimeout(() => openModal(modalSlug), 0)
+      scheduleReopen()
+      return
     }
+
+    clearReopenTimer()
+    resetForm()
+    onCreated(createdDocument)
   }
 
   return (

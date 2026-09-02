@@ -27,101 +27,117 @@ const modalState = vi.hoisted(() => {
   }
 })
 
-vi.mock('@payloadcms/ui', () => ({
-  DialogBody: ({ children }: React.PropsWithChildren) => <div>{children}</div>,
-  DialogCancel: ({ label, onClick }: { label?: string; onClick?: () => void }) => (
-    <button onClick={onClick}>{label}</button>
-  ),
-  DialogConfirm: ({ label, onClick }: { label?: string; onClick: () => Promise<void> | void }) => {
-    const [isConfirming, setConfirming] = useState(false)
-    return (
-      <button
-        disabled={isConfirming}
-        onClick={async () => {
-          if (isConfirming) return
-          setConfirming(true)
-          await onClick()
-          setConfirming(false)
-          modalState.closeModal('create-social-platform-test')
-        }}
+vi.mock('@payloadcms/ui', () => {
+  const DialogSlugContext = React.createContext('')
+
+  return {
+    DialogBody: ({ children }: React.PropsWithChildren) => <div>{children}</div>,
+    DialogCancel: ({ label, onClick }: { label?: string; onClick?: () => void }) => (
+      <button onClick={onClick}>{label}</button>
+    ),
+    DialogConfirm: ({
+      label,
+      onClick,
+    }: {
+      label?: string
+      onClick: () => Promise<void> | void
+    }) => {
+      const [isConfirming, setConfirming] = useState(false)
+      const slug = React.useContext(DialogSlugContext)
+      return (
+        <button
+          disabled={isConfirming}
+          onClick={async () => {
+            if (isConfirming) return
+            setConfirming(true)
+            await onClick()
+            setConfirming(false)
+            modalState.closeModal(slug)
+          }}
+        >
+          {label}
+        </button>
+      )
+    },
+    DialogFooter: ({ children }: React.PropsWithChildren) => <footer>{children}</footer>,
+    DialogHeader: ({ showClose, title }: { showClose?: boolean; title?: React.ReactNode }) => (
+      <header data-show-close={String(showClose)}>
+        <h2 id="social-platform-dialog-title">{title}</h2>
+      </header>
+    ),
+    DialogModal: ({
+      children,
+      closeOnEsc,
+      size,
+      slug,
+    }: React.PropsWithChildren<{ closeOnEsc?: boolean; size?: string; slug: string }>) => {
+      const isOpen = useSyncExternalStore(
+        modalState.subscribe,
+        () => modalState.isOpen(slug),
+        () => false,
+      )
+      return isOpen ? (
+        <DialogSlugContext.Provider value={slug}>
+          <div
+            aria-labelledby="social-platform-dialog-title"
+            data-close-on-esc={String(closeOnEsc)}
+            data-size={size}
+            role="dialog"
+          >
+            {children}
+          </div>
+        </DialogSlugContext.Provider>
+      ) : null
+    },
+    TextInput: ({
+      label,
+      onChange,
+      required,
+      value,
+    }: {
+      label?: string
+      onChange?: React.ChangeEventHandler<HTMLInputElement>
+      required?: boolean
+      value?: string
+    }) => <input aria-label={label} onChange={onChange} required={required} value={value} />,
+    UploadInput: ({
+      allowCreate,
+      filterOptions,
+      hasMany,
+      label,
+      onChange,
+      relationTo,
+      required,
+      value,
+    }: {
+      allowCreate?: boolean
+      filterOptions?: unknown
+      hasMany?: boolean
+      label?: string
+      onChange?: (value: string) => void
+      relationTo?: string
+      required?: boolean
+      value?: number | string
+    }) => (
+      <div
+        aria-label={label}
+        data-allow-create={String(allowCreate)}
+        data-filter-options={JSON.stringify(filterOptions)}
+        data-has-many={String(hasMany)}
+        data-relation-to={relationTo}
+        data-required={String(required)}
+        data-value={value || ''}
+        role="group"
       >
         {label}
-      </button>
-    )
-  },
-  DialogFooter: ({ children }: React.PropsWithChildren) => <footer>{children}</footer>,
-  DialogHeader: ({ showClose, title }: { showClose?: boolean; title?: React.ReactNode }) => (
-    <header data-show-close={String(showClose)}>
-      <h2 id="social-platform-dialog-title">{title}</h2>
-    </header>
-  ),
-  DialogModal: ({
-    children,
-    closeOnEsc,
-    size,
-    slug,
-  }: React.PropsWithChildren<{ closeOnEsc?: boolean; size?: string; slug: string }>) => {
-    const isOpen = useSyncExternalStore(
-      modalState.subscribe,
-      () => modalState.isOpen(slug),
-      () => false,
-    )
-    return isOpen ? (
-      <div
-        aria-labelledby="social-platform-dialog-title"
-        data-close-on-esc={String(closeOnEsc)}
-        data-size={size}
-        role="dialog"
-      >
-        {children}
+        {required ? ' *' : ''}
+        <button onClick={() => onChange?.('asset-1')}>Choose test icon</button>
       </div>
-    ) : null
-  },
-  TextInput: ({
-    label,
-    onChange,
-    required,
-    value,
-  }: {
-    label?: string
-    onChange?: React.ChangeEventHandler<HTMLInputElement>
-    required?: boolean
-    value?: string
-  }) => <input aria-label={label} onChange={onChange} required={required} value={value} />,
-  UploadInput: ({
-    allowCreate,
-    filterOptions,
-    hasMany,
-    label,
-    onChange,
-    relationTo,
-    required,
-  }: {
-    allowCreate?: boolean
-    filterOptions?: unknown
-    hasMany?: boolean
-    label?: string
-    onChange?: (value: string) => void
-    relationTo?: string
-    required?: boolean
-  }) => (
-    <div
-      aria-label={label}
-      data-allow-create={String(allowCreate)}
-      data-filter-options={JSON.stringify(filterOptions)}
-      data-has-many={String(hasMany)}
-      data-relation-to={relationTo}
-      data-required={String(required)}
-      role="group"
-    >
-      {label}
-      {required ? ' *' : ''}
-      <button onClick={() => onChange?.('asset-1')}>Choose test icon</button>
-    </div>
-  ),
-  useConfig: () => ({ config: { routes: { api: '/api' }, serverURL: 'https://cms.test' } }),
-  useModal: () => ({ closeModal: modalState.closeModal, openModal: modalState.openModal }),
-}))
+    ),
+    useConfig: () => ({ config: { routes: { api: '/api' }, serverURL: 'https://cms.test' } }),
+    useModal: () => ({ closeModal: modalState.closeModal, openModal: modalState.openModal }),
+  }
+})
 
 import { SocialPlatformCreateModal } from '@/SiteSettings/components/SocialPlatformCreateModal'
 
@@ -173,9 +189,15 @@ describe('SocialPlatformCreateModal', () => {
 
   it('cancels without submitting', async () => {
     await renderModal()
+    completeForm()
     fireEvent.click(screen.getByRole('button', { name: 'Cancel' }))
     expect(fetch).not.toHaveBeenCalled()
     expect(screen.queryByRole('dialog')).toBeNull()
+
+    modalState.openModal('create-social-platform-test')
+    await screen.findByRole('dialog', { name: 'Create Social Platform' })
+    expect(screen.getByRole<HTMLInputElement>('textbox', { name: 'Platform' }).value).toBe('')
+    expect(screen.getByRole('group', { name: 'Icon' }).getAttribute('data-value')).toBe('')
   })
 
   it('requires an icon before posting and preserves the platform', async () => {
@@ -236,5 +258,12 @@ describe('SocialPlatformCreateModal', () => {
       headers: { 'Content-Type': 'application/json' },
       method: 'POST',
     })
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull())
+
+    modalState.openModal('create-social-platform-test')
+    await screen.findByRole('dialog', { name: 'Create Social Platform' })
+    expect(screen.getByRole<HTMLInputElement>('textbox', { name: 'Platform' }).value).toBe('')
+    expect(screen.getByRole('group', { name: 'Icon' }).getAttribute('data-value')).toBe('')
+    expect(screen.queryByRole('alert')).toBeNull()
   })
 })
