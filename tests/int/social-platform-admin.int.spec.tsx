@@ -448,6 +448,33 @@ describe('social platform creation entry points', () => {
     expect(secondSlug).not.toBe(firstSlug)
   })
 
+  it.each([
+    {
+      field: {
+        hasMany: true,
+        name: 'platform',
+        relationTo: 'social-platforms',
+        type: 'relationship',
+      } as const,
+      name: 'has-many',
+    },
+    {
+      field: {
+        name: 'platform',
+        relationTo: ['social-platforms', 'brand-assets'] as ['social-platforms', 'brand-assets'],
+        type: 'relationship',
+      } as const,
+      name: 'polymorphic',
+    },
+  ])(
+    'rejects $name field configurations instead of corrupting relationship values',
+    ({ field }) => {
+      expect(() =>
+        render(<SocialPlatformRelationshipField field={field} path="socialLinks.0.platform" />),
+      ).toThrow('requires a scalar social-platforms relationship field')
+    },
+  )
+
   it('selects the newly created platform and closes the relationship modal', async () => {
     vi.mocked(fetch).mockResolvedValue(
       Response.json({ doc: { id: 'platform-id', platform: 'LinkedIn' } }),

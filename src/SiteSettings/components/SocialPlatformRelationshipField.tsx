@@ -9,9 +9,13 @@ import type {
 } from 'payload'
 import { useCallback, useMemo } from 'react'
 
+import { socialPlatformsSlug } from '@/collections/SocialPlatforms'
+
 import { SocialPlatformCreateModal } from './SocialPlatformCreateModal'
 
-const createSocialPlatformSentinel = '__create_social_platform__'
+// Payload generates Mongo ObjectIds for this collection, so this non-hex value
+// cannot collide with a persisted document ID. Relation identity is checked too.
+const mongoSafeCreateSocialPlatformSentinel = '__create_social_platform__'
 type DisplayOption = {
   allowEdit: boolean
   label: string
@@ -24,8 +28,13 @@ type DisplayOptionGroup = { label: string; options: DisplayOption[] }
 const createSocialPlatformOption: DisplayOption = {
   allowEdit: false,
   label: 'Create Social Platform',
-  value: createSocialPlatformSentinel,
+  relationTo: socialPlatformsSlug,
+  value: mongoSafeCreateSocialPlatformSentinel,
 }
+
+const isCreateSocialPlatformAction = (option: ValueWithRelation): boolean =>
+  option.relationTo === socialPlatformsSlug &&
+  option.value === mongoSafeCreateSocialPlatformSentinel
 
 const getModalSlug = (path: string): string => {
   let hash = 0
@@ -40,12 +49,26 @@ const appendCreateOption = (optionGroups: DisplayOptionGroup[]): DisplayOption[]
   createSocialPlatformOption,
 ]
 
+const assertScalarSocialPlatformsField = (field: RelationshipFieldClientProps['field']): void => {
+  if (
+    field.hasMany === true ||
+    Array.isArray(field.relationTo) ||
+    field.relationTo !== socialPlatformsSlug
+  ) {
+    throw new Error(
+      'SocialPlatformRelationshipField requires a scalar social-platforms relationship field.',
+    )
+  }
+}
+
 export const SocialPlatformRelationshipField = ({
   field,
   path: pathFromProps,
   readOnly,
   validate,
 }: RelationshipFieldClientProps) => {
+  assertScalarSocialPlatformsField(field)
+
   const {
     admin: {
       allowEdit = true,
@@ -100,7 +123,7 @@ export const SocialPlatformRelationshipField = ({
         return
       }
 
-      if (newValue?.value === createSocialPlatformSentinel) {
+      if (isCreateSocialPlatformAction(newValue)) {
         openModal(modalSlug)
         return
       }
