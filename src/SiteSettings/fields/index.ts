@@ -6,7 +6,7 @@ import { generalTab } from './general'
 import { legalTab } from './legal'
 import { socialTab } from './social'
 
-export { socialPlatformOptions, validateAbsoluteHttpURL } from './social'
+export { validateAbsoluteHttpURL } from './social'
 
 export const siteSettingsTabs: TabsField = {
   type: 'tabs',

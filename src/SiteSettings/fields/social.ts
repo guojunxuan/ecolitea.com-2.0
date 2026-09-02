@@ -1,14 +1,6 @@
-import type { SelectField, Tab } from 'payload'
+import type { Tab } from 'payload'
 
-export const socialPlatformOptions = [
-  { label: 'LinkedIn', value: 'linkedin' },
-  { label: 'Facebook', value: 'facebook' },
-  { label: 'Instagram', value: 'instagram' },
-  { label: 'YouTube', value: 'youtube' },
-  { label: 'WhatsApp', value: 'whatsapp' },
-  { label: 'WeChat', value: 'wechat' },
-  { label: 'Xiaohongshu', value: 'xiaohongshu' },
-] satisfies SelectField['options']
+import { socialPlatformsSlug } from '@/collections/SocialPlatforms'
 
 const invalidURLMessage = 'Enter a complete URL beginning with http:// or https://.'
 const requiredURLMessage = 'This field is required.'
@@ -32,6 +24,16 @@ export const socialTab: Tab = {
   },
   fields: [
     {
+      name: 'createSocialPlatform',
+      type: 'ui',
+      admin: {
+        components: {
+          Field:
+            '@/SiteSettings/components/SocialPlatformCreateActions#SocialPlatformCreateActions',
+        },
+      },
+    },
+    {
       name: 'socialLinks',
       type: 'array',
       label: 'Social Links',
@@ -42,9 +44,16 @@ export const socialTab: Tab = {
       fields: [
         {
           name: 'platform',
-          type: 'select',
-          options: socialPlatformOptions,
+          type: 'relationship',
+          relationTo: socialPlatformsSlug,
           required: true,
+          admin: {
+            allowCreate: false,
+            components: {
+              Field:
+                '@/SiteSettings/components/SocialPlatformRelationshipField#SocialPlatformRelationshipField',
+            },
+          },
         },
         {
           name: 'label',

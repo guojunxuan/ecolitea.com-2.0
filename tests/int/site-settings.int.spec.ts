@@ -13,6 +13,7 @@ import {
   validateAbsoluteHttpURL,
 } from '@/SiteSettings/fields'
 import { brandingTab } from '@/SiteSettings/fields/branding'
+import { socialTab } from '@/SiteSettings/fields/social'
 import { revalidateSiteSettings } from '@/SiteSettings/hooks/revalidateSiteSettings'
 import type { User } from '@/payload-types'
 
@@ -164,5 +165,52 @@ describe('Site Settings Global', () => {
     expect(validateAbsoluteHttpURL('javascript:alert(1)')).toBe(
       'Enter a complete URL beginning with http:// or https://.',
     )
+  })
+
+  it('relates social links to reusable social platforms', () => {
+    const socialLinks = socialTab.fields.find(
+      (field) => 'name' in field && field.name === 'socialLinks',
+    )
+
+    expect(socialLinks).toMatchObject({ name: 'socialLinks', type: 'array' })
+    if (!socialLinks || socialLinks.type !== 'array') {
+      throw new Error('Social tab must define a socialLinks array.')
+    }
+
+    const platform = socialLinks.fields.find(
+      (field) => 'name' in field && field.name === 'platform',
+    )
+    const label = socialLinks.fields.find((field) => 'name' in field && field.name === 'label')
+    const url = socialLinks.fields.find((field) => 'name' in field && field.name === 'url')
+
+    expect(platform).toMatchObject({
+      name: 'platform',
+      type: 'relationship',
+      relationTo: 'social-platforms',
+      required: true,
+      admin: {
+        allowCreate: false,
+        components: {
+          Field:
+            '@/SiteSettings/components/SocialPlatformRelationshipField#SocialPlatformRelationshipField',
+        },
+      },
+    })
+    expect(label).toMatchObject({ name: 'label', type: 'text' })
+    expect(url).toMatchObject({ name: 'url', type: 'text', required: true })
+
+    const createSocialPlatform = socialTab.fields.find(
+      (field) => 'name' in field && field.name === 'createSocialPlatform',
+    )
+    expect(createSocialPlatform).toMatchObject({
+      name: 'createSocialPlatform',
+      type: 'ui',
+      admin: {
+        components: {
+          Field:
+            '@/SiteSettings/components/SocialPlatformCreateActions#SocialPlatformCreateActions',
+        },
+      },
+    })
   })
 })
