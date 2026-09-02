@@ -43,6 +43,25 @@ Responsibilities follow existing conventions:
 
 Names use the system's established conventions: PascalCase for exported Collection and React component files, camelCase for fields and helpers, kebab-case Payload slugs, and user-facing labels in title case. Any implementation plan may split a component further only when it has a distinct responsibility and remains under `src/SiteSettings/components/`.
 
+## Configuration-First and Low-Coupling Rules
+
+Payload configuration is the source of truth. The implementation must prefer supported Payload field, access, upload, relationship, validation, and component configuration over imperative UI logic.
+
+In particular:
+
+- social platform choices come exclusively from `social-platforms` documents and are never duplicated as a hard-coded options array;
+- `platform`, `icon`, `label`, and `url` requirements are declared in Payload field configuration and are not independently redefined in the Modal;
+- SVG MIME constraints reuse the existing Brand Assets convention instead of introducing a second unrelated MIME list;
+- access behavior reuses the repository's `anyone` and `authenticated` functions;
+- the Modal uses Payload configuration and Admin context for API base paths, authentication, locale, field paths, and relationship updates rather than hard-coded URLs or DOM queries;
+- Collection slugs and component configuration are passed through typed props or shared exported configuration where reuse is necessary, rather than repeated string literals across UI files;
+- generated Payload types are consumed instead of maintaining parallel handwritten document types;
+- no social platform name, icon, ID, database record, or environment-specific value is embedded in source code;
+- no Payload package file is patched and no global CSS or event interception changes unrelated Admin fields;
+- frontend rendering concerns remain outside the Admin data-model components.
+
+The custom Modal is the smallest intentional exception to an entirely config-only implementation. Its responsibility is limited to the approved presentation and orchestration that Payload's default Relationship Drawer cannot provide. Persistence, permissions, validation, upload storage, and relationship semantics remain owned by Payload configuration and APIs.
+
 ## Data Model
 
 ### Social Platforms collection
