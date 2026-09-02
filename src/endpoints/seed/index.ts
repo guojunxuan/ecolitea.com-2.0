@@ -412,6 +412,7 @@ export const seed = async ({
 
 async function fetchFileByURL(url: string): Promise<File> {
   const res = await fetch(url, {
+    credentials: 'include',
     method: 'GET',
   })
 
