@@ -11,6 +11,7 @@ import { post2 } from './post-2'
 import { post3 } from './post-3'
 
 const collections: CollectionSlug[] = [
+  'brand-assets',
   'categories',
   'media',
   'pages',
@@ -18,6 +19,7 @@ const collections: CollectionSlug[] = [
   'forms',
   'form-submissions',
   'search',
+  'social-platforms',
 ]
 
 const globals = ['header', 'footer'] as const satisfies GlobalSlug[]
@@ -97,6 +99,72 @@ export const seed = async ({
       'https://raw.githubusercontent.com/payloadcms/payload/refs/heads/main/templates/website/src/endpoints/seed/image-hero1.webp',
     ),
   ])
+
+  const socialPlatformFixtures = [
+    {
+      name: 'linkedin',
+      platform: 'LinkedIn',
+      iconURL:
+        'https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/linkedin.svg',
+      profileURL: 'https://www.linkedin.com/company/ecolitea',
+    },
+    {
+      name: 'facebook',
+      platform: 'Facebook',
+      iconURL:
+        'https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/facebook.svg',
+      profileURL: 'https://www.facebook.com/ecolitea',
+    },
+    {
+      name: 'instagram',
+      platform: 'Instagram',
+      iconURL:
+        'https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/instagram.svg',
+      profileURL: 'https://www.instagram.com/ecolitea',
+    },
+  ] as const
+
+  payload.logger.info(`— Seeding brand assets...`)
+
+  const socialPlatformIcons = new Map(
+    await Promise.all(
+      socialPlatformFixtures.map(async (fixture) => {
+        const icon = await payload.create({
+          collection: 'brand-assets',
+          data: {
+            alt: `${fixture.platform} icon`,
+          },
+          file: await fetchFileByURL(fixture.iconURL),
+        })
+
+        return [fixture.name, icon] as const
+      }),
+    ),
+  )
+
+  payload.logger.info(`— Seeding social platforms...`)
+
+  const socialPlatforms = new Map(
+    await Promise.all(
+      socialPlatformFixtures.map(async (fixture) => {
+        const icon = socialPlatformIcons.get(fixture.name)
+        if (!icon) throw new Error(`Missing seeded icon for ${fixture.name}`)
+
+        const platform = await payload.create({
+          collection: 'social-platforms',
+          data: {
+            platform: fixture.platform,
+            icon: icon.id,
+          },
+        })
+
+        return [fixture.name, platform] as const
+      }),
+    ),
+  )
+
+  const siteLogo = socialPlatformIcons.get('linkedin')
+  if (!siteLogo) throw new Error('Missing seeded site logo')
 
   const [demoAuthor, image1Doc, image2Doc, image3Doc, imageHomeDoc] = await Promise.all([
     payload.create({
@@ -270,6 +338,23 @@ export const seed = async ({
             },
           },
         ],
+      },
+    }),
+    payload.updateGlobal({
+      slug: 'site-settings',
+      data: {
+        siteName: 'Ecolitea',
+        logo: siteLogo.id,
+        socialLinks: socialPlatformFixtures.map((fixture) => {
+          const platform = socialPlatforms.get(fixture.name)
+          if (!platform) throw new Error(`Missing seeded social platform for ${fixture.name}`)
+
+          return {
+            platform: platform.id,
+            label: fixture.platform,
+            url: fixture.profileURL,
+          }
+        }),
       },
     }),
   ])

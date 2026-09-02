@@ -1848,7 +1848,7 @@ export interface SiteSettings {
   businessHours?: string | null;
   socialLinks?:
     | {
-        platform: 'linkedin' | 'facebook' | 'instagram' | 'youtube' | 'whatsapp' | 'wechat' | 'xiaohongshu';
+        platform: string | SocialPlatform;
         /**
          * Optional public label. The platform name can be used when empty.
          */

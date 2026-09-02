@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest'
+import { describe, expect, expectTypeOf, it, vi } from 'vitest'
 import type { AccessArgs, PayloadRequest } from 'payload'
 
 import { anyone } from '@/access/anyone'
@@ -15,9 +15,21 @@ import {
 import { brandingTab } from '@/SiteSettings/fields/branding'
 import { socialTab } from '@/SiteSettings/fields/social'
 import { revalidateSiteSettings } from '@/SiteSettings/hooks/revalidateSiteSettings'
-import type { User } from '@/payload-types'
+import type {
+  Config,
+  SiteSettings as GeneratedSiteSettings,
+  SocialPlatform,
+  User,
+} from '@/payload-types'
+
+type GeneratedSocialLink = NonNullable<GeneratedSiteSettings['socialLinks']>[number]
 
 describe('Site Settings Global', () => {
+  it('generates reusable social platform relationship types', () => {
+    expectTypeOf<Config['collections']['social-platforms']>().toEqualTypeOf<SocialPlatform>()
+    expectTypeOf<GeneratedSocialLink['platform']>().toEqualTypeOf<string | SocialPlatform>()
+  })
+
   it('defines a hidden reusable Social Platforms collection', () => {
     expect(SocialPlatforms).toMatchObject({
       slug: 'social-platforms',
