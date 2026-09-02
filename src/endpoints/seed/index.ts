@@ -163,9 +163,6 @@ export const seed = async ({
     ),
   )
 
-  const siteLogo = socialPlatformIcons.get('linkedin')
-  if (!siteLogo) throw new Error('Missing seeded site logo')
-
   const [demoAuthor, image1Doc, image2Doc, image3Doc, imageHomeDoc] = await Promise.all([
     payload.create({
       collection: 'users',
@@ -343,8 +340,6 @@ export const seed = async ({
     payload.updateGlobal({
       slug: 'site-settings',
       data: {
-        siteName: 'Ecolitea',
-        logo: siteLogo.id,
         socialLinks: socialPlatformFixtures.map((fixture) => {
           const platform = socialPlatforms.get(fixture.name)
           if (!platform) throw new Error(`Missing seeded social platform for ${fixture.name}`)
