@@ -10,6 +10,39 @@ This change covers the Social Platform data model, Site Settings Social fields, 
 
 It does not change the public Footer, render social icons, add analytics, add SEO schema, or expose a Social Platforms item in the Admin navigation.
 
+## Project Structure and Naming
+
+All implementation files must follow the current repository's directory structure, import aliases, naming conventions, and responsibility boundaries. This feature must not introduce a new top-level architectural pattern.
+
+The intended placement is:
+
+```text
+src/
+  collections/
+    SocialPlatforms.ts
+  SiteSettings/
+    fields/
+      social.ts
+    components/
+      SocialPlatformCreateModal.tsx
+      SocialPlatformCreateActions.tsx
+tests/
+  int/
+    site-settings.int.spec.ts
+```
+
+Responsibilities follow existing conventions:
+
+- `src/collections/SocialPlatforms.ts` owns only the reusable Payload Collection configuration, fields, access, and Admin metadata;
+- `src/SiteSettings/fields/social.ts` owns only the Site Settings Social tab and its relationship/array configuration;
+- `src/SiteSettings/components/` contains Admin UI that is specific to the Site Settings Social workflow;
+- existing shared access functions such as `anyone` and `authenticated` are reused rather than duplicated;
+- generated types remain in the existing `src/payload-types.ts` output;
+- focused configuration and behavior coverage extends the existing `tests/int/site-settings.int.spec.ts` unless a separate test file is justified by size;
+- imports use the repository's existing `@/` alias and current formatting rules.
+
+Names use the system's established conventions: PascalCase for exported Collection and React component files, camelCase for fields and helpers, kebab-case Payload slugs, and user-facing labels in title case. Any implementation plan may split a component further only when it has a distinct responsibility and remains under `src/SiteSettings/components/`.
+
 ## Data Model
 
 ### Social Platforms collection
