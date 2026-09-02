@@ -33,7 +33,7 @@ The design must follow the current project's Payload conventions, prefer native 
 
 ## Implementation Workspace
 
-Implementation will be performed directly in the current checkout and current branch, `main`. Do not create a separate feature branch or Git worktree for this change. Existing unrelated working-tree files and changes must remain untouched.
+Implementation will be performed in the existing Site Settings worktree at `/Users/jason/ecolitea.com 2.0/.worktrees/codex-site-settings` on branch `codex/site-settings`. Do not create another feature branch or Git worktree for this change. Existing unrelated working-tree files and changes must remain untouched.
 
 ## Source Models
 
