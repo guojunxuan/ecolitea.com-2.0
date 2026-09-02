@@ -10,6 +10,7 @@ import { CaseStudies } from './collections/CaseStudies'
 import { Media } from './collections/Media'
 import { Pages } from './collections/Pages'
 import { Posts } from './collections/Posts'
+import { SocialPlatforms } from './collections/SocialPlatforms'
 import { Users } from './collections/Users'
 import { Footer } from './Footer/config'
 import { Header } from './Header/config'
@@ -84,6 +85,7 @@ export default buildConfig({
     Posts,
     Media,
     BrandAssets,
+    SocialPlatforms,
     Categories,
     CaseStudies,
     Users,

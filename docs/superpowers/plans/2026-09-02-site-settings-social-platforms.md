@@ -12,7 +12,7 @@
 
 ## File Structure
 
-- Create `src/collections/SocialPlatforms.ts`: Collection identity, access, Admin metadata, and Platform/Icon fields.
+- Create `src/collections/SocialPlatforms.ts`: Collection identity, access, Admin metadata, Platform/Icon fields, and server-side SVG validation.
 - Modify `src/payload.config.ts`: register the Collection.
 - Modify `src/SiteSettings/fields/social.ts`: relationship schema, UI action registration, and removal of hard-coded options.
 - Modify `src/SiteSettings/fields/index.ts`: stop exporting removed options.
@@ -67,6 +67,8 @@ it('defines reusable social platforms without an Admin navigation entry', () => 
 })
 ```
 
+Add a validation test that supplies a mocked Payload request returning an SVG Brand Asset and a PNG Brand Asset. Expect SVG to return `true` and PNG to return `Social platform icons must be SVG files.`. This tests server enforcement rather than relying only on `filterOptions`.
+
 - [ ] **Step 2: Run the focused test and verify RED**
 
 Run:
@@ -113,6 +115,8 @@ export const SocialPlatforms: CollectionConfig = {
   ],
 }
 ```
+
+Define and export `validateSocialPlatformIcon` in the same Collection file. It must accept an ID or populated Brand Asset, use an already populated `mimeType` when present, otherwise query `brand-assets` through `req.payload.findByID`, and return `true` only for `image/svg+xml`. Attach it to the Icon field as `validate`. Keep `filterOptions` for Admin selection UX, but treat validation as the security/data-integrity boundary.
 
 Import `SocialPlatforms` in `src/payload.config.ts` and place it beside `BrandAssets` in `collections`.
 

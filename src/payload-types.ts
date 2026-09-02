@@ -149,6 +149,7 @@ export interface Config {
     posts: Post;
     media: Media;
     'brand-assets': BrandAsset;
+    'social-platforms': SocialPlatform;
     categories: Category;
     'case-studies': CaseStudy;
     users: User;
@@ -169,6 +170,7 @@ export interface Config {
     posts: PostsSelect<false> | PostsSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     'brand-assets': BrandAssetsSelect<false> | BrandAssetsSelect<true>;
+    'social-platforms': SocialPlatformsSelect<false> | SocialPlatformsSelect<true>;
     categories: CategoriesSelect<false> | CategoriesSelect<true>;
     'case-studies': CaseStudiesSelect<false> | CaseStudiesSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
@@ -744,6 +746,17 @@ export interface BrandAsset {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "social-platforms".
+ */
+export interface SocialPlatform {
+  id: string;
+  platform: string;
+  icon: string | BrandAsset;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "case-studies".
  */
 export interface CaseStudy {
@@ -1020,6 +1033,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'brand-assets';
         value: string | BrandAsset;
+      } | null)
+    | ({
+        relationTo: 'social-platforms';
+        value: string | SocialPlatform;
       } | null)
     | ({
         relationTo: 'categories';
@@ -1378,6 +1395,16 @@ export interface BrandAssetsSelect<T extends boolean = true> {
   height?: T;
   focalX?: T;
   focalY?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "social-platforms_select".
+ */
+export interface SocialPlatformsSelect<T extends boolean = true> {
+  platform?: T;
+  icon?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

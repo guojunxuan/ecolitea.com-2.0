@@ -1,8 +1,12 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import type { AccessArgs, PayloadRequest } from 'payload'
 
 import { anyone } from '@/access/anyone'
 import { authenticated } from '@/access/authenticated'
+import {
+  SocialPlatforms,
+  validateSocialPlatformIcon,
+} from '@/collections/SocialPlatforms'
 import { SiteSettings } from '@/SiteSettings/config'
 import {
   siteSettingsTabs,
@@ -13,6 +17,55 @@ import { revalidateSiteSettings } from '@/SiteSettings/hooks/revalidateSiteSetti
 import type { User } from '@/payload-types'
 
 describe('Site Settings Global', () => {
+  it('defines a hidden reusable Social Platforms collection', () => {
+    expect(SocialPlatforms).toMatchObject({
+      slug: 'social-platforms',
+      admin: {
+        hidden: true,
+        useAsTitle: 'platform',
+      },
+      access: {
+        create: authenticated,
+        delete: authenticated,
+        read: anyone,
+        update: authenticated,
+      },
+    })
+    expect(SocialPlatforms.fields).toEqual([
+      {
+        name: 'platform',
+        type: 'text',
+        required: true,
+      },
+      expect.objectContaining({
+        name: 'icon',
+        type: 'upload',
+        relationTo: 'brand-assets',
+        required: true,
+        filterOptions: { mimeType: { equals: 'image/svg+xml' } },
+        validate: validateSocialPlatformIcon,
+      }),
+    ])
+  })
+
+  it('enforces SVG social platform icons on the server', async () => {
+    const findByID = vi.fn()
+    const req = { payload: { findByID } } as unknown as PayloadRequest
+
+    findByID.mockResolvedValueOnce({ mimeType: 'image/svg+xml' })
+    await expect(validateSocialPlatformIcon('asset-id', { req } as never)).resolves.toBe(true)
+
+    findByID.mockResolvedValueOnce({ mimeType: 'image/png' })
+    await expect(validateSocialPlatformIcon('asset-id', { req } as never)).resolves.toBe(
+      'Social platform icons must be SVG files.',
+    )
+    expect(findByID).toHaveBeenCalledWith({
+      collection: 'brand-assets',
+      id: 'asset-id',
+      req,
+    })
+  })
+
   it('uses five unnamed tabs so persisted fields remain flat', () => {
     expect(siteSettingsTabs.type).toBe('tabs')
     expect(siteSettingsTabs.tabs.map((tab) => tab.label)).toEqual([
@@ -89,6 +142,9 @@ describe('Site Settings Global', () => {
     const { default: configPromise } = await import('@/payload.config')
     const config = await configPromise
     expect(config.globals.some((global) => global.slug === SiteSettings.slug)).toBe(true)
+    expect(
+      config.collections.some((collection) => collection.slug === SocialPlatforms.slug),
+    ).toBe(true)
   })
 
   it('accepts only absolute HTTP and HTTPS social URLs', () => {
