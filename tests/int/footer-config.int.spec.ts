@@ -26,7 +26,7 @@ describe('navigationColumns field', () => {
     expect(columns).toMatchObject({
       name: 'columns',
       label: 'Navigation columns',
-      interfaceName: 'NavigationColumn',
+      interfaceName: 'NavigationColumns',
       minRows: 2,
     })
 
@@ -64,7 +64,7 @@ describe('Footer Global', () => {
       required: true,
       minRows: 1,
       maxRows: 4,
-      interfaceName: 'NavigationColumn',
+      interfaceName: 'NavigationColumns',
       admin: {
         initCollapsed: true,
         components: {

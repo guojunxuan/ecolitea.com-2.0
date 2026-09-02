@@ -30,7 +30,7 @@ export const navigationColumns: NavigationColumnsType = ({
     name: 'columns',
     type: 'array',
     label: 'Navigation columns',
-    interfaceName: 'NavigationColumn',
+    interfaceName: 'NavigationColumns',
     required: true,
     admin: {
       initCollapsed: true,

@@ -10,9 +10,9 @@
  * Manage footer navigation here. Branding, contact details, social links, company details, and copyright are managed in Site Settings.
  *
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "NavigationColumn".
+ * via the `definition` "NavigationColumns".
  */
-export type NavigationColumn = {
+export type NavigationColumns = {
   label: string;
   navItems: {
     link: {
@@ -1776,7 +1776,7 @@ export interface Header {
  */
 export interface Footer {
   id: string;
-  columns: NavigationColumn;
+  columns: NavigationColumns;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -1883,16 +1883,16 @@ export interface HeaderSelect<T extends boolean = true> {
  * via the `definition` "footer_select".
  */
 export interface FooterSelect<T extends boolean = true> {
-  columns?: T | NavigationColumnSelect<T>;
+  columns?: T | NavigationColumnsSelect<T>;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "NavigationColumn_select".
+ * via the `definition` "NavigationColumns_select".
  */
-export interface NavigationColumnSelect<T extends boolean = true> {
+export interface NavigationColumnsSelect<T extends boolean = true> {
   label?: T;
   navItems?:
     | T

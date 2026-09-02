@@ -23,7 +23,7 @@ Run `pnpm generate:types` after changing the schema. The generated removal of `F
 - Modify `src/Footer/RowLabel.tsx`: expose Footer-domain `ColumnRowLabel` and `NavItemRowLabel` components without generated-type coupling.
 - Modify `src/Footer/config.ts`: compose the reusable field factory with Footer-specific limits.
 - Modify `src/app/(payload)/admin/importMap.js`: generated registration for the two row-label components.
-- Modify `src/payload-types.ts`: generated schema types, including `NavigationColumn`.
+- Modify `src/payload-types.ts`: generated schema types, including the reusable `NavigationColumns` array type.
 - Keep `src/Footer/Component.tsx` unchanged as an explicit scope assertion.
 
 ### Task 1: Specify the Footer Admin schema contract
@@ -61,7 +61,7 @@ describe('Footer Global Admin schema', () => {
     const columns = getNamedField('columns') as ArrayField
     expect(columns).toMatchObject({
       type: 'array', required: true, minRows: 1, maxRows: 4,
-      interfaceName: 'NavigationColumn',
+      interfaceName: 'NavigationColumns',
       admin: {
         initCollapsed: true,
         components: { RowLabel: '@/Footer/RowLabel#ColumnRowLabel' },
@@ -158,7 +158,7 @@ export const navigationColumns: NavigationColumnsType = ({
     name,
     type: 'array',
     label,
-    interfaceName: 'NavigationColumn',
+    interfaceName: 'NavigationColumns',
     required: true,
     minRows,
     maxRows,
@@ -344,7 +344,7 @@ Run:
 pnpm generate:types
 ```
 
-Expected: `src/payload-types.ts` contains `Footer.columns` and the reusable `NavigationColumn` interface, and no longer contains top-level `Footer.navItems`.
+Expected: `src/payload-types.ts` contains `Footer.columns` and the reusable `NavigationColumns` array type, and no longer contains top-level `Footer.navItems`.
 
 - [ ] **Step 5: Commit generated artifacts**
 

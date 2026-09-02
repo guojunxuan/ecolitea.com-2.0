@@ -27,7 +27,7 @@ src/Footer/RowLabel.tsx
 
 `navigationColumns()` accepts the field name, label, Payload-style row bounds, nested `navItems` bounds, and optional row-label component paths. It composes the existing shared `link()` field factory without depending on Footer. Footer-specific row-label components remain in the existing Footer domain directory and are passed into the factory as configuration.
 
-The array sets `interfaceName: 'NavigationColumn'` so Payload generates a stable reusable TypeScript and GraphQL type for a navigation-column row.
+The array sets `interfaceName: 'NavigationColumns'` so Payload generates a stable reusable TypeScript and GraphQL array type for the complete navigation-columns value.
 
 ## Data Model
 
