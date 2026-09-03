@@ -7,6 +7,214 @@
  */
 
 /**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "HeaderNavItem".
+ */
+export type HeaderNavItem =
+  | {
+      label: string;
+      navigationType: 'directLink' | 'dropdown' | 'directLinkAndDropdown';
+      link?: {
+        link?: {
+          type?: ('reference' | 'custom') | null;
+          newTab?: boolean | null;
+          reference?:
+            | ({
+                relationTo: 'pages';
+                value: string | Page;
+              } | null)
+            | ({
+                relationTo: 'posts';
+                value: string | Post;
+              } | null)
+            | ({
+                relationTo: 'case-studies';
+                value: string | CaseStudy;
+              } | null)
+            | ({
+                relationTo: 'categories';
+                value: string | Category;
+              } | null);
+          url?: string | null;
+        };
+      };
+      dropdown?: {
+        description?: string | null;
+        descriptionLinks?:
+          | {
+              link: {
+                type?: ('reference' | 'custom') | null;
+                newTab?: boolean | null;
+                reference?:
+                  | ({
+                      relationTo: 'pages';
+                      value: string | Page;
+                    } | null)
+                  | ({
+                      relationTo: 'posts';
+                      value: string | Post;
+                    } | null)
+                  | ({
+                      relationTo: 'case-studies';
+                      value: string | CaseStudy;
+                    } | null)
+                  | ({
+                      relationTo: 'categories';
+                      value: string | Category;
+                    } | null);
+                url?: string | null;
+                label: string;
+              };
+              id?: string | null;
+            }[]
+          | null;
+        items: HeaderDropdownItem;
+      };
+      id?: string | null;
+    }[]
+  | null;
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "HeaderDropdownItem".
+ */
+export type HeaderDropdownItem = {
+  type: 'default' | 'featured' | 'list';
+  defaultItem?: {
+    link: {
+      type?: ('reference' | 'custom') | null;
+      newTab?: boolean | null;
+      reference?:
+        | ({
+            relationTo: 'pages';
+            value: string | Page;
+          } | null)
+        | ({
+            relationTo: 'posts';
+            value: string | Post;
+          } | null)
+        | ({
+            relationTo: 'case-studies';
+            value: string | CaseStudy;
+          } | null)
+        | ({
+            relationTo: 'categories';
+            value: string | Category;
+          } | null);
+      url?: string | null;
+      label: string;
+    };
+    description?: string | null;
+  };
+  featuredItem?: {
+    tag: string;
+    landingLink?: {
+      type?: ('reference' | 'custom') | null;
+      newTab?: boolean | null;
+      reference?:
+        | ({
+            relationTo: 'pages';
+            value: string | Page;
+          } | null)
+        | ({
+            relationTo: 'posts';
+            value: string | Post;
+          } | null)
+        | ({
+            relationTo: 'case-studies';
+            value: string | CaseStudy;
+          } | null)
+        | ({
+            relationTo: 'categories';
+            value: string | Category;
+          } | null);
+      url?: string | null;
+    };
+    label?: LexicalRichText<LexicalNodes_744BEF80> | null;
+    links?:
+      | {
+          link: {
+            type?: ('reference' | 'custom') | null;
+            newTab?: boolean | null;
+            reference?:
+              | ({
+                  relationTo: 'pages';
+                  value: string | Page;
+                } | null)
+              | ({
+                  relationTo: 'posts';
+                  value: string | Post;
+                } | null)
+              | ({
+                  relationTo: 'case-studies';
+                  value: string | CaseStudy;
+                } | null)
+              | ({
+                  relationTo: 'categories';
+                  value: string | Category;
+                } | null);
+            url?: string | null;
+            label: string;
+          };
+          id?: string | null;
+        }[]
+      | null;
+  };
+  listItem?: {
+    tag: string;
+    landingLink?: {
+      type?: ('reference' | 'custom') | null;
+      newTab?: boolean | null;
+      reference?:
+        | ({
+            relationTo: 'pages';
+            value: string | Page;
+          } | null)
+        | ({
+            relationTo: 'posts';
+            value: string | Post;
+          } | null)
+        | ({
+            relationTo: 'case-studies';
+            value: string | CaseStudy;
+          } | null)
+        | ({
+            relationTo: 'categories';
+            value: string | Category;
+          } | null);
+      url?: string | null;
+    };
+    links?:
+      | {
+          link: {
+            type?: ('reference' | 'custom') | null;
+            newTab?: boolean | null;
+            reference?:
+              | ({
+                  relationTo: 'pages';
+                  value: string | Page;
+                } | null)
+              | ({
+                  relationTo: 'posts';
+                  value: string | Post;
+                } | null)
+              | ({
+                  relationTo: 'case-studies';
+                  value: string | CaseStudy;
+                } | null)
+              | ({
+                  relationTo: 'categories';
+                  value: string | Category;
+                } | null);
+            url?: string | null;
+            label: string;
+          };
+          id?: string | null;
+        }[]
+      | null;
+  };
+  id?: string | null;
+}[];
+/**
  * Manage footer navigation here. Branding, contact details, social links, company details, and copyright are managed in Site Settings.
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -90,6 +298,17 @@ export type SupportedTimezones =
   | 'Pacific/Fiji';
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "LexicalNodes_744BEF80".
+ */
+export type LexicalNodes_744BEF80 =
+  | SerializedTextNode
+  | SerializedTabNode
+  | SerializedLineBreakNode
+  | SerializedParagraphNode<LexicalNodes_744BEF80>
+  | SerializedAutoLinkNode<LexicalNodes_744BEF80, LexicalLinkFields>
+  | SerializedLinkNode<LexicalNodes_744BEF80, LexicalLinkFields>;
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "LexicalNodes_106E6C8F".
  */
 export type LexicalNodes_106E6C8F =
@@ -112,17 +331,6 @@ export type LexicalNodes_D0F9AE76 =
   | SerializedHeadingNode<LexicalNodes_D0F9AE76, 'h2' | 'h3' | 'h4'>
   | SerializedAutoLinkNode<LexicalNodes_D0F9AE76, LexicalLinkFields>
   | SerializedLinkNode<LexicalNodes_D0F9AE76, LexicalLinkFields>;
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "LexicalNodes_744BEF80".
- */
-export type LexicalNodes_744BEF80 =
-  | SerializedTextNode
-  | SerializedTabNode
-  | SerializedLineBreakNode
-  | SerializedParagraphNode<LexicalNodes_744BEF80>
-  | SerializedAutoLinkNode<LexicalNodes_744BEF80, LexicalLinkFields>
-  | SerializedLinkNode<LexicalNodes_744BEF80, LexicalLinkFields>;
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "LexicalNodes_658A03C4".
@@ -1774,26 +1982,30 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
  */
 export interface Header {
   id: string;
-  navItems?:
-    | {
-        link: {
-          type?: ('reference' | 'custom') | null;
-          newTab?: boolean | null;
-          reference?:
-            | ({
-                relationTo: 'pages';
-                value: string | Page;
-              } | null)
-            | ({
-                relationTo: 'posts';
-                value: string | Post;
-              } | null);
-          url?: string | null;
-          label: string;
-        };
-        id?: string | null;
-      }[]
-    | null;
+  navItems?: HeaderNavItem;
+  menuCta: {
+    type?: ('reference' | 'custom') | null;
+    newTab?: boolean | null;
+    reference?:
+      | ({
+          relationTo: 'pages';
+          value: string | Page;
+        } | null)
+      | ({
+          relationTo: 'posts';
+          value: string | Post;
+        } | null)
+      | ({
+          relationTo: 'case-studies';
+          value: string | CaseStudy;
+        } | null)
+      | ({
+          relationTo: 'categories';
+          value: string | Category;
+        } | null);
+    url?: string | null;
+    label: string;
+  };
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -1887,7 +2099,68 @@ export interface PayloadJobsStat {
  * via the `definition` "header_select".
  */
 export interface HeaderSelect<T extends boolean = true> {
-  navItems?:
+  navItems?: T | HeaderNavItemSelect<T>;
+  menuCta?:
+    | T
+    | {
+        type?: T;
+        newTab?: T;
+        reference?: T;
+        url?: T;
+        label?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "HeaderNavItem_select".
+ */
+export interface HeaderNavItemSelect<T extends boolean = true> {
+  label?: T;
+  navigationType?: T;
+  link?:
+    | T
+    | {
+        link?:
+          | T
+          | {
+              type?: T;
+              newTab?: T;
+              reference?: T;
+              url?: T;
+            };
+      };
+  dropdown?:
+    | T
+    | {
+        description?: T;
+        descriptionLinks?:
+          | T
+          | {
+              link?:
+                | T
+                | {
+                    type?: T;
+                    newTab?: T;
+                    reference?: T;
+                    url?: T;
+                    label?: T;
+                  };
+              id?: T;
+            };
+        items?: T | HeaderDropdownItemSelect<T>;
+      };
+  id?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "HeaderDropdownItem_select".
+ */
+export interface HeaderDropdownItemSelect<T extends boolean = true> {
+  type?: T;
+  defaultItem?:
     | T
     | {
         link?:
@@ -1899,11 +2172,64 @@ export interface HeaderSelect<T extends boolean = true> {
               url?: T;
               label?: T;
             };
-        id?: T;
+        description?: T;
       };
-  updatedAt?: T;
-  createdAt?: T;
-  globalType?: T;
+  featuredItem?:
+    | T
+    | {
+        tag?: T;
+        landingLink?:
+          | T
+          | {
+              type?: T;
+              newTab?: T;
+              reference?: T;
+              url?: T;
+            };
+        label?: T;
+        links?:
+          | T
+          | {
+              link?:
+                | T
+                | {
+                    type?: T;
+                    newTab?: T;
+                    reference?: T;
+                    url?: T;
+                    label?: T;
+                  };
+              id?: T;
+            };
+      };
+  listItem?:
+    | T
+    | {
+        tag?: T;
+        landingLink?:
+          | T
+          | {
+              type?: T;
+              newTab?: T;
+              reference?: T;
+              url?: T;
+            };
+        links?:
+          | T
+          | {
+              link?:
+                | T
+                | {
+                    type?: T;
+                    newTab?: T;
+                    reference?: T;
+                    url?: T;
+                    label?: T;
+                  };
+              id?: T;
+            };
+      };
+  id?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -2163,14 +2489,6 @@ export interface SerializedParagraphNode<TChildren> extends SerializedLexicalEle
   textStyle: string;
 }
 
-export interface SerializedHeadingNode<
-  TChildren,
-  TTag extends 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' = 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6',
-> extends SerializedLexicalElementBase<TChildren> {
-  type: 'heading';
-  tag: TTag;
-}
-
 export interface LexicalLinkFields {
   [k: string]: unknown;
   doc?: {
@@ -2201,6 +2519,14 @@ export interface LexicalRichText<TNode> {
     type: 'root';
     version: number;
   };
+}
+
+export interface SerializedHeadingNode<
+  TChildren,
+  TTag extends 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' = 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6',
+> extends SerializedLexicalElementBase<TChildren> {
+  type: 'heading';
+  tag: TTag;
 }
 
 export interface SerializedHorizontalRuleNode {
