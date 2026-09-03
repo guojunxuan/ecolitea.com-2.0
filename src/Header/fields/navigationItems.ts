@@ -1,6 +1,7 @@
 import type { ArrayField } from 'payload'
 
 import { link } from '@/fields/link'
+import { validateHeaderNavItems } from '@/Header/validators/validateNavigation'
 import { dropdown } from './dropdown'
 import { headerLinkTargets } from './dropdownItems'
 
@@ -9,6 +10,7 @@ export const navigationItems = (): ArrayField => ({
   type: 'array',
   maxRows: 8,
   interfaceName: 'HeaderNavItem',
+  validate: validateHeaderNavItems,
   admin: {
     initCollapsed: true,
     components: {

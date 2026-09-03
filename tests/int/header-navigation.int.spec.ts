@@ -4,6 +4,7 @@ import { Header } from '@/Header/config'
 import { dropdown } from '@/Header/fields/dropdown'
 import { dropdownItems } from '@/Header/fields/dropdownItems'
 import { navigationItems } from '@/Header/fields/navigationItems'
+import { validateHeaderNavItems } from '@/Header/validators/validateNavigation'
 
 describe('navigationItems field (Task 2)', () => {
   it('defines the top-level navItems array with admin metadata', () => {
@@ -336,5 +337,163 @@ describe('Header Global (Task 6)', () => {
     expect(Header.access?.read).toBeTypeOf('function')
     expect(Header.hooks?.afterChange).toHaveLength(1)
     expect(Header.versions).toBe(false)
+  })
+})
+
+describe('validateHeaderNavItems (Task 7)', () => {
+  // A valid reference link used to build valid rows.
+  const baseLink = {
+    type: 'reference',
+    reference: { relationTo: 'pages', value: 'some-page-id' },
+  }
+
+  it('accepts a valid directLink row', () => {
+    const items = [{ label: 'About', navigationType: 'directLink', link: baseLink }]
+
+    expect(validateHeaderNavItems(items)).toBe(true)
+  })
+
+  it('accepts a valid dropdown row with a default item', () => {
+    const items = [
+      {
+        label: 'Solutions',
+        navigationType: 'dropdown',
+        dropdown: {
+          items: [{ type: 'default', defaultItem: { link: baseLink } }],
+        },
+      },
+    ]
+
+    expect(validateHeaderNavItems(items)).toBe(true)
+  })
+
+  it('accepts a hybrid directLinkAndDropdown row with both a link and items', () => {
+    const items = [
+      {
+        label: 'Company',
+        navigationType: 'directLinkAndDropdown',
+        link: baseLink,
+        dropdown: {
+          items: [{ type: 'default', defaultItem: { link: baseLink } }],
+        },
+      },
+    ]
+
+    expect(validateHeaderNavItems(items)).toBe(true)
+  })
+
+  it('rejects a directLink row missing its link destination', () => {
+    const items = [{ label: 'About', navigationType: 'directLink', link: null }]
+
+    const result = validateHeaderNavItems(items)
+
+    expect(result).not.toBe(true)
+    expect(String(result)).toContain('Direct Link')
+  })
+
+  it('rejects a dropdown row with an empty items array', () => {
+    const items = [
+      {
+        label: 'Solutions',
+        navigationType: 'dropdown',
+        dropdown: { items: [] },
+      },
+    ]
+
+    const result = validateHeaderNavItems(items)
+
+    expect(result).not.toBe(true)
+    expect(String(result)).toContain('item')
+  })
+
+  it('rejects a hybrid row missing its direct link', () => {
+    const items = [
+      {
+        label: 'Company',
+        navigationType: 'directLinkAndDropdown',
+        link: null,
+        dropdown: {
+          items: [{ type: 'default', defaultItem: { link: baseLink } }],
+        },
+      },
+    ]
+
+    const result = validateHeaderNavItems(items)
+
+    expect(result).not.toBe(true)
+    expect(String(result)).toContain('Direct Link')
+  })
+
+  it('rejects a featured item missing its tag', () => {
+    const items = [
+      {
+        label: 'Solutions',
+        navigationType: 'dropdown',
+        dropdown: {
+          items: [
+            {
+              type: 'featured',
+              featuredItem: {
+                tag: '',
+                landingLink: baseLink,
+              },
+            },
+          ],
+        },
+      },
+    ]
+
+    const result = validateHeaderNavItems(items)
+
+    expect(result).not.toBe(true)
+    expect(String(result)).toContain('tag')
+  })
+
+  it('rejects a list item missing its landingLink destination', () => {
+    const items = [
+      {
+        label: 'Solutions',
+        navigationType: 'dropdown',
+        dropdown: {
+          items: [
+            {
+              type: 'list',
+              listItem: {
+                tag: 'Resources',
+                landingLink: null,
+              },
+            },
+          ],
+        },
+      },
+    ]
+
+    const result = validateHeaderNavItems(items)
+
+    expect(result).not.toBe(true)
+    expect(String(result)).toContain('Landing Link')
+  })
+
+  it('ignores a stale dropdown on a directLink row', () => {
+    const items = [
+      {
+        label: 'About',
+        navigationType: 'directLink',
+        link: baseLink,
+        dropdown: {
+          items: [
+            {
+              type: 'featured',
+              featuredItem: {
+                tag: '',
+                landingLink: null,
+              },
+            },
+          ],
+        },
+      },
+    ]
+
+    expect(validateHeaderNavItems(items)).toBe(true)
   })
 })
