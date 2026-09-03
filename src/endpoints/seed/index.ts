@@ -1,4 +1,7 @@
-import type { CollectionSlug, GlobalSlug, Payload, PayloadRequest, File } from 'payload'
+import type { CollectionSlug, Payload, PayloadRequest, File } from 'payload'
+import { mkdtemp, rm, writeFile } from 'node:fs/promises'
+import { tmpdir } from 'node:os'
+import path from 'node:path'
 
 import { contactForm as contactFormData } from './contact-form'
 import { contact as contactPageData } from './contact-page'
@@ -20,12 +23,10 @@ const collections: CollectionSlug[] = [
   'search',
 ]
 
-const globals = ['header', 'footer'] as const satisfies GlobalSlug[]
-
 const categories = ['Technology', 'News', 'Finance', 'Design', 'Software', 'Engineering']
 
 const svgFile = (name: string, title: string, body: string): File => {
-  const source = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>${title}</title>${body}</svg>`
+  const source = `<?xml version="1.0" encoding="UTF-8"?><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>${title}</title>${body}</svg>`
   const data = Buffer.from(source)
 
   return {
@@ -33,6 +34,25 @@ const svgFile = (name: string, title: string, body: string): File => {
     data,
     mimetype: 'image/svg+xml',
     size: data.byteLength,
+  }
+}
+
+const createBrandAsset = async (
+  payload: Payload,
+  fixture: { alt: string; file: File },
+) => {
+  const directory = await mkdtemp(path.join(tmpdir(), 'ecolitea-seed-svg-'))
+  const tempFilePath = path.join(directory, fixture.file.name)
+  await writeFile(tempFilePath, fixture.file.data)
+
+  try {
+    return await payload.create({
+      collection: 'brand-assets',
+      data: { alt: fixture.alt },
+      file: { ...fixture.file, data: Buffer.alloc(0), tempFilePath },
+    })
+  } finally {
+    await rm(directory, { force: true, recursive: true })
   }
 }
 
@@ -103,13 +123,15 @@ export const seedSocialSettings = async (payload: Payload) => {
       limit: 1,
       where: { filename: { equals: fixture.file.name } },
     })
+    const existingAsset = existing.docs[0]
+    if (existingAsset && existingAsset.mimeType !== 'image/svg+xml') {
+      throw new Error(
+        `Reserved seed asset ${fixture.file.name} exists with MIME type ${String(existingAsset.mimeType)}; expected image/svg+xml.`,
+      )
+    }
     const asset =
-      existing.docs[0] ??
-      (await payload.create({
-        collection: 'brand-assets',
-        data: { alt: fixture.alt },
-        file: fixture.file,
-      }))
+      existingAsset ??
+      (await createBrandAsset(payload, fixture))
     assetsByFixtureName.set(fixture.name, asset)
   }
 
@@ -169,27 +191,12 @@ export const seed = async ({
   payload.logger.info('Seeding database...')
 
   // we need to clear the media directory before seeding
-  // as well as the collections and globals
+  // as well as the collections
   // this is because while `yarn seed` drops the database
   // the custom `/api/seed` endpoint does not
-  payload.logger.info(`— Clearing collections and globals...`)
+  payload.logger.info(`— Clearing collections...`)
 
   // clear the database
-  await Promise.all(
-    globals.map((global) =>
-      payload.updateGlobal({
-        slug: global,
-        data: {
-          navItems: [],
-        },
-        depth: 0,
-        context: {
-          disableRevalidate: true,
-        },
-      }),
-    ),
-  )
-
   await Promise.all(
     collections.map((collection) => payload.db.deleteMany({ collection, req, where: {} })),
   )
@@ -335,7 +342,7 @@ export const seed = async ({
 
   payload.logger.info(`— Seeding pages...`)
 
-  const [_, contactPage] = await Promise.all([
+  await Promise.all([
     payload.create({
       collection: 'pages',
       depth: 0,
@@ -345,65 +352,6 @@ export const seed = async ({
       collection: 'pages',
       depth: 0,
       data: contactPageData({ contactForm: contactForm }),
-    }),
-  ])
-
-  payload.logger.info(`— Seeding globals...`)
-
-  await Promise.all([
-    payload.updateGlobal({
-      slug: 'header',
-      data: {
-        navItems: [
-          {
-            link: {
-              type: 'custom',
-              label: 'Posts',
-              url: '/posts',
-            },
-          },
-          {
-            link: {
-              type: 'reference',
-              label: 'Contact',
-              reference: {
-                relationTo: 'pages',
-                value: contactPage.id,
-              },
-            },
-          },
-        ],
-      },
-    }),
-    payload.updateGlobal({
-      slug: 'footer',
-      data: {
-        navItems: [
-          {
-            link: {
-              type: 'custom',
-              label: 'Admin',
-              url: '/admin',
-            },
-          },
-          {
-            link: {
-              type: 'custom',
-              label: 'Source Code',
-              newTab: true,
-              url: 'https://github.com/payloadcms/payload/tree/main/templates/website',
-            },
-          },
-          {
-            link: {
-              type: 'custom',
-              label: 'Payload',
-              newTab: true,
-              url: 'https://payloadcms.com/',
-            },
-          },
-        ],
-      },
     }),
   ])
 
