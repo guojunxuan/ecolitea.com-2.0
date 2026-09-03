@@ -1,4 +1,4 @@
-import type { Field, GroupField } from 'payload'
+import type { CollectionSlug, Field, GroupField } from 'payload'
 
 import deepMerge from '@/utilities/deepMerge'
 
@@ -19,9 +19,15 @@ type LinkType = (options?: {
   appearances?: LinkAppearances[] | false
   disableLabel?: boolean
   overrides?: Partial<GroupField>
+  relationTo?: CollectionSlug | CollectionSlug[]
 }) => Field
 
-export const link: LinkType = ({ appearances, disableLabel = false, overrides = {} } = {}) => {
+export const link: LinkType = ({
+  appearances,
+  disableLabel = false,
+  overrides = {},
+  relationTo,
+} = {}) => {
   const linkResult: GroupField = {
     name: 'link',
     type: 'group',
@@ -67,6 +73,15 @@ export const link: LinkType = ({ appearances, disableLabel = false, overrides = 
     ],
   }
 
+  // The relationship field accepts either a single `CollectionSlug` or an array.
+  // Normalize to an array so it always matches Payload's polymorphic
+  // relationship field type, and fall back to Pages + Posts when none is given.
+  const relationToList: CollectionSlug[] = Array.isArray(relationTo)
+    ? relationTo
+    : relationTo
+      ? [relationTo]
+      : ['pages', 'posts']
+
   const linkTypes: Field[] = [
     {
       name: 'reference',
@@ -75,7 +90,7 @@ export const link: LinkType = ({ appearances, disableLabel = false, overrides = 
         condition: (_, siblingData) => siblingData?.type === 'reference',
       },
       label: 'Document to link to',
-      relationTo: ['pages', 'posts'],
+      relationTo: relationToList,
       required: true,
     },
     {
