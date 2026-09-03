@@ -1,8 +1,8 @@
-import type { ArrayField } from 'payload'
+import type { ArrayField, CollectionSlug } from 'payload'
 
 import { link } from '@/fields/link'
 
-const headerLinkTargets = ['pages', 'posts', 'case-studies', 'categories'] as const
+export const headerLinkTargets: CollectionSlug[] = ['pages', 'posts', 'case-studies', 'categories']
 
 export const dropdownItems = (): ArrayField => ({
   name: 'items',
@@ -35,7 +35,7 @@ export const dropdownItems = (): ArrayField => ({
         condition: (_, siblingData) => siblingData?.type === 'default',
       },
       fields: [
-        link({ appearances: false, relationTo: [...headerLinkTargets] }),
+        link({ appearances: false, relationTo: headerLinkTargets }),
         { name: 'description', type: 'textarea' },
       ],
     },
@@ -50,14 +50,14 @@ export const dropdownItems = (): ArrayField => ({
         link({
           appearances: false,
           disableLabel: true,
-          relationTo: [...headerLinkTargets],
+          relationTo: headerLinkTargets,
           overrides: { name: 'landingLink', label: 'Landing Link' },
         }),
         { name: 'label', type: 'richText' },
         {
           name: 'links',
           type: 'array',
-          fields: [link({ appearances: false, relationTo: [...headerLinkTargets] })],
+          fields: [link({ appearances: false, relationTo: headerLinkTargets })],
         },
       ],
     },
@@ -72,13 +72,13 @@ export const dropdownItems = (): ArrayField => ({
         link({
           appearances: false,
           disableLabel: true,
-          relationTo: [...headerLinkTargets],
+          relationTo: headerLinkTargets,
           overrides: { name: 'landingLink', label: 'Landing Link' },
         }),
         {
           name: 'links',
           type: 'array',
-          fields: [link({ appearances: false, relationTo: [...headerLinkTargets] })],
+          fields: [link({ appearances: false, relationTo: headerLinkTargets })],
         },
       ],
     },

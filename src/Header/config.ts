@@ -1,6 +1,7 @@
 import type { GlobalConfig } from 'payload'
 
 import { link } from '@/fields/link'
+import { headerLinkTargets } from './fields/dropdownItems'
 import { navigationItems } from './fields/navigationItems'
 import { revalidateHeader } from './hooks/revalidateHeader'
 
@@ -13,7 +14,7 @@ export const Header: GlobalConfig = {
     navigationItems(),
     link({
       appearances: false,
-      relationTo: ['pages', 'posts', 'case-studies', 'categories'],
+      relationTo: headerLinkTargets,
       overrides: { name: 'menuCta', label: 'Menu CTA Button' },
     }),
   ],

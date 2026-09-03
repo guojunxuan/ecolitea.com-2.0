@@ -2,6 +2,7 @@ import type { ArrayField } from 'payload'
 
 import { link } from '@/fields/link'
 import { dropdown } from './dropdown'
+import { headerLinkTargets } from './dropdownItems'
 
 export const navigationItems = (): ArrayField => ({
   name: 'navItems',
@@ -40,7 +41,7 @@ export const navigationItems = (): ArrayField => ({
         link({
           appearances: false,
           disableLabel: true,
-          relationTo: ['pages', 'posts', 'case-studies', 'categories'],
+          relationTo: headerLinkTargets,
         }),
       ],
     },

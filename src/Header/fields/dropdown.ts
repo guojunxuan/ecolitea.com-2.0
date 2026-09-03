@@ -1,7 +1,7 @@
 import type { GroupField } from 'payload'
 
 import { link } from '@/fields/link'
-import { dropdownItems } from './dropdownItems'
+import { dropdownItems, headerLinkTargets } from './dropdownItems'
 
 export const dropdown = (): GroupField => ({
   name: 'dropdown',
@@ -17,7 +17,7 @@ export const dropdown = (): GroupField => ({
       name: 'descriptionLinks',
       type: 'array',
       label: 'Description links',
-      fields: [link({ appearances: false, relationTo: ['pages', 'posts', 'case-studies', 'categories'] })],
+      fields: [link({ appearances: false, relationTo: headerLinkTargets })],
     },
     dropdownItems(),
   ],
