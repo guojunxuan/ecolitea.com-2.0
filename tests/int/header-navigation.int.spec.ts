@@ -341,14 +341,17 @@ describe('Header Global (Task 6)', () => {
 })
 
 describe('validateHeaderNavItems (Task 7)', () => {
-  // A valid reference link used to build valid rows.
+  // A valid reference-link group (flat). Used directly for flat contexts —
+  // `defaultItem.link` and `featuredItem`/`listItem` `landingLink` — and wrapped
+  // in `{ link }` where the direct-link destination is nested (the row's `link`
+  // group wraps a `link()` field that is also named `link`).
   const baseLink = {
     type: 'reference',
     reference: { relationTo: 'pages', value: 'some-page-id' },
   }
 
-  it('accepts a valid directLink row', () => {
-    const items = [{ label: 'About', navigationType: 'directLink', link: baseLink }]
+  it('accepts a valid directLink row with a nested link destination', () => {
+    const items = [{ label: 'About', navigationType: 'directLink', link: { link: baseLink } }]
 
     expect(validateHeaderNavItems(items)).toBe(true)
   })
@@ -372,7 +375,7 @@ describe('validateHeaderNavItems (Task 7)', () => {
       {
         label: 'Company',
         navigationType: 'directLinkAndDropdown',
-        link: baseLink,
+        link: { link: baseLink },
         dropdown: {
           items: [{ type: 'default', defaultItem: { link: baseLink } }],
         },
@@ -382,8 +385,8 @@ describe('validateHeaderNavItems (Task 7)', () => {
     expect(validateHeaderNavItems(items)).toBe(true)
   })
 
-  it('rejects a directLink row missing its link destination', () => {
-    const items = [{ label: 'About', navigationType: 'directLink', link: null }]
+  it('rejects a directLink row whose nested link has an empty destination', () => {
+    const items = [{ label: 'About', navigationType: 'directLink', link: { link: {} } }]
 
     const result = validateHeaderNavItems(items)
 
@@ -479,7 +482,7 @@ describe('validateHeaderNavItems (Task 7)', () => {
       {
         label: 'About',
         navigationType: 'directLink',
-        link: baseLink,
+        link: { link: baseLink },
         dropdown: {
           items: [
             {

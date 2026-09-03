@@ -41,7 +41,9 @@ export type HeaderDropdownItemValue = {
 export type HeaderNavItemValue = {
   label?: string | null
   navigationType?: 'directLink' | 'dropdown' | 'directLinkAndDropdown' | null
-  link?: HeaderLinkValue | null
+  // The direct-link group wraps a `link()` field that is also named `link`,
+  // so the destination is NESTED: { link: { link: { type, reference, url } } }.
+  link?: { link?: HeaderLinkValue } | null
   dropdown?: {
     description?: string | null
     descriptionLinks?: unknown
@@ -78,8 +80,10 @@ export const validateHeaderNavItems = (
     const navigationType = item?.navigationType
 
     // Rule 1 — direct link / hybrid rows must point somewhere.
+    // The direct-link group wraps a `link()` field that is also named `link`,
+    // so the destination is nested at `item.link.link`.
     if (navigationType === 'directLink' || navigationType === 'directLinkAndDropdown') {
-      if (!hasDestination(item?.link)) {
+      if (!hasDestination(item?.link?.link)) {
         return `"${label}" (${navigationType}): A "Direct Link" destination is required — pick a referenced document or enter a non-empty custom URL.`
       }
     }
