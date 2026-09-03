@@ -46,7 +46,7 @@ const createSeedPayload = ({
       const document = {
         id: `${collection}-${target.length + 1}`,
         ...data,
-        ...(file ? { file, filename: file.name } : {}),
+        ...(file ? { file, filename: file.name, mimeType: file.mimetype } : {}),
       }
       target.push(document)
       return document
@@ -139,6 +139,23 @@ describe('Site Settings Global', () => {
     expect(result).toMatchObject({ siteName: 'Customer Name', logo: 'user-asset' })
     expect(result.socialLinks).toHaveLength(3)
     expect(result.socialLinks?.every(({ platform }) => platform !== 'user-platform')).toBe(true)
+  })
+
+  it('rejects a malformed file occupying a reserved seed asset filename', async () => {
+    const { payload } = createSeedPayload({
+      brandAssets: [
+        {
+          id: 'malformed-reserved-asset',
+          filename: 'payload-seed-ecolitea-logo.svg',
+          mimeType: 'image/png',
+        },
+      ],
+    })
+
+    await expect(seedSocialSettings(payload as never)).rejects.toThrow(
+      'Reserved seed asset payload-seed-ecolitea-logo.svg exists with MIME type image/png; expected image/svg+xml.',
+    )
+    expect(payload.create).not.toHaveBeenCalled()
   })
 
   it('defines a hidden reusable Social Platforms collection', () => {
