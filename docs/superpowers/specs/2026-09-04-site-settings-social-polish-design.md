@@ -2,7 +2,7 @@
 
 ## Goal
 
-Finish the Site Settings Social administration workflow without adding frontend Header or Footer rendering. Remove the remaining production seed helper, make Social Platform identity and editing rules explicit, simplify Social Link data, and make nested create/edit flows reliable.
+Finish the Site Settings Social administration workflow without adding frontend Header or Footer rendering. Remove the remaining production seed helper, make Social Platform identity and editing rules explicit, simplify Social Link data, and make create/edit flows reliable within a single Drawer.
 
 ## Scope
 
@@ -15,7 +15,7 @@ This work includes:
 - enforcing exact-value Platform name uniqueness;
 - making a Platform name immutable after creation;
 - enforcing a required SVG Icon on create and update;
-- improving create/edit error, loading, success, and nested navigation behavior;
+- replacing the custom Modal workflow with a single-Drawer create/edit experience;
 - updating generated Payload artifacts and focused tests.
 
 Frontend social-link rendering, Header/Footer adaptation, a separate Platform management page, analytics, SEO fields, automatic asset cleanup, and cascading asset deletion remain out of scope.
@@ -93,33 +93,35 @@ The action restrictions are scoped only to Site Settings Social Links. Other Arr
 
 ## Create and Edit Experience
 
+Social Platform creation and editing use one right-side Payload Drawer. The custom `SocialPlatformCreateModal`, its timer-based reopen behavior, and Modal-specific styles are removed. The flow never stacks one Social Platform Drawer on another and does not require a parent-child Drawer history.
+
 ### Create Platform
 
-The create action remains available from Site Settings Social and from the Platform relationship control. The form:
+The create action remains available from Site Settings Social and from the Platform relationship control. Both entry points open the same Creating new Social Platform Drawer. The form:
 
 - clearly labels Platform and Icon;
 - validates before submission;
 - disables Save while submitting;
 - prevents duplicate submissions;
-- keeps entered values and the modal open after a failed request;
-- presents Payload validation, duplicate, authorization, and network errors in the dialog;
+- keeps entered values and the Drawer open after a failed request;
+- presents Payload validation, duplicate, authorization, and network errors in the Drawer;
 - closes only after a confirmed successful response;
 - automatically selects the created Platform when creation began from a Social Link relationship;
 - shows a success notification when creation began from the top-level action.
 
-The implementation replaces the current timer-based close-and-reopen workaround with an explicit modal lifecycle that does not lose form state.
+The Icon field retains the current capabilities inside this Drawer: editors can select an existing Brand Asset or upload/create a new SVG. These actions stay within the active Social Platform Drawer from the editor's perspective and must not replace or close it prematurely.
 
 ### Edit Platform
 
-Editing continues through the edit affordance in the Platform relationship input. The Platform name is visible but read-only, accompanied by guidance that it cannot be changed after creation. Editors may replace the Icon.
+Editing continues through the edit affordance in the Platform relationship input and opens the same single-Drawer form in edit mode. The Platform name is visible but read-only, accompanied by guidance that it cannot be changed after creation. Editors may select an existing Brand Asset or upload/create a new SVG Icon.
 
-Saving an invalid or empty Icon keeps the edit interface open and reports the error. Successful Icon changes refresh the relationship display and Social Link row label.
+Saving an invalid or empty Icon keeps the Drawer open and reports the error. Successful Icon changes refresh the relationship display and Social Link row label.
 
-### Nested Navigation
+### Drawer Navigation
 
-Opening a nested create screen from Editing Social Platform creates a parent-child navigation stack. Back or Cancel from the nested create screen returns to Editing Social Platform with its existing state intact. It must not close the parent edit interface or return directly to Site Settings.
+Only one Social Platform Drawer is active. Back or Cancel from Create/Edit Social Platform closes that Drawer and returns directly to Site Settings Social. It must not close Site Settings or leave an invisible Modal active.
 
-Normal Cancel from the top-level create dialog closes that dialog and clears its draft. Successful completion closes only the completed layer.
+Cancel clears the active Social Platform draft. Successful completion closes the Drawer, refreshes available Platform options, and preserves the calling context so relationship-origin creation can select the new Platform.
 
 ## Seed Removal
 
@@ -131,7 +133,7 @@ New environments are configured through Payload Admin. A future deployment boots
 
 ## Error Handling
 
-Errors are displayed at the closest actionable field when possible and summarized in the active dialog when they are not field-specific. A failed operation never displays success, closes the active editor, clears valid user input, or mutates the relationship value.
+Errors are displayed at the closest actionable field when possible and summarized in the active Drawer when they are not field-specific. A failed operation never displays success, closes the active editor, clears valid user input, or mutates the relationship value.
 
 Duplicate-name errors use a stable editor-facing message. Server responses remain the source of truth; client checks may improve responsiveness but cannot replace server enforcement.
 
@@ -143,7 +145,7 @@ Focused automated coverage will verify:
 - distinct exact values remain allowed without case-insensitive normalization;
 - Platform names cannot be changed after creation through server APIs;
 - missing, cleared, unresolved, and non-SVG Icons are rejected on create and update;
-- invalid saves remain open and do not show success;
+- invalid saves keep the single Drawer open and do not show success;
 - successful relationship-origin creation selects the new Platform;
 - top-level creation reports success;
 - Social Links no longer expose `label` in the Payload schema or generated type;
@@ -151,7 +153,8 @@ Focused automated coverage will verify:
 - duplicate Platform relationships are rejected regardless of whether they arrive through Admin or an API;
 - Social Links expose Add Below, ordering, and Remove while omitting field/row copy, paste, replace, and duplicate actions;
 - Array action restrictions do not affect unrelated Payload Array fields;
-- nested Back and Cancel restore Editing Social Platform with its draft intact;
+- Create and Edit use one Drawer, with Back and Cancel returning directly to Site Settings Social;
+- selecting or creating an SVG Brand Asset does not close or replace the active Social Platform workflow;
 - `/next/seed`, the demo Dashboard action, static demo homepage fallback, and the production seed module remain absent;
 - the Payload import map and generated types remain current.
 
@@ -166,7 +169,7 @@ Final verification includes focused component tests, integration tests with Mong
 - A Platform can appear in at most one Social Link row.
 - Social Link rows show the related Platform name.
 - Social Links retain Add, ordering, and Remove actions without exposing invalid copy, paste, replace, or duplicate workflows.
-- Platform creation and editing preserve the correct parent interface across nested navigation.
+- Platform creation and editing use one Drawer and return to Site Settings Social.
 - Editors continue to manage and delete Platforms through the relationship field's existing edit affordance.
 - Platform/Icon deletion semantics are unchanged and never cascade.
 - No production demo seed route, UI, content module, or helper remains.
