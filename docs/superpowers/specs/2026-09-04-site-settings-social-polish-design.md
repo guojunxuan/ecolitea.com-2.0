@@ -44,6 +44,8 @@ The former optional `label` is removed. The related Platform name is the single 
 
 Existing stored `label` values become unused schema residue in MongoDB and are not migrated in this task. Payload will omit the field from future reads and writes after the generated schema changes.
 
+Each Platform relationship may appear at most once in the `socialLinks` array. Platform collection uniqueness and Social Link relationship uniqueness solve different problems: the collection constraint prevents two Platform documents from sharing the same exact name, while the array constraint prevents one valid Platform document from being referenced by multiple Social Link rows.
+
 ## Validation and Integrity
 
 Platform validation is enforced at the server boundary, not only in Admin components:
@@ -54,6 +56,9 @@ Platform validation is enforced at the server boundary, not only in Admin compon
 - creation and update require an Icon;
 - the Icon must resolve to a Brand Asset whose MIME type is `image/svg+xml`;
 - clearing the Icon and saving must fail without showing a success state.
+- every non-empty Platform relationship ID may occur only once in Site Settings Social Links.
+
+The Social Links uniqueness rule is enforced by an array-level validator and applies to Admin, REST, GraphQL, and Local API writes. It reports the duplicated Platform and affected row when that information is available. UI action visibility is an editing aid and is never treated as the integrity boundary.
 
 The current relationship-field edit/delete mechanism remains in place. Deleting a Platform does not cascade to its Brand Asset, and changing the Icon does not delete the previous Brand Asset. No separate management screen or custom deletion policy is added.
 
@@ -68,6 +73,23 @@ Fallback labels are deterministic:
 - loading state: retain a stable generic Social Link label rather than exposing a raw document ID.
 
 Creating or selecting a Platform refreshes the row label without requiring a full page reload.
+
+## Social Links Array Actions
+
+The Social Links array keeps only actions that can produce a valid and useful state under the one-link-per-Platform rule:
+
+- keep Add Below;
+- keep drag sorting, Move Up, and Move Down;
+- keep Remove;
+- hide Duplicate;
+- hide Copy Row;
+- hide Paste Below;
+- hide Replace Row;
+- hide the array-level Copy Field and Paste Field actions.
+
+Payload's clipboard compatibility check compares field structure but does not verify that a relationship still exists or that pasting preserves cross-row uniqueness. Site Settings is a singleton Global, so copying the complete field has no meaningful cross-document workflow. Row duplication and row paste would normally reproduce the same Platform relationship and immediately create invalid data.
+
+The action restrictions are scoped only to Site Settings Social Links. Other Array fields retain Payload's standard action menu. The implementation uses an isolated custom Admin boundary for this field and avoids global CSS or global modification of Payload Array behavior.
 
 ## Create and Edit Experience
 
@@ -126,6 +148,9 @@ Focused automated coverage will verify:
 - top-level creation reports success;
 - Social Links no longer expose `label` in the Payload schema or generated type;
 - Social Link row labels display Platform names and stable fallback states;
+- duplicate Platform relationships are rejected regardless of whether they arrive through Admin or an API;
+- Social Links expose Add Below, ordering, and Remove while omitting field/row copy, paste, replace, and duplicate actions;
+- Array action restrictions do not affect unrelated Payload Array fields;
 - nested Back and Cancel restore Editing Social Platform with its draft intact;
 - `/next/seed`, the demo Dashboard action, static demo homepage fallback, and the production seed module remain absent;
 - the Payload import map and generated types remain current.
@@ -138,7 +163,9 @@ Final verification includes focused component tests, integration tests with Mong
 - A Platform cannot be saved without a valid SVG Icon.
 - Failed create or edit attempts remain editable and never report success.
 - Social Links contain only Platform and URL business fields.
+- A Platform can appear in at most one Social Link row.
 - Social Link rows show the related Platform name.
+- Social Links retain Add, ordering, and Remove actions without exposing invalid copy, paste, replace, or duplicate workflows.
 - Platform creation and editing preserve the correct parent interface across nested navigation.
 - Editors continue to manage and delete Platforms through the relationship field's existing edit affordance.
 - Platform/Icon deletion semantics are unchanged and never cascade.
