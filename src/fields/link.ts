@@ -1,4 +1,4 @@
-import type { CollectionSlug, Field, GroupField } from 'payload'
+import type { CollectionSlug, Field, GroupField, TextField } from 'payload'
 
 import deepMerge from '@/utilities/deepMerge'
 
@@ -18,15 +18,19 @@ export const appearanceOptions: Record<LinkAppearances, { label: string; value: 
 type LinkType = (options?: {
   appearances?: LinkAppearances[] | false
   disableLabel?: boolean
+  labelOverrides?: Partial<TextField>
   overrides?: Partial<GroupField>
   relationTo?: CollectionSlug | CollectionSlug[]
+  urlOverrides?: Partial<TextField>
 }) => Field
 
 export const link: LinkType = ({
   appearances,
   disableLabel = false,
+  labelOverrides = {},
   overrides = {},
   relationTo,
+  urlOverrides = {},
 } = {}) => {
   const linkResult: GroupField = {
     name: 'link',
@@ -93,15 +97,18 @@ export const link: LinkType = ({
       relationTo: relationToList,
       required: true,
     },
-    {
-      name: 'url',
-      type: 'text',
-      admin: {
-        condition: (_, siblingData) => siblingData?.type === 'custom',
+    deepMerge(
+      {
+        name: 'url',
+        type: 'text',
+        admin: {
+          condition: (_, siblingData) => siblingData?.type === 'custom',
+        },
+        label: 'Custom URL',
+        required: true,
       },
-      label: 'Custom URL',
-      required: true,
-    },
+      urlOverrides,
+    ),
   ]
 
   if (!disableLabel) {
@@ -117,15 +124,18 @@ export const link: LinkType = ({
       type: 'row',
       fields: [
         ...linkTypes,
-        {
-          name: 'label',
-          type: 'text',
-          admin: {
-            width: '50%',
+        deepMerge(
+          {
+            name: 'label',
+            type: 'text',
+            admin: {
+              width: '50%',
+            },
+            label: 'Label',
+            required: true,
           },
-          label: 'Label',
-          required: true,
-        },
+          labelOverrides,
+        ),
       ],
     })
   } else {
