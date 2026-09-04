@@ -7,7 +7,6 @@ import {
   SocialPlatforms,
   validateSocialPlatformIcon,
 } from '@/collections/SocialPlatforms'
-import { seedSocialSettings } from '@/endpoints/seed'
 import { SiteSettings } from '@/SiteSettings/config'
 import {
   siteSettingsTabs,
@@ -25,137 +24,10 @@ import type {
 
 type GeneratedSocialLink = NonNullable<GeneratedSiteSettings['socialLinks']>[number]
 
-const createSeedPayload = ({
-  brandAssets = [],
-  siteSettings = { id: 'site-settings' },
-  socialPlatforms = [],
-}: {
-  brandAssets?: Record<string, unknown>[]
-  siteSettings?: Record<string, unknown>
-  socialPlatforms?: Record<string, unknown>[]
-} = {}) => {
-  const state = {
-    brandAssets: [...brandAssets],
-    siteSettings: { ...siteSettings },
-    socialPlatforms: [...socialPlatforms],
-  }
-
-  const payload = {
-    create: vi.fn(async ({ collection, data, file }) => {
-      const target = collection === 'brand-assets' ? state.brandAssets : state.socialPlatforms
-      const document = {
-        id: `${collection}-${target.length + 1}`,
-        ...data,
-        ...(file ? { file, filename: file.name, mimeType: file.mimetype } : {}),
-      }
-      target.push(document)
-      return document
-    }),
-    find: vi.fn(async ({ collection, where }) => {
-      if (collection === 'brand-assets') {
-        return {
-          docs: state.brandAssets.filter(
-            (asset) => asset.filename === where.filename.equals,
-          ),
-        }
-      }
-
-      const [platformCondition, iconCondition] = where.and
-      return {
-        docs: state.socialPlatforms.filter(
-          (platform) =>
-            platform.platform === platformCondition.platform.equals &&
-            platform.icon === iconCondition.icon.equals,
-        ),
-      }
-    }),
-    findGlobal: vi.fn(async () => state.siteSettings),
-    logger: { info: vi.fn() },
-    updateGlobal: vi.fn(async ({ data }) => {
-      state.siteSettings = { ...state.siteSettings, ...data }
-      return state.siteSettings
-    }),
-  }
-
-  return { payload, state }
-}
-
 describe('Site Settings Global', () => {
   it('generates reusable social platform relationship types', () => {
     expectTypeOf<Config['collections']['social-platforms']>().toEqualTypeOf<SocialPlatform>()
     expectTypeOf<GeneratedSocialLink['platform']>().toEqualTypeOf<string | SocialPlatform>()
-  })
-
-  it('seeds valid SVG social relationships on a fresh database and is idempotent', async () => {
-    const { payload, state } = createSeedPayload()
-
-    const firstResult = await seedSocialSettings(payload as never)
-    const secondResult = await seedSocialSettings(payload as never)
-
-    expect(state.brandAssets).toHaveLength(4)
-    expect(state.socialPlatforms).toHaveLength(3)
-    expect(payload.create).toHaveBeenCalledTimes(7)
-    expect(payload.create.mock.calls.map(([input]) => input.collection)).toEqual([
-      'brand-assets',
-      'brand-assets',
-      'brand-assets',
-      'brand-assets',
-      'social-platforms',
-      'social-platforms',
-      'social-platforms',
-    ])
-    expect(
-      payload.create.mock.calls
-        .filter(([input]) => input.collection === 'brand-assets')
-        .every(([input]) => input.file.mimetype === 'image/svg+xml'),
-    ).toBe(true)
-    expect(state.siteSettings).toMatchObject({
-      siteName: 'Ecolitea',
-      logo: 'brand-assets-1',
-      socialLinks: [
-        { platform: 'social-platforms-1' },
-        { platform: 'social-platforms-2' },
-        { platform: 'social-platforms-3' },
-      ],
-    })
-    expect(secondResult).toEqual(firstResult)
-  })
-
-  it('preserves user records and existing Site Settings branding while reseeding social links', async () => {
-    const userAsset = { id: 'user-asset', filename: 'customer-logo.svg' }
-    const userPlatform = { id: 'user-platform', platform: 'LinkedIn', icon: 'user-asset' }
-    const { payload, state } = createSeedPayload({
-      brandAssets: [userAsset],
-      siteSettings: { id: 'site-settings', siteName: 'Customer Name', logo: 'user-asset' },
-      socialPlatforms: [userPlatform],
-    })
-
-    const result = await seedSocialSettings(payload as never)
-
-    expect(state.brandAssets).toContainEqual(userAsset)
-    expect(state.socialPlatforms).toContainEqual(userPlatform)
-    expect(state.brandAssets).toHaveLength(5)
-    expect(state.socialPlatforms).toHaveLength(4)
-    expect(result).toMatchObject({ siteName: 'Customer Name', logo: 'user-asset' })
-    expect(result.socialLinks).toHaveLength(3)
-    expect(result.socialLinks?.every(({ platform }) => platform !== 'user-platform')).toBe(true)
-  })
-
-  it('rejects a malformed file occupying a reserved seed asset filename', async () => {
-    const { payload } = createSeedPayload({
-      brandAssets: [
-        {
-          id: 'malformed-reserved-asset',
-          filename: 'payload-seed-ecolitea-logo.svg',
-          mimeType: 'image/png',
-        },
-      ],
-    })
-
-    await expect(seedSocialSettings(payload as never)).rejects.toThrow(
-      'Reserved seed asset payload-seed-ecolitea-logo.svg exists with MIME type image/png; expected image/svg+xml.',
-    )
-    expect(payload.create).not.toHaveBeenCalled()
   })
 
   it('defines a hidden reusable Social Platforms collection', () => {

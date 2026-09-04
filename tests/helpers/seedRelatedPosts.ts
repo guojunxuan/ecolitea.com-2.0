@@ -44,7 +44,7 @@ export async function seedRelatedPosts(): Promise<void> {
   const image = await payload.create({
     collection: 'media',
     data: { alt: relatedPostsFixture.imageAlt },
-    filePath: path.resolve(dirname, '../../src/endpoints/seed/image-post1.webp'),
+    filePath: path.resolve(dirname, '../fixtures/image-post1.webp'),
     ...disableRevalidate,
   })
 
