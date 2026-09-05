@@ -71,6 +71,7 @@ describe('link field factory', () => {
       '/',
       '#newsletter',
       'mailto:hello@example.com',
+      'mailto:user@localhost',
       'tel:+1 (555) 123-4567',
     ])('accepts supported navigation URL %s', (url) => {
       expect(validateNavigationURL(url)).toBe(true)
@@ -83,6 +84,13 @@ describe('link field factory', () => {
       'javascript:alert(1)',
       'mailto:hello',
       'mailto:@example.com',
+      'mailto:a@example.com/evil',
+      'mailto:a@example.com:bad',
+      'mailto:a@example.com?subject=x',
+      'mailto:a@example.com#fragment',
+      'mailto:a@example.com,b@example.com',
+      'mailto:a@example.com;b@example.com',
+      'mailto:a@@example.com',
       'tel:call-me',
       'tel:   ',
     ])('rejects unsupported navigation URL %s', (url) => {

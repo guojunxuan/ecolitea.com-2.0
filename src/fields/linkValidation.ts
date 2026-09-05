@@ -18,6 +18,10 @@ const isHTTPURL = (value: string): boolean => {
   }
 }
 
+const mailbox = "[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*"
+const hostname = '[a-z0-9](?:[a-z0-9-]*[a-z0-9])?(?:\\.[a-z0-9](?:[a-z0-9-]*[a-z0-9])?)*'
+const mailtoPattern = new RegExp(`^mailto:${mailbox}@${hostname}$`, 'i')
+
 export const validateNavigationURL = (value?: unknown): string | true => {
   if (typeof value !== 'string' || value.trim().length === 0) {
     return 'Enter a custom URL.'
@@ -28,7 +32,7 @@ export const validateNavigationURL = (value?: unknown): string | true => {
     isHTTPURL(url) ||
     /^\/(?!\/)[^\s]*$/.test(url) ||
     /^#[^\s]+$/.test(url) ||
-    /^mailto:[^\s@]+@[^\s@.]+(?:\.[^\s@.]+)+$/i.test(url) ||
+    mailtoPattern.test(url) ||
     /^tel:\+?[0-9().\-\s]*[0-9][0-9().\-\s]*$/i.test(url)
 
   return isSupported ? true : 'Use http(s), a root-relative path, an anchor, mailto, or tel URL.'
