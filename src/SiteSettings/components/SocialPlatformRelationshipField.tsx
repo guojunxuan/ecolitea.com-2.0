@@ -1,17 +1,39 @@
 'use client'
 
-import { RelationshipField, useField } from '@payloadcms/ui'
+import { RelationshipField } from '@payloadcms/ui'
 import type { RelationshipFieldClientComponent } from 'payload'
+import type { MouseEvent } from 'react'
 
-import { SocialPlatformCreateAction } from './SocialPlatformCreateActions'
+import './socialPlatformRelationshipField.scss'
 
-const getDrawerSlug = (path: string): string =>
-  `site-settings-social-platform-${path.replace(/[^a-zA-Z0-9_-]+/g, '-')}`
+const menuGap = 4
+
+const pinMenuBelow = (control: HTMLElement, attemptsRemaining = 3) => {
+  requestAnimationFrame(() => {
+    const portal = [...document.querySelectorAll<HTMLElement>('.rs__floating-menu-portal')].find(
+      (candidate) => candidate.querySelector('.rs__menu'),
+    )
+
+    if (!portal) {
+      if (attemptsRemaining > 1) pinMenuBelow(control, attemptsRemaining - 1)
+      return
+    }
+
+    const controlRect = control.getBoundingClientRect()
+    portal.classList.add('site-settings-social-platform-menu')
+    portal.style.setProperty(
+      '--site-settings-social-platform-menu-top',
+      `${Math.round(controlRect.bottom + menuGap)}px`,
+    )
+  })
+}
+
+const handleRelationshipClick = (event: MouseEvent<HTMLDivElement>) => {
+  const control = (event.target as Element).closest<HTMLElement>('.rs__control')
+  if (control) pinMenuBelow(control)
+}
 
 export const SocialPlatformRelationshipField: RelationshipFieldClientComponent = (props) => {
-  const { path, setValue, value } = useField<null | number | string>({
-    potentiallyStalePath: props.path,
-  })
   const field = {
     ...props.field,
     admin: {
@@ -21,13 +43,11 @@ export const SocialPlatformRelationshipField: RelationshipFieldClientComponent =
   }
 
   return (
-    <>
+    <div
+      className="site-settings-social-platform-relationship"
+      onClickCapture={handleRelationshipClick}
+    >
       <RelationshipField {...props} field={field} />
-      <SocialPlatformCreateAction
-        buttonStyle="pill"
-        drawerSlug={getDrawerSlug(path)}
-        onCreated={(document) => setValue(document.id, value === document.id)}
-      />
-    </>
+    </div>
   )
 }

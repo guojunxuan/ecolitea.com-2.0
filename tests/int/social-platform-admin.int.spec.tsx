@@ -9,7 +9,10 @@ const adminState = vi.hoisted(() => ({
     string,
     {
       closeDrawer: ReturnType<typeof vi.fn>
-      onSave?: (args: { doc: { id: number | string; platform?: string }; operation: string }) => void
+      onSave?: (args: {
+        doc: { id: number | string; platform?: string }
+        operation: string
+      }) => void
       openDrawer: ReturnType<typeof vi.fn>
       redirectAfterCreate?: boolean
     }
@@ -19,6 +22,8 @@ const adminState = vi.hoisted(() => ({
     setValue: vi.fn(),
     value: 'existing-platform' as null | number | string,
   },
+  document: { id: 'document-id', isEditing: true },
+  drawerContext: { drawerSlug: 'parent-social-platform-drawer' },
   rowData: {} as { platform?: null | number | string | { platform?: string } },
 }))
 
@@ -52,17 +57,42 @@ vi.mock('@payloadcms/ui', () => ({
       </button>
     </div>
   ),
-  Button: ({ children, onClick, type }: React.PropsWithChildren<React.ButtonHTMLAttributes<HTMLButtonElement>>) => (
-    <button onClick={onClick} type={type}>{children}</button>
+  Button: ({
+    children,
+    onClick,
+    type,
+  }: React.PropsWithChildren<React.ButtonHTMLAttributes<HTMLButtonElement>>) => (
+    <button onClick={onClick} type={type}>
+      {children}
+    </button>
   ),
-  RelationshipField: ({ field, path }: { field: { admin?: { allowCreate?: boolean; allowEdit?: boolean } }; path: string }) => (
+  PopupList: {
+    Button: ({ children, onClick }: React.PropsWithChildren<{ onClick?: () => void }>) => (
+      <button onClick={onClick} type="button">
+        {children}
+      </button>
+    ),
+  },
+  RelationshipField: ({
+    field,
+    path,
+  }: {
+    field: { admin?: { allowCreate?: boolean; allowEdit?: boolean } }
+    path: string
+  }) => (
     <div
       data-allow-create={String(field.admin?.allowCreate)}
       data-allow-edit={String(field.admin?.allowEdit ?? true)}
       data-native-relationship={path}
-    />
+    >
+      <button className="rs__control" type="button">
+        Platform
+      </button>
+    </div>
   ),
-  TextField: ({ readOnly }: { readOnly?: boolean }) => <input aria-label="Platform" readOnly={readOnly} />,
+  TextField: ({ readOnly }: { readOnly?: boolean }) => (
+    <input aria-label="Platform" readOnly={readOnly} />
+  ),
   toast: { success: vi.fn() },
   useConfig: () => ({ config: { routes: { api: '/api' }, serverURL: '' } }),
   useDocumentDrawer: (options: { collectionSlug: string; drawerSlug?: string }) => {
@@ -72,33 +102,48 @@ vi.mock('@payloadcms/ui', () => ({
       openDrawer: vi.fn(),
     } as {
       closeDrawer: ReturnType<typeof vi.fn>
-      onSave?: (args: { doc: { id: number | string; platform?: string }; operation: string }) => void
+      onSave?: (args: {
+        doc: { id: number | string; platform?: string }
+        operation: string
+      }) => void
       openDrawer: ReturnType<typeof vi.fn>
       redirectAfterCreate?: boolean
     }
     adminState.drawers.set(key, drawer)
-    const DocumentDrawer = ({ onSave, redirectAfterCreate }: { onSave?: typeof drawer.onSave; redirectAfterCreate?: boolean }) => {
+    const DocumentDrawer = ({
+      onSave,
+      redirectAfterCreate,
+    }: {
+      onSave?: typeof drawer.onSave
+      redirectAfterCreate?: boolean
+    }) => {
       drawer.onSave = onSave
       drawer.redirectAfterCreate = redirectAfterCreate
       return <aside data-collection={options.collectionSlug} data-drawer={key} />
     }
     return [DocumentDrawer, () => null, drawer]
   },
-  useDocumentInfo: () => ({ id: 'document-id' }),
+  useDocumentDrawerContext: () => adminState.drawerContext,
+  useDocumentInfo: () => adminState.document,
   useField: () => adminState.field,
   usePayloadAPI: (url: string) => {
     adminState.apiURL = url
     return [adminState.api]
   },
   useRowLabel: () => ({ data: adminState.rowData }),
+  useTranslation: () => ({ t: () => 'Create New' }),
 }))
 
 import { ArrayField, toast } from '@payloadcms/ui'
 
-import { SocialLinkRowLabel, getSocialLinkRowLabel } from '@/SiteSettings/components/SocialLinkRowLabel'
+import {
+  SocialLinkRowLabel,
+  getSocialLinkRowLabel,
+} from '@/SiteSettings/components/SocialLinkRowLabel'
 import { SocialLinksArrayField } from '@/SiteSettings/components/SocialLinksArrayField'
 import { SocialPlatformCreateActions } from '@/SiteSettings/components/SocialPlatformCreateActions'
 import { SocialPlatformNameField } from '@/SiteSettings/components/SocialPlatformNameField'
+import { SocialPlatformNestedCreateAction } from '@/SiteSettings/components/SocialPlatformNestedCreateAction'
 import { SocialPlatformRelationshipField } from '@/SiteSettings/components/SocialPlatformRelationshipField'
 
 afterEach(() => {
@@ -109,6 +154,8 @@ afterEach(() => {
   adminState.drawers.clear()
   adminState.field.path = 'socialLinks.0.platform'
   adminState.field.value = 'existing-platform'
+  adminState.document = { id: 'document-id', isEditing: true }
+  adminState.drawerContext = { drawerSlug: 'parent-social-platform-drawer' }
   adminState.rowData = {}
   vi.clearAllMocks()
 })
@@ -160,7 +207,7 @@ describe('Social Link admin components', () => {
     expect(toast.success).toHaveBeenCalledWith('Social platform created.')
   })
 
-  it('selects a relationship-origin create and closes its Drawer', () => {
+  it('keeps relationship creation disabled without rendering a standalone create action', () => {
     render(
       <SocialPlatformRelationshipField
         field={{
@@ -173,17 +220,71 @@ describe('Social Link admin components', () => {
       />,
     )
 
-    const nativeField = document.querySelector('[data-native-relationship="socialLinks.0.platform"]')
+    const nativeField = document.querySelector(
+      '[data-native-relationship="socialLinks.0.platform"]',
+    )
     expect(nativeField?.getAttribute('data-allow-create')).toBe('false')
     expect(nativeField?.getAttribute('data-allow-edit')).toBe('true')
-    fireEvent.click(screen.getByRole('button', { name: 'Create Social Platform' }))
+    expect(screen.queryByRole('button', { name: 'Create Social Platform' })).toBeNull()
+    expect(adminState.drawers.size).toBe(0)
+  })
 
-    const drawer = [...adminState.drawers.values()][0]
-    expect(drawer.openDrawer).toHaveBeenCalledTimes(1)
-    drawer.onSave?.({ doc: { id: 'new-platform', platform: 'Mastodon' }, operation: 'create' })
-    expect(adminState.field.setValue).toHaveBeenCalledWith('new-platform', false)
-    expect(drawer.closeDrawer).toHaveBeenCalledTimes(1)
-    expect(toast.success).not.toHaveBeenCalled()
+  it('pins the Platform relationship menu below its control', async () => {
+    render(
+      <SocialPlatformRelationshipField
+        field={{ name: 'platform', relationTo: 'social-platforms', type: 'relationship' }}
+        path="socialLinks.0.platform"
+      />,
+    )
+
+    const control = screen.getByRole('button', { name: 'Platform' })
+    vi.spyOn(control, 'getBoundingClientRect').mockReturnValue({
+      bottom: 140,
+      height: 40,
+      left: 20,
+      right: 220,
+      top: 100,
+      width: 200,
+      x: 20,
+      y: 100,
+      toJSON: () => ({}),
+    })
+    const portal = document.createElement('div')
+    portal.className = 'rs__floating-menu-portal'
+    portal.innerHTML = '<div class="rs__menu rs__menu--placement-top" />'
+    document.body.append(portal)
+
+    fireEvent.click(control)
+
+    await waitFor(() => {
+      expect(portal.classList.contains('site-settings-social-platform-menu')).toBe(true)
+      expect(portal.style.getPropertyValue('--site-settings-social-platform-menu-top')).toBe(
+        '144px',
+      )
+    })
+    portal.remove()
+  })
+
+  it('opens Create New in a child Drawer and returns to the editing Drawer', () => {
+    render(<SocialPlatformNestedCreateAction />)
+
+    fireEvent.click(screen.getByRole('button', { name: 'Create New' }))
+    const childDrawer = adminState.drawers.get(
+      'parent-social-platform-drawer-create-social-platform',
+    )
+    expect(childDrawer?.openDrawer).toHaveBeenCalledTimes(1)
+    expect(
+      document.querySelector(
+        '[data-drawer="parent-social-platform-drawer-create-social-platform"]',
+      ),
+    ).toBeTruthy()
+
+    childDrawer?.onSave?.({
+      doc: { id: 'new-platform', platform: 'Mastodon' },
+      operation: 'create',
+    })
+    expect(childDrawer?.closeDrawer).toHaveBeenCalledTimes(1)
+    expect(adminState.drawerContext.drawerSlug).toBe('parent-social-platform-drawer')
   })
 
   it('scopes hidden array actions to Social Links and keeps valid actions visible', async () => {
@@ -194,8 +295,12 @@ describe('Social Link admin components', () => {
       </>,
     )
 
-    const socialHeaderAction = container.querySelector<HTMLElement>('.site-settings-social-links .array-field__header-action')
-    const otherHeaderAction = container.querySelector<HTMLElement>('[data-array-field="otherArray"] .array-field__header-action')
+    const socialHeaderAction = container.querySelector<HTMLElement>(
+      '.site-settings-social-links .array-field__header-action',
+    )
+    const otherHeaderAction = container.querySelector<HTMLElement>(
+      '[data-array-field="otherArray"] .array-field__header-action',
+    )
     expect(socialHeaderAction?.closest('.site-settings-social-links')).toBeTruthy()
     expect(otherHeaderAction?.closest('.site-settings-social-links')).toBeNull()
 

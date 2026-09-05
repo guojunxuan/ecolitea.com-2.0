@@ -29,7 +29,7 @@ test.describe.serial('Site Settings Social admin', () => {
   test.beforeAll(async ({ browser }) => {
     await seedTestUser()
     payload = await getPayload({ config })
-    await (payload.db as MongooseAdapter).collections['brand-assets'].create({
+    const asset = await (payload.db as MongooseAdapter).collections['brand-assets'].create({
       alt: 'Social Platform E2E icon',
       filename: svgFilename,
       filesize: 70,
@@ -37,7 +37,11 @@ test.describe.serial('Site Settings Social admin', () => {
       mimeType: 'image/svg+xml',
       width: 1,
     })
-
+    await payload.create({
+      collection: 'social-platforms',
+      data: { icon: asset.id, platform: relationshipPlatformName },
+      overrideAccess: true,
+    })
     const context = await browser.newContext()
     page = await context.newPage()
     await login({ page, user: testUser })
@@ -47,6 +51,7 @@ test.describe.serial('Site Settings Social admin', () => {
     if (payload) {
       await payload.delete({
         collection: 'social-platforms',
+        overrideAccess: true,
         where: { platform: { equals: relationshipPlatformName } },
       })
       await (payload.db as MongooseAdapter).collections['brand-assets'].deleteMany({
@@ -76,32 +81,43 @@ test.describe.serial('Site Settings Social admin', () => {
     await expect(drawer).toBeHidden()
   })
 
-  test('selects and relabels a relationship after creating a Platform', async () => {
+  test('keeps row creation absent and opens the Platform menu downward', async () => {
     await openSocialTab()
     const row = page.locator('#socialLinks-row-0')
-    await row.getByRole('button', { name: 'Create Social Platform' }).click()
+    await expect(row.getByRole('button', { name: 'Create Social Platform' })).toHaveCount(0)
 
-    const drawer = page.getByRole('dialog', {
-      name: 'site-settings-social-platform-socialLinks-0-platform',
-    })
-    await expect(drawer).toBeVisible()
-    await drawer.locator('input[name="platform"]').fill(relationshipPlatformName)
-    await drawer.getByRole('button', { name: 'Choose from existing' }).click()
+    const control = row.locator('.rs__control').first()
+    await control.click()
+    const menuPortal = page.locator('.rs__floating-menu-portal.site-settings-social-platform-menu')
+    await expect(menuPortal).toBeVisible()
 
-    const assetPicker = page.getByRole('dialog', { name: /^list-drawer_/ })
-    await expect(assetPicker).toBeVisible()
-    await expect(drawer).toBeVisible()
-    await assetPicker.getByRole('button').filter({ hasText: svgFilename }).click()
-    await expect(assetPicker).toBeHidden()
-    await expect(drawer).toBeVisible()
+    const controlBox = await control.boundingBox()
+    const menuBox = await menuPortal.boundingBox()
+    expect(controlBox).not.toBeNull()
+    expect(menuBox).not.toBeNull()
+    expect(menuBox!.y).toBeGreaterThanOrEqual(controlBox!.y + controlBox!.height)
+  })
 
-    await drawer.getByRole('button', { name: 'Save' }).click()
-    await expect(drawer).toBeHidden()
-    await expect(
-      row.getByRole('button', { name: `Edit ${relationshipPlatformName}` }),
-    ).toBeVisible()
-    await expect(row.getByText(relationshipPlatformName, { exact: true }).first()).toBeVisible()
-    await expect(page.getByText('Social platform created.', { exact: true })).toHaveCount(0)
+  test('returns from nested Create New to Editing Social Platform', async () => {
+    await openSocialTab()
+    const row = page.locator('#socialLinks-row-0')
+    await row.locator('.rs__control').first().click()
+    await page.getByText(relationshipPlatformName, { exact: true }).last().click()
+    await row.getByRole('button', { name: `Edit ${relationshipPlatformName}` }).click()
+
+    const editingDrawer = page.getByRole('dialog').filter({ hasText: 'Editing Social Platform' })
+    await expect(editingDrawer).toBeVisible()
+    await editingDrawer.getByRole('button', { name: 'More options' }).click()
+    await page.getByText('Create New', { exact: true }).last().click()
+
+    const creatingDrawer = page
+      .getByRole('dialog')
+      .filter({ hasText: 'Creating new Social Platform' })
+    await expect(creatingDrawer).toBeVisible()
+    await expect(editingDrawer).toBeVisible()
+    await creatingDrawer.getByRole('button', { name: 'Close' }).first().click()
+    await expect(creatingDrawer).toBeHidden()
+    await expect(editingDrawer).toBeVisible()
   })
 
   test('keeps valid Social Link row actions and hides copy and duplicate actions', async () => {

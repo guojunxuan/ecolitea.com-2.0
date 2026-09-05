@@ -19,6 +19,7 @@ import { PreviewComponent as PreviewComponent_a8a977ebc872c5d5ea7ee689724c0860 }
 import { HorizontalRuleFeatureClient as HorizontalRuleFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { BlocksFeatureClient as BlocksFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { SocialPlatformNameField as SocialPlatformNameField_57cfda3ee93492850d81f1adf8296638 } from '@/SiteSettings/components/SocialPlatformNameField'
+import { SocialPlatformNestedCreateAction as SocialPlatformNestedCreateAction_01f5caca7db7c620ac58a78eeade8911 } from '@/SiteSettings/components/SocialPlatformNestedCreateAction'
 import { LinkToDoc as LinkToDoc_aead06e4cbf6b2620c5c51c9ab283634 } from '@payloadcms/plugin-search/client'
 import { ReindexButton as ReindexButton_aead06e4cbf6b2620c5c51c9ab283634 } from '@payloadcms/plugin-search/client'
 import { DropdownItemRowLabel as DropdownItemRowLabel_45ee4db6a97afc594f03f1f1b51bbfae } from '@/Header/DropdownItemRowLabel'
@@ -62,6 +63,7 @@ export const importMap = {
   "@payloadcms/richtext-lexical/client#HorizontalRuleFeatureClient": HorizontalRuleFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/richtext-lexical/client#BlocksFeatureClient": BlocksFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@/SiteSettings/components/SocialPlatformNameField#SocialPlatformNameField": SocialPlatformNameField_57cfda3ee93492850d81f1adf8296638,
+  "@/SiteSettings/components/SocialPlatformNestedCreateAction#SocialPlatformNestedCreateAction": SocialPlatformNestedCreateAction_01f5caca7db7c620ac58a78eeade8911,
   "@payloadcms/plugin-search/client#LinkToDoc": LinkToDoc_aead06e4cbf6b2620c5c51c9ab283634,
   "@payloadcms/plugin-search/client#ReindexButton": ReindexButton_aead06e4cbf6b2620c5c51c9ab283634,
   "@/Header/DropdownItemRowLabel#DropdownItemRowLabel": DropdownItemRowLabel_45ee4db6a97afc594f03f1f1b51bbfae,

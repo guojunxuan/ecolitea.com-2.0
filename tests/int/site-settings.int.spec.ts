@@ -9,10 +9,7 @@ import {
   validateSocialPlatformIcon,
 } from '@/collections/SocialPlatforms'
 import { SiteSettings } from '@/SiteSettings/config'
-import {
-  siteSettingsTabs,
-  validateAbsoluteHttpURL,
-} from '@/SiteSettings/fields'
+import { siteSettingsTabs, validateAbsoluteHttpURL } from '@/SiteSettings/fields'
 import { brandingTab } from '@/SiteSettings/fields/branding'
 import { socialTab, validateUniqueSocialPlatforms } from '@/SiteSettings/fields/social'
 import { revalidateSiteSettings } from '@/SiteSettings/hooks/revalidateSiteSettings'
@@ -36,6 +33,13 @@ describe('Site Settings Global', () => {
       slug: 'social-platforms',
       disableDuplicate: true,
       admin: {
+        components: {
+          edit: {
+            editMenuItems: [
+              '@/SiteSettings/components/SocialPlatformNestedCreateAction#SocialPlatformNestedCreateAction',
+            ],
+          },
+        },
         hidden: true,
         useAsTitle: 'platform',
       },
@@ -188,9 +192,9 @@ describe('Site Settings Global', () => {
     const { default: configPromise } = await import('@/payload.config')
     const config = await configPromise
     expect(config.globals.some((global) => global.slug === SiteSettings.slug)).toBe(true)
-    expect(
-      config.collections.some((collection) => collection.slug === SocialPlatforms.slug),
-    ).toBe(true)
+    expect(config.collections.some((collection) => collection.slug === SocialPlatforms.slug)).toBe(
+      true,
+    )
   })
 
   it('accepts only absolute HTTP and HTTPS social URLs', () => {
