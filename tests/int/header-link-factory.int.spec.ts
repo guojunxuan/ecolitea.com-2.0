@@ -55,6 +55,16 @@ function getFieldNames(linkGroup: LinkGroup): string[] {
     .filter((name): name is string => Boolean(name))
 }
 
+function getTypeField(linkGroup: LinkGroup): AnyField {
+  const type = collectFields(linkGroup).find((field) => field.name === 'type')
+
+  if (!type || type.type !== 'radio') {
+    throw new Error('Expected a `type` radio field.')
+  }
+
+  return type
+}
+
 describe('link field factory', () => {
   describe('shared link validation', () => {
     it('trims text before persistence and rejects blank labels', () => {
@@ -125,6 +135,14 @@ describe('link field factory', () => {
   })
 
   describe('optional field toggles', () => {
+    it('keeps the link type optional by default', () => {
+      expect(getTypeField(link()).required).toBeUndefined()
+    })
+
+    it('allows consumers to opt into a required link type', () => {
+      expect(getTypeField(link({ typeOverrides: { required: true } })).required).toBe(true)
+    })
+
     it('omits the appearance field when appearances is false', () => {
       const linkGroup = link({ appearances: false })
 

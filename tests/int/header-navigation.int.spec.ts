@@ -6,7 +6,36 @@ import { dropdownItems } from '@/Header/fields/dropdownItems'
 import { navigationItems } from '@/Header/fields/navigationItems'
 import { validateHeaderNavItems } from '@/Header/validators/validateNavigation'
 
+interface NestedField {
+  fields?: NestedField[]
+  name?: string
+  required?: boolean
+  type?: string
+}
+
+const collectNestedFields = (fields: NestedField[]): NestedField[] =>
+  fields.flatMap((field) => [field, ...collectNestedFields(field.fields ?? [])])
+
 describe('navigationItems field (Task 2)', () => {
+  it('requires the type discriminator in every Header link without changing shared defaults', () => {
+    const navItems = navigationItems()
+    if (navItems.type !== 'array') throw new Error('navigationItems must return an array field.')
+
+    const allFields = collectNestedFields(navItems.fields as NestedField[])
+    const linkGroups = allFields.filter(
+      (field) => field.type === 'group' && (field.name === 'link' || field.name === 'landingLink'),
+    )
+
+    expect(linkGroups).toHaveLength(7)
+
+    for (const linkGroup of linkGroups) {
+      const linkType = collectNestedFields(linkGroup.fields ?? []).find(
+        (field) => field.name === 'type' && field.type === 'radio',
+      )
+      expect(linkType).toMatchObject({ name: 'type', type: 'radio', required: true })
+    }
+  })
+
   it('defines the top-level navItems array with admin metadata', () => {
     const navItems = navigationItems()
 

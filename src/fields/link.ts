@@ -1,4 +1,4 @@
-import type { CollectionSlug, Field, GroupField, TextField } from 'payload'
+import type { CollectionSlug, Field, GroupField, RadioField, TextField } from 'payload'
 
 import deepMerge from '@/utilities/deepMerge'
 
@@ -21,6 +21,7 @@ type LinkType = (options?: {
   labelOverrides?: Partial<TextField>
   overrides?: Partial<GroupField>
   relationTo?: CollectionSlug | CollectionSlug[]
+  typeOverrides?: Partial<RadioField>
   urlOverrides?: Partial<TextField>
 }) => Field
 
@@ -30,6 +31,7 @@ export const link: LinkType = ({
   labelOverrides = {},
   overrides = {},
   relationTo,
+  typeOverrides = {},
   urlOverrides = {},
 } = {}) => {
   const linkResult: GroupField = {
@@ -42,25 +44,28 @@ export const link: LinkType = ({
       {
         type: 'row',
         fields: [
-          {
-            name: 'type',
-            type: 'radio',
-            admin: {
-              layout: 'horizontal',
-              width: '50%',
-            },
-            defaultValue: 'reference',
-            options: [
-              {
-                label: 'Internal link',
-                value: 'reference',
+          deepMerge(
+            {
+              name: 'type',
+              type: 'radio',
+              admin: {
+                layout: 'horizontal',
+                width: '50%',
               },
-              {
-                label: 'Custom URL',
-                value: 'custom',
-              },
-            ],
-          },
+              defaultValue: 'reference',
+              options: [
+                {
+                  label: 'Internal link',
+                  value: 'reference',
+                },
+                {
+                  label: 'Custom URL',
+                  value: 'custom',
+                },
+              ],
+            } satisfies RadioField,
+            typeOverrides,
+          ),
           {
             name: 'newTab',
             type: 'checkbox',

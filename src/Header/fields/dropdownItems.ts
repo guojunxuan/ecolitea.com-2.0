@@ -9,6 +9,7 @@ const labeledNavigationLink = () =>
   link({
     appearances: false,
     relationTo: headerLinkTargets,
+    typeOverrides: { required: true },
     labelOverrides: {
       hooks: { beforeChange: [trimText] },
       validate: validateNonBlankText,
@@ -24,6 +25,7 @@ const landingLink = () =>
     appearances: false,
     disableLabel: true,
     relationTo: headerLinkTargets,
+    typeOverrides: { required: true },
     urlOverrides: {
       hooks: { beforeChange: [trimText] },
       validate: validateNavigationURL,

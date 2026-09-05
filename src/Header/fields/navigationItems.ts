@@ -44,6 +44,7 @@ export const navigationItems = (): ArrayField => ({
       appearances: false,
       disableLabel: true,
       relationTo: headerLinkTargets,
+      typeOverrides: { required: true },
       urlOverrides: {
         hooks: { beforeChange: [trimText] },
         validate: validateNavigationURL,

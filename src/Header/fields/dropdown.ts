@@ -24,6 +24,7 @@ export const dropdown = (): GroupField => ({
         link({
           appearances: false,
           relationTo: headerLinkTargets,
+          typeOverrides: { required: true },
           labelOverrides: {
             hooks: { beforeChange: [trimText] },
             validate: validateNonBlankText,
