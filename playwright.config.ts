@@ -30,13 +30,18 @@ export default defineConfig({
   projects: [
     {
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'], channel: 'chromium' },
+      use: {
+        ...devices['Desktop Chrome'],
+        channel: process.env.PLAYWRIGHT_CHANNEL === 'chrome' ? 'chrome' : 'chromium',
+      },
     },
   ],
   webServer: {
     command: 'pnpm build && pnpm start',
     reuseExistingServer: true,
     timeout: 5 * 60 * 1000,
-    url: 'http://localhost:3000',
+    // The template homepage was intentionally removed and now returns 404.
+    // Probe Payload Admin so Playwright can reuse an already-running server.
+    url: 'http://localhost:3000/admin',
   },
 })

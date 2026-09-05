@@ -1,20 +1,54 @@
 'use client'
 
-import { Button, useModal } from '@payloadcms/ui'
+import { Button, toast, useDocumentDrawer } from '@payloadcms/ui'
 
-import { SocialPlatformCreateModal } from './SocialPlatformCreateModal'
+import { socialPlatformsSlug } from '@/collections/SocialPlatforms'
 
-const modalSlug = 'site-settings-create-social-platform'
+type CreatedSocialPlatform = {
+  id: number | string
+  platform?: string
+}
 
-export const SocialPlatformCreateActions = () => {
-  const { openModal } = useModal()
+type SocialPlatformCreateActionProps = {
+  buttonStyle?: 'pill' | 'secondary'
+  drawerSlug: string
+  onCreated?: (document: CreatedSocialPlatform) => void
+  successMessage?: string
+}
+
+export const SocialPlatformCreateAction = ({
+  buttonStyle = 'secondary',
+  drawerSlug,
+  onCreated,
+  successMessage,
+}: SocialPlatformCreateActionProps) => {
+  const [DocumentDrawer, , { closeDrawer, openDrawer }] = useDocumentDrawer({
+    collectionSlug: socialPlatformsSlug,
+    drawerSlug,
+    overrideEntityVisibility: true,
+  })
 
   return (
     <>
-      <Button buttonStyle="secondary" onClick={() => openModal(modalSlug)} type="button">
+      <Button buttonStyle={buttonStyle} onClick={openDrawer} type="button">
         Create Social Platform
       </Button>
-      <SocialPlatformCreateModal modalSlug={modalSlug} onCreated={() => undefined} />
+      <DocumentDrawer
+        onSave={({ doc, operation }) => {
+          if (operation !== 'create') return
+          onCreated?.(doc)
+          closeDrawer()
+          if (successMessage) toast.success(successMessage)
+        }}
+        redirectAfterCreate={false}
+      />
     </>
   )
 }
+
+export const SocialPlatformCreateActions = () => (
+  <SocialPlatformCreateAction
+    drawerSlug="site-settings-social-platform"
+    successMessage="Social platform created."
+  />
+)

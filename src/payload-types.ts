@@ -15,35 +15,33 @@ export type HeaderNavItem =
       label: string;
       navigationType: 'directLink' | 'dropdown' | 'directLinkAndDropdown';
       link?: {
-        link?: {
-          type?: ('reference' | 'custom') | null;
-          newTab?: boolean | null;
-          reference?:
-            | ({
-                relationTo: 'pages';
-                value: string | Page;
-              } | null)
-            | ({
-                relationTo: 'posts';
-                value: string | Post;
-              } | null)
-            | ({
-                relationTo: 'case-studies';
-                value: string | CaseStudy;
-              } | null)
-            | ({
-                relationTo: 'categories';
-                value: string | Category;
-              } | null);
-          url?: string | null;
-        };
+        type: 'reference' | 'custom';
+        newTab?: boolean | null;
+        reference?:
+          | ({
+              relationTo: 'pages';
+              value: string | Page;
+            } | null)
+          | ({
+              relationTo: 'posts';
+              value: string | Post;
+            } | null)
+          | ({
+              relationTo: 'case-studies';
+              value: string | CaseStudy;
+            } | null)
+          | ({
+              relationTo: 'categories';
+              value: string | Category;
+            } | null);
+        url?: string | null;
       };
       dropdown?: {
         description?: string | null;
         descriptionLinks?:
           | {
               link: {
-                type?: ('reference' | 'custom') | null;
+                type: 'reference' | 'custom';
                 newTab?: boolean | null;
                 reference?:
                   | ({
@@ -81,7 +79,7 @@ export type HeaderDropdownItem = {
   type: 'default' | 'featured' | 'list';
   defaultItem?: {
     link: {
-      type?: ('reference' | 'custom') | null;
+      type: 'reference' | 'custom';
       newTab?: boolean | null;
       reference?:
         | ({
@@ -107,8 +105,8 @@ export type HeaderDropdownItem = {
   };
   featuredItem?: {
     tag: string;
-    landingLink?: {
-      type?: ('reference' | 'custom') | null;
+    landingLink: {
+      type: 'reference' | 'custom';
       newTab?: boolean | null;
       reference?:
         | ({
@@ -133,7 +131,7 @@ export type HeaderDropdownItem = {
     links?:
       | {
           link: {
-            type?: ('reference' | 'custom') | null;
+            type: 'reference' | 'custom';
             newTab?: boolean | null;
             reference?:
               | ({
@@ -161,8 +159,8 @@ export type HeaderDropdownItem = {
   };
   listItem?: {
     tag: string;
-    landingLink?: {
-      type?: ('reference' | 'custom') | null;
+    landingLink: {
+      type: 'reference' | 'custom';
       newTab?: boolean | null;
       reference?:
         | ({
@@ -183,34 +181,32 @@ export type HeaderDropdownItem = {
           } | null);
       url?: string | null;
     };
-    links?:
-      | {
-          link: {
-            type?: ('reference' | 'custom') | null;
-            newTab?: boolean | null;
-            reference?:
-              | ({
-                  relationTo: 'pages';
-                  value: string | Page;
-                } | null)
-              | ({
-                  relationTo: 'posts';
-                  value: string | Post;
-                } | null)
-              | ({
-                  relationTo: 'case-studies';
-                  value: string | CaseStudy;
-                } | null)
-              | ({
-                  relationTo: 'categories';
-                  value: string | Category;
-                } | null);
-            url?: string | null;
-            label: string;
-          };
-          id?: string | null;
-        }[]
-      | null;
+    links: {
+      link: {
+        type: 'reference' | 'custom';
+        newTab?: boolean | null;
+        reference?:
+          | ({
+              relationTo: 'pages';
+              value: string | Page;
+            } | null)
+          | ({
+              relationTo: 'posts';
+              value: string | Post;
+            } | null)
+          | ({
+              relationTo: 'case-studies';
+              value: string | CaseStudy;
+            } | null)
+          | ({
+              relationTo: 'categories';
+              value: string | Category;
+            } | null);
+        url?: string | null;
+        label: string;
+      };
+      id?: string | null;
+    }[];
   };
   id?: string | null;
 }[];
@@ -220,28 +216,38 @@ export type HeaderDropdownItem = {
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "NavigationColumns".
  */
-export type NavigationColumns = {
-  label: string;
-  navItems: {
-    link: {
-      type?: ('reference' | 'custom') | null;
-      newTab?: boolean | null;
-      reference?:
-        | ({
-            relationTo: 'pages';
-            value: string | Page;
-          } | null)
-        | ({
-            relationTo: 'posts';
-            value: string | Post;
-          } | null);
-      url?: string | null;
+export type NavigationColumns =
+  | {
       label: string;
-    };
-    id?: string | null;
-  }[];
-  id?: string | null;
-}[];
+      navItems: {
+        link: {
+          type?: ('reference' | 'custom') | null;
+          newTab?: boolean | null;
+          reference?:
+            | ({
+                relationTo: 'pages';
+                value: string | Page;
+              } | null)
+            | ({
+                relationTo: 'posts';
+                value: string | Post;
+              } | null)
+            | ({
+                relationTo: 'case-studies';
+                value: string | CaseStudy;
+              } | null)
+            | ({
+                relationTo: 'categories';
+                value: string | Category;
+              } | null);
+          url?: string | null;
+          label: string;
+        };
+        id?: string | null;
+      }[];
+      id?: string | null;
+    }[]
+  | null;
 /**
  * Supported timezones in IANA format.
  *
@@ -958,6 +964,9 @@ export interface BrandAsset {
  */
 export interface SocialPlatform {
   id: string;
+  /**
+   * Platform names cannot be changed after creation.
+   */
   platform: string;
   icon: string | BrandAsset;
   updatedAt: string;
@@ -2015,7 +2024,7 @@ export interface Header {
  */
 export interface Footer {
   id: string;
-  columns: NavigationColumns;
+  columns?: NavigationColumns;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -2061,10 +2070,6 @@ export interface SiteSettings {
   socialLinks?:
     | {
         platform: string | SocialPlatform;
-        /**
-         * Optional public label. The platform name can be used when empty.
-         */
-        label?: string | null;
         url: string;
         id?: string | null;
       }[]
@@ -2123,14 +2128,10 @@ export interface HeaderNavItemSelect<T extends boolean = true> {
   link?:
     | T
     | {
-        link?:
-          | T
-          | {
-              type?: T;
-              newTab?: T;
-              reference?: T;
-              url?: T;
-            };
+        type?: T;
+        newTab?: T;
+        reference?: T;
+        url?: T;
       };
   dropdown?:
     | T
@@ -2284,7 +2285,6 @@ export interface SiteSettingsSelect<T extends boolean = true> {
     | T
     | {
         platform?: T;
-        label?: T;
         url?: T;
         id?: T;
       };

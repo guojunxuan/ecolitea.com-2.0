@@ -5,6 +5,7 @@ import { anyone } from '@/access/anyone'
 import { authenticated } from '@/access/authenticated'
 import {
   SocialPlatforms,
+  preventSocialPlatformRename,
   validateSocialPlatformIcon,
 } from '@/collections/SocialPlatforms'
 import { SiteSettings } from '@/SiteSettings/config'
@@ -13,7 +14,7 @@ import {
   validateAbsoluteHttpURL,
 } from '@/SiteSettings/fields'
 import { brandingTab } from '@/SiteSettings/fields/branding'
-import { socialTab } from '@/SiteSettings/fields/social'
+import { socialTab, validateUniqueSocialPlatforms } from '@/SiteSettings/fields/social'
 import { revalidateSiteSettings } from '@/SiteSettings/hooks/revalidateSiteSettings'
 import type {
   Config,
@@ -33,6 +34,7 @@ describe('Site Settings Global', () => {
   it('defines a hidden reusable Social Platforms collection', () => {
     expect(SocialPlatforms).toMatchObject({
       slug: 'social-platforms',
+      disableDuplicate: true,
       admin: {
         hidden: true,
         useAsTitle: 'platform',
@@ -45,11 +47,17 @@ describe('Site Settings Global', () => {
       },
     })
     expect(SocialPlatforms.fields).toEqual([
-      {
+      expect.objectContaining({
         name: 'platform',
         type: 'text',
         required: true,
-      },
+        unique: true,
+        admin: expect.objectContaining({
+          components: {
+            Field: '@/SiteSettings/components/SocialPlatformNameField#SocialPlatformNameField',
+          },
+        }),
+      }),
       expect.objectContaining({
         name: 'icon',
         type: 'upload',
@@ -77,6 +85,31 @@ describe('Site Settings Global', () => {
       id: 'asset-id',
       req,
     })
+
+    await expect(validateSocialPlatformIcon(null, { req } as never)).resolves.toBe(
+      'An SVG icon is required.',
+    )
+    findByID.mockRejectedValueOnce(new Error('not found'))
+    await expect(validateSocialPlatformIcon('missing', { req } as never)).resolves.toBe(
+      'Select an existing SVG brand asset.',
+    )
+  })
+
+  it('prevents changing a social platform name after creation', () => {
+    expect(() =>
+      preventSocialPlatformRename({
+        operation: 'update',
+        originalDoc: { platform: 'GitHub' },
+        value: 'X',
+      } as never),
+    ).toThrow('Platform cannot be changed after creation.')
+    expect(
+      preventSocialPlatformRename({
+        operation: 'update',
+        originalDoc: { platform: 'GitHub' },
+        value: 'GitHub',
+      } as never),
+    ).toBe('GitHub')
   })
 
   it('uses five unnamed tabs so persisted fields remain flat', () => {
@@ -208,8 +241,15 @@ describe('Site Settings Global', () => {
         },
       },
     })
-    expect(label).toMatchObject({ name: 'label', type: 'text' })
+    expect(label).toBeUndefined()
     expect(url).toMatchObject({ name: 'url', type: 'text', required: true })
+    expect(socialLinks.admin?.components?.RowLabel).toBe(
+      '@/SiteSettings/components/SocialLinkRowLabel#SocialLinkRowLabel',
+    )
+    expect(socialLinks.admin?.components?.Field).toBe(
+      '@/SiteSettings/components/SocialLinksArrayField#SocialLinksArrayField',
+    )
+    expect(socialLinks.validate).toBe(validateUniqueSocialPlatforms)
 
     const createSocialPlatform = socialTab.fields.find(
       (field) => 'name' in field && field.name === 'createSocialPlatform',
@@ -224,5 +264,23 @@ describe('Site Settings Global', () => {
         },
       },
     })
+  })
+
+  it('rejects duplicate platform relationships within Social Links', () => {
+    expect(validateUniqueSocialPlatforms(undefined)).toBe(true)
+    expect(validateUniqueSocialPlatforms([{ platform: 'github' }, { platform: 'x' }])).toBe(true)
+    expect(
+      validateUniqueSocialPlatforms([
+        { platform: { id: 'github', platform: 'GitHub' } },
+        { platform: 'github' },
+      ]),
+    ).toBe(
+      'Platform "GitHub" is already selected in Social Link row 1 and cannot be selected again in row 2.',
+    )
+    expect(
+      validateUniqueSocialPlatforms([{ platform: 'opaque-id' }, { platform: 'opaque-id' }]),
+    ).toBe(
+      'This Platform is already selected in Social Link row 1 and cannot be selected again in row 2.',
+    )
   })
 })
