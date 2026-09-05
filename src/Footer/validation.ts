@@ -1,4 +1,8 @@
-import type { FieldHook } from 'payload'
+export {
+  trimText,
+  validateNavigationURL as validateFooterURL,
+  validateNonBlankText,
+} from '@/fields/linkValidation'
 
 type FooterColumn = { label?: unknown }
 type RelationshipValue = {
@@ -11,29 +15,6 @@ type NavigationLinkRow = {
     type?: unknown
     url?: unknown
   } | null
-}
-
-export const trimText: FieldHook = ({ value }) => (typeof value === 'string' ? value.trim() : value)
-
-export const validateNonBlankText = (value?: unknown): string | true =>
-  typeof value === 'string' && value.trim().length > 0
-    ? true
-    : 'Enter a value that is not only whitespace.'
-
-export const validateFooterURL = (value?: unknown): string | true => {
-  if (typeof value !== 'string' || value.trim().length === 0) {
-    return 'Enter a custom URL.'
-  }
-
-  const url = value.trim()
-  const isSupported =
-    /^https?:\/\/[^\s]+$/i.test(url) ||
-    /^\/(?!\/)[^\s]*$/.test(url) ||
-    /^#[^\s]+$/.test(url) ||
-    /^mailto:[^\s@]+@[^\s@]+$/i.test(url) ||
-    /^tel:\+?[0-9().\-\s]+$/i.test(url)
-
-  return isSupported ? true : 'Use http(s), a root-relative path, an anchor, mailto, or tel URL.'
 }
 
 export const validateFooterColumnLabels = (value?: unknown): string | true => {

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 import { link } from '@/fields/link'
+import { trimText, validateNavigationURL, validateNonBlankText } from '@/fields/linkValidation'
 
 type LinkGroup = ReturnType<typeof link>
 
@@ -55,6 +56,40 @@ function getFieldNames(linkGroup: LinkGroup): string[] {
 }
 
 describe('link field factory', () => {
+  describe('shared link validation', () => {
+    it('trims text before persistence and rejects blank labels', () => {
+      expect(trimText({ value: ' About ' } as never)).toBe('About')
+      expect(trimText({ value: null } as never)).toBeNull()
+      expect(validateNonBlankText(' About ')).toBe(true)
+      expect(validateNonBlankText('   ')).toBeTypeOf('string')
+    })
+
+    it.each([
+      'https://example.com/path',
+      'http://example.com',
+      '/about',
+      '/',
+      '#newsletter',
+      'mailto:hello@example.com',
+      'tel:+1 (555) 123-4567',
+    ])('accepts supported navigation URL %s', (url) => {
+      expect(validateNavigationURL(url)).toBe(true)
+    })
+
+    it.each([
+      '   ',
+      'about us',
+      '//example.com',
+      'javascript:alert(1)',
+      'mailto:hello',
+      'mailto:@example.com',
+      'tel:call-me',
+      'tel:   ',
+    ])('rejects unsupported navigation URL %s', (url) => {
+      expect(validateNavigationURL(url)).toBeTypeOf('string')
+    })
+  })
+
   describe('reference relationship target', () => {
     it('defaults the reference relationTo to pages and posts when none is passed', () => {
       const linkGroup = link()

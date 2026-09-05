@@ -10,6 +10,19 @@ import {
   validateNonBlankText,
 } from '@/Footer/validation'
 import { navigationColumns } from '@/fields/navigationColumns'
+import {
+  trimText as sharedTrimText,
+  validateNavigationURL,
+  validateNonBlankText as sharedValidateNonBlankText,
+} from '@/fields/linkValidation'
+
+describe('Footer validation compatibility exports', () => {
+  it('uses the shared navigation validators without changing Footer imports', () => {
+    expect(trimText).toBe(sharedTrimText)
+    expect(validateNonBlankText).toBe(sharedValidateNonBlankText)
+    expect(validateFooterURL).toBe(validateNavigationURL)
+  })
+})
 
 describe('navigationColumns field', () => {
   it('keeps its stable identity while merging top-level and nested overrides', () => {
