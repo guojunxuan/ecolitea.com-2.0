@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest'
 
 import { Header } from '@/Header/config'
+import { normalizeHeader } from '@/Header/hooks/normalizeHeader'
+import { revalidateHeader } from '@/Header/hooks/revalidateHeader'
 import { dropdown } from '@/Header/fields/dropdown'
 import { dropdownItems } from '@/Header/fields/dropdownItems'
 import { navigationItems } from '@/Header/fields/navigationItems'
@@ -432,7 +434,13 @@ describe('dropdownItems field (Task 4)', () => {
 })
 
 describe('Header Global (Task 6)', () => {
-  it('exposes navigationItems and a menuCta field with no appearance selector', () => {
+  it('allows public reads but requires authentication for updates', () => {
+    expect(Header.access?.read?.({} as never)).toBe(true)
+    expect(Header.access?.update?.({ req: { user: null } } as never)).toBe(false)
+    expect(Header.access?.update?.({ req: { user: { id: 'user-1' } } } as never)).toBe(true)
+  })
+
+  it('exposes navigationItems and an explicitly enabled menu CTA with no appearance selector', () => {
     expect(Header.slug).toBe('header')
 
     const navItems = Header.fields.find((field) => 'name' in field && field.name === 'navItems')
@@ -450,12 +458,24 @@ describe('Header Global (Task 6)', () => {
       },
     })
 
+    const enableMenuCta = Header.fields.find(
+      (field) => 'name' in field && field.name === 'enableMenuCta',
+    )
+
+    expect(enableMenuCta).toMatchObject({
+      name: 'enableMenuCta',
+      type: 'checkbox',
+      label: 'Enable Menu CTA Button',
+      defaultValue: false,
+    })
+
     const menuCta = Header.fields.find((field) => 'name' in field && field.name === 'menuCta')
 
     expect(menuCta).toMatchObject({
       name: 'menuCta',
       type: 'group',
       label: 'Menu CTA Button',
+      admin: { condition: expect.any(Function) },
     })
 
     if (!menuCta || menuCta.type !== 'group') {
@@ -465,11 +485,35 @@ describe('Header Global (Task 6)', () => {
     expect(menuCta.fields.some((field) => 'name' in field && field.name === 'appearance')).toBe(
       false,
     )
+
+    expect(menuCta.admin?.condition?.({}, { enableMenuCta: false }, {} as never)).toBe(false)
+    expect(menuCta.admin?.condition?.({}, { enableMenuCta: true }, {} as never)).toBe(true)
+
+    const type = menuCta.fields
+      .flatMap((field) => (field.type === 'row' ? field.fields : []))
+      .find((field) => 'name' in field && field.name === 'type')
+    const label = menuCta.fields
+      .flatMap((field) => (field.type === 'row' ? field.fields : []))
+      .find((field) => 'name' in field && field.name === 'label')
+    const url = menuCta.fields
+      .flatMap((field) => (field.type === 'row' ? field.fields : [field]))
+      .find((field) => 'name' in field && field.name === 'url')
+
+    expect(type).toMatchObject({ name: 'type', type: 'radio', required: true })
+    expect(label).toMatchObject({ name: 'label', type: 'text', required: true })
+    expect(label && 'hooks' in label ? label.hooks?.beforeChange : undefined).toHaveLength(1)
+    expect(label && 'validate' in label ? label.validate?.('   ', {} as never) : true).toBeTypeOf(
+      'string',
+    )
+    expect(url && 'hooks' in url ? url.hooks?.beforeChange : undefined).toHaveLength(1)
+    expect(url && 'validate' in url ? url.validate?.('example.com', {} as never) : true).toBeTypeOf(
+      'string',
+    )
   })
 
-  it('keeps the existing Header access, hooks and versions settings', () => {
-    expect(Header.access?.read).toBeTypeOf('function')
-    expect(Header.hooks?.afterChange).toHaveLength(1)
+  it('normalizes before validation and revalidates after change', () => {
+    expect(Header.hooks?.beforeValidate).toEqual([normalizeHeader])
+    expect(Header.hooks?.afterChange).toEqual([revalidateHeader])
     expect(Header.versions).toBe(false)
   })
 })

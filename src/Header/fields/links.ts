@@ -10,7 +10,7 @@ const headerURLOverrides = {
   validate: validateNavigationURL,
 }
 
-export const labeledNavigationLink = () =>
+export const labeledNavigationLink = (overrides: Partial<GroupField> = {}) =>
   link({
     appearances: false,
     relationTo: headerLinkTargets,
@@ -20,6 +20,7 @@ export const labeledNavigationLink = () =>
       validate: validateNonBlankText,
     },
     urlOverrides: headerURLOverrides,
+    overrides,
   })
 
 export const unlabeledNavigationLink = (overrides: Partial<GroupField>) =>
