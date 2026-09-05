@@ -132,6 +132,12 @@ describe('link field factory', () => {
         'categories',
       ])
     })
+
+    it('preserves a scalar relationTo as a single relationship target', () => {
+      const linkGroup = link({ relationTo: 'pages' })
+
+      expect(getReferenceField(linkGroup).relationTo).toBe('pages')
+    })
   })
 
   describe('optional field toggles', () => {

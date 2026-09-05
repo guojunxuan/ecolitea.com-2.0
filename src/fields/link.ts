@@ -2,8 +2,9 @@ import type {
   CollectionSlug,
   Field,
   GroupField,
+  PolymorphicRelationshipField,
   RadioField,
-  RelationshipField,
+  SingleRelationshipField,
   TextField,
 } from 'payload'
 
@@ -89,25 +90,27 @@ export const link: LinkType = ({
     ],
   }
 
-  // The relationship field accepts either a single `CollectionSlug` or an array.
-  // Normalize to an array so it always matches Payload's polymorphic
-  // relationship field type, and fall back to Pages + Posts when none is given.
-  const relationToList: CollectionSlug[] = Array.isArray(relationTo)
-    ? relationTo
-    : relationTo
-      ? [relationTo]
-      : ['pages', 'posts']
-
-  const referenceField: RelationshipField = {
+  const referenceProperties = {
     name: 'reference',
     type: 'relationship',
     admin: {
       condition: (_, siblingData) => siblingData?.type === 'reference',
+      ...(!disableLabel && { width: '50%' }),
     },
     label: 'Document to link to',
-    relationTo: relationToList,
     required: true,
-  }
+  } satisfies Omit<SingleRelationshipField, 'relationTo'>
+
+  const referenceField =
+    typeof relationTo === 'string'
+      ? ({
+          ...referenceProperties,
+          relationTo,
+        } satisfies SingleRelationshipField)
+      : ({
+          ...referenceProperties,
+          relationTo: relationTo ?? ['pages', 'posts'],
+        } satisfies PolymorphicRelationshipField)
 
   const urlField: TextField = deepMerge(
     {
@@ -115,6 +118,7 @@ export const link: LinkType = ({
       type: 'text',
       admin: {
         condition: (_, siblingData) => siblingData?.type === 'custom',
+        ...(!disableLabel && { width: '50%' }),
       },
       label: 'Custom URL',
       required: true,
@@ -122,26 +126,9 @@ export const link: LinkType = ({
     urlOverrides,
   )
 
-  let linkTypes: Field[] = [referenceField, urlField]
+  const linkTypes: Field[] = [referenceField, urlField]
 
   if (!disableLabel) {
-    linkTypes = [
-      {
-        ...referenceField,
-        admin: {
-          ...referenceField.admin,
-          width: '50%',
-        },
-      },
-      {
-        ...urlField,
-        admin: {
-          ...urlField.admin,
-          width: '50%',
-        },
-      },
-    ]
-
     linkResult.fields.push({
       type: 'row',
       fields: [
