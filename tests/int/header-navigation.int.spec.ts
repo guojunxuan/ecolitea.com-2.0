@@ -13,6 +13,8 @@ describe('navigationItems field (Task 2)', () => {
     expect(navItems).toMatchObject({
       name: 'navItems',
       type: 'array',
+      label: 'Navigation Items',
+      labels: { singular: 'Navigation Item', plural: 'Navigation Items' },
       maxRows: 8,
       interfaceName: 'HeaderNavItem',
       admin: {
@@ -24,7 +26,7 @@ describe('navigationItems field (Task 2)', () => {
     })
   })
 
-  it('defines a required label text field and a required navigationType select', () => {
+  it('defines a normalized label and a horizontal navigation type radio', () => {
     const navItems = navigationItems()
 
     if (navItems.type !== 'array') {
@@ -36,6 +38,8 @@ describe('navigationItems field (Task 2)', () => {
         name: 'label',
         type: 'text',
         required: true,
+        validate: expect.any(Function),
+        hooks: { beforeChange: [expect.any(Function)] },
       }),
     )
 
@@ -45,13 +49,14 @@ describe('navigationItems field (Task 2)', () => {
 
     expect(navigationType).toMatchObject({
       name: 'navigationType',
-      type: 'select',
+      type: 'radio',
       required: true,
       defaultValue: 'directLink',
+      admin: { layout: 'horizontal' },
     })
 
-    if (!navigationType || navigationType.type !== 'select') {
-      throw new Error('navigationType must be a select field.')
+    if (!navigationType || navigationType.type !== 'radio') {
+      throw new Error('navigationType must be a radio field.')
     }
 
     expect(navigationType.options).toEqual([
@@ -76,7 +81,14 @@ describe('navigationItems field (Task 2)', () => {
     expect(linkGroup).toMatchObject({
       name: 'link',
       type: 'group',
+      label: 'Direct Link',
     })
+
+    if (!linkGroup || linkGroup.type !== 'group') {
+      throw new Error('navItems must contain a direct link group.')
+    }
+
+    expect(linkGroup.fields.some((field) => 'name' in field && field.name === 'link')).toBe(false)
 
     expect(dropdownGroup).toMatchObject({
       name: 'dropdown',
@@ -107,15 +119,13 @@ describe('link group condition (Task 5)', () => {
       throw new Error('The link group must define an admin.condition function.')
     }
 
-    expect(
-      condition({} as never, { navigationType: 'directLink' } as never, {} as never),
-    ).toBe(true)
+    expect(condition({} as never, { navigationType: 'directLink' } as never, {} as never)).toBe(
+      true,
+    )
     expect(
       condition({} as never, { navigationType: 'directLinkAndDropdown' } as never, {} as never),
     ).toBe(true)
-    expect(
-      condition({} as never, { navigationType: 'dropdown' } as never, {} as never),
-    ).toBe(false)
+    expect(condition({} as never, { navigationType: 'dropdown' } as never, {} as never)).toBe(false)
   })
 })
 
@@ -134,7 +144,9 @@ describe('dropdown group (Task 3)', () => {
       throw new Error('dropdown must return a group field.')
     }
 
-    const description = group.fields.find((field) => 'name' in field && field.name === 'description')
+    const description = group.fields.find(
+      (field) => 'name' in field && field.name === 'description',
+    )
     const descriptionLinks = group.fields.find(
       (field) => 'name' in field && field.name === 'descriptionLinks',
     )
@@ -149,12 +161,16 @@ describe('dropdown group (Task 3)', () => {
     expect(descriptionLinks).toMatchObject({
       name: 'descriptionLinks',
       type: 'array',
-      label: 'Description links',
+      label: 'Description Links',
+      labels: { singular: 'Description Link', plural: 'Description Links' },
+      maxRows: 3,
     })
 
     expect(items).toMatchObject({
       name: 'items',
       type: 'array',
+      label: 'Dropdown Items',
+      labels: { singular: 'Dropdown Item', plural: 'Dropdown Items' },
       required: true,
       minRows: 1,
       maxRows: 12,
@@ -164,12 +180,14 @@ describe('dropdown group (Task 3)', () => {
 })
 
 describe('dropdownItems field (Task 4)', () => {
-  it('defines the items array with admin metadata and a required type select', () => {
+  it('defines the items array with admin metadata and a default horizontal type radio', () => {
     const items = dropdownItems()
 
     expect(items).toMatchObject({
       name: 'items',
       type: 'array',
+      label: 'Dropdown Items',
+      labels: { singular: 'Dropdown Item', plural: 'Dropdown Items' },
       required: true,
       minRows: 1,
       maxRows: 12,
@@ -190,12 +208,14 @@ describe('dropdownItems field (Task 4)', () => {
 
     expect(type).toMatchObject({
       name: 'type',
-      type: 'select',
+      type: 'radio',
       required: true,
+      defaultValue: 'default',
+      admin: { layout: 'horizontal' },
     })
 
-    if (!type || type.type !== 'select') {
-      throw new Error('items must contain a type select field.')
+    if (!type || type.type !== 'radio') {
+      throw new Error('items must contain a type radio field.')
     }
 
     expect(type.options).toEqual([
@@ -265,6 +285,18 @@ describe('dropdownItems field (Task 4)', () => {
       type: 'group',
       label: 'Landing Link',
     })
+
+    const content = featuredItem.fields.find((field) => 'name' in field && field.name === 'label')
+    const links = featuredItem.fields.find((field) => 'name' in field && field.name === 'links')
+
+    expect(content).toMatchObject({ name: 'label', type: 'richText', label: 'Content' })
+    expect(links).toMatchObject({
+      name: 'links',
+      type: 'array',
+      label: 'Navigation Links',
+      labels: { singular: 'Navigation Link', plural: 'Navigation Links' },
+      maxRows: 4,
+    })
   })
 
   it('defines a listItem group with a required tag and a landingLink group', () => {
@@ -295,6 +327,18 @@ describe('dropdownItems field (Task 4)', () => {
       name: 'landingLink',
       type: 'group',
       label: 'Landing Link',
+    })
+
+    const links = listItem.fields.find((field) => 'name' in field && field.name === 'links')
+
+    expect(links).toMatchObject({
+      name: 'links',
+      type: 'array',
+      label: 'Navigation Links',
+      labels: { singular: 'Navigation Link', plural: 'Navigation Links' },
+      required: true,
+      minRows: 1,
+      maxRows: 8,
     })
   })
 })
@@ -330,7 +374,9 @@ describe('Header Global (Task 6)', () => {
       throw new Error('Header must contain a menuCta group.')
     }
 
-    expect(menuCta.fields.some((field) => 'name' in field && field.name === 'appearance')).toBe(false)
+    expect(menuCta.fields.some((field) => 'name' in field && field.name === 'appearance')).toBe(
+      false,
+    )
   })
 
   it('keeps the existing Header access, hooks and versions settings', () => {

@@ -1,6 +1,7 @@
 import type { ArrayField } from 'payload'
 
 import { link } from '@/fields/link'
+import { trimText, validateNavigationURL, validateNonBlankText } from '@/fields/linkValidation'
 import { validateHeaderNavItems } from '@/Header/validators/validateNavigation'
 import { dropdown } from './dropdown'
 import { headerLinkTargets } from './dropdownItems'
@@ -8,6 +9,8 @@ import { headerLinkTargets } from './dropdownItems'
 export const navigationItems = (): ArrayField => ({
   name: 'navItems',
   type: 'array',
+  label: 'Navigation Items',
+  labels: { singular: 'Navigation Item', plural: 'Navigation Items' },
   maxRows: 8,
   interfaceName: 'HeaderNavItem',
   validate: validateHeaderNavItems,
@@ -18,35 +21,42 @@ export const navigationItems = (): ArrayField => ({
     },
   },
   fields: [
-    { name: 'label', type: 'text', required: true },
+    {
+      name: 'label',
+      type: 'text',
+      required: true,
+      hooks: { beforeChange: [trimText] },
+      validate: validateNonBlankText,
+    },
     {
       name: 'navigationType',
-      type: 'select',
+      type: 'radio',
       required: true,
       defaultValue: 'directLink',
+      admin: { layout: 'horizontal' },
       options: [
         { label: 'Direct Link', value: 'directLink' },
         { label: 'Dropdown', value: 'dropdown' },
         { label: 'Direct Link + Dropdown', value: 'directLinkAndDropdown' },
       ],
     },
-    // Direct Link group — shown for directLink and directLinkAndDropdown
-    {
-      name: 'link',
-      type: 'group',
-      admin: {
-        condition: (_, siblingData) =>
-          siblingData?.navigationType === 'directLink' ||
-          siblingData?.navigationType === 'directLinkAndDropdown',
+    link({
+      appearances: false,
+      disableLabel: true,
+      relationTo: headerLinkTargets,
+      urlOverrides: {
+        hooks: { beforeChange: [trimText] },
+        validate: validateNavigationURL,
       },
-      fields: [
-        link({
-          appearances: false,
-          disableLabel: true,
-          relationTo: headerLinkTargets,
-        }),
-      ],
-    },
+      overrides: {
+        label: 'Direct Link',
+        admin: {
+          condition: (_, siblingData) =>
+            siblingData?.navigationType === 'directLink' ||
+            siblingData?.navigationType === 'directLinkAndDropdown',
+        },
+      },
+    }),
     // Dropdown group — shown for dropdown and directLinkAndDropdown
     dropdown(),
   ],

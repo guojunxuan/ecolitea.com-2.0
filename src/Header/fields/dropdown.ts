@@ -1,6 +1,7 @@
 import type { GroupField } from 'payload'
 
 import { link } from '@/fields/link'
+import { trimText, validateNavigationURL, validateNonBlankText } from '@/fields/linkValidation'
 import { dropdownItems, headerLinkTargets } from './dropdownItems'
 
 export const dropdown = (): GroupField => ({
@@ -16,8 +17,23 @@ export const dropdown = (): GroupField => ({
     {
       name: 'descriptionLinks',
       type: 'array',
-      label: 'Description links',
-      fields: [link({ appearances: false, relationTo: headerLinkTargets })],
+      label: 'Description Links',
+      labels: { singular: 'Description Link', plural: 'Description Links' },
+      maxRows: 3,
+      fields: [
+        link({
+          appearances: false,
+          relationTo: headerLinkTargets,
+          labelOverrides: {
+            hooks: { beforeChange: [trimText] },
+            validate: validateNonBlankText,
+          },
+          urlOverrides: {
+            hooks: { beforeChange: [trimText] },
+            validate: validateNavigationURL,
+          },
+        }),
+      ],
     },
     dropdownItems(),
   ],
