@@ -175,14 +175,6 @@ const validateDropdownScope = (
     const validationError = validateDropdownItem(label, rowIndex, itemIndex, item)
     if (validationError) return validationError
 
-    const descriptionLinks =
-      item.type === 'default'
-        ? item.defaultItem?.description ? [] : null
-        : item.type === 'featured'
-          ? item.featuredItem?.links
-          : item.type === 'list'
-            ? item.listItem?.links
-            : null
     if (item.type === 'default') {
       const defaultKey = getDestinationKey(item.defaultItem?.link)
       const defaultError = addKey(
@@ -207,7 +199,11 @@ const validateDropdownScope = (
     }
 
     if (item.type === 'list') {
-      if (!Array.isArray(item.listItem?.links) || item.listItem.links.length < 1 || item.listItem.links.length > 8) {
+      if (
+        !Array.isArray(item.listItem?.links) ||
+        item.listItem.links.length < HEADER_LIST_NAV_LINKS_MIN ||
+        item.listItem.links.length > HEADER_LIST_NAV_LINKS_MAX
+      ) {
         return `${formatDropdownRow(label, rowIndex, itemIndex)} (list): Navigation Links must contain 1 to 8 entries.`
       }
     }
@@ -229,7 +225,6 @@ const validateDropdownScope = (
         if (nestedError) return nestedError
       }
     }
-
   }
 
   return null

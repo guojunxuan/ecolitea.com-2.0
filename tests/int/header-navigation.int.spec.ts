@@ -475,10 +475,8 @@ describe('Header Global (Task 6)', () => {
 })
 
 describe('validateHeaderNavItems (Task 7)', () => {
-  // A valid reference-link group (flat). Used directly for flat contexts —
-  // `defaultItem.link` and `featuredItem`/`listItem` `landingLink` — and wrapped
-  // in `{ link }` where the direct-link destination is nested (the row's `link`
-  // group wraps a `link()` field that is also named `link`).
+  // A valid reference-link group (flat). Used directly for row links and for
+  // dropdown default/landing/nested link contexts.
   const baseLink = {
     type: 'reference',
     reference: { relationTo: 'pages', value: 'some-page-id' },
@@ -514,7 +512,7 @@ describe('validateHeaderNavItems (Task 7)', () => {
     url: ' /about ',
   }
 
-  it('accepts a valid directLink row with a nested link destination', () => {
+  it('accepts a valid directLink row with a flat link destination', () => {
     const items = [{ label: 'About', navigationType: 'directLink', link: baseLink }]
 
     expect(validateHeaderNavItems(items)).toBe(true)
@@ -665,7 +663,8 @@ describe('validateHeaderNavItems (Task 7)', () => {
     const result = validateHeaderNavItems(items)
 
     expect(result).not.toBe(true)
-    expect(String(result)).toContain('dropdown')
+    expect(String(result)).toContain('About')
+    expect(String(result)).toContain('Description Link 2')
   })
 
   it('reports the exact description link context when a description destination is missing', () => {
@@ -702,7 +701,8 @@ describe('validateHeaderNavItems (Task 7)', () => {
     const result = validateHeaderNavItems(items)
 
     expect(result).not.toBe(true)
-    expect(String(result)).toContain('dropdown')
+    expect(String(result)).toContain('About')
+    expect(String(result)).toContain('(default)')
   })
 
   it('rejects description links that collide with a landing link destination', () => {
@@ -728,7 +728,8 @@ describe('validateHeaderNavItems (Task 7)', () => {
     const result = validateHeaderNavItems(items)
 
     expect(result).not.toBe(true)
-    expect(String(result)).toContain('dropdown')
+    expect(String(result)).toContain('About')
+    expect(String(result)).toContain('(featured)')
   })
 
   it('rejects description links that collide with a nested navigation link destination', () => {
@@ -755,7 +756,8 @@ describe('validateHeaderNavItems (Task 7)', () => {
     const result = validateHeaderNavItems(items)
 
     expect(result).not.toBe(true)
-    expect(String(result)).toContain('dropdown')
+    expect(String(result)).toContain('About')
+    expect(String(result)).toContain('navigation link 1')
   })
 
   it('ignores stale duplicate description links on a direct link row', () => {
