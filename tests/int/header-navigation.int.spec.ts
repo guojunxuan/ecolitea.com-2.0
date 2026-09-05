@@ -5,6 +5,7 @@ import { dropdown } from '@/Header/fields/dropdown'
 import { dropdownItems } from '@/Header/fields/dropdownItems'
 import { navigationItems } from '@/Header/fields/navigationItems'
 import { validateHeaderNavItems } from '@/Header/validators/validateNavigation'
+import { trimText, validateNavigationURL, validateNonBlankText } from '@/fields/linkValidation'
 
 interface NestedField {
   fields?: NestedField[]
@@ -15,6 +16,28 @@ interface NestedField {
 
 const collectNestedFields = (fields: NestedField[]): NestedField[] =>
   fields.flatMap((field) => [field, ...collectNestedFields(field.fields ?? [])])
+
+const namedField = (fields: NestedField[], name: string): NestedField | undefined =>
+  fields.find((field) => field.name === name)
+
+const assertConfiguredLink = (group: NestedField, labeled: boolean) => {
+  const fields = collectNestedFields(group.fields ?? [])
+  expect(namedField(fields, 'type')).toMatchObject({ type: 'radio', required: true })
+  expect(namedField(fields, 'url')).toMatchObject({
+    validate: validateNavigationURL,
+    hooks: { beforeChange: [trimText] },
+  })
+
+  if (labeled) {
+    expect(namedField(fields, 'label')).toMatchObject({
+      required: true,
+      validate: validateNonBlankText,
+      hooks: { beforeChange: [trimText] },
+    })
+  } else {
+    expect(namedField(fields, 'label')).toBeUndefined()
+  }
+}
 
 describe('navigationItems field (Task 2)', () => {
   it('requires the type discriminator in every Header link without changing shared defaults', () => {
@@ -33,6 +56,42 @@ describe('navigationItems field (Task 2)', () => {
         (field) => field.name === 'type' && field.type === 'radio',
       )
       expect(linkType).toMatchObject({ name: 'type', type: 'radio', required: true })
+    }
+  })
+
+  it('configures every Header link category with opt-in validation and labeling', () => {
+    const navItems = navigationItems()
+    if (navItems.type !== 'array') throw new Error('navigationItems must return an array field.')
+
+    const direct = namedField(navItems.fields as NestedField[], 'link')
+    const dropdownGroup = namedField(navItems.fields as NestedField[], 'dropdown')
+    if (!direct || !dropdownGroup) throw new Error('Expected direct and dropdown groups.')
+    assertConfiguredLink(direct, false)
+
+    const descriptionLinks = namedField(dropdownGroup.fields ?? [], 'descriptionLinks')
+    const items = namedField(dropdownGroup.fields ?? [], 'items')
+    const descriptionLink = namedField(descriptionLinks?.fields ?? [], 'link')
+    if (!descriptionLink || !items)
+      throw new Error('Expected description links and dropdown items.')
+    assertConfiguredLink(descriptionLink, true)
+
+    for (const groupName of ['defaultItem', 'featuredItem', 'listItem']) {
+      const itemGroup = namedField(items.fields ?? [], groupName)
+      if (!itemGroup) throw new Error(`Expected ${groupName}.`)
+
+      if (groupName === 'defaultItem') {
+        const defaultLink = namedField(itemGroup.fields ?? [], 'link')
+        if (!defaultLink) throw new Error('Expected default link.')
+        assertConfiguredLink(defaultLink, true)
+        continue
+      }
+
+      const landing = namedField(itemGroup.fields ?? [], 'landingLink')
+      const navigationLinks = namedField(itemGroup.fields ?? [], 'links')
+      const navigationLink = namedField(navigationLinks?.fields ?? [], 'link')
+      if (!landing || !navigationLink) throw new Error(`Expected links for ${groupName}.`)
+      assertConfiguredLink(landing, false)
+      assertConfiguredLink(navigationLink, true)
     }
   })
 

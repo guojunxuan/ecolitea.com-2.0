@@ -1,10 +1,9 @@
 import type { ArrayField } from 'payload'
 
-import { link } from '@/fields/link'
-import { trimText, validateNavigationURL, validateNonBlankText } from '@/fields/linkValidation'
+import { trimText, validateNonBlankText } from '@/fields/linkValidation'
 import { validateHeaderNavItems } from '@/Header/validators/validateNavigation'
 import { dropdown } from './dropdown'
-import { headerLinkTargets } from './dropdownItems'
+import { unlabeledNavigationLink } from './links'
 
 export const navigationItems = (): ArrayField => ({
   name: 'navItems',
@@ -40,22 +39,12 @@ export const navigationItems = (): ArrayField => ({
         { label: 'Direct Link + Dropdown', value: 'directLinkAndDropdown' },
       ],
     },
-    link({
-      appearances: false,
-      disableLabel: true,
-      relationTo: headerLinkTargets,
-      typeOverrides: { required: true },
-      urlOverrides: {
-        hooks: { beforeChange: [trimText] },
-        validate: validateNavigationURL,
-      },
-      overrides: {
-        label: 'Direct Link',
-        admin: {
-          condition: (_, siblingData) =>
-            siblingData?.navigationType === 'directLink' ||
-            siblingData?.navigationType === 'directLinkAndDropdown',
-        },
+    unlabeledNavigationLink({
+      label: 'Direct Link',
+      admin: {
+        condition: (_, siblingData) =>
+          siblingData?.navigationType === 'directLink' ||
+          siblingData?.navigationType === 'directLinkAndDropdown',
       },
     }),
     // Dropdown group — shown for dropdown and directLinkAndDropdown

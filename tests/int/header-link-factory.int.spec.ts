@@ -135,6 +135,15 @@ describe('link field factory', () => {
   })
 
   describe('optional field toggles', () => {
+    it('gives reference and URL targets half width when a label is present', () => {
+      const fields = collectFields(link())
+      const reference = fields.find((field) => field.name === 'reference')
+      const url = fields.find((field) => field.name === 'url')
+
+      expect(reference).toMatchObject({ admin: { width: '50%' } })
+      expect(url).toMatchObject({ admin: { width: '50%' } })
+    })
+
     it('keeps the link type optional by default', () => {
       expect(getTypeField(link()).required).toBeUndefined()
     })

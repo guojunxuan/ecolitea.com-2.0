@@ -1,37 +1,12 @@
-import type { ArrayField, CollectionSlug } from 'payload'
+import type { ArrayField } from 'payload'
 
-import { link } from '@/fields/link'
-import { trimText, validateNavigationURL, validateNonBlankText } from '@/fields/linkValidation'
+import { trimText, validateNonBlankText } from '@/fields/linkValidation'
 
-export const headerLinkTargets: CollectionSlug[] = ['pages', 'posts', 'case-studies', 'categories']
+import { labeledNavigationLink, unlabeledNavigationLink } from './links'
 
-const labeledNavigationLink = () =>
-  link({
-    appearances: false,
-    relationTo: headerLinkTargets,
-    typeOverrides: { required: true },
-    labelOverrides: {
-      hooks: { beforeChange: [trimText] },
-      validate: validateNonBlankText,
-    },
-    urlOverrides: {
-      hooks: { beforeChange: [trimText] },
-      validate: validateNavigationURL,
-    },
-  })
+export { headerLinkTargets } from './links'
 
-const landingLink = () =>
-  link({
-    appearances: false,
-    disableLabel: true,
-    relationTo: headerLinkTargets,
-    typeOverrides: { required: true },
-    urlOverrides: {
-      hooks: { beforeChange: [trimText] },
-      validate: validateNavigationURL,
-    },
-    overrides: { name: 'landingLink', label: 'Landing Link' },
-  })
+const landingLink = () => unlabeledNavigationLink({ name: 'landingLink', label: 'Landing Link' })
 
 export const dropdownItems = (): ArrayField => ({
   name: 'items',

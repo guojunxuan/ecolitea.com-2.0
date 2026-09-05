@@ -91,7 +91,7 @@ export const link: LinkType = ({
       ? [relationTo]
       : ['pages', 'posts']
 
-  const linkTypes: Field[] = [
+  let linkTypes: Field[] = [
     {
       name: 'reference',
       type: 'relationship',
@@ -117,7 +117,7 @@ export const link: LinkType = ({
   ]
 
   if (!disableLabel) {
-    linkTypes.map((linkType) => ({
+    linkTypes = linkTypes.map((linkType) => ({
       ...linkType,
       admin: {
         ...linkType.admin,
