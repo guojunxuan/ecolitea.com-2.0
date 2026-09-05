@@ -16,11 +16,12 @@ const typeLabels: Record<string, string> = {
 
 export const RowLabel: React.FC<RowLabelProps> = () => {
   const { data, rowNumber } = useRowLabel<NavRow>()
-  const num = rowNumber === undefined ? '' : `Nav item ${rowNumber + 1}`
+  const fallback = rowNumber === undefined ? 'Navigation Item' : `Navigation Item ${rowNumber + 1}`
   const label = data?.label?.trim()
   const typeLabel = data?.navigationType
-    ? ` · ${typeLabels[data.navigationType] ?? data.navigationType}`
+    ? (typeLabels[data.navigationType] ?? data.navigationType)
     : ''
+  const summary = label ? `${fallback}: ${label}` : fallback
 
-  return <div>{label ? `${num}: ${label}${typeLabel}` : `${num}: Row`}</div>
+  return <div>{typeLabel ? `${summary} · ${typeLabel}` : summary}</div>
 }

@@ -17,13 +17,18 @@ const typeLabels: Record<string, string> = {
 
 export const DropdownItemRowLabel: React.FC<RowLabelProps> = () => {
   const { data, rowNumber } = useRowLabel<DropdownRow>()
-  const num = rowNumber === undefined ? '' : `Item ${rowNumber + 1}`
+  const fallback = rowNumber === undefined ? 'Dropdown Item' : `Dropdown Item ${rowNumber + 1}`
   const type = data?.type
   const label =
-    (data?.defaultItem && data?.defaultItem?.link?.label) ||
-    (data?.featuredItem && data?.featuredItem?.tag) ||
-    (data?.listItem && data?.listItem?.tag) ||
-    ''
+    type === 'default'
+      ? data?.defaultItem?.link?.label?.trim()
+      : type === 'featured'
+        ? data?.featuredItem?.tag?.trim()
+        : type === 'list'
+          ? data?.listItem?.tag?.trim()
+          : ''
+  const typeLabel = type ? (typeLabels[type] ?? type) : ''
+  const summary = label ? `${fallback}: ${label}` : fallback
 
-  return <div>{label ? `${num}: ${label}` : `${num}: ${type ? (typeLabels[type] ?? type) : 'Row'}`}</div>
+  return <div>{typeLabel ? `${summary} · ${typeLabel}` : summary}</div>
 }
