@@ -668,6 +668,102 @@ describe('validateHeaderNavItems (Task 7)', () => {
     expect(String(result)).toContain('dropdown')
   })
 
+  it('rejects description links that collide with a default item destination', () => {
+    const items = [
+      {
+        label: 'About',
+        navigationType: 'dropdown',
+        dropdown: {
+          descriptionLinks: [{ link: baseLink }],
+          items: [{ type: 'default', defaultItem: { link: baseLink } }],
+        },
+      },
+    ]
+
+    const result = validateHeaderNavItems(items)
+
+    expect(result).not.toBe(true)
+    expect(String(result)).toContain('dropdown')
+  })
+
+  it('rejects description links that collide with a landing link destination', () => {
+    const items = [
+      {
+        label: 'About',
+        navigationType: 'dropdown',
+        dropdown: {
+          descriptionLinks: [{ link: baseLink }],
+          items: [
+            {
+              type: 'featured',
+              featuredItem: {
+                tag: 'Featured',
+                landingLink: baseLink,
+              },
+            },
+          ],
+        },
+      },
+    ]
+
+    const result = validateHeaderNavItems(items)
+
+    expect(result).not.toBe(true)
+    expect(String(result)).toContain('dropdown')
+  })
+
+  it('rejects description links that collide with a nested navigation link destination', () => {
+    const items = [
+      {
+        label: 'About',
+        navigationType: 'dropdown',
+        dropdown: {
+          descriptionLinks: [{ link: baseLink }],
+          items: [
+            {
+              type: 'list',
+              listItem: {
+                tag: 'Resources',
+                landingLink: otherBaseLink,
+                links: [{ link: baseLink }],
+              },
+            },
+          ],
+        },
+      },
+    ]
+
+    const result = validateHeaderNavItems(items)
+
+    expect(result).not.toBe(true)
+    expect(String(result)).toContain('dropdown')
+  })
+
+  it('ignores stale duplicate description links on a direct link row', () => {
+    const items = [
+      {
+        label: 'About',
+        navigationType: 'directLink',
+        link: baseLink,
+        dropdown: {
+          descriptionLinks: [{ link: baseLink }, { link: baseLink }],
+          items: [{ type: 'default', defaultItem: { link: otherBaseLink } }],
+        },
+      },
+    ]
+
+    expect(validateHeaderNavItems(items)).toBe(true)
+  })
+
+  it('treats labels as case-sensitive after trimming', () => {
+    const items = [
+      { label: 'About', navigationType: 'directLink', link: baseLink },
+      { label: 'ABOUT', navigationType: 'directLink', link: otherBaseLink },
+    ]
+
+    expect(validateHeaderNavItems(items)).toBe(true)
+  })
+
   it('rejects a default item missing its destination', () => {
     const items = [
       {

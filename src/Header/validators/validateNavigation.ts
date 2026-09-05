@@ -125,6 +125,7 @@ const validateDropdownItem = (
 const validateDropdownScope = (
   label: string | null,
   rowIndex: number,
+  descriptionLinks: Array<{ link?: HeaderLinkValue | null }> | null | undefined,
   items: HeaderDropdownItemValue[],
 ): string | null => {
   const seen = new Set<string>()
@@ -136,6 +137,17 @@ const validateDropdownScope = (
     }
     seen.add(key)
     return null
+  }
+
+  if (Array.isArray(descriptionLinks)) {
+    for (const [linkOffset, descriptionLink] of descriptionLinks.entries()) {
+      const linkIndex = linkOffset + 1
+      const nestedError = addKey(
+        getDestinationKey(descriptionLink?.link ?? null),
+        `${formatDropdownRow(label, rowIndex, linkIndex)} (description link)`,
+      )
+      if (nestedError) return nestedError
+    }
   }
 
   for (const [itemOffset, item] of items.entries()) {
@@ -181,17 +193,24 @@ const validateDropdownScope = (
       }
     }
 
-    if (descriptionLinks) {
-      for (const [nestedOffset, nestedItem] of descriptionLinks.entries()) {
+    const navigationLinks =
+      item.type === 'featured'
+        ? item.featuredItem?.links
+        : item.type === 'list'
+          ? item.listItem?.links
+          : null
+
+    if (Array.isArray(navigationLinks)) {
+      for (const [nestedOffset, nestedItem] of navigationLinks.entries()) {
         const nestedIndex = nestedOffset + 1
-        const nestedKey = getDestinationKey(nestedItem?.link ?? null)
         const nestedError = addKey(
-          nestedKey,
-          `${formatDropdownRow(label, rowIndex, itemIndex)} description link ${nestedIndex}`,
+          getDestinationKey((nestedItem as { link?: HeaderLinkValue } | null | undefined)?.link),
+          `${formatDropdownRow(label, rowIndex, itemIndex)} navigation link ${nestedIndex}`,
         )
         if (nestedError) return nestedError
       }
     }
+
   }
 
   return null
@@ -212,7 +231,6 @@ export const validateHeaderNavItems = (items?: unknown[] | null): string | true 
     const navigationType = item?.navigationType
     const directKey = getDestinationKey(item?.link ?? null)
     const dropdownItems = item?.dropdown?.items
-    const descriptionLinks = item?.dropdown?.descriptionLinks
     const hasDirect = navigationType === 'directLink' || navigationType === 'directLinkAndDropdown'
     const hasDropdown = navigationType === 'dropdown' || navigationType === 'directLinkAndDropdown'
 
@@ -240,21 +258,8 @@ export const validateHeaderNavItems = (items?: unknown[] | null): string | true 
         return `${formatRow(label, rowIndex)} (${navigationType}): Dropdown items must contain 1 to 12 entries.`
       }
 
-      const dropdownError = validateDropdownScope(label, rowIndex, dropdownItems)
+      const dropdownError = validateDropdownScope(label, rowIndex, item?.dropdown?.descriptionLinks, dropdownItems)
       if (dropdownError) return dropdownError
-    }
-
-    if (Array.isArray(descriptionLinks)) {
-      const seenDescription = new Set<string>()
-      for (const [linkOffset, descriptionLink] of descriptionLinks.entries()) {
-        const linkIndex = linkOffset + 1
-        const key = getDestinationKey(descriptionLink?.link ?? null)
-        if (!key) continue
-        if (seenDescription.has(key)) {
-          return `${formatDropdownRow(label, rowIndex, linkIndex)} (description link): Duplicate destination within this dropdown.`
-        }
-        seenDescription.add(key)
-      }
     }
   }
 
