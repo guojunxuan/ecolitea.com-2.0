@@ -668,6 +668,25 @@ describe('validateHeaderNavItems (Task 7)', () => {
     expect(String(result)).toContain('dropdown')
   })
 
+  it('reports the exact description link context when a description destination is missing', () => {
+    const items = [
+      {
+        label: 'About',
+        navigationType: 'dropdown',
+        dropdown: {
+          descriptionLinks: [{ link: null }],
+          items: [{ type: 'default', defaultItem: { link: otherBaseLink } }],
+        },
+      },
+    ]
+
+    const result = validateHeaderNavItems(items)
+
+    expect(result).not.toBe(true)
+    expect(String(result)).toContain('About')
+    expect(String(result)).toContain('Description Link 1')
+  })
+
   it('rejects description links that collide with a default item destination', () => {
     const items = [
       {
@@ -804,7 +823,7 @@ describe('validateHeaderNavItems (Task 7)', () => {
     const result = validateHeaderNavItems(items)
 
     expect(result).not.toBe(true)
-    expect(String(result)).toContain('navigation link')
+    expect(String(result)).toContain('Navigation Link 1')
   })
 
   it('rejects a list item with zero links', () => {

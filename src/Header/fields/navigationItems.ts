@@ -2,6 +2,7 @@ import type { ArrayField } from 'payload'
 
 import { trimText, validateNonBlankText } from '@/fields/linkValidation'
 import { validateHeaderNavItems } from '@/Header/validators/validateNavigation'
+import { HEADER_NAV_ITEMS_MAX } from '@/Header/policy'
 import { dropdown } from './dropdown'
 import { unlabeledNavigationLink } from './links'
 
@@ -10,7 +11,7 @@ export const navigationItems = (): ArrayField => ({
   type: 'array',
   label: 'Navigation Items',
   labels: { singular: 'Navigation Item', plural: 'Navigation Items' },
-  maxRows: 8,
+  maxRows: HEADER_NAV_ITEMS_MAX,
   interfaceName: 'HeaderNavItem',
   validate: validateHeaderNavItems,
   admin: {

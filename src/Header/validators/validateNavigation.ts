@@ -1,3 +1,12 @@
+import {
+  HEADER_DROPDOWN_DESCRIPTION_LINKS_MAX,
+  HEADER_DROPDOWN_ITEMS_MAX,
+  HEADER_DROPDOWN_ITEMS_MIN,
+  HEADER_FEATURED_NAV_LINKS_MAX,
+  HEADER_LIST_NAV_LINKS_MAX,
+  HEADER_LIST_NAV_LINKS_MIN,
+} from '@/Header/policy'
+
 export type HeaderLinkValue = {
   type?: 'reference' | 'custom' | null
   reference?: { relationTo?: string | null; value?: unknown } | null
@@ -91,10 +100,13 @@ const validateDropdownItem = (
       return `${formatDropdownRow(label, rowIndex, itemIndex)} (featured, tag: "${tag}"): A "Landing Link" destination is required.`
     }
     if (Array.isArray(item.featuredItem?.links)) {
+      if (item.featuredItem.links.length > HEADER_FEATURED_NAV_LINKS_MAX) {
+        return `${formatDropdownRow(label, rowIndex, itemIndex)} (featured): Navigation Links must contain 0 to ${HEADER_FEATURED_NAV_LINKS_MAX} entries.`
+      }
       for (const [nestedOffset, nestedItem] of item.featuredItem.links.entries()) {
         const nestedIndex = nestedOffset + 1
         if (!getDestinationKey((nestedItem as { link?: HeaderLinkValue } | null | undefined)?.link)) {
-          return `${formatDropdownRow(label, rowIndex, itemIndex)} navigation link ${nestedIndex}: A destination is required.`
+          return `${formatDropdownRow(label, rowIndex, itemIndex)} (featured) Navigation Link ${nestedIndex}: A destination is required.`
         }
       }
     }
@@ -110,10 +122,13 @@ const validateDropdownItem = (
       return `${formatDropdownRow(label, rowIndex, itemIndex)} (list, tag: "${tag}"): A "Landing Link" destination is required.`
     }
     if (Array.isArray(item.listItem?.links)) {
+      if (item.listItem.links.length < HEADER_LIST_NAV_LINKS_MIN || item.listItem.links.length > HEADER_LIST_NAV_LINKS_MAX) {
+        return `${formatDropdownRow(label, rowIndex, itemIndex)} (list): Navigation Links must contain ${HEADER_LIST_NAV_LINKS_MIN} to ${HEADER_LIST_NAV_LINKS_MAX} entries.`
+      }
       for (const [nestedOffset, nestedItem] of item.listItem.links.entries()) {
         const nestedIndex = nestedOffset + 1
         if (!getDestinationKey((nestedItem as { link?: HeaderLinkValue } | null | undefined)?.link)) {
-          return `${formatDropdownRow(label, rowIndex, itemIndex)} navigation link ${nestedIndex}: A destination is required.`
+          return `${formatDropdownRow(label, rowIndex, itemIndex)} (list) Navigation Link ${nestedIndex}: A destination is required.`
         }
       }
     }
@@ -140,12 +155,16 @@ const validateDropdownScope = (
   }
 
   if (Array.isArray(descriptionLinks)) {
+    if (descriptionLinks.length > HEADER_DROPDOWN_DESCRIPTION_LINKS_MAX) {
+      return `${formatRow(label, rowIndex)}: Description Links must contain 0 to ${HEADER_DROPDOWN_DESCRIPTION_LINKS_MAX} entries.`
+    }
     for (const [linkOffset, descriptionLink] of descriptionLinks.entries()) {
       const linkIndex = linkOffset + 1
-      const nestedError = addKey(
-        getDestinationKey(descriptionLink?.link ?? null),
-        `${formatDropdownRow(label, rowIndex, linkIndex)} (description link)`,
-      )
+      const key = getDestinationKey(descriptionLink?.link ?? null)
+      if (!key) {
+        return `${formatRow(label, rowIndex)}: Description Link ${linkIndex} requires a destination.`
+      }
+      const nestedError = addKey(key, `${formatRow(label, rowIndex)}: Description Link ${linkIndex}`)
       if (nestedError) return nestedError
     }
   }
@@ -254,8 +273,8 @@ export const validateHeaderNavItems = (items?: unknown[] | null): string | true 
     }
 
     if (hasDropdown) {
-      if (!Array.isArray(dropdownItems) || dropdownItems.length < 1 || dropdownItems.length > 12) {
-        return `${formatRow(label, rowIndex)} (${navigationType}): Dropdown items must contain 1 to 12 entries.`
+      if (!Array.isArray(dropdownItems) || dropdownItems.length < HEADER_DROPDOWN_ITEMS_MIN || dropdownItems.length > HEADER_DROPDOWN_ITEMS_MAX) {
+        return `${formatRow(label, rowIndex)} (${navigationType}): Dropdown items must contain ${HEADER_DROPDOWN_ITEMS_MIN} to ${HEADER_DROPDOWN_ITEMS_MAX} entries.`
       }
 
       const dropdownError = validateDropdownScope(label, rowIndex, item?.dropdown?.descriptionLinks, dropdownItems)

@@ -1,6 +1,13 @@
 import type { ArrayField } from 'payload'
 
 import { trimText, validateNonBlankText } from '@/fields/linkValidation'
+import {
+  HEADER_DROPDOWN_ITEMS_MAX,
+  HEADER_DROPDOWN_ITEMS_MIN,
+  HEADER_FEATURED_NAV_LINKS_MAX,
+  HEADER_LIST_NAV_LINKS_MAX,
+  HEADER_LIST_NAV_LINKS_MIN,
+} from '@/Header/policy'
 
 import { labeledNavigationLink, unlabeledNavigationLink } from './links'
 
@@ -14,8 +21,8 @@ export const dropdownItems = (): ArrayField => ({
   label: 'Dropdown Items',
   labels: { singular: 'Dropdown Item', plural: 'Dropdown Items' },
   required: true,
-  minRows: 1,
-  maxRows: 12,
+  minRows: HEADER_DROPDOWN_ITEMS_MIN,
+  maxRows: HEADER_DROPDOWN_ITEMS_MAX,
   interfaceName: 'HeaderDropdownItem',
   admin: {
     initCollapsed: true,
@@ -65,7 +72,7 @@ export const dropdownItems = (): ArrayField => ({
           type: 'array',
           label: 'Navigation Links',
           labels: { singular: 'Navigation Link', plural: 'Navigation Links' },
-          maxRows: 4,
+          maxRows: HEADER_FEATURED_NAV_LINKS_MAX,
           fields: [labeledNavigationLink()],
         },
       ],
@@ -91,8 +98,8 @@ export const dropdownItems = (): ArrayField => ({
           label: 'Navigation Links',
           labels: { singular: 'Navigation Link', plural: 'Navigation Links' },
           required: true,
-          minRows: 1,
-          maxRows: 8,
+          minRows: HEADER_LIST_NAV_LINKS_MIN,
+          maxRows: HEADER_LIST_NAV_LINKS_MAX,
           fields: [labeledNavigationLink()],
         },
       ],

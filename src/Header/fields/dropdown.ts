@@ -1,5 +1,6 @@
 import type { GroupField } from 'payload'
 
+import { HEADER_DROPDOWN_DESCRIPTION_LINKS_MAX } from '@/Header/policy'
 import { dropdownItems } from './dropdownItems'
 import { labeledNavigationLink } from './links'
 
@@ -18,7 +19,7 @@ export const dropdown = (): GroupField => ({
       type: 'array',
       label: 'Description Links',
       labels: { singular: 'Description Link', plural: 'Description Links' },
-      maxRows: 3,
+      maxRows: HEADER_DROPDOWN_DESCRIPTION_LINKS_MAX,
       fields: [labeledNavigationLink()],
     },
     dropdownItems(),
