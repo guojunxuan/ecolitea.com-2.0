@@ -19,10 +19,10 @@ export type HeaderDropdownItemValue = {
 export type HeaderNavItemValue = {
   label?: string | null
   navigationType?: 'directLink' | 'dropdown' | 'directLinkAndDropdown' | null
-  link?: { link?: HeaderLinkValue } | null
+  link?: HeaderLinkValue | null
   dropdown?: {
     description?: string | null
-    descriptionLinks?: unknown
+    descriptionLinks?: Array<{ link?: HeaderLinkValue | null }> | null
     items?: HeaderDropdownItemValue[] | null
   } | null
 }
@@ -35,11 +35,14 @@ const trimString = (value: unknown): string | null => {
 
 const getRelationId = (value: unknown): string | null => {
   if (typeof value === 'string') return value
+  if (typeof value === 'number' && Number.isFinite(value)) return String(value)
   if (!value || typeof value !== 'object') return null
 
   const record = value as { id?: unknown; _id?: unknown }
   if (typeof record.id === 'string') return record.id
+  if (typeof record.id === 'number' && Number.isFinite(record.id)) return String(record.id)
   if (typeof record._id === 'string') return record._id
+  if (typeof record._id === 'number' && Number.isFinite(record._id)) return String(record._id)
   return null
 }
 
@@ -60,8 +63,6 @@ export const getDestinationKey = (link?: HeaderLinkValue | null): string | null 
   return null
 }
 
-const getNestedDirectLink = (item: HeaderNavItemValue): HeaderLinkValue | null => item?.link?.link ?? null
-
 const formatRow = (label: string | null, index: number): string =>
   `${label ? `"${label}"` : '(untitled item)'} (row ${index})`
 
@@ -74,6 +75,13 @@ const validateDropdownItem = (
   itemIndex: number,
   item: HeaderDropdownItemValue,
 ): string | null => {
+  if (item.type === 'default') {
+    if (!getDestinationKey(item.defaultItem?.link)) {
+      return `${formatDropdownRow(label, rowIndex, itemIndex)} (default): A destination is required.`
+    }
+    return null
+  }
+
   if (item.type === 'featured') {
     const tag = trimString(item.featuredItem?.tag)
     if (!tag) {
@@ -81,6 +89,14 @@ const validateDropdownItem = (
     }
     if (!getDestinationKey(item.featuredItem?.landingLink)) {
       return `${formatDropdownRow(label, rowIndex, itemIndex)} (featured, tag: "${tag}"): A "Landing Link" destination is required.`
+    }
+    if (Array.isArray(item.featuredItem?.links)) {
+      for (const [nestedOffset, nestedItem] of item.featuredItem.links.entries()) {
+        const nestedIndex = nestedOffset + 1
+        if (!getDestinationKey((nestedItem as { link?: HeaderLinkValue } | null | undefined)?.link)) {
+          return `${formatDropdownRow(label, rowIndex, itemIndex)} navigation link ${nestedIndex}: A destination is required.`
+        }
+      }
     }
     return null
   }
@@ -93,6 +109,14 @@ const validateDropdownItem = (
     if (!getDestinationKey(item.listItem?.landingLink)) {
       return `${formatDropdownRow(label, rowIndex, itemIndex)} (list, tag: "${tag}"): A "Landing Link" destination is required.`
     }
+    if (Array.isArray(item.listItem?.links)) {
+      for (const [nestedOffset, nestedItem] of item.listItem.links.entries()) {
+        const nestedIndex = nestedOffset + 1
+        if (!getDestinationKey((nestedItem as { link?: HeaderLinkValue } | null | undefined)?.link)) {
+          return `${formatDropdownRow(label, rowIndex, itemIndex)} navigation link ${nestedIndex}: A destination is required.`
+        }
+      }
+    }
   }
 
   return null
@@ -102,57 +126,71 @@ const validateDropdownScope = (
   label: string | null,
   rowIndex: number,
   items: HeaderDropdownItemValue[],
-  rowDirectKey: string | null,
 ): string | null => {
   const seen = new Set<string>()
 
+  const addKey = (key: string | null, context: string): string | null => {
+    if (!key) return null
+    if (seen.has(key)) {
+      return `${context}: Duplicate destination within this dropdown.`
+    }
+    seen.add(key)
+    return null
+  }
+
   for (const [itemOffset, item] of items.entries()) {
     const itemIndex = itemOffset + 1
-    const activeKeys: string[] = []
-
-    if (item.type === 'default') {
-      const linkKey = getDestinationKey(item.defaultItem?.link)
-      if (linkKey) activeKeys.push(linkKey)
-    }
-
-    if (item.type === 'featured') {
-      const landingKey = getDestinationKey(item.featuredItem?.landingLink)
-      if (landingKey) activeKeys.push(landingKey)
-    }
-
-    if (item.type === 'list') {
-      const landingKey = getDestinationKey(item.listItem?.landingLink)
-      if (landingKey) activeKeys.push(landingKey)
-    }
-
-    for (const activeKey of activeKeys) {
-      if (activeKey === rowDirectKey) continue
-      if (seen.has(activeKey)) {
-        return `${formatDropdownRow(label, rowIndex, itemIndex)}: Duplicate destination within this dropdown.`
-      }
-      seen.add(activeKey)
-    }
 
     const validationError = validateDropdownItem(label, rowIndex, itemIndex, item)
     if (validationError) return validationError
 
-    const nestedLinks =
+    const descriptionLinks =
+      item.type === 'default'
+        ? item.defaultItem?.description ? [] : null
+        : item.type === 'featured'
+          ? item.featuredItem?.links
+          : item.type === 'list'
+            ? item.listItem?.links
+            : null
+    if (item.type === 'default') {
+      const defaultKey = getDestinationKey(item.defaultItem?.link)
+      const defaultError = addKey(
+        defaultKey,
+        `${formatDropdownRow(label, rowIndex, itemIndex)} (default)`,
+      )
+      if (defaultError) return defaultError
+    }
+
+    const landingKey =
       item.type === 'featured'
-        ? item.featuredItem?.links
+        ? getDestinationKey(item.featuredItem?.landingLink)
         : item.type === 'list'
-          ? item.listItem?.links
+          ? getDestinationKey(item.listItem?.landingLink)
           : null
+    if (item.type === 'featured' || item.type === 'list') {
+      const landingError = addKey(
+        landingKey,
+        `${formatDropdownRow(label, rowIndex, itemIndex)} (${item.type})`,
+      )
+      if (landingError) return landingError
+    }
 
-    if (!Array.isArray(nestedLinks)) continue
-
-    for (const [nestedOffset, nestedItem] of nestedLinks.entries()) {
-      const nestedIndex = nestedOffset + 1
-      const nestedKey = getDestinationKey((nestedItem as { link?: HeaderLinkValue } | null | undefined)?.link)
-      if (!nestedKey || nestedKey === rowDirectKey) continue
-      if (seen.has(nestedKey)) {
-        return `${formatDropdownRow(label, rowIndex, itemIndex)} navigation link ${nestedIndex}: Duplicate destination within this dropdown.`
+    if (item.type === 'list') {
+      if (!Array.isArray(item.listItem?.links) || item.listItem.links.length < 1 || item.listItem.links.length > 8) {
+        return `${formatDropdownRow(label, rowIndex, itemIndex)} (list): Navigation Links must contain 1 to 8 entries.`
       }
-      seen.add(nestedKey)
+    }
+
+    if (descriptionLinks) {
+      for (const [nestedOffset, nestedItem] of descriptionLinks.entries()) {
+        const nestedIndex = nestedOffset + 1
+        const nestedKey = getDestinationKey(nestedItem?.link ?? null)
+        const nestedError = addKey(
+          nestedKey,
+          `${formatDropdownRow(label, rowIndex, itemIndex)} description link ${nestedIndex}`,
+        )
+        if (nestedError) return nestedError
+      }
     }
   }
 
@@ -172,9 +210,9 @@ export const validateHeaderNavItems = (items?: unknown[] | null): string | true 
     const rowIndex = offset + 1
     const label = trimString(item?.label)
     const navigationType = item?.navigationType
-    const directLink = getNestedDirectLink(item ?? {})
-    const directKey = getDestinationKey(directLink)
+    const directKey = getDestinationKey(item?.link ?? null)
     const dropdownItems = item?.dropdown?.items
+    const descriptionLinks = item?.dropdown?.descriptionLinks
     const hasDirect = navigationType === 'directLink' || navigationType === 'directLinkAndDropdown'
     const hasDropdown = navigationType === 'dropdown' || navigationType === 'directLinkAndDropdown'
 
@@ -202,8 +240,21 @@ export const validateHeaderNavItems = (items?: unknown[] | null): string | true 
         return `${formatRow(label, rowIndex)} (${navigationType}): Dropdown items must contain 1 to 12 entries.`
       }
 
-      const dropdownError = validateDropdownScope(label, rowIndex, dropdownItems, directKey)
+      const dropdownError = validateDropdownScope(label, rowIndex, dropdownItems)
       if (dropdownError) return dropdownError
+    }
+
+    if (Array.isArray(descriptionLinks)) {
+      const seenDescription = new Set<string>()
+      for (const [linkOffset, descriptionLink] of descriptionLinks.entries()) {
+        const linkIndex = linkOffset + 1
+        const key = getDestinationKey(descriptionLink?.link ?? null)
+        if (!key) continue
+        if (seenDescription.has(key)) {
+          return `${formatDropdownRow(label, rowIndex, linkIndex)} (description link): Duplicate destination within this dropdown.`
+        }
+        seenDescription.add(key)
+      }
     }
   }
 

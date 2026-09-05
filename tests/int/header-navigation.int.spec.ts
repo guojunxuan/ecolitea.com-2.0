@@ -484,9 +484,24 @@ describe('validateHeaderNavItems (Task 7)', () => {
     reference: { relationTo: 'pages', value: 'some-page-id' },
   }
 
+  const numericBaseLink = {
+    type: 'reference',
+    reference: { relationTo: 'pages', value: 42 },
+  }
+
   const populatedBaseLink = {
     type: 'reference',
     reference: { relationTo: 'pages', value: { id: 'some-page-id', title: 'About' } },
+  }
+
+  const populatedNumericBaseLink = {
+    type: 'reference',
+    reference: { relationTo: 'pages', value: { id: 42, title: 'About' } },
+  }
+
+  const anotherNumericBaseLink = {
+    type: 'reference',
+    reference: { relationTo: 'pages', value: { id: 43, title: 'Contact' } },
   }
 
   const otherBaseLink = {
@@ -500,7 +515,7 @@ describe('validateHeaderNavItems (Task 7)', () => {
   }
 
   it('accepts a valid directLink row with a nested link destination', () => {
-    const items = [{ label: 'About', navigationType: 'directLink', link: { link: baseLink } }]
+    const items = [{ label: 'About', navigationType: 'directLink', link: baseLink }]
 
     expect(validateHeaderNavItems(items)).toBe(true)
   })
@@ -524,7 +539,7 @@ describe('validateHeaderNavItems (Task 7)', () => {
       {
         label: 'Company',
         navigationType: 'directLinkAndDropdown',
-        link: { link: baseLink },
+        link: baseLink,
         dropdown: {
           items: [{ type: 'default', defaultItem: { link: baseLink } }],
         },
@@ -539,12 +554,12 @@ describe('validateHeaderNavItems (Task 7)', () => {
       {
         label: ' About ',
         navigationType: 'directLink',
-        link: { link: baseLink },
+        link: baseLink,
       },
       {
         label: 'Contact',
         navigationType: 'directLink',
-        link: { link: otherBaseLink },
+        link: otherBaseLink,
       },
       {
         label: 'Docs',
@@ -552,12 +567,13 @@ describe('validateHeaderNavItems (Task 7)', () => {
         dropdown: {
           items: [
             { type: 'default', defaultItem: { link: customBaseLink } },
+            { type: 'default', defaultItem: { link: populatedNumericBaseLink } },
             {
               type: 'list',
               listItem: {
                 tag: 'Resources',
                 landingLink: populatedBaseLink,
-                links: [{ link: otherBaseLink }],
+                links: [{ link: anotherNumericBaseLink }],
               },
             },
           ],
@@ -569,7 +585,7 @@ describe('validateHeaderNavItems (Task 7)', () => {
   })
 
   it('rejects a directLink row whose nested link has an empty destination', () => {
-    const items = [{ label: 'About', navigationType: 'directLink', link: { link: {} } }]
+    const items = [{ label: 'About', navigationType: 'directLink', link: {} }]
 
     const result = validateHeaderNavItems(items)
 
@@ -612,20 +628,20 @@ describe('validateHeaderNavItems (Task 7)', () => {
 
   it('rejects labels that only differ by surrounding whitespace', () => {
     const items = [
-      { label: 'About', navigationType: 'directLink', link: { link: baseLink } },
-      { label: ' About ', navigationType: 'directLink', link: { link: populatedBaseLink } },
+      { label: 'About', navigationType: 'directLink', link: baseLink },
+      { label: ' About ', navigationType: 'directLink', link: otherBaseLink },
     ]
 
     const result = validateHeaderNavItems(items)
 
     expect(result).not.toBe(true)
-    expect(String(result)).toContain('Labels')
+    expect(String(result)).toContain('unique')
   })
 
   it('rejects two active direct links that resolve to the same destination', () => {
     const items = [
-      { label: 'About', navigationType: 'directLink', link: { link: baseLink } },
-      { label: 'About us', navigationType: 'directLink', link: { link: populatedBaseLink } },
+      { label: 'About', navigationType: 'directLink', link: baseLink },
+      { label: 'About us', navigationType: 'directLink', link: populatedBaseLink },
     ]
 
     const result = validateHeaderNavItems(items)
@@ -634,12 +650,177 @@ describe('validateHeaderNavItems (Task 7)', () => {
     expect(String(result)).toContain('Direct Link')
   })
 
+  it('rejects duplicate destinations across dropdown description links', () => {
+    const items = [
+      {
+        label: 'About',
+        navigationType: 'dropdown',
+        dropdown: {
+          descriptionLinks: [{ link: baseLink }, { link: baseLink }],
+          items: [{ type: 'default', defaultItem: { link: otherBaseLink } }],
+        },
+      },
+    ]
+
+    const result = validateHeaderNavItems(items)
+
+    expect(result).not.toBe(true)
+    expect(String(result)).toContain('dropdown')
+  })
+
+  it('rejects a default item missing its destination', () => {
+    const items = [
+      {
+        label: 'About',
+        navigationType: 'dropdown',
+        dropdown: {
+          items: [{ type: 'default', defaultItem: { link: null } }],
+        },
+      },
+    ]
+
+    const result = validateHeaderNavItems(items)
+
+    expect(result).not.toBe(true)
+    expect(String(result)).toContain('destination')
+  })
+
+  it('rejects a featured item missing its nested navigation link destination', () => {
+    const items = [
+      {
+        label: 'About',
+        navigationType: 'dropdown',
+        dropdown: {
+          items: [
+            {
+              type: 'featured',
+              featuredItem: {
+                tag: 'Featured',
+                landingLink: baseLink,
+                links: [{ link: {} }],
+              },
+            },
+          ],
+        },
+      },
+    ]
+
+    const result = validateHeaderNavItems(items)
+
+    expect(result).not.toBe(true)
+    expect(String(result)).toContain('navigation link')
+  })
+
+  it('rejects a list item with zero links', () => {
+    const items = [
+      {
+        label: 'About',
+        navigationType: 'dropdown',
+        dropdown: {
+          items: [
+            {
+              type: 'list',
+              listItem: {
+                tag: 'Resources',
+                landingLink: baseLink,
+                links: [],
+              },
+            },
+          ],
+        },
+      },
+    ]
+
+    const result = validateHeaderNavItems(items)
+
+    expect(result).not.toBe(true)
+    expect(String(result)).toContain('1 to 8')
+  })
+
+  it('rejects a list item with more than eight links', () => {
+    const links = Array.from({ length: 9 }, (_, index) => ({
+      link: index % 2 === 0 ? otherBaseLink : populatedNumericBaseLink,
+    }))
+    const items = [
+      {
+        label: 'About',
+        navigationType: 'dropdown',
+        dropdown: {
+          items: [
+            {
+              type: 'list',
+              listItem: {
+                tag: 'Resources',
+                landingLink: baseLink,
+                links,
+              },
+            },
+          ],
+        },
+      },
+    ]
+
+    const result = validateHeaderNavItems(items)
+
+    expect(result).not.toBe(true)
+    expect(String(result)).toContain('1 to 8')
+  })
+
+  it('accepts a list item with one and eight links', () => {
+    const items = [
+      {
+        label: 'About',
+        navigationType: 'dropdown',
+        dropdown: {
+          items: [
+            {
+              type: 'list',
+              listItem: {
+                tag: 'Resources',
+                landingLink: baseLink,
+                links: [{ link: { type: 'reference', reference: { relationTo: 'pages', value: 41 } } }],
+              },
+            },
+            {
+              type: 'list',
+              listItem: {
+                tag: 'More',
+                landingLink: populatedNumericBaseLink,
+                links: [
+                  { link: otherBaseLink },
+                  { link: anotherNumericBaseLink },
+                  { link: { type: 'reference', reference: { relationTo: 'pages', value: 'page-3' } } },
+                  { link: { type: 'reference', reference: { relationTo: 'pages', value: 44 } } },
+                  { link: { type: 'reference', reference: { relationTo: 'pages', value: 'page-5' } } },
+                  { link: customBaseLink },
+                  { link: { type: 'custom', url: '/pricing' } },
+                  { link: { type: 'custom', url: '/contact' } },
+                ],
+              },
+            },
+          ],
+        },
+      },
+    ]
+
+    expect(validateHeaderNavItems(items)).toBe(true)
+  })
+
+  it('treats custom URLs as trim-normalized but case-sensitive identities', () => {
+    const items = [
+      { label: 'About', navigationType: 'directLink', link: { type: 'custom', url: ' /About ' } },
+      { label: 'About Two', navigationType: 'directLink', link: { type: 'custom', url: '/about' } },
+    ]
+
+    expect(validateHeaderNavItems(items)).toBe(true)
+  })
+
   it('allows a direct link to match its own dropdown target', () => {
     const items = [
       {
         label: 'About',
         navigationType: 'directLinkAndDropdown',
-        link: { link: baseLink },
+        link: baseLink,
         dropdown: {
           items: [
             { type: 'default', defaultItem: { link: baseLink } },
@@ -691,6 +872,45 @@ describe('validateHeaderNavItems (Task 7)', () => {
     ]
 
     expect(validateHeaderNavItems(items)).toBe(true)
+  })
+
+  it('rejects two dropdown entries that both equal the same top-level direct target', () => {
+    const items = [
+      {
+        label: 'About',
+        navigationType: 'directLinkAndDropdown',
+        link: baseLink,
+        dropdown: {
+          items: [
+            { type: 'default', defaultItem: { link: baseLink } },
+            { type: 'default', defaultItem: { link: baseLink } },
+          ],
+        },
+      },
+    ]
+
+    const result = validateHeaderNavItems(items)
+
+    expect(result).not.toBe(true)
+    expect(String(result)).toContain('dropdown')
+  })
+
+  it('does not mutate the input payload', () => {
+    const items = [
+      {
+        label: 'About',
+        navigationType: 'directLinkAndDropdown',
+        link: baseLink,
+        dropdown: {
+          descriptionLinks: [{ link: baseLink }],
+          items: [{ type: 'default', defaultItem: { link: baseLink } }],
+        },
+      },
+    ]
+
+    const snapshot = structuredClone(items)
+    validateHeaderNavItems(items)
+    expect(items).toEqual(snapshot)
   })
 
   it('rejects a featured item missing its tag', () => {
@@ -748,7 +968,7 @@ describe('validateHeaderNavItems (Task 7)', () => {
       {
         label: 'About',
         navigationType: 'directLink',
-        link: { link: baseLink },
+        link: baseLink,
         dropdown: {
           items: [
             {
