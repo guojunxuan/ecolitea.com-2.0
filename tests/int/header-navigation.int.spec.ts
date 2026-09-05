@@ -582,7 +582,7 @@ describe('validateHeaderNavItems (Task 7)', () => {
     expect(validateHeaderNavItems(items)).toBe(true)
   })
 
-  it('rejects a directLink row whose nested link has an empty destination', () => {
+  it('rejects a directLink row whose flat link has an empty destination', () => {
     const items = [{ label: 'About', navigationType: 'directLink', link: {} }]
 
     const result = validateHeaderNavItems(items)

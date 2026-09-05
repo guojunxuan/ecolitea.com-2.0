@@ -204,7 +204,7 @@ const validateDropdownScope = (
         item.listItem.links.length < HEADER_LIST_NAV_LINKS_MIN ||
         item.listItem.links.length > HEADER_LIST_NAV_LINKS_MAX
       ) {
-        return `${formatDropdownRow(label, rowIndex, itemIndex)} (list): Navigation Links must contain 1 to 8 entries.`
+        return `${formatDropdownRow(label, rowIndex, itemIndex)} (list): Navigation Links must contain ${HEADER_LIST_NAV_LINKS_MIN} to ${HEADER_LIST_NAV_LINKS_MAX} entries.`
       }
     }
 
