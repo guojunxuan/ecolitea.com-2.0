@@ -121,15 +121,14 @@ const validateDropdownItem = (
     if (!getDestinationKey(item.listItem?.landingLink)) {
       return `${formatDropdownRow(label, rowIndex, itemIndex)} (list, tag: "${tag}"): A "Landing Link" destination is required.`
     }
-    if (Array.isArray(item.listItem?.links)) {
-      if (item.listItem.links.length < HEADER_LIST_NAV_LINKS_MIN || item.listItem.links.length > HEADER_LIST_NAV_LINKS_MAX) {
-        return `${formatDropdownRow(label, rowIndex, itemIndex)} (list): Navigation Links must contain ${HEADER_LIST_NAV_LINKS_MIN} to ${HEADER_LIST_NAV_LINKS_MAX} entries.`
-      }
-      for (const [nestedOffset, nestedItem] of item.listItem.links.entries()) {
-        const nestedIndex = nestedOffset + 1
-        if (!getDestinationKey((nestedItem as { link?: HeaderLinkValue } | null | undefined)?.link)) {
-          return `${formatDropdownRow(label, rowIndex, itemIndex)} (list) Navigation Link ${nestedIndex}: A destination is required.`
-        }
+    const links = item.listItem?.links
+    if (!Array.isArray(links) || links.length < HEADER_LIST_NAV_LINKS_MIN || links.length > HEADER_LIST_NAV_LINKS_MAX) {
+      return `${formatDropdownRow(label, rowIndex, itemIndex)} (list): Navigation Links must contain ${HEADER_LIST_NAV_LINKS_MIN} to ${HEADER_LIST_NAV_LINKS_MAX} entries.`
+    }
+    for (const [nestedOffset, nestedItem] of links.entries()) {
+      const nestedIndex = nestedOffset + 1
+      if (!getDestinationKey((nestedItem as { link?: HeaderLinkValue } | null | undefined)?.link)) {
+        return `${formatDropdownRow(label, rowIndex, itemIndex)} (list) Navigation Link ${nestedIndex}: A destination is required.`
       }
     }
   }
@@ -196,16 +195,6 @@ const validateDropdownScope = (
         `${formatDropdownRow(label, rowIndex, itemIndex)} (${item.type})`,
       )
       if (landingError) return landingError
-    }
-
-    if (item.type === 'list') {
-      if (
-        !Array.isArray(item.listItem?.links) ||
-        item.listItem.links.length < HEADER_LIST_NAV_LINKS_MIN ||
-        item.listItem.links.length > HEADER_LIST_NAV_LINKS_MAX
-      ) {
-        return `${formatDropdownRow(label, rowIndex, itemIndex)} (list): Navigation Links must contain ${HEADER_LIST_NAV_LINKS_MIN} to ${HEADER_LIST_NAV_LINKS_MAX} entries.`
-      }
     }
 
     const navigationLinks =
