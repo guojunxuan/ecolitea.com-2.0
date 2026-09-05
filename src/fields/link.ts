@@ -1,4 +1,11 @@
-import type { CollectionSlug, Field, GroupField, RadioField, TextField } from 'payload'
+import type {
+  CollectionSlug,
+  Field,
+  GroupField,
+  RadioField,
+  RelationshipField,
+  TextField,
+} from 'payload'
 
 import deepMerge from '@/utilities/deepMerge'
 
@@ -91,39 +98,49 @@ export const link: LinkType = ({
       ? [relationTo]
       : ['pages', 'posts']
 
-  let linkTypes: Field[] = [
-    {
-      name: 'reference',
-      type: 'relationship',
-      admin: {
-        condition: (_, siblingData) => siblingData?.type === 'reference',
-      },
-      label: 'Document to link to',
-      relationTo: relationToList,
-      required: true,
+  const referenceField: RelationshipField = {
+    name: 'reference',
+    type: 'relationship',
+    admin: {
+      condition: (_, siblingData) => siblingData?.type === 'reference',
     },
-    deepMerge(
-      {
-        name: 'url',
-        type: 'text',
-        admin: {
-          condition: (_, siblingData) => siblingData?.type === 'custom',
-        },
-        label: 'Custom URL',
-        required: true,
+    label: 'Document to link to',
+    relationTo: relationToList,
+    required: true,
+  }
+
+  const urlField: TextField = deepMerge(
+    {
+      name: 'url',
+      type: 'text',
+      admin: {
+        condition: (_, siblingData) => siblingData?.type === 'custom',
       },
-      urlOverrides,
-    ),
-  ]
+      label: 'Custom URL',
+      required: true,
+    } satisfies TextField,
+    urlOverrides,
+  )
+
+  let linkTypes: Field[] = [referenceField, urlField]
 
   if (!disableLabel) {
-    linkTypes = linkTypes.map((linkType) => ({
-      ...linkType,
-      admin: {
-        ...linkType.admin,
-        width: '50%',
+    linkTypes = [
+      {
+        ...referenceField,
+        admin: {
+          ...referenceField.admin,
+          width: '50%',
+        },
       },
-    }))
+      {
+        ...urlField,
+        admin: {
+          ...urlField.admin,
+          width: '50%',
+        },
+      },
+    ]
 
     linkResult.fields.push({
       type: 'row',

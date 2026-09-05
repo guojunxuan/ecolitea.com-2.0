@@ -1992,8 +1992,9 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
 export interface Header {
   id: string;
   navItems?: HeaderNavItem;
-  menuCta: {
-    type?: ('reference' | 'custom') | null;
+  enableMenuCta?: boolean | null;
+  menuCta?: {
+    type: 'reference' | 'custom';
     newTab?: boolean | null;
     reference?:
       | ({
@@ -2105,6 +2106,7 @@ export interface PayloadJobsStat {
  */
 export interface HeaderSelect<T extends boolean = true> {
   navItems?: T | HeaderNavItemSelect<T>;
+  enableMenuCta?: T;
   menuCta?:
     | T
     | {

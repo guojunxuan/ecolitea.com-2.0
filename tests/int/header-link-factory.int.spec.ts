@@ -142,6 +142,8 @@ describe('link field factory', () => {
 
       expect(reference).toMatchObject({ admin: { width: '50%' } })
       expect(url).toMatchObject({ admin: { width: '50%' } })
+      expect((reference?.admin as { condition?: unknown })?.condition).toBeTypeOf('function')
+      expect((url?.admin as { condition?: unknown })?.condition).toBeTypeOf('function')
     })
 
     it('keeps the link type optional by default', () => {
