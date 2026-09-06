@@ -151,12 +151,14 @@ describe('DesktopNav', () => {
     expect(within(platformMenu).getByRole('link', { name: 'Customer story' })).toBeTruthy()
     expect(within(platformMenu).getByRole('link', { name: 'Implementation guide' })).toBeTruthy()
 
-    fireEvent.click(screen.getByRole('button', { name: 'Company menu' }))
+    const companyButton = screen.getByRole('button', { name: 'Company menu' })
+    fireEvent.click(companyButton)
     expect(screen.queryByRole('region', { name: 'Platform menu' })).toBeNull()
     expect(screen.getByRole('region', { name: 'Company menu' })).toBeTruthy()
 
     fireEvent.keyDown(document, { key: 'Escape' })
     expect(screen.queryByRole('region', { name: 'Company menu' })).toBeNull()
+    expect(document.activeElement).toBe(companyButton)
   })
 
   it('closes on an outside pointer and route change', () => {
@@ -317,6 +319,51 @@ describe('DesktopNav', () => {
     fireEvent.keyDown(document, { key: 'Escape' })
     expect(screen.queryByRole('region', { name: 'More menu' })).toBeNull()
     expect(document.activeElement).toBe(moreButton)
+  })
+
+  it('safely closes and re-owns focus when ResizeObserver repartitions open menus', () => {
+    let rootWidth = 1000
+    vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(function (
+      this: HTMLElement,
+    ) {
+      const width = this.dataset.desktopNavRoot ? rootWidth : this.dataset.measureItem ? 120 : 80
+      return {
+        bottom: 0,
+        height: 0,
+        left: 0,
+        right: width,
+        top: 0,
+        width,
+        x: 0,
+        y: 0,
+        toJSON: () => ({}),
+      }
+    })
+    render(<DesktopNav {...navigation} />)
+
+    fireEvent.click(screen.getByRole('button', { name: 'Platform menu' }))
+    rootWidth = 380
+    act(() => ResizeObserverMock.instances[0]?.emit())
+    expect(screen.queryByRole('region', { name: 'Platform menu' })).toBeNull()
+    const moreButton = screen.getByRole('button', { name: 'More menu' })
+    expect(document.activeElement).toBe(moreButton)
+    expect(moreButton.getAttribute('aria-expanded')).toBe('false')
+
+    fireEvent.click(moreButton)
+    const overflowTrigger = within(screen.getByRole('region', { name: 'More menu' })).getByRole(
+      'button',
+      { name: 'Platform menu' },
+    )
+    fireEvent.click(overflowTrigger)
+    expect(screen.getByRole('region', { name: 'Platform menu' })).toBeTruthy()
+
+    rootWidth = 1000
+    act(() => ResizeObserverMock.instances[0]?.emit())
+    expect(screen.queryByRole('region', { name: 'More menu' })).toBeNull()
+    expect(screen.queryByRole('region', { name: 'Platform menu' })).toBeNull()
+    const visiblePlatformTrigger = screen.getByRole('button', { name: 'Platform menu' })
+    expect(visiblePlatformTrigger.getAttribute('aria-expanded')).toBe('false')
+    expect(document.activeElement).toBe(visiblePlatformTrigger)
   })
 
   it('keeps every item accessible when ResizeObserver is unavailable', () => {

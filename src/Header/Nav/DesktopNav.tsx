@@ -13,12 +13,14 @@ const ITEM_GAP = 24
 const MORE_WIDTH_FALLBACK = 80
 
 const NavigationLink: React.FC<{
+  anchorRef?: React.Ref<HTMLAnchorElement>
   className?: string
   link: HeaderLinkData
-}> = ({ className, link }) => (
+}> = ({ anchorRef, className, link }) => (
   <Link
     className={className}
     href={link.href}
+    ref={anchorRef}
     {...(link.newTab ? { rel: 'noopener noreferrer', target: '_blank' } : {})}
   >
     {link.label}
@@ -26,7 +28,7 @@ const NavigationLink: React.FC<{
 )
 
 type NavigationItemControlProps = {
-  buttonRef?: React.Ref<HTMLButtonElement>
+  controlRef?: (node: HTMLElement | null) => void
   item: HeaderNavigationItem
   menuID: string
   onToggle: () => void
@@ -34,14 +36,16 @@ type NavigationItemControlProps = {
 }
 
 const NavigationItemControl: React.FC<NavigationItemControlProps> = ({
-  buttonRef,
+  controlRef,
   item,
   menuID,
   onToggle,
   open,
 }) => {
   if (item.navigationType === 'directLink' && item.link) {
-    return <NavigationLink className={styles.topLevelLink} link={item.link} />
+    return (
+      <NavigationLink anchorRef={controlRef} className={styles.topLevelLink} link={item.link} />
+    )
   }
 
   if (item.navigationType === 'directLinkAndDropdown' && item.link) {
@@ -54,7 +58,7 @@ const NavigationItemControl: React.FC<NavigationItemControlProps> = ({
           aria-label={`${item.label} menu`}
           className={styles.disclosureButton}
           onClick={onToggle}
-          ref={buttonRef}
+          ref={controlRef}
           type="button"
         >
           <ChevronDown aria-hidden="true" size={14} strokeWidth={1.75} />
@@ -70,7 +74,7 @@ const NavigationItemControl: React.FC<NavigationItemControlProps> = ({
       aria-label={`${item.label} menu`}
       className={styles.dropdownButton}
       onClick={onToggle}
-      ref={buttonRef}
+      ref={controlRef}
       type="button"
     >
       <span>{item.label}</span>
@@ -87,7 +91,8 @@ export const DesktopNav: React.FC<HeaderNavigationData> = ({ menuCta, navItems }
   const measureItemRefs = useRef<Array<HTMLSpanElement | null>>([])
   const measureMoreRef = useRef<HTMLSpanElement>(null)
   const moreButtonRef = useRef<HTMLButtonElement>(null)
-  const overflowButtonRefs = useRef<Record<string, HTMLButtonElement | null>>({})
+  const itemControlRefs = useRef<Record<string, HTMLElement | null>>({})
+  const previousVisibleCountRef = useRef(navItems.length)
   const [openID, setOpenID] = useState<string | null>(null)
   const [isMoreOpen, setIsMoreOpen] = useState(false)
   const [overflowOpenID, setOverflowOpenID] = useState<string | null>(null)
@@ -149,6 +154,29 @@ export const DesktopNav: React.FC<HeaderNavigationData> = ({ menuCta, navItems }
 
   useEffect(() => close(), [close, pathname])
 
+  useLayoutEffect(() => {
+    const previousVisibleCount = previousVisibleCountRef.current
+    if (previousVisibleCount === visibleCount) return
+    previousVisibleCountRef.current = visibleCount
+
+    const activeOwnerID = overflowOpenID ?? openID
+    const hadOpenLayer = Boolean(activeOwnerID || isMoreOpen)
+    if (!hadOpenLayer) return
+
+    const ownerIndex = activeOwnerID ? navItems.findIndex((item) => item.id === activeOwnerID) : -1
+    const ownerIsOverflowed = ownerIndex >= visibleCount && visibleCount < navItems.length
+    const focusTarget = ownerIsOverflowed
+      ? moreButtonRef.current
+      : activeOwnerID
+        ? itemControlRefs.current[activeOwnerID]
+        : visibleCount < navItems.length
+          ? moreButtonRef.current
+          : (itemControlRefs.current[navItems[previousVisibleCount]?.id ?? ''] ?? rootRef.current)
+
+    close()
+    focusTarget?.focus()
+  }, [close, isMoreOpen, navItems, openID, overflowOpenID, visibleCount])
+
   useEffect(() => {
     const media = window.matchMedia?.('(min-width: 73.125rem)')
     if (!media) return
@@ -164,7 +192,7 @@ export const DesktopNav: React.FC<HeaderNavigationData> = ({ menuCta, navItems }
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key !== 'Escape') return
       if (overflowOpenID) {
-        const trigger = overflowButtonRefs.current[overflowOpenID]
+        const trigger = itemControlRefs.current[overflowOpenID]
         trigger?.focus()
         setOverflowOpenID(null)
         return
@@ -174,6 +202,8 @@ export const DesktopNav: React.FC<HeaderNavigationData> = ({ menuCta, navItems }
         setIsMoreOpen(false)
         return
       }
+      const trigger = openID ? itemControlRefs.current[openID] : null
+      trigger?.focus()
       setOpenID(null)
     }
     const onPointerDown = (event: PointerEvent) => {
@@ -185,7 +215,7 @@ export const DesktopNav: React.FC<HeaderNavigationData> = ({ menuCta, navItems }
       document.removeEventListener('keydown', onKeyDown)
       document.removeEventListener('pointerdown', onPointerDown)
     }
-  }, [close, isMoreOpen, overflowOpenID])
+  }, [close, isMoreOpen, openID, overflowOpenID])
 
   const visibleItems = navItems.slice(0, visibleCount)
   const overflowItems = navItems.slice(visibleCount)
@@ -235,6 +265,9 @@ export const DesktopNav: React.FC<HeaderNavigationData> = ({ menuCta, navItems }
           const menuID = `${idPrefix}-${item.id}-menu`
           return (
             <NavigationItemControl
+              controlRef={(node) => {
+                itemControlRefs.current[item.id] = node
+              }}
               item={item}
               key={item.id}
               menuID={menuID}
@@ -280,8 +313,8 @@ export const DesktopNav: React.FC<HeaderNavigationData> = ({ menuCta, navItems }
             const menuID = `${idPrefix}-${item.id}-menu`
             return (
               <NavigationItemControl
-                buttonRef={(node) => {
-                  overflowButtonRefs.current[item.id] = node
+                controlRef={(node) => {
+                  itemControlRefs.current[item.id] = node
                 }}
                 item={item}
                 key={item.id}
