@@ -9,6 +9,16 @@ import { Providers } from '@/providers'
 const readSource = (relativePath: string) =>
   fs.readFileSync(path.join(process.cwd(), relativePath), 'utf8')
 
+const readSourceTree = (relativePath: string): Array<{ file: string; source: string }> => {
+  const absolutePath = path.join(process.cwd(), relativePath)
+
+  return fs.statSync(absolutePath).isDirectory()
+    ? fs
+        .readdirSync(absolutePath)
+        .flatMap((entry) => readSourceTree(path.join(relativePath, entry)))
+    : [{ file: relativePath, source: fs.readFileSync(absolutePath, 'utf8') }]
+}
+
 describe('public website shell', () => {
   it('renders the Header, main content landmark, and Footer without the admin or theme runtime', () => {
     const source = readSource('src/app/(frontend)/layout.tsx')
@@ -42,5 +52,33 @@ describe('public website shell', () => {
     expect(container.children).toHaveLength(1)
     expect(container.firstElementChild).toBe(child)
     expect(child.textContent).toBe('Unchanged child content')
+  })
+
+  it('keeps public website source free of the removed theme runtime and dark variants', () => {
+    const sourceFiles = [
+      'src/app/(frontend)',
+      'src/Header',
+      'src/Footer',
+      'src/heros',
+      'src/components',
+    ].flatMap(readSourceTree)
+    const forbiddenReferences = [
+      'useHeaderTheme',
+      'setHeaderTheme',
+      'ThemeSelector',
+      'data-theme=',
+      'dark:',
+      'dark:prose-invert',
+    ]
+
+    const violations = sourceFiles.flatMap(({ file, source }) => {
+      const sourceWithoutAllowedPrismTheme = source.replaceAll('themes.vsDark', '')
+
+      return forbiddenReferences
+        .filter((reference) => sourceWithoutAllowedPrismTheme.includes(reference))
+        .map((reference) => `${file}: ${reference}`)
+    })
+
+    expect(violations).toEqual([])
   })
 })

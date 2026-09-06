@@ -1,4 +1,4 @@
-import { cleanup, render, waitFor } from '@testing-library/react'
+import { cleanup, render } from '@testing-library/react'
 import Link from 'next/link'
 import React from 'react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
@@ -7,10 +7,6 @@ const getCachedGlobalMock = vi.hoisted(() => vi.fn())
 
 vi.mock('@/utilities/getGlobals', () => ({
   getCachedGlobal: getCachedGlobalMock,
-}))
-
-vi.mock('next/navigation', () => ({
-  usePathname: () => '/',
 }))
 
 import { Footer } from '@/Footer/Component'
@@ -22,7 +18,6 @@ import { resolveFavicon } from '@/components/Logo/resolveFavicon'
 import { selectLogo } from '@/components/Logo/selectLogo'
 import type { LogoImage } from '@/components/Logo/types'
 import type { BrandAsset, Footer as FooterData, Header as HeaderData } from '@/payload-types'
-import { HeaderThemeProvider } from '@/providers/HeaderTheme'
 import { buildSiteMetadata } from '@/utilities/buildSiteMetadata'
 
 const brandAsset = (overrides: Partial<BrandAsset> = {}): BrandAsset => ({
@@ -72,7 +67,6 @@ const findElementByType = (
 
 afterEach(() => {
   cleanup()
-  document.documentElement.removeAttribute('data-theme')
   getCachedGlobalMock.mockReset()
 })
 
@@ -269,12 +263,6 @@ describe('branding integration', () => {
         width: 1302,
         height: 296,
       },
-      logoDark: {
-        src: '/api/brand-assets/file/inverse.svg?2026-09-01T01%3A02%3A03.000Z',
-        alt: 'Inverse brand',
-        width: 1302,
-        height: 296,
-      },
     })
   })
 
@@ -293,32 +281,8 @@ describe('branding integration', () => {
     expect(logo?.props.className).toBe('h-7 sm:h-8 lg:h-10')
   })
 
-  it('switches the Header presentation to the inverse logo for a dark local theme', async () => {
-    document.documentElement.setAttribute('data-theme', 'dark')
-
-    const { getByRole } = render(
-      <HeaderThemeProvider>
-        <HeaderClient data={headerData} logo={primaryLogo} logoDark={inverseLogo} />
-      </HeaderThemeProvider>,
-    )
-
-    await waitFor(() => {
-      expect(getByRole('img').getAttribute('src')).toBe('/inverse.svg')
-    })
-
-    const logo = getByRole('img')
-    expect(logo.getAttribute('loading')).toBe('eager')
-    expect(logo.getAttribute('fetchpriority')).toBe('high')
-    expect(logo.className).toBe('block w-auto max-w-full h-7 sm:h-8 lg:h-10')
-    expect(logo.className).not.toContain('invert')
-  })
-
   it('keeps the Header home link from shrinking the logo on narrow screens', () => {
-    const { getByRole } = render(
-      <HeaderThemeProvider>
-        <HeaderClient data={headerData} logo={primaryLogo} logoDark={inverseLogo} />
-      </HeaderThemeProvider>,
-    )
+    const { getByRole } = render(<HeaderClient data={headerData} logo={primaryLogo} />)
 
     const homeLink = getByRole('link', { name: 'Primary logo' })
 
@@ -327,11 +291,7 @@ describe('branding integration', () => {
   })
 
   it('omits the Header home link when no logo presentation data resolves', () => {
-    const { container } = render(
-      <HeaderThemeProvider>
-        <HeaderClient data={headerData} logo={null} logoDark={null} />
-      </HeaderThemeProvider>,
-    )
+    const { container } = render(<HeaderClient data={headerData} logo={null} />)
 
     expect(container.querySelector('a[href="/"]')).toBeNull()
   })
@@ -342,5 +302,17 @@ describe('branding integration', () => {
     const footer = await Footer()
 
     expect(findElementByType(footer, Link)).toBeNull()
+  })
+
+  it('falls back to the primary logo in the Footer when inverse artwork is unavailable', async () => {
+    useGlobalFixtures({ logoDark: null })
+
+    const footer = await Footer()
+    const logo = findElementByType(footer, Logo)
+
+    expect(logo?.props.image).toMatchObject({
+      src: '/api/brand-assets/file/primary.svg?2026-09-01T01%3A02%3A03.000Z',
+      alt: 'Primary brand',
+    })
   })
 })

@@ -13,7 +13,6 @@ export async function Header() {
     <HeaderClient
       data={headerData}
       logo={resolveBrandAsset(siteSettings.logo)}
-      logoDark={resolveBrandAsset(siteSettings.logoDark)}
     />
   )
 }
