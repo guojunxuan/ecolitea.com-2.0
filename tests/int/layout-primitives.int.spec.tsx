@@ -14,6 +14,7 @@ const shellFacingFiles = [
   'src/components/CollectionArchive/index.tsx',
   'src/heros/LowImpact/index.tsx',
   'src/heros/MediumImpact/index.tsx',
+  'src/heros/PostHero/index.tsx',
   'src/app/(frontend)/[slug]/page.tsx',
   'src/app/(frontend)/posts/page.tsx',
   'src/app/(frontend)/posts/page/[pageNumber]/page.tsx',
@@ -66,6 +67,7 @@ describe('website layout primitives', () => {
         /(?:pt|mt)-\[var\(--header-height\)\]/,
         /(?:-mt|-top)-\[var\(--header-height\)\]/,
         /calc\([^)]*--header-height/,
+        /(?:^|\s)-(?:mt|top)-\[[^\]]+\]/m,
       ]
         .filter((pattern) => pattern.test(source))
         .map((pattern) => `${file}: ${pattern.source}`)
