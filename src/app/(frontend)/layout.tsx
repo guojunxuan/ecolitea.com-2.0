@@ -5,15 +5,12 @@ import { GeistMono } from 'geist/font/mono'
 import { GeistSans } from 'geist/font/sans'
 import React from 'react'
 
-import { AdminBar } from '@/components/AdminBar'
 import { resolveFavicon } from '@/components/Logo/resolveFavicon'
 import { Footer } from '@/Footer/Component'
 import { Header } from '@/Header/Component'
 import { Providers } from '@/providers'
-import { InitTheme } from '@/providers/Theme/InitTheme'
 import { buildSiteMetadata } from '@/utilities/buildSiteMetadata'
 import { getCachedGlobal } from '@/utilities/getGlobals'
-import { draftMode } from 'next/headers'
 
 import './globals.css'
 
@@ -23,24 +20,13 @@ export async function generateMetadata(): Promise<Metadata> {
   return buildSiteMetadata(resolveFavicon(siteSettings.favicon))
 }
 
-export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const { isEnabled } = await draftMode()
-
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html className={cn(GeistSans.variable, GeistMono.variable)} lang="en" suppressHydrationWarning>
-      <head>
-        <InitTheme />
-      </head>
+    <html className={cn(GeistSans.variable, GeistMono.variable)} lang="en">
       <body>
         <Providers>
-          <AdminBar
-            adminBarProps={{
-              preview: isEnabled,
-            }}
-          />
-
           <Header />
-          {children}
+          <main id="main-content">{children}</main>
           <Footer />
         </Providers>
       </body>
