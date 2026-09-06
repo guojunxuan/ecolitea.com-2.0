@@ -59,8 +59,8 @@ export default async function Page({ searchParams: searchParamsPromise }: Args) 
   })
 
   return (
-    <div className="pt-24 pb-24">
-      <div className="container mb-16">
+    <div className="py-[var(--section-space-spacious)]">
+      <div className="site-container mb-[var(--section-space-standard)]">
         <div className="prose max-w-none text-center">
           <h1 className="mb-8 lg:mb-16">Search</h1>
 
@@ -73,7 +73,7 @@ export default async function Page({ searchParams: searchParamsPromise }: Args) 
       {posts.totalDocs > 0 ? (
         <CollectionArchive posts={posts.docs as CardPostData[]} />
       ) : (
-        <div className="container">No results found.</div>
+        <div className="site-container">No results found.</div>
       )}
     </div>
   )
