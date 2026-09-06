@@ -92,4 +92,30 @@ describe('public website shell', () => {
     expect(source).toContain('text-white')
     expect(source).toContain('className="mb-6 prose-invert"')
   })
+
+  it('defines the shared responsive layout tokens and containers', () => {
+    const source = readSource('src/app/(frontend)/globals.css')
+
+    expect(source).toContain('--site-max-width: 76.25rem;')
+    expect(source).toContain('--reading-max-width: 46rem;')
+    expect(source).toContain('--header-height: 3.75rem;')
+    expect(source).toMatch(/--section-space-compact:\s*clamp\([^;]+\);/)
+    expect(source).toMatch(/--section-space-standard:\s*clamp\([^;]+\);/)
+    expect(source).toMatch(/--section-space-spacious:\s*clamp\([^;]+\);/)
+    expect(source).toContain('@media (width >= 73.125rem)')
+
+    expect(source).toMatch(
+      /\.site-container\s*{[^}]*width:\s*min\(100% - \(2 \* var\(--site-gutter\)\), var\(--site-max-width\)\);[^}]*margin-inline:\s*auto;/s,
+    )
+    expect(source).toMatch(
+      /\.wide-container\s*{[^}]*width:\s*min\(100% - \(2 \* var\(--site-gutter\)\), var\(--wide-max-width\)\);[^}]*margin-inline:\s*auto;/s,
+    )
+    expect(source).toMatch(
+      /\.reading-container\s*{[^}]*width:\s*min\(100% - \(2 \* var\(--site-gutter\)\), var\(--reading-max-width\)\);[^}]*margin-inline:\s*auto;/s,
+    )
+
+    expect(source).not.toContain("[data-theme='dark']")
+    expect(source).not.toMatch(/@custom-variant\s+dark\b/)
+    expect(source).not.toMatch(/html[^{}]*{[^}]*opacity\s*:/s)
+  })
 })
