@@ -302,4 +302,100 @@ describe('adaptHeaderNavigation', () => {
 
     expect(result).toEqual({ navItems: [], menuCta: null })
   })
+
+  it('forces context labels for top-level and landing links instead of stale stored labels', () => {
+    const result = adaptHeaderNavigation({
+      id: 'header',
+      navItems: [
+        {
+          id: 'hybrid',
+          label: 'Company',
+          navigationType: 'directLinkAndDropdown',
+          link: { ...pageReference('company', 'Company'), label: 'Stale direct label' },
+          dropdown: {
+            items: [
+              {
+                id: 'featured',
+                type: 'featured',
+                featuredItem: {
+                  tag: 'Featured',
+                  landingLink: {
+                    ...pageReference('featured', 'Featured'),
+                    label: 'Stale landing label',
+                  },
+                },
+              },
+              {
+                id: 'list',
+                type: 'list',
+                listItem: {
+                  tag: 'Resources',
+                  landingLink: {
+                    ...pageReference('resources', 'Resources'),
+                    label: 'Another stale landing label',
+                  },
+                  links: [],
+                },
+              },
+            ],
+          },
+        },
+      ],
+    } as never)
+
+    expect(result.navItems[0]?.link?.label).toBe('Company')
+    expect(result.navItems[0]?.dropdown?.items[0]).toMatchObject({
+      featuredItem: { landingLink: { label: 'View all' } },
+    })
+    expect(result.navItems[0]?.dropdown?.items[1]).toMatchObject({
+      listItem: { landingLink: { label: 'View all' } },
+    })
+  })
+
+  it('drops malformed or non-JSON-safe featured rich content without dropping the item', () => {
+    const circular: Record<string, unknown> = { root: { children: [], type: 'root' } }
+    circular.self = circular
+
+    const featuredItem = (id: string, label: unknown) => ({
+      id,
+      type: 'featured',
+      featuredItem: {
+        tag: id,
+        landingLink: pageReference(id, id),
+        label,
+      },
+    })
+
+    const result = adaptHeaderNavigation({
+      id: 'header',
+      navItems: [
+        {
+          id: 'resources',
+          label: 'Resources',
+          navigationType: 'dropdown',
+          dropdown: {
+            items: [
+              featuredItem('missing-root', { children: [] }),
+              featuredItem('function', {
+                root: { children: [], render: () => 'unsafe', type: 'root' },
+              }),
+              featuredItem('bigint', { root: { children: [], order: BigInt(1), type: 'root' } }),
+              featuredItem('circular', circular),
+              featuredItem('valid', { root: { children: [], type: 'root', version: 1 } }),
+            ],
+          },
+        },
+      ],
+    } as never)
+
+    const items = result.navItems[0]?.dropdown?.items
+    expect(items?.map((item) => item.type === 'featured' && item.featuredItem.label)).toEqual([
+      null,
+      null,
+      null,
+      null,
+      { root: { children: [], type: 'root', version: 1 } },
+    ])
+    expect(() => JSON.stringify(result)).not.toThrow()
+  })
 })
