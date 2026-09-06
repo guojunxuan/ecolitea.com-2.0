@@ -61,6 +61,7 @@ describe('public website shell', () => {
       'src/Footer',
       'src/heros',
       'src/components',
+      'src/providers',
     ].flatMap(readSourceTree)
     const forbiddenReferences = [
       'useHeaderTheme',
@@ -80,5 +81,15 @@ describe('public website shell', () => {
     })
 
     expect(violations).toEqual([])
+    expect(fs.existsSync(path.join(process.cwd(), 'src/providers/Theme'))).toBe(false)
+    expect(fs.existsSync(path.join(process.cwd(), 'src/providers/HeaderTheme'))).toBe(false)
+  })
+
+  it('keeps HighImpact readable on its fixed dark surface without theme state', () => {
+    const source = readSource('src/heros/HighImpact/index.tsx')
+
+    expect(source).toContain('bg-black')
+    expect(source).toContain('text-white')
+    expect(source).toContain('className="mb-6 prose-invert"')
   })
 })
