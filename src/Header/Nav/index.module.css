@@ -1,0 +1,240 @@
+.desktopNav {
+  display: none;
+}
+
+@media (width >= 73.125rem) {
+  .desktopNav {
+    align-items: center;
+    display: flex;
+    flex: 1 1 auto;
+    gap: clamp(1rem, 2vw, 2rem);
+    justify-content: flex-end;
+    min-width: 0;
+    position: relative;
+  }
+
+  .primaryNavigation,
+  .actions,
+  .hybridControl {
+    align-items: center;
+    display: flex;
+  }
+
+  .primaryNavigation {
+    flex: 0 1 auto;
+    gap: 1.5rem;
+    min-width: 0;
+  }
+
+  .actions {
+    flex: 0 0 auto;
+    gap: 0.75rem;
+  }
+
+  .topLevelLink,
+  .dropdownButton,
+  .disclosureButton,
+  .searchLink {
+    color: var(--foreground);
+    font-size: 0.875rem;
+    font-weight: 500;
+    text-decoration: none;
+  }
+
+  .topLevelLink,
+  .dropdownButton {
+    white-space: nowrap;
+  }
+
+  .dropdownButton,
+  .disclosureButton,
+  .searchLink {
+    align-items: center;
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+    display: inline-flex;
+    justify-content: center;
+  }
+
+  .dropdownButton {
+    gap: 0.25rem;
+    padding: 0;
+  }
+
+  .disclosureButton {
+    margin-left: 0.125rem;
+    padding: 0.375rem 0.125rem;
+  }
+
+  .searchLink {
+    min-height: 2.5rem;
+    min-width: 2.5rem;
+  }
+
+  .menuCta {
+    background: var(--primary);
+    border-radius: 999px;
+    color: var(--primary-foreground);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    padding: 0.6875rem 1.125rem;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  .topLevelLink:hover,
+  .dropdownButton:hover,
+  .descriptionLink:hover,
+  .groupedLinks a:hover,
+  .defaultItem:hover {
+    text-decoration: underline;
+    text-underline-offset: 0.25em;
+  }
+
+  .measurementRow {
+    align-items: center;
+    display: flex;
+    gap: 1.5rem;
+    height: 0;
+    left: 0;
+    overflow: hidden;
+    pointer-events: none;
+    position: absolute;
+    top: 0;
+    visibility: hidden;
+    white-space: nowrap;
+  }
+
+  .measurementRow > span {
+    flex: 0 0 auto;
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+
+  .megaMenu {
+    background: var(--background);
+    border-block: 1px solid var(--border);
+    box-shadow: 0 1.25rem 2.5rem color-mix(in oklch, var(--foreground) 10%, transparent);
+    left: 50%;
+    position: fixed;
+    right: 0;
+    top: var(--header-height);
+    transform: translateX(-50%);
+    width: 100vw;
+  }
+
+  .megaMenuInner {
+    display: grid;
+    gap: clamp(2rem, 4vw, 4rem);
+    grid-template-columns: minmax(12rem, 0.8fr) minmax(0, 2.2fr);
+    padding-block: 2.5rem 3rem;
+  }
+
+  .megaMenuIntroduction {
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: 0.875rem;
+    padding-right: 2rem;
+  }
+
+  .megaMenuIntroduction p {
+    color: var(--muted-foreground);
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    margin: 0 0 0.5rem;
+  }
+
+  .descriptionLink,
+  .defaultItem,
+  .groupedItem a {
+    color: var(--foreground);
+    text-decoration: none;
+  }
+
+  .descriptionLink {
+    font-size: 0.875rem;
+    font-weight: 600;
+  }
+
+  .megaMenuItems {
+    display: grid;
+    gap: 2rem;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .defaultItem a {
+    font-size: 1rem;
+    font-weight: 600;
+  }
+
+  .defaultItem p {
+    color: var(--muted-foreground);
+    font-size: 0.8125rem;
+    line-height: 1.5;
+    margin: 0.5rem 0 0;
+  }
+
+  .groupedItem,
+  .groupedLinks {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .groupedItem {
+    gap: 1rem;
+  }
+
+  .groupedItemHeading {
+    align-items: baseline;
+    display: flex;
+    gap: 0.75rem;
+    justify-content: space-between;
+  }
+
+  .groupedItemHeading span {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .groupedItemHeading a {
+    color: var(--muted-foreground);
+    font-size: 0.75rem;
+  }
+
+  .featuredCopy {
+    color: var(--muted-foreground);
+    font-size: 0.875rem;
+    line-height: 1.55;
+  }
+
+  .featuredCopy :global(p) {
+    margin: 0;
+  }
+
+  .groupedLinks {
+    gap: 0.625rem;
+  }
+
+  .groupedLinks a {
+    font-size: 0.875rem;
+  }
+
+  .moreMenu {
+    background: var(--background);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 1rem 2rem color-mix(in oklch, var(--foreground) 12%, transparent);
+    display: flex;
+    flex-direction: column;
+    gap: 0.875rem;
+    min-width: 15rem;
+    padding: 1rem;
+    position: absolute;
+    right: 0;
+    top: calc(100% + 1rem);
+  }
+}
