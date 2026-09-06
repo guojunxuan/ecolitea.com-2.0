@@ -26,6 +26,7 @@ const NavigationLink: React.FC<{
 )
 
 type NavigationItemControlProps = {
+  buttonRef?: React.Ref<HTMLButtonElement>
   item: HeaderNavigationItem
   menuID: string
   onToggle: () => void
@@ -33,6 +34,7 @@ type NavigationItemControlProps = {
 }
 
 const NavigationItemControl: React.FC<NavigationItemControlProps> = ({
+  buttonRef,
   item,
   menuID,
   onToggle,
@@ -52,6 +54,7 @@ const NavigationItemControl: React.FC<NavigationItemControlProps> = ({
           aria-label={`${item.label} menu`}
           className={styles.disclosureButton}
           onClick={onToggle}
+          ref={buttonRef}
           type="button"
         >
           <ChevronDown aria-hidden="true" size={14} strokeWidth={1.75} />
@@ -67,6 +70,7 @@ const NavigationItemControl: React.FC<NavigationItemControlProps> = ({
       aria-label={`${item.label} menu`}
       className={styles.dropdownButton}
       onClick={onToggle}
+      ref={buttonRef}
       type="button"
     >
       <span>{item.label}</span>
@@ -82,10 +86,18 @@ export const DesktopNav: React.FC<HeaderNavigationData> = ({ menuCta, navItems }
   const actionsRef = useRef<HTMLDivElement>(null)
   const measureItemRefs = useRef<Array<HTMLSpanElement | null>>([])
   const measureMoreRef = useRef<HTMLSpanElement>(null)
+  const moreButtonRef = useRef<HTMLButtonElement>(null)
+  const overflowButtonRefs = useRef<Record<string, HTMLButtonElement | null>>({})
   const [openID, setOpenID] = useState<string | null>(null)
+  const [isMoreOpen, setIsMoreOpen] = useState(false)
+  const [overflowOpenID, setOverflowOpenID] = useState<string | null>(null)
   const [visibleCount, setVisibleCount] = useState(navItems.length)
 
-  const close = useCallback(() => setOpenID(null), [])
+  const close = useCallback(() => {
+    setOpenID(null)
+    setIsMoreOpen(false)
+    setOverflowOpenID(null)
+  }, [])
 
   const recalculate = useCallback(() => {
     const root = rootRef.current
@@ -138,8 +150,31 @@ export const DesktopNav: React.FC<HeaderNavigationData> = ({ menuCta, navItems }
   useEffect(() => close(), [close, pathname])
 
   useEffect(() => {
+    const media = window.matchMedia?.('(min-width: 73.125rem)')
+    if (!media) return
+    const onChange = (event: MediaQueryListEvent | MediaQueryList) => {
+      if (!event.matches) close()
+    }
+    onChange(media)
+    media.addEventListener('change', onChange)
+    return () => media.removeEventListener('change', onChange)
+  }, [close])
+
+  useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') close()
+      if (event.key !== 'Escape') return
+      if (overflowOpenID) {
+        const trigger = overflowButtonRefs.current[overflowOpenID]
+        trigger?.focus()
+        setOverflowOpenID(null)
+        return
+      }
+      if (isMoreOpen) {
+        moreButtonRef.current?.focus()
+        setIsMoreOpen(false)
+        return
+      }
+      setOpenID(null)
     }
     const onPointerDown = (event: PointerEvent) => {
       if (rootRef.current && !rootRef.current.contains(event.target as Node)) close()
@@ -150,11 +185,12 @@ export const DesktopNav: React.FC<HeaderNavigationData> = ({ menuCta, navItems }
       document.removeEventListener('keydown', onKeyDown)
       document.removeEventListener('pointerdown', onPointerDown)
     }
-  }, [close])
+  }, [close, isMoreOpen, overflowOpenID])
 
   const visibleItems = navItems.slice(0, visibleCount)
   const overflowItems = navItems.slice(visibleCount)
-  const activeItem = navItems.find((item) => item.id === openID)
+  const activeID = overflowOpenID ?? openID
+  const activeItem = navItems.find((item) => item.id === activeID)
   const activeMenuID = activeItem ? `${idPrefix}-${activeItem.id}-menu` : null
   const moreMenuID = `${idPrefix}-more-menu`
 
@@ -169,11 +205,28 @@ export const DesktopNav: React.FC<HeaderNavigationData> = ({ menuCta, navItems }
               measureItemRefs.current[index] = node
             }}
           >
-            {item.label}
+            {item.navigationType === 'directLink' ? (
+              <span className={styles.topLevelLink}>{item.label}</span>
+            ) : item.navigationType === 'directLinkAndDropdown' ? (
+              <span className={styles.hybridControl}>
+                <span className={styles.topLevelLink}>{item.label}</span>
+                <span className={styles.disclosureButton}>
+                  <ChevronDown aria-hidden="true" size={14} strokeWidth={1.75} />
+                </span>
+              </span>
+            ) : (
+              <span className={styles.dropdownButton}>
+                <span>{item.label}</span>
+                <ChevronDown aria-hidden="true" size={14} strokeWidth={1.75} />
+              </span>
+            )}
           </span>
         ))}
         <span data-measure-more="true" ref={measureMoreRef}>
-          More
+          <span className={styles.dropdownButton}>
+            <span>More</span>
+            <ChevronDown aria-hidden="true" size={14} strokeWidth={1.75} />
+          </span>
         </span>
       </div>
 
@@ -185,7 +238,11 @@ export const DesktopNav: React.FC<HeaderNavigationData> = ({ menuCta, navItems }
               item={item}
               key={item.id}
               menuID={menuID}
-              onToggle={() => setOpenID((current) => (current === item.id ? null : item.id))}
+              onToggle={() => {
+                setIsMoreOpen(false)
+                setOverflowOpenID(null)
+                setOpenID((current) => (current === item.id ? null : item.id))
+              }}
               open={openID === item.id}
             />
           )
@@ -193,10 +250,15 @@ export const DesktopNav: React.FC<HeaderNavigationData> = ({ menuCta, navItems }
         {overflowItems.length > 0 && (
           <button
             aria-controls={moreMenuID}
-            aria-expanded={openID === 'more'}
+            aria-expanded={isMoreOpen}
             aria-label="More menu"
             className={styles.dropdownButton}
-            onClick={() => setOpenID((current) => (current === 'more' ? null : 'more'))}
+            onClick={() => {
+              setOpenID(null)
+              setOverflowOpenID(null)
+              setIsMoreOpen((current) => !current)
+            }}
+            ref={moreButtonRef}
             type="button"
           >
             <span>More</span>
@@ -212,17 +274,23 @@ export const DesktopNav: React.FC<HeaderNavigationData> = ({ menuCta, navItems }
         {menuCta && <NavigationLink className={styles.menuCta} link={menuCta} />}
       </div>
 
-      {openID === 'more' && overflowItems.length > 0 && (
+      {isMoreOpen && overflowItems.length > 0 && (
         <section aria-label="More menu" className={styles.moreMenu} id={moreMenuID} role="region">
           {overflowItems.map((item) => {
             const menuID = `${idPrefix}-${item.id}-menu`
             return (
               <NavigationItemControl
+                buttonRef={(node) => {
+                  overflowButtonRefs.current[item.id] = node
+                }}
                 item={item}
                 key={item.id}
                 menuID={menuID}
-                onToggle={() => setOpenID(item.id)}
-                open={false}
+                onToggle={() => {
+                  setOpenID(null)
+                  setOverflowOpenID((current) => (current === item.id ? null : item.id))
+                }}
+                open={overflowOpenID === item.id}
               />
             )
           })}

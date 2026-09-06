@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen, within } from '@testing-library/react'
+import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/react'
 import React from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -91,11 +91,34 @@ class ResizeObserverMock {
   }
 }
 
+class MediaQueryListMock {
+  matches = true
+  listeners = new Set<(event: MediaQueryListEvent) => void>()
+  media = '(min-width: 73.125rem)'
+  addEventListener = (_type: string, listener: (event: MediaQueryListEvent) => void) => {
+    this.listeners.add(listener)
+  }
+  removeEventListener = (_type: string, listener: (event: MediaQueryListEvent) => void) => {
+    this.listeners.delete(listener)
+  }
+  setMatches(matches: boolean) {
+    this.matches = matches
+    this.listeners.forEach((listener) => listener({ matches } as MediaQueryListEvent))
+  }
+}
+
+let desktopMedia: MediaQueryListMock
+
 describe('DesktopNav', () => {
   beforeEach(() => {
     pathname = '/'
+    desktopMedia = new MediaQueryListMock()
     ResizeObserverMock.instances = []
     vi.stubGlobal('ResizeObserver', ResizeObserverMock)
+    vi.stubGlobal(
+      'matchMedia',
+      vi.fn(() => desktopMedia),
+    )
   })
 
   afterEach(() => {
@@ -189,6 +212,111 @@ describe('DesktopNav', () => {
     expect(within(moreMenu).getAllByRole('link')).toHaveLength(5)
 
     HTMLElement.prototype.getBoundingClientRect = originalRect
+  })
+
+  it('measures complete dropdown and hybrid controls after reserving CTA actions', () => {
+    const originalRect = HTMLElement.prototype.getBoundingClientRect
+    vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(function (
+      this: HTMLElement,
+    ) {
+      const width = this.dataset.desktopNavRoot
+        ? 540
+        : this.dataset.measureItem
+          ? this.textContent === 'Pricing'
+            ? 100
+            : this.textContent === 'Platform'
+              ? 120
+              : 150
+          : this.dataset.measureMore
+            ? 80
+            : this.querySelector('a[aria-label="Search"]')
+              ? 110
+              : 0
+      return {
+        bottom: 0,
+        height: 0,
+        left: 0,
+        right: width,
+        top: 0,
+        width,
+        x: 0,
+        y: 0,
+        toJSON: () => ({}),
+      }
+    })
+
+    render(<DesktopNav {...navigation} />)
+    ResizeObserverMock.instances[0]?.emit()
+
+    expect(screen.getByRole('link', { name: 'Pricing' })).toBeTruthy()
+    expect(screen.getByRole('button', { name: 'Platform menu' })).toBeTruthy()
+    expect(screen.queryByRole('link', { name: 'Company' })).toBeNull()
+    fireEvent.click(screen.getByRole('button', { name: 'More menu' }))
+    expect(
+      within(screen.getByRole('region', { name: 'More menu' })).getByRole('link', {
+        name: 'Company',
+      }),
+    ).toBeTruthy()
+
+    HTMLElement.prototype.getBoundingClientRect = originalRect
+  })
+
+  it('closes at the tablet breakpoint and does not reopen on desktop', () => {
+    render(<DesktopNav {...navigation} />)
+    fireEvent.click(screen.getByRole('button', { name: 'Platform menu' }))
+    expect(screen.getByRole('region', { name: 'Platform menu' })).toBeTruthy()
+
+    act(() => desktopMedia.setMatches(false))
+    expect(screen.queryByRole('region', { name: 'Platform menu' })).toBeNull()
+    act(() => desktopMedia.setMatches(true))
+    expect(screen.queryByRole('region', { name: 'Platform menu' })).toBeNull()
+  })
+
+  it('keeps an overflow disclosure mounted and restores focus while closing layers', () => {
+    const items: HeaderNavigationItem[] = [
+      navigation.navItems[0]!,
+      ...Array.from({ length: 4 }, (_, index) => ({
+        ...navigation.navItems[1]!,
+        id: `dropdown-${index}`,
+        label: `Dropdown ${index + 1}`,
+      })),
+    ]
+    vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(function (
+      this: HTMLElement,
+    ) {
+      const width = this.dataset.desktopNavRoot ? 360 : this.dataset.measureItem ? 140 : 80
+      return {
+        bottom: 0,
+        height: 0,
+        left: 0,
+        right: width,
+        top: 0,
+        width,
+        x: 0,
+        y: 0,
+        toJSON: () => ({}),
+      }
+    })
+    render(<DesktopNav menuCta={null} navItems={items} />)
+
+    const moreButton = screen.getByRole('button', { name: 'More menu' })
+    fireEvent.click(moreButton)
+    const overflowTrigger = within(screen.getByRole('region', { name: 'More menu' })).getByRole(
+      'button',
+      { name: 'Dropdown 1 menu' },
+    )
+    fireEvent.click(overflowTrigger)
+    expect(overflowTrigger.getAttribute('aria-expanded')).toBe('true')
+    expect(screen.getByRole('region', { name: 'Dropdown 1 menu' })).toBeTruthy()
+
+    fireEvent.keyDown(document, { key: 'Escape' })
+    expect(screen.queryByRole('region', { name: 'Dropdown 1 menu' })).toBeNull()
+    expect(screen.getByRole('region', { name: 'More menu' })).toBeTruthy()
+    expect(document.activeElement).toBe(overflowTrigger)
+
+    fireEvent.keyDown(document, { key: 'Escape' })
+    expect(screen.queryByRole('region', { name: 'More menu' })).toBeNull()
+    expect(document.activeElement).toBe(moreButton)
   })
 
   it('keeps every item accessible when ResizeObserver is unavailable', () => {
