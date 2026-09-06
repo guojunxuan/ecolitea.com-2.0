@@ -39,7 +39,7 @@ type ResolvableLink = Pick<CMSLinkType, 'reference' | 'type' | 'url'>
 
 export const resolveLinkHref = ({ reference, type, url }: ResolvableLink): string | null => {
   if (type !== 'reference') return url || null
-  if (!reference || typeof reference.value !== 'object') return null
+  if (!reference || !reference.value || typeof reference.value !== 'object') return null
 
   const slug = reference.value.slug
 

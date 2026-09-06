@@ -82,6 +82,15 @@ describe('resolveLinkHref', () => {
       }),
     ).toBeNull()
   })
+
+  it('returns null when a malformed relationship has a null value', () => {
+    expect(
+      resolveLinkHref({
+        type: 'reference',
+        reference: { relationTo: 'pages', value: null },
+      } as unknown as CMSLinkType),
+    ).toBeNull()
+  })
 })
 
 describe('CMSLink', () => {
