@@ -1,0 +1,211 @@
+.footer {
+  background: #0a0a0a;
+  color: #fff;
+}
+.primaryGrid {
+  display: grid;
+  gap: 2.5rem;
+  padding-block: clamp(3rem, 7vw, 5.5rem);
+}
+.brand,
+.newsletter {
+  min-width: 0;
+}
+.brandLink {
+  display: inline-flex;
+}
+.brandName {
+  margin-top: 1rem;
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+.description,
+.newsletterDescription,
+.information,
+.bottomBar {
+  color: rgb(255 255 255 / 65%);
+}
+.description {
+  margin-top: 0.75rem;
+  max-width: 22rem;
+  line-height: 1.65;
+}
+.navigation {
+  display: grid;
+}
+.column {
+  border-top: 1px solid rgb(255 255 255 / 18%);
+}
+.accordionTrigger {
+  display: flex;
+  width: 100%;
+  min-height: 54px;
+  align-items: center;
+  justify-content: space-between;
+  color: inherit;
+  font-weight: 600;
+  text-align: left;
+}
+.accordionIcon {
+  font-size: 1.25rem;
+  font-weight: 400;
+  transition: transform 180ms ease;
+}
+.accordionTrigger[aria-expanded='true'] .accordionIcon {
+  transform: rotate(45deg);
+}
+.desktopHeading {
+  display: none;
+}
+.linkPanel {
+  display: grid;
+  grid-template-rows: 0fr;
+  visibility: hidden;
+  transition:
+    grid-template-rows 200ms ease,
+    visibility 200ms ease;
+}
+.linkPanel[data-open='true'] {
+  grid-template-rows: 1fr;
+  visibility: visible;
+}
+.linkList {
+  display: grid;
+  min-height: 0;
+  gap: 0.15rem;
+  overflow: hidden;
+}
+.navLink {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  color: rgb(255 255 255 / 72%);
+  transition: color 160ms ease;
+}
+.navLink:hover {
+  color: #fff;
+}
+.newsletterHeading {
+  font-size: 1rem;
+  font-weight: 600;
+}
+.newsletterDescription {
+  margin-top: 0.5rem;
+  line-height: 1.55;
+}
+.newsletterControls {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  margin-top: 1.25rem;
+}
+.newsletterInput,
+.newsletterButton {
+  min-height: 48px;
+  border: 1px solid rgb(255 255 255 / 24%);
+}
+.newsletterInput {
+  min-width: 0;
+  border-radius: 0.25rem 0 0 0.25rem;
+  padding-inline: 0.875rem;
+  background: transparent;
+  color: #fff;
+}
+.newsletterButton {
+  border-left: 0;
+  border-radius: 0 0.25rem 0.25rem 0;
+  padding-inline: 1rem;
+  background: rgb(255 255 255 / 12%);
+  color: rgb(255 255 255 / 52%);
+}
+.information {
+  display: grid;
+  gap: 1rem;
+  border-top: 1px solid rgb(255 255 255 / 18%);
+  padding-block: 2rem;
+  font-style: normal;
+  line-height: 1.6;
+}
+.contactList,
+.socialList,
+.legalList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.25rem;
+}
+.information a,
+.bottomBar a {
+  color: inherit;
+}
+.information a:hover,
+.bottomBar a:hover {
+  color: #fff;
+}
+.socialIcon {
+  width: 1.125rem;
+  height: 1.125rem;
+  object-fit: contain;
+}
+.socialLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.bottomBar {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  border-top: 1px solid rgb(255 255 255 / 18%);
+  padding-block: 1.5rem 2rem;
+  font-size: 0.875rem;
+}
+
+@media (width >= 48rem) {
+  .primaryGrid {
+    gap: 3rem;
+  }
+  .bottomBar {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+@media (width >= 73.125rem) {
+  .primaryGrid {
+    grid-template-columns: minmax(0, 20fr) minmax(0, 55fr) minmax(0, 25fr);
+    gap: clamp(2rem, 4vw, 4.5rem);
+  }
+  .navigation {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: clamp(1.25rem, 2.5vw, 3rem);
+  }
+  .column {
+    border-top: 0;
+  }
+  .accordionTrigger {
+    display: none;
+  }
+  .desktopHeading {
+    display: block;
+    margin-bottom: 1rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+  }
+  .linkPanel,
+  .linkPanel[data-open='true'] {
+    display: block;
+    visibility: visible;
+  }
+  .linkList {
+    gap: 0.4rem;
+    overflow: visible;
+  }
+  .navLink {
+    min-height: auto;
+    padding-block: 0.25rem;
+  }
+  .information {
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+    align-items: start;
+  }
+}

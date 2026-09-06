@@ -47,7 +47,7 @@ const inverseLogo: LogoImage = {
 }
 
 const headerData: HeaderData = { id: 'header', navItems: [] }
-const footerData: FooterData = { id: 'footer', navItems: [] }
+const footerData: FooterData = { id: 'footer', columns: [] }
 
 const findElementByType = (
   node: React.ReactNode,
