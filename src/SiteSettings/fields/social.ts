@@ -89,11 +89,7 @@ export const socialTab: Tab = {
           relationTo: socialPlatformsSlug,
           required: true,
           admin: {
-            allowCreate: false,
-            components: {
-              Field:
-                '@/SiteSettings/components/SocialPlatformRelationshipField#SocialPlatformRelationshipField',
-            },
+            allowCreate: true,
           },
         },
         {

@@ -74,13 +74,6 @@ export const SocialPlatforms: CollectionConfig = {
   slug: socialPlatformsSlug,
   disableDuplicate: true,
   admin: {
-    components: {
-      edit: {
-        editMenuItems: [
-          '@/SiteSettings/components/SocialPlatformNestedCreateAction#SocialPlatformNestedCreateAction',
-        ],
-      },
-    },
     hidden: true,
     useAsTitle: 'platform',
   },

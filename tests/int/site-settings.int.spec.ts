@@ -33,13 +33,6 @@ describe('Site Settings Global', () => {
       slug: 'social-platforms',
       disableDuplicate: true,
       admin: {
-        components: {
-          edit: {
-            editMenuItems: [
-              '@/SiteSettings/components/SocialPlatformNestedCreateAction#SocialPlatformNestedCreateAction',
-            ],
-          },
-        },
         hidden: true,
         useAsTitle: 'platform',
       },
@@ -238,11 +231,7 @@ describe('Site Settings Global', () => {
       relationTo: 'social-platforms',
       required: true,
       admin: {
-        allowCreate: false,
-        components: {
-          Field:
-            '@/SiteSettings/components/SocialPlatformRelationshipField#SocialPlatformRelationshipField',
-        },
+        allowCreate: true,
       },
     })
     expect(label).toBeUndefined()

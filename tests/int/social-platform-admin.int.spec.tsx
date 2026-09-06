@@ -143,8 +143,6 @@ import {
 import { SocialLinksArrayField } from '@/SiteSettings/components/SocialLinksArrayField'
 import { SocialPlatformCreateActions } from '@/SiteSettings/components/SocialPlatformCreateActions'
 import { SocialPlatformNameField } from '@/SiteSettings/components/SocialPlatformNameField'
-import { SocialPlatformNestedCreateAction } from '@/SiteSettings/components/SocialPlatformNestedCreateAction'
-import { SocialPlatformRelationshipField } from '@/SiteSettings/components/SocialPlatformRelationshipField'
 
 afterEach(() => {
   cleanup()
@@ -205,86 +203,6 @@ describe('Social Link admin components', () => {
     drawer?.onSave?.({ doc: { id: 'platform-id', platform: 'LinkedIn' }, operation: 'create' })
     expect(drawer?.closeDrawer).toHaveBeenCalledTimes(1)
     expect(toast.success).toHaveBeenCalledWith('Social platform created.')
-  })
-
-  it('keeps relationship creation disabled without rendering a standalone create action', () => {
-    render(
-      <SocialPlatformRelationshipField
-        field={{
-          admin: { allowCreate: true, allowEdit: true },
-          name: 'platform',
-          relationTo: 'social-platforms',
-          type: 'relationship',
-        }}
-        path="socialLinks.0.platform"
-      />,
-    )
-
-    const nativeField = document.querySelector(
-      '[data-native-relationship="socialLinks.0.platform"]',
-    )
-    expect(nativeField?.getAttribute('data-allow-create')).toBe('false')
-    expect(nativeField?.getAttribute('data-allow-edit')).toBe('true')
-    expect(screen.queryByRole('button', { name: 'Create Social Platform' })).toBeNull()
-    expect(adminState.drawers.size).toBe(0)
-  })
-
-  it('pins the Platform relationship menu below its control', async () => {
-    render(
-      <SocialPlatformRelationshipField
-        field={{ name: 'platform', relationTo: 'social-platforms', type: 'relationship' }}
-        path="socialLinks.0.platform"
-      />,
-    )
-
-    const control = screen.getByRole('button', { name: 'Platform' })
-    vi.spyOn(control, 'getBoundingClientRect').mockReturnValue({
-      bottom: 140,
-      height: 40,
-      left: 20,
-      right: 220,
-      top: 100,
-      width: 200,
-      x: 20,
-      y: 100,
-      toJSON: () => ({}),
-    })
-    const portal = document.createElement('div')
-    portal.className = 'rs__floating-menu-portal'
-    portal.innerHTML = '<div class="rs__menu rs__menu--placement-top" />'
-    document.body.append(portal)
-
-    fireEvent.click(control)
-
-    await waitFor(() => {
-      expect(portal.classList.contains('site-settings-social-platform-menu')).toBe(true)
-      expect(portal.style.getPropertyValue('--site-settings-social-platform-menu-top')).toBe(
-        '144px',
-      )
-    })
-    portal.remove()
-  })
-
-  it('opens Create New in a child Drawer and returns to the editing Drawer', () => {
-    render(<SocialPlatformNestedCreateAction />)
-
-    fireEvent.click(screen.getByRole('button', { name: 'Create New' }))
-    const childDrawer = adminState.drawers.get(
-      'parent-social-platform-drawer-create-social-platform',
-    )
-    expect(childDrawer?.openDrawer).toHaveBeenCalledTimes(1)
-    expect(
-      document.querySelector(
-        '[data-drawer="parent-social-platform-drawer-create-social-platform"]',
-      ),
-    ).toBeTruthy()
-
-    childDrawer?.onSave?.({
-      doc: { id: 'new-platform', platform: 'Mastodon' },
-      operation: 'create',
-    })
-    expect(childDrawer?.closeDrawer).toHaveBeenCalledTimes(1)
-    expect(adminState.drawerContext.drawerSlug).toBe('parent-social-platform-drawer')
   })
 
   it('scopes hidden array actions to Social Links and keeps valid actions visible', async () => {
