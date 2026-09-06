@@ -6,6 +6,32 @@ import { defineConfig, devices } from '@playwright/test'
  */
 import 'dotenv/config'
 
+const developerDatabaseURI = process.env.DATABASE_URI
+const e2eDatabaseURI = process.env.E2E_DATABASE_URI ?? 'mongodb://127.0.0.1:27017/ecolitea2-e2e'
+const e2eDatabaseName = new URL(e2eDatabaseURI).pathname.replace(/^\//, '').split('/').at(-1)
+
+if (!e2eDatabaseName?.endsWith('-e2e')) {
+  throw new Error('E2E_DATABASE_URI must name a dedicated database ending in "-e2e".')
+}
+
+const developerDatabaseName = developerDatabaseURI
+  ? new URL(developerDatabaseURI).pathname.replace(/^\//, '').split('/').at(-1)
+  : null
+
+if (
+  developerDatabaseURI &&
+  e2eDatabaseURI === developerDatabaseURI &&
+  !developerDatabaseName?.endsWith('-e2e')
+) {
+  throw new Error('E2E_DATABASE_URI must not match the developer DATABASE_URI.')
+}
+
+// The config is evaluated before test modules, so both Payload fixtures in the
+// runner and the Next web server inherit the same dedicated database.
+process.env.DATABASE_URI = e2eDatabaseURI
+process.env.DISABLE_R2_STORAGE = 'true'
+process.env.PLAYWRIGHT_TEST = 'true'
+
 /**
  * See https://playwright.dev/docs/test-configuration.
  */
@@ -38,6 +64,12 @@ export default defineConfig({
   ],
   webServer: {
     command: 'pnpm build && pnpm start',
+    env: {
+      ...process.env,
+      DATABASE_URI: e2eDatabaseURI,
+      DISABLE_R2_STORAGE: 'true',
+      PLAYWRIGHT_TEST: 'true',
+    },
     reuseExistingServer: true,
     timeout: 5 * 60 * 1000,
     // The template homepage was intentionally removed and now returns 404.
