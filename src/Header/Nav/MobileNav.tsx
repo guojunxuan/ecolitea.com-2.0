@@ -87,9 +87,10 @@ const GroupedItem: React.FC<{
 
 type MobileNavProps = HeaderNavigationData & {
   logo?: LogoImage | null
+  siteName?: string
 }
 
-export const MobileNav: React.FC<MobileNavProps> = ({ logo, menuCta, navItems }) => {
+export const MobileNav: React.FC<MobileNavProps> = ({ logo, menuCta, navItems, siteName }) => {
   const pathname = usePathname()
   const [isOpen, setIsOpen] = useState(false)
   const [state, dispatch] = useReducer(navigationReducer, initialNavigationState)
@@ -229,7 +230,9 @@ export const MobileNav: React.FC<MobileNavProps> = ({ logo, menuCta, navItems })
                 <Logo className={styles.mobileLogo} image={logo} loading="eager" priority="high" />
               </Link>
             ) : (
-              <span className={styles.mobileNavTitle}>Menu</span>
+              <Link className={styles.mobileNavTitle} href="/" onClick={() => close()}>
+                {siteName || 'Menu'}
+              </Link>
             )}
             <button
               aria-label="Close navigation"

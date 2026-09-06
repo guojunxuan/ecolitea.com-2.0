@@ -8,6 +8,7 @@ const getCachedGlobalMock = vi.hoisted(() => vi.fn())
 vi.mock('@/utilities/getGlobals', () => ({
   getCachedGlobal: getCachedGlobalMock,
 }))
+vi.mock('@/components/RichText', () => ({ default: () => null }))
 
 import { Footer } from '@/Footer/Component'
 import { HeaderClient } from '@/Header/Component.client'
@@ -256,13 +257,13 @@ describe('branding integration', () => {
     const header = await Header()
 
     expect(header.props).toMatchObject({
-      data: headerData,
       logo: {
         src: '/api/brand-assets/file/primary.svg?2026-09-01T01%3A02%3A03.000Z',
         alt: 'Primary brand',
         width: 1302,
         height: 296,
       },
+      siteName: 'Ecolitea',
     })
   })
 
@@ -282,7 +283,9 @@ describe('branding integration', () => {
   })
 
   it('keeps the Header home link from shrinking the logo on narrow screens', () => {
-    const { getByRole } = render(<HeaderClient data={headerData} logo={primaryLogo} />)
+    const { getByRole } = render(
+      <HeaderClient logo={primaryLogo} menuCta={null} navItems={[]} siteName="Ecolitea" />,
+    )
 
     const homeLink = getByRole('link', { name: 'Primary logo' })
 
@@ -290,10 +293,12 @@ describe('branding integration', () => {
     expect(homeLink.getAttribute('href')).toBe('/')
   })
 
-  it('omits the Header home link when no logo presentation data resolves', () => {
-    const { container } = render(<HeaderClient data={headerData} logo={null} />)
+  it('falls back to Site Name when no Header logo presentation data resolves', () => {
+    const { getByRole } = render(
+      <HeaderClient logo={null} menuCta={null} navItems={[]} siteName="Ecolitea" />,
+    )
 
-    expect(container.querySelector('a[href="/"]')).toBeNull()
+    expect(getByRole('link', { name: 'Ecolitea' }).getAttribute('href')).toBe('/')
   })
 
   it('omits the Footer home link when no logo presentation data resolves', async () => {
