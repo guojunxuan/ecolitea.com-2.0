@@ -3,21 +3,58 @@ import { cn } from '@/utilities/ui'
 import Link from 'next/link'
 import React from 'react'
 
-import type { Page, Post } from '@/payload-types'
+import type { CaseStudy, Category, Page, Post } from '@/payload-types'
 
-type CMSLinkType = {
+type LinkRelation =
+  | {
+      relationTo: 'pages'
+      value: Page | string | number
+    }
+  | {
+      relationTo: 'posts'
+      value: Post | string | number
+    }
+  | {
+      relationTo: 'case-studies'
+      value: CaseStudy | string | number
+    }
+  | {
+      relationTo: 'categories'
+      value: Category | string | number
+    }
+
+export type CMSLinkType = {
   appearance?: 'inline' | ButtonProps['variant']
   children?: React.ReactNode
   className?: string
   label?: string | null
   newTab?: boolean | null
-  reference?: {
-    relationTo: 'pages' | 'posts'
-    value: Page | Post | string | number
-  } | null
+  reference?: LinkRelation | null
   size?: ButtonProps['size'] | null
   type?: 'custom' | 'reference' | null
   url?: string | null
+}
+
+type ResolvableLink = Pick<CMSLinkType, 'reference' | 'type' | 'url'>
+
+export const resolveLinkHref = ({ reference, type, url }: ResolvableLink): string | null => {
+  if (type !== 'reference') return url || null
+  if (!reference || typeof reference.value !== 'object') return null
+
+  const slug = reference.value.slug
+
+  if (!slug) return null
+
+  switch (reference.relationTo) {
+    case 'pages':
+      return `/${slug}`
+    case 'posts':
+      return `/posts/${slug}`
+    case 'case-studies':
+      return `/case-studies/${slug}`
+    case 'categories':
+      return `/posts?category=${encodeURIComponent(slug)}`
+  }
 }
 
 export const CMSLink: React.FC<CMSLinkType> = (props) => {
@@ -33,12 +70,7 @@ export const CMSLink: React.FC<CMSLinkType> = (props) => {
     url,
   } = props
 
-  const href =
-    type === 'reference' && typeof reference?.value === 'object' && reference.value.slug
-      ? `${reference?.relationTo !== 'pages' ? `/${reference?.relationTo}` : ''}/${
-          reference.value.slug
-        }`
-      : url
+  const href = resolveLinkHref({ reference, type, url })
 
   if (!href) return null
 
@@ -48,7 +80,7 @@ export const CMSLink: React.FC<CMSLinkType> = (props) => {
   /* Ensure we don't break any styles set by richText */
   if (appearance === 'inline') {
     return (
-      <Link className={cn(className)} href={href || url || ''} {...newTabProps}>
+      <Link className={cn(className)} href={href} {...newTabProps}>
         {label && label}
         {children && children}
       </Link>
@@ -57,7 +89,7 @@ export const CMSLink: React.FC<CMSLinkType> = (props) => {
 
   return (
     <Button asChild className={className} size={size} variant={appearance}>
-      <Link className={cn(className)} href={href || url || ''} {...newTabProps}>
+      <Link className={cn(className)} href={href} {...newTabProps}>
         {label && label}
         {children && children}
       </Link>
