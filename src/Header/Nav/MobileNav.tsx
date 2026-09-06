@@ -5,11 +5,40 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import React, { useCallback, useEffect, useReducer, useRef, useState } from 'react'
 
+import { Logo } from '@/components/Logo/Logo'
+import type { LogoImage } from '@/components/Logo/types'
 import RichText from '@/components/RichText'
 
 import styles from './index.module.css'
 import { initialNavigationState, navigationReducer } from './navigationState'
 import type { HeaderDropdownItemData, HeaderLinkData, HeaderNavigationData } from './types'
+
+const FOCUSABLE_SELECTOR =
+  'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+
+let bodyScrollLockCount = 0
+let bodyOverflowBeforeLock: string | null = null
+
+const acquireBodyScrollLock = () => {
+  if (bodyScrollLockCount === 0) bodyOverflowBeforeLock = document.body.style.overflow
+  bodyScrollLockCount += 1
+  document.body.style.overflow = 'hidden'
+
+  let released = false
+  return () => {
+    if (released) return
+    released = true
+    bodyScrollLockCount = Math.max(0, bodyScrollLockCount - 1)
+    if (bodyScrollLockCount !== 0) return
+    document.body.style.overflow = bodyOverflowBeforeLock ?? ''
+    bodyOverflowBeforeLock = null
+  }
+}
+
+const getFocusableElements = (root: HTMLElement) =>
+  Array.from(root.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR)).filter(
+    (element) => !element.closest('[inert]'),
+  )
 
 const NavigationLink: React.FC<{
   className?: string
@@ -35,6 +64,11 @@ const GroupedItem: React.FC<{
 
   return (
     <div className={styles.mobileGroupedContent}>
+      <NavigationLink
+        className={styles.mobileViewAll}
+        link={content.landingLink}
+        onActivate={onActivate}
+      />
       {item.type === 'featured' && item.featuredItem.label ? (
         <RichText
           className={styles.mobileFeaturedCopy}
@@ -47,16 +81,15 @@ const GroupedItem: React.FC<{
           <NavigationLink key={id} link={link} onActivate={onActivate} />
         ))}
       </div>
-      <NavigationLink
-        className={styles.mobileViewAll}
-        link={content.landingLink}
-        onActivate={onActivate}
-      />
     </div>
   )
 }
 
-export const MobileNav: React.FC<HeaderNavigationData> = ({ menuCta, navItems }) => {
+type MobileNavProps = HeaderNavigationData & {
+  logo?: LogoImage | null
+}
+
+export const MobileNav: React.FC<MobileNavProps> = ({ logo, menuCta, navItems }) => {
   const pathname = usePathname()
   const [isOpen, setIsOpen] = useState(false)
   const [state, dispatch] = useReducer(navigationReducer, initialNavigationState)
@@ -64,6 +97,8 @@ export const MobileNav: React.FC<HeaderNavigationData> = ({ menuCta, navItems })
   const levelTwoTriggerRefs = useRef<Record<number, HTMLButtonElement | null>>({})
   const levelThreeTriggerRefs = useRef<Record<number, HTMLButtonElement | null>>({})
   const pendingBackFocusRef = useRef<HTMLButtonElement | null>(null)
+  const dialogRef = useRef<HTMLDivElement>(null)
+  const panelRefs = useRef<Array<HTMLElement | null>>([])
 
   const close = useCallback((restoreFocus = true) => {
     if (restoreFocus) openButtonRef.current?.focus()
@@ -97,9 +132,16 @@ export const MobileNav: React.FC<HeaderNavigationData> = ({ menuCta, navItems })
   }
 
   useEffect(() => {
-    pendingBackFocusRef.current?.focus()
+    if (!isOpen) return
+    const pendingFocus = pendingBackFocusRef.current
     pendingBackFocusRef.current = null
-  }, [state.level])
+    if (pendingFocus) {
+      pendingFocus.focus()
+      return
+    }
+    const activePanel = panelRefs.current[state.level - 1]
+    if (activePanel) getFocusableElements(activePanel).at(0)?.focus()
+  }, [isOpen, state.level])
 
   useEffect(() => {
     close(false)
@@ -107,11 +149,7 @@ export const MobileNav: React.FC<HeaderNavigationData> = ({ menuCta, navItems })
 
   useEffect(() => {
     if (!isOpen) return
-    const previousOverflow = document.body.style.overflow
-    document.body.style.overflow = 'hidden'
-    return () => {
-      document.body.style.overflow = previousOverflow
-    }
+    return acquireBodyScrollLock()
   }, [isOpen])
 
   useEffect(() => {
@@ -128,7 +166,21 @@ export const MobileNav: React.FC<HeaderNavigationData> = ({ menuCta, navItems })
   useEffect(() => {
     if (!isOpen) return
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') close()
+      if (event.key === 'Escape') {
+        close()
+        return
+      }
+      if (event.key !== 'Tab' || !dialogRef.current) return
+      const focusable = getFocusableElements(dialogRef.current)
+      const first = focusable.at(0)
+      const last = focusable.at(-1)
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault()
+        last?.focus()
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault()
+        first?.focus()
+      }
     }
     document.addEventListener('keydown', onKeyDown)
     return () => document.removeEventListener('keydown', onKeyDown)
@@ -163,10 +215,17 @@ export const MobileNav: React.FC<HeaderNavigationData> = ({ menuCta, navItems })
           aria-modal="true"
           className={styles.mobileNavDialog}
           data-level={state.level}
+          ref={dialogRef}
           role="dialog"
         >
           <div className={styles.mobileNavHeader}>
-            <span className={styles.mobileNavTitle}>Menu</span>
+            {logo ? (
+              <Link aria-label={logo.alt} className={styles.mobileLogoLink} href="/">
+                <Logo className={styles.mobileLogo} image={logo} loading="eager" priority="high" />
+              </Link>
+            ) : (
+              <span className={styles.mobileNavTitle}>Menu</span>
+            )}
             <button
               aria-label="Close navigation"
               className={styles.mobileIconButton}
@@ -186,6 +245,9 @@ export const MobileNav: React.FC<HeaderNavigationData> = ({ menuCta, navItems })
               className={styles.mobileNavPanel}
               data-testid="mobile-navigation-panel"
               inert={state.level !== 1}
+              ref={(node) => {
+                panelRefs.current[0] = node
+              }}
             >
               <h2>Navigation</h2>
               <nav aria-label="Primary navigation" className={styles.mobileLinkList}>
@@ -220,48 +282,57 @@ export const MobileNav: React.FC<HeaderNavigationData> = ({ menuCta, navItems })
               className={styles.mobileNavPanel}
               data-testid="mobile-navigation-panel"
               inert={state.level !== 2}
+              ref={(node) => {
+                panelRefs.current[1] = node
+              }}
             >
               <button className={styles.mobileBackButton} onClick={back} type="button">
                 <ArrowLeft aria-hidden="true" /> Back to Navigation
               </button>
               <h2>{activeNavItem?.label ?? 'Menu'}</h2>
               {activeDropdown ? (
-                <div className={styles.mobileLinkList}>
-                  {activeNavItem?.navigationType === 'directLinkAndDropdown' &&
-                  activeNavItem.link ? (
-                    <NavigationLink
-                      link={activeNavItem.link}
-                      onActivate={() => close()}
-                      visibleLabel="Overview"
-                    />
+                <div>
+                  {activeDropdown.description ? (
+                    <p className={styles.mobileDescription}>{activeDropdown.description}</p>
                   ) : null}
-                  {activeDropdown.descriptionLinks.map(({ id, link }) => (
-                    <NavigationLink key={id} link={link} onActivate={() => close()} />
-                  ))}
-                  {activeDropdown.items.map((item, index) =>
-                    item.type === 'default' ? (
+                  <div className={styles.mobileLinkList}>
+                    {activeNavItem?.navigationType === 'directLinkAndDropdown' &&
+                    activeNavItem.link ? (
                       <NavigationLink
-                        key={item.id}
-                        link={item.defaultItem.link}
+                        link={activeNavItem.link}
                         onActivate={() => close()}
+                        visibleLabel="Overview"
                       />
-                    ) : (
-                      <button
-                        aria-label={`Open ${
-                          item.type === 'featured' ? item.featuredItem.tag : item.listItem.tag
-                        }`}
-                        className={styles.mobileDrillButton}
-                        key={item.id}
-                        onClick={(event) => openItem(index, event.currentTarget)}
-                        type="button"
-                      >
-                        <span>
-                          {item.type === 'featured' ? item.featuredItem.tag : item.listItem.tag}
-                        </span>
-                        <ChevronRight aria-hidden="true" />
-                      </button>
-                    ),
-                  )}
+                    ) : null}
+                    {activeDropdown.descriptionLinks.map(({ id, link }) => (
+                      <NavigationLink key={id} link={link} onActivate={() => close()} />
+                    ))}
+                    {activeDropdown.items.map((item, index) =>
+                      item.type === 'default' ? (
+                        <div className={styles.mobileDefaultItem} key={item.id}>
+                          <NavigationLink link={item.defaultItem.link} onActivate={() => close()} />
+                          {item.defaultItem.description ? (
+                            <p>{item.defaultItem.description}</p>
+                          ) : null}
+                        </div>
+                      ) : (
+                        <button
+                          aria-label={`Open ${
+                            item.type === 'featured' ? item.featuredItem.tag : item.listItem.tag
+                          }`}
+                          className={styles.mobileDrillButton}
+                          key={item.id}
+                          onClick={(event) => openItem(index, event.currentTarget)}
+                          type="button"
+                        >
+                          <span>
+                            {item.type === 'featured' ? item.featuredItem.tag : item.listItem.tag}
+                          </span>
+                          <ChevronRight aria-hidden="true" />
+                        </button>
+                      ),
+                    )}
+                  </div>
                 </div>
               ) : null}
             </section>
@@ -271,6 +342,9 @@ export const MobileNav: React.FC<HeaderNavigationData> = ({ menuCta, navItems })
               className={styles.mobileNavPanel}
               data-testid="mobile-navigation-panel"
               inert={state.level !== 3}
+              ref={(node) => {
+                panelRefs.current[2] = node
+              }}
             >
               <button className={styles.mobileBackButton} onClick={back} type="button">
                 <ArrowLeft aria-hidden="true" /> Back to {activeNavItem?.label ?? 'Menu'}

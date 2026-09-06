@@ -5,6 +5,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { MobileNav } from '@/Header/Nav/MobileNav'
 import { initialNavigationState, navigationReducer } from '@/Header/Nav/navigationState'
 import type { HeaderNavigationData } from '@/Header/Nav/types'
+import type { LogoImage } from '@/components/Logo/types'
 
 let pathname = '/'
 
@@ -75,6 +76,13 @@ const navigation: HeaderNavigationData = {
   ],
 }
 
+const logo: LogoImage = {
+  alt: 'Ecolitea',
+  height: 40,
+  src: '/media/ecolitea.svg',
+  width: 160,
+}
+
 class MediaQueryListMock {
   matches = false
   listeners = new Set<(event: MediaQueryListEvent) => void>()
@@ -133,13 +141,15 @@ describe('MobileNav', () => {
   })
 
   it('opens one full-screen three-panel track and closes direct destinations', () => {
-    render(<MobileNav {...navigation} />)
+    render(<MobileNav {...navigation} logo={logo} />)
     const openButton = screen.getByRole('button', { name: 'Open navigation' })
     fireEvent.click(openButton)
 
     const dialog = screen.getByRole('dialog', { name: 'Navigation' })
     expect(dialog.getAttribute('data-level')).toBe('1')
     expect(within(dialog).getAllByTestId('mobile-navigation-panel')).toHaveLength(3)
+    expect(within(dialog).getByRole('img', { name: 'Ecolitea' })).toBeTruthy()
+    expect(document.activeElement).toBe(within(dialog).getByRole('link', { name: 'Pricing' }))
     expect(document.body.style.overflow).toBe('hidden')
 
     fireEvent.click(within(dialog).getByRole('button', { name: 'Close navigation' }))
@@ -163,16 +173,23 @@ describe('MobileNav', () => {
     const dialog = screen.getByRole('dialog', { name: 'Navigation' })
     expect(dialog.getAttribute('data-level')).toBe('2')
     expect(within(dialog).getByRole('heading', { name: 'Company' })).toBeTruthy()
+    expect(within(dialog).getByText('Explore the complete platform')).toBeTruthy()
     expect(within(dialog).getByRole('link', { name: 'Overview' }).getAttribute('href')).toBe(
       '/company',
     )
-    expect(within(dialog).getByRole('link', { name: 'Operations' })).toBeTruthy()
+    const operationsLink = within(dialog).getByRole('link', { name: 'Operations' })
+    expect(operationsLink).toBeTruthy()
+    expect(operationsLink.parentElement?.textContent).toContain('Run daily work')
 
     fireEvent.click(within(dialog).getByRole('button', { name: 'Open Featured' }))
     expect(dialog.getAttribute('data-level')).toBe('3')
     expect(within(dialog).getByRole('heading', { name: 'Featured' })).toBeTruthy()
     expect(within(dialog).getByRole('link', { name: 'Customer story' })).toBeTruthy()
-    expect(within(dialog).getByRole('link', { name: 'View all featured' })).toBeTruthy()
+    const viewAllFeatured = within(dialog).getByRole('link', { name: 'View all featured' })
+    const customerStory = within(dialog).getByRole('link', { name: 'Customer story' })
+    expect(
+      viewAllFeatured.compareDocumentPosition(customerStory) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy()
 
     fireEvent.click(within(dialog).getByRole('button', { name: 'Back to Company' }))
     fireEvent.click(within(dialog).getByRole('button', { name: 'Open Resources' }))
@@ -184,10 +201,13 @@ describe('MobileNav', () => {
     render(<MobileNav {...navigation} />)
     const openButton = screen.getByRole('button', { name: 'Open navigation' })
     fireEvent.click(openButton)
+    expect(document.activeElement).toBe(screen.getByRole('link', { name: 'Pricing' }))
     const companyButton = screen.getByRole('button', { name: 'Open Company' })
     fireEvent.click(companyButton)
+    expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Back to Navigation' }))
     const featuredButton = screen.getByRole('button', { name: 'Open Featured' })
     fireEvent.click(featuredButton)
+    expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Back to Company' }))
 
     fireEvent.click(screen.getByRole('button', { name: 'Back to Company' }))
     expect(document.activeElement).toBe(featuredButton)
@@ -197,6 +217,41 @@ describe('MobileNav', () => {
     fireEvent.keyDown(document, { key: 'Escape' })
     expect(screen.queryByRole('dialog', { name: 'Navigation' })).toBeNull()
     expect(document.activeElement).toBe(openButton)
+  })
+
+  it('traps forward and reverse Tab focus inside the open overlay', () => {
+    render(<MobileNav {...navigation} logo={logo} />)
+    fireEvent.click(screen.getByRole('button', { name: 'Open navigation' }))
+    const dialog = screen.getByRole('dialog', { name: 'Navigation' })
+    const logoLink = within(dialog).getByRole('link', { name: 'Ecolitea' })
+    const cta = within(dialog).getByRole('link', { name: 'Talk to sales' })
+
+    cta.focus()
+    fireEvent.keyDown(document, { key: 'Tab' })
+    expect(document.activeElement).toBe(logoLink)
+
+    logoLink.focus()
+    fireEvent.keyDown(document, { key: 'Tab', shiftKey: true })
+    expect(document.activeElement).toBe(cta)
+  })
+
+  it('keeps body scroll locked until every open navigation instance closes', () => {
+    render(
+      <>
+        <MobileNav {...navigation} />
+        <MobileNav {...navigation} />
+      </>,
+    )
+    const openButtons = screen.getAllByRole('button', { name: 'Open navigation' })
+    fireEvent.click(openButtons[0])
+    fireEvent.click(openButtons[1])
+    expect(document.body.style.overflow).toBe('hidden')
+
+    const closeButtons = screen.getAllByRole('button', { name: 'Close navigation' })
+    fireEvent.click(closeButtons[0])
+    expect(document.body.style.overflow).toBe('hidden')
+    fireEvent.click(screen.getByRole('button', { name: 'Close navigation' }))
+    expect(document.body.style.overflow).toBe('clip')
   })
 
   it('resets on route changes and desktop transition and restores scroll on unmount', () => {

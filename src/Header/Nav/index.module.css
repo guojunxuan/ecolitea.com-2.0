@@ -53,6 +53,14 @@
   text-transform: uppercase;
 }
 
+.mobileLogoLink {
+  display: inline-flex;
+}
+
+.mobileLogo {
+  height: 1.75rem;
+}
+
 .mobileNavTrack {
   display: grid;
   flex: 1 1 auto;
@@ -86,6 +94,7 @@
 }
 
 .mobileLinkList > a,
+.mobileDefaultItem > a,
 .mobileDrillButton {
   border-bottom: 1px solid var(--border);
   color: var(--foreground);
@@ -96,6 +105,30 @@
   text-align: left;
   text-decoration: none;
   width: 100%;
+}
+
+.mobileDescription,
+.mobileDefaultItem p {
+  color: var(--muted-foreground);
+  font-size: 0.875rem;
+  line-height: 1.55;
+}
+
+.mobileDescription {
+  margin: 0 0 1rem;
+}
+
+.mobileDefaultItem {
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0.875rem;
+}
+
+.mobileDefaultItem > a {
+  border-bottom: 0;
+}
+
+.mobileDefaultItem p {
+  margin: -0.5rem 0 0;
 }
 
 .mobileDrillButton svg,
