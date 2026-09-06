@@ -78,6 +78,14 @@ High-impact Heroes and other dark visual sections may still use local, explicit 
 
 Payload Admin theming is outside the public Website shell and remains unchanged.
 
+### Blocks and dependency boundary
+
+Frontend Blocks do not store a light/dark/auto selection in Payload. Their connection to the theme feature is limited to shared semantic color tokens and a small number of Tailwind `dark:` variants in Rich Text and form-oriented UI primitives.
+
+The migration keeps the Blocks and their Payload field schemas intact. It retains one light public token set for names such as background, foreground, card, border, input, ring, success, warning, and error; removes only the public dark token set and `dark:` alternatives; and gives intentionally dark components such as the Footer explicit local colors.
+
+No dependency change is required. Tailwind CSS, `@tailwindcss/typography`, Radix UI packages, `tw-animate-css`, and the existing component utilities remain installed. The Code Block's Prism `vsDark` syntax-highlighting palette also remains because it styles code content and is not a Website theme mode. The implementation must not edit `package.json` or the lockfile solely for theme removal.
+
 ## Responsive Model
 
 The site uses four layout ranges with one structural navigation handoff:
