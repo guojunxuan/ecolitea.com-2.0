@@ -15,7 +15,7 @@ The former Ecolitea project at `/Users/jason/ecolitea.com` is a visual and inter
 - Remove the frontend `AdminBar` from the Website layout without changing Payload Admin.
 - Remove public light/dark/auto theme switching and section-driven Header theme changes.
 - Introduce shared responsive layout tokens and container primitives.
-- Adapt the existing Header Global to a stable frontend navigation view model.
+- Adapt the existing Header Global to stable frontend render data without renaming Payload concepts.
 - Build a fixed desktop Header with a full-width Mega Menu.
 - Build one shared full-screen, three-level sliding navigation for Tablet and Mobile.
 - Adapt the existing Footer and Site Settings Globals to a responsive Footer.
@@ -43,6 +43,28 @@ The former Ecolitea project at `/Users/jason/ecolitea.com` is a visual and inter
 6. Consume every valid state the current Payload Globals can store, including maximum row counts and inactive conditional data.
 7. Prefer accessible native semantics and progressive enhancement over visually convenient but fragile interactions.
 8. Use one controlled public brand theme rather than asking visitors to select a presentation mode.
+9. Improve modularity only where a boundary has a clear owner, input, and output. Do not introduce a parallel design system, generic framework layer, or speculative abstraction.
+10. Follow the current repository's directory, casing, import, component, hook, and utility conventions. Extend an existing owner before creating a new top-level module.
+11. Preserve Payload's official vocabulary in stored fields, generated types, component props, and public helper APIs wherever it already describes the business concept.
+
+## Repository and Naming Conventions
+
+The current repository is the architectural source of truth. Implementation starts by extending the modules that already own each responsibility:
+
+- `src/Header/` owns Header data loading and Header-specific behavior;
+- `src/Header/Nav/` owns navigation presentation and its focused adapters/state helpers;
+- `src/Footer/` owns Footer data loading, presentation, and responsive navigation behavior;
+- `src/components/Link/` owns reusable CMS link rendering;
+- `src/components/Logo/` owns brand-asset selection and Logo rendering;
+- `src/utilities/` owns only behavior shared by more than one domain;
+- `src/app/(frontend)/globals.css` owns public layout tokens and global primitives;
+- `src/providers/` contains only state that genuinely crosses otherwise independent component boundaries.
+
+New top-level directories such as `SiteShell`, `design-system`, or a second generic `navigation` framework are not introduced unless implementation demonstrates a responsibility that no existing module can own. Small pure modules remain colocated with their consumer instead of being promoted preemptively.
+
+Payload vocabulary remains stable across the backend/frontend boundary. Use established names including `navItems`, `navigationType`, `dropdown`, `items`, `link`, `reference`, `url`, `newTab`, `menuCta`, `columns`, and `siteSettings`. Frontend-only types may narrow validated data for rendering, but must not rename these concepts merely to create a separate dialect.
+
+Reusable functions accept focused option objects consistent with the repository's existing field-factory and component patterns. Avoid positional boolean parameters, duplicate aliases for Payload fields, or broad configuration objects whose options are not required by the current shell.
 
 ## Global Website Shell
 
@@ -125,18 +147,16 @@ src/Header/
 ├── Nav/
 │   ├── desktop presentation
 │   ├── Mega Menu presentation
-│   └── Tablet/Mobile presentation
-├── navigation/
-│   ├── Payload-to-view-model adapter
-│   ├── href resolver
+│   ├── Tablet/Mobile presentation
+│   ├── Payload-to-render-data adapter
 │   ├── mobile navigation reducer
-│   └── frontend navigation types
+│   └── focused frontend types
 └── existing config, fields, hooks, and validators
 ```
 
 Exact component file granularity may be consolidated when a file remains focused. Frontend behavior does not move into Payload field configuration or validation modules.
 
-`Component.tsx` fetches Header and Site Settings concurrently, resolves brand assets, and adapts the raw Header document before passing it across the client boundary. Presentation components consume a stable frontend view model rather than interpreting Payload conditional branches independently.
+`Component.tsx` fetches Header and Site Settings concurrently, resolves brand assets, and adapts the raw Header document before passing it across the client boundary. Presentation components consume stable render data rather than interpreting Payload conditional branches independently. The adapter preserves Payload field vocabulary and is colocated under the existing `Header/Nav` owner; it is not a second navigation framework.
 
 ## Header Data Adaptation
 
@@ -293,7 +313,7 @@ Development diagnostics may identify rejected items without exposing CMS interna
 
 ### Pure unit coverage
 
-- Header discriminator-to-view-model mapping.
+- Header discriminator-to-render-data mapping.
 - Ignoring inactive conditional branches.
 - Display-label synthesis for top-level and landing links.
 - href resolution for Pages, Posts, Case Studies, Categories, and Custom URLs.
