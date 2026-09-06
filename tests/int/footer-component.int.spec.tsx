@@ -2,6 +2,7 @@ import { cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import React from 'react'
+import { renderToStaticMarkup } from 'react-dom/server'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import type { FooterData } from '@/Footer/types'
@@ -117,7 +118,7 @@ describe('Footer server boundary', () => {
     )
     adaptFooterMock.mockReturnValue(footerData)
 
-    render(await Footer())
+    const { container } = render(await Footer())
 
     expect(screen.getByRole('contentinfo')).toBeTruthy()
     expect(screen.getByText('Ecolitea')).toBeTruthy()
@@ -135,6 +136,12 @@ describe('Footer server boundary', () => {
     expect(screen.getByPlaceholderText('Email address').hasAttribute('disabled')).toBe(true)
     expect(screen.getByRole('button', { name: 'Subscribe' }).hasAttribute('disabled')).toBe(true)
     expect(document.querySelector('form')).toBeNull()
+
+    const contentOrder = Array.from(container.querySelectorAll('[data-footer-content]')).map(
+      (element) => element.getAttribute('data-footer-content'),
+    )
+    expect(contentOrder).toEqual(['brand', 'social', 'navigation', 'newsletter', 'contact'])
+    expect(screen.getByRole('link', { name: 'LinkedIn' }).className).toContain('socialLink')
   })
 })
 
@@ -146,7 +153,7 @@ describe('FooterNavigation', () => {
     const solutions = screen.getByRole('button', { name: 'Solutions' })
     expect(screen.getAllByRole('button')).toHaveLength(4)
     expect(products.getAttribute('aria-expanded')).toBe('false')
-    expect(products.getAttribute('aria-controls')).toBe('footer-column-products')
+    expect(products.getAttribute('aria-controls')).toMatch(/-products$/)
     expect(products.className).toContain('accordionTrigger')
     expect(screen.getByRole('link', { name: 'Tea' })).toBeTruthy()
 
@@ -159,10 +166,40 @@ describe('FooterNavigation', () => {
     expect(solutions.getAttribute('aria-expanded')).toBe('false')
   })
 
+  it('keeps links visible in server markup and only enables collapse after hydration', () => {
+    const markup = renderToStaticMarkup(<FooterNavigation columns={footerData.columns} />)
+
+    expect(markup).toContain('data-enhanced="false"')
+    expect(markup).toContain('href="/tea"')
+    expect(markup).not.toContain('hidden=""')
+
+    const { container } = render(<FooterNavigation columns={footerData.columns} />)
+    expect(container.querySelector('nav')?.getAttribute('data-enhanced')).toBe('true')
+    expect(container.querySelector('[data-open="false"]')).toBeTruthy()
+  })
+
+  it('creates unique panel IDs and local aria-controls references for every instance', () => {
+    const { container } = render(
+      <>
+        <FooterNavigation columns={footerData.columns} />
+        <FooterNavigation columns={footerData.columns} />
+      </>,
+    )
+
+    const productsButtons = screen.getAllByRole('button', { name: 'Products' })
+    const controls = productsButtons.map((button) => button.getAttribute('aria-controls'))
+    expect(new Set(controls).size).toBe(2)
+    controls.forEach((id) => {
+      expect(id).toBeTruthy()
+      expect(container.querySelectorAll(`[id="${id}"]`)).toHaveLength(1)
+    })
+  })
+
   it('uses one non-desktop column sequence without a tablet two-column override', () => {
     const css = readFileSync(resolve(process.cwd(), 'src/Footer/index.module.css'), 'utf8')
 
     expect(css).toContain('min-height: 54px')
+    expect(css).toMatch(/\.socialLink\s*\{[^}]*min-height:\s*44px/s)
     expect(css).toContain('@media (width >= 73.125rem)')
     expect(css).not.toMatch(/48rem[^}]*grid-template-columns:\s*repeat\(2/s)
   })

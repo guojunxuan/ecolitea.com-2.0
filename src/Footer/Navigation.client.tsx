@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import React, { useState } from 'react'
+import React, { useEffect, useId, useState } from 'react'
 
 import type { FooterColumnData } from './types'
 import styles from './index.module.css'
@@ -10,11 +10,20 @@ type FooterNavigationProps = { columns: FooterColumnData[] }
 
 export function FooterNavigation({ columns }: FooterNavigationProps) {
   const [openColumnID, setOpenColumnID] = useState<string | null>(null)
+  const [enhanced, setEnhanced] = useState(false)
+  const instanceID = `footer-navigation-${useId().replace(/[^a-zA-Z0-9_-]/g, '')}`
+
+  useEffect(() => setEnhanced(true), [])
 
   return (
-    <nav aria-label="Footer" className={styles.navigation}>
+    <nav
+      aria-label="Footer"
+      className={styles.navigation}
+      data-enhanced={enhanced ? 'true' : 'false'}
+      data-footer-content="navigation"
+    >
       {columns.map((column) => {
-        const panelID = `footer-column-${column.id}`
+        const panelID = `${instanceID}-${column.id}`
         const isOpen = openColumnID === column.id
 
         return (

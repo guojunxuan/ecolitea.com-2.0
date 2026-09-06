@@ -8,6 +8,7 @@
   padding-block: clamp(3rem, 7vw, 5.5rem);
 }
 .brand,
+.engagement,
 .newsletter {
   min-width: 0;
 }
@@ -30,6 +31,9 @@
   max-width: 22rem;
   line-height: 1.65;
 }
+.socialList {
+  margin-top: 1.25rem;
+}
 .navigation {
   display: grid;
 }
@@ -37,7 +41,7 @@
   border-top: 1px solid rgb(255 255 255 / 18%);
 }
 .accordionTrigger {
-  display: flex;
+  display: none;
   width: 100%;
   min-height: 54px;
   align-items: center;
@@ -55,9 +59,21 @@
   transform: rotate(45deg);
 }
 .desktopHeading {
+  display: block;
+  padding-block: 1rem 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+.navigation[data-enhanced='true'] .desktopHeading {
   display: none;
 }
+.navigation[data-enhanced='true'] .accordionTrigger {
+  display: flex;
+}
 .linkPanel {
+  display: block;
+}
+.navigation[data-enhanced='true'] .linkPanel {
   display: grid;
   grid-template-rows: 0fr;
   visibility: hidden;
@@ -65,7 +81,7 @@
     grid-template-rows 200ms ease,
     visibility 200ms ease;
 }
-.linkPanel[data-open='true'] {
+.navigation[data-enhanced='true'] .linkPanel[data-open='true'] {
   grid-template-rows: 1fr;
   visibility: visible;
 }
@@ -120,8 +136,9 @@
 .information {
   display: grid;
   gap: 1rem;
+  margin-top: 2rem;
   border-top: 1px solid rgb(255 255 255 / 18%);
-  padding-block: 2rem;
+  padding-top: 1.5rem;
   font-style: normal;
   line-height: 1.6;
 }
@@ -147,6 +164,7 @@
 }
 .socialLink {
   display: inline-flex;
+  min-height: 44px;
   align-items: center;
   gap: 0.5rem;
 }
@@ -182,17 +200,20 @@
   .column {
     border-top: 0;
   }
-  .accordionTrigger {
+  .navigation[data-enhanced='true'] .accordionTrigger {
     display: none;
   }
-  .desktopHeading {
+  .desktopHeading,
+  .navigation[data-enhanced='true'] .desktopHeading {
     display: block;
+    padding-block: 0;
     margin-bottom: 1rem;
     font-size: 0.875rem;
     font-weight: 600;
   }
   .linkPanel,
-  .linkPanel[data-open='true'] {
+  .navigation[data-enhanced='true'] .linkPanel,
+  .navigation[data-enhanced='true'] .linkPanel[data-open='true'] {
     display: block;
     visibility: visible;
   }
@@ -203,9 +224,5 @@
   .navLink {
     min-height: auto;
     padding-block: 0.25rem;
-  }
-  .information {
-    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
-    align-items: start;
   }
 }
