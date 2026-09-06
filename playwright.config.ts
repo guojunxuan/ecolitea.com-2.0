@@ -1,4 +1,11 @@
 import { defineConfig, devices } from '@playwright/test'
+import { randomUUID } from 'node:crypto'
+
+import {
+  assertDedicatedE2EDatabaseURI,
+  assertRunScopedE2EDatabaseURI,
+  createRunScopedE2EDatabaseURI,
+} from './tests/helpers/e2eDatabase'
 
 /**
  * Read environment variables from file.
@@ -7,23 +14,17 @@ import { defineConfig, devices } from '@playwright/test'
 import 'dotenv/config'
 
 const developerDatabaseURI = process.env.DATABASE_URI
-const e2eDatabaseURI = process.env.E2E_DATABASE_URI ?? 'mongodb://127.0.0.1:27017/ecolitea2-e2e'
-const e2eDatabaseName = new URL(e2eDatabaseURI).pathname.replace(/^\//, '').split('/').at(-1)
+const e2eDatabaseBaseURI = process.env.E2E_DATABASE_URI ?? 'mongodb://127.0.0.1:27017/ecolitea2-e2e'
+const inheritedRunID = process.env.PLAYWRIGHT_E2E_RUN_ID
+const e2eRunID = inheritedRunID ?? randomUUID()
+const e2eDatabaseURI = inheritedRunID
+  ? process.env.DATABASE_URI!
+  : createRunScopedE2EDatabaseURI(e2eDatabaseBaseURI, e2eRunID)
 
-if (!e2eDatabaseName?.endsWith('-e2e')) {
-  throw new Error('E2E_DATABASE_URI must name a dedicated database ending in "-e2e".')
-}
-
-const developerDatabaseName = developerDatabaseURI
-  ? new URL(developerDatabaseURI).pathname.replace(/^\//, '').split('/').at(-1)
-  : null
-
-if (
-  developerDatabaseURI &&
-  e2eDatabaseURI === developerDatabaseURI &&
-  !developerDatabaseName?.endsWith('-e2e')
-) {
-  throw new Error('E2E_DATABASE_URI must not match the developer DATABASE_URI.')
+if (inheritedRunID) {
+  assertRunScopedE2EDatabaseURI(e2eDatabaseURI, inheritedRunID)
+} else {
+  assertDedicatedE2EDatabaseURI(e2eDatabaseBaseURI, developerDatabaseURI)
 }
 
 // The config is evaluated before test modules, so both Payload fixtures in the
@@ -31,6 +32,7 @@ if (
 process.env.DATABASE_URI = e2eDatabaseURI
 process.env.DISABLE_R2_STORAGE = 'true'
 process.env.PLAYWRIGHT_TEST = 'true'
+process.env.PLAYWRIGHT_E2E_RUN_ID = e2eRunID
 
 /**
  * See https://playwright.dev/docs/test-configuration.
@@ -69,11 +71,12 @@ export default defineConfig({
       DATABASE_URI: e2eDatabaseURI,
       DISABLE_R2_STORAGE: 'true',
       PLAYWRIGHT_TEST: 'true',
+      PLAYWRIGHT_E2E_RUN_ID: e2eRunID,
     },
-    reuseExistingServer: true,
-    timeout: 5 * 60 * 1000,
+    reuseExistingServer: false,
+    timeout: 10 * 60 * 1000,
     // The template homepage was intentionally removed and now returns 404.
-    // Probe Payload Admin so Playwright can reuse an already-running server.
+    // Probe Payload Admin while refusing to reuse a server with unknown environment variables.
     url: 'http://localhost:3000/admin',
   },
 })

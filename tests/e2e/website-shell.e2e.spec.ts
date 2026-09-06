@@ -2,15 +2,17 @@ import { expect, type Page, test, type TestInfo } from '@playwright/test'
 import { getPayload, type Payload } from 'payload'
 
 import config from '../../src/payload.config.js'
+import { assertRunScopedE2EDatabaseURI } from '../helpers/e2eDatabase'
 
 const baseURL = 'http://localhost:3000'
 const disableRevalidate = { context: { disableRevalidate: true } }
+const runID = process.env.PLAYWRIGHT_E2E_RUN_ID!
 const slugs = {
-  direct: 'e2e-website-shell-direct',
-  main: 'e2e-website-shell-main',
-  privacy: 'e2e-website-shell-privacy',
-  route: 'e2e-website-shell-route',
-  terms: 'e2e-website-shell-terms',
+  direct: `e2e-website-shell-${runID}-direct`,
+  main: `e2e-website-shell-${runID}-main`,
+  privacy: `e2e-website-shell-${runID}-privacy`,
+  route: `e2e-website-shell-${runID}-route`,
+  terms: `e2e-website-shell-${runID}-terms`,
 } as const
 const fixturePath = `/${slugs.main}`
 const routePath = `/${slugs.route}`
@@ -28,6 +30,7 @@ const emptyPage = (slug: string, title: string) => ({
 
 async function deleteFixtures() {
   if (!payload) return
+  assertRunScopedE2EDatabaseURI(process.env.DATABASE_URI!, runID)
   await payload.delete({
     collection: 'pages',
     where: { slug: { in: Object.values(slugs) } },
