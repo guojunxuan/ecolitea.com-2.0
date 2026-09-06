@@ -13,6 +13,7 @@ The former Ecolitea project at `/Users/jason/ecolitea.com` is a visual and inter
 ### Included
 
 - Remove the frontend `AdminBar` from the Website layout without changing Payload Admin.
+- Remove public light/dark/auto theme switching and section-driven Header theme changes.
 - Introduce shared responsive layout tokens and container primitives.
 - Adapt the existing Header Global to a stable frontend navigation view model.
 - Build a fixed desktop Header with a full-width Mega Menu.
@@ -28,6 +29,7 @@ The former Ecolitea project at `/Users/jason/ecolitea.com` is a visual and inter
 - Copying the former project's SCSS architecture, grid utilities, aliases, or component tree.
 - A functional newsletter subscription API, persistence, consent flow, or third-party integration.
 - A new Top Bar Global or frontend Top Bar.
+- Public dark-mode variants. The Footer remains a deliberately dark brand surface, not a selectable theme.
 - Redesigning page-specific Heroes, Blocks, Posts, or Case Studies beyond adopting the new shell contracts.
 - Editing or staging the existing unrelated Social Platform worktree changes.
 
@@ -40,10 +42,11 @@ The former Ecolitea project at `/Users/jason/ecolitea.com` is a visual and inter
 5. Keep Tablet and Mobile structurally identical where agreed; vary only dimensions and spacing.
 6. Consume every valid state the current Payload Globals can store, including maximum row counts and inactive conditional data.
 7. Prefer accessible native semantics and progressive enhancement over visually convenient but fragile interactions.
+8. Use one controlled public brand theme rather than asking visitors to select a presentation mode.
 
 ## Global Website Shell
 
-The frontend Root Layout remains a Server Component and composes the existing providers, Header, page content, and Footer. It no longer mounts `AdminBar`.
+The frontend Root Layout remains a Server Component and composes only the providers still needed by the public Website, Header, page content, and Footer. It no longer mounts `AdminBar` or the theme initialization script.
 
 ```text
 Root Layout
@@ -56,6 +59,24 @@ Root Layout
 The body remains a vertical flex container with a minimum viewport height so the Footer reaches the bottom of short pages. The fixed Header establishes a shared top-offset variable for the main content. A global client wrapper around the entire site is not introduced.
 
 Draft Mode and page-level `LivePreviewListener` behavior remain available. Removing the Admin Bar removes only the visible frontend editing toolbar.
+
+## Single Public Brand Theme
+
+The public Website uses one fixed brand presentation. The content surface and Header are light, while the Footer is an explicitly styled dark brand region. The Footer does not opt the document or a subtree into a second semantic theme.
+
+The redesign removes the theme feature rather than merely hiding its selector:
+
+- remove the Theme Selector from the Footer;
+- remove local-storage persistence and operating-system color-scheme detection;
+- remove the pre-hydration theme initialization script;
+- remove the public Theme Provider when no remaining frontend consumer requires it;
+- remove the Header Theme Provider and page/Hero effects that set Header light or dark state;
+- replace `data-theme`, `dark:` variants, and duplicated dark token sets in the migrated Website shell with explicit component colors;
+- remove the document opacity gate that waits for a theme attribute.
+
+High-impact Heroes and other dark visual sections may still use local, explicit foreground and background colors. They do not change the global page theme or Header palette. The fixed Header remains opaque enough to preserve Logo, navigation, and control contrast over every page section.
+
+Payload Admin theming is outside the public Website shell and remains unchanged.
 
 ## Responsive Model
 
@@ -140,7 +161,7 @@ At 1170px and above, the Header is fixed and approximately 88–90px tall. Its c
 Logo | Navigation | Search + optional CTA
 ```
 
-The Header may be transparent over an eligible first section. Scrolling beyond a small threshold or opening a menu gives it an opaque surface and divider. Page authors do not manually calculate Header offsets.
+The Header uses a stable light brand surface across pages so it never depends on Hero or section background colors. Scrolling may add a subtle divider or elevation cue, and opening a menu preserves the same surface. Page authors do not select a Header theme or manually calculate Header offsets.
 
 Direct links navigate immediately. Dropdown-only items open their Mega Menu. For `directLinkAndDropdown`, the text activates the direct destination and a separate, labeled chevron button opens the menu. Pointer hover may enhance desktop behavior, but click and keyboard interaction remain complete.
 
@@ -176,7 +197,7 @@ Each panel owns its scrolling region. Rows provide at least a 48px touch target.
 
 ## Footer Architecture and Data
 
-The Footer remains server-rendered. It fetches Footer and Site Settings concurrently and builds a presentation model from:
+The Footer remains server-rendered. It uses explicit dark-surface styles rather than a global dark theme, fetches Footer and Site Settings concurrently, and builds a presentation model from:
 
 - Site name, Logo, dark-background Logo, and site description.
 - Social links and their related Social Platform definitions.
@@ -246,6 +267,7 @@ Final implementation uses the configured Site Settings SVG assets and Social Pla
 - Touch targets meet the defined minimum sizes.
 - Reduced-motion preference removes sliding and other nonessential transitions.
 - Body scroll locking restores the previous state on every close and unmount path.
+- Public rendering does not read or write a theme preference and does not vary with the operating-system color scheme.
 
 ## Error Handling
 
@@ -281,6 +303,7 @@ Development diagnostics may identify rejected items without exposing CMS interna
 - Footer Desktop structure and shared Tablet/Mobile accordion structure.
 - disabled Newsletter controls.
 - missing Logo and partial contact fallbacks.
+- absence of Theme Selector, theme initialization, and Header theme context behavior.
 
 ### End-to-end coverage
 
@@ -291,9 +314,10 @@ Development diagnostics may identify rejected items without exposing CMS interna
 - Escape and outside-close behavior.
 - no horizontal overflow at representative viewports.
 - Header and Footer consume the current Global shapes without runtime errors.
+- public colors remain stable under both light and dark operating-system preferences.
 
 Visual verification uses representative Mobile, Tablet, Desktop, and Wide viewports and confirms that Tablet and Mobile share the same Footer structure.
 
 ## Success Criteria
 
-The public website has one coherent responsive shell; no frontend Admin Bar or unsupported Top Bar appears; Header, content, and Footer share the same container and breakpoint language; Desktop provides a robust Header and Mega Menu; Tablet and Mobile provide one accessible full-screen three-level navigation; all valid current Header data shapes have an explicit frontend representation; Footer consumes current Footer and Site Settings data; Tablet and Mobile share a single-column accordion Footer; the newsletter area is visibly disabled and performs no data operation; configured brand assets and social icons replace concept placeholders; and the implementation follows the current repository's architecture without importing the former project's structural debt.
+The public website has one coherent responsive shell; no frontend Admin Bar or unsupported Top Bar appears; public light/dark/auto switching and section-driven Header theming are removed without changing Payload Admin; the content surface and Header use one stable light brand presentation while the Footer uses explicit dark-surface styling; Header, content, and Footer share the same container and breakpoint language; Desktop provides a robust Header and Mega Menu; Tablet and Mobile provide one accessible full-screen three-level navigation; all valid current Header data shapes have an explicit frontend representation; Footer consumes current Footer and Site Settings data; Tablet and Mobile share a single-column accordion Footer; the newsletter area is visibly disabled and performs no data operation; configured brand assets and social icons replace concept placeholders; and the implementation follows the current repository's architecture without importing the former project's structural debt.
