@@ -99,9 +99,9 @@ describe('public website shell', () => {
     expect(source).toContain('--site-max-width: 76.25rem;')
     expect(source).toContain('--reading-max-width: 46rem;')
     expect(source).toContain('--header-height: 3.75rem;')
-    expect(source).toMatch(/--section-space-compact:\s*clamp\([^;]+\);/)
-    expect(source).toMatch(/--section-space-standard:\s*clamp\([^;]+\);/)
-    expect(source).toMatch(/--section-space-spacious:\s*clamp\([^;]+\);/)
+    expect(source).toContain('--section-space-compact: clamp(2rem, 4vw, 3rem);')
+    expect(source).toContain('--section-space-standard: clamp(3rem, 6vw, 5rem);')
+    expect(source).toContain('--section-space-spacious: clamp(4.5rem, 9vw, 7.5rem);')
     expect(source).toContain('@media (width >= 73.125rem)')
 
     expect(source).toMatch(
