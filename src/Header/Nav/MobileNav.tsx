@@ -220,7 +220,12 @@ export const MobileNav: React.FC<MobileNavProps> = ({ logo, menuCta, navItems })
         >
           <div className={styles.mobileNavHeader}>
             {logo ? (
-              <Link aria-label={logo.alt} className={styles.mobileLogoLink} href="/">
+              <Link
+                aria-label={logo.alt}
+                className={styles.mobileLogoLink}
+                href="/"
+                onClick={() => close()}
+              >
                 <Logo className={styles.mobileLogo} image={logo} loading="eager" priority="high" />
               </Link>
             ) : (

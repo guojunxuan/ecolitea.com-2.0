@@ -235,6 +235,25 @@ describe('MobileNav', () => {
     expect(document.activeElement).toBe(cta)
   })
 
+  it('closes and resets when the Logo activates on the current home route', () => {
+    render(<MobileNav {...navigation} logo={logo} />)
+    const openButton = screen.getByRole('button', { name: 'Open navigation' })
+    fireEvent.click(openButton)
+    fireEvent.click(screen.getByRole('button', { name: 'Open Company' }))
+    expect(screen.getByRole('dialog', { name: 'Navigation' }).getAttribute('data-level')).toBe('2')
+
+    const logoLink = screen.getByRole('link', { name: 'Ecolitea' })
+    logoLink.addEventListener('click', (event) => event.preventDefault())
+    fireEvent.click(logoLink)
+
+    expect(screen.queryByRole('dialog', { name: 'Navigation' })).toBeNull()
+    expect(document.body.style.overflow).toBe('clip')
+    expect(document.activeElement).toBe(openButton)
+
+    fireEvent.click(openButton)
+    expect(screen.getByRole('dialog', { name: 'Navigation' }).getAttribute('data-level')).toBe('1')
+  })
+
   it('keeps body scroll locked until every open navigation instance closes', () => {
     render(
       <>
