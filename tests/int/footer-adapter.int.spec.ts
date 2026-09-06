@@ -36,8 +36,51 @@ describe('adaptFooter', () => {
             },
           ],
         },
-        { id: 'solutions', label: 'Solutions', navItems: [] },
-        { id: 'resources', label: 'Resources', navItems: [] },
+        {
+          id: 'solutions',
+          label: 'Solutions',
+          navItems: [
+            {
+              id: 'page-reference',
+              link: {
+                label: 'Tea solutions',
+                type: 'reference',
+                reference: {
+                  relationTo: 'pages',
+                  value: page('tea-solutions', 'Tea solutions'),
+                },
+              },
+            },
+          ],
+        },
+        {
+          id: 'resources',
+          label: 'Resources',
+          navItems: [
+            {
+              id: 'case-study-reference',
+              link: {
+                label: 'Customer story',
+                type: 'reference',
+                reference: {
+                  relationTo: 'case-studies',
+                  value: page('customer-story', 'Customer story'),
+                },
+              },
+            },
+            {
+              id: 'category-reference',
+              link: {
+                label: 'Sustainability',
+                type: 'reference',
+                reference: {
+                  relationTo: 'categories',
+                  value: page('sustainability', 'Sustainability'),
+                },
+              },
+            },
+          ],
+        },
         { id: 'company', label: 'Company', navItems: [] },
       ],
     }
@@ -72,7 +115,10 @@ describe('adaptFooter', () => {
         },
       ],
     })
-    expect(result.columns[1]).toEqual({ id: 'solutions', label: 'Solutions', navItems: [] })
+    expect(result.columns[1]?.navItems[0]?.link.href).toBe('/tea-solutions')
+    expect(result.columns[2]?.navItems[0]?.link.href).toBe('/case-studies/customer-story')
+    expect(result.columns[2]?.navItems[1]?.link.href).toBe('/posts?category=sustainability')
+    expect(result.columns[3]).toEqual({ id: 'company', label: 'Company', navItems: [] })
     expect(JSON.stringify(result)).not.toContain('Legacy')
     expect(result.logo?.src).toContain('/inverse.svg')
     expect(JSON.parse(JSON.stringify(result))).toEqual(result)
