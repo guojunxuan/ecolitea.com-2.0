@@ -168,19 +168,25 @@ async function seedFixtures() {
     slug: 'site-settings',
     data: {
       address: 'E2E registered business address',
-      businessHours: 'Monday-Friday, 09:00-18:00 UTC+8',
       copyrightText: '© E2E Company. All rights reserved.',
       legalCompanyName: 'E2E Company Limited',
       logo: logo.id,
       logoDark: logo.id,
+      newsletter: {
+        buttonLabel: 'E2E Subscribe',
+        description: 'E2E product updates and practical insights.',
+        emailPlaceholder: 'E2E email address',
+        enabled: true,
+        heading: 'E2E Stay informed',
+      },
       phone: '+86 1000 2000',
       privacyPolicyPage: bySlug[slugs.privacy]!.id,
       salesEmail: 'sales-e2e@example.com',
       siteDescription: 'A deterministic B2B website shell fixture.',
       siteName: 'E2E Company',
       socialLinks: [{ platform: social.id, url: 'https://example.com/e2e-linkedin' }],
+      tagline: 'Deterministic E2E website shell',
       termsPage: bySlug[slugs.terms]!.id,
-      whatsapp: '+86 3000 4000',
     },
     ...disableRevalidate,
   })
@@ -226,6 +232,9 @@ async function expectShell(page: Page) {
 
 async function expectThemeInvariant(page: Page) {
   await expect(page.locator('[data-theme]')).toHaveCount(0)
+  await expect(
+    page.getByRole('button', { name: /(?:theme|dark mode|light mode|auto mode)/i }),
+  ).toHaveCount(0)
   const readColors = () =>
     page.evaluate(() =>
       ['body', 'header > div', 'main#main-content', 'footer'].map((selector) => {
@@ -240,8 +249,37 @@ async function expectThemeInvariant(page: Page) {
 }
 
 async function expectNewsletter(page: Page) {
-  await expect(page.getByRole('textbox', { name: 'Email address' })).toBeDisabled()
-  await expect(page.getByRole('button', { name: 'Subscribe' })).toBeDisabled()
+  await expect(page.getByRole('heading', { name: 'E2E Stay informed' })).toBeVisible()
+  await expect(page.getByText('E2E product updates and practical insights.')).toBeVisible()
+  await expect(page.getByRole('textbox', { name: 'E2E email address' })).toBeDisabled()
+  await expect(page.getByRole('button', { name: 'E2E Subscribe' })).toBeDisabled()
+}
+
+async function expectFooterIdentityAndContact(page: Page) {
+  const brand = page.locator('[data-footer-content="brand"]')
+  await expect(brand.getByRole('img', { name: 'E2E website shell logo' })).toBeVisible()
+
+  const social = page.locator('[data-footer-content="social"]')
+  await expect(social.getByRole('link', { name: 'E2E LinkedIn' })).toHaveAttribute(
+    'href',
+    'https://example.com/e2e-linkedin',
+  )
+  await expect(social.locator('img')).toBeVisible()
+
+  const contact = page.locator('[data-footer-content="contact"]')
+  await expect(contact.getByText('E2E registered business address')).toBeVisible()
+  await expect(contact.getByRole('link', { name: '+86 1000 2000' })).toHaveAttribute(
+    'href',
+    'tel:+86 1000 2000',
+  )
+  await expect(contact.getByRole('link', { name: 'sales-e2e@example.com' })).toHaveAttribute(
+    'href',
+    'mailto:sales-e2e@example.com',
+  )
+  await expect(contact.locator('svg')).toHaveCount(3)
+  for (const icon of ['map-pin', 'phone', 'mail']) {
+    await expect(contact.locator(`.lucide-${icon}`)).toHaveAttribute('aria-hidden', 'true')
+  }
 }
 
 async function shot(page: Page, testInfo: TestInfo, state: string) {
@@ -353,6 +391,7 @@ test.describe.serial('Responsive website shell', () => {
       await expectShell(page)
       await expectThemeInvariant(page)
       await expectNewsletter(page)
+      await expectFooterIdentityAndContact(page)
       await shot(page, testInfo, 'closed')
       await exerciseMobile(page, testInfo)
       await page.goto(`${baseURL}${fixturePath}`)
@@ -371,6 +410,7 @@ test.describe.serial('Responsive website shell', () => {
       await expectShell(page)
       await expectThemeInvariant(page)
       await expectNewsletter(page)
+      await expectFooterIdentityAndContact(page)
       await expect(page.getByRole('button', { name: 'Open navigation' })).toBeHidden()
       await expectDesktopZones(page)
       await shot(page, testInfo, 'closed')
