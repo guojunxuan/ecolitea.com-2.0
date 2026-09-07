@@ -249,6 +249,28 @@ export type NavigationColumns =
     }[]
   | null;
 /**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "SiteSettingsCustomField".
+ */
+export type SiteSettingsCustomField =
+  | {
+      label: string;
+      value: string;
+      id?: string | null;
+    }[]
+  | null;
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "SiteSettingsContactCustomField".
+ */
+export type SiteSettingsContactCustomField =
+  | {
+      label: string;
+      value: string;
+      id?: string | null;
+    }[]
+  | null;
+/**
  * Supported timezones in IANA format.
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -968,6 +990,9 @@ export interface SocialPlatform {
    * Platform names cannot be changed after creation.
    */
   platform: string;
+  /**
+   * Upload an SVG icon designed for use on dark backgrounds.
+   */
   icon: string | BrandAsset;
   updatedAt: string;
   createdAt: string;
@@ -2036,12 +2061,13 @@ export interface Footer {
 export interface SiteSettings {
   id: string;
   siteName: string;
-  legalCompanyName?: string | null;
-  tagline?: string | null;
+  legalCompanyName: string;
+  tagline: string;
   /**
    * A general company description, not a default SEO description.
    */
-  siteDescription?: string | null;
+  siteDescription: string;
+  customFields?: SiteSettingsCustomField;
   /**
    * Upload a horizontal SVG logo with a tight viewBox.
    */
@@ -2054,20 +2080,20 @@ export interface SiteSettings {
    * Use a square SVG, PNG, or ICO image suitable for a browser icon.
    */
   favicon?: (string | null) | BrandAsset;
-  salesEmail?: string | null;
+  salesEmail: string;
   /**
    * Include the international dialing code.
    */
-  phone?: string | null;
-  /**
-   * Include the international dialing code.
-   */
-  whatsapp?: string | null;
-  address?: string | null;
-  /**
-   * Include the timezone when it helps international buyers.
-   */
-  businessHours?: string | null;
+  phone: string;
+  address: string;
+  newsletter: {
+    enabled?: boolean | null;
+    heading?: string | null;
+    description?: string | null;
+    emailPlaceholder: string;
+    buttonLabel: string;
+  };
+  contactCustomFields?: SiteSettingsContactCustomField;
   socialLinks?:
     | {
         platform: string | SocialPlatform;
@@ -2275,14 +2301,23 @@ export interface SiteSettingsSelect<T extends boolean = true> {
   legalCompanyName?: T;
   tagline?: T;
   siteDescription?: T;
+  customFields?: T | SiteSettingsCustomFieldSelect<T>;
   logo?: T;
   logoDark?: T;
   favicon?: T;
   salesEmail?: T;
   phone?: T;
-  whatsapp?: T;
   address?: T;
-  businessHours?: T;
+  newsletter?:
+    | T
+    | {
+        enabled?: T;
+        heading?: T;
+        description?: T;
+        emailPlaceholder?: T;
+        buttonLabel?: T;
+      };
+  contactCustomFields?: T | SiteSettingsContactCustomFieldSelect<T>;
   socialLinks?:
     | T
     | {
@@ -2297,6 +2332,24 @@ export interface SiteSettingsSelect<T extends boolean = true> {
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "SiteSettingsCustomField_select".
+ */
+export interface SiteSettingsCustomFieldSelect<T extends boolean = true> {
+  label?: T;
+  value?: T;
+  id?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "SiteSettingsContactCustomField_select".
+ */
+export interface SiteSettingsContactCustomFieldSelect<T extends boolean = true> {
+  label?: T;
+  value?: T;
+  id?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
