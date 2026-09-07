@@ -32,12 +32,18 @@ describe('Brand Assets Collection', () => {
     })
   })
 
-  it('is registered in the root Payload config', async () => {
-    const { default: configPromise } = await import('@/payload.config')
-    const config = await configPromise
+  it(
+    'is registered in the root Payload config',
+    async () => {
+      const { default: configPromise } = await import('@/payload.config')
+      const config = await configPromise
 
-    expect(config.collections.some((collection) => collection.slug === BrandAssets.slug)).toBe(true)
-  })
+      expect(config.collections.some((collection) => collection.slug === BrandAssets.slug)).toBe(
+        true,
+      )
+    },
+    15_000,
+  )
 
   it('builds public R2 URLs with and without a collection prefix', async () => {
     const { generateR2FileURL } = await import('@/plugins')

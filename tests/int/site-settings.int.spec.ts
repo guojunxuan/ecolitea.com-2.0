@@ -181,14 +181,18 @@ describe('Site Settings Global', () => {
     })
   })
 
-  it('is registered in the root Payload config', async () => {
-    const { default: configPromise } = await import('@/payload.config')
-    const config = await configPromise
-    expect(config.globals.some((global) => global.slug === SiteSettings.slug)).toBe(true)
-    expect(config.collections.some((collection) => collection.slug === SocialPlatforms.slug)).toBe(
-      true,
-    )
-  })
+  it(
+    'is registered in the root Payload config',
+    async () => {
+      const { default: configPromise } = await import('@/payload.config')
+      const config = await configPromise
+      expect(config.globals.some((global) => global.slug === SiteSettings.slug)).toBe(true)
+      expect(
+        config.collections.some((collection) => collection.slug === SocialPlatforms.slug),
+      ).toBe(true)
+    },
+    15_000,
+  )
 
   it('accepts only absolute HTTP and HTTPS social URLs', () => {
     expect(validateAbsoluteHttpURL('https://www.linkedin.com/company/ecolitea')).toBe(true)

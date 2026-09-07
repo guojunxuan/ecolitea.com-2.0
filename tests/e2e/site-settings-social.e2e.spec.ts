@@ -53,7 +53,11 @@ test.describe.serial('Site Settings Social admin', () => {
 
   test('keeps valid Social Link row actions and hides copy and duplicate actions', async () => {
     await openSocialTab()
-    await page.locator('#socialLinks-row-0').getByRole('button', { name: 'More options' }).click()
+    await page.getByRole('button', { name: 'Add Social Link' }).click()
+    await page.getByRole('button', { name: 'Add Social Link' }).click()
+    const socialLinkRow = page.locator('#socialLinks-row-0')
+    await expect(socialLinkRow).toBeVisible()
+    await socialLinkRow.getByRole('button', { name: 'More options' }).click()
 
     const actions = page.locator('.popup__content.site-settings-social-links-actions')
     await expect(actions).toBeVisible()
