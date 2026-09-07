@@ -164,7 +164,7 @@ describe('adaptFooter', () => {
     ])
   })
 
-  it('falls back to the primary logo and Site Name while preserving partial contact data', () => {
+  it('falls back to the primary logo and uses the company name only for copyright', () => {
     const result = adaptFooter(
       { id: 'footer', columns: [] } as never,
       {
@@ -182,7 +182,7 @@ describe('adaptFooter', () => {
       } as never,
     )
 
-    expect(result.siteName).toBe('Ecolitea Limited')
+    expect(result).not.toHaveProperty('siteName')
     expect(result.logo?.src).toContain('/primary.svg')
     expect(result.siteDescription).toBe('Sustainable tea systems.')
     expect(result.contact).toEqual({

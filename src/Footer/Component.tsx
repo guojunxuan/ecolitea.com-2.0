@@ -28,10 +28,9 @@ export async function Footer() {
           <section aria-label="Brand" className={styles.brand} data-footer-content="brand">
             {footer.logo && (
               <Link className={styles.brandLink} href="/">
-                <Logo image={footer.logo} className="h-7 sm:h-8 lg:h-10" />
+                <Logo image={footer.logo} className={styles.logo} />
               </Link>
             )}
-            <h2 className={styles.brandName}>{footer.siteName}</h2>
             {footer.siteDescription && (
               <p className={styles.description}>{footer.siteDescription}</p>
             )}
@@ -44,22 +43,20 @@ export async function Footer() {
                 {footer.socialLinks.map((social) => (
                   <li key={social.id}>
                     <a
+                      aria-label={social.platform}
                       className={styles.socialLink}
                       href={social.url}
                       rel="noopener noreferrer"
                       target="_blank"
                     >
-                      {social.icon && (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
-                          alt=""
-                          className={styles.socialIcon}
-                          height={social.icon.height}
-                          src={social.icon.src}
-                          width={social.icon.width}
-                        />
-                      )}
-                      <span>{social.platform}</span>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        alt=""
+                        className={styles.socialIcon}
+                        height={social.icon.height}
+                        src={social.icon.src}
+                        width={social.icon.width}
+                      />
                     </a>
                   </li>
                 ))}

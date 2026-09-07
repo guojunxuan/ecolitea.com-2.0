@@ -15,10 +15,10 @@
 .brandLink {
   display: inline-flex;
 }
-.brandName {
-  margin-top: 1rem;
-  font-size: 1.125rem;
-  font-weight: 600;
+.logo {
+  width: auto;
+  height: 2rem;
+  object-fit: contain;
 }
 .description,
 .newsletterDescription,
@@ -163,10 +163,20 @@
   object-fit: contain;
 }
 .socialLink {
-  display: inline-flex;
+  display: flex;
+  width: 2.75rem;
   min-height: 44px;
   align-items: center;
-  gap: 0.5rem;
+  justify-content: center;
+  border: 1px solid rgb(255 255 255 / 18%);
+  border-radius: 50%;
+  transition:
+    border-color 160ms ease,
+    background-color 160ms ease;
+}
+.socialLink:hover {
+  border-color: rgb(255 255 255 / 45%);
+  background: rgb(255 255 255 / 8%);
 }
 .bottomBar {
   display: flex;
@@ -189,6 +199,9 @@
 }
 
 @media (width >= 73.125rem) {
+  .logo {
+    height: 2.5rem;
+  }
   .primaryGrid {
     grid-template-columns: minmax(0, 20fr) minmax(0, 55fr) minmax(0, 25fr);
     gap: clamp(2rem, 4vw, 4.5rem);

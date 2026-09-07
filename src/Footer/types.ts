@@ -27,14 +27,13 @@ export type ContactData = {
 }
 
 export type SocialLinkData = {
-  icon: LogoImage | null
+  icon: LogoImage
   id: string
   platform: string
   url: string
 }
 
 export type FooterData = {
-  siteName: string
   logo: LogoImage | null
   siteDescription: string | null
   socialLinks: SocialLinkData[]

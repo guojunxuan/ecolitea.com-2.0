@@ -71,11 +71,12 @@ const adaptSocialLinks = (value: unknown): SocialLinkData[] => {
     if (!isRecord(row) || !isRecord(row.platform)) return []
     const platform = text(row.platform.platform)
     const url = text(row.url)
-    if (!platform || !url) return []
+    const icon = resolveBrandAsset(row.platform.icon as never)
+    if (!platform || !url || !icon) return []
 
     return [
       {
-        icon: resolveBrandAsset(row.platform.icon as never),
+        icon,
         id: id(row.id, `social-link-${index}`),
         platform,
         url,
@@ -101,7 +102,6 @@ export const adaptFooter = (footer: Footer, siteSettings: SiteSettings): FooterD
   ].filter((link): link is FooterLinkData => link !== null)
 
   return {
-    siteName,
     logo: selectLogo(
       resolveBrandAsset(siteSettings.logo),
       resolveBrandAsset(siteSettings.logoDark),

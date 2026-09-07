@@ -24,8 +24,12 @@ const siteSettings: SiteSettings = {
   siteName: 'Ecolitea',
 }
 const footerData: FooterData = {
-  siteName: 'Ecolitea',
-  logo: null,
+  logo: {
+    alt: 'Ecolitea',
+    height: 30,
+    src: '/ecolitea.svg',
+    width: 120,
+  },
   siteDescription: 'Sustainable tea systems.',
   columns: [
     {
@@ -58,7 +62,12 @@ const footerData: FooterData = {
   socialLinks: [
     {
       id: 'linkedin',
-      icon: null,
+      icon: {
+        alt: 'LinkedIn',
+        height: 24,
+        src: '/linkedin.svg',
+        width: 24,
+      },
       platform: 'LinkedIn',
       url: 'https://linkedin.com/company/ecolitea',
     },
@@ -119,7 +128,8 @@ describe('Footer server boundary', () => {
     const { container } = render(await Footer())
 
     expect(screen.getByRole('contentinfo')).toBeTruthy()
-    expect(screen.getByText('Ecolitea')).toBeTruthy()
+    expect(screen.getByRole('img', { name: 'Ecolitea' })).toBeTruthy()
+    expect(screen.queryByRole('heading', { name: 'Ecolitea' })).toBeNull()
     expect(screen.getByText('Sustainable tea systems.')).toBeTruthy()
     expect(screen.getByRole('navigation', { name: 'Footer' })).toBeTruthy()
     expect(screen.getByText('Shanghai, China')).toBeTruthy()
@@ -127,6 +137,7 @@ describe('Footer server boundary', () => {
     expect(screen.getByRole('link', { name: 'sales@example.com' })).toBeTruthy()
     expect(screen.getByRole('link', { name: 'WhatsApp: +86 138 0000 0000' })).toBeTruthy()
     expect(screen.getByRole('link', { name: 'LinkedIn' })).toBeTruthy()
+    expect(screen.queryByText('LinkedIn')).toBeNull()
     expect(screen.getByRole('link', { name: 'Privacy Policy' })).toBeTruthy()
     expect(screen.getByText('© 2026 Ecolitea. All rights reserved.')).toBeTruthy()
     expect(screen.getByText('Stay informed')).toBeTruthy()

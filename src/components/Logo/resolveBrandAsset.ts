@@ -29,9 +29,12 @@ export const resolveBrandAsset = (
   if (!asset || typeof asset !== 'object' || !asset.url) return null
 
   const { width, height } = resolveDimensions(asset.width, asset.height)
+  const source = asset.filename
+    ? `/api/brand-assets/file/${encodeURIComponent(asset.filename)}`
+    : asset.url
 
   return {
-    src: getMediaUrl(asset.url, asset.updatedAt),
+    src: getMediaUrl(source, asset.updatedAt),
     alt: asset.alt,
     width,
     height,
