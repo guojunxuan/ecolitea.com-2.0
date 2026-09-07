@@ -57,8 +57,10 @@ const adaptColumns = (value: unknown): FooterColumnData[] => {
     const label = text(column.label)
     if (!label) return []
     const columnID = id(column.id, `footer-column-${index}`)
+    const navItems = adaptNavItems(column.navItems, columnID)
+    if (navItems.length === 0) return []
 
-    return [{ id: columnID, label, navItems: adaptNavItems(column.navItems, columnID) }]
+    return [{ id: columnID, label, navItems }]
   })
 }
 

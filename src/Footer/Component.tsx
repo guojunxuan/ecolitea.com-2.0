@@ -17,7 +17,7 @@ const newsletter = {
 export async function Footer() {
   const [footerGlobal, siteSettings] = await Promise.all([
     getCachedGlobal('footer', 1)(),
-    getCachedGlobal('site-settings', 1)(),
+    getCachedGlobal('site-settings', 2)(),
   ])
   const footer = adaptFooter(footerGlobal, siteSettings)
 

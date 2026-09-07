@@ -52,9 +52,7 @@ const footerData: FooterData = {
     {
       id: 'company',
       label: 'Company',
-      navItems: [
-        { id: 'about', link: { href: '/about', label: 'About', newTab: false, type: 'custom' } },
-      ],
+      navItems: [],
     },
   ],
   socialLinks: [
@@ -86,11 +84,11 @@ afterEach(() => {
 })
 
 describe('Footer server boundary', () => {
-  it('loads both globals concurrently at depth 1 and adapts their data exactly once', async () => {
+  it('loads both globals concurrently with enough depth and adapts their data exactly once', async () => {
     const pending = new Map<string, (value: unknown) => void>()
     const started: string[] = []
     getCachedGlobalMock.mockImplementation((slug: string, depth: number) => {
-      expect(depth).toBe(1)
+      expect(depth).toBe(slug === 'site-settings' ? 2 : 1)
       return () =>
         new Promise((resolve) => {
           started.push(slug)
@@ -151,7 +149,7 @@ describe('FooterNavigation', () => {
 
     const products = screen.getByRole('button', { name: 'Products' })
     const solutions = screen.getByRole('button', { name: 'Solutions' })
-    expect(screen.getAllByRole('button')).toHaveLength(4)
+    expect(screen.getAllByRole('button')).toHaveLength(3)
     expect(products.getAttribute('aria-expanded')).toBe('false')
     expect(products.getAttribute('aria-controls')).toMatch(/-products$/)
     expect(products.className).toContain('accordionTrigger')
@@ -202,5 +200,20 @@ describe('FooterNavigation', () => {
     expect(css).toMatch(/\.socialLink\s*\{[^}]*min-height:\s*44px/s)
     expect(css).toContain('@media (width >= 73.125rem)')
     expect(css).not.toMatch(/48rem[^}]*grid-template-columns:\s*repeat\(2/s)
+  })
+
+  it('does not render accordion or desktop headings for empty columns', () => {
+    render(
+      <FooterNavigation
+        columns={[
+          footerData.columns[0]!,
+          { id: 'empty', label: 'Empty', navItems: [] },
+        ]}
+      />,
+    )
+
+    expect(screen.getByRole('button', { name: 'Products' })).toBeTruthy()
+    expect(screen.queryByRole('button', { name: 'Empty' })).toBeNull()
+    expect(screen.queryByRole('heading', { name: 'Empty' })).toBeNull()
   })
 })

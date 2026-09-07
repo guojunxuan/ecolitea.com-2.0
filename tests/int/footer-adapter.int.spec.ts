@@ -15,7 +15,7 @@ const asset = (name: string) => ({
 const page = (slug: string, title: string) => ({ id: slug, slug, title })
 
 describe('adaptFooter', () => {
-  it('maps four columns and ignores the legacy top-level navItems field', () => {
+  it('maps valid non-empty columns and ignores legacy or empty navigation data', () => {
     const footer = {
       id: 'footer',
       navItems: [{ link: { label: 'Legacy', type: 'custom', url: '/legacy' } }],
@@ -95,7 +95,7 @@ describe('adaptFooter', () => {
       } as never,
     )
 
-    expect(result.columns).toHaveLength(4)
+    expect(result.columns).toHaveLength(3)
     expect(result.columns[0]).toEqual({
       id: 'products',
       label: 'Products',
@@ -118,10 +118,50 @@ describe('adaptFooter', () => {
     expect(result.columns[1]?.navItems[0]?.link.href).toBe('/tea-solutions')
     expect(result.columns[2]?.navItems[0]?.link.href).toBe('/case-studies/customer-story')
     expect(result.columns[2]?.navItems[1]?.link.href).toBe('/posts?category=sustainability')
-    expect(result.columns[3]).toEqual({ id: 'company', label: 'Company', navItems: [] })
+    expect(result.columns.find((column) => column.id === 'company')).toBeUndefined()
     expect(JSON.stringify(result)).not.toContain('Legacy')
     expect(result.logo?.src).toContain('/inverse.svg')
     expect(JSON.parse(JSON.stringify(result))).toEqual(result)
+  })
+
+  it('omits columns whose links are all invalid after link adaptation', () => {
+    const result = adaptFooter(
+      {
+        id: 'footer',
+        columns: [
+          {
+            id: 'invalid',
+            label: 'Invalid',
+            navItems: [
+              { id: 'missing-url', link: { label: 'Missing URL', type: 'custom' } },
+              { id: 'missing-label', link: { type: 'custom', url: '/missing-label' } },
+            ],
+          },
+          {
+            id: 'valid',
+            label: 'Valid',
+            navItems: [
+              { id: 'overview', link: { label: 'Overview', type: 'custom', url: '/overview' } },
+              { id: 'broken', link: { label: 'Broken', type: 'reference' } },
+            ],
+          },
+        ],
+      } as never,
+      { id: 'site-settings', siteName: 'Ecolitea' } as never,
+    )
+
+    expect(result.columns).toEqual([
+      {
+        id: 'valid',
+        label: 'Valid',
+        navItems: [
+          {
+            id: 'overview',
+            link: { href: '/overview', label: 'Overview', newTab: false, type: 'custom' },
+          },
+        ],
+      },
+    ])
   })
 
   it('falls back to the primary logo and Site Name while preserving partial contact data', () => {

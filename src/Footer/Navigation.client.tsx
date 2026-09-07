@@ -1,19 +1,20 @@
 'use client'
 
 import Link from 'next/link'
-import React, { useEffect, useId, useState } from 'react'
+import React, { useId, useState, useSyncExternalStore } from 'react'
 
 import type { FooterColumnData } from './types'
 import styles from './index.module.css'
 
 type FooterNavigationProps = { columns: FooterColumnData[] }
 
+const subscribeToHydration = () => () => undefined
+
 export function FooterNavigation({ columns }: FooterNavigationProps) {
   const [openColumnID, setOpenColumnID] = useState<string | null>(null)
-  const [enhanced, setEnhanced] = useState(false)
+  const enhanced = useSyncExternalStore(subscribeToHydration, () => true, () => false)
   const instanceID = `footer-navigation-${useId().replace(/[^a-zA-Z0-9_-]/g, '')}`
-
-  useEffect(() => setEnhanced(true), [])
+  const populatedColumns = columns.filter((column) => column.navItems.length > 0)
 
   return (
     <nav
@@ -22,7 +23,7 @@ export function FooterNavigation({ columns }: FooterNavigationProps) {
       data-enhanced={enhanced ? 'true' : 'false'}
       data-footer-content="navigation"
     >
-      {columns.map((column) => {
+      {populatedColumns.map((column) => {
         const panelID = `${instanceID}-${column.id}`
         const isOpen = openColumnID === column.id
 

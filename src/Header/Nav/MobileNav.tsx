@@ -145,6 +145,8 @@ export const MobileNav: React.FC<MobileNavProps> = ({ logo, menuCta, navItems, s
   }, [isOpen, state.level])
 
   useEffect(() => {
+    // The router pathname is external state; dismiss the modal after navigation completes.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     close(false)
   }, [close, pathname])
 

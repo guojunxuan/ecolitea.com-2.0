@@ -173,6 +173,33 @@ describe('DesktopNav', () => {
     expect(screen.queryByRole('region', { name: 'Platform menu' })).toBeNull()
   })
 
+  it('closes only when focus leaves the complete Header interaction boundary', () => {
+    render(
+      <header>
+        <button type="button">Brand</button>
+        <DesktopNav {...navigation} />
+      </header>,
+    )
+
+    const platformButton = screen.getByRole('button', { name: 'Platform menu' })
+    fireEvent.click(platformButton)
+    fireEvent.focusOut(platformButton, {
+      relatedTarget: screen.getByRole('link', { name: 'Platform overview' }),
+    })
+    expect(screen.getByRole('region', { name: 'Platform menu' })).toBeTruthy()
+
+    fireEvent.focusOut(screen.getByRole('link', { name: 'Platform overview' }), {
+      relatedTarget: screen.getByRole('button', { name: 'Brand' }),
+    })
+    expect(screen.getByRole('region', { name: 'Platform menu' })).toBeTruthy()
+
+    const outside = document.createElement('button')
+    document.body.append(outside)
+    fireEvent.focusOut(screen.getByRole('button', { name: 'Brand' }), { relatedTarget: outside })
+    expect(screen.queryByRole('region', { name: 'Platform menu' })).toBeNull()
+    outside.remove()
+  })
+
   it('moves measured trailing items into More exactly once', () => {
     const longItems: HeaderNavigationItem[] = Array.from({ length: 8 }, (_, index) => ({
       dropdown: null,
@@ -186,9 +213,8 @@ describe('DesktopNav', () => {
     vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(function (
       this: HTMLElement,
     ) {
-      const element = this
       const width =
-        element.dataset.desktopNavRoot === 'true' ? 650 : element.dataset.measureItem ? 140 : 0
+        this.dataset.desktopNavRoot === 'true' ? 650 : this.dataset.measureItem ? 140 : 0
       return {
         bottom: 0,
         height: 0,
@@ -319,6 +345,13 @@ describe('DesktopNav', () => {
     fireEvent.keyDown(document, { key: 'Escape' })
     expect(screen.queryByRole('region', { name: 'More menu' })).toBeNull()
     expect(document.activeElement).toBe(moreButton)
+
+    fireEvent.click(moreButton)
+    const outside = document.createElement('button')
+    document.body.append(outside)
+    fireEvent.focusOut(moreButton, { relatedTarget: outside })
+    expect(screen.queryByRole('region', { name: 'More menu' })).toBeNull()
+    outside.remove()
   })
 
   it('safely closes and re-owns focus when ResizeObserver repartitions open menus', () => {

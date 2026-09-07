@@ -229,12 +229,15 @@ describe('branding integration', () => {
   const useGlobalFixtures = ({
     logo = primaryAsset,
     logoDark = inverseAsset,
+    siteSettingsDepth = 1,
   }: {
     logo?: BrandAsset | string | null
     logoDark?: BrandAsset | string | null
+    siteSettingsDepth?: number
   } = {}) => {
     getCachedGlobalMock.mockImplementation((slug: string, depth: number) => {
-      if (depth !== 1) throw new Error(`Expected depth 1 for ${slug}`)
+      const expectedDepth = slug === 'site-settings' ? siteSettingsDepth : 1
+      if (depth !== expectedDepth) throw new Error(`Expected depth ${expectedDepth} for ${slug}`)
 
       const globals = {
         footer: footerData,
@@ -268,7 +271,7 @@ describe('branding integration', () => {
   })
 
   it('renders the inverse Site Settings logo from the Footer server boundary', async () => {
-    useGlobalFixtures()
+    useGlobalFixtures({ siteSettingsDepth: 2 })
 
     const footer = await Footer()
     const logo = findElementByType(footer, Logo)
@@ -302,7 +305,7 @@ describe('branding integration', () => {
   })
 
   it('omits the Footer home link when no logo presentation data resolves', async () => {
-    useGlobalFixtures({ logo: 'unexpanded-brand-id', logoDark: null })
+    useGlobalFixtures({ logo: 'unexpanded-brand-id', logoDark: null, siteSettingsDepth: 2 })
 
     const footer = await Footer()
 
@@ -310,7 +313,7 @@ describe('branding integration', () => {
   })
 
   it('falls back to the primary logo in the Footer when inverse artwork is unavailable', async () => {
-    useGlobalFixtures({ logoDark: null })
+    useGlobalFixtures({ logoDark: null, siteSettingsDepth: 2 })
 
     const footer = await Footer()
     const logo = findElementByType(footer, Logo)

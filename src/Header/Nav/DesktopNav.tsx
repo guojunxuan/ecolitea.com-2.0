@@ -141,7 +141,6 @@ export const DesktopNav: React.FC<HeaderNavigationData> = ({ menuCta, navItems }
 
   useLayoutEffect(() => {
     if (typeof ResizeObserver === 'undefined') {
-      setVisibleCount(navItems.length)
       return
     }
 
@@ -152,7 +151,11 @@ export const DesktopNav: React.FC<HeaderNavigationData> = ({ menuCta, navItems }
     return () => observer.disconnect()
   }, [navItems, recalculate])
 
-  useEffect(() => close(), [close, pathname])
+  useEffect(() => {
+    // The router pathname is external state; dismiss transient navigation after it changes.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    close()
+  }, [close, pathname])
 
   useLayoutEffect(() => {
     const previousVisibleCount = previousVisibleCountRef.current
@@ -173,6 +176,8 @@ export const DesktopNav: React.FC<HeaderNavigationData> = ({ menuCta, navItems }
           ? moreButtonRef.current
           : (itemControlRefs.current[navItems[previousVisibleCount]?.id ?? ''] ?? rootRef.current)
 
+    // This state transition synchronizes open layers with ResizeObserver-derived ownership.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     close()
     focusTarget?.focus()
   }, [close, isMoreOpen, navItems, openID, overflowOpenID, visibleCount])
@@ -209,11 +214,19 @@ export const DesktopNav: React.FC<HeaderNavigationData> = ({ menuCta, navItems }
     const onPointerDown = (event: PointerEvent) => {
       if (rootRef.current && !rootRef.current.contains(event.target as Node)) close()
     }
+    const interactionBoundary = rootRef.current?.closest('header') ?? rootRef.current
+    const onFocusOut = (event: FocusEvent) => {
+      const nextTarget = event.relatedTarget
+      if (nextTarget instanceof Node && interactionBoundary?.contains(nextTarget)) return
+      close()
+    }
     document.addEventListener('keydown', onKeyDown)
     document.addEventListener('pointerdown', onPointerDown)
+    interactionBoundary?.addEventListener('focusout', onFocusOut)
     return () => {
       document.removeEventListener('keydown', onKeyDown)
       document.removeEventListener('pointerdown', onPointerDown)
+      interactionBoundary?.removeEventListener('focusout', onFocusOut)
     }
   }, [close, isMoreOpen, openID, overflowOpenID])
 
