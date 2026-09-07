@@ -12,6 +12,7 @@ import { SiteSettings } from '@/SiteSettings/config'
 import { siteSettingsTabs, validateAbsoluteHttpURL } from '@/SiteSettings/fields'
 import { brandingTab } from '@/SiteSettings/fields/branding'
 import { contactTab } from '@/SiteSettings/fields/contact'
+import { customFields } from '@/SiteSettings/fields/customFields'
 import { generalTab } from '@/SiteSettings/fields/general'
 import { socialTab, validateUniqueSocialPlatforms } from '@/SiteSettings/fields/social'
 import { revalidateSiteSettings } from '@/SiteSettings/hooks/revalidateSiteSettings'
@@ -146,6 +147,20 @@ describe('Site Settings Global', () => {
       expect.objectContaining({ name: 'label', type: 'text', required: true }),
       expect.objectContaining({ name: 'value', type: 'textarea', required: true }),
     ])
+  })
+
+  it('allows reusable custom field arrays to provide their own label', () => {
+    expect(
+      customFields({
+        interfaceName: 'ExampleCustomField',
+        label: 'Additional Details',
+        name: 'additionalDetails',
+      }),
+    ).toMatchObject({
+      label: 'Additional Details',
+      name: 'additionalDetails',
+      type: 'array',
+    })
   })
 
   it('defines required Contact fields, custom fields, and an optional Newsletter section', () => {

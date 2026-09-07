@@ -4,13 +4,14 @@ import { trimText, validateNonBlankText, validateNonBlankTextarea } from './vali
 
 type CustomFieldsOptions = {
   interfaceName: string
+  label: string
   name: string
 }
 
-export const customFields = ({ interfaceName, name }: CustomFieldsOptions): ArrayField => ({
+export const customFields = ({ interfaceName, label, name }: CustomFieldsOptions): ArrayField => ({
   name,
   type: 'array',
-  label: 'Custom Fields',
+  label,
   labels: {
     singular: 'Custom Field',
     plural: 'Custom Fields',

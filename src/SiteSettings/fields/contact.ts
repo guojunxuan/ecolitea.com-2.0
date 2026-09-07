@@ -87,6 +87,7 @@ export const contactTab: Tab = {
     },
     customFields({
       interfaceName: 'SiteSettingsContactCustomField',
+      label: 'Custom Fields',
       name: 'contactCustomFields',
     }),
   ],

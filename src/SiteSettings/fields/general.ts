@@ -43,6 +43,10 @@ export const generalTab: Tab = {
         description: 'A general company description, not a default SEO description.',
       },
     },
-    customFields({ interfaceName: 'SiteSettingsCustomField', name: 'customFields' }),
+    customFields({
+      interfaceName: 'SiteSettingsCustomField',
+      label: 'Custom Fields',
+      name: 'customFields',
+    }),
   ],
 }
