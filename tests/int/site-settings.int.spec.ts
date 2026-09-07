@@ -11,6 +11,8 @@ import {
 import { SiteSettings } from '@/SiteSettings/config'
 import { siteSettingsTabs, validateAbsoluteHttpURL } from '@/SiteSettings/fields'
 import { brandingTab } from '@/SiteSettings/fields/branding'
+import { contactTab } from '@/SiteSettings/fields/contact'
+import { generalTab } from '@/SiteSettings/fields/general'
 import { socialTab, validateUniqueSocialPlatforms } from '@/SiteSettings/fields/social'
 import { revalidateSiteSettings } from '@/SiteSettings/hooks/revalidateSiteSettings'
 import type {
@@ -119,6 +121,91 @@ describe('Site Settings Global', () => {
       'Legal',
     ])
     expect(siteSettingsTabs.tabs.every((tab) => !('name' in tab))).toBe(true)
+  })
+
+  it('defines required General identity fields and display-only custom fields', () => {
+    const fields = new Map(
+      generalTab.fields.flatMap((field) => ('name' in field ? [[field.name, field]] : [])),
+    )
+
+    for (const name of ['siteName', 'legalCompanyName', 'siteDescription', 'tagline']) {
+      expect(fields.get(name)).toMatchObject({ name, required: true })
+    }
+
+    const customFields = fields.get('customFields')
+    expect(customFields).toMatchObject({
+      name: 'customFields',
+      type: 'array',
+      maxRows: 20,
+      labels: { plural: 'Custom Fields', singular: 'Custom Field' },
+    })
+    if (!customFields || customFields.type !== 'array') {
+      throw new Error('General must define a customFields array.')
+    }
+    expect(customFields.fields).toEqual([
+      expect.objectContaining({ name: 'label', type: 'text', required: true }),
+      expect.objectContaining({ name: 'value', type: 'textarea', required: true }),
+    ])
+  })
+
+  it('defines required Contact fields, custom fields, and an optional Newsletter section', () => {
+    const fields = new Map(
+      contactTab.fields.flatMap((field) => ('name' in field ? [[field.name, field]] : [])),
+    )
+
+    expect(fields.has('whatsapp')).toBe(false)
+    expect(fields.has('businessHours')).toBe(false)
+    expect(fields.get('address')).toMatchObject({ name: 'address', required: true })
+    expect(fields.get('phone')).toMatchObject({ name: 'phone', required: true })
+    expect(fields.get('salesEmail')).toMatchObject({ name: 'salesEmail', required: true })
+
+    const customFields = fields.get('contactCustomFields')
+    expect(customFields).toMatchObject({ name: 'contactCustomFields', type: 'array', maxRows: 20 })
+    if (!customFields || customFields.type !== 'array') {
+      throw new Error('Contact must define a contactCustomFields array.')
+    }
+    expect(customFields.fields).toEqual([
+      expect.objectContaining({ name: 'label', type: 'text', required: true }),
+      expect.objectContaining({ name: 'value', type: 'textarea', required: true }),
+    ])
+
+    const newsletter = fields.get('newsletter')
+    expect(newsletter).toMatchObject({ name: 'newsletter', type: 'group' })
+    if (!newsletter || newsletter.type !== 'group') {
+      throw new Error('Contact must define a newsletter group.')
+    }
+    const newsletterFields = new Map(
+      newsletter.fields.flatMap((field) => ('name' in field ? [[field.name, field]] : [])),
+    )
+    expect(newsletterFields.get('enabled')).toMatchObject({
+      name: 'enabled',
+      type: 'checkbox',
+      defaultValue: true,
+    })
+    expect(newsletterFields.get('heading')).toMatchObject({
+      name: 'heading',
+      type: 'text',
+      required: true,
+    })
+    expect(newsletterFields.get('description')).toMatchObject({
+      name: 'description',
+      type: 'textarea',
+      required: true,
+    })
+    expect(newsletterFields.get('emailPlaceholder')).toMatchObject({
+      name: 'emailPlaceholder',
+      type: 'text',
+      required: true,
+      defaultValue: 'Email address',
+      admin: { hidden: true },
+    })
+    expect(newsletterFields.get('buttonLabel')).toMatchObject({
+      name: 'buttonLabel',
+      type: 'text',
+      required: true,
+      defaultValue: 'Subscribe',
+      admin: { hidden: true },
+    })
   })
 
   it('registers the expected Global identity and access behavior', async () => {
