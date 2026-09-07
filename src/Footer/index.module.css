@@ -142,12 +142,27 @@
   font-style: normal;
   line-height: 1.6;
 }
-.contactList,
 .socialList,
 .legalList {
   display: flex;
   flex-wrap: wrap;
   gap: 0.75rem 1.25rem;
+}
+.contactList {
+  display: grid;
+  gap: 0.75rem;
+}
+.contactItem {
+  display: grid;
+  grid-template-columns: 1.125rem minmax(0, 1fr);
+  gap: 0.625rem;
+  align-items: start;
+}
+.contactIcon {
+  width: 1.125rem;
+  height: 1.125rem;
+  margin-top: 0.2em;
+  color: inherit;
 }
 .information a,
 .bottomBar a {
@@ -185,6 +200,20 @@
   border-top: 1px solid rgb(255 255 255 / 18%);
   padding-block: 1.5rem 2rem;
   font-size: 0.875rem;
+}
+
+@media (width < 30rem) {
+  .newsletterControls {
+    grid-template-columns: 1fr;
+  }
+  .newsletterInput {
+    border-radius: 0.25rem 0.25rem 0 0;
+  }
+  .newsletterButton {
+    border-top: 0;
+    border-left: 1px solid rgb(255 255 255 / 24%);
+    border-radius: 0 0 0.25rem 0.25rem;
+  }
 }
 
 @media (width >= 48rem) {

@@ -65,6 +65,9 @@ describe('Site Settings Global', () => {
         required: true,
         filterOptions: { mimeType: { equals: 'image/svg+xml' } },
         validate: validateSocialPlatformIcon,
+        admin: {
+          description: 'Upload an SVG icon designed for use on dark backgrounds.',
+        },
       }),
     ])
   })

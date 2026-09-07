@@ -8,6 +8,7 @@ import type {
   FooterData,
   FooterLinkData,
   FooterLinkRowData,
+  NewsletterData,
   SocialLinkData,
 } from './types'
 
@@ -85,6 +86,18 @@ const adaptSocialLinks = (value: unknown): SocialLinkData[] => {
   })
 }
 
+const adaptNewsletter = (value: unknown): NewsletterData | null => {
+  if (!isRecord(value) || value.enabled !== true) return null
+
+  const buttonLabel = text(value.buttonLabel)
+  const description = text(value.description)
+  const emailPlaceholder = text(value.emailPlaceholder)
+  const heading = text(value.heading)
+  if (!buttonLabel || !description || !emailPlaceholder || !heading) return null
+
+  return { buttonLabel, description, emailPlaceholder, heading }
+}
+
 const adaptLegalLink = (value: unknown, label: string): FooterLinkData | null =>
   adaptLink(
     {
@@ -111,12 +124,11 @@ export const adaptFooter = (footer: Footer, siteSettings: SiteSettings): FooterD
     socialLinks: adaptSocialLinks(siteSettings.socialLinks),
     columns: adaptColumns(footer.columns),
     contact: {
-      address: text(siteSettings.address),
-      businessHours: text(siteSettings.businessHours),
-      phone: text(siteSettings.phone),
-      salesEmail: text(siteSettings.salesEmail),
-      whatsapp: text(siteSettings.whatsapp),
+      address: text(siteSettings.address) ?? '',
+      phone: text(siteSettings.phone) ?? '',
+      salesEmail: text(siteSettings.salesEmail) ?? '',
     },
+    newsletter: adaptNewsletter(siteSettings.newsletter),
     legalLinks,
     copyrightText: text(siteSettings.copyrightText) ?? `© ${siteName}`,
   }

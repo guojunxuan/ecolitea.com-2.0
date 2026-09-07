@@ -95,7 +95,7 @@ describe('resolveBrandAsset', () => {
     })
   })
 
-  it('uses the Payload brand-assets route when a stored external URL is unavailable', () => {
+  it('preserves the configured remote URL for an R2-backed brand asset', () => {
     expect(
       resolveBrandAsset(
         brandAsset({
@@ -104,7 +104,7 @@ describe('resolveBrandAsset', () => {
         }),
       ),
     ).toMatchObject({
-      src: '/api/brand-assets/file/white%20logo.svg?2026-09-01T01%3A02%3A03.000Z',
+      src: 'https://media.ecolitea.com/white logo.svg?2026-09-01T01%3A02%3A03.000Z',
     })
   })
 

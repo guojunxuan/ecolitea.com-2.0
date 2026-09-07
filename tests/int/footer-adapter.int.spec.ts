@@ -164,7 +164,7 @@ describe('adaptFooter', () => {
     ])
   })
 
-  it('falls back to the primary logo and uses the company name only for copyright', () => {
+  it('falls back to the primary logo and emits required contact strings without removed fields', () => {
     const result = adaptFooter(
       { id: 'footer', columns: [] } as never,
       {
@@ -186,13 +186,59 @@ describe('adaptFooter', () => {
     expect(result.logo?.src).toContain('/primary.svg')
     expect(result.siteDescription).toBe('Sustainable tea systems.')
     expect(result.contact).toEqual({
-      address: null,
-      businessHours: 'Monday–Friday',
-      phone: null,
+      address: '',
+      phone: '',
       salesEmail: 'sales@example.com',
-      whatsapp: '+86 138 0000 0000',
     })
+    expect(result.contact).not.toHaveProperty('businessHours')
+    expect(result.contact).not.toHaveProperty('whatsapp')
     expect(result.copyrightText).toBe('© Ecolitea Limited')
+  })
+
+  it('maps enabled newsletter content including hidden interface copy', () => {
+    const result = adaptFooter(
+      { id: 'footer', columns: [] } as never,
+      {
+        id: 'site-settings',
+        siteName: 'Ecolitea',
+        newsletter: {
+          enabled: true,
+          heading: '  Tea notes  ',
+          description: '  Product launches and practical insights.  ',
+          emailPlaceholder: '  Work email  ',
+          buttonLabel: '  Join the list  ',
+        },
+      } as never,
+    )
+
+    expect(result.newsletter).toEqual({
+      heading: 'Tea notes',
+      description: 'Product launches and practical insights.',
+      emailPlaceholder: 'Work email',
+      buttonLabel: 'Join the list',
+    })
+  })
+
+  it.each([
+    ['disabled', { enabled: false }],
+    ['missing', undefined],
+    [
+      'incomplete legacy',
+      {
+        enabled: true,
+        heading: 'Tea notes',
+        description: null,
+        emailPlaceholder: 'Email address',
+        buttonLabel: 'Subscribe',
+      },
+    ],
+  ])('omits the newsletter for %s settings', (_label, newsletter) => {
+    const result = adaptFooter(
+      { id: 'footer', columns: [] } as never,
+      { id: 'site-settings', siteName: 'Ecolitea', newsletter } as never,
+    )
+
+    expect(result.newsletter).toBeNull()
   })
 
   it('maps populated social and legal relationships, skips unresolved IDs, and preserves configured copyright', () => {

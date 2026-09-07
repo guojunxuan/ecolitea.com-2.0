@@ -30,6 +30,9 @@ const siteSettings: SiteSettings = {
   siteName: 'Ecolitea',
   siteDescription: 'Sustainable tea systems.',
   newsletter: {
+    enabled: true,
+    heading: 'Tea notes',
+    description: 'Product launches and practical insights.',
     buttonLabel: 'Subscribe',
     emailPlaceholder: 'Email address',
   },
@@ -88,10 +91,14 @@ const footerData: FooterData = {
   ],
   contact: {
     address: 'Shanghai, China',
-    businessHours: 'Monday–Friday',
     phone: '+86 21 5555 5555',
     salesEmail: 'sales@example.com',
-    whatsapp: '+86 138 0000 0000',
+  },
+  newsletter: {
+    heading: 'Tea notes',
+    description: 'Product launches and practical insights.',
+    emailPlaceholder: 'Work email',
+    buttonLabel: 'Join the list',
   },
   legalLinks: [
     { href: '/privacy', label: 'Privacy Policy', newTab: false, type: 'reference' },
@@ -142,7 +149,7 @@ describe('Footer server boundary', () => {
     expect(element.props.className).toContain('bg-black')
   })
 
-  it('renders every semantic content zone and a disabled newsletter placeholder', async () => {
+  it('renders contact icons and every semantic content zone with CMS newsletter copy', async () => {
     getCachedFooterMock.mockResolvedValue(footerGlobal)
     getCachedSiteSettingsMock.mockResolvedValue(siteSettings)
     adaptFooterMock.mockReturnValue(footerData)
@@ -155,24 +162,44 @@ describe('Footer server boundary', () => {
     expect(screen.getByText('Sustainable tea systems.')).toBeTruthy()
     expect(screen.getByRole('navigation', { name: 'Footer' })).toBeTruthy()
     expect(screen.getByText('Shanghai, China')).toBeTruthy()
-    expect(screen.getByText('Monday–Friday')).toBeTruthy()
     expect(screen.getByRole('link', { name: 'sales@example.com' })).toBeTruthy()
-    expect(screen.getByRole('link', { name: 'WhatsApp: +86 138 0000 0000' })).toBeTruthy()
+    expect(screen.getByRole('link', { name: '+86 21 5555 5555' })).toBeTruthy()
+    expect(screen.queryByText('Monday–Friday')).toBeNull()
+    expect(screen.queryByText(/WhatsApp/)).toBeNull()
     expect(screen.getByRole('link', { name: 'LinkedIn' })).toBeTruthy()
     expect(screen.queryByText('LinkedIn')).toBeNull()
     expect(screen.getByRole('link', { name: 'Privacy Policy' })).toBeTruthy()
     expect(screen.getByText('© 2026 Ecolitea. All rights reserved.')).toBeTruthy()
-    expect(screen.getByText('Stay informed')).toBeTruthy()
-    expect(screen.getByText('Product updates and practical insights.')).toBeTruthy()
-    expect(screen.getByPlaceholderText('Email address').hasAttribute('disabled')).toBe(true)
-    expect(screen.getByRole('button', { name: 'Subscribe' }).hasAttribute('disabled')).toBe(true)
+    expect(screen.getByText('Tea notes')).toBeTruthy()
+    expect(screen.getByText('Product launches and practical insights.')).toBeTruthy()
+    expect(screen.getByPlaceholderText('Work email').hasAttribute('disabled')).toBe(true)
+    expect(screen.getByRole('button', { name: 'Join the list' }).hasAttribute('disabled')).toBe(true)
     expect(document.querySelector('form')).toBeNull()
+
+    const contact = container.querySelector('[data-footer-content="contact"]')
+    expect(contact?.querySelectorAll('svg')).toHaveLength(3)
+    expect(contact?.querySelector('.lucide-map-pin')?.getAttribute('aria-hidden')).toBe('true')
+    expect(contact?.querySelector('.lucide-phone')?.getAttribute('aria-hidden')).toBe('true')
+    expect(contact?.querySelector('.lucide-mail')?.getAttribute('aria-hidden')).toBe('true')
 
     const contentOrder = Array.from(container.querySelectorAll('[data-footer-content]')).map(
       (element) => element.getAttribute('data-footer-content'),
     )
     expect(contentOrder).toEqual(['brand', 'social', 'navigation', 'newsletter', 'contact'])
     expect(screen.getByRole('link', { name: 'LinkedIn' }).className).toContain('socialLink')
+  })
+
+  it('omits the complete newsletter section when the adapter disables it', async () => {
+    getCachedFooterMock.mockResolvedValue(footerGlobal)
+    getCachedSiteSettingsMock.mockResolvedValue(siteSettings)
+    adaptFooterMock.mockReturnValue({ ...footerData, newsletter: null })
+
+    const { container } = render(await Footer())
+
+    expect(container.querySelector('[data-footer-content="newsletter"]')).toBeNull()
+    expect(screen.queryByRole('heading', { name: 'Tea notes' })).toBeNull()
+    expect(screen.queryByRole('textbox')).toBeNull()
+    expect(screen.queryByRole('button', { name: 'Join the list' })).toBeNull()
   })
 })
 
@@ -232,6 +259,9 @@ describe('FooterNavigation', () => {
     expect(css).toContain('min-height: 54px')
     expect(css).toMatch(/\.socialLink\s*\{[^}]*min-height:\s*44px/s)
     expect(css).not.toMatch(/\.socialIcon\s*\{[^}]*filter:/s)
+    expect(css).toMatch(/\.contactItem\s*\{[^}]*display:\s*grid/s)
+    expect(css).toMatch(/\.contactIcon\s*\{[^}]*color:\s*inherit/s)
+    expect(css).toMatch(/width < 30rem[\s\S]*\.newsletterControls\s*\{[^}]*grid-template-columns:\s*1fr/s)
     expect(css).toContain('@media (width >= 73.125rem)')
     expect(css).not.toMatch(/48rem[^}]*grid-template-columns:\s*repeat\(2/s)
   })

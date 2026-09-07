@@ -19,11 +19,16 @@ export type FooterColumnData = {
 }
 
 export type ContactData = {
-  address: string | null
-  businessHours: string | null
-  phone: string | null
-  salesEmail: string | null
-  whatsapp: string | null
+  address: string
+  phone: string
+  salesEmail: string
+}
+
+export type NewsletterData = {
+  buttonLabel: string
+  description: string
+  emailPlaceholder: string
+  heading: string
 }
 
 export type SocialLinkData = {
@@ -39,6 +44,7 @@ export type FooterData = {
   socialLinks: SocialLinkData[]
   columns: FooterColumnData[]
   contact: ContactData
+  newsletter: NewsletterData | null
   legalLinks: FooterLinkData[]
   copyrightText: string
 }

@@ -4,15 +4,9 @@ import React from 'react'
 
 import { Logo } from '@/components/Logo/Logo'
 import { adaptFooter } from './adaptFooter'
+import { ContactList } from './ContactList'
 import styles from './index.module.css'
 import { FooterNavigation } from './Navigation.client'
-
-const newsletter = {
-  heading: 'Stay informed',
-  description: 'Product updates and practical insights.',
-  placeholder: 'Email address',
-  buttonLabel: 'Subscribe',
-} as const
 
 export async function Footer() {
   const [footerGlobal, siteSettings] = await Promise.all([
@@ -67,52 +61,30 @@ export async function Footer() {
           <FooterNavigation columns={footer.columns} />
 
           <div className={styles.engagement}>
-            <section
-              aria-label="Newsletter"
-              className={styles.newsletter}
-              data-footer-content="newsletter"
-            >
-              <h2 className={styles.newsletterHeading}>{newsletter.heading}</h2>
-              <p className={styles.newsletterDescription}>{newsletter.description}</p>
-              <div className={styles.newsletterControls}>
-                <input
-                  aria-label={newsletter.placeholder}
-                  className={styles.newsletterInput}
-                  disabled
-                  placeholder={newsletter.placeholder}
-                  type="email"
-                />
-                <button className={styles.newsletterButton} disabled type="button">
-                  {newsletter.buttonLabel}
-                </button>
-              </div>
-            </section>
+            {footer.newsletter && (
+              <section
+                aria-label="Newsletter"
+                className={styles.newsletter}
+                data-footer-content="newsletter"
+              >
+                <h2 className={styles.newsletterHeading}>{footer.newsletter.heading}</h2>
+                <p className={styles.newsletterDescription}>{footer.newsletter.description}</p>
+                <div className={styles.newsletterControls}>
+                  <input
+                    aria-label={footer.newsletter.emailPlaceholder}
+                    className={styles.newsletterInput}
+                    disabled
+                    placeholder={footer.newsletter.emailPlaceholder}
+                    type="email"
+                  />
+                  <button className={styles.newsletterButton} disabled type="button">
+                    {footer.newsletter.buttonLabel}
+                  </button>
+                </div>
+              </section>
+            )}
 
-            <address className={styles.information} data-footer-content="contact">
-              <div>
-                {footer.contact.address && <p>{footer.contact.address}</p>}
-                {footer.contact.businessHours && <p>{footer.contact.businessHours}</p>}
-              </div>
-              <ul className={styles.contactList}>
-                {footer.contact.salesEmail && (
-                  <li>
-                    <a href={`mailto:${footer.contact.salesEmail}`}>{footer.contact.salesEmail}</a>
-                  </li>
-                )}
-                {footer.contact.phone && (
-                  <li>
-                    <a href={`tel:${footer.contact.phone}`}>{footer.contact.phone}</a>
-                  </li>
-                )}
-                {footer.contact.whatsapp && (
-                  <li>
-                    <a href={`https://wa.me/${footer.contact.whatsapp.replace(/\D/g, '')}`}>
-                      WhatsApp: {footer.contact.whatsapp}
-                    </a>
-                  </li>
-                )}
-              </ul>
-            </address>
+            <ContactList contact={footer.contact} />
           </div>
         </div>
 

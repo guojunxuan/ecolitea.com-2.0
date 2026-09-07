@@ -107,6 +107,9 @@ export const SocialPlatforms: CollectionConfig = {
       required: true,
       filterOptions: { mimeType: { equals: svgMimeType } },
       validate: validateSocialPlatformIcon,
+      admin: {
+        description: 'Upload an SVG icon designed for use on dark backgrounds.',
+      },
     },
   ],
 }
