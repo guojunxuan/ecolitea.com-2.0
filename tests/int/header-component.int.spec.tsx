@@ -5,10 +5,14 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { HeaderNavigationData } from '@/Header/Nav/types'
 import type { BrandAsset, Header as HeaderData, SiteSettings } from '@/payload-types'
 
-const getCachedGlobalMock = vi.hoisted(() => vi.fn())
+const getCachedHeaderMock = vi.hoisted(() => vi.fn())
+const getCachedSiteSettingsMock = vi.hoisted(() => vi.fn())
 const adaptHeaderNavigationMock = vi.hoisted(() => vi.fn())
 
-vi.mock('@/utilities/getGlobals', () => ({ getCachedGlobal: getCachedGlobalMock }))
+vi.mock('@/utilities/getGlobals', () => ({
+  getCachedHeader: getCachedHeaderMock,
+  getCachedSiteSettings: getCachedSiteSettingsMock,
+}))
 vi.mock('@/Header/Nav/adaptNavigation', () => ({
   adaptHeaderNavigation: adaptHeaderNavigationMock,
 }))
@@ -29,29 +33,46 @@ const logoAsset: BrandAsset = {
   width: 1302,
 }
 const siteSettings: SiteSettings = {
+  address: 'Shanghai, China',
   id: 'site-settings',
+  legalCompanyName: 'Ecolitea Limited',
   siteName: 'Ecolitea',
+  siteDescription: 'Sustainable tea systems.',
   logo: logoAsset,
+  newsletter: {
+    buttonLabel: 'Subscribe',
+    emailPlaceholder: 'Email address',
+  },
+  phone: '+86 21 5555 5555',
+  salesEmail: 'sales@example.com',
+  tagline: 'Sustainable tea.',
 }
 
 afterEach(() => {
   cleanup()
-  getCachedGlobalMock.mockReset()
+  getCachedHeaderMock.mockReset()
+  getCachedSiteSettingsMock.mockReset()
   adaptHeaderNavigationMock.mockReset()
 })
 
 describe('Header server boundary', () => {
-  it('loads both globals concurrently at depth 1 and adapts Header data exactly once', async () => {
+  it('loads both canonical readers concurrently and adapts Header data exactly once', async () => {
     const pending = new Map<string, (value: unknown) => void>()
     const started: string[] = []
-    getCachedGlobalMock.mockImplementation((slug: string, depth: number) => {
-      expect(depth).toBe(1)
-      return () =>
+    getCachedHeaderMock.mockImplementation(
+      () =>
         new Promise((resolve) => {
-          started.push(slug)
-          pending.set(slug, resolve)
-        })
-    })
+          started.push('header')
+          pending.set('header', resolve)
+        }),
+    )
+    getCachedSiteSettingsMock.mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          started.push('site-settings')
+          pending.set('site-settings', resolve)
+        }),
+    )
     adaptHeaderNavigationMock.mockReturnValue(navigation)
 
     const result = Header()
@@ -61,10 +82,8 @@ describe('Header server boundary', () => {
     pending.get('site-settings')?.(siteSettings)
 
     const element = await result
-    expect(getCachedGlobalMock.mock.calls).toEqual([
-      ['header', 1],
-      ['site-settings', 1],
-    ])
+    expect(getCachedHeaderMock).toHaveBeenCalledOnce()
+    expect(getCachedSiteSettingsMock).toHaveBeenCalledOnce()
     expect(adaptHeaderNavigationMock).toHaveBeenCalledOnce()
     expect(adaptHeaderNavigationMock).toHaveBeenCalledWith(headerData)
     expect(element.type).toBe(HeaderClient)
@@ -83,12 +102,11 @@ describe('Header server boundary', () => {
   })
 
   it('passes a null presentation logo while retaining Site Name as the brand fallback', async () => {
-    getCachedGlobalMock.mockImplementation(
-      (slug: string) => () =>
-        Promise.resolve(
-          slug === 'header' ? headerData : { ...siteSettings, logo: 'unexpanded-relationship-id' },
-        ),
-    )
+    getCachedHeaderMock.mockResolvedValue(headerData)
+    getCachedSiteSettingsMock.mockResolvedValue({
+      ...siteSettings,
+      logo: 'unexpanded-relationship-id',
+    })
     adaptHeaderNavigationMock.mockReturnValue(navigation)
 
     const element = await Header()

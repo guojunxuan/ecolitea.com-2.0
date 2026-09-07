@@ -1,25 +1,26 @@
 import { cleanup, render, screen } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
-const getCachedGlobalMock = vi.hoisted(() => vi.fn())
+const getCachedFooterMock = vi.hoisted(() => vi.fn())
+const getCachedSiteSettingsMock = vi.hoisted(() => vi.fn())
 
-vi.mock('@/utilities/getGlobals', () => ({ getCachedGlobal: getCachedGlobalMock }))
+vi.mock('@/utilities/getGlobals', () => ({
+  getCachedFooter: getCachedFooterMock,
+  getCachedSiteSettings: getCachedSiteSettingsMock,
+}))
 
 import { Footer } from '@/Footer/Component'
 
 afterEach(() => {
   cleanup()
-  getCachedGlobalMock.mockReset()
+  getCachedFooterMock.mockReset()
+  getCachedSiteSettingsMock.mockReset()
 })
 
 describe('Footer Payload relationship depth', () => {
   it('renders a populated social platform icon from the depth-two site-settings shape', async () => {
-    const calls: Array<[string, number]> = []
-    getCachedGlobalMock.mockImplementation((slug: string, depth: number) => {
-      calls.push([slug, depth])
-      return async () => {
-        if (slug === 'footer') return { id: 'footer', columns: [] }
-        return {
+    getCachedFooterMock.mockResolvedValue({ id: 'footer', columns: [] })
+    getCachedSiteSettingsMock.mockResolvedValue({
           id: 'site-settings',
           siteName: 'Ecolitea',
           socialLinks: [
@@ -43,16 +44,12 @@ describe('Footer Payload relationship depth', () => {
               url: 'https://www.linkedin.com/company/ecolitea',
             },
           ],
-        }
-      }
     })
 
     render(await Footer())
 
-    expect(calls).toEqual([
-      ['footer', 1],
-      ['site-settings', 2],
-    ])
+    expect(getCachedFooterMock).toHaveBeenCalledOnce()
+    expect(getCachedSiteSettingsMock).toHaveBeenCalledOnce()
     const socialLink = screen.getByRole('link', { name: 'LinkedIn' })
     const icon = socialLink.querySelector('img')
     expect(icon?.getAttribute('src')).toContain('/api/brand-assets/file/linkedin.svg')

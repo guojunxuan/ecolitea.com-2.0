@@ -1,4 +1,4 @@
-import { getCachedGlobal } from '@/utilities/getGlobals'
+import { getCachedFooter, getCachedSiteSettings } from '@/utilities/getGlobals'
 import Link from 'next/link'
 import React from 'react'
 
@@ -16,8 +16,8 @@ const newsletter = {
 
 export async function Footer() {
   const [footerGlobal, siteSettings] = await Promise.all([
-    getCachedGlobal('footer', 1)(),
-    getCachedGlobal('site-settings', 2)(),
+    getCachedFooter(),
+    getCachedSiteSettings(),
   ])
   const footer = adaptFooter(footerGlobal, siteSettings)
 

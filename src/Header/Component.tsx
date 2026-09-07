@@ -1,13 +1,13 @@
 import { HeaderClient } from './Component.client'
 import { resolveBrandAsset } from '@/components/Logo/resolveBrandAsset'
-import { getCachedGlobal } from '@/utilities/getGlobals'
+import { getCachedHeader, getCachedSiteSettings } from '@/utilities/getGlobals'
 import React from 'react'
 import { adaptHeaderNavigation } from './Nav/adaptNavigation'
 
 export async function Header() {
   const [headerData, siteSettings] = await Promise.all([
-    getCachedGlobal('header', 1)(),
-    getCachedGlobal('site-settings', 1)(),
+    getCachedHeader(),
+    getCachedSiteSettings(),
   ])
   const navigation = adaptHeaderNavigation(headerData)
 

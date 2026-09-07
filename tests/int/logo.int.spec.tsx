@@ -3,10 +3,14 @@ import Link from 'next/link'
 import React from 'react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
-const getCachedGlobalMock = vi.hoisted(() => vi.fn())
+const getCachedHeaderMock = vi.hoisted(() => vi.fn())
+const getCachedFooterMock = vi.hoisted(() => vi.fn())
+const getCachedSiteSettingsMock = vi.hoisted(() => vi.fn())
 
 vi.mock('@/utilities/getGlobals', () => ({
-  getCachedGlobal: getCachedGlobalMock,
+  getCachedHeader: getCachedHeaderMock,
+  getCachedFooter: getCachedFooterMock,
+  getCachedSiteSettings: getCachedSiteSettingsMock,
 }))
 vi.mock('@/components/RichText', () => ({ default: () => null }))
 
@@ -68,7 +72,9 @@ const findElementByType = (
 
 afterEach(() => {
   cleanup()
-  getCachedGlobalMock.mockReset()
+  getCachedHeaderMock.mockReset()
+  getCachedFooterMock.mockReset()
+  getCachedSiteSettingsMock.mockReset()
 })
 
 describe('resolveBrandAsset', () => {
@@ -89,7 +95,7 @@ describe('resolveBrandAsset', () => {
     })
   })
 
-  it('uses the Payload brand-assets route when a stored external URL is unavailable', () => {
+  it('preserves the configured remote URL for an R2-backed brand asset', () => {
     expect(
       resolveBrandAsset(
         brandAsset({
@@ -98,7 +104,7 @@ describe('resolveBrandAsset', () => {
         }),
       ),
     ).toMatchObject({
-      src: '/api/brand-assets/file/white%20logo.svg?2026-09-01T01%3A02%3A03.000Z',
+      src: 'https://media.ecolitea.com/white logo.svg?2026-09-01T01%3A02%3A03.000Z',
     })
   })
 
@@ -242,29 +248,20 @@ describe('branding integration', () => {
   const useGlobalFixtures = ({
     logo = primaryAsset,
     logoDark = inverseAsset,
-    siteSettingsDepth = 1,
   }: {
     logo?: BrandAsset | string | null
     logoDark?: BrandAsset | string | null
-    siteSettingsDepth?: number
   } = {}) => {
-    getCachedGlobalMock.mockImplementation((slug: string, depth: number) => {
-      const expectedDepth = slug === 'site-settings' ? siteSettingsDepth : 1
-      if (depth !== expectedDepth) throw new Error(`Expected depth ${expectedDepth} for ${slug}`)
+    const siteSettings = {
+      id: 'site-settings',
+      siteName: 'Ecolitea',
+      logo,
+      logoDark,
+    }
 
-      const globals = {
-        footer: footerData,
-        header: headerData,
-        'site-settings': {
-          id: 'site-settings',
-          siteName: 'Ecolitea',
-          logo,
-          logoDark,
-        },
-      }
-
-      return async () => globals[slug as keyof typeof globals]
-    })
+    getCachedHeaderMock.mockResolvedValue(headerData)
+    getCachedFooterMock.mockResolvedValue(footerData)
+    getCachedSiteSettingsMock.mockResolvedValue(siteSettings)
   }
 
   it('passes resolved Site Settings logos through the Header server boundary', async () => {
@@ -284,7 +281,7 @@ describe('branding integration', () => {
   })
 
   it('renders the inverse Site Settings logo from the Footer server boundary', async () => {
-    useGlobalFixtures({ siteSettingsDepth: 2 })
+    useGlobalFixtures()
 
     const footer = await Footer()
     const logo = findElementByType(footer, Logo)
@@ -318,7 +315,7 @@ describe('branding integration', () => {
   })
 
   it('omits the Footer home link when no logo presentation data resolves', async () => {
-    useGlobalFixtures({ logo: 'unexpanded-brand-id', logoDark: null, siteSettingsDepth: 2 })
+    useGlobalFixtures({ logo: 'unexpanded-brand-id', logoDark: null })
 
     const footer = await Footer()
 
@@ -326,7 +323,7 @@ describe('branding integration', () => {
   })
 
   it('falls back to the primary logo in the Footer when inverse artwork is unavailable', async () => {
-    useGlobalFixtures({ logoDark: null, siteSettingsDepth: 2 })
+    useGlobalFixtures({ logoDark: null })
 
     const footer = await Footer()
     const logo = findElementByType(footer, Logo)

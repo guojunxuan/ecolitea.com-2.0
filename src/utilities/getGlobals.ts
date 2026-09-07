@@ -23,6 +23,12 @@ async function getGlobal<T extends Global>(slug: T, depth = 0): Promise<DataFrom
 export const getCachedGlobal = <T extends Global>(slug: T, depth = 0) =>
   process.env.PLAYWRIGHT_TEST === 'true'
     ? () => getGlobal<T>(slug, depth)
-    : unstable_cache(async () => getGlobal<T>(slug, depth), [slug], {
+    : unstable_cache(async () => getGlobal<T>(slug, depth), [slug, String(depth)], {
         tags: [`global_${slug}`],
       })
+
+export const getCachedHeader = async () => getCachedGlobal('header', 1)()
+
+export const getCachedFooter = async () => getCachedGlobal('footer', 1)()
+
+export const getCachedSiteSettings = async () => getCachedGlobal('site-settings', 2)()

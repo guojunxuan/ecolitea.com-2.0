@@ -8,10 +8,14 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { FooterData } from '@/Footer/types'
 import type { Footer as FooterGlobal, SiteSettings } from '@/payload-types'
 
-const getCachedGlobalMock = vi.hoisted(() => vi.fn())
+const getCachedFooterMock = vi.hoisted(() => vi.fn())
+const getCachedSiteSettingsMock = vi.hoisted(() => vi.fn())
 const adaptFooterMock = vi.hoisted(() => vi.fn())
 
-vi.mock('@/utilities/getGlobals', () => ({ getCachedGlobal: getCachedGlobalMock }))
+vi.mock('@/utilities/getGlobals', () => ({
+  getCachedFooter: getCachedFooterMock,
+  getCachedSiteSettings: getCachedSiteSettingsMock,
+}))
 vi.mock('@/Footer/adaptFooter', () => ({ adaptFooter: adaptFooterMock }))
 
 import { Footer } from '@/Footer/Component'
@@ -19,9 +23,19 @@ import { FooterNavigation } from '@/Footer/Navigation.client'
 
 const footerGlobal: FooterGlobal = { id: 'footer', columns: [] }
 const siteSettings: SiteSettings = {
+  address: 'Shanghai, China',
   id: 'site-settings',
+  legalCompanyName: 'Ecolitea Limited',
   logo: 'unexpanded-logo-id',
   siteName: 'Ecolitea',
+  siteDescription: 'Sustainable tea systems.',
+  newsletter: {
+    buttonLabel: 'Subscribe',
+    emailPlaceholder: 'Email address',
+  },
+  phone: '+86 21 5555 5555',
+  salesEmail: 'sales@example.com',
+  tagline: 'Sustainable tea.',
 }
 const footerData: FooterData = {
   logo: {
@@ -88,22 +102,29 @@ const footerData: FooterData = {
 
 afterEach(() => {
   cleanup()
-  getCachedGlobalMock.mockReset()
+  getCachedFooterMock.mockReset()
+  getCachedSiteSettingsMock.mockReset()
   adaptFooterMock.mockReset()
 })
 
 describe('Footer server boundary', () => {
-  it('loads both globals concurrently with enough depth and adapts their data exactly once', async () => {
+  it('loads both canonical readers concurrently and adapts their data exactly once', async () => {
     const pending = new Map<string, (value: unknown) => void>()
     const started: string[] = []
-    getCachedGlobalMock.mockImplementation((slug: string, depth: number) => {
-      expect(depth).toBe(slug === 'site-settings' ? 2 : 1)
-      return () =>
+    getCachedFooterMock.mockImplementation(
+      () =>
         new Promise((resolve) => {
-          started.push(slug)
-          pending.set(slug, resolve)
-        })
-    })
+          started.push('footer')
+          pending.set('footer', resolve)
+        }),
+    )
+    getCachedSiteSettingsMock.mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          started.push('site-settings')
+          pending.set('site-settings', resolve)
+        }),
+    )
     adaptFooterMock.mockReturnValue(footerData)
 
     const result = Footer()
@@ -115,14 +136,15 @@ describe('Footer server boundary', () => {
 
     expect(adaptFooterMock).toHaveBeenCalledOnce()
     expect(adaptFooterMock).toHaveBeenCalledWith(footerGlobal, siteSettings)
+    expect(getCachedFooterMock).toHaveBeenCalledOnce()
+    expect(getCachedSiteSettingsMock).toHaveBeenCalledOnce()
     expect(element.props['data-theme']).toBeUndefined()
     expect(element.props.className).toContain('bg-black')
   })
 
   it('renders every semantic content zone and a disabled newsletter placeholder', async () => {
-    getCachedGlobalMock.mockImplementation(
-      (slug: string) => () => Promise.resolve(slug === 'footer' ? footerGlobal : siteSettings),
-    )
+    getCachedFooterMock.mockResolvedValue(footerGlobal)
+    getCachedSiteSettingsMock.mockResolvedValue(siteSettings)
     adaptFooterMock.mockReturnValue(footerData)
 
     const { container } = render(await Footer())
@@ -209,6 +231,7 @@ describe('FooterNavigation', () => {
 
     expect(css).toContain('min-height: 54px')
     expect(css).toMatch(/\.socialLink\s*\{[^}]*min-height:\s*44px/s)
+    expect(css).not.toMatch(/\.socialIcon\s*\{[^}]*filter:/s)
     expect(css).toContain('@media (width >= 73.125rem)')
     expect(css).not.toMatch(/48rem[^}]*grid-template-columns:\s*repeat\(2/s)
   })

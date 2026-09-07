@@ -10,12 +10,12 @@ import { Footer } from '@/Footer/Component'
 import { Header } from '@/Header/Component'
 import { Providers } from '@/providers'
 import { buildSiteMetadata } from '@/utilities/buildSiteMetadata'
-import { getCachedGlobal } from '@/utilities/getGlobals'
+import { getCachedSiteSettings } from '@/utilities/getGlobals'
 
 import './globals.css'
 
 export async function generateMetadata(): Promise<Metadata> {
-  const siteSettings = await getCachedGlobal('site-settings', 1)()
+  const siteSettings = await getCachedSiteSettings()
 
   return buildSiteMetadata(resolveFavicon(siteSettings.favicon))
 }
