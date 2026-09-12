@@ -14,7 +14,8 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 Ecolitea is a self-hosted website and content-management application. Next.js
 serves both the public website and Payload Admin, MongoDB stores application
-content, and Cloudflare R2 stores uploaded media.
+content, and uploaded media is stored through the configured object-storage
+adapter. Cloudflare R2 is the current storage implementation.
 
 Treat `package.json` and the lockfile as the source of truth for versions. The
 project currently uses Next.js 16, React 19, Payload 4 canary, TypeScript,
@@ -40,12 +41,24 @@ are compatible with the installed versions.
   architecture, feature designs, implementation plans, and deployment details.
   Keep this file focused on durable project conventions.
 
+## Sources of truth
+
+- Use `package.json` and `pnpm-lock.yaml` for dependency and runtime versions.
+- Use the Payload collection, Global, field, and plugin configs under `src/` for
+  the persisted content model. `src/payload-types.ts` is generated from them.
+- Use `src/utilities/env.ts` for the runtime environment contract and
+  `.env.example` for the documented configuration surface.
+- Use existing implementation and tests for current behavior. Design documents
+  record intent and decisions, but verify that later code has not superseded
+  them before applying an older plan.
+- When sources disagree, identify the mismatch explicitly. Do not silently make
+  code conform to stale generated files or historical documentation.
+
 ## Architecture
 
 - Prefer configuration over hardcoded business rules.
-- Keep interfaces provider-neutral. Infrastructure details such as R2 endpoints
-  and Cloudflare transformation syntax belong in a dedicated adapter or media
-  renderer, not in business Blocks or page components.
+- Keep interfaces provider-neutral. Storage and delivery provider details belong
+  in dedicated adapters, not in business Blocks or page components.
 - Follow the existing `src/` structure and place behavior with its current
   owner. Do not introduce a parallel component system, configuration layer, or
   speculative abstraction.
@@ -83,24 +96,23 @@ are compatible with the installed versions.
   with `corepack pnpm generate:types` and
   `corepack pnpm generate:importmap`; do not hand-edit them.
 
-## Infrastructure and media delivery
+## Media, storage, and infrastructure
 
-- Cloudflare is an infrastructure provider, not a business-domain dependency.
-  Keep Cloudflare-specific behavior behind provider-neutral storage and media
-  interfaces.
-- Use separate R2 storage and credentials for development and production. Read
-  configuration from environment variables and never hardcode infrastructure
-  identifiers, domains, or secrets.
-- Treat R2 objects as originals. Payload and MongoDB store original file URLs;
-  derived delivery URLs are generated at render time and are not persisted.
-- Keep storage operations in the Payload storage adapter and media delivery
-  behavior in the shared renderer. Business Blocks declare presentation needs
-  and must not construct provider-specific transformation URLs.
-- Use Cloudflare Image or Media Transformations where the shared delivery layer
-  requires them, while avoiding duplicate image-optimization pipelines.
+- The Media and Brand Assets collections own upload rules and stored metadata.
+  Persist original file URLs; generate derived delivery URLs at render time.
+- Keep storage operations behind the Payload storage adapter and delivery logic
+  behind the shared media renderer. Business components declare presentation
+  needs and must not construct provider-specific URLs.
+- Treat infrastructure providers as replaceable implementation details.
+  Cloudflare R2 is the current object-storage provider; provider-specific setup
+  and transformation behavior belongs in architecture documentation and the
+  owning adapter, not in business-domain code or this guide.
+- Use isolated storage, credentials, domains, and database content for each
+  environment. Runtime configuration is read from environment variables; never
+  hardcode infrastructure identifiers, domains, or secrets.
 - Automated tests must use isolated placeholders or local storage and must never
-  contact production R2. Use `DISABLE_R2_STORAGE=true` when R2 integration is
-  outside the test scope.
+  contact production services. Use `DISABLE_R2_STORAGE=true` when storage
+  integration is outside the test scope.
 
 ## Data and environment safety
 
