@@ -9,6 +9,19 @@ export const MEDIA_PRESENTATION_DEFAULTS = {
   },
 } as const satisfies MediaPresentation
 
+export const MEDIA_RENDERABLE_MIME_TYPES = {
+  document: [
+    'application/msword',
+    'application/pdf',
+    'application/rtf',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'text/csv',
+    'text/plain',
+  ],
+  image: ['image/avif', 'image/gif', 'image/jpeg', 'image/png', 'image/webp'],
+  video: ['video/mp4'],
+} as const
+
 export const MEDIA_PRESENTATION = {
   card: {
     image: {

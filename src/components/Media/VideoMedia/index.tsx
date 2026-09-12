@@ -5,10 +5,11 @@ import React, { useEffect, useRef } from 'react'
 
 import type { Props as MediaProps } from '../types'
 
+import { buildCloudflareVideoURL } from '../cloudflare'
 import { getMediaUrl } from '@/utilities/getMediaUrl'
 
 export const VideoMedia: React.FC<MediaProps> = (props) => {
-  const { onClick, resource, videoClassName } = props
+  const { onClick, presentation, resource, videoClassName } = props
 
   const videoRef = useRef<HTMLVideoElement>(null)
   // const [showFallback] = useState<boolean>()
@@ -24,7 +25,18 @@ export const VideoMedia: React.FC<MediaProps> = (props) => {
   }, [])
 
   if (resource && typeof resource === 'object') {
-    const { filename } = resource
+    const { durationSeconds, updatedAt, url } = resource
+    if (!url) return null
+
+    const source = getMediaUrl(url, updatedAt)
+    const canTransform =
+      typeof durationSeconds === 'number' &&
+      Number.isFinite(durationSeconds) &&
+      durationSeconds > 0 &&
+      durationSeconds <= 60
+    const renderedSource = canTransform
+      ? buildCloudflareVideoURL({ presentation: presentation?.video, source })
+      : source
 
     return (
       <video
@@ -37,7 +49,7 @@ export const VideoMedia: React.FC<MediaProps> = (props) => {
         playsInline
         ref={videoRef}
       >
-        <source src={getMediaUrl(`/media/${filename}`)} />
+        <source src={renderedSource} />
       </video>
     )
   }
