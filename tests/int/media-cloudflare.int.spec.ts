@@ -98,6 +98,20 @@ describe('Cloudflare image delivery adapter', () => {
 })
 
 describe('Cloudflare video delivery adapter', () => {
+  it.each([undefined, {}])(
+    'includes the required video mode for an empty presentation (%j)',
+    (presentation) => {
+      expect(
+        buildCloudflareVideoURL({
+          source: 'https://media-dev.ecolitea.com/videos/clip.mp4',
+          presentation,
+        }),
+      ).toBe(
+        'https://media-dev.ecolitea.com/cdn-cgi/media/mode=video/https%3A%2F%2Fmedia-dev.ecolitea.com%2Fvideos%2Fclip.mp4',
+      )
+    },
+  )
+
   it('uses deterministic options and a fully encoded absolute source URL', () => {
     expect(
       buildCloudflareVideoURL({
@@ -105,7 +119,7 @@ describe('Cloudflare video delivery adapter', () => {
         presentation: { width: 1280, height: 720, fit: 'cover' },
       }),
     ).toBe(
-      'https://media-dev.ecolitea.com/cdn-cgi/media/width=1280,height=720,fit=cover/https%3A%2F%2Fmedia-dev.ecolitea.com%2Fphotos%2Fcard%2520image.jpg%3Fversion%3D7',
+      'https://media-dev.ecolitea.com/cdn-cgi/media/mode=video,width=1280,height=720,fit=cover/https%3A%2F%2Fmedia-dev.ecolitea.com%2Fphotos%2Fcard%2520image.jpg%3Fversion%3D7',
     )
   })
 
@@ -115,7 +129,7 @@ describe('Cloudflare video delivery adapter', () => {
         source: original,
         presentation: { width: 1, height: 5000 },
       }),
-    ).toContain('/width=10,height=2000/')
+    ).toContain('/mode=video,width=10,height=2000/')
   })
 
   it.each([

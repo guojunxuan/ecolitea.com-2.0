@@ -18,6 +18,8 @@ const CLOUDFLARE_VIDEO_DIMENSION = {
   maximum: 2000,
 } as const
 
+const CLOUDFLARE_VIDEO_MODE = 'video'
+
 const IMAGE_QUALITY = {
   minimum: 1,
   maximum: 100,
@@ -124,7 +126,7 @@ export const buildCloudflareVideoURL = ({ source, presentation }: VideoURLArgs):
   const fit = normalizeFit(presentation?.fit)
   if (presentation?.fit !== undefined && !fit) return source
 
-  const options: string[] = []
+  const options = [`mode=${CLOUDFLARE_VIDEO_MODE}`]
   if (width !== undefined) {
     options.push(
       `width=${clampInteger(
