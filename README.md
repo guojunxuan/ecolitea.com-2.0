@@ -41,6 +41,28 @@ DATABASE_URI=mongodb://127.0.0.1:27017/ecolitea2 corepack pnpm dev
 
 Keep the terminal running while developing. Press `Ctrl+C` to stop the service.
 
+### Media delivery in development
+
+Payload and the Admin UI keep and preview the uploaded original URL. R2 stores one original/master
+object for each `media` upload; generated image sizes and Transformation URLs are not stored in
+Payload or R2.
+
+`R2_PUBLIC_URL` is the single public origin for those originals and for public render-time media
+delivery. To use Transformations in development, configure that value with the approved development
+origin, `https://media-dev.ecolitea.com`, and ensure the development custom domain supports the
+Cloudflare Transformation paths before exercising public media rendering.
+
+- Public raster Media uses `/cdn-cgi/image/` at render time. It does not use Next's `/_next/image`
+  endpoint.
+- A validated MP4 at most 60 seconds long uses `/cdn-cgi/media/` at render time. A longer video, or
+  one with missing duration metadata, keeps its original URL.
+- Documents use their direct original CDN URL. Brand Assets (logos, social icons, and favicons) also
+  remain on their original URLs.
+
+Media uploads accept raster images at `1:1`, `4:3`, `3:2`, `16:9`, `9:16`, or `4:5` (within 1%).
+Video uploads must be MP4/H.264 with AAC or MP3 audio when present, no larger than 100 MB, and no
+longer than 10 minutes.
+
 ## Common commands
 
 ```bash

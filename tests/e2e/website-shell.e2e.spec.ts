@@ -257,14 +257,18 @@ async function expectNewsletter(page: Page) {
 
 async function expectFooterIdentityAndContact(page: Page) {
   const brand = page.locator('[data-footer-content="brand"]')
-  await expect(brand.getByRole('img', { name: 'E2E website shell logo' })).toBeVisible()
+  const logo = brand.getByRole('img', { name: 'E2E website shell logo' })
+  await expect(logo).toBeVisible()
+  await expect(logo).not.toHaveAttribute('src', /\/cdn-cgi\//)
 
   const social = page.locator('[data-footer-content="social"]')
   await expect(social.getByRole('link', { name: 'E2E LinkedIn' })).toHaveAttribute(
     'href',
     'https://example.com/e2e-linkedin',
   )
-  await expect(social.locator('img')).toBeVisible()
+  const socialIcon = social.locator('img')
+  await expect(socialIcon).toBeVisible()
+  await expect(socialIcon).not.toHaveAttribute('src', /\/cdn-cgi\//)
 
   const contact = page.locator('[data-footer-content="contact"]')
   await expect(contact.getByText('E2E registered business address')).toBeVisible()

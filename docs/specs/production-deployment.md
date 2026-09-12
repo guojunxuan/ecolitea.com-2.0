@@ -12,7 +12,7 @@
 - Editors use Payload at `/admin`.
 - Next.js and Payload run in one production container and listen on port 3000.
 - Payload stores content and media metadata in MongoDB 7.
-- Payload uploads original media and generated image sizes to Cloudflare R2.
+- Payload uploads original/master media to Cloudflare R2; generated image sizes are not stored.
 - Cloudflare provides DNS, CDN, and edge TLS.
 - Host Caddy proxies the origin to `127.0.0.1:3000`.
 
@@ -29,7 +29,8 @@
 - Pages, Posts, Categories, Header, and Footer invalidate affected paths or cache tags after changes.
 - Pages, Posts, and Case Studies support drafts and scheduled publication.
 - Public queries return published documents; authenticated preview mode can return drafts.
-- Media metadata lives in MongoDB, while originals and generated image sizes live in R2.
+- Media metadata lives in MongoDB, while original/master files live in R2. Generated delivery URLs
+  are not persisted.
 - Public media URLs use `R2_PUBLIC_URL`.
 
 ## Delivery workflow
