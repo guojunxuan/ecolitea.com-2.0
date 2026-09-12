@@ -83,6 +83,16 @@ describe('Media collection upload behavior', () => {
     expect(data).not.toHaveProperty('durationSeconds')
   })
 
+  it('strips client-supplied duration metadata on metadata-only updates', async () => {
+    await expect(
+      validateMediaUpload({
+        data: { alt: 'Updated only', durationSeconds: 12 },
+        operation: 'update',
+        req: { file: undefined },
+      } as never),
+    ).resolves.toEqual({ alt: 'Updated only' })
+  })
+
   it('rejects images outside the configured aspect ratios with an API error', async () => {
     await expect(
       validateMediaUpload({
@@ -113,6 +123,27 @@ describe('Media collection upload behavior', () => {
     expect(mockedParseMP4Metadata).not.toHaveBeenCalled()
   })
 
+  it('rejects oversized generated file data when req.file.size is unavailable', async () => {
+    await expect(
+      validateMediaUpload({
+        data: {
+          filesize: MEDIA_UPLOAD_POLICY.video.maxBytes + 1,
+          mimeType: 'video/mp4',
+        },
+        operation: 'create',
+        req: {
+          file: {
+            data: Buffer.from('video'),
+            mimetype: 'video/mp4',
+            size: undefined,
+          },
+        },
+      } as never),
+    ).rejects.toMatchObject({ status: 400 })
+
+    expect(mockedParseMP4Metadata).not.toHaveBeenCalled()
+  })
+
   it('rejects non-MP4 video uploads before parsing', async () => {
     await expect(
       validateMediaUpload({
@@ -125,6 +156,20 @@ describe('Media collection upload behavior', () => {
     ).rejects.toMatchObject({ status: 400 })
 
     expect(mockedParseMP4Metadata).not.toHaveBeenCalled()
+  })
+
+  it('rejects SVG uploads because brand-assets owns SVG resources', async () => {
+    expect(MEDIA_UPLOAD_POLICY.image.mimeTypes).not.toContain('image/svg+xml')
+
+    await expect(
+      validateMediaUpload({
+        data: { height: 100, mimeType: 'image/svg+xml', width: 100 },
+        operation: 'create',
+        req: {
+          file: { data: Buffer.from('<svg/>'), mimetype: 'image/svg+xml', size: 6 },
+        },
+      } as never),
+    ).rejects.toMatchObject({ status: 400 })
   })
 
   it('persists validated source duration for videos', async () => {

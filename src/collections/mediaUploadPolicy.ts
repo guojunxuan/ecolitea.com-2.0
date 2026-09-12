@@ -1,4 +1,4 @@
-import { readFile } from 'node:fs/promises'
+import { readFile, stat } from 'node:fs/promises'
 
 import { APIError, type CollectionBeforeValidateHook } from 'payload'
 
@@ -6,6 +6,7 @@ import { parseMP4Metadata } from './parseMP4Metadata'
 
 export const MEDIA_UPLOAD_POLICY = {
   image: {
+    mimeTypes: ['image/jpeg', 'image/png', 'image/webp', 'image/avif', 'image/gif'],
     ratios: [
       { label: '1:1', width: 1, height: 1 },
       { label: '4:3', width: 4, height: 3 },
@@ -110,12 +111,40 @@ const readUploadedFile = async (file: {
   return rejectUpload('Uploaded video bytes could not be read.')
 }
 
+const getObservedUploadSizes = async (
+  file: { data?: Buffer; size?: number; tempFilePath?: string },
+  generatedFilesize?: number | null,
+): Promise<number[]> => {
+  const sizes = [file.size, generatedFilesize, file.data?.byteLength].filter(
+    (size): size is number => typeof size === 'number' && Number.isFinite(size),
+  )
+
+  if (file.tempFilePath) sizes.push((await stat(file.tempFilePath)).size)
+
+  return sizes
+}
+
+const withoutDurationSeconds = <T extends Record<string, unknown> | undefined>(data: T) => {
+  if (!data || !('durationSeconds' in data)) return data
+
+  const { durationSeconds: _durationSeconds, ...safeData } = data
+  return safeData
+}
+
 export const validateMediaUpload: CollectionBeforeValidateHook = async ({ data, req }) => {
   const file = req.file
-  if (!file) return data
+  if (!file) return withoutDurationSeconds(data)
 
   const mimeType = file.mimetype || data?.mimeType
   if (mimeType?.startsWith('image/')) {
+    if (!(MEDIA_UPLOAD_POLICY.image.mimeTypes as readonly string[]).includes(mimeType)) {
+      return rejectUpload(
+        mimeType === 'image/svg+xml'
+          ? 'SVG files belong in Brand Assets, not Media.'
+          : 'Image file type is not supported.',
+      )
+    }
+
     const result = validateImageDimensions(data?.width, data?.height)
     if (result !== true) rejectUpload(result)
 
@@ -127,7 +156,15 @@ export const validateMediaUpload: CollectionBeforeValidateHook = async ({ data, 
       return rejectUpload('Video must use the MP4 container (video/mp4).')
     }
 
-    if (file.size > MEDIA_UPLOAD_POLICY.video.maxBytes) {
+    let observedSizes: number[]
+    try {
+      observedSizes = await getObservedUploadSizes(file, data?.filesize)
+    } catch (error) {
+      return rejectUpload(
+        error instanceof Error ? error.message : 'Uploaded video bytes could not be read.',
+      )
+    }
+    if (observedSizes.some((size) => size > MEDIA_UPLOAD_POLICY.video.maxBytes)) {
       return rejectUpload('Video file size exceeds the maximum of 100 MB.')
     }
 
