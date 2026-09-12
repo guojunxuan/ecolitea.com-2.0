@@ -1,3 +1,9 @@
+import { readFile } from 'node:fs/promises'
+
+import { APIError, type CollectionBeforeValidateHook } from 'payload'
+
+import { parseMP4Metadata } from './parseMP4Metadata'
+
 export const MEDIA_UPLOAD_POLICY = {
   image: {
     ratios: [
@@ -61,9 +67,7 @@ type VideoMetadata = {
 }
 
 const hasConfiguredCodec = (codecs: string[], prefixes: readonly string[]) =>
-  codecs.some((codec) =>
-    prefixes.some((prefix) => codec.toLowerCase().startsWith(prefix)),
-  )
+  codecs.some((codec) => prefixes.some((prefix) => codec.toLowerCase().startsWith(prefix)))
 
 export const validateVideoMetadata = (metadata: VideoMetadata): true | string => {
   if (!Number.isFinite(metadata.durationSeconds) || metadata.durationSeconds <= 0) {
@@ -74,12 +78,7 @@ export const validateVideoMetadata = (metadata: VideoMetadata): true | string =>
     return 'Video duration exceeds the maximum of 10 minutes.'
   }
 
-  if (
-    !hasConfiguredCodec(
-      metadata.videoCodecs,
-      MEDIA_UPLOAD_POLICY.video.videoCodecPrefixes,
-    )
-  ) {
+  if (!hasConfiguredCodec(metadata.videoCodecs, MEDIA_UPLOAD_POLICY.video.videoCodecPrefixes)) {
     return 'Video must use an H.264 (AVC) video codec.'
   }
 
@@ -95,4 +94,57 @@ export const validateVideoMetadata = (metadata: VideoMetadata): true | string =>
   }
 
   return true
+}
+
+const rejectUpload = (message: string): never => {
+  throw new APIError(message, 400)
+}
+
+const readUploadedFile = async (file: {
+  data?: Buffer
+  tempFilePath?: string
+}): Promise<Buffer> => {
+  if (file.tempFilePath) return readFile(file.tempFilePath)
+  if (Buffer.isBuffer(file.data)) return file.data
+
+  return rejectUpload('Uploaded video bytes could not be read.')
+}
+
+export const validateMediaUpload: CollectionBeforeValidateHook = async ({ data, req }) => {
+  const file = req.file
+  if (!file) return data
+
+  const mimeType = file.mimetype || data?.mimeType
+  if (mimeType?.startsWith('image/')) {
+    const result = validateImageDimensions(data?.width, data?.height)
+    if (result !== true) rejectUpload(result)
+
+    return { ...data, durationSeconds: null }
+  }
+
+  if (mimeType?.startsWith('video/')) {
+    if (!MEDIA_UPLOAD_POLICY.video.mimeTypes.includes(mimeType as 'video/mp4')) {
+      return rejectUpload('Video must use the MP4 container (video/mp4).')
+    }
+
+    if (file.size > MEDIA_UPLOAD_POLICY.video.maxBytes) {
+      return rejectUpload('Video file size exceeds the maximum of 100 MB.')
+    }
+
+    let metadata
+    try {
+      metadata = await parseMP4Metadata(await readUploadedFile(file))
+    } catch (error) {
+      return rejectUpload(
+        error instanceof Error ? error.message : 'MP4 metadata could not be read.',
+      )
+    }
+
+    const result = validateVideoMetadata(metadata)
+    if (result !== true) rejectUpload(result)
+
+    return { ...data, durationSeconds: metadata.durationSeconds }
+  }
+
+  return { ...data, durationSeconds: null }
 }
