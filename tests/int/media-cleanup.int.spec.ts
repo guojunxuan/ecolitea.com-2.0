@@ -33,15 +33,18 @@ describe('development Media cleanup safety', () => {
 
   it('builds a deterministic inventory with raw legacy size filenames', () => {
     expect(
-      buildMediaInventory([
-        {
-          id: 'b',
-          filename: 'b.jpg',
-          sizes: { thumbnail: { filename: 'b-300x300.jpg' }, empty: {} },
-          url: 'https://media-dev.example.com/b.jpg',
-        },
-        { id: 'a', filename: 'a.pdf', url: 'https://media-dev.example.com/a.pdf' },
-      ]),
+      buildMediaInventory(
+        [
+          {
+            id: 'b',
+            filename: 'b.jpg',
+            sizes: { thumbnail: { filename: 'b-300x300.jpg' }, empty: {} },
+            url: 'https://media-dev.example.com/b.jpg',
+          },
+          { id: 'a', filename: 'a.pdf', url: 'https://media-dev.example.com/a.pdf' },
+        ],
+        'https://media-dev.example.com',
+      ),
     ).toEqual([
       {
         filename: 'a.pdf',
@@ -58,31 +61,60 @@ describe('development Media cleanup safety', () => {
     ])
   })
 
-  it('discovers references in current docs, versions/drafts, and search docs', async () => {
+  it('discovers references in every current, versioned/draft, and search source', async () => {
     const payload = fakePayload({
       collections: {
         'case-studies': [{ id: 'case-1', hero: { media: 'm1' } }],
         pages: [{ id: 'page-1', layout: [{ media: { id: 'm2' } }] }],
-        posts: [],
-        search: [{ id: 'search-1', meta: { image: 'm3' } }],
+        posts: [{ id: 'post-1', heroImage: 'm3' }],
+        search: [{ id: 'search-1', meta: { image: 'm7' } }],
       },
       versions: {
-        'case-studies': [],
-        pages: [{ id: 'version-1', version: { meta: { image: 'm1' } } }],
-        posts: [{ id: 'version-2', version: { heroImage: 'm2', _status: 'draft' } }],
+        'case-studies': [{ id: 'case-version', version: { meta: { image: 'm4' } } }],
+        pages: [{ id: 'page-version', version: { meta: { image: 'm5' } } }],
+        posts: [{ id: 'post-version', version: { heroImage: 'm6', _status: 'draft' } }],
       },
     })
 
-    const references = await findMediaReferences(payload, ['m1', 'm2', 'm3'])
+    const references = await findMediaReferences(payload, [
+      'm1',
+      'm2',
+      'm3',
+      'm4',
+      'm5',
+      'm6',
+      'm7',
+    ])
 
     expect(references.map(({ source }) => source)).toEqual([
       'case-studies:current',
+      'case-studies:version',
       'pages:current',
       'pages:version',
+      'posts:current',
       'posts:version',
       'search:current',
     ])
-    expect(references.flatMap(({ mediaIDs }) => mediaIDs)).toEqual(['m1', 'm2', 'm1', 'm2', 'm3'])
+    expect(references.flatMap(({ mediaIDs }) => mediaIDs)).toEqual([
+      'm1',
+      'm4',
+      'm2',
+      'm5',
+      'm3',
+      'm6',
+      'm7',
+    ])
+    expect(payload.find.mock.calls.map(([call]) => call.collection)).toEqual([
+      'case-studies',
+      'pages',
+      'posts',
+      'search',
+    ])
+    expect(payload.findVersions.mock.calls.map(([call]) => call.collection)).toEqual([
+      'case-studies',
+      'pages',
+      'posts',
+    ])
   })
 
   it('refuses an origin mismatch before querying and never touches brand-assets', async () => {
@@ -120,10 +152,7 @@ describe('development Media cleanup safety', () => {
   it('aborts all deletion when any reference remains', async () => {
     const payload = fakePayload({
       collections: {
-        media: [
-          { id: 'm1', filename: 'one.jpg' },
-          { id: 'm2', filename: 'two.jpg' },
-        ],
+        media: [mediaDocument('m1', 'one.jpg'), mediaDocument('m2', 'two.jpg')],
         pages: [{ id: 'page-1', meta: { image: 'm2' } }],
       },
     })
@@ -149,10 +178,7 @@ describe('development Media cleanup safety', () => {
   it('deletes through Payload only after all reference checks complete', async () => {
     const payload = fakePayload({
       collections: {
-        media: [
-          { id: 'm2', filename: 'two.jpg' },
-          { id: 'm1', filename: 'one.jpg' },
-        ],
+        media: [mediaDocument('m2', 'two.jpg'), mediaDocument('m1', 'one.jpg')],
       },
     })
 
@@ -198,7 +224,9 @@ describe('development Media cleanup safety', () => {
   })
 
   it('refuses an incomplete media inventory before any deletion', async () => {
-    expect(() => buildMediaInventory([null])).toThrow(/incomplete media inventory/i)
+    expect(() => buildMediaInventory([null], 'https://media-dev.example.com')).toThrow(
+      /incomplete media inventory/i,
+    )
     const payload = fakePayload({
       collections: { media: [null, { filename: 'missing-id.jpg' }] },
     })
@@ -216,7 +244,7 @@ describe('development Media cleanup safety', () => {
 
   it('refuses incomplete reference records instead of treating them as clear', async () => {
     const payload = fakePayload({
-      collections: { media: [{ id: 'm1' }] },
+      collections: { media: [mediaDocument('m1', 'one.jpg')] },
       versions: { pages: [{ id: 'broken-version' }] },
     })
 
@@ -228,6 +256,27 @@ describe('development Media cleanup safety', () => {
         payload,
       }),
     ).rejects.toThrow(/incomplete reference inspection/i)
+    expect(payload.delete).not.toHaveBeenCalled()
+  })
+
+  it.each([
+    { id: 'm1', url: 'https://media-dev.example.com/one.jpg' },
+    { filename: '', id: 'm1', url: 'https://media-dev.example.com/one.jpg' },
+    { filename: 'one.jpg', id: 'm1' },
+    { filename: 'one.jpg', id: 'm1', url: '' },
+    { filename: 'one.jpg', id: 'm1', url: 'not-a-url' },
+    { filename: 'one.jpg', id: 'm1', url: 'https://other.example.com/one.jpg' },
+  ])('refuses incomplete or out-of-origin original metadata before deletion: %j', async (media) => {
+    const payload = fakePayload({ collections: { media: [media] } })
+
+    await expect(
+      runMediaCleanup({
+        configuredOrigin: 'https://media-dev.example.com',
+        execute: true,
+        expectedOrigin: 'https://media-dev.example.com',
+        payload,
+      }),
+    ).rejects.toThrow(/incomplete media inventory|outside configured R2 origin/i)
     expect(payload.delete).not.toHaveBeenCalled()
   })
 })
@@ -248,4 +297,8 @@ function fakePayload({ collections = {}, versions = {} }: FakeData) {
       page(versions[collection] ?? []),
     ),
   }
+}
+
+function mediaDocument(id: string, filename: string) {
+  return { id, filename, url: `https://media-dev.example.com/${filename}` }
 }

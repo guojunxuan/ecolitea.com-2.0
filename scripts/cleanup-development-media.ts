@@ -35,10 +35,10 @@ export type CleanupPayload = {
 }
 
 export type MediaInventoryItem = {
-  filename: null | string
+  filename: string
   id: string
   legacySizeFilenames: string[]
-  url: null | string
+  url: string
 }
 
 export type MediaReference = {
@@ -125,7 +125,12 @@ export function normalizeHTTPOrigin(value: string): string {
   return url.origin
 }
 
-export function buildMediaInventory(documents: unknown[]): MediaInventoryItem[] {
+export function buildMediaInventory(
+  documents: unknown[],
+  expectedOrigin: string,
+): MediaInventoryItem[] {
+  const normalizedExpectedOrigin = normalizeHTTPOrigin(expectedOrigin)
+
   return documents
     .map((document) => {
       if (!isDocumentLike(document)) {
@@ -137,12 +142,36 @@ export function buildMediaInventory(documents: unknown[]): MediaInventoryItem[] 
       ) {
         throw new Error('Incomplete media inventory: every Media document must have an ID.')
       }
+      if (typeof document.filename !== 'string' || document.filename.trim().length === 0) {
+        throw new Error(
+          `Incomplete media inventory: Media ${String(document.id)} has no original filename.`,
+        )
+      }
+      if (typeof document.url !== 'string' || document.url.trim().length === 0) {
+        throw new Error(
+          `Incomplete media inventory: Media ${String(document.id)} has no original URL.`,
+        )
+      }
+
+      let mediaOrigin: string
+      try {
+        mediaOrigin = normalizeHTTPOrigin(document.url)
+      } catch {
+        throw new Error(
+          `Incomplete media inventory: Media ${String(document.id)} has an invalid original URL.`,
+        )
+      }
+      if (mediaOrigin !== normalizedExpectedOrigin) {
+        throw new Error(
+          `Media ${String(document.id)} is outside configured R2 origin ${normalizedExpectedOrigin}.`,
+        )
+      }
 
       return {
-        filename: typeof document.filename === 'string' ? document.filename : null,
+        filename: document.filename,
         id: String(document.id),
         legacySizeFilenames: getLegacySizeFilenames(document.sizes),
-        url: typeof document.url === 'string' ? document.url : null,
+        url: document.url,
       }
     })
     .sort((left, right) => left.id.localeCompare(right.id))
@@ -194,7 +223,7 @@ export async function runMediaCleanup({
   }
 
   const mediaDocuments = await findAll((page) => payload.find(queryArguments('media', page)))
-  const inventory = buildMediaInventory(mediaDocuments)
+  const inventory = buildMediaInventory(mediaDocuments, normalizedConfiguredOrigin)
   const references = await findMediaReferences(
     payload,
     inventory.map(({ id }) => id),
