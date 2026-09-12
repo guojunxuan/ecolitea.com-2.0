@@ -4,7 +4,7 @@ import { getPayload, type Payload } from 'payload'
 import config from '../../src/payload.config.js'
 import { assertRunScopedE2EDatabaseURI } from '../helpers/e2eDatabase'
 
-const baseURL = 'http://localhost:3000'
+const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? 'http://localhost:3000'
 const disableRevalidate = { context: { disableRevalidate: true } }
 const runID = process.env.PLAYWRIGHT_E2E_RUN_ID!
 const slugs = {
@@ -193,6 +193,12 @@ async function seedFixtures() {
 }
 
 async function openFixture(page: Page, width: number) {
+  await page.route('https://media.example.invalid/**', async (route) => {
+    await route.fulfill({
+      body: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1 1"/>',
+      contentType: 'image/svg+xml',
+    })
+  })
   await page.setViewportSize({ height: width < 768 ? 844 : 960, width })
   await page.goto(`${baseURL}${fixturePath}`)
   await expect(page.locator('header')).toBeVisible()

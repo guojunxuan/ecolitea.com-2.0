@@ -6,11 +6,13 @@ import {
   seedRelatedPosts,
 } from '../helpers/seedRelatedPosts'
 
+const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? 'http://localhost:3000'
+
 test.describe('Frontend', () => {
   test('returns the intentional not-found page at the removed template homepage', async ({
     page,
   }) => {
-    const response = await page.goto('http://localhost:3000')
+    const response = await page.goto(baseURL)
     expect(response?.status()).toBe(404)
     const heading = page.locator('h1').first()
     await expect(heading).toHaveText('404')
@@ -35,7 +37,7 @@ test.describe('Frontend', () => {
         })
       })
 
-      await page.goto(`http://localhost:3000/posts/${relatedPostsFixture.postSlug}`)
+      await page.goto(`${baseURL}/posts/${relatedPostsFixture.postSlug}`)
 
       await expect(page.locator('h1')).toHaveText(relatedPostsFixture.postTitle)
 

@@ -47,12 +47,6 @@ export async function seedRelatedPosts(): Promise<void> {
     filePath: path.resolve(dirname, '../fixtures/image-post1.webp'),
     ...disableRevalidate,
   })
-  const hostedImage = await payload.update({
-    collection: 'media',
-    data: { url: 'https://media.example.invalid/e2e/related-post.webp' },
-    id: image.id,
-    ...disableRevalidate,
-  })
 
   const relatedPost = await payload.create({
     collection: 'posts',
@@ -60,7 +54,7 @@ export async function seedRelatedPosts(): Promise<void> {
       _status: 'published',
       categories: [category.id],
       content: buildContent('Related post content.'),
-      meta: { image: hostedImage.id },
+      meta: { image: image.id },
       slug: relatedPostsFixture.relatedPostSlug,
       title: relatedPostsFixture.relatedPostTitle,
     },
