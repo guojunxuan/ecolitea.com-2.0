@@ -8,38 +8,39 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 <!-- END:nextjs-agent-rules -->
 
-# Ecolitea project conventions
+# Payload application conventions
 
-## Project context
+## Application architecture
 
-Ecolitea is a self-hosted website and content-management application. Next.js
-serves both the public website and Payload Admin, MongoDB stores application
-content, and uploaded media is stored through the configured object-storage
-adapter. Cloudflare R2 is the current storage implementation.
+This repository is a Payload CMS application. Payload owns the content model,
+Admin UI, access control, hooks, and application data APIs. Next.js hosts both
+Payload and the public website, MongoDB is the configured database adapter, and
+uploaded files use a configurable storage adapter. Application features should
+be implemented through these boundaries rather than around them.
 
 Treat `package.json` and the lockfile as the source of truth for versions. The
 project currently uses Next.js 16, React 19, Payload 4 canary, TypeScript,
 Tailwind CSS, MongoDB 7, and pnpm. Do not assume APIs from older stable releases
 are compatible with the installed versions.
 
-## Project documentation
+## Technical documentation
 
-- Organize project documentation around Ecolitea's architecture, business goals,
-  domain boundaries, and engineering standards. Frameworks, vendors, and tools
-  are supporting implementation details and must not become the document's
-  primary narrative.
-- Explain why a dependency or infrastructure choice matters to Ecolitea before
-  documenting provider-specific behavior. Link to upstream documentation for
-  detailed product setup instead of reproducing vendor manuals in this project.
+- Organize technical documentation around the Payload application architecture:
+  content models, extension points, data flow, frontend consumption, and
+  operational boundaries. Business requirements should be mapped onto those
+  technical owners explicitly.
+- Treat Next.js, database, and storage providers as integrations around the
+  Payload core. Link to upstream documentation for general product setup instead
+  of reproducing vendor manuals in this repository.
 - Read the relevant installed Next.js guide before changing Next.js routes,
   rendering, caching, images, configuration, or build behavior.
 - Before changing Payload configuration or Admin behavior, inspect the installed
   Payload types, package documentation, and existing project patterns.
 - Keep `payload` and all `@payloadcms/*` packages on compatible versions. Do not
   upgrade or downgrade one Payload package in isolation.
-- Use `README.md` for Ecolitea setup and common commands. Use `docs/` for project
+- Use `README.md` for application setup and common commands. Use `docs/` for
   architecture, feature designs, implementation plans, and deployment details.
-  Keep this file focused on durable project conventions.
+  Keep this file focused on durable Payload application conventions.
 
 ## Sources of truth
 
@@ -54,7 +55,7 @@ are compatible with the installed versions.
 - When sources disagree, identify the mismatch explicitly. Do not silently make
   code conform to stale generated files or historical documentation.
 
-## Architecture
+## Payload application boundaries
 
 - Prefer configuration over hardcoded business rules.
 - Keep interfaces provider-neutral. Storage and delivery provider details belong
@@ -64,15 +65,16 @@ are compatible with the installed versions.
   speculative abstraction.
 - Give modules a clear owner, input, and output. Extract shared behavior only
   when at least two real consumers need the same contract.
-- Keep Payload schemas, generated types, adapters, seed data, and frontend
-  consumers synchronized when a data shape changes.
+- Treat Payload configuration as the owner of persisted application structure.
+  Keep schemas, generated types, adapters, seed data, and frontend consumers
+  synchronized when a data shape changes.
 - Normalize Payload data at module boundaries. Header, Footer, and Site Settings
   components should consume stable presentation models rather than repeatedly
   interpreting raw relationship values and conditional fields.
 - Preserve server and client boundaries. Add `use client` only to the smallest
   component that requires browser state or client-only hooks.
 
-## Content platform conventions
+## Payload extension conventions
 
 - Prefer Payload's public configuration APIs, native fields, Globals,
   Collections, Relationships, hooks, access controls, and documented Admin
@@ -96,7 +98,7 @@ are compatible with the installed versions.
   with `corepack pnpm generate:types` and
   `corepack pnpm generate:importmap`; do not hand-edit them.
 
-## Media, storage, and infrastructure
+## Payload media and infrastructure adapters
 
 - The Media and Brand Assets collections own upload rules and stored metadata.
   Persist original file URLs; generate derived delivery URLs at render time.
