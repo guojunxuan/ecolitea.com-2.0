@@ -66,7 +66,7 @@ const hasConfiguredCodec = (codecs: string[], prefixes: readonly string[]) =>
   )
 
 export const validateVideoMetadata = (metadata: VideoMetadata): true | string => {
-  if (!Number.isFinite(metadata.durationSeconds) || metadata.durationSeconds < 0) {
+  if (!Number.isFinite(metadata.durationSeconds) || metadata.durationSeconds <= 0) {
     return 'Video duration could not be read.'
   }
 

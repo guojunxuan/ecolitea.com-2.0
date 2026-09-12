@@ -47,7 +47,7 @@ export const parseMP4MetadataWithFactory = (
       }
 
       const durationSeconds = info.duration / info.timescale
-      if (!Number.isFinite(durationSeconds) || durationSeconds < 0) {
+      if (!Number.isFinite(durationSeconds) || durationSeconds <= 0) {
         finish(() => reject(new Error('MP4 duration metadata could not be read.')))
         return
       }

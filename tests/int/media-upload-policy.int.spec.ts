@@ -133,6 +133,7 @@ describe('MP4 metadata parsing', () => {
   })
 
   it.each([
+    [{ duration: 0, timescale: 1, videoTracks: [{ codec: 'avc1' }], audioTracks: [] }],
     [{ duration: 1, timescale: 0, videoTracks: [{ codec: 'avc1' }], audioTracks: [] }],
     [
       {
@@ -171,6 +172,16 @@ describe('Media video upload policy', () => {
         videoCodecs: ['avc1.640028'],
       }),
     ).toMatch(/10 minutes/)
+  })
+
+  it('rejects zero duration metadata', () => {
+    expect(
+      validateVideoMetadata({
+        durationSeconds: 0,
+        audioCodecs: ['mp4a.40.2'],
+        videoCodecs: ['avc1.640028'],
+      }),
+    ).toMatch(/duration/i)
   })
 
   it('requires H.264 video rather than accepting arbitrary MP4 codecs', () => {
