@@ -176,14 +176,37 @@ describe('Media renderer', () => {
     expect(link.getAttribute('href')).not.toContain('/cdn-cgi/')
   })
 
+  it.each([
+    'application/octet-stream',
+    'application/vnd.ms-powerpoint',
+    'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  ])('keeps other uploaded file type %s accessible at its original URL', (mimeType) => {
+    render(
+      <Media
+        resource={media({
+          filename: 'download.bin',
+          mimeType,
+          url: 'https://assets.example.com/files/download.bin',
+        })}
+      />,
+    )
+
+    const link = screen.getByRole('link', { name: 'download.bin' })
+    expect(link.getAttribute('href')).toBe(
+      'https://assets.example.com/files/download.bin?2026-09-12T01%3A02%3A03.000Z',
+    )
+    expect(link.getAttribute('href')).not.toContain('/cdn-cgi/')
+  })
+
   it.each(['image/svg+xml', 'audio/mpeg', 'application/octet-stream'])(
-    'safely renders nothing for unsupported MIME type %s',
+    'safely renders nothing for unsupported MIME type %s without a URL',
     (mimeType) => {
       const { container } = render(
         <Media
           resource={media({
             mimeType,
-            url: 'https://assets.example.com/unsupported.bin',
+            url: null,
           })}
         />,
       )

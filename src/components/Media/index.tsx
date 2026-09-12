@@ -14,13 +14,17 @@ export const Media: React.FC<Props> = (props) => {
   const { className, htmlElement = 'div', resource } = props
 
   const mimeType = typeof resource === 'object' ? resource?.mimeType : undefined
+  const hasOriginalURL =
+    typeof resource === 'object' &&
+    typeof resource?.url === 'string' &&
+    resource.url.trim().length > 0
   const renderer = props.src ? (
     <ImageMedia {...props} />
   ) : includesMimeType(MEDIA_RENDERABLE_MIME_TYPES.image, mimeType) ? (
     <ImageMedia {...props} />
   ) : includesMimeType(MEDIA_RENDERABLE_MIME_TYPES.video, mimeType) ? (
     <VideoMedia {...props} />
-  ) : includesMimeType(MEDIA_RENDERABLE_MIME_TYPES.document, mimeType) ? (
+  ) : hasOriginalURL ? (
     <DocumentMedia {...props} />
   ) : null
   const Tag = htmlElement || Fragment
