@@ -4,6 +4,7 @@ import type { Page } from '@/payload-types'
 
 import { CMSLink } from '@/components/Link'
 import { Media } from '@/components/Media'
+import { MEDIA_PRESENTATION } from '@/components/Media/config'
 import RichText from '@/components/RichText'
 
 export const HighImpactHero: React.FC<Page['hero']> = ({ links, media, richText }) => {
@@ -29,7 +30,13 @@ export const HighImpactHero: React.FC<Page['hero']> = ({ links, media, richText 
       </div>
       <div className="min-h-[80vh] select-none">
         {media && typeof media === 'object' && (
-          <Media fill imgClassName="-z-10 object-cover" priority resource={media} />
+          <Media
+            fill
+            imgClassName="-z-10 object-cover"
+            presentation={MEDIA_PRESENTATION.hero}
+            priority
+            resource={media}
+          />
         )}
       </div>
     </div>

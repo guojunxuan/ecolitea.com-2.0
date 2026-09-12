@@ -4,6 +4,7 @@ import React from 'react'
 import type { Post } from '@/payload-types'
 
 import { Media } from '@/components/Media'
+import { MEDIA_PRESENTATION } from '@/components/Media/config'
 import { formatAuthors } from '@/utilities/formatAuthors'
 
 export const PostHero: React.FC<{
@@ -64,7 +65,13 @@ export const PostHero: React.FC<{
       </div>
       <div className="min-h-[80vh] select-none">
         {heroImage && typeof heroImage !== 'string' && (
-          <Media fill priority imgClassName="-z-10 object-cover" resource={heroImage} />
+          <Media
+            fill
+            priority
+            imgClassName="-z-10 object-cover"
+            presentation={MEDIA_PRESENTATION.hero}
+            resource={heroImage}
+          />
         )}
         <div className="absolute pointer-events-none left-0 bottom-0 w-full h-1/2 bg-linear-to-t from-black to-transparent" />
       </div>

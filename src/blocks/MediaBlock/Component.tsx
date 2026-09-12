@@ -7,6 +7,7 @@ import RichText from '@/components/RichText'
 import type { MediaBlock as MediaBlockProps } from '@/payload-types'
 
 import { Media } from '../../components/Media'
+import { MEDIA_PRESENTATION } from '../../components/Media/config'
 
 type Props = MediaBlockProps & {
   breakout?: boolean
@@ -45,6 +46,7 @@ export const MediaBlock: React.FC<Props> = (props) => {
       {(media || staticImage) && (
         <Media
           imgClassName={cn('border border-border rounded-[0.8rem]', imgClassName)}
+          presentation={MEDIA_PRESENTATION.body}
           resource={media}
           src={staticImage}
         />

@@ -4,6 +4,7 @@ import type { Page } from '@/payload-types'
 
 import { CMSLink } from '@/components/Link'
 import { Media } from '@/components/Media'
+import { MEDIA_PRESENTATION } from '@/components/Media/config'
 import RichText from '@/components/RichText'
 
 export const MediumImpactHero: React.FC<Page['hero']> = ({ links, media, richText }) => {
@@ -27,7 +28,12 @@ export const MediumImpactHero: React.FC<Page['hero']> = ({ links, media, richTex
       <div className="wide-container">
         {media && typeof media === 'object' && (
           <div>
-            <Media imgClassName="" priority resource={media} />
+            <Media
+              imgClassName=""
+              presentation={MEDIA_PRESENTATION.hero}
+              priority
+              resource={media}
+            />
             {media?.caption && (
               <div className="mt-3">
                 <RichText data={media.caption} enableGutter={false} />
