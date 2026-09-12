@@ -53,3 +53,46 @@ export const validateImageDimensions = (
       .join(', ')}.`
   )
 }
+
+type VideoMetadata = {
+  durationSeconds: number
+  videoCodecs: string[]
+  audioCodecs: string[]
+}
+
+const hasConfiguredCodec = (codecs: string[], prefixes: readonly string[]) =>
+  codecs.some((codec) =>
+    prefixes.some((prefix) => codec.toLowerCase().startsWith(prefix)),
+  )
+
+export const validateVideoMetadata = (metadata: VideoMetadata): true | string => {
+  if (!Number.isFinite(metadata.durationSeconds) || metadata.durationSeconds < 0) {
+    return 'Video duration could not be read.'
+  }
+
+  if (metadata.durationSeconds > MEDIA_UPLOAD_POLICY.video.maxDurationSeconds) {
+    return 'Video duration exceeds the maximum of 10 minutes.'
+  }
+
+  if (
+    !hasConfiguredCodec(
+      metadata.videoCodecs,
+      MEDIA_UPLOAD_POLICY.video.videoCodecPrefixes,
+    )
+  ) {
+    return 'Video must use an H.264 (AVC) video codec.'
+  }
+
+  if (
+    metadata.audioCodecs.length > 0 &&
+    !metadata.audioCodecs.every((codec) =>
+      MEDIA_UPLOAD_POLICY.video.audioCodecPrefixes.some((prefix) =>
+        codec.toLowerCase().startsWith(prefix),
+      ),
+    )
+  ) {
+    return 'Video audio must use an AAC or MP3 codec.'
+  }
+
+  return true
+}

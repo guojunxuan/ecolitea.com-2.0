@@ -80,6 +80,9 @@ importers:
       lucide-react:
         specifier: 0.563.0
         version: 0.563.0(react@19.2.6)
+      mp4box:
+        specifier: 1.4.6
+        version: 1.4.6
       next:
         specifier: 16.3.3
         version: 16.3.3(@babel/core@7.29.7)(@playwright/test@1.59.1)(@types/node@24.12.3)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(sass@1.77.4)
@@ -3822,6 +3825,10 @@ packages:
   mongoose@9.9.2:
     resolution: {integrity: sha512-Nz8Rwu9jvADm0pyX0M3mEy8bx3wB5b/tRDI4XnjL7p6tZgmdyL9g0gE/EC9It6/XMIbcvniwYQDKYs91Qm+o+g==}
     engines: {node: '>=20.19.0'}
+
+  mp4box@1.4.6:
+    resolution: {integrity: sha512-Z0vPVZpg5auYb03TillZPA2YTWu2EM6hoZ8kaQUD7S4BPaIiHHLEHu8JDcQYcDNwffVCXUlWK35WpljFLNIxvg==}
+    engines: {node: '>=20.8.1'}
 
   mpath@0.8.4:
     resolution: {integrity: sha512-DTxNZomBcTWlrMW76jy1wvV37X/cNNxPW1y2Jzd4DZkAaC5ZGsm8bfGfNOthcDuRJujXLqiuS6o3Tpy0JEoh7g==}
@@ -8928,6 +8935,8 @@ snapshots:
       - mongodb-client-encryption
       - snappy
       - socks
+
+  mp4box@1.4.6: {}
 
   mpath@0.8.4: {}
 
