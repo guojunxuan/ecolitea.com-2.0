@@ -3,8 +3,10 @@ import { getPayload, type Payload } from 'payload'
 
 import config from '../../src/payload.config.js'
 import { assertRunScopedE2EDatabaseURI } from '../helpers/e2eDatabase'
+import { getMediaUrl } from '../../src/utilities/getMediaUrl'
 
 const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? 'http://localhost:3000'
+const E2E_MEDIA_ORIGIN = 'https://media.example.invalid'
 const disableRevalidate = { context: { disableRevalidate: true } }
 const runID = process.env.PLAYWRIGHT_E2E_RUN_ID!
 const slugs = {
@@ -17,6 +19,7 @@ const slugs = {
 const fixturePath = `/${slugs.main}`
 const routePath = `/${slugs.route}`
 let payload: Payload
+let expectedBrandAssetURL = ''
 
 const customLink = (label: string, url: string) => ({ label, type: 'custom' as const, url })
 const unlabeledLink = (url: string) => ({ type: 'custom' as const, url })
@@ -77,11 +80,23 @@ async function seedFixtures() {
     },
     ...disableRevalidate,
   })
+  const originalBrandAssetURL = `${E2E_MEDIA_ORIGIN}/e2e-website-shell-logo.svg`
+  if (logo.url !== originalBrandAssetURL) {
+    throw new Error('E2E storage must return the controlled Brand Asset original URL.')
+  }
   const social = await payload.create({
     collection: 'social-platforms',
     data: { icon: logo.id, platform: 'E2E LinkedIn' },
     ...disableRevalidate,
   })
+  const persistedLogo = await payload.findByID({
+    collection: 'brand-assets',
+    id: logo.id,
+  })
+  if (persistedLogo.url !== originalBrandAssetURL) {
+    throw new Error('E2E storage must persist the controlled Brand Asset original URL.')
+  }
+  expectedBrandAssetURL = getMediaUrl(originalBrandAssetURL, persistedLogo.updatedAt)
   const routePage = bySlug[slugs.route]!
   const directPage = bySlug[slugs.direct]!
 
@@ -193,12 +208,16 @@ async function seedFixtures() {
 }
 
 async function openFixture(page: Page, width: number) {
+  const placeholderRequests: string[] = []
   await page.route('https://media.example.invalid/**', async (route) => {
+    placeholderRequests.push(route.request().url())
     await route.fulfill({
       body: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1 1"/>',
       contentType: 'image/svg+xml',
     })
   })
+  ;(page as Page & { e2ePlaceholderRequests?: string[] }).e2ePlaceholderRequests =
+    placeholderRequests
   await page.setViewportSize({ height: width < 768 ? 844 : 960, width })
   await page.goto(`${baseURL}${fixturePath}`)
   await expect(page.locator('header')).toBeVisible()
@@ -265,6 +284,8 @@ async function expectFooterIdentityAndContact(page: Page) {
   const brand = page.locator('[data-footer-content="brand"]')
   const logo = brand.getByRole('img', { name: 'E2E website shell logo' })
   await expect(logo).toBeVisible()
+  await expect(logo).toHaveAttribute('src', expectedBrandAssetURL)
+  await expect(logo).not.toHaveAttribute('src', /\/_next\/image/)
   await expect(logo).not.toHaveAttribute('src', /\/cdn-cgi\//)
 
   const social = page.locator('[data-footer-content="social"]')
@@ -274,7 +295,12 @@ async function expectFooterIdentityAndContact(page: Page) {
   )
   const socialIcon = social.locator('img')
   await expect(socialIcon).toBeVisible()
+  await expect(socialIcon).toHaveAttribute('src', expectedBrandAssetURL)
+  await expect(socialIcon).not.toHaveAttribute('src', /\/_next\/image/)
   await expect(socialIcon).not.toHaveAttribute('src', /\/cdn-cgi\//)
+  await expect
+    .poll(() => (page as Page & { e2ePlaceholderRequests?: string[] }).e2ePlaceholderRequests ?? [])
+    .toEqual(expect.arrayContaining([expectedBrandAssetURL]))
 
   const contact = page.locator('[data-footer-content="contact"]')
   await expect(contact.getByText('E2E registered business address')).toBeVisible()
