@@ -265,6 +265,7 @@ describe('development Media cleanup safety', () => {
     { filename: 'one.jpg', id: 'm1' },
     { filename: 'one.jpg', id: 'm1', url: '' },
     { filename: 'one.jpg', id: 'm1', url: 'not-a-url' },
+    { filename: 'one.jpg', id: 'm1', url: 's3://bucket/one.jpg' },
     { filename: 'one.jpg', id: 'm1', url: 'https://other.example.com/one.jpg' },
   ])('refuses incomplete or out-of-origin original metadata before deletion: %j', async (media) => {
     const payload = fakePayload({ collections: { media: [media] } })
