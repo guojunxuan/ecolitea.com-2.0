@@ -8,6 +8,38 @@ This change makes R2 the source of original assets and moves delivery-time image
 
 This work is based on `chore/site-settings-and-site-shell` and is developed on `codex/media-cloudflare-transformations`.
 
+## Design principles
+
+### Configuration over hardcoding
+
+Values that represent policy or reusable presentation behavior live in typed configuration rather than being repeated inside hooks and components. This includes:
+
+- accepted image ratios and their tolerance;
+- video container, codec, duration, and file-size limits;
+- default image quality and format behavior;
+- named presentation presets used by current business consumers.
+
+The configuration is application source code reviewed and deployed with the site. It is not editor-managed Payload content. Values that are inherently environment-specific continue to come from the existing environment layer.
+
+### Low coupling and provider-neutral interfaces
+
+Business components express presentation intent using application terms such as `aspectRatio`, `fit`, `quality`, and responsive `sizes`. They do not import a Cloudflare adapter, refer to `/cdn-cgi/`, or construct provider option strings.
+
+The shared Media layer exposes the provider-neutral contract. A Cloudflare-specific URL adapter implements that contract internally. This boundary allows the delivery provider or URL syntax to change without changing Block schemas or business renderers.
+
+### Existing project conventions
+
+The implementation follows the repository's current organization:
+
+- Payload collection configuration remains under `src/collections`;
+- reusable Media rendering code remains under `src/components/Media`;
+- general URL helpers remain under `src/utilities` only when they are not Media-specific;
+- business presentation choices remain beside their existing render components in `src/blocks`, `src/heros`, and `src/components/Card`;
+- integration tests remain under `tests/int` and browser behavior tests remain under `tests/e2e`;
+- imports use the existing `@/` alias and exported configuration uses the project's `as const` and `satisfies` patterns where they improve type safety.
+
+No package source files or generated dependency files are modified.
+
 ## Scope
 
 The development environment uses the existing `R2_PUBLIC_URL` value:
@@ -99,6 +131,8 @@ The presentation contract supports the requirements needed by current consumers:
 
 Fixed design decisions live in the business component's frontend renderer. They are not Payload schema fields. A future Block may expose an editor-selectable layout option, but it must map that content-level choice to the same renderer contract.
 
+Repeated fixed requirements use named, typed presentation presets exported by the Media layer. A business renderer selects a preset and may add its HTML `sizes` value; it does not duplicate numeric Cloudflare settings. A one-off requirement may use the same provider-neutral options directly when introducing a named preset would add no reuse.
+
 Examples of ownership:
 
 - a Card renderer declares its card ratio and cover behavior;
@@ -129,13 +163,37 @@ The video renderer:
 
 Documents use the original URL without transformation.
 
+### Configuration and adapter boundaries
+
+The implementation keeps three configuration concerns separate:
+
+1. Media upload policy defines accepted ratios, tolerance, and video limits for Payload validation.
+2. Media presentation presets define reusable frontend intent such as card crop or original-ratio body media.
+3. The Cloudflare adapter maps renderer intent to deterministic `/cdn-cgi/image/` and `/cdn-cgi/media/` URLs.
+
+Upload policy does not import frontend presentation presets. Business components do not import upload validation or the Cloudflare adapter. `ImageMedia` and `VideoMedia` are the only components that connect the provider-neutral render contract to the provider adapter.
+
+Following the current project layout, the expected source boundaries are:
+
+```text
+src/collections/Media.ts                  Payload collection composition
+src/collections/mediaUploadPolicy.ts      typed upload rules and validation helpers
+src/components/Media/types.ts             provider-neutral render contract
+src/components/Media/config.ts            typed defaults and presentation presets
+src/components/Media/cloudflare.ts        Cloudflare URL adapter
+src/components/Media/ImageMedia/index.tsx image rendering integration
+src/components/Media/VideoMedia/index.tsx video rendering integration
+```
+
+The implementation plan may keep a helper in its caller when it is only a few lines and has one consumer, but it must preserve these dependency directions.
+
 ## Upload validation
 
 Validation runs only when a file is uploaded or replaced. Editing alt text, captions, folder relationships, or other document metadata does not revalidate an existing file.
 
 ### Images
 
-Raster images that expose width and height must match one of the approved ratios. A ratio matches when `abs(actualRatio / allowedRatio - 1) <= 0.01`, giving a relative tolerance of 1 percent:
+Raster images that expose width and height must match one of the approved ratios configured in the Media upload policy. A ratio matches when `abs(actualRatio / allowedRatio - 1) <= configuredTolerance`; the initial tolerance is `0.01`, or 1 percent:
 
 - `1:1`;
 - `4:3`;
@@ -150,7 +208,7 @@ SVG assets remain the responsibility of `brand-assets`. The normal `media` image
 
 ### Videos
 
-New video uploads must satisfy the Cloudflare Media Transformations source constraints adopted for this project:
+New video uploads must satisfy the limits defined in the Media upload policy. The initial values follow the Cloudflare Media Transformations source constraints adopted for this project:
 
 - MP4 container;
 - H.264 video;
@@ -206,6 +264,8 @@ Automated tests cover:
 - the absence of Payload `imageSizes`, focal-point behavior, and generated-size metadata;
 - Admin thumbnail resolution to the original URL;
 - deterministic image transformation URLs with same-origin pathname sources;
+- upload and presentation behavior driven by typed configuration rather than repeated numeric literals;
+- business consumers remaining independent of Cloudflare URL syntax;
 - source paths containing spaces and query parameters;
 - image renderer defaults that preserve aspect ratio;
 - explicit Card or Hero crop requirements;
