@@ -109,6 +109,9 @@ export default defineConfig({
         DISABLE_R2_STORAGE: 'false',
         E2E_STORAGE_PORT: String(e2eStoragePort),
         HOSTNAME: '127.0.0.1',
+        // `tsx/esm` is required for Playwright to load this config, but Next's
+        // TypeScript config loader must not inherit it on Node 24.
+        NODE_OPTIONS: '--no-deprecation',
         PLAYWRIGHT_BASE_URL: e2eBaseURL,
         PLAYWRIGHT_E2E_RUN_ID: e2eRunID,
         PLAYWRIGHT_TEST: 'true',
