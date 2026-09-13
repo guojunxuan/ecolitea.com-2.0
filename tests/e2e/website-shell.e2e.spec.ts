@@ -3,9 +3,10 @@ import { getPayload, type Payload } from 'payload'
 
 import config from '../../src/payload.config.js'
 import { assertRunScopedE2EDatabaseURI } from '../helpers/e2eDatabase'
+import { getE2EBaseURL } from '../helpers/e2eBaseURL'
 import { getMediaUrl } from '../../src/utilities/getMediaUrl'
 
-const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? 'http://localhost:3000'
+const baseURL = getE2EBaseURL()
 const E2E_MEDIA_ORIGIN = 'https://media.example.invalid'
 const disableRevalidate = { context: { disableRevalidate: true } }
 const runID = process.env.PLAYWRIGHT_E2E_RUN_ID!

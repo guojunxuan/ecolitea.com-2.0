@@ -5,8 +5,9 @@ import {
   relatedPostsFixture,
   seedRelatedPosts,
 } from '../helpers/seedRelatedPosts'
+import { getE2EBaseURL } from '../helpers/e2eBaseURL'
 
-const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? 'http://localhost:3000'
+const baseURL = getE2EBaseURL()
 
 test.describe('Frontend', () => {
   test('returns the intentional not-found page at the removed template homepage', async ({

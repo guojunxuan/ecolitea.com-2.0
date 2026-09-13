@@ -3,6 +3,7 @@ import { randomUUID } from 'node:crypto'
 
 import { cleanupTestUser, seedTestUser, testUser } from '../helpers/seedUser'
 import { login } from '../helpers/login'
+import { getE2EBaseURL } from '../helpers/e2eBaseURL'
 
 test.describe.serial('Site Settings Social admin', () => {
   test.setTimeout(120_000)
@@ -11,7 +12,7 @@ test.describe.serial('Site Settings Social admin', () => {
   let page: Page
 
   const openSocialTab = async () => {
-    await page.goto('http://localhost:3000/admin/globals/site-settings')
+    await page.goto(`${getE2EBaseURL()}/admin/globals/site-settings`)
     const lockDialog = page.getByRole('dialog', { name: 'document-locked' })
     if (await lockDialog.isVisible()) {
       await lockDialog.getByRole('button', { name: 'Take over' }).click()
