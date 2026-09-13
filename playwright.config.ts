@@ -101,7 +101,8 @@ export default defineConfig({
       url: `${e2eStorageEndpoint}/health`,
     },
     {
-      command: 'pnpm build --webpack && pnpm start',
+      command:
+        'pnpm exec next build --webpack && mkdir -p .next-e2e/standalone/.next-e2e && cp -R .next-e2e/static .next-e2e/standalone/.next-e2e/static && if [ -d public ]; then cp -R public .next-e2e/standalone/public; fi && node .next-e2e/standalone/server.js',
       env: {
         ...process.env,
         DATABASE_URI: e2eDatabaseURI,
