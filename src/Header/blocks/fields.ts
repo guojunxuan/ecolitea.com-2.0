@@ -44,27 +44,29 @@ export const headingField = (): Field => ({
   },
 })
 
-export const cardItemFields = (): Field[] => [
-  {
-    name: 'image',
-    type: 'upload',
-    relationTo: 'media',
-    required: true,
-    filterOptions: {
-      mimeType: {
-        in: [...MEDIA_UPLOAD_POLICY.image.mimeTypes],
-      },
+export const imageField = (): Field => ({
+  name: 'image',
+  type: 'upload',
+  relationTo: 'media',
+  required: true,
+  filterOptions: {
+    mimeType: {
+      in: [...MEDIA_UPLOAD_POLICY.image.mimeTypes],
     },
   },
-  {
-    name: 'title',
-    type: 'text',
-    required: true,
-    hooks: { beforeChange: [trimText] },
-    validate: validateRequiredHeaderText('title'),
-  },
-  unlabeledNavigationLink({ label: 'Destination' }),
-]
+})
+
+export const titleField = (): Field => ({
+  name: 'title',
+  type: 'text',
+  required: true,
+  hooks: { beforeChange: [trimText] },
+  validate: validateRequiredHeaderText('title'),
+})
+
+export const cardLinkField = (): Field => unlabeledNavigationLink({ label: 'Destination' })
+
+export const cardItemFields = (): Field[] => [imageField(), titleField(), cardLinkField()]
 
 export const cardItemsField = (): Field => ({
   name: 'items',

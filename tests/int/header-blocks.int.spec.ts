@@ -118,6 +118,15 @@ describe('Header navigation Blocks', () => {
     expect(links).toMatchObject({ type: 'array', required: true, minRows: 1, maxRows: 8 })
     expect(linkHasLabel(findNamed(fieldsWithin(links), 'link'))).toBe(true)
     const description = findNamed(fieldsWithin(richCard), 'description')
+    expect(findNamed(fieldsWithin(richCard), 'image')).toMatchObject({
+      type: 'upload',
+      relationTo: 'media',
+      required: true,
+    })
+    expect(findNamed(fieldsWithin(richCard), 'title')).toMatchObject({
+      type: 'text',
+      required: true,
+    })
     expect(description).toMatchObject({ type: 'textarea' })
     expect(description?.required).toBeUndefined()
     expect(linkHasLabel(findNamed(fieldsWithin(richCard), 'link'))).toBe(false)
