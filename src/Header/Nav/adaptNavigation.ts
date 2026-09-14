@@ -1,4 +1,5 @@
 import { resolveLinkHref, type CMSLinkType } from '@/components/Link'
+import { MEDIA_RENDERABLE_MIME_TYPES } from '@/components/Media/config'
 import type { Header, Media } from '@/payload-types'
 
 import type {
@@ -50,8 +51,30 @@ const adaptLink = (value: unknown, options: AdaptLinkOptions = {}): HeaderLinkDa
   }
 }
 
+const isOptionalText = (value: unknown): boolean => value == null || typeof value === 'string'
+
+const isOptionalDimension = (value: unknown): boolean =>
+  value == null || (typeof value === 'number' && Number.isFinite(value) && value > 0)
+
+const isRenderableImageMedia = (value: unknown): value is Media => {
+  if (!isRecord(value)) return false
+
+  const mimeType = text(value.mimeType)
+  return Boolean(
+    text(value.id) &&
+      text(value.createdAt) &&
+      text(value.updatedAt) &&
+      text(value.url) &&
+      mimeType &&
+      MEDIA_RENDERABLE_MIME_TYPES.image.some((supported) => supported === mimeType) &&
+      isOptionalText(value.alt) &&
+      isOptionalDimension(value.width) &&
+      isOptionalDimension(value.height),
+  )
+}
+
 const adaptMedia = (value: unknown): Media | null =>
-  isRecord(value) && text(value.id) ? (value as unknown as Media) : null
+  isRenderableImageMedia(value) ? value : null
 
 const adaptCard = (value: unknown, fallbackID: string): HeaderCardData | null => {
   if (!isRecord(value)) return null

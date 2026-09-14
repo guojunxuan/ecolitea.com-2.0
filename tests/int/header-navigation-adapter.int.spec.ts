@@ -14,8 +14,12 @@ const image = {
   id: 'media-1',
   alt: 'Tea system',
   createdAt: '2026-09-01T00:00:00.000Z',
+  filename: 'tea.jpg',
+  height: 900,
+  mimeType: 'image/jpeg',
   updatedAt: '2026-09-01T00:00:00.000Z',
   url: '/media/tea.jpg',
+  width: 1200,
 }
 
 describe('adaptHeaderNavigation', () => {
@@ -199,6 +203,126 @@ describe('adaptHeaderNavigation', () => {
     })
     expect(result.navItems[0]?.content?.[0]?.type).toBe('categoryTabs')
     expect(JSON.parse(JSON.stringify(result))).toEqual(result)
+  })
+
+  it('retains both destinations and content for a valid hybrid item', () => {
+    const result = adaptHeaderNavigation({
+      id: 'header',
+      navItems: [
+        {
+          id: 'company',
+          label: 'Company',
+          navigationType: 'directLinkAndDropdown',
+          link: { type: 'custom', url: '/company' },
+          content: [
+            {
+              id: 'company-links',
+              blockType: 'linkGroup',
+              links: [
+                {
+                  id: 'about',
+                  link: { label: 'About us', type: 'custom', url: '/company/about' },
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    } as never)
+
+    expect(result.navItems).toEqual([
+      {
+        id: 'company',
+        label: 'Company',
+        navigationType: 'directLinkAndDropdown',
+        link: {
+          href: '/company',
+          label: 'Company',
+          newTab: false,
+          type: 'custom',
+        },
+        content: [
+          {
+            id: 'company-links',
+            type: 'linkGroup',
+            heading: null,
+            links: [
+              {
+                id: 'about',
+                link: {
+                  href: '/company/about',
+                  label: 'About us',
+                  newTab: false,
+                  type: 'custom',
+                },
+              },
+            ],
+          },
+        ],
+      },
+    ])
+  })
+
+  it.each([
+    ['an id-only object', { id: 'id-only' }],
+    [
+      'an image without a URL',
+      {
+        id: 'missing-url',
+        createdAt: '2026-09-01T00:00:00.000Z',
+        mimeType: 'image/jpeg',
+        updatedAt: '2026-09-01T00:00:00.000Z',
+      },
+    ],
+    [
+      'a video resource',
+      {
+        id: 'video',
+        createdAt: '2026-09-01T00:00:00.000Z',
+        mimeType: 'video/mp4',
+        updatedAt: '2026-09-01T00:00:00.000Z',
+        url: '/media/demo.mp4',
+      },
+    ],
+    [
+      'an unsupported image resource',
+      {
+        id: 'svg',
+        createdAt: '2026-09-01T00:00:00.000Z',
+        mimeType: 'image/svg+xml',
+        updatedAt: '2026-09-01T00:00:00.000Z',
+        url: '/media/diagram.svg',
+      },
+    ],
+  ])('keeps the card but nulls its image for %s', (_label, invalidImage) => {
+    const result = adaptHeaderNavigation({
+      id: 'header',
+      navItems: [
+        {
+          id: 'resources',
+          label: 'Resources',
+          navigationType: 'dropdown',
+          content: [
+            {
+              id: 'rich',
+              blockType: 'richCard',
+              image: invalidImage,
+              title: 'Resource guide',
+              link: { type: 'custom', url: '/guide' },
+            },
+          ],
+        },
+      ],
+    } as never)
+
+    expect(result.navItems[0]?.content?.[0]).toMatchObject({
+      type: 'richCard',
+      card: {
+        image: null,
+        title: 'Resource guide',
+        link: { href: '/guide', label: 'Resource guide' },
+      },
+    })
   })
 
   it('filters invalid rows, categories, and blocks while preserving valid siblings', () => {
