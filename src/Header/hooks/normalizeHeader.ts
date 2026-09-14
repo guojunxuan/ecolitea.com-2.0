@@ -5,6 +5,9 @@ type UnknownRecord = Record<string, unknown>
 const isRecord = (value: unknown): value is UnknownRecord =>
   typeof value === 'object' && value !== null && !Array.isArray(value)
 
+const hasOwn = (value: UnknownRecord, key: string): boolean =>
+  Object.prototype.hasOwnProperty.call(value, key)
+
 const trim = (value: unknown): unknown => (typeof value === 'string' ? value.trim() : value)
 
 const normalizeLink = (value: unknown): unknown => {
@@ -12,59 +15,79 @@ const normalizeLink = (value: unknown): unknown => {
 
   return {
     ...value,
-    label: trim(value.label),
-    url: trim(value.url),
+    ...(hasOwn(value, 'label') ? { label: trim(value.label) } : {}),
+    ...(hasOwn(value, 'url') ? { url: trim(value.url) } : {}),
   }
 }
 
 const normalizeLinkRow = (value: unknown): unknown => {
   if (!isRecord(value)) return value
-
-  return {
-    ...value,
-    link: normalizeLink(value.link),
-  }
+  return { ...value, ...(hasOwn(value, 'link') ? { link: normalizeLink(value.link) } : {}) }
 }
 
 const normalizeLinkRows = (value: unknown): unknown =>
   Array.isArray(value) ? value.map(normalizeLinkRow) : value
 
-const normalizeDropdownItem = (value: unknown): unknown => {
+const normalizeCardItem = (value: unknown): unknown => {
   if (!isRecord(value)) return value
-
-  const defaultItem = isRecord(value.defaultItem)
-    ? {
-        ...value.defaultItem,
-        link: normalizeLink(value.defaultItem.link),
-      }
-    : value.defaultItem
-  const featuredItem = isRecord(value.featuredItem)
-    ? {
-        ...value.featuredItem,
-        tag: trim(value.featuredItem.tag),
-        landingLink: normalizeLink(value.featuredItem.landingLink),
-        links: normalizeLinkRows(value.featuredItem.links),
-      }
-    : value.featuredItem
-  const listItem = isRecord(value.listItem)
-    ? {
-        ...value.listItem,
-        tag: trim(value.listItem.tag),
-        landingLink: normalizeLink(value.listItem.landingLink),
-        links: normalizeLinkRows(value.listItem.links),
-      }
-    : value.listItem
-
-  return { ...value, defaultItem, featuredItem, listItem }
-}
-
-const normalizeDropdown = (value: unknown): unknown => {
-  if (!isRecord(value)) return value
-
   return {
     ...value,
-    descriptionLinks: normalizeLinkRows(value.descriptionLinks),
-    items: Array.isArray(value.items) ? value.items.map(normalizeDropdownItem) : value.items,
+    ...(hasOwn(value, 'title') ? { title: trim(value.title) } : {}),
+    ...(hasOwn(value, 'link') ? { link: normalizeLink(value.link) } : {}),
+  }
+}
+
+const normalizeCardItems = (value: unknown): unknown =>
+  Array.isArray(value) ? value.map(normalizeCardItem) : value
+
+const normalizeCategory = (value: unknown): unknown => {
+  if (!isRecord(value)) return value
+  return {
+    ...value,
+    ...(hasOwn(value, 'label') ? { label: trim(value.label) } : {}),
+    ...(hasOwn(value, 'cta') ? { cta: normalizeLink(value.cta) } : {}),
+    ...(hasOwn(value, 'items') ? { items: normalizeCardItems(value.items) } : {}),
+  }
+}
+
+const normalizeBlock = (value: unknown): unknown => {
+  if (!isRecord(value)) return value
+
+  switch (value.blockType) {
+    case 'categoryTabs':
+      return {
+        ...value,
+        ...(hasOwn(value, 'cta') ? { cta: normalizeLink(value.cta) } : {}),
+        ...(hasOwn(value, 'categories')
+          ? {
+              categories: Array.isArray(value.categories)
+                ? value.categories.map(normalizeCategory)
+                : value.categories,
+            }
+          : {}),
+      }
+    case 'cardGroup':
+      return {
+        ...value,
+        ...(hasOwn(value, 'heading') ? { heading: trim(value.heading) } : {}),
+        ...(hasOwn(value, 'cta') ? { cta: normalizeLink(value.cta) } : {}),
+        ...(hasOwn(value, 'items') ? { items: normalizeCardItems(value.items) } : {}),
+      }
+    case 'linkGroup':
+      return {
+        ...value,
+        ...(hasOwn(value, 'heading') ? { heading: trim(value.heading) } : {}),
+        ...(hasOwn(value, 'links') ? { links: normalizeLinkRows(value.links) } : {}),
+      }
+    case 'richCard':
+      return {
+        ...value,
+        ...(hasOwn(value, 'title') ? { title: trim(value.title) } : {}),
+        ...(hasOwn(value, 'description') ? { description: trim(value.description) } : {}),
+        ...(hasOwn(value, 'link') ? { link: normalizeLink(value.link) } : {}),
+      }
+    default:
+      return value
   }
 }
 
@@ -73,9 +96,13 @@ const normalizeNavigationItem = (value: unknown): unknown => {
 
   return {
     ...value,
-    label: trim(value.label),
-    link: normalizeLink(value.link),
-    dropdown: normalizeDropdown(value.dropdown),
+    ...(hasOwn(value, 'label') ? { label: trim(value.label) } : {}),
+    ...(hasOwn(value, 'link') ? { link: normalizeLink(value.link) } : {}),
+    ...(hasOwn(value, 'content')
+      ? {
+          content: Array.isArray(value.content) ? value.content.map(normalizeBlock) : value.content,
+        }
+      : {}),
   }
 }
 
@@ -84,9 +111,13 @@ export const normalizeHeader: GlobalBeforeValidateHook = ({ data }) => {
 
   return {
     ...data,
-    navItems: Array.isArray(data.navItems)
-      ? data.navItems.map(normalizeNavigationItem)
-      : data.navItems,
-    menuCta: normalizeLink(data.menuCta),
+    ...(hasOwn(data, 'navItems')
+      ? {
+          navItems: Array.isArray(data.navItems)
+            ? data.navItems.map(normalizeNavigationItem)
+            : data.navItems,
+        }
+      : {}),
+    ...(hasOwn(data, 'menuCta') ? { menuCta: normalizeLink(data.menuCta) } : {}),
   }
 }

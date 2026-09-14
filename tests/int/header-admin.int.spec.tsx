@@ -11,7 +11,6 @@ vi.mock('@payloadcms/ui', () => ({
   useRowLabel: () => rowState,
 }))
 
-import { DropdownItemRowLabel } from '@/Header/DropdownItemRowLabel'
 import { RowLabel } from '@/Header/RowLabel'
 
 afterEach(() => {
@@ -43,55 +42,5 @@ describe('Header admin row labels', () => {
     render(<RowLabel path="navItems.1" />)
 
     expect(screen.getByText('Navigation Item 2 · Dropdown')).toBeTruthy()
-  })
-
-  it.each([
-    [
-      'default',
-      {
-        defaultItem: { link: { label: ' Default Label ' } },
-        featuredItem: { tag: 'Stale Featured' },
-      },
-      'Default Label · Default',
-    ],
-    [
-      'featured',
-      {
-        defaultItem: { link: { label: 'Stale Default' } },
-        featuredItem: { tag: ' Featured Tag ' },
-      },
-      'Featured Tag · Featured',
-    ],
-    [
-      'list',
-      {
-        defaultItem: { link: { label: 'Stale Default' } },
-        featuredItem: { tag: 'Stale Featured' },
-        listItem: { tag: ' List Tag ' },
-      },
-      'List Tag · List',
-    ],
-  ])('summarizes only the active %s dropdown branch', (type, branches, summary) => {
-    rowState.rowNumber = 0
-    rowState.data = { type, ...branches }
-
-    render(<DropdownItemRowLabel path="items.0" />)
-
-    expect(screen.getByText(`Dropdown Item 1: ${summary}`)).toBeTruthy()
-  })
-
-  it('uses a numbered dropdown fallback while retaining its readable type', () => {
-    rowState.rowNumber = 2
-    rowState.data = { featuredItem: { tag: '   ' }, type: 'featured' }
-
-    render(<DropdownItemRowLabel path="items.2" />)
-
-    expect(screen.getByText('Dropdown Item 3 · Featured')).toBeTruthy()
-  })
-
-  it('handles an undefined dropdown row safely', () => {
-    render(<DropdownItemRowLabel path="items" />)
-
-    expect(screen.getByText('Dropdown Item')).toBeTruthy()
   })
 })

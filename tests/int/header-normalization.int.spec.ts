@@ -5,38 +5,61 @@ import { normalizeHeader } from '@/Header/hooks/normalizeHeader'
 const normalize = (data: unknown) => normalizeHeader({ data } as never)
 
 describe('normalizeHeader', () => {
-  it('trims Header-owned strings in active and inactive navigation branches plus CTA', () => {
-    const richText = { root: { children: [{ text: '  Preserve rich text  ' }] } }
+  it('normalizes every Header block without inventing labels on card destinations', () => {
     const input = {
       navItems: [
         {
           label: '  Products  ',
-          navigationType: 'directLink',
+          navigationType: 'directLinkAndDropdown',
           link: { type: 'custom', url: '  /products  ' },
-          dropdown: {
-            description: '  Preserve description  ',
-            descriptionLinks: [{ link: { type: 'custom', label: '  Learn  ', url: '  /learn  ' } }],
-            items: [
-              {
-                type: 'default',
-                defaultItem: {
-                  link: { type: 'custom', label: '  Default  ', url: '  /default  ' },
-                  description: '  Preserve item description  ',
+          content: [
+            {
+              blockType: 'categoryTabs',
+              enableCta: true,
+              cta: { type: 'custom', label: '  All products  ', url: '  /products/all  ' },
+              categories: [
+                {
+                  label: '  Tea  ',
+                  enableCta: true,
+                  cta: { type: 'custom', label: '  All tea  ', url: '  /tea  ' },
+                  items: [
+                    {
+                      image: 'media-1',
+                      title: '  Green tea  ',
+                      link: { type: 'custom', url: '  /tea/green  ' },
+                    },
+                  ],
                 },
-                featuredItem: {
-                  tag: '  Featured  ',
-                  landingLink: { type: 'custom', url: '  /featured  ' },
-                  label: richText,
-                  links: [{ link: { type: 'custom', label: '  Story  ', url: '  /story  ' } }],
+              ],
+            },
+            {
+              blockType: 'cardGroup',
+              enableHeading: true,
+              heading: '  Featured  ',
+              enableCta: true,
+              cta: { type: 'custom', label: '  View all  ', url: '  /featured  ' },
+              items: [
+                {
+                  image: 'media-2',
+                  title: '  Ceremonial matcha  ',
+                  link: { type: 'custom', url: '  /matcha  ' },
                 },
-                listItem: {
-                  tag: '  Resources  ',
-                  landingLink: { type: 'custom', url: '  /resources  ' },
-                  links: [{ link: { type: 'custom', label: '  Docs  ', url: '  /docs  ' } }],
-                },
-              },
-            ],
-          },
+              ],
+            },
+            {
+              blockType: 'linkGroup',
+              enableHeading: true,
+              heading: '  Learn  ',
+              links: [{ link: { type: 'custom', label: '  Brewing guide  ', url: '  /guide  ' } }],
+            },
+            {
+              blockType: 'richCard',
+              image: 'media-3',
+              title: '  Our growers  ',
+              description: '  Meet the farms  ',
+              link: { type: 'custom', url: '  /growers  ' },
+            },
+          ],
         },
       ],
       enableMenuCta: true,
@@ -44,58 +67,94 @@ describe('normalizeHeader', () => {
     }
 
     const result = normalize(input) as typeof input
+    const [categoryTabs, cardGroup, linkGroup, richCard] = result.navItems[0].content
 
     expect(result.navItems[0].label).toBe('Products')
-    expect(result.navItems[0].link.url).toBe('/products')
-    expect(result.navItems[0].dropdown.descriptionLinks[0].link).toMatchObject({
-      label: 'Learn',
-      url: '/learn',
+    expect(result.navItems[0].link).toEqual({ type: 'custom', url: '/products' })
+    expect(categoryTabs).toMatchObject({
+      cta: { label: 'All products', url: '/products/all' },
+      categories: [
+        {
+          label: 'Tea',
+          cta: { label: 'All tea', url: '/tea' },
+          items: [{ title: 'Green tea', link: { type: 'custom', url: '/tea/green' } }],
+        },
+      ],
     })
-    expect(result.navItems[0].dropdown.items[0].defaultItem.link).toMatchObject({
-      label: 'Default',
-      url: '/default',
+    expect(categoryTabs.categories?.[0]?.items?.[0]?.link).not.toHaveProperty('label')
+    expect(cardGroup).toMatchObject({
+      heading: 'Featured',
+      cta: { label: 'View all', url: '/featured' },
+      items: [{ title: 'Ceremonial matcha', link: { type: 'custom', url: '/matcha' } }],
     })
-    expect(result.navItems[0].dropdown.items[0].featuredItem).toMatchObject({
-      tag: 'Featured',
-      landingLink: { url: '/featured' },
-      links: [{ link: { label: 'Story', url: '/story' } }],
+    expect(cardGroup.items?.[0]?.link).not.toHaveProperty('label')
+    expect(linkGroup).toMatchObject({
+      heading: 'Learn',
+      links: [{ link: { label: 'Brewing guide', url: '/guide' } }],
     })
-    expect(result.navItems[0].dropdown.items[0].listItem).toMatchObject({
-      tag: 'Resources',
-      landingLink: { url: '/resources' },
-      links: [{ link: { label: 'Docs', url: '/docs' } }],
+    expect(richCard).toMatchObject({
+      title: 'Our growers',
+      description: 'Meet the farms',
+      link: { type: 'custom', url: '/growers' },
     })
+    expect(richCard.link).not.toHaveProperty('label')
     expect(result.menuCta).toMatchObject({ label: 'Contact Us', url: '/contact' })
-    expect(result.navItems[0].dropdown.description).toBe('  Preserve description  ')
-    expect(result.navItems[0].dropdown.items[0].defaultItem.description).toBe(
-      '  Preserve item description  ',
-    )
-    expect(result.navItems[0].dropdown.items[0].featuredItem.label).toBe(richText)
   })
 
-  it('returns an immutable normalized copy and preserves case and internal whitespace', () => {
+  it('preserves inactive direct links, content, headings, and CTAs', () => {
     const input = {
       navItems: [
-        { label: '  Keep  My CASE  ', link: { label: '  CTA  Label  ', url: '  #Top  ' } },
+        {
+          label: '  About  ',
+          navigationType: 'directLink',
+          link: { type: 'custom', url: '  /about  ' },
+          content: [
+            {
+              blockType: 'cardGroup',
+              enableHeading: false,
+              heading: '  Stored heading  ',
+              enableCta: false,
+              cta: { type: 'custom', label: '  Stored CTA  ', url: '  /stored  ' },
+              items: [],
+            },
+          ],
+        },
+        {
+          label: '  Menu  ',
+          navigationType: 'dropdown',
+          link: { type: 'custom', url: '  /stored-direct-link  ' },
+          content: [],
+        },
       ],
+      enableMenuCta: false,
+      menuCta: { type: 'custom', label: '  Stored menu CTA  ', url: '  /stored-menu-cta  ' },
     }
 
     const result = normalize(input) as typeof input
 
-    expect(result).not.toBe(input)
-    expect(result.navItems).not.toBe(input.navItems)
-    expect(result.navItems[0]).not.toBe(input.navItems[0])
-    expect(result.navItems[0].label).toBe('Keep  My CASE')
-    expect(result.navItems[0].link).toMatchObject({ label: 'CTA  Label', url: '#Top' })
-    expect(input.navItems[0].label).toBe('  Keep  My CASE  ')
+    expect(result.navItems[0].content[0]).toMatchObject({
+      enableHeading: false,
+      heading: 'Stored heading',
+      enableCta: false,
+      cta: { label: 'Stored CTA', url: '/stored' },
+    })
+    expect(result.navItems[1].link).toEqual({ type: 'custom', url: '/stored-direct-link' })
+    expect(result.navItems[1].content).toEqual([])
+    expect(result.menuCta).toMatchObject({ label: 'Stored menu CTA', url: '/stored-menu-cta' })
   })
 
-  it('handles null, undefined and partial data safely', () => {
+  it('returns an immutable copy and safely preserves unknown or partial values', () => {
+    const unknownBlock = { blockType: 'futureBlock', custom: { value: '  unchanged  ' } }
+    const input = { navItems: [null, {}, { content: [null, unknownBlock] }] }
+    const result = normalize(input) as typeof input
+
+    expect(result).not.toBe(input)
+    expect(result.navItems).not.toBe(input.navItems)
+    expect(result.navItems[2]).not.toBe(input.navItems[2])
+    expect(result.navItems[2]?.content?.[1]).toEqual(unknownBlock)
+    expect(unknownBlock.custom.value).toBe('  unchanged  ')
     expect(normalize(undefined)).toBeUndefined()
     expect(normalize(null)).toBeNull()
     expect(normalize({})).toEqual({})
-    expect(normalize({ navItems: [null, {}, { dropdown: { items: [null] } }] })).toEqual({
-      navItems: [null, {}, { dropdown: { items: [null] } }],
-    })
   })
 })

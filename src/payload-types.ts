@@ -36,180 +36,10 @@ export type HeaderNavItem =
             } | null);
         url?: string | null;
       };
-      dropdown?: {
-        description?: string | null;
-        descriptionLinks?:
-          | {
-              link: {
-                type: 'reference' | 'custom';
-                newTab?: boolean | null;
-                reference?:
-                  | ({
-                      relationTo: 'pages';
-                      value: string | Page;
-                    } | null)
-                  | ({
-                      relationTo: 'posts';
-                      value: string | Post;
-                    } | null)
-                  | ({
-                      relationTo: 'case-studies';
-                      value: string | CaseStudy;
-                    } | null)
-                  | ({
-                      relationTo: 'categories';
-                      value: string | Category;
-                    } | null);
-                url?: string | null;
-                label: string;
-              };
-              id?: string | null;
-            }[]
-          | null;
-        items: HeaderDropdownItem;
-      };
+      content?: (HeaderCategoryTabsBlock | HeaderCardGroupBlock | HeaderLinkGroupBlock | HeaderRichCardBlock)[] | null;
       id?: string | null;
     }[]
   | null;
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "HeaderDropdownItem".
- */
-export type HeaderDropdownItem = {
-  type: 'default' | 'featured' | 'list';
-  defaultItem?: {
-    link: {
-      type: 'reference' | 'custom';
-      newTab?: boolean | null;
-      reference?:
-        | ({
-            relationTo: 'pages';
-            value: string | Page;
-          } | null)
-        | ({
-            relationTo: 'posts';
-            value: string | Post;
-          } | null)
-        | ({
-            relationTo: 'case-studies';
-            value: string | CaseStudy;
-          } | null)
-        | ({
-            relationTo: 'categories';
-            value: string | Category;
-          } | null);
-      url?: string | null;
-      label: string;
-    };
-    description?: string | null;
-  };
-  featuredItem?: {
-    tag: string;
-    landingLink: {
-      type: 'reference' | 'custom';
-      newTab?: boolean | null;
-      reference?:
-        | ({
-            relationTo: 'pages';
-            value: string | Page;
-          } | null)
-        | ({
-            relationTo: 'posts';
-            value: string | Post;
-          } | null)
-        | ({
-            relationTo: 'case-studies';
-            value: string | CaseStudy;
-          } | null)
-        | ({
-            relationTo: 'categories';
-            value: string | Category;
-          } | null);
-      url?: string | null;
-    };
-    label?: LexicalRichText<LexicalNodes_744BEF80> | null;
-    links?:
-      | {
-          link: {
-            type: 'reference' | 'custom';
-            newTab?: boolean | null;
-            reference?:
-              | ({
-                  relationTo: 'pages';
-                  value: string | Page;
-                } | null)
-              | ({
-                  relationTo: 'posts';
-                  value: string | Post;
-                } | null)
-              | ({
-                  relationTo: 'case-studies';
-                  value: string | CaseStudy;
-                } | null)
-              | ({
-                  relationTo: 'categories';
-                  value: string | Category;
-                } | null);
-            url?: string | null;
-            label: string;
-          };
-          id?: string | null;
-        }[]
-      | null;
-  };
-  listItem?: {
-    tag: string;
-    landingLink: {
-      type: 'reference' | 'custom';
-      newTab?: boolean | null;
-      reference?:
-        | ({
-            relationTo: 'pages';
-            value: string | Page;
-          } | null)
-        | ({
-            relationTo: 'posts';
-            value: string | Post;
-          } | null)
-        | ({
-            relationTo: 'case-studies';
-            value: string | CaseStudy;
-          } | null)
-        | ({
-            relationTo: 'categories';
-            value: string | Category;
-          } | null);
-      url?: string | null;
-    };
-    links: {
-      link: {
-        type: 'reference' | 'custom';
-        newTab?: boolean | null;
-        reference?:
-          | ({
-              relationTo: 'pages';
-              value: string | Page;
-            } | null)
-          | ({
-              relationTo: 'posts';
-              value: string | Post;
-            } | null)
-          | ({
-              relationTo: 'case-studies';
-              value: string | CaseStudy;
-            } | null)
-          | ({
-              relationTo: 'categories';
-              value: string | Category;
-            } | null);
-        url?: string | null;
-        label: string;
-      };
-      id?: string | null;
-    }[];
-  };
-  id?: string | null;
-}[];
 /**
  * Manage footer navigation here. Branding, contact details, social links, company details, and copyright are managed in Site Settings.
  *
@@ -326,17 +156,6 @@ export type SupportedTimezones =
   | 'Pacific/Fiji';
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "LexicalNodes_744BEF80".
- */
-export type LexicalNodes_744BEF80 =
-  | SerializedTextNode
-  | SerializedTabNode
-  | SerializedLineBreakNode
-  | SerializedParagraphNode<LexicalNodes_744BEF80>
-  | SerializedAutoLinkNode<LexicalNodes_744BEF80, LexicalLinkFields>
-  | SerializedLinkNode<LexicalNodes_744BEF80, LexicalLinkFields>;
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "LexicalNodes_106E6C8F".
  */
 export type LexicalNodes_106E6C8F =
@@ -359,6 +178,17 @@ export type LexicalNodes_D0F9AE76 =
   | SerializedHeadingNode<LexicalNodes_D0F9AE76, 'h2' | 'h3' | 'h4'>
   | SerializedAutoLinkNode<LexicalNodes_D0F9AE76, LexicalLinkFields>
   | SerializedLinkNode<LexicalNodes_D0F9AE76, LexicalLinkFields>;
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "LexicalNodes_744BEF80".
+ */
+export type LexicalNodes_744BEF80 =
+  | SerializedTextNode
+  | SerializedTabNode
+  | SerializedLineBreakNode
+  | SerializedParagraphNode<LexicalNodes_744BEF80>
+  | SerializedAutoLinkNode<LexicalNodes_744BEF80, LexicalLinkFields>
+  | SerializedLinkNode<LexicalNodes_744BEF80, LexicalLinkFields>;
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "LexicalNodes_658A03C4".
@@ -1912,6 +1742,227 @@ export interface Header {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "HeaderCategoryTabsBlock".
+ */
+export interface HeaderCategoryTabsBlock {
+  enableCta?: boolean | null;
+  cta?: {
+    type: 'reference' | 'custom';
+    newTab?: boolean | null;
+    reference?:
+      | ({
+          relationTo: 'pages';
+          value: string | Page;
+        } | null)
+      | ({
+          relationTo: 'posts';
+          value: string | Post;
+        } | null)
+      | ({
+          relationTo: 'case-studies';
+          value: string | CaseStudy;
+        } | null)
+      | ({
+          relationTo: 'categories';
+          value: string | Category;
+        } | null);
+    url?: string | null;
+    label: string;
+  };
+  categories: {
+    label: string;
+    enableCta?: boolean | null;
+    cta?: {
+      type: 'reference' | 'custom';
+      newTab?: boolean | null;
+      reference?:
+        | ({
+            relationTo: 'pages';
+            value: string | Page;
+          } | null)
+        | ({
+            relationTo: 'posts';
+            value: string | Post;
+          } | null)
+        | ({
+            relationTo: 'case-studies';
+            value: string | CaseStudy;
+          } | null)
+        | ({
+            relationTo: 'categories';
+            value: string | Category;
+          } | null);
+      url?: string | null;
+      label: string;
+    };
+    items: {
+      image: string | Media;
+      title: string;
+      link: {
+        type: 'reference' | 'custom';
+        newTab?: boolean | null;
+        reference?:
+          | ({
+              relationTo: 'pages';
+              value: string | Page;
+            } | null)
+          | ({
+              relationTo: 'posts';
+              value: string | Post;
+            } | null)
+          | ({
+              relationTo: 'case-studies';
+              value: string | CaseStudy;
+            } | null)
+          | ({
+              relationTo: 'categories';
+              value: string | Category;
+            } | null);
+        url?: string | null;
+      };
+      id?: string | null;
+    }[];
+    id?: string | null;
+  }[];
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'categoryTabs';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "HeaderCardGroupBlock".
+ */
+export interface HeaderCardGroupBlock {
+  enableHeading?: boolean | null;
+  heading?: string | null;
+  enableCta?: boolean | null;
+  cta?: {
+    type: 'reference' | 'custom';
+    newTab?: boolean | null;
+    reference?:
+      | ({
+          relationTo: 'pages';
+          value: string | Page;
+        } | null)
+      | ({
+          relationTo: 'posts';
+          value: string | Post;
+        } | null)
+      | ({
+          relationTo: 'case-studies';
+          value: string | CaseStudy;
+        } | null)
+      | ({
+          relationTo: 'categories';
+          value: string | Category;
+        } | null);
+    url?: string | null;
+    label: string;
+  };
+  items: {
+    image: string | Media;
+    title: string;
+    link: {
+      type: 'reference' | 'custom';
+      newTab?: boolean | null;
+      reference?:
+        | ({
+            relationTo: 'pages';
+            value: string | Page;
+          } | null)
+        | ({
+            relationTo: 'posts';
+            value: string | Post;
+          } | null)
+        | ({
+            relationTo: 'case-studies';
+            value: string | CaseStudy;
+          } | null)
+        | ({
+            relationTo: 'categories';
+            value: string | Category;
+          } | null);
+      url?: string | null;
+    };
+    id?: string | null;
+  }[];
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'cardGroup';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "HeaderLinkGroupBlock".
+ */
+export interface HeaderLinkGroupBlock {
+  enableHeading?: boolean | null;
+  heading?: string | null;
+  links: {
+    link: {
+      type: 'reference' | 'custom';
+      newTab?: boolean | null;
+      reference?:
+        | ({
+            relationTo: 'pages';
+            value: string | Page;
+          } | null)
+        | ({
+            relationTo: 'posts';
+            value: string | Post;
+          } | null)
+        | ({
+            relationTo: 'case-studies';
+            value: string | CaseStudy;
+          } | null)
+        | ({
+            relationTo: 'categories';
+            value: string | Category;
+          } | null);
+      url?: string | null;
+      label: string;
+    };
+    id?: string | null;
+  }[];
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'linkGroup';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "HeaderRichCardBlock".
+ */
+export interface HeaderRichCardBlock {
+  image: string | Media;
+  title: string;
+  description?: string | null;
+  link: {
+    type: 'reference' | 'custom';
+    newTab?: boolean | null;
+    reference?:
+      | ({
+          relationTo: 'pages';
+          value: string | Page;
+        } | null)
+      | ({
+          relationTo: 'posts';
+          value: string | Post;
+        } | null)
+      | ({
+          relationTo: 'case-studies';
+          value: string | CaseStudy;
+        } | null)
+      | ({
+          relationTo: 'categories';
+          value: string | Category;
+        } | null);
+    url?: string | null;
+  };
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'richCard';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "footer".
  */
 export interface Footer {
@@ -2027,13 +2078,50 @@ export interface HeaderNavItemSelect<T extends boolean = true> {
         reference?: T;
         url?: T;
       };
-  dropdown?:
+  content?:
     | T
     | {
-        description?: T;
-        descriptionLinks?:
+        categoryTabs?: T | HeaderCategoryTabsBlockSelect<T>;
+        cardGroup?: T | HeaderCardGroupBlockSelect<T>;
+        linkGroup?: T | HeaderLinkGroupBlockSelect<T>;
+        richCard?: T | HeaderRichCardBlockSelect<T>;
+      };
+  id?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "HeaderCategoryTabsBlock_select".
+ */
+export interface HeaderCategoryTabsBlockSelect<T extends boolean = true> {
+  enableCta?: T;
+  cta?:
+    | T
+    | {
+        type?: T;
+        newTab?: T;
+        reference?: T;
+        url?: T;
+        label?: T;
+      };
+  categories?:
+    | T
+    | {
+        label?: T;
+        enableCta?: T;
+        cta?:
           | T
           | {
+              type?: T;
+              newTab?: T;
+              reference?: T;
+              url?: T;
+              label?: T;
+            };
+        items?:
+          | T
+          | {
+              image?: T;
+              title?: T;
               link?:
                 | T
                 | {
@@ -2041,21 +2129,57 @@ export interface HeaderNavItemSelect<T extends boolean = true> {
                     newTab?: T;
                     reference?: T;
                     url?: T;
-                    label?: T;
                   };
               id?: T;
             };
-        items?: T | HeaderDropdownItemSelect<T>;
+        id?: T;
       };
   id?: T;
+  blockName?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "HeaderDropdownItem_select".
+ * via the `definition` "HeaderCardGroupBlock_select".
  */
-export interface HeaderDropdownItemSelect<T extends boolean = true> {
-  type?: T;
-  defaultItem?:
+export interface HeaderCardGroupBlockSelect<T extends boolean = true> {
+  enableHeading?: T;
+  heading?: T;
+  enableCta?: T;
+  cta?:
+    | T
+    | {
+        type?: T;
+        newTab?: T;
+        reference?: T;
+        url?: T;
+        label?: T;
+      };
+  items?:
+    | T
+    | {
+        image?: T;
+        title?: T;
+        link?:
+          | T
+          | {
+              type?: T;
+              newTab?: T;
+              reference?: T;
+              url?: T;
+            };
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "HeaderLinkGroupBlock_select".
+ */
+export interface HeaderLinkGroupBlockSelect<T extends boolean = true> {
+  enableHeading?: T;
+  heading?: T;
+  links?:
     | T
     | {
         link?:
@@ -2067,64 +2191,29 @@ export interface HeaderDropdownItemSelect<T extends boolean = true> {
               url?: T;
               label?: T;
             };
-        description?: T;
-      };
-  featuredItem?:
-    | T
-    | {
-        tag?: T;
-        landingLink?:
-          | T
-          | {
-              type?: T;
-              newTab?: T;
-              reference?: T;
-              url?: T;
-            };
-        label?: T;
-        links?:
-          | T
-          | {
-              link?:
-                | T
-                | {
-                    type?: T;
-                    newTab?: T;
-                    reference?: T;
-                    url?: T;
-                    label?: T;
-                  };
-              id?: T;
-            };
-      };
-  listItem?:
-    | T
-    | {
-        tag?: T;
-        landingLink?:
-          | T
-          | {
-              type?: T;
-              newTab?: T;
-              reference?: T;
-              url?: T;
-            };
-        links?:
-          | T
-          | {
-              link?:
-                | T
-                | {
-                    type?: T;
-                    newTab?: T;
-                    reference?: T;
-                    url?: T;
-                    label?: T;
-                  };
-              id?: T;
-            };
+        id?: T;
       };
   id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "HeaderRichCardBlock_select".
+ */
+export interface HeaderRichCardBlockSelect<T extends boolean = true> {
+  image?: T;
+  title?: T;
+  description?: T;
+  link?:
+    | T
+    | {
+        type?: T;
+        newTab?: T;
+        reference?: T;
+        url?: T;
+      };
+  id?: T;
+  blockName?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -2410,6 +2499,14 @@ export interface SerializedParagraphNode<TChildren> extends SerializedLexicalEle
   textStyle: string;
 }
 
+export interface SerializedHeadingNode<
+  TChildren,
+  TTag extends 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' = 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6',
+> extends SerializedLexicalElementBase<TChildren> {
+  type: 'heading';
+  tag: TTag;
+}
+
 export interface LexicalLinkFields {
   [k: string]: unknown;
   doc?: {
@@ -2440,14 +2537,6 @@ export interface LexicalRichText<TNode> {
     type: 'root';
     version: number;
   };
-}
-
-export interface SerializedHeadingNode<
-  TChildren,
-  TTag extends 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' = 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6',
-> extends SerializedLexicalElementBase<TChildren> {
-  type: 'heading';
-  tag: TTag;
 }
 
 export interface SerializedHorizontalRuleNode {

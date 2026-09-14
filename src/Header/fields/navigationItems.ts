@@ -1,9 +1,12 @@
 import type { ArrayField } from 'payload'
 
 import { trimText, validateNonBlankText } from '@/fields/linkValidation'
-import { validateHeaderNavItems } from '@/Header/validators/validateNavigation'
-import { HEADER_NAV_ITEMS_MAX } from '@/Header/policy'
-import { dropdown } from './dropdown'
+import { CardGroup, CategoryTabs, LinkGroup, RichCard } from '@/Header/blocks'
+import {
+  HEADER_CONTENT_BLOCKS_MAX,
+  HEADER_CONTENT_BLOCKS_MIN,
+  HEADER_NAV_ITEMS_MAX,
+} from '@/Header/policy'
 import { unlabeledNavigationLink } from './links'
 
 export const navigationItems = (): ArrayField => ({
@@ -13,7 +16,6 @@ export const navigationItems = (): ArrayField => ({
   labels: { singular: 'Navigation Item', plural: 'Navigation Items' },
   maxRows: HEADER_NAV_ITEMS_MAX,
   interfaceName: 'HeaderNavItem',
-  validate: validateHeaderNavItems,
   admin: {
     initCollapsed: true,
     components: {
@@ -48,7 +50,20 @@ export const navigationItems = (): ArrayField => ({
           siblingData?.navigationType === 'directLinkAndDropdown',
       },
     }),
-    // Dropdown group — shown for dropdown and directLinkAndDropdown
-    dropdown(),
+    {
+      name: 'content',
+      type: 'blocks',
+      label: 'Dropdown Content',
+      blocks: [CategoryTabs, CardGroup, LinkGroup, RichCard],
+      required: true,
+      minRows: HEADER_CONTENT_BLOCKS_MIN,
+      maxRows: HEADER_CONTENT_BLOCKS_MAX,
+      admin: {
+        condition: (_, siblingData) =>
+          siblingData?.navigationType === 'dropdown' ||
+          siblingData?.navigationType === 'directLinkAndDropdown',
+        initCollapsed: true,
+      },
+    },
   ],
 })
