@@ -59,7 +59,7 @@ const isOptionalDimension = (value: unknown): boolean =>
 const isRenderableImageMedia = (value: unknown): value is Media => {
   if (!isRecord(value)) return false
 
-  const mimeType = text(value.mimeType)
+  const mimeType = typeof value.mimeType === 'string' ? value.mimeType : null
   return Boolean(
     text(value.id) &&
       text(value.createdAt) &&
