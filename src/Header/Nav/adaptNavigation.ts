@@ -1,14 +1,18 @@
 import { resolveLinkHref, type CMSLinkType } from '@/components/Link'
-import type { Header } from '@/payload-types'
+import type { Header, Media } from '@/payload-types'
 
 import type {
-  HeaderDropdownData,
-  HeaderDropdownItemData,
-  HeaderFeaturedItemData,
+  HeaderCardData,
+  HeaderCardGroupBlockData,
+  HeaderCategoryData,
+  HeaderCategoryTabsBlockData,
   HeaderLinkData,
+  HeaderLinkGroupBlockData,
   HeaderLinkRowData,
+  HeaderNavigationBlockData,
   HeaderNavigationData,
   HeaderNavigationItem,
+  HeaderRichCardBlockData,
 } from './types'
 
 type UnknownRecord = Record<string, unknown>
@@ -46,29 +50,31 @@ const adaptLink = (value: unknown, options: AdaptLinkOptions = {}): HeaderLinkDa
   }
 }
 
-const isJSONSafe = (value: unknown, ancestors = new Set<object>()): boolean => {
-  if (value === null || typeof value === 'string' || typeof value === 'boolean') return true
-  if (typeof value === 'number') return Number.isFinite(value)
-  if (typeof value !== 'object') return false
+const adaptMedia = (value: unknown): Media | null =>
+  isRecord(value) && text(value.id) ? (value as unknown as Media) : null
 
-  if (ancestors.has(value)) return false
-  const prototype = Object.getPrototypeOf(value)
-  if (!Array.isArray(value) && prototype !== Object.prototype && prototype !== null) return false
+const adaptCard = (value: unknown, fallbackID: string): HeaderCardData | null => {
+  if (!isRecord(value)) return null
 
-  ancestors.add(value)
-  try {
-    const children = Array.isArray(value) ? value : Object.values(value)
-    return children.every((child) => isJSONSafe(child, ancestors))
-  } catch {
-    return false
-  } finally {
-    ancestors.delete(value)
+  const title = text(value.title)
+  const link = adaptLink(value.link, { label: title ?? undefined, labelMode: 'override' })
+  if (!title || !link) return null
+
+  return {
+    id: id(value.id, fallbackID),
+    image: adaptMedia(value.image),
+    link,
+    title,
   }
 }
 
-const adaptRichContent = (value: unknown): HeaderFeaturedItemData['label'] => {
-  if (!isRecord(value) || !isRecord(value.root) || value.root.type !== 'root') return null
-  return isJSONSafe(value) ? (value as unknown as HeaderFeaturedItemData['label']) : null
+const adaptCards = (value: unknown, key: string): HeaderCardData[] => {
+  if (!Array.isArray(value)) return []
+
+  return value.flatMap((item, index) => {
+    const card = adaptCard(item, `${key}-card-${index}`)
+    return card ? [card] : []
+  })
 }
 
 const adaptLinkRows = (value: unknown, key: string): HeaderLinkRowData[] => {
@@ -81,78 +87,117 @@ const adaptLinkRows = (value: unknown, key: string): HeaderLinkRowData[] => {
   })
 }
 
-const adaptDropdownItem = (
+const adaptCategory = (value: unknown, fallbackID: string): HeaderCategoryData | null => {
+  if (!isRecord(value)) return null
+
+  const categoryID = id(value.id, fallbackID)
+  const label = text(value.label)
+  const cards = adaptCards(value.items, categoryID)
+  if (!label || cards.length === 0) return null
+
+  return {
+    cards,
+    cta: value.enableCta === true ? adaptLink(value.cta) : null,
+    id: categoryID,
+    label,
+  }
+}
+
+const adaptCategoryTabs = (
+  value: UnknownRecord,
+  blockID: string,
+): HeaderCategoryTabsBlockData | null => {
+  if (!Array.isArray(value.categories)) return null
+
+  const categories = value.categories.flatMap((category, index) => {
+    const adapted = adaptCategory(category, `${blockID}-category-${index}`)
+    return adapted ? [adapted] : []
+  })
+  if (categories.length === 0) return null
+
+  return {
+    categories,
+    cta: value.enableCta === true ? adaptLink(value.cta) : null,
+    id: blockID,
+    type: 'categoryTabs',
+  }
+}
+
+const adaptCardGroup = (
+  value: UnknownRecord,
+  blockID: string,
+): HeaderCardGroupBlockData | null => {
+  const cards = adaptCards(value.items, blockID)
+  if (cards.length === 0) return null
+
+  return {
+    cards,
+    cta: value.enableCta === true ? adaptLink(value.cta) : null,
+    heading: value.enableHeading === true ? text(value.heading) : null,
+    id: blockID,
+    type: 'cardGroup',
+  }
+}
+
+const adaptLinkGroup = (
+  value: UnknownRecord,
+  blockID: string,
+): HeaderLinkGroupBlockData | null => {
+  const links = adaptLinkRows(value.links, blockID)
+  if (links.length === 0) return null
+
+  return {
+    heading: value.enableHeading === true ? text(value.heading) : null,
+    id: blockID,
+    links,
+    type: 'linkGroup',
+  }
+}
+
+const adaptRichCard = (
+  value: UnknownRecord,
+  blockID: string,
+): HeaderRichCardBlockData | null => {
+  const card = adaptCard(value, blockID)
+  if (!card) return null
+
+  return {
+    card,
+    description: text(value.description),
+    id: blockID,
+    type: 'richCard',
+  }
+}
+
+const adaptBlock = (
   value: unknown,
   key: string,
   index: number,
-): HeaderDropdownItemData | null => {
+): HeaderNavigationBlockData | null => {
   if (!isRecord(value)) return null
-  const rowID = id(value.id, `${key}-item-${index}`)
+  const blockID = id(value.id, `${key}-block-${index}`)
 
-  if (value.type === 'default' && isRecord(value.defaultItem)) {
-    const link = adaptLink(value.defaultItem.link)
-    if (!link) return null
-    return {
-      id: rowID,
-      type: 'default',
-      defaultItem: { description: text(value.defaultItem.description), link },
-    }
+  switch (value.blockType) {
+    case 'categoryTabs':
+      return adaptCategoryTabs(value, blockID)
+    case 'cardGroup':
+      return adaptCardGroup(value, blockID)
+    case 'linkGroup':
+      return adaptLinkGroup(value, blockID)
+    case 'richCard':
+      return adaptRichCard(value, blockID)
+    default:
+      return null
   }
-
-  if (value.type === 'featured' && isRecord(value.featuredItem)) {
-    const tag = text(value.featuredItem.tag)
-    const landingLink = adaptLink(value.featuredItem.landingLink, {
-      label: 'View all',
-      labelMode: 'override',
-    })
-    if (!tag || !landingLink) return null
-    return {
-      id: rowID,
-      type: 'featured',
-      featuredItem: {
-        tag,
-        landingLink,
-        label: adaptRichContent(value.featuredItem.label),
-        links: adaptLinkRows(value.featuredItem.links, rowID),
-      },
-    }
-  }
-
-  if (value.type === 'list' && isRecord(value.listItem)) {
-    const tag = text(value.listItem.tag)
-    const landingLink = adaptLink(value.listItem.landingLink, {
-      label: 'View all',
-      labelMode: 'override',
-    })
-    if (!tag || !landingLink) return null
-    return {
-      id: rowID,
-      type: 'list',
-      listItem: {
-        tag,
-        landingLink,
-        links: adaptLinkRows(value.listItem.links, rowID),
-      },
-    }
-  }
-
-  return null
 }
 
-const adaptDropdown = (value: unknown, key: string): HeaderDropdownData | null => {
-  if (!isRecord(value) || !Array.isArray(value.items)) return null
+const adaptContent = (value: unknown, key: string): HeaderNavigationBlockData[] => {
+  if (!Array.isArray(value)) return []
 
-  const items = value.items.flatMap((item, index) => {
-    const adapted = adaptDropdownItem(item, key, index)
+  return value.flatMap((block, index) => {
+    const adapted = adaptBlock(block, key, index)
     return adapted ? [adapted] : []
   })
-  if (items.length === 0) return null
-
-  return {
-    description: text(value.description),
-    descriptionLinks: adaptLinkRows(value.descriptionLinks, `${key}-description`),
-    items,
-  }
 }
 
 const adaptNavigationItem = (value: unknown, index: number): HeaderNavigationItem | null => {
@@ -163,20 +208,26 @@ const adaptNavigationItem = (value: unknown, index: number): HeaderNavigationIte
 
   if (value.navigationType === 'directLink') {
     const link = adaptLink(value.link, { label, labelMode: 'override' })
-    return link ? { id: itemID, label, navigationType: 'directLink', link, dropdown: null } : null
+    return link
+      ? { content: null, id: itemID, label, link, navigationType: 'directLink' }
+      : null
   }
 
   if (value.navigationType === 'dropdown') {
-    const dropdown = adaptDropdown(value.dropdown, itemID)
-    return dropdown ? { id: itemID, label, navigationType: 'dropdown', link: null, dropdown } : null
+    const content = adaptContent(value.content, itemID)
+    return content.length > 0
+      ? { content, id: itemID, label, link: null, navigationType: 'dropdown' }
+      : null
   }
 
   if (value.navigationType === 'directLinkAndDropdown') {
     const link = adaptLink(value.link, { label, labelMode: 'override' })
-    const dropdown = adaptDropdown(value.dropdown, itemID)
-    return link && dropdown
-      ? { id: itemID, label, navigationType: 'directLinkAndDropdown', link, dropdown }
-      : null
+    const content = adaptContent(value.content, itemID)
+
+    if (link && content.length > 0) {
+      return { content, id: itemID, label, link, navigationType: 'directLinkAndDropdown' }
+    }
+    if (link) return { content: null, id: itemID, label, link, navigationType: 'directLink' }
   }
 
   return null

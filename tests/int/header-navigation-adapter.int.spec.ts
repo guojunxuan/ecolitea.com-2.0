@@ -2,257 +2,255 @@ import { describe, expect, it } from 'vitest'
 
 import { adaptHeaderNavigation } from '@/Header/Nav/adaptNavigation'
 
-const pageReference = (slug: string, title: string) => ({
+const pageReference = (slug: string) => ({
   type: 'reference' as const,
   reference: {
     relationTo: 'pages' as const,
-    value: { id: slug, slug, title },
+    value: { id: slug, slug, title: slug },
   },
 })
 
+const image = {
+  id: 'media-1',
+  alt: 'Tea system',
+  createdAt: '2026-09-01T00:00:00.000Z',
+  updatedAt: '2026-09-01T00:00:00.000Z',
+  url: '/media/tea.jpg',
+}
+
 describe('adaptHeaderNavigation', () => {
-  it('maps active direct, dropdown, and hybrid branches without leaking stale branches', () => {
-    const richContent = {
-      root: { children: [{ text: 'Featured copy', type: 'text' }], type: 'root' },
-    }
-    const input = {
+  it('normalizes all four block types in source order and exposes only active fields', () => {
+    const result = adaptHeaderNavigation({
       id: 'header',
       enableMenuCta: true,
-      menuCta: { label: 'Talk to sales', type: 'custom', url: '/contact' },
+      menuCta: { label: ' Talk to sales ', type: 'custom', url: '/contact' },
       navItems: [
         {
-          id: 'direct',
-          label: 'Pricing',
-          navigationType: 'directLink',
-          link: { type: 'custom', url: '/pricing', newTab: true },
-          dropdown: {
-            items: [{ type: 'default', defaultItem: { link: pageReference('stale', 'Stale') } }],
-          },
-        },
-        {
-          id: 'dropdown',
-          label: 'Solutions',
+          id: 'solutions',
+          label: ' Solutions ',
           navigationType: 'dropdown',
-          link: { type: 'custom', url: '/stale-direct' },
-          dropdown: {
-            description: 'Explore solutions',
-            descriptionLinks: [
-              {
-                id: 'description-1',
-                link: { label: 'All solutions', ...pageReference('solutions', 'Solutions') },
-              },
-              {
-                id: 'description-bad',
-                link: {
-                  label: 'Broken',
-                  type: 'reference',
-                  reference: { relationTo: 'pages', value: 'id-only' },
-                },
-              },
-            ],
-            items: [
-              {
-                id: 'default-1',
-                type: 'default',
-                defaultItem: {
-                  description: 'For operations teams',
-                  link: { label: 'Operations', ...pageReference('operations', 'Operations') },
-                },
-                featuredItem: { tag: 'Stale', landingLink: pageReference('stale', 'Stale') },
-              },
-              {
-                id: 'featured-1',
-                type: 'featured',
-                featuredItem: {
-                  tag: 'Featured',
-                  landingLink: pageReference('featured', 'Featured'),
-                  label: richContent,
-                  links: [
+          link: { type: 'custom', url: '/inactive-direct' },
+          content: [
+            {
+              id: 'tabs',
+              blockType: 'categoryTabs',
+              enableCta: true,
+              cta: { label: ' All products ', ...pageReference('products') },
+              categories: [
+                {
+                  id: 'brewing',
+                  label: ' Brewing ',
+                  enableCta: true,
+                  cta: { label: ' Browse brewing ', type: 'custom', url: '/brewing' },
+                  items: [
                     {
-                      id: 'feature-link',
+                      id: 'brewer',
+                      image,
+                      title: ' Brewer ',
                       link: {
-                        label: 'Case study',
-                        type: 'reference',
-                        reference: {
-                          relationTo: 'case-studies',
-                          value: { id: 'case', slug: 'case-one', title: 'Case one' },
-                        },
-                      },
-                    },
-                    { id: 'feature-bad', link: { label: 'Broken', type: 'custom', url: '' } },
-                  ],
-                },
-                listItem: { tag: 'Stale', landingLink: pageReference('stale', 'Stale'), links: [] },
-              },
-              {
-                id: 'list-1',
-                type: 'list',
-                listItem: {
-                  tag: 'Resources',
-                  landingLink: {
-                    type: 'reference',
-                    reference: {
-                      relationTo: 'categories',
-                      value: { id: 'guides', slug: 'guides', title: 'Guides' },
-                    },
-                  },
-                  links: [
-                    {
-                      id: 'post-link',
-                      link: {
-                        label: 'Latest post',
-                        type: 'reference',
-                        reference: {
-                          relationTo: 'posts',
-                          value: { id: 'post', slug: 'latest', title: 'Latest' },
-                        },
+                        label: 'stale card label',
+                        type: 'custom',
+                        url: '/brewer',
                       },
                     },
                   ],
                 },
-              },
-            ],
-          },
-        },
-        {
-          id: 'hybrid',
-          label: 'Company',
-          navigationType: 'directLinkAndDropdown',
-          link: pageReference('company', 'Company'),
-          dropdown: {
-            items: [
-              {
-                id: 'about',
-                type: 'default',
-                defaultItem: { link: { label: 'About', ...pageReference('about', 'About') } },
-              },
-            ],
-          },
+              ],
+            },
+            {
+              id: 'cards',
+              blockType: 'cardGroup',
+              enableHeading: true,
+              heading: ' Featured ',
+              enableCta: false,
+              cta: { label: 'Inactive CTA', type: 'custom', url: '/inactive' },
+              items: [
+                {
+                  id: 'visual',
+                  image: 'unresolved-media-id',
+                  title: ' Visual card ',
+                  link: { ...pageReference('visual'), label: 'stale' },
+                },
+              ],
+            },
+            {
+              id: 'links',
+              blockType: 'linkGroup',
+              enableHeading: false,
+              heading: 'Inactive heading',
+              links: [
+                {
+                  id: 'docs',
+                  link: { label: ' Docs ', type: 'custom', url: '/docs', newTab: true },
+                },
+              ],
+            },
+            {
+              id: 'rich',
+              blockType: 'richCard',
+              image,
+              title: ' Rich card ',
+              description: ' A focused story. ',
+              link: { type: 'custom', url: '/rich', label: 'stale' },
+            },
+          ],
         },
       ],
-    }
+    } as never)
 
-    const result = adaptHeaderNavigation(input as never)
-
-    expect(result.navItems[0]).toEqual({
-      id: 'direct',
-      label: 'Pricing',
-      navigationType: 'directLink',
-      link: { href: '/pricing', label: 'Pricing', newTab: true, type: 'custom' },
-      dropdown: null,
-    })
-    expect(result.navItems[1]?.link).toBeNull()
-    expect(result.navItems[1]?.dropdown?.descriptionLinks).toEqual([
-      {
-        id: 'description-1',
-        link: { href: '/solutions', label: 'All solutions', newTab: false, type: 'reference' },
+    expect(result).toEqual({
+      menuCta: {
+        href: '/contact',
+        label: 'Talk to sales',
+        newTab: false,
+        type: 'custom',
       },
-    ])
-    expect(result.navItems[1]?.dropdown?.items).toEqual([
-      {
-        id: 'default-1',
-        type: 'default',
-        defaultItem: {
-          description: 'For operations teams',
-          link: { href: '/operations', label: 'Operations', newTab: false, type: 'reference' },
-        },
-      },
-      {
-        id: 'featured-1',
-        type: 'featured',
-        featuredItem: {
-          tag: 'Featured',
-          landingLink: { href: '/featured', label: 'View all', newTab: false, type: 'reference' },
-          label: richContent,
-          links: [
+      navItems: [
+        {
+          id: 'solutions',
+          label: 'Solutions',
+          navigationType: 'dropdown',
+          link: null,
+          content: [
             {
-              id: 'feature-link',
-              link: {
-                href: '/case-studies/case-one',
-                label: 'Case study',
+              id: 'tabs',
+              type: 'categoryTabs',
+              cta: {
+                href: '/products',
+                label: 'All products',
                 newTab: false,
                 type: 'reference',
+              },
+              categories: [
+                {
+                  id: 'brewing',
+                  label: 'Brewing',
+                  cta: {
+                    href: '/brewing',
+                    label: 'Browse brewing',
+                    newTab: false,
+                    type: 'custom',
+                  },
+                  cards: [
+                    {
+                      id: 'brewer',
+                      image,
+                      title: 'Brewer',
+                      link: {
+                        href: '/brewer',
+                        label: 'Brewer',
+                        newTab: false,
+                        type: 'custom',
+                      },
+                    },
+                  ],
+                },
+              ],
+            },
+            {
+              id: 'cards',
+              type: 'cardGroup',
+              heading: 'Featured',
+              cta: null,
+              cards: [
+                {
+                  id: 'visual',
+                  image: null,
+                  title: 'Visual card',
+                  link: {
+                    href: '/visual',
+                    label: 'Visual card',
+                    newTab: false,
+                    type: 'reference',
+                  },
+                },
+              ],
+            },
+            {
+              id: 'links',
+              type: 'linkGroup',
+              heading: null,
+              links: [
+                {
+                  id: 'docs',
+                  link: { href: '/docs', label: 'Docs', newTab: true, type: 'custom' },
+                },
+              ],
+            },
+            {
+              id: 'rich',
+              type: 'richCard',
+              description: 'A focused story.',
+              card: {
+                id: 'rich',
+                image,
+                title: 'Rich card',
+                link: {
+                  href: '/rich',
+                  label: 'Rich card',
+                  newTab: false,
+                  type: 'custom',
+                },
               },
             },
           ],
         },
-      },
-      {
-        id: 'list-1',
-        type: 'list',
-        listItem: {
-          tag: 'Resources',
-          landingLink: {
-            href: '/posts?category=guides',
-            label: 'View all',
-            newTab: false,
-            type: 'reference',
-          },
-          links: [
-            {
-              id: 'post-link',
-              link: {
-                href: '/posts/latest',
-                label: 'Latest post',
-                newTab: false,
-                type: 'reference',
-              },
-            },
-          ],
-        },
-      },
-    ])
-    expect(result.navItems[2]?.link?.label).toBe('Company')
-    expect(result.menuCta).toEqual({
-      href: '/contact',
-      label: 'Talk to sales',
-      newTab: false,
-      type: 'custom',
+      ],
     })
+    expect(result.navItems[0]?.content?.[0]?.type).toBe('categoryTabs')
     expect(JSON.parse(JSON.stringify(result))).toEqual(result)
   })
 
-  it('filters malformed content at the smallest active row and disables CTA explicitly', () => {
+  it('filters invalid rows, categories, and blocks while preserving valid siblings', () => {
     const result = adaptHeaderNavigation({
       id: 'header',
-      enableMenuCta: false,
-      menuCta: { label: 'Stale CTA', type: 'custom', url: '/contact' },
+      enableMenuCta: true,
+      menuCta: { label: 'Broken', type: 'custom', url: '' },
       navItems: [
         {
-          id: 'bad-direct',
-          label: 'Broken',
-          navigationType: 'directLink',
-          link: { type: 'custom', url: '' },
-        },
-        {
-          id: 'mixed-dropdown',
+          id: 'resources',
           label: 'Resources',
           navigationType: 'dropdown',
-          dropdown: {
-            items: [
-              {
-                id: 'bad',
-                type: 'default',
-                defaultItem: {
-                  link: {
-                    label: 'Broken',
-                    type: 'reference',
-                    reference: { relationTo: 'pages', value: 'id-only' },
-                  },
+          content: [
+            {
+              id: 'tabs',
+              blockType: 'categoryTabs',
+              enableCta: true,
+              cta: { label: 'Broken CTA', type: 'custom', url: '' },
+              categories: [
+                {
+                  id: 'empty-category',
+                  label: 'Empty',
+                  items: [{ id: 'bad-card', title: 'Broken', link: { type: 'custom', url: '' } }],
                 },
-              },
-              {
-                id: 'good',
-                type: 'default',
-                defaultItem: { link: { label: 'Docs', type: 'custom', url: '/docs' } },
-              },
-              {
-                id: 'unknown',
-                type: 'unknown',
-                defaultItem: { link: { label: 'Nope', type: 'custom', url: '/nope' } },
-              },
-            ],
-          },
+                {
+                  id: 'valid-category',
+                  label: 'Valid',
+                  items: [
+                    { id: 'blank-title', title: ' ', link: pageReference('blank') },
+                    { id: 'valid-card', title: 'Guide', link: pageReference('guide') },
+                  ],
+                },
+              ],
+            },
+            {
+              id: 'empty-card-group',
+              blockType: 'cardGroup',
+              items: [{ id: 'bad', title: 'Bad', link: { type: 'reference' } }],
+            },
+            {
+              id: 'empty-link-group',
+              blockType: 'linkGroup',
+              links: [{ id: 'bad', link: { label: 'Bad', type: 'custom', url: '' } }],
+            },
+            {
+              id: 'bad-rich',
+              blockType: 'richCard',
+              title: 'Bad rich card',
+              link: { type: 'custom', url: '' },
+            },
+            { id: 'unknown', blockType: 'futureBlock', title: 'Ignore me' },
+          ],
         },
       ],
     } as never)
@@ -261,141 +259,137 @@ describe('adaptHeaderNavigation', () => {
       menuCta: null,
       navItems: [
         {
-          id: 'mixed-dropdown',
-          label: 'Resources',
-          navigationType: 'dropdown',
-          link: null,
-          dropdown: {
-            description: null,
-            descriptionLinks: [],
-            items: [
-              {
-                id: 'good',
-                type: 'default',
-                defaultItem: {
-                  description: null,
-                  link: { href: '/docs', label: 'Docs', newTab: false, type: 'custom' },
-                },
-              },
-            ],
-          },
-        },
-      ],
-    })
-  })
-
-  it('omits a hybrid row when either active branch is unusable and omits an invalid enabled CTA', () => {
-    const result = adaptHeaderNavigation({
-      id: 'header',
-      enableMenuCta: true,
-      menuCta: { label: ' ', type: 'custom', url: '/contact' },
-      navItems: [
-        {
-          id: 'hybrid',
-          label: 'Company',
-          navigationType: 'directLinkAndDropdown',
-          link: pageReference('company', 'Company'),
-          dropdown: { items: [] },
-        },
-      ],
-    } as never)
-
-    expect(result).toEqual({ navItems: [], menuCta: null })
-  })
-
-  it('forces context labels for top-level and landing links instead of stale stored labels', () => {
-    const result = adaptHeaderNavigation({
-      id: 'header',
-      navItems: [
-        {
-          id: 'hybrid',
-          label: 'Company',
-          navigationType: 'directLinkAndDropdown',
-          link: { ...pageReference('company', 'Company'), label: 'Stale direct label' },
-          dropdown: {
-            items: [
-              {
-                id: 'featured',
-                type: 'featured',
-                featuredItem: {
-                  tag: 'Featured',
-                  landingLink: {
-                    ...pageReference('featured', 'Featured'),
-                    label: 'Stale landing label',
-                  },
-                },
-              },
-              {
-                id: 'list',
-                type: 'list',
-                listItem: {
-                  tag: 'Resources',
-                  landingLink: {
-                    ...pageReference('resources', 'Resources'),
-                    label: 'Another stale landing label',
-                  },
-                  links: [],
-                },
-              },
-            ],
-          },
-        },
-      ],
-    } as never)
-
-    expect(result.navItems[0]?.link?.label).toBe('Company')
-    expect(result.navItems[0]?.dropdown?.items[0]).toMatchObject({
-      featuredItem: { landingLink: { label: 'View all' } },
-    })
-    expect(result.navItems[0]?.dropdown?.items[1]).toMatchObject({
-      listItem: { landingLink: { label: 'View all' } },
-    })
-  })
-
-  it('drops malformed or non-JSON-safe featured rich content without dropping the item', () => {
-    const circular: Record<string, unknown> = { root: { children: [], type: 'root' } }
-    circular.self = circular
-
-    const featuredItem = (id: string, label: unknown) => ({
-      id,
-      type: 'featured',
-      featuredItem: {
-        tag: id,
-        landingLink: pageReference(id, id),
-        label,
-      },
-    })
-
-    const result = adaptHeaderNavigation({
-      id: 'header',
-      navItems: [
-        {
           id: 'resources',
           label: 'Resources',
           navigationType: 'dropdown',
-          dropdown: {
-            items: [
-              featuredItem('missing-root', { children: [] }),
-              featuredItem('function', {
-                root: { children: [], render: () => 'unsafe', type: 'root' },
-              }),
-              featuredItem('bigint', { root: { children: [], order: BigInt(1), type: 'root' } }),
-              featuredItem('circular', circular),
-              featuredItem('valid', { root: { children: [], type: 'root', version: 1 } }),
-            ],
-          },
+          link: null,
+          content: [
+            {
+              id: 'tabs',
+              type: 'categoryTabs',
+              cta: null,
+              categories: [
+                {
+                  id: 'valid-category',
+                  label: 'Valid',
+                  cta: null,
+                  cards: [
+                    {
+                      id: 'valid-card',
+                      image: null,
+                      title: 'Guide',
+                      link: {
+                        href: '/guide',
+                        label: 'Guide',
+                        newTab: false,
+                        type: 'reference',
+                      },
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    })
+  })
+
+  it('omits empty dropdown-only items and degrades hybrids with no usable blocks to direct links', () => {
+    const result = adaptHeaderNavigation({
+      id: 'header',
+      navItems: [
+        {
+          id: 'dropdown',
+          label: 'Empty dropdown',
+          navigationType: 'dropdown',
+          content: [{ blockType: 'linkGroup', links: [] }],
+        },
+        {
+          id: 'hybrid',
+          label: 'Company',
+          navigationType: 'directLinkAndDropdown',
+          link: pageReference('company'),
+          content: [{ blockType: 'cardGroup', items: [] }],
+        },
+        {
+          id: 'broken-hybrid',
+          label: 'Broken',
+          navigationType: 'directLinkAndDropdown',
+          link: { type: 'custom', url: '' },
+          content: [{ blockType: 'linkGroup', links: [] }],
         },
       ],
     } as never)
 
-    const items = result.navItems[0]?.dropdown?.items
-    expect(items?.map((item) => item.type === 'featured' && item.featuredItem.label)).toEqual([
-      null,
-      null,
-      null,
-      null,
-      { root: { children: [], type: 'root', version: 1 } },
+    expect(result.navItems).toEqual([
+      {
+        id: 'hybrid',
+        label: 'Company',
+        navigationType: 'directLink',
+        link: {
+          href: '/company',
+          label: 'Company',
+          newTab: false,
+          type: 'reference',
+        },
+        content: null,
+      },
     ])
-    expect(() => JSON.stringify(result)).not.toThrow()
+  })
+
+  it('uses deterministic fallback IDs only when native IDs are malformed', () => {
+    const result = adaptHeaderNavigation({
+      id: 'header',
+      navItems: [
+        {
+          label: 'Fallbacks',
+          navigationType: 'dropdown',
+          content: [
+            {
+              blockType: 'categoryTabs',
+              categories: [
+                {
+                  label: 'Category',
+                  items: [{ title: 'Card', link: { type: 'custom', url: '/card' } }],
+                },
+              ],
+            },
+            {
+              blockType: 'linkGroup',
+              links: [{ link: { label: 'Link', type: 'custom', url: '/link' } }],
+            },
+            {
+              blockType: 'richCard',
+              title: 'Rich',
+              link: { type: 'custom', url: '/rich' },
+            },
+          ],
+        },
+      ],
+    } as never)
+
+    expect(result.navItems[0]).toMatchObject({
+      id: 'nav-item-0',
+      content: [
+        {
+          id: 'nav-item-0-block-0',
+          categories: [
+            {
+              id: 'nav-item-0-block-0-category-0',
+              cards: [{ id: 'nav-item-0-block-0-category-0-card-0' }],
+            },
+          ],
+        },
+        {
+          id: 'nav-item-0-block-1',
+          links: [{ id: 'nav-item-0-block-1-link-0' }],
+        },
+        {
+          id: 'nav-item-0-block-2',
+          card: { id: 'nav-item-0-block-2' },
+        },
+      ],
+    })
   })
 })
