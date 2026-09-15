@@ -81,7 +81,7 @@ export const DesktopNav: React.FC<HeaderNavigationData> = ({ menuCta, navItems }
   }, [])
 
   useEffect(() => {
-    if (openID && !navItems.some((item) => item.id === openID)) {
+    if (openID && !navItems.some((item) => item.id === openID && item.content.length > 0)) {
       // Content updates can remove the active owner while the menu is open.
       // eslint-disable-next-line react-hooks/set-state-in-effect
       close()

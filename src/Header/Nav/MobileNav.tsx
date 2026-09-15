@@ -156,7 +156,7 @@ export const MobileNav: React.FC<MobileNavProps> = ({ logo, menuCta, navItems, s
   }, [isOpen])
 
   useEffect(() => {
-    const media = window.matchMedia?.('(min-width: 73.125rem)')
+    const media = window.matchMedia?.('(min-width: 73.1875rem)')
     if (!media) return
     const onChange = (event: MediaQueryListEvent | MediaQueryList) => {
       if (event.matches) close(false)
