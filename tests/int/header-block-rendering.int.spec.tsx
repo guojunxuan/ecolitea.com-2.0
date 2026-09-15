@@ -112,6 +112,7 @@ describe('Header navigation block rendering', () => {
       const { container } = render(<NavigationCard card={card('rich', 'Rich')} variant="rich" />)
       return container.querySelector('[data-media]')?.getAttribute('data-size') ?? ''
     })()
+    expect(productSize.startsWith('(max-width: 360px) 100vw')).toBe(true)
     expect(productSize).toContain('(max-width: 1099px) 33vw')
     expect(productSize.endsWith('25vw')).toBe(true)
     expect(richSize).toContain('(max-width: 1170px) 100vw')

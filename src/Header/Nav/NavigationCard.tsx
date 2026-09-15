@@ -20,7 +20,7 @@ const cardSize = (variant: NavigationCardVariant) =>
     ? '(max-width: 360px) 100vw, (max-width: 767px) 50vw, (max-width: 1099px) 33vw, 25vw'
     : variant === 'rich'
       ? '(max-width: 1170px) 100vw, 50vw'
-      : '(max-width: 767px) 50vw, (max-width: 1099px) 33vw, 25vw'
+      : '(max-width: 360px) 100vw, (max-width: 767px) 50vw, (max-width: 1099px) 33vw, 25vw'
 
 const linkProps = (link: HeaderLinkData) =>
   link.newTab ? { rel: 'noopener noreferrer', target: '_blank' as const } : {}
