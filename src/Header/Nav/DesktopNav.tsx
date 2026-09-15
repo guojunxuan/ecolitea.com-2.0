@@ -39,6 +39,7 @@ export const DesktopNav: React.FC<HeaderNavigationData> = ({ menuCta, navItems }
   const stripRef = useRef<HTMLElement>(null)
   const trackRef = useRef<HTMLDivElement>(null)
   const itemRefs = useRef<Record<string, HTMLElement | null>>({})
+  const itemRootRefs = useRef<Record<string, HTMLElement | null>>({})
   const clickedClosedRef = useRef<string | null>(null)
   const suppressHoverRef = useRef(false)
   const [openID, setOpenID] = useState<string | null>(null)
@@ -74,6 +75,18 @@ export const DesktopNav: React.FC<HeaderNavigationData> = ({ menuCta, navItems }
       return id
     })
   }, [])
+
+  const ensureVisible = useCallback((id: string) => {
+    itemRootRefs.current[id]?.scrollIntoView?.({ block: 'nearest', inline: 'nearest', behavior: 'instant' })
+  }, [])
+
+  useEffect(() => {
+    if (openID && !navItems.some((item) => item.id === openID)) {
+      // Content updates can remove the active owner while the menu is open.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      close()
+    }
+  }, [close, navItems, openID])
 
   useLayoutEffect(() => {
     updateOverflow()
@@ -150,7 +163,7 @@ export const DesktopNav: React.FC<HeaderNavigationData> = ({ menuCta, navItems }
   const activeItem = navItems.find((item) => item.id === openID)
   const activeMenuID = activeItem ? `${idPrefix}-${activeItem.id}-menu` : undefined
 
-  return <div className={styles.desktopNav} data-desktop-nav-root="true" onPointerEnter={() => { suppressHoverRef.current = false }} onPointerMove={() => { suppressHoverRef.current = false }} onPointerLeave={(event) => {
+  return <div className={styles.desktopNav} data-desktop-nav-root="true" onPointerLeave={(event) => {
     if (event.relatedTarget instanceof Node && rootRef.current?.contains(event.relatedTarget)) return
     close()
   }} ref={rootRef}>
@@ -160,10 +173,13 @@ export const DesktopNav: React.FC<HeaderNavigationData> = ({ menuCta, navItems }
         <div className={styles.primaryNavigationTrack} ref={trackRef}>
           {navItems.map((item) => {
             const menuID = `${idPrefix}-${item.id}-menu`
-            return <span className={styles.primaryNavigationItem} data-nav-item-id={item.id} key={item.id} onPointerEnter={() => {
+            return <span className={styles.primaryNavigationItem} data-nav-item-id={item.id} key={item.id} onFocus={() => ensureVisible(item.id)} onPointerEnter={() => {
               if (item.navigationType === 'directLink') close()
               else enter(item.id)
-            }}>
+            }} onPointerMove={() => {
+              if (suppressHoverRef.current) suppressHoverRef.current = false
+              if (item.navigationType !== 'directLink') enter(item.id)
+            }} ref={(node) => { itemRootRefs.current[item.id] = node }}>
               <Trigger item={item} menuID={menuID} onEnter={() => enter(item.id)} onToggle={() => toggle(item.id)} open={openID === item.id} setRef={(node) => { itemRefs.current[item.id] = node }} />
             </span>
           })}

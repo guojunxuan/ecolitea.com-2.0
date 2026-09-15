@@ -405,9 +405,7 @@ async function expectDesktopZones(page: Page) {
 }
 
 async function exposeDesktopControl(page: Page, name: string) {
-  const control = page.getByRole('button', { name })
-  if (!(await control.isVisible())) await page.getByRole('button', { name: 'More menu' }).click()
-  return control
+  return page.getByRole('button', { name })
 }
 
 test.describe.serial('Responsive website shell', () => {
@@ -441,7 +439,7 @@ test.describe.serial('Responsive website shell', () => {
     })
   }
 
-  for (const width of [1170, 1440]) {
+  for (const width of [1171, 1440]) {
     test(`${width}px uses three desktop zones and desktop menus`, async ({ page }, testInfo) => {
       await openFixture(page, width)
       await expectShell(page)
@@ -466,8 +464,6 @@ test.describe.serial('Responsive website shell', () => {
       await expect(page.getByRole('region', { name: 'E2E Hybrid Hub menu' })).toBeVisible()
       await page.keyboard.press('Escape')
       const hybridLink = page.getByRole('link', { name: 'E2E Hybrid Hub', exact: true })
-      if (!(await hybridLink.isVisible()))
-        await page.getByRole('button', { name: 'More menu' }).click()
       await hybridLink.click()
       await expect(page).toHaveURL(`${baseURL}${routePath}`)
 

@@ -87,6 +87,40 @@ describe('DesktopNav', () => {
     expect('dropdown' in item).toBe(false); expect(item.content[0]?.type).toBe('linkGroup')
   })
 
+  it('does not activate a trigger under a stationary pointer after scrolling', async () => {
+    const { container } = render(<DesktopNav {...navigation} />)
+    const strip = container.querySelector('[data-overflow]') as HTMLElement
+    Object.defineProperties(strip, {
+      clientWidth: { configurable: true, value: 300 },
+      scrollWidth: { configurable: true, value: 700 },
+      scrollLeft: { configurable: true, value: 0, writable: true },
+    })
+    strip.scrollTo = vi.fn()
+    ResizeObserverMock.instances[0]?.emit()
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Scroll navigation right' })).toBeTruthy())
+    const platform = screen.getByRole('button', { name: 'Platform menu' })
+    const company = screen.getByRole('button', { name: 'Company menu' })
+    fireEvent.click(platform)
+    fireEvent.click(screen.getByRole('button', { name: 'Scroll navigation right' }))
+    fireEvent.pointerEnter(company)
+    expect(screen.getByRole('region', { name: 'Platform menu' })).toBeTruthy()
+    fireEvent.pointerMove(company)
+    expect(screen.getByRole('region', { name: 'Company menu' })).toBeTruthy()
+  })
+
+  it('scrolls a focused primary item into view and clears a removed active owner', () => {
+    const { container, rerender } = render(<DesktopNav {...navigation} />)
+    const companyRoot = container.querySelector('[data-nav-item-id="company"]') as HTMLElement
+    companyRoot.scrollIntoView = vi.fn()
+    fireEvent.focus(screen.getByRole('button', { name: 'Company menu' }))
+    expect(companyRoot.scrollIntoView).toHaveBeenCalledWith(expect.objectContaining({ inline: 'nearest' }))
+
+    fireEvent.click(screen.getByRole('button', { name: 'Platform menu' }))
+    expect(screen.getByRole('region', { name: 'Platform menu' })).toBeTruthy()
+    rerender(<DesktopNav menuCta={navigation.menuCta} navItems={[navigation.navItems[0]!]} />)
+    expect(screen.queryByRole('region', { name: 'Platform menu' })).toBeNull()
+  })
+
   it('shows boundary-preserving controls only when the primary strip overflows', async () => {
     const { container, rerender } = render(<DesktopNav {...navigation} />)
     const strip = container.querySelector('[data-overflow]') as HTMLElement
