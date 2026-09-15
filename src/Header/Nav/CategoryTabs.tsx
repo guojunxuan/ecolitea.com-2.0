@@ -125,7 +125,7 @@ export const CategoryTabs: React.FC<CategoryTabsProps> = ({
         ))}
         {block.cta && <CategoryCTA link={block.cta} />}
       </div>
-      <div className={styles.categoryPanel} id={`${block.id}-panel`} ref={panelRef} role="tabpanel" style={visitedHeight ? { maxHeight: visitedHeight } : undefined} tabIndex={0}>
+      <div className={styles.categoryPanel} id={`${block.id}-panel`} ref={panelRef} role="tabpanel" style={visitedHeight ? { maxHeight: maxPanelHeight, minHeight: visitedHeight } : undefined} tabIndex={0}>
         <div className={styles.productCardGrid}>
           {active.cards.map((card) => <NavigationCard card={card} key={card.id} />)}
         </div>

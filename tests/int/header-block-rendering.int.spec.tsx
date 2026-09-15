@@ -1,4 +1,4 @@
-import { cleanup, render, screen } from '@testing-library/react'
+import { cleanup, render, screen, waitFor } from '@testing-library/react'
 import React from 'react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
@@ -133,7 +133,7 @@ describe('Header navigation block rendering', () => {
     expect([...screen.getAllByRole('tab')].every((control) => document.getElementById(control.getAttribute('aria-controls') ?? '') !== null)).toBe(true)
   })
 
-  it('retains the largest observed desktop category panel height and reports it to the owner', () => {
+  it('retains the largest observed desktop category panel height and reports it to the owner', async () => {
     const onHeight = vi.fn()
     const block: HeaderNavigationBlockData = {
       categories: [{ cards: [card('one', 'One')], cta: null, id: 'cat-one', label: 'Category One' }],
@@ -147,6 +147,10 @@ describe('Header navigation block rendering', () => {
     Object.defineProperty(panel, 'clientHeight', { configurable: true, value: 400 })
     window.dispatchEvent(new Event('resize'))
     expect(onHeight.mock.calls.length).toBeGreaterThan(0)
+    await waitFor(() => {
+      expect(panel.style.minHeight).toBe('576px')
+      expect(panel.style.maxHeight).toBe('576px')
+    })
   })
 })
 
