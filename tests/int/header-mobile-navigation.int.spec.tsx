@@ -86,7 +86,7 @@ const logo: LogoImage = {
 class MediaQueryListMock {
   matches = false
   listeners = new Set<(event: MediaQueryListEvent) => void>()
-  media = '(min-width: 73.125rem)'
+  media = '(min-width: 73.1875rem)'
   addEventListener = (_type: string, listener: (event: MediaQueryListEvent) => void) => {
     this.listeners.add(listener)
   }
@@ -294,7 +294,7 @@ describe('MobileNav', () => {
     expect(document.body.style.overflow).toBe('hidden')
     unmount()
     expect(document.body.style.overflow).toBe('clip')
-    expect(window.matchMedia).toHaveBeenCalledWith('(min-width: 73.125rem)')
+    expect(window.matchMedia).toHaveBeenCalledWith('(min-width: 73.1875rem)')
   })
 
   it('keeps CTA available in the shared tablet/mobile navigation', () => {
