@@ -297,11 +297,9 @@ describe('adaptHeaderNavigation', () => {
     [
       'a whitespace-padded image MIME type',
       {
+        ...image,
         id: 'padded-mime',
-        createdAt: '2026-09-01T00:00:00.000Z',
         mimeType: ' image/jpeg ',
-        updatedAt: '2026-09-01T00:00:00.000Z',
-        url: '/media/padded.jpg',
       },
     ],
   ])('keeps the card but nulls its image for %s', (_label, invalidImage) => {
