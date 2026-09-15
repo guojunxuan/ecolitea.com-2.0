@@ -8,6 +8,7 @@ import { getMediaUrl } from '../../src/utilities/getMediaUrl'
 
 const baseURL = getE2EBaseURL()
 const E2E_MEDIA_ORIGIN = 'https://media.example.invalid'
+const NAVIGATION_IMAGE_ALT_PREFIX = 'E2E website shell navigation image'
 const disableRevalidate = { context: { disableRevalidate: true } }
 const runID = process.env.PLAYWRIGHT_E2E_RUN_ID!
 const slugs = {
@@ -24,6 +25,10 @@ let expectedBrandAssetURL = ''
 
 const customLink = (label: string, url: string) => ({ label, type: 'custom' as const, url })
 const unlabeledLink = (url: string) => ({ type: 'custom' as const, url })
+const navigationImagePNG = Buffer.from(
+  'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=',
+  'base64',
+)
 const emptyPage = (slug: string, title: string) => ({
   _status: 'published' as const,
   hero: { type: 'none' as const },
@@ -48,6 +53,11 @@ async function deleteFixtures() {
   await payload.delete({
     collection: 'brand-assets',
     where: { alt: { equals: 'E2E website shell logo' } },
+    ...disableRevalidate,
+  })
+  await payload.delete({
+    collection: 'media',
+    where: { alt: { like: NAVIGATION_IMAGE_ALT_PREFIX } },
     ...disableRevalidate,
   })
   await payload.db.globals.deleteMany({
@@ -101,11 +111,78 @@ async function seedFixtures() {
   const routePage = bySlug[slugs.route]!
   const directPage = bySlug[slugs.direct]!
 
+  const media = await Promise.all(
+    Array.from({ length: 8 }, async (_, index) => {
+      const image = await payload.create({
+        collection: 'media',
+        data: { alt: `${NAVIGATION_IMAGE_ALT_PREFIX} ${index + 1}` },
+        file: {
+          data: navigationImagePNG,
+          mimetype: 'image/png',
+          name: `e2e-navigation-${index + 1}.png`,
+          size: navigationImagePNG.byteLength,
+        },
+        ...disableRevalidate,
+      })
+      if (!image.url?.startsWith(E2E_MEDIA_ORIGIN)) {
+        throw new Error('E2E storage must return controlled Media original URLs.')
+      }
+      return image
+    }),
+  )
+  const card = (title: string, index: number) => ({
+    image: media[index]!.id,
+    link: unlabeledLink(`/e2e-card-${index + 1}`),
+    title,
+  })
   const productContent = [
     {
+      blockType: 'categoryTabs' as const,
+      enableCta: true,
+      cta: customLink('E2E Browse every category', '/e2e-all-categories'),
+      categories: [
+        {
+          enableCta: true,
+          cta: customLink('E2E Browse foundations', '/e2e-foundations'),
+          items: [card('E2E Foundation card', 0), card('E2E Foundation reserve card', 1)],
+          label: 'E2E Foundations',
+        },
+        {
+          items: [card('E2E Advanced card', 2)],
+          label: 'E2E Advanced long category label for overflow coverage',
+        },
+      ],
+    },
+    {
+      blockType: 'cardGroup' as const,
+      cta: customLink('E2E View all card group', '/e2e-card-group'),
+      enableCta: true,
+      enableHeading: true,
+      heading: 'E2E Featured card group',
+      items: [
+        card('E2E Visual one card', 3),
+        card('E2E Visual two card', 4),
+        card('E2E Visual three card with a deliberately long title that wraps safely', 5),
+        card('E2E Visual four card', 6),
+        card('E2E Visual five card', 7),
+        card('E2E Visual six card', 3),
+        card('E2E Visual seven card', 4),
+        card('E2E Visual eight card', 5),
+      ],
+    },
+    {
       blockType: 'linkGroup' as const,
-      heading: 'Products',
-      links: [{ link: customLink('E2E Product overview', '/e2e-product-overview') }],
+      enableHeading: true,
+      heading: 'E2E Product links',
+      links: [
+        { link: customLink('E2E Product overview', '/e2e-product-overview') },
+        { link: customLink('E2E Product documentation', '/e2e-product-docs') },
+      ],
+    },
+    {
+      blockType: 'richCard' as const,
+      description: 'E2E rich card description for the compact content flow.',
+      ...card('E2E Rich card', 7),
     },
   ]
 
@@ -123,12 +200,12 @@ async function seedFixtures() {
         { content: productContent, label: 'E2E Products', navigationType: 'dropdown' },
         {
           content: productContent,
-          label: 'E2E Hybrid Hub',
+          label: 'E2E Hybrid Hub with a deliberately long label',
           link: { reference: { relationTo: 'pages', value: routePage.id }, type: 'reference' },
           navigationType: 'directLinkAndDropdown',
         },
         ...Array.from({ length: 5 }, (_, index) => ({
-          label: `E2E Extra Navigation ${index + 1}`,
+          label: `E2E Extra Navigation ${index + 1} with a long label`,
           link: unlabeledLink(`/e2e-extra-${index + 1}`),
           navigationType: 'directLink' as const,
         })),
@@ -176,6 +253,8 @@ async function seedFixtures() {
 
 async function openFixture(page: Page, width: number) {
   const placeholderRequests: string[] = []
+  const requests: string[] = []
+  page.on('request', (request) => requests.push(request.url()))
   await page.route('https://media.example.invalid/**', async (route) => {
     placeholderRequests.push(route.request().url())
     await route.fulfill({
@@ -185,11 +264,20 @@ async function openFixture(page: Page, width: number) {
   })
   ;(page as Page & { e2ePlaceholderRequests?: string[] }).e2ePlaceholderRequests =
     placeholderRequests
+  ;(page as Page & { e2eRequests?: string[] }).e2eRequests = requests
   await page.setViewportSize({ height: width < 768 ? 844 : 960, width })
   await page.goto(`${baseURL}${fixturePath}`)
   await expect(page.locator('header')).toBeVisible()
   await expect(page.locator('main#main-content')).toBeAttached()
   await expect(page.locator('footer')).toBeVisible()
+}
+
+async function expectNoProductionDomainRequests(page: Page) {
+  await expect
+    .poll(() => (page as Page & { e2eRequests?: string[] }).e2eRequests ?? [])
+    .not.toEqual(
+      expect.arrayContaining([expect.stringMatching(/https?:\/\/(?:www\.)?ecolitea\.com/i)]),
+    )
 }
 
 async function expectShell(page: Page) {
@@ -220,6 +308,7 @@ async function expectShell(page: Page) {
       .locator('header, main#main-content, footer')
       .evaluateAll((elements) => elements.map((element) => element.tagName.toLowerCase())),
   ).toEqual(['header', 'main', 'footer'])
+  await expectNoProductionDomainRequests(page)
 }
 
 async function expectThemeInvariant(page: Page) {
@@ -295,7 +384,8 @@ async function shot(page: Page, testInfo: TestInfo, state: string) {
 async function exerciseMobile(page: Page, testInfo: TestInfo) {
   const openButton = page.getByRole('button', { name: 'Open navigation' })
   const dialog = page.getByRole('dialog', { name: 'Navigation' })
-  await openButton.click()
+  await openButton.focus()
+  await page.keyboard.press('Enter')
   await expect(dialog).toBeVisible()
   await expect(page.locator('body')).toHaveCSS('overflow', 'hidden')
   const viewport = page.viewportSize()!
@@ -307,12 +397,36 @@ async function exerciseMobile(page: Page, testInfo: TestInfo) {
   expect(dialogBox!.height + dialogBox!.y).toBeCloseTo(viewport.height, 0)
 
   const products = dialog.getByRole('button', { name: 'Open E2E Products' })
-  await products.click()
+  await products.focus()
+  await page.keyboard.press('Enter')
   await expect(dialog.getByRole('heading', { name: 'E2E Products' })).toBeVisible()
-  await expect(dialog.getByRole('heading', { name: 'Products' })).toBeVisible()
-  await expect(dialog.getByRole('link', { name: 'E2E Product overview' })).toBeVisible()
+  const foundations = dialog.getByRole('button', { name: 'E2E Foundations' })
+  const advanced = dialog.getByRole('button', {
+    name: 'E2E Advanced long category label for overflow coverage',
+  })
+  await expect(foundations).toHaveAttribute('aria-expanded', 'false')
+  await expect(advanced).toHaveAttribute('aria-expanded', 'false')
+  await expect(dialog.getByRole('link', { name: 'E2E Foundation card' })).toHaveCount(0)
+  await expect
+    .poll(() => (page as Page & { e2ePlaceholderRequests?: string[] }).e2ePlaceholderRequests ?? [])
+    .not.toEqual(expect.arrayContaining([expect.stringMatching(/e2e-navigation-1\.png/)]))
+  await foundations.click()
+  await expect(foundations).toHaveAttribute('aria-expanded', 'true')
+  await expect(dialog.getByRole('link', { name: 'E2E Foundation card' })).toBeVisible()
+  await advanced.click()
+  await expect(foundations).toHaveAttribute('aria-expanded', 'false')
+  await expect(advanced).toHaveAttribute('aria-expanded', 'true')
+  await expect(dialog.getByRole('link', { name: 'E2E Advanced card' })).toBeVisible()
+  await expect(dialog.getByRole('heading', { name: 'E2E Featured card group' })).toBeVisible()
+  await expect(dialog.locator('[data-navigation-block="cardGroup"] a')).toHaveCount(9)
+  await expect(dialog.getByRole('link', { name: 'E2E Rich card' })).toBeVisible()
   await expect(dialog.getByRole('button', { name: 'Back to navigation' })).toBeFocused()
   await shot(page, testInfo, 'mobile-section')
+  await page.keyboard.press('Escape')
+  await expect(dialog.getByRole('heading', { name: 'E2E Products' })).toBeHidden()
+  await expect(products).toBeFocused()
+  await products.click()
+  await expect(advanced).toHaveAttribute('aria-expanded', 'true')
   await dialog.getByRole('button', { name: 'Back to navigation' }).click()
   await expect(products).toBeFocused()
 
@@ -331,6 +445,13 @@ async function exerciseMobile(page: Page, testInfo: TestInfo) {
   await expect(page.locator('body')).not.toHaveCSS('overflow', 'hidden')
 
   await openButton.click()
+  const rootPanel = dialog.getByTestId('mobile-navigation-root')
+  const rootCta = dialog.getByRole('link', { name: 'E2E Talk to sales' })
+  await rootCta.scrollIntoViewIfNeeded()
+  await expect(rootCta).toBeVisible()
+  expect(await rootPanel.evaluate((panel) => panel.scrollHeight)).toBeGreaterThanOrEqual(
+    await rootPanel.evaluate((panel) => panel.clientHeight),
+  )
   await dialog.getByRole('button', { name: 'Close navigation' }).click()
   await expect(dialog).toBeHidden()
   await expect(page.locator('body')).not.toHaveCSS('overflow', 'hidden')
@@ -377,7 +498,7 @@ test.describe.serial('Responsive website shell', () => {
     await deleteFixtures()
   })
 
-  for (const width of [390, 834]) {
+  for (const width of [390, 1024]) {
     test(`${width}px uses shared full-screen three-level navigation`, async ({
       page,
     }, testInfo) => {
@@ -398,7 +519,7 @@ test.describe.serial('Responsive website shell', () => {
     })
   }
 
-  for (const width of [1171, 1440]) {
+  for (const width of [1171, 1280, 1440]) {
     test(`${width}px uses three desktop zones and desktop menus`, async ({ page }, testInfo) => {
       await openFixture(page, width)
       await expectShell(page)
@@ -410,19 +531,42 @@ test.describe.serial('Responsive website shell', () => {
       await shot(page, testInfo, 'closed')
 
       const products = await exposeDesktopControl(page, 'E2E Products menu')
-      await products.click()
-      await expect(page.getByRole('region', { name: 'E2E Products menu' })).toBeVisible()
-      await expect(page.getByRole('link', { name: 'E2E Product overview' })).toBeVisible()
+      await products.hover()
+      const menu = page.getByRole('region', { name: 'E2E Products menu' })
+      await expect(menu).toBeVisible()
+      await expect(menu.locator('[data-navigation-block="categoryTabs"]')).toHaveCount(1)
+      await expect(menu.locator('[data-navigation-block="cardGroup"]')).toHaveCount(1)
+      await expect(menu.locator('[data-navigation-block="linkGroup"]')).toHaveCount(1)
+      await expect(menu.locator('[data-navigation-block="richCard"]')).toHaveCount(1)
+      await expect(menu.getByRole('link', { name: 'E2E Foundation card' })).toBeVisible()
+      await expect(menu.locator('[data-navigation-block="cardGroup"] a')).toHaveCount(9)
+      await menu.getByRole('link', { name: 'E2E Foundation card' }).hover()
+      await expect(menu).toBeVisible()
+      if (width === 1280) {
+        const strip = page.getByRole('navigation', { name: 'Primary' })
+        const scrollRight = page.getByRole('button', { name: 'Scroll navigation right' })
+        await expect(scrollRight).toBeVisible()
+        await page.emulateMedia({ reducedMotion: 'reduce' })
+        await scrollRight.click()
+        await expect.poll(() => strip.evaluate((element) => element.scrollLeft)).toBeGreaterThan(0)
+        await expect(menu).toBeVisible()
+      }
       await shot(page, testInfo, 'desktop-mega-menu')
       await page.keyboard.press('Escape')
 
-      const hybridButton = await exposeDesktopControl(page, 'E2E Hybrid Hub menu')
+      const hybridButton = await exposeDesktopControl(
+        page,
+        'E2E Hybrid Hub with a deliberately long label menu',
+      )
       const before = page.url()
       await hybridButton.click()
       await expect(page).toHaveURL(before)
       await expect(page.getByRole('region', { name: 'E2E Hybrid Hub menu' })).toBeVisible()
       await page.keyboard.press('Escape')
-      const hybridLink = page.getByRole('link', { name: 'E2E Hybrid Hub', exact: true })
+      const hybridLink = page.getByRole('link', {
+        name: 'E2E Hybrid Hub with a deliberately long label',
+        exact: true,
+      })
       await hybridLink.click()
       await expect(page).toHaveURL(`${baseURL}${routePath}`)
 
@@ -432,4 +576,37 @@ test.describe.serial('Responsive website shell', () => {
       await expect(footer.locator('section').first().locator('h2')).toBeVisible()
     })
   }
+
+  test('1170px remains Compact while 1171px switches a live navigation session to Desktop', async ({
+    page,
+  }) => {
+    await openFixture(page, 1170)
+    const compactOpen = page.getByRole('button', { name: 'Open navigation' })
+    await expect(compactOpen).toBeVisible()
+    await compactOpen.click()
+    await expect(page.getByRole('dialog', { name: 'Navigation' })).toBeVisible()
+    await page.setViewportSize({ width: 1171, height: 960 })
+    await expect(page.getByRole('dialog', { name: 'Navigation' })).toBeHidden()
+    await expect(page.locator('body')).not.toHaveCSS('overflow', 'hidden')
+    await expect(page.getByRole('button', { name: 'E2E Products menu' })).toBeVisible()
+
+    await page.getByRole('button', { name: 'E2E Products menu' }).click()
+    await expect(page.getByRole('region', { name: 'E2E Products menu' })).toBeVisible()
+    await page.setViewportSize({ width: 1024, height: 960 })
+    await expect(page.getByRole('region', { name: 'E2E Products menu' })).toBeHidden()
+    await expect(page.getByRole('button', { name: 'Open navigation' })).toBeVisible()
+    await expectNoProductionDomainRequests(page)
+  })
+
+  test('retains usable card anchors when a local navigation image fails', async ({ page }) => {
+    await page.route('**/e2e-navigation-6.png**', async (route) => route.abort())
+    await openFixture(page, 1280)
+    await page.getByRole('button', { name: 'E2E Products menu' }).click()
+    const failedImageCard = page.getByRole('link', {
+      name: 'E2E Visual three card with a deliberately long title that wraps safely',
+    })
+    await expect(failedImageCard).toBeVisible()
+    await expect(failedImageCard.locator('img')).toBeAttached()
+    await expectNoProductionDomainRequests(page)
+  })
 })
