@@ -12,6 +12,7 @@ vi.mock('@/components/Media', () => ({
 
 import { NavigationBlocks } from '@/Header/Nav/NavigationBlocks'
 import { CategoryTabs } from '@/Header/Nav/CategoryTabs'
+import { NavigationCard } from '@/Header/Nav/NavigationCard'
 
 const card = (id: string, title: string) => ({
   id,
@@ -57,7 +58,7 @@ describe('Header navigation block rendering', () => {
     expect(screen.getByRole('link', { name: /Rich title/ }).querySelector('[data-media]')?.getAttribute('data-presentation')).toBe(
       JSON.stringify({ image: { aspectRatio: { width: 4, height: 3 }, fit: 'contain' } }),
     )
-    expect(screen.getByRole('link', { name: /Rich title/ }).querySelector('[data-media]')?.getAttribute('data-size')).toContain('50vw')
+    expect(screen.getByRole('link', { name: /Rich title/ }).querySelector('[data-media]')?.getAttribute('data-size')).toContain('100vw')
   })
 
   it('uses composition tracks based on block density without reordering blocks', () => {
@@ -98,6 +99,22 @@ describe('Header navigation block rendering', () => {
     const size = container.querySelector('[data-media]')?.getAttribute('data-size') ?? ''
     expect(size).toContain('(max-width: 1099px) 33vw')
     expect(size.endsWith('25vw')).toBe(true)
+  })
+
+  it('sizes product cards to three columns at 768–1099px and rich cards to a full compact row', () => {
+    const productSize = (() => {
+      const { container, unmount } = render(<NavigationCard card={card('product', 'Product')} variant="product" />)
+      const value = container.querySelector('[data-media]')?.getAttribute('data-size') ?? ''
+      unmount()
+      return value
+    })()
+    const richSize = (() => {
+      const { container } = render(<NavigationCard card={card('rich', 'Rich')} variant="rich" />)
+      return container.querySelector('[data-media]')?.getAttribute('data-size') ?? ''
+    })()
+    expect(productSize).toContain('(max-width: 1099px) 33vw')
+    expect(productSize.endsWith('25vw')).toBe(true)
+    expect(richSize).toContain('(max-width: 1170px) 100vw')
   })
 
   it('exposes accessible desktop category controls with stable panel relationships', () => {
