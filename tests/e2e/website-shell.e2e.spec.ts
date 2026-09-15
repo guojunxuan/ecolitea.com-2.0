@@ -412,7 +412,7 @@ test.describe.serial('Responsive website shell', () => {
       const products = await exposeDesktopControl(page, 'E2E Products menu')
       await products.click()
       await expect(page.getByRole('region', { name: 'E2E Products menu' })).toBeVisible()
-      await expect(page.getByRole('link', { name: 'E2E Default destination' })).toBeVisible()
+      await expect(page.getByRole('link', { name: 'E2E Product overview' })).toBeVisible()
       await shot(page, testInfo, 'desktop-mega-menu')
       await page.keyboard.press('Escape')
 
