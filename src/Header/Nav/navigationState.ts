@@ -1,19 +1,23 @@
 export type NavigationState = {
-  activeItemIndex: number | null
-  activeNavItemIndex: number | null
-  level: 1 | 2 | 3
+  activeSectionId: string | null
+  rootScrollTop: number
+  sectionAccordion: Record<string, string | null>
+  sectionScrollTop: Record<string, number>
 }
 
 export type NavigationAction =
-  | { type: 'openDropdown'; navItemIndex: number }
-  | { type: 'openItem'; itemIndex: number }
-  | { type: 'back' }
+  | { type: 'openSection'; sectionId: string }
+  | { type: 'backToRoot'; sectionId: string; scrollTop: number }
+  | { type: 'setRootScrollTop'; scrollTop: number }
+  | { type: 'setSectionAccordion'; blockId: string; categoryId: string | null }
+  | { type: 'setSectionScrollTop'; sectionId: string; scrollTop: number }
   | { type: 'reset' }
 
 export const initialNavigationState: NavigationState = {
-  activeItemIndex: null,
-  activeNavItemIndex: null,
-  level: 1,
+  activeSectionId: null,
+  rootScrollTop: 0,
+  sectionAccordion: {},
+  sectionScrollTop: {},
 }
 
 export function navigationReducer(
@@ -21,19 +25,29 @@ export function navigationReducer(
   action: NavigationAction,
 ): NavigationState {
   switch (action.type) {
-    case 'openDropdown':
+    case 'openSection':
+      return { ...state, activeSectionId: action.sectionId }
+    case 'backToRoot':
       return {
-        activeItemIndex: null,
-        activeNavItemIndex: action.navItemIndex,
-        level: 2,
+        ...state,
+        activeSectionId: null,
+        sectionScrollTop: {
+          ...state.sectionScrollTop,
+          [action.sectionId]: action.scrollTop,
+        },
       }
-    case 'openItem':
-      if (state.level !== 2 || state.activeNavItemIndex === null) return state
-      return { ...state, activeItemIndex: action.itemIndex, level: 3 }
-    case 'back':
-      if (state.level === 3) return { ...state, activeItemIndex: null, level: 2 }
-      if (state.level === 2) return initialNavigationState
-      return state
+    case 'setRootScrollTop':
+      return { ...state, rootScrollTop: action.scrollTop }
+    case 'setSectionAccordion':
+      return {
+        ...state,
+        sectionAccordion: { ...state.sectionAccordion, [action.blockId]: action.categoryId },
+      }
+    case 'setSectionScrollTop':
+      return {
+        ...state,
+        sectionScrollTop: { ...state.sectionScrollTop, [action.sectionId]: action.scrollTop },
+      }
     case 'reset':
       return initialNavigationState
   }

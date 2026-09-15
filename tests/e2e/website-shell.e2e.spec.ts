@@ -101,39 +101,13 @@ async function seedFixtures() {
   const routePage = bySlug[slugs.route]!
   const directPage = bySlug[slugs.direct]!
 
-  const productDropdown = {
-    description: 'Deterministic E2E product navigation.',
-    descriptionLinks: [{ link: customLink('E2E Product overview', '/e2e-product-overview') }],
-    items: [
-      {
-        type: 'default' as const,
-        defaultItem: {
-          description: 'A direct second-level destination.',
-          link: {
-            label: 'E2E Default destination',
-            reference: { relationTo: 'pages' as const, value: routePage.id },
-            type: 'reference' as const,
-          },
-        },
-      },
-      {
-        type: 'featured' as const,
-        featuredItem: {
-          landingLink: unlabeledLink('/e2e-featured-all'),
-          links: [{ link: customLink('E2E Featured detail', '/e2e-featured-detail') }],
-          tag: 'E2E Featured group',
-        },
-      },
-      {
-        type: 'list' as const,
-        listItem: {
-          landingLink: unlabeledLink('/e2e-list-all'),
-          links: [{ link: customLink('E2E List detail', '/e2e-list-detail') }],
-          tag: 'E2E List group',
-        },
-      },
-    ],
-  }
+  const productContent = [
+    {
+      blockType: 'linkGroup' as const,
+      heading: 'Products',
+      links: [{ link: customLink('E2E Product overview', '/e2e-product-overview') }],
+    },
+  ]
 
   await payload.updateGlobal({
     slug: 'header',
@@ -146,17 +120,9 @@ async function seedFixtures() {
           link: { reference: { relationTo: 'pages', value: directPage.id }, type: 'reference' },
           navigationType: 'directLink',
         },
-        { dropdown: productDropdown, label: 'E2E Products', navigationType: 'dropdown' },
+        { content: productContent, label: 'E2E Products', navigationType: 'dropdown' },
         {
-          dropdown: {
-            description: 'Hybrid navigation fixture.',
-            items: [
-              {
-                defaultItem: { link: customLink('E2E Hybrid child', '/e2e-hybrid-child') },
-                type: 'default' as const,
-              },
-            ],
-          },
+          content: productContent,
           label: 'E2E Hybrid Hub',
           link: { reference: { relationTo: 'pages', value: routePage.id }, type: 'reference' },
           navigationType: 'directLinkAndDropdown',

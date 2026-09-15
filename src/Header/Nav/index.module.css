@@ -31,7 +31,10 @@
   color: var(--foreground);
   display: flex;
   flex-direction: column;
-  inset: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  top: var(--header-height);
   overflow: hidden;
   position: fixed;
   z-index: 60;
@@ -42,15 +45,21 @@
   border-bottom: 1px solid var(--border);
   display: flex;
   flex: 0 0 var(--header-height);
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: 2.75rem minmax(0, 1fr) 2.75rem;
+  justify-content: initial;
   padding-inline: var(--site-gutter);
 }
+
+.mobileNavHeader > :nth-child(2) { justify-self: center; }
+.mobileNavHeaderSpacer { display: block; height: 2.75rem; width: 2.75rem; }
 
 .mobileNavTitle {
   font-size: 0.875rem;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
+  text-align: center;
 }
 
 .mobileLogoLink {
@@ -72,8 +81,9 @@
 }
 
 .mobileNavPanel {
+  flex: 1 1 auto;
   overflow-y: auto;
-  padding: clamp(1.5rem, 4vw, 3rem) var(--site-gutter) 3rem;
+  padding: 1rem var(--site-gutter) 3rem;
 }
 
 .mobileNavPanel h2 {
@@ -136,6 +146,27 @@
   flex: 0 0 auto;
   height: 1.125rem;
   width: 1.125rem;
+}
+
+.mobileHybridRow {
+  align-items: center;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  min-height: 3.25rem;
+}
+
+.mobileHybridRow > a,
+.mobileHybridRow > span {
+  color: var(--foreground);
+  flex: 1 1 auto;
+  font-size: clamp(1.125rem, 2.5vw, 1.375rem);
+  text-decoration: none;
+}
+
+.mobileHybridRow .mobileDrillButton {
+  border: 0;
+  min-height: 2.75rem;
+  width: 2.75rem;
 }
 
 .mobileBackButton {

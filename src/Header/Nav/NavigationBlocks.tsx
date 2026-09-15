@@ -6,15 +6,25 @@ import { NavigationCard } from './NavigationCard'
 import styles from './blocks.module.css'
 import { NavigationLink } from './NavigationLink'
 
-type NavigationBlocksProps = { blocks: HeaderNavigationBlockData[]; mode?: 'compact' | 'desktop' }
+type NavigationBlocksProps = {
+  blocks: HeaderNavigationBlockData[]
+  compactAccordion?: Record<string, string | null>
+  mode?: 'compact' | 'desktop'
+  onCompactAccordionChange?: (blockId: string, categoryId: string | null) => void
+}
 
 const CTA: React.FC<{ link: HeaderLinkData | null }> = ({ link }) =>
   link ? <NavigationLink className={styles.navigationCTA} link={link}>{link.label} <span aria-hidden="true">→</span></NavigationLink> : null
 
-export const NavigationBlocks: React.FC<NavigationBlocksProps> = ({ blocks, mode = 'desktop' }) => (
+export const NavigationBlocks: React.FC<NavigationBlocksProps> = ({
+  blocks,
+  compactAccordion,
+  mode = 'desktop',
+  onCompactAccordionChange,
+}) => (
   <div className={`${styles.navigationBlocks} ${mode === 'compact' ? styles.navigationBlocksCompact : ''}`}>
     {blocks.map((block) => {
-      if (block.type === 'categoryTabs') return <section className={styles.categoryBlock} data-navigation-block={block.type} key={block.id}><CategoryTabs block={block} mode={mode} /></section>
+      if (block.type === 'categoryTabs') return <section className={styles.categoryBlock} data-navigation-block={block.type} key={block.id}><CategoryTabs block={block} expandedCategoryId={compactAccordion?.[block.id]} mode={mode} onExpandedCategoryChange={(id) => onCompactAccordionChange?.(block.id, id)} /></section>
       if (block.type === 'cardGroup') return (
         <section className={`${styles.cardGroup} ${block.cards.length <= 2 ? styles.cardGroupTwo : styles.cardGroupFull}`} data-block-layout={`cardGroup-${block.cards.length <= 2 ? 'two' : 'full'}`} data-navigation-block={block.type} key={block.id}>
           {block.heading && <h2 className={styles.blockHeading}>{block.heading}</h2>}
