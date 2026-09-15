@@ -18,9 +18,13 @@ const FOCUSABLE_SELECTOR =
 
 let bodyScrollLockCount = 0
 let bodyOverflowBeforeLock: string | null = null
+let bodyScrollYBeforeLock = 0
 
 const acquireBodyScrollLock = () => {
-  if (bodyScrollLockCount === 0) bodyOverflowBeforeLock = document.body.style.overflow
+  if (bodyScrollLockCount === 0) {
+    bodyOverflowBeforeLock = document.body.style.overflow
+    bodyScrollYBeforeLock = window.scrollY
+  }
   bodyScrollLockCount += 1
   document.body.style.overflow = 'hidden'
   let released = false
@@ -31,6 +35,8 @@ const acquireBodyScrollLock = () => {
     if (bodyScrollLockCount === 0) {
       document.body.style.overflow = bodyOverflowBeforeLock ?? ''
       bodyOverflowBeforeLock = null
+      window.scrollTo?.(0, bodyScrollYBeforeLock)
+      bodyScrollYBeforeLock = 0
     }
   }
 }
@@ -51,6 +57,7 @@ export const MobileNav: React.FC<MobileNavProps> = ({ logo, menuCta, navItems, s
   const sectionPanelRef = useRef<HTMLElement>(null)
   const sectionTriggerRefs = useRef<Record<string, HTMLButtonElement | null>>({})
   const pendingFocusRef = useRef<HTMLElement | null>(null)
+  const sectionBackButtonRef = useRef<HTMLButtonElement>(null)
   const dialogRef = useRef<HTMLDivElement>(null)
 
   const close = useCallback((restoreFocus = true) => {
@@ -86,6 +93,10 @@ export const MobileNav: React.FC<MobileNavProps> = ({ logo, menuCta, navItems, s
     }
     if (pending && rootPanelRef.current) {
       rootPanelRef.current.querySelector<HTMLElement>(`[data-nav-section-id="${pending.dataset.navSectionId}"]`)?.focus()
+      return
+    }
+    if (state.activeSectionId) {
+      sectionBackButtonRef.current?.focus()
       return
     }
     const activePanel = state.activeSectionId ? sectionPanelRef.current : rootPanelRef.current
@@ -171,7 +182,7 @@ export const MobileNav: React.FC<MobileNavProps> = ({ logo, menuCta, navItems, s
         <div aria-label="Navigation" aria-modal="true" className={styles.mobileNavDialog} ref={dialogRef} role="dialog">
           <div className={styles.mobileNavHeader}>
             {state.activeSectionId ? (
-              <button aria-label="Back to navigation" className={styles.mobileBackButton} onClick={backToRoot} type="button">
+              <button aria-label="Back to navigation" className={styles.mobileBackButton} onClick={backToRoot} ref={sectionBackButtonRef} type="button">
                 <ArrowLeft aria-hidden="true" />
               </button>
             ) : (
@@ -199,12 +210,18 @@ export const MobileNav: React.FC<MobileNavProps> = ({ logo, menuCta, navItems, s
                     return <Link key={item.id} href={item.link.href} onClick={() => close()} {...(item.link.newTab ? { rel: 'noopener noreferrer', target: '_blank' } : {})}>{item.label}</Link>
                   }
                   if (!item.content?.length) return null
+                  if (item.navigationType === 'dropdown') {
+                    return (
+                      <button aria-label={`Open ${item.label}`} className={styles.mobileDrillButton} data-nav-section-id={item.id} key={item.id} onClick={(event) => openSection(item.id, event.currentTarget)} type="button">
+                        <span>{item.label}</span>
+                        <ChevronRight aria-hidden="true" />
+                      </button>
+                    )
+                  }
                   return (
                     <div className={styles.mobileHybridRow} key={item.id}>
-                      {item.navigationType === 'directLinkAndDropdown' && item.link ? (
-                        <Link href={item.link.href} onClick={() => close()} {...(item.link.newTab ? { rel: 'noopener noreferrer', target: '_blank' } : {})}>{item.label}</Link>
-                      ) : <span>{item.label}</span>}
-                      <button aria-label={`Open ${item.label}`} className={styles.mobileDrillButton} data-nav-section-id={item.id} onClick={(event) => { event.currentTarget.dataset.navSectionId = item.id; openSection(item.id, event.currentTarget) }} type="button">
+                      <Link href={item.link.href} onClick={() => close()} {...(item.link.newTab ? { rel: 'noopener noreferrer', target: '_blank' } : {})}>{item.label}</Link>
+                      <button aria-label={`Open ${item.label}`} className={styles.mobileDrillButton} data-nav-section-id={item.id} onClick={(event) => openSection(item.id, event.currentTarget)} type="button">
                         <ChevronRight aria-hidden="true" />
                       </button>
                     </div>

@@ -70,6 +70,7 @@ describe('MobileNav', () => {
     document.body.style.overflow = 'clip'
     desktopMedia = new MediaQueryListMock()
     vi.stubGlobal('matchMedia', vi.fn(() => desktopMedia))
+    vi.stubGlobal('scrollTo', vi.fn())
   })
 
   afterEach(() => {
@@ -100,6 +101,7 @@ describe('MobileNav', () => {
     const companyLink = screen.getByRole('link', { name: 'Company' })
     expect(companyLink.getAttribute('href')).toBe('/company')
     fireEvent.click(screen.getByRole('button', { name: 'Open Products' }))
+    expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Back to navigation' }))
     expect(screen.getAllByRole('heading', { name: 'Products' })).toHaveLength(2)
     expect(screen.getByRole('link', { name: 'Overview' })).toBeTruthy()
     expect(screen.getByRole('button', { name: 'Back to navigation' })).toBeTruthy()
@@ -155,5 +157,13 @@ describe('MobileNav', () => {
     first.focus()
     fireEvent.keyDown(document, { key: 'Tab', shiftKey: true })
     expect(document.activeElement).toBe(last)
+  })
+
+  it('restores the page scroll position when the lock is released', () => {
+    Object.defineProperty(window, 'scrollY', { configurable: true, value: 420 })
+    render(<MobileNav {...navigation} />)
+    fireEvent.click(screen.getByRole('button', { name: 'Open navigation' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Close navigation' }))
+    expect(window.scrollTo).toHaveBeenCalledWith(0, 420)
   })
 })
