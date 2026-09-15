@@ -296,31 +296,24 @@ async function exerciseMobile(page: Page, testInfo: TestInfo) {
   const openButton = page.getByRole('button', { name: 'Open navigation' })
   const dialog = page.getByRole('dialog', { name: 'Navigation' })
   await openButton.click()
-  await expect(dialog).toHaveAttribute('data-level', '1')
+  await expect(dialog).toBeVisible()
   await expect(page.locator('body')).toHaveCSS('overflow', 'hidden')
   const viewport = page.viewportSize()!
-  expect(await dialog.boundingBox()).toEqual({
-    height: viewport.height,
-    width: viewport.width,
-    x: 0,
-    y: 0,
-  })
+  const dialogBox = await dialog.boundingBox()
+  expect(dialogBox).not.toBeNull()
+  expect(dialogBox!.x).toBe(0)
+  expect(dialogBox!.width).toBe(viewport.width)
+  expect(dialogBox!.y).toBeGreaterThan(0)
+  expect(dialogBox!.height + dialogBox!.y).toBeCloseTo(viewport.height, 0)
 
   const products = dialog.getByRole('button', { name: 'Open E2E Products' })
   await products.click()
-  await expect(dialog).toHaveAttribute('data-level', '2')
-  const featured = dialog.getByRole('button', { name: 'Open E2E Featured group' })
-  await featured.click()
-  await expect(dialog).toHaveAttribute('data-level', '3')
-  const levelThreeHeading = dialog.getByRole('heading', { name: 'E2E Featured group' })
-  await expect(levelThreeHeading).toBeVisible()
-  await expect
-    .poll(async () => (await levelThreeHeading.boundingBox())?.x ?? Number.POSITIVE_INFINITY)
-    .toBeLessThan(48)
-  await shot(page, testInfo, 'mobile-level-3')
-  await dialog.getByRole('button', { name: 'Back to E2E Products' }).click()
-  await expect(featured).toBeFocused()
-  await dialog.getByRole('button', { name: 'Back to Navigation' }).click()
+  await expect(dialog.getByRole('heading', { name: 'E2E Products' })).toBeVisible()
+  await expect(dialog.getByRole('heading', { name: 'Products' })).toBeVisible()
+  await expect(dialog.getByRole('link', { name: 'E2E Product overview' })).toBeVisible()
+  await expect(dialog.getByRole('button', { name: 'Back to navigation' })).toBeFocused()
+  await shot(page, testInfo, 'mobile-section')
+  await dialog.getByRole('button', { name: 'Back to navigation' }).click()
   await expect(products).toBeFocused()
 
   const first = dialog.locator('a[href], button:not([disabled])').first()
@@ -343,8 +336,8 @@ async function exerciseMobile(page: Page, testInfo: TestInfo) {
   await expect(page.locator('body')).not.toHaveCSS('overflow', 'hidden')
   await openButton.click()
   await dialog.getByRole('button', { name: 'Open E2E Products' }).click()
-  await dialog.getByRole('link', { name: 'E2E Default destination' }).click()
-  await expect(page).toHaveURL(`${baseURL}${routePath}`)
+  await dialog.getByRole('link', { name: 'E2E Product overview' }).click()
+  await expect(page).toHaveURL(`${baseURL}/e2e-product-overview`)
   await expect(dialog).toBeHidden()
   await expect(page.locator('body')).not.toHaveCSS('overflow', 'hidden')
 }
