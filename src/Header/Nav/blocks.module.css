@@ -23,7 +23,8 @@
 .navigationCardTitle { display: block; font-weight: 600; }
 .navigationCardDescription { color: var(--muted-foreground); display: block; font-size: .875rem; line-height: 1.5; margin-top: .5rem; }
 .navigationCardArrow { bottom: 1rem; position: absolute; right: 1rem; }
-.navigationCardProduct .navigationCardBody, .navigationCardRich .navigationCardBody { padding-top: .75rem; }
+.navigationCardProduct .navigationCardBody { padding-top: .75rem; }
+.navigationCardRich .navigationCardBody { padding-top: 1rem; }
 .navigationCardRich { background: var(--muted); padding: 1rem; }
 .navigationCardRich .navigationCardTitle { font-size: 1.125rem; font-weight: 600; }
 .navigationCardRich .navigationCardBody { text-align: center; }

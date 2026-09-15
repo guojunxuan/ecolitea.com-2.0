@@ -53,6 +53,7 @@ describe('Header navigation block rendering', () => {
 
     expect(screen.getByText('Helpful description')).toBeTruthy()
     expect(screen.getByRole('link', { name: /Rich title/ })).toBeTruthy()
+    expect(screen.getByRole('link', { name: /Rich title/ }).className).toContain('navigationCardRich')
     expect(screen.getByRole('link', { name: /Rich title/ }).querySelector('[data-media]')?.getAttribute('data-presentation')).toBe(
       JSON.stringify({ image: { aspectRatio: { width: 4, height: 3 }, fit: 'contain' } }),
     )
@@ -79,7 +80,7 @@ describe('Header navigation block rendering', () => {
     ]
     const { container } = render(<NavigationBlocks blocks={blocks} mode="compact" />)
     expect(container.querySelector('[data-navigation-block="categoryTabs"]')?.className).toContain('categoryBlock')
-    expect(container.querySelector('[data-navigation-block="cardGroup"] [data-media]')?.getAttribute('data-size')).toContain('50vw')
+    expect(container.querySelector('[data-navigation-block="cardGroup"] [data-media]')?.getAttribute('data-size')?.startsWith('(max-width: 480px) 50vw')).toBe(true)
   })
 
   it('exposes accessible desktop category controls with stable panel relationships', () => {

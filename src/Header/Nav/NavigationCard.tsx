@@ -18,7 +18,7 @@ type NavigationCardProps = {
 
 const cardSize = (variant: NavigationCardVariant, cardCount = 1) =>
   variant === 'visual'
-    ? `(max-width: 480px) ${cardCount > 1 ? '50vw' : '100vw'}, (max-width: 767px) ${cardCount > 2 ? '33vw' : '50vw'}, (max-width: 1200px) 33vw, 25vw`
+    ? `(max-width: 480px) 50vw, (max-width: 767px) ${cardCount > 2 ? '33vw' : '50vw'}, (max-width: 1200px) 33vw, 25vw`
     : variant === 'rich'
       ? '(max-width: 767px) 100vw, 50vw'
       : '(max-width: 767px) 50vw, (max-width: 1200px) 25vw, 20vw'
