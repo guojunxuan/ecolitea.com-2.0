@@ -80,7 +80,16 @@ describe('Header navigation block rendering', () => {
     ]
     const { container } = render(<NavigationBlocks blocks={blocks} mode="compact" />)
     expect(container.querySelector('[data-navigation-block="categoryTabs"]')?.className).toContain('categoryBlock')
-    expect(container.querySelector('[data-navigation-block="cardGroup"] [data-media]')?.getAttribute('data-size')?.startsWith('(max-width: 480px) 50vw')).toBe(true)
+    expect(container.querySelector('[data-navigation-block="cardGroup"] [data-media]')?.getAttribute('data-size')?.startsWith('(max-width: 360px) 100vw')).toBe(true)
+  })
+
+  it('matches visual-card sizes to compact breakpoints and wider card-count layouts', () => {
+    const oneCard: HeaderNavigationBlockData = { cards: [card('one', 'One')], cta: null, heading: null, id: 'one', type: 'cardGroup' }
+    const manyCards: HeaderNavigationBlockData = { cards: [card('one', 'One'), card('two', 'Two'), card('three', 'Three')], cta: null, heading: null, id: 'many', type: 'cardGroup' }
+    const { container, rerender } = render(<NavigationBlocks blocks={[oneCard]} mode="compact" />)
+    expect(container.querySelector('[data-media]')?.getAttribute('data-size')?.startsWith('(max-width: 360px) 100vw')).toBe(true)
+    rerender(<NavigationBlocks blocks={[manyCards]} mode="compact" />)
+    expect(container.querySelector('[data-media]')?.getAttribute('data-size')).toContain('(max-width: 767px) 50vw')
   })
 
   it('exposes accessible desktop category controls with stable panel relationships', () => {
