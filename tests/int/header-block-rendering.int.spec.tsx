@@ -11,6 +11,7 @@ vi.mock('@/components/Media', () => ({
 }))
 
 import { NavigationBlocks } from '@/Header/Nav/NavigationBlocks'
+import { CategoryTabs } from '@/Header/Nav/CategoryTabs'
 
 const card = (id: string, title: string) => ({
   id,
@@ -71,6 +72,16 @@ describe('Header navigation block rendering', () => {
     expect([...container.querySelectorAll('[data-navigation-block]')].map((node) => node.getAttribute('data-navigation-block'))).toEqual(['cardGroup', 'linkGroup', 'richCard'])
   })
 
+  it('makes Category Tabs a full-row block and keeps compact visual cards sized to their columns', () => {
+    const blocks: HeaderNavigationBlockData[] = [
+      { categories: [{ cards: [card('one', 'One'), card('two', 'Two')], cta: null, id: 'cat', label: 'Cat' }], cta: null, id: 'tabs', type: 'categoryTabs' },
+      { cards: [card('visual', 'Visual')], cta: null, heading: null, id: 'visual', type: 'cardGroup' },
+    ]
+    const { container } = render(<NavigationBlocks blocks={blocks} mode="compact" />)
+    expect(container.querySelector('[data-navigation-block="categoryTabs"]')?.className).toContain('categoryBlock')
+    expect(container.querySelector('[data-navigation-block="cardGroup"] [data-media]')?.getAttribute('data-size')).toContain('50vw')
+  })
+
   it('exposes accessible desktop category controls with stable panel relationships', () => {
     const block: HeaderNavigationBlockData = {
       categories: [{ cards: [card('one', 'One')], cta: null, id: 'cat-one', label: 'Category One' }],
@@ -80,8 +91,27 @@ describe('Header navigation block rendering', () => {
     }
     render(<NavigationBlocks blocks={[block]} />)
     const tab = screen.getByRole('tab', { name: 'Category One' })
-    expect(tab.getAttribute('aria-controls')).toBe('categories-panel-cat-one')
+    expect(tab.getAttribute('aria-controls')).toBe('categories-panel')
     expect(tab.getAttribute('aria-expanded')).toBe('true')
-    expect(document.getElementById('categories-panel-cat-one')).toBeTruthy()
+    expect(document.getElementById('categories-panel')).toBeTruthy()
+    expect([...screen.getAllByRole('tab')].every((control) => document.getElementById(control.getAttribute('aria-controls') ?? '') !== null)).toBe(true)
+  })
+
+  it('retains the largest observed desktop category panel height and reports it to the owner', () => {
+    const onHeight = vi.fn()
+    const block: HeaderNavigationBlockData = {
+      categories: [{ cards: [card('one', 'One')], cta: null, id: 'cat-one', label: 'Category One' }],
+      cta: null,
+      id: 'height-tabs',
+      type: 'categoryTabs',
+    }
+    render(<CategoryTabsForTest block={block} onSessionHeightChange={onHeight} />)
+    const panel = document.getElementById('height-tabs-panel') as HTMLElement
+    Object.defineProperty(panel, 'scrollHeight', { configurable: true, value: 720 })
+    Object.defineProperty(panel, 'clientHeight', { configurable: true, value: 400 })
+    window.dispatchEvent(new Event('resize'))
+    expect(onHeight.mock.calls.length).toBeGreaterThan(0)
   })
 })
+
+const CategoryTabsForTest = ({ block, onSessionHeightChange }: { block: Extract<HeaderNavigationBlockData, { type: 'categoryTabs' }>; onSessionHeightChange: (height: number) => void }) => <CategoryTabs block={block} onSessionHeightChange={onSessionHeightChange} />

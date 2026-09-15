@@ -13,11 +13,11 @@ const CTA: React.FC<{ link: HeaderLinkData | null }> = ({ link }) =>
 export const NavigationBlocks: React.FC<NavigationBlocksProps> = ({ blocks, mode = 'desktop' }) => (
   <div className={`${styles.navigationBlocks} ${mode === 'compact' ? styles.navigationBlocksCompact : ''}`}>
     {blocks.map((block) => {
-      if (block.type === 'categoryTabs') return <section data-navigation-block={block.type} key={block.id}><CategoryTabs block={block} mode={mode} /></section>
+      if (block.type === 'categoryTabs') return <section className={styles.categoryBlock} data-navigation-block={block.type} key={block.id}><CategoryTabs block={block} mode={mode} /></section>
       if (block.type === 'cardGroup') return (
         <section className={`${styles.cardGroup} ${block.cards.length <= 2 ? styles.cardGroupTwo : styles.cardGroupFull}`} data-block-layout={`cardGroup-${block.cards.length <= 2 ? 'two' : 'full'}`} data-navigation-block={block.type} key={block.id}>
           {block.heading && <h2 className={styles.blockHeading}>{block.heading}</h2>}
-          <div className={styles.visualCardGrid}>{block.cards.map((card) => <NavigationCard card={card} key={card.id} variant="visual" />)}</div>
+          <div className={styles.visualCardGrid}>{block.cards.map((card) => <NavigationCard card={card} cardCount={block.cards.length} key={card.id} variant="visual" />)}</div>
           <CTA link={block.cta} />
         </section>
       )
