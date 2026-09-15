@@ -65,6 +65,9 @@ describe('DesktopNav', () => {
     expect(screen.queryByRole('region', { name: 'Platform menu' })).toBeNull()
     fireEvent.pointerEnter(platform)
     expect(screen.queryByRole('region', { name: 'Platform menu' })).toBeNull()
+    fireEvent.pointerEnter(screen.getByRole('button', { name: 'Company menu' }))
+    fireEvent.pointerEnter(platform)
+    expect(screen.getByRole('region', { name: 'Platform menu' })).toBeTruthy()
   })
 
   it('closes on Escape, outside activation, and route changes', () => {
@@ -84,7 +87,8 @@ describe('DesktopNav', () => {
 
   it('supports the normalized navigation item contract without legacy dropdown fields', () => {
     const item: HeaderNavigationItem = navigation.navItems[1]!
-    expect('dropdown' in item).toBe(false); expect(item.content[0]?.type).toBe('linkGroup')
+    expect('dropdown' in item).toBe(false)
+    if (item.content) expect(item.content[0]?.type).toBe('linkGroup')
   })
 
   it('does not activate a trigger under a stationary pointer after scrolling', async () => {

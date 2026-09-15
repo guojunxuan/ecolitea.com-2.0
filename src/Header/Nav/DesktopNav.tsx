@@ -61,7 +61,9 @@ export const DesktopNav: React.FC<HeaderNavigationData> = ({ menuCta, navItems }
   }, [])
 
   const enter = useCallback((id: string) => {
-    if (suppressHoverRef.current || clickedClosedRef.current === id) return
+    if (suppressHoverRef.current) return
+    if (clickedClosedRef.current === id) return
+    clickedClosedRef.current = null
     setOpenID(id)
   }, [])
 
@@ -81,7 +83,7 @@ export const DesktopNav: React.FC<HeaderNavigationData> = ({ menuCta, navItems }
   }, [])
 
   useEffect(() => {
-    if (openID && !navItems.some((item) => item.id === openID && item.content.length > 0)) {
+    if (openID && !navItems.some((item) => item.id === openID && item.content !== null && item.content.length > 0)) {
       // Content updates can remove the active owner while the menu is open.
       // eslint-disable-next-line react-hooks/set-state-in-effect
       close()
@@ -191,6 +193,6 @@ export const DesktopNav: React.FC<HeaderNavigationData> = ({ menuCta, navItems }
       <Link aria-label="Search" className={styles.searchLink} href="/search"><SearchIcon aria-hidden="true" size={19} strokeWidth={1.75} /></Link>
       {menuCta && <NavigationLink className={styles.menuCta} link={menuCta} />}
     </div>
-    {activeItem && activeItem.content.length > 0 && activeMenuID && <DesktopMegaMenu blocks={activeItem.content} id={activeMenuID} label={activeItem.label} />}
+    {activeItem?.content && activeItem.content.length > 0 && activeMenuID && <DesktopMegaMenu blocks={activeItem.content} id={activeMenuID} label={activeItem.label} />}
   </div>
 }
