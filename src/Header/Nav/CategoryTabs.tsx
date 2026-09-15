@@ -81,6 +81,8 @@ export const CategoryTabs: React.FC<CategoryTabsProps> = ({
         {block.categories.map((category) => (
           <button
             aria-selected={category.id === active.id}
+            aria-controls={`${block.id}-panel-${category.id}`}
+            aria-expanded={category.id === active.id}
             className={category.id === active.id ? styles.categoryTabActive : styles.categoryTab}
             key={category.id}
             onClick={() => select(category.id)}
@@ -93,7 +95,7 @@ export const CategoryTabs: React.FC<CategoryTabsProps> = ({
         ))}
         {block.cta && <CategoryCTA link={block.cta} />}
       </div>
-      <div className={styles.categoryPanel}>
+      <div className={styles.categoryPanel} id={`${block.id}-panel-${active.id}`} role="tabpanel" tabIndex={0}>
         <div className={styles.productCardGrid}>
           {active.cards.map((card) => <NavigationCard card={card} key={card.id} />)}
         </div>

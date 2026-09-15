@@ -15,6 +15,13 @@ type NavigationCardProps = {
   variant?: NavigationCardVariant
 }
 
+const cardSize = (variant: NavigationCardVariant) =>
+  variant === 'visual'
+    ? '(max-width: 767px) 100vw, (max-width: 1200px) 33vw, 25vw'
+    : variant === 'rich'
+      ? '(max-width: 767px) 100vw, 50vw'
+      : '(max-width: 767px) 50vw, (max-width: 1200px) 25vw, 20vw'
+
 const linkProps = (link: HeaderLinkData) =>
   link.newTab ? { rel: 'noopener noreferrer', target: '_blank' as const } : {}
 
@@ -40,7 +47,7 @@ export const NavigationCard: React.FC<NavigationCardProps> = ({
           htmlElement={null}
           presentation={imagePresentation}
           resource={card.image}
-          size="(max-width: 767px) 100vw, (max-width: 1200px) 50vw, 25vw"
+          size={cardSize(variant)}
         />
         {variant === 'visual' && <span aria-hidden="true" className={styles.navigationCardGradient} />}
       </span>
@@ -54,4 +61,3 @@ export const NavigationCard: React.FC<NavigationCardProps> = ({
     </Link>
   )
 }
-
