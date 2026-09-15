@@ -92,6 +92,14 @@ describe('Header navigation block rendering', () => {
     expect(container.querySelector('[data-media]')?.getAttribute('data-size')).toContain('(max-width: 767px) 50vw')
   })
 
+  it('uses the shared desktop grid breakpoints regardless of card count', () => {
+    const block: HeaderNavigationBlockData = { cards: [card('one', 'One')], cta: null, heading: null, id: 'one', type: 'cardGroup' }
+    const { container } = render(<NavigationBlocks blocks={[block]} />)
+    const size = container.querySelector('[data-media]')?.getAttribute('data-size') ?? ''
+    expect(size).toContain('(max-width: 1099px) 33vw')
+    expect(size.endsWith('25vw')).toBe(true)
+  })
+
   it('exposes accessible desktop category controls with stable panel relationships', () => {
     const block: HeaderNavigationBlockData = {
       categories: [{ cards: [card('one', 'One')], cta: null, id: 'cat-one', label: 'Category One' }],

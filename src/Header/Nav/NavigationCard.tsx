@@ -11,14 +11,13 @@ export type NavigationCardVariant = 'product' | 'visual' | 'rich'
 
 type NavigationCardProps = {
   card: HeaderCardData
-  cardCount?: number
   description?: string | null
   variant?: NavigationCardVariant
 }
 
-const cardSize = (variant: NavigationCardVariant, cardCount = 1) =>
+const cardSize = (variant: NavigationCardVariant) =>
   variant === 'visual'
-    ? `(max-width: 360px) 100vw, (max-width: 767px) 50vw, (max-width: 1200px) ${cardCount > 2 ? '33vw' : '50vw'}, 25vw`
+    ? '(max-width: 360px) 100vw, (max-width: 767px) 50vw, (max-width: 1099px) 33vw, 25vw'
     : variant === 'rich'
       ? '(max-width: 767px) 100vw, 50vw'
       : '(max-width: 767px) 50vw, (max-width: 1200px) 25vw, 20vw'
@@ -28,7 +27,6 @@ const linkProps = (link: HeaderLinkData) =>
 
 export const NavigationCard: React.FC<NavigationCardProps> = ({
   card,
-  cardCount,
   description,
   variant = 'product',
 }) => {
@@ -49,7 +47,7 @@ export const NavigationCard: React.FC<NavigationCardProps> = ({
           htmlElement={null}
           presentation={imagePresentation}
           resource={card.image}
-          size={cardSize(variant, cardCount)}
+          size={cardSize(variant)}
         />
         {variant === 'visual' && <span aria-hidden="true" className={styles.navigationCardGradient} />}
       </span>
