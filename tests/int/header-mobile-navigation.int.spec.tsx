@@ -22,14 +22,40 @@ const card = (id: string, title: string) => ({ id, image: null, link: link(title
 const navigation: HeaderNavigationData = {
   menuCta: link('Talk to sales', '/contact'),
   navItems: [
-    { content: null, id: 'pricing', label: 'Pricing', link: link('Pricing'), navigationType: 'directLink' },
     {
-      content: [{ heading: 'Products', id: 'products-links', links: [{ id: 'overview', link: link('Overview') }], type: 'linkGroup' }],
-      id: 'products', label: 'Products', link: null, navigationType: 'dropdown',
+      content: null,
+      id: 'pricing',
+      label: 'Pricing',
+      link: link('Pricing'),
+      navigationType: 'directLink',
     },
     {
-      content: [{ card: card('story', 'Customer story'), description: 'See how customers use our platform', id: 'company-story', type: 'richCard' }],
-      id: 'company', label: 'Company', link: link('Company'), navigationType: 'directLinkAndDropdown',
+      content: [
+        {
+          heading: 'Products',
+          id: 'products-links',
+          links: [{ id: 'overview', link: link('Overview') }],
+          type: 'linkGroup',
+        },
+      ],
+      id: 'products',
+      label: 'Products',
+      link: null,
+      navigationType: 'dropdown',
+    },
+    {
+      content: [
+        {
+          card: card('story', 'Customer story'),
+          description: 'See how customers use our platform',
+          id: 'company-story',
+          type: 'richCard',
+        },
+      ],
+      id: 'company',
+      label: 'Company',
+      link: link('Company'),
+      navigationType: 'directLinkAndDropdown',
     },
   ],
 }
@@ -39,27 +65,47 @@ const logo: LogoImage = { alt: 'Ecolitea', height: 40, src: '/media/ecolitea.svg
 class MediaQueryListMock {
   matches = false
   listeners = new Set<(event: MediaQueryListEvent) => void>()
-  media = '(min-width: 73.1875rem)'
-  addEventListener = (_type: string, listener: (event: MediaQueryListEvent) => void) => this.listeners.add(listener)
-  removeEventListener = (_type: string, listener: (event: MediaQueryListEvent) => void) => this.listeners.delete(listener)
-  setMatches(matches: boolean) { this.matches = matches; this.listeners.forEach((listener) => listener({ matches } as MediaQueryListEvent)) }
+  media = '(width > 1170px)'
+  addEventListener = (_type: string, listener: (event: MediaQueryListEvent) => void) =>
+    this.listeners.add(listener)
+  removeEventListener = (_type: string, listener: (event: MediaQueryListEvent) => void) =>
+    this.listeners.delete(listener)
+  setMatches(matches: boolean) {
+    this.matches = matches
+    this.listeners.forEach((listener) => listener({ matches } as MediaQueryListEvent))
+  }
 }
 
 let desktopMedia: MediaQueryListMock
 
 describe('navigationReducer', () => {
   it('tracks section identity and preserves session maps when returning to root', () => {
-    const open = navigationReducer(initialNavigationState, { type: 'openSection', sectionId: 'products' })
+    const open = navigationReducer(initialNavigationState, {
+      type: 'openSection',
+      sectionId: 'products',
+    })
     expect(open.activeSectionId).toBe('products')
-    const withScroll = navigationReducer(open, { type: 'setSectionScrollTop', sectionId: 'products', scrollTop: 180 })
-    const back = navigationReducer(withScroll, { type: 'backToRoot', sectionId: 'products', scrollTop: 180 })
+    const withScroll = navigationReducer(open, {
+      type: 'setSectionScrollTop',
+      sectionId: 'products',
+      scrollTop: 180,
+    })
+    const back = navigationReducer(withScroll, {
+      type: 'backToRoot',
+      sectionId: 'products',
+      scrollTop: 180,
+    })
     expect(back.activeSectionId).toBeNull()
     expect(back.sectionScrollTop.products).toBe(180)
     expect(navigationReducer(back, { type: 'reset' })).toEqual(initialNavigationState)
   })
 
   it('allows one compact accordion state per block and ignores no legacy level actions', () => {
-    const next = navigationReducer(initialNavigationState, { type: 'setSectionAccordion', blockId: 'tabs', categoryId: 'lighting' })
+    const next = navigationReducer(initialNavigationState, {
+      type: 'setSectionAccordion',
+      blockId: 'tabs',
+      categoryId: 'lighting',
+    })
     expect(next.sectionAccordion).toEqual({ tabs: 'lighting' })
   })
 })
@@ -69,7 +115,10 @@ describe('MobileNav', () => {
     pathname = '/'
     document.body.style.overflow = 'clip'
     desktopMedia = new MediaQueryListMock()
-    vi.stubGlobal('matchMedia', vi.fn(() => desktopMedia))
+    vi.stubGlobal(
+      'matchMedia',
+      vi.fn(() => desktopMedia),
+    )
     vi.stubGlobal('scrollTo', vi.fn())
   })
 
@@ -124,9 +173,15 @@ describe('MobileNav', () => {
   it('renders the selected section blocks in compact mode and keeps CTA at root end', () => {
     render(<MobileNav {...navigation} logo={logo} />)
     fireEvent.click(screen.getByRole('button', { name: 'Open navigation' }))
-    expect(screen.getByRole('link', { name: 'Talk to sales' }).getAttribute('href')).toBe('/contact')
+    expect(screen.getByRole('link', { name: 'Talk to sales' }).getAttribute('href')).toBe(
+      '/contact',
+    )
     fireEvent.click(screen.getByRole('button', { name: 'Open Company' }))
-    expect(screen.getByTestId('mobile-navigation-section').querySelector('[data-navigation-block="richCard"]')).toBeTruthy()
+    expect(
+      screen
+        .getByTestId('mobile-navigation-section')
+        .querySelector('[data-navigation-block="richCard"]'),
+    ).toBeTruthy()
     expect(screen.queryByRole('link', { name: 'Talk to sales' })).toBeNull()
   })
 

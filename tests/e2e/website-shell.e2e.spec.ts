@@ -624,12 +624,14 @@ test.describe.serial('Responsive website shell', () => {
     })
   }
 
-  test('1170px remains Compact while 1171px switches a live navigation session to Desktop', async ({
+  test('strict >1170px mode query keeps 1170px Compact and switches 1171px to Desktop', async ({
     page,
   }) => {
     await openFixture(page, 1170)
+    // Playwright only accepts integral CSS viewport pixels. The production selector is
+    // nevertheless fractional-safe: any width strictly greater than 1170px matches.
     await expect
-      .poll(() => page.evaluate(() => window.matchMedia('(min-width: 1170.5px)').matches))
+      .poll(() => page.evaluate(() => window.matchMedia('(width > 1170px)').matches))
       .toBe(false)
     const compactOpen = page.getByRole('button', { name: 'Open navigation' })
     await expect(compactOpen).toBeVisible()
@@ -637,7 +639,7 @@ test.describe.serial('Responsive website shell', () => {
     await expect(page.getByRole('dialog', { name: 'Navigation' })).toBeVisible()
     await page.setViewportSize({ width: 1171, height: 960 })
     await expect
-      .poll(() => page.evaluate(() => window.matchMedia('(min-width: 1170.5px)').matches))
+      .poll(() => page.evaluate(() => window.matchMedia('(width > 1170px)').matches))
       .toBe(true)
     await expect(page.getByRole('dialog', { name: 'Navigation' })).toBeHidden()
     await expect(page.locator('body')).not.toHaveCSS('overflow', 'hidden')

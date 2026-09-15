@@ -18,16 +18,42 @@ const Trigger: React.FC<{
   open: boolean
   setRef: (node: HTMLElement | null) => void
 }> = ({ item, menuID, onEnter, onToggle, open, setRef }) => {
-  if (item.navigationType === 'directLink') return <NavigationLink className={styles.topLevelLink} link={item.link} />
+  if (item.navigationType === 'directLink')
+    return <NavigationLink className={styles.topLevelLink} link={item.link} />
   if (item.navigationType === 'directLinkAndDropdown') {
-    return <span className={styles.hybridControl} onPointerEnter={onEnter}>
-      <NavigationLink className={styles.topLevelLink} link={item.link} />
-      <button aria-controls={menuID} aria-expanded={open} aria-label={`${item.label} menu`} className={styles.disclosureButton} onClick={onToggle} onPointerEnter={onEnter} ref={setRef} type="button"><ChevronDown aria-hidden="true" size={14} strokeWidth={1.75} /></button>
-    </span>
+    return (
+      <span className={styles.hybridControl} onPointerEnter={onEnter}>
+        <NavigationLink className={styles.topLevelLink} link={item.link} />
+        <button
+          aria-controls={menuID}
+          aria-expanded={open}
+          aria-label={`${item.label} menu`}
+          className={styles.disclosureButton}
+          onClick={onToggle}
+          onPointerEnter={onEnter}
+          ref={setRef}
+          type="button"
+        >
+          <ChevronDown aria-hidden="true" size={14} strokeWidth={1.75} />
+        </button>
+      </span>
+    )
   }
-  return <button aria-controls={menuID} aria-expanded={open} aria-label={`${item.label} menu`} className={styles.dropdownButton} onClick={onToggle} onPointerEnter={onEnter} ref={setRef} type="button">
-    <span>{item.label}</span><ChevronDown aria-hidden="true" size={14} strokeWidth={1.75} />
-  </button>
+  return (
+    <button
+      aria-controls={menuID}
+      aria-expanded={open}
+      aria-label={`${item.label} menu`}
+      className={styles.dropdownButton}
+      onClick={onToggle}
+      onPointerEnter={onEnter}
+      ref={setRef}
+      type="button"
+    >
+      <span>{item.label}</span>
+      <ChevronDown aria-hidden="true" size={14} strokeWidth={1.75} />
+    </button>
+  )
 }
 
 const isOverflowing = (element: HTMLElement) => element.scrollWidth > element.clientWidth + 1
@@ -79,11 +105,20 @@ export const DesktopNav: React.FC<HeaderNavigationData> = ({ menuCta, navItems }
   }, [])
 
   const ensureVisible = useCallback((id: string) => {
-    itemRootRefs.current[id]?.scrollIntoView?.({ block: 'nearest', inline: 'nearest', behavior: 'instant' })
+    itemRootRefs.current[id]?.scrollIntoView?.({
+      block: 'nearest',
+      inline: 'nearest',
+      behavior: 'instant',
+    })
   }, [])
 
   useEffect(() => {
-    if (openID && !navItems.some((item) => item.id === openID && item.content !== null && item.content.length > 0)) {
+    if (
+      openID &&
+      !navItems.some(
+        (item) => item.id === openID && item.content !== null && item.content.length > 0,
+      )
+    ) {
       // Content updates can remove the active owner while the menu is open.
       // eslint-disable-next-line react-hooks/set-state-in-effect
       close()
@@ -111,13 +146,17 @@ export const DesktopNav: React.FC<HeaderNavigationData> = ({ menuCta, navItems }
   }, [updateOverflow])
 
   // Route changes are an external dismissal event for this client-owned menu state.
-  // eslint-disable-next-line react-hooks/set-state-in-effect
-  useEffect(() => { close() }, [close, pathname])
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    close()
+  }, [close, pathname])
 
   useEffect(() => {
-    const media = window.matchMedia?.('(min-width: 73.1875rem)')
+    const media = window.matchMedia?.('(width > 1170px)')
     if (!media) return
-    const onChange = (event: MediaQueryListEvent | MediaQueryList) => { if (!event.matches) close() }
+    const onChange = (event: MediaQueryListEvent | MediaQueryList) => {
+      if (!event.matches) close()
+    }
     onChange(media)
     media.addEventListener('change', onChange)
     return () => media.removeEventListener('change', onChange)
@@ -165,34 +204,92 @@ export const DesktopNav: React.FC<HeaderNavigationData> = ({ menuCta, navItems }
   const activeItem = navItems.find((item) => item.id === openID)
   const activeMenuID = activeItem ? `${idPrefix}-${activeItem.id}-menu` : undefined
 
-  return <div className={styles.desktopNav} data-desktop-nav-root="true" onPointerLeave={(event) => {
-    if (event.relatedTarget instanceof Node && rootRef.current?.contains(event.relatedTarget)) return
-    close()
-  }} ref={rootRef}>
-    <div className={styles.primaryNavigationFrame}>
-      {overflow && <button aria-label="Scroll navigation left" className={styles.scrollButton} disabled={atStart} onClick={() => scrollToBoundary('left')} type="button"><ChevronLeft aria-hidden="true" size={18} /></button>}
-      <nav aria-label="Primary" className={styles.primaryNavigation} data-overflow={overflow} ref={stripRef}>
-        <div className={styles.primaryNavigationTrack} ref={trackRef}>
-          {navItems.map((item) => {
-            const menuID = `${idPrefix}-${item.id}-menu`
-            return <span className={styles.primaryNavigationItem} data-nav-item-id={item.id} key={item.id} onFocus={() => ensureVisible(item.id)} onPointerEnter={() => {
-              if (item.navigationType === 'directLink') close()
-              else enter(item.id)
-            }} onPointerMove={() => {
-              if (suppressHoverRef.current) suppressHoverRef.current = false
-              if (item.navigationType !== 'directLink') enter(item.id)
-            }} ref={(node) => { itemRootRefs.current[item.id] = node }}>
-              <Trigger item={item} menuID={menuID} onEnter={() => enter(item.id)} onToggle={() => toggle(item.id)} open={openID === item.id} setRef={(node) => { itemRefs.current[item.id] = node }} />
-            </span>
-          })}
-        </div>
-      </nav>
-      {overflow && <button aria-label="Scroll navigation right" className={styles.scrollButton} disabled={atEnd} onClick={() => scrollToBoundary('right')} type="button"><ChevronRight aria-hidden="true" size={18} /></button>}
+  return (
+    <div
+      className={styles.desktopNav}
+      data-desktop-nav-root="true"
+      onPointerLeave={(event) => {
+        if (event.relatedTarget instanceof Node && rootRef.current?.contains(event.relatedTarget))
+          return
+        close()
+      }}
+      ref={rootRef}
+    >
+      <div className={styles.primaryNavigationFrame}>
+        {overflow && (
+          <button
+            aria-label="Scroll navigation left"
+            className={styles.scrollButton}
+            disabled={atStart}
+            onClick={() => scrollToBoundary('left')}
+            type="button"
+          >
+            <ChevronLeft aria-hidden="true" size={18} />
+          </button>
+        )}
+        <nav
+          aria-label="Primary"
+          className={styles.primaryNavigation}
+          data-overflow={overflow}
+          ref={stripRef}
+        >
+          <div className={styles.primaryNavigationTrack} ref={trackRef}>
+            {navItems.map((item) => {
+              const menuID = `${idPrefix}-${item.id}-menu`
+              return (
+                <span
+                  className={styles.primaryNavigationItem}
+                  data-nav-item-id={item.id}
+                  key={item.id}
+                  onFocus={() => ensureVisible(item.id)}
+                  onPointerEnter={() => {
+                    if (item.navigationType === 'directLink') close()
+                    else enter(item.id)
+                  }}
+                  onPointerMove={() => {
+                    if (suppressHoverRef.current) suppressHoverRef.current = false
+                    if (item.navigationType !== 'directLink') enter(item.id)
+                  }}
+                  ref={(node) => {
+                    itemRootRefs.current[item.id] = node
+                  }}
+                >
+                  <Trigger
+                    item={item}
+                    menuID={menuID}
+                    onEnter={() => enter(item.id)}
+                    onToggle={() => toggle(item.id)}
+                    open={openID === item.id}
+                    setRef={(node) => {
+                      itemRefs.current[item.id] = node
+                    }}
+                  />
+                </span>
+              )
+            })}
+          </div>
+        </nav>
+        {overflow && (
+          <button
+            aria-label="Scroll navigation right"
+            className={styles.scrollButton}
+            disabled={atEnd}
+            onClick={() => scrollToBoundary('right')}
+            type="button"
+          >
+            <ChevronRight aria-hidden="true" size={18} />
+          </button>
+        )}
+      </div>
+      <div className={styles.actions}>
+        <Link aria-label="Search" className={styles.searchLink} href="/search">
+          <SearchIcon aria-hidden="true" size={19} strokeWidth={1.75} />
+        </Link>
+        {menuCta && <NavigationLink className={styles.menuCta} link={menuCta} />}
+      </div>
+      {activeItem?.content && activeItem.content.length > 0 && activeMenuID && (
+        <DesktopMegaMenu blocks={activeItem.content} id={activeMenuID} label={activeItem.label} />
+      )}
     </div>
-    <div className={styles.actions}>
-      <Link aria-label="Search" className={styles.searchLink} href="/search"><SearchIcon aria-hidden="true" size={19} strokeWidth={1.75} /></Link>
-      {menuCta && <NavigationLink className={styles.menuCta} link={menuCta} />}
-    </div>
-    {activeItem?.content && activeItem.content.length > 0 && activeMenuID && <DesktopMegaMenu blocks={activeItem.content} id={activeMenuID} label={activeItem.label} />}
-  </div>
+  )
 }

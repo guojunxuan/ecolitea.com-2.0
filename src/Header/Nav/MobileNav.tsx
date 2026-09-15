@@ -92,7 +92,9 @@ export const MobileNav: React.FC<MobileNavProps> = ({ logo, menuCta, navItems, s
       return
     }
     if (pending && rootPanelRef.current) {
-      rootPanelRef.current.querySelector<HTMLElement>(`[data-nav-section-id="${pending.dataset.navSectionId}"]`)?.focus()
+      rootPanelRef.current
+        .querySelector<HTMLElement>(`[data-nav-section-id="${pending.dataset.navSectionId}"]`)
+        ?.focus()
       return
     }
     if (state.activeSectionId) {
@@ -102,11 +104,11 @@ export const MobileNav: React.FC<MobileNavProps> = ({ logo, menuCta, navItems, s
     const activePanel = state.activeSectionId ? sectionPanelRef.current : rootPanelRef.current
     if (!activePanel) return
     const savedTop = state.activeSectionId
-      ? state.sectionScrollTop[state.activeSectionId] ?? 0
+      ? (state.sectionScrollTop[state.activeSectionId] ?? 0)
       : state.rootScrollTop
     activePanel.scrollTop = savedTop
     getFocusable(activePanel).at(0)?.focus()
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, state.activeSectionId])
 
   useEffect(() => {
@@ -116,7 +118,7 @@ export const MobileNav: React.FC<MobileNavProps> = ({ logo, menuCta, navItems, s
 
   useEffect(() => {
     if (!isOpen) return
-    const media = window.matchMedia?.('(min-width: 73.1875rem)')
+    const media = window.matchMedia?.('(width > 1170px)')
     if (!media) return
     const onChange = (event: MediaQueryListEvent | MediaQueryList) => {
       if (event.matches) close(false)
@@ -179,10 +181,22 @@ export const MobileNav: React.FC<MobileNavProps> = ({ logo, menuCta, navItems, s
       </button>
 
       {isOpen ? (
-        <div aria-label="Navigation" aria-modal="true" className={styles.mobileNavDialog} ref={dialogRef} role="dialog">
+        <div
+          aria-label="Navigation"
+          aria-modal="true"
+          className={styles.mobileNavDialog}
+          ref={dialogRef}
+          role="dialog"
+        >
           <div className={styles.mobileNavHeader}>
             {state.activeSectionId ? (
-              <button aria-label="Back to navigation" className={styles.mobileBackButton} onClick={backToRoot} ref={sectionBackButtonRef} type="button">
+              <button
+                aria-label="Back to navigation"
+                className={styles.mobileBackButton}
+                onClick={backToRoot}
+                ref={sectionBackButtonRef}
+                type="button"
+              >
                 <ArrowLeft aria-hidden="true" />
               </button>
             ) : (
@@ -191,28 +205,65 @@ export const MobileNav: React.FC<MobileNavProps> = ({ logo, menuCta, navItems, s
             {state.activeSectionId ? (
               <h2 className={styles.mobileNavTitle}>{activeItem?.label ?? 'Menu'}</h2>
             ) : logo ? (
-              <Link aria-label={logo.alt} className={styles.mobileLogoLink} href="/" onClick={() => close()}>
+              <Link
+                aria-label={logo.alt}
+                className={styles.mobileLogoLink}
+                href="/"
+                onClick={() => close()}
+              >
                 <Logo className={styles.mobileLogo} image={logo} loading="eager" priority="high" />
               </Link>
             ) : (
-              <Link className={styles.mobileNavTitle} href="/" onClick={() => close()}>{siteName || 'Menu'}</Link>
+              <Link className={styles.mobileNavTitle} href="/" onClick={() => close()}>
+                {siteName || 'Menu'}
+              </Link>
             )}
-            <button aria-label="Close navigation" className={styles.mobileIconButton} onClick={() => close()} type="button">
+            <button
+              aria-label="Close navigation"
+              className={styles.mobileIconButton}
+              onClick={() => close()}
+              type="button"
+            >
               <X aria-hidden="true" />
             </button>
           </div>
 
           {!state.activeSectionId ? (
-            <section className={styles.mobileNavPanel} data-testid="mobile-navigation-root" ref={rootPanelRef} onScroll={(event) => dispatch({ type: 'setRootScrollTop', scrollTop: event.currentTarget.scrollTop })}>
+            <section
+              className={styles.mobileNavPanel}
+              data-testid="mobile-navigation-root"
+              ref={rootPanelRef}
+              onScroll={(event) =>
+                dispatch({ type: 'setRootScrollTop', scrollTop: event.currentTarget.scrollTop })
+              }
+            >
               <nav aria-label="Primary navigation" className={styles.mobileLinkList}>
                 {navItems.map((item) => {
                   if (item.navigationType === 'directLink' && item.link) {
-                    return <Link key={item.id} href={item.link.href} onClick={() => close()} {...(item.link.newTab ? { rel: 'noopener noreferrer', target: '_blank' } : {})}>{item.label}</Link>
+                    return (
+                      <Link
+                        key={item.id}
+                        href={item.link.href}
+                        onClick={() => close()}
+                        {...(item.link.newTab
+                          ? { rel: 'noopener noreferrer', target: '_blank' }
+                          : {})}
+                      >
+                        {item.label}
+                      </Link>
+                    )
                   }
                   if (!item.content?.length) return null
                   if (item.navigationType === 'dropdown') {
                     return (
-                      <button aria-label={`Open ${item.label}`} className={styles.mobileDrillButton} data-nav-section-id={item.id} key={item.id} onClick={(event) => openSection(item.id, event.currentTarget)} type="button">
+                      <button
+                        aria-label={`Open ${item.label}`}
+                        className={styles.mobileDrillButton}
+                        data-nav-section-id={item.id}
+                        key={item.id}
+                        onClick={(event) => openSection(item.id, event.currentTarget)}
+                        type="button"
+                      >
                         <span>{item.label}</span>
                         <ChevronRight aria-hidden="true" />
                       </button>
@@ -220,19 +271,62 @@ export const MobileNav: React.FC<MobileNavProps> = ({ logo, menuCta, navItems, s
                   }
                   return (
                     <div className={styles.mobileHybridRow} key={item.id}>
-                      <Link href={item.link.href} onClick={() => close()} {...(item.link.newTab ? { rel: 'noopener noreferrer', target: '_blank' } : {})}>{item.label}</Link>
-                      <button aria-label={`Open ${item.label}`} className={styles.mobileDrillButton} data-nav-section-id={item.id} onClick={(event) => openSection(item.id, event.currentTarget)} type="button">
+                      <Link
+                        href={item.link.href}
+                        onClick={() => close()}
+                        {...(item.link.newTab
+                          ? { rel: 'noopener noreferrer', target: '_blank' }
+                          : {})}
+                      >
+                        {item.label}
+                      </Link>
+                      <button
+                        aria-label={`Open ${item.label}`}
+                        className={styles.mobileDrillButton}
+                        data-nav-section-id={item.id}
+                        onClick={(event) => openSection(item.id, event.currentTarget)}
+                        type="button"
+                      >
                         <ChevronRight aria-hidden="true" />
                       </button>
                     </div>
                   )
                 })}
               </nav>
-              {menuCta ? <Link className={styles.mobileMenuCta} href={menuCta.href} onClick={() => close()} {...(menuCta.newTab ? { rel: 'noopener noreferrer', target: '_blank' } : {})}>{menuCta.label}</Link> : null}
+              {menuCta ? (
+                <Link
+                  className={styles.mobileMenuCta}
+                  href={menuCta.href}
+                  onClick={() => close()}
+                  {...(menuCta.newTab ? { rel: 'noopener noreferrer', target: '_blank' } : {})}
+                >
+                  {menuCta.label}
+                </Link>
+              ) : null}
             </section>
           ) : (
-            <section className={styles.mobileNavPanel} data-testid="mobile-navigation-section" ref={sectionPanelRef} onScroll={(event) => dispatch({ type: 'setSectionScrollTop', sectionId: state.activeSectionId!, scrollTop: event.currentTarget.scrollTop })}>
-              {activeItem?.content ? <NavigationBlocks blocks={activeItem.content} mode="compact" compactAccordion={state.sectionAccordion} onCompactAccordionChange={(blockId, categoryId) => dispatch({ type: 'setSectionAccordion', blockId, categoryId })} /> : null}
+            <section
+              className={styles.mobileNavPanel}
+              data-testid="mobile-navigation-section"
+              ref={sectionPanelRef}
+              onScroll={(event) =>
+                dispatch({
+                  type: 'setSectionScrollTop',
+                  sectionId: state.activeSectionId!,
+                  scrollTop: event.currentTarget.scrollTop,
+                })
+              }
+            >
+              {activeItem?.content ? (
+                <NavigationBlocks
+                  blocks={activeItem.content}
+                  mode="compact"
+                  compactAccordion={state.sectionAccordion}
+                  onCompactAccordionChange={(blockId, categoryId) =>
+                    dispatch({ type: 'setSectionAccordion', blockId, categoryId })
+                  }
+                />
+              ) : null}
             </section>
           )}
         </div>
