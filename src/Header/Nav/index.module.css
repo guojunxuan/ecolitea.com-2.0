@@ -421,3 +421,19 @@
     top: calc(100% + 1rem);
   }
 }
+
+/* Desktop navigation system: the middle track is the only overflow container. */
+@media (min-width: 73.1875rem) {
+  .desktopNav { align-items: center; display: flex; flex: 1 1 auto; gap: 1rem; min-width: 0; position: relative; }
+  .primaryNavigationFrame { align-items: center; display: flex; flex: 1 1 auto; gap: .25rem; min-width: 0; }
+  .primaryNavigation { flex: 1 1 auto; min-width: 0; overflow-x: auto; overflow-y: visible; scrollbar-width: none; }
+  .primaryNavigation::-webkit-scrollbar { display: none; }
+  .primaryNavigationTrack { align-items: center; display: inline-flex; gap: 1.5rem; min-width: max-content; white-space: nowrap; }
+  .primaryNavigationItem { display: inline-flex; flex: 0 0 auto; }
+  .scrollButton { align-items: center; background: transparent; border: 0; color: var(--foreground); cursor: pointer; display: inline-flex; flex: 0 0 2rem; height: 2.5rem; justify-content: center; padding: 0; }
+  .scrollButton:disabled { cursor: default; opacity: .35; }
+  .actions { align-items: center; display: flex; flex: 0 0 auto; gap: .75rem; }
+  .megaMenu { top: var(--header-height); }
+  .megaMenuInner { display: block; max-height: min(70vh, 42rem); overflow-y: auto; padding-block: 2rem 2.5rem; }
+  .megaMenuInner > .navigationBlocks { min-width: 0; }
+}
