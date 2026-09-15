@@ -6,6 +6,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import type { HeaderCategoryTabsBlockData } from './types'
 import { NavigationCard } from './NavigationCard'
 import styles from './blocks.module.css'
+import { NavigationLink } from './NavigationLink'
 
 type CategoryTabsProps = {
   block: HeaderCategoryTabsBlockData
@@ -136,4 +137,4 @@ export const CategoryTabs: React.FC<CategoryTabsProps> = ({
 }
 
 const CategoryCTA: React.FC<{ link: HeaderCategoryTabsBlockData['cta'] }> = ({ link }) =>
-  link ? <a className={styles.navigationCTA} href={link.href} {...(link.newTab ? { rel: 'noopener noreferrer', target: '_blank' } : {})}>{link.label} <span aria-hidden="true">→</span></a> : null
+  link ? <NavigationLink className={styles.navigationCTA} link={link}>{link.label} <span aria-hidden="true">→</span></NavigationLink> : null

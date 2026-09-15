@@ -4,11 +4,12 @@ import type { HeaderLinkData, HeaderNavigationBlockData } from './types'
 import { CategoryTabs } from './CategoryTabs'
 import { NavigationCard } from './NavigationCard'
 import styles from './blocks.module.css'
+import { NavigationLink } from './NavigationLink'
 
 type NavigationBlocksProps = { blocks: HeaderNavigationBlockData[]; mode?: 'compact' | 'desktop' }
 
 const CTA: React.FC<{ link: HeaderLinkData | null }> = ({ link }) =>
-  link ? <a className={styles.navigationCTA} href={link.href} {...(link.newTab ? { rel: 'noopener noreferrer', target: '_blank' } : {})}>{link.label} <span aria-hidden="true">→</span></a> : null
+  link ? <NavigationLink className={styles.navigationCTA} link={link}>{link.label} <span aria-hidden="true">→</span></NavigationLink> : null
 
 export const NavigationBlocks: React.FC<NavigationBlocksProps> = ({ blocks, mode = 'desktop' }) => (
   <div className={`${styles.navigationBlocks} ${mode === 'compact' ? styles.navigationBlocksCompact : ''}`}>
@@ -24,14 +25,15 @@ export const NavigationBlocks: React.FC<NavigationBlocksProps> = ({ blocks, mode
       if (block.type === 'linkGroup') return (
         <section className={styles.linkGroup} data-block-layout="linkGroup-one" data-navigation-block={block.type} key={block.id}>
           {block.heading && <h2 className={styles.blockHeading}>{block.heading}</h2>}
-          <div className={styles.linkList}>{block.links.map(({ id, link }) => <a href={link.href} key={id} {...(link.newTab ? { rel: 'noopener noreferrer', target: '_blank' } : {})}>{link.label}</a>)}</div>
+          <div className={styles.linkList}>{block.links.map(({ id, link }) => <NavigationLink key={id} link={link} />)}</div>
         </section>
       )
-      return (
+      if (block.type === 'richCard') return (
         <section className={styles.richCardGroup} data-block-layout="richCard-two" data-navigation-block={block.type} key={block.id}>
           <NavigationCard card={block.card} description={block.description} variant="rich" />
         </section>
       )
+      return null
     })}
   </div>
 )

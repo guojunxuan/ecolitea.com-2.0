@@ -1,11 +1,11 @@
 import { ArrowUpRight } from 'lucide-react'
-import Link from 'next/link'
 import React from 'react'
 
 import { Media } from '@/components/Media'
 
-import type { HeaderCardData, HeaderLinkData } from './types'
+import type { HeaderCardData } from './types'
 import styles from './blocks.module.css'
+import { NavigationLink } from './NavigationLink'
 
 export type NavigationCardVariant = 'product' | 'visual' | 'rich'
 
@@ -22,9 +22,6 @@ const cardSize = (variant: NavigationCardVariant) =>
       ? '(max-width: 1170px) 100vw, 50vw'
       : '(max-width: 360px) 100vw, (max-width: 767px) 50vw, (max-width: 1099px) 33vw, 25vw'
 
-const linkProps = (link: HeaderLinkData) =>
-  link.newTab ? { rel: 'noopener noreferrer', target: '_blank' as const } : {}
-
 export const NavigationCard: React.FC<NavigationCardProps> = ({
   card,
   description,
@@ -36,10 +33,9 @@ export const NavigationCard: React.FC<NavigationCardProps> = ({
       : { image: { aspectRatio: { width: 4, height: 3 }, fit: 'contain' as const } }
 
   return (
-    <Link
+    <NavigationLink
       className={`${styles.navigationCard} ${styles[`navigationCard${variant[0].toUpperCase()}${variant.slice(1)}`]}`}
-      href={card.link.href}
-      {...linkProps(card.link)}
+      link={card.link}
     >
       <span className={styles.navigationCardImage}>
         <Media
@@ -58,6 +54,6 @@ export const NavigationCard: React.FC<NavigationCardProps> = ({
           <ArrowUpRight aria-hidden="true" className={styles.navigationCardArrow} size={18} />
         )}
       </span>
-    </Link>
+    </NavigationLink>
   )
 }
