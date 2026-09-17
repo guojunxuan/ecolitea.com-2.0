@@ -2,8 +2,12 @@
 .navigationBlocksCompact { gap: 1.5rem; }
 .navigationBlocks.navigationBlocksCompact > * { grid-column: 1 / -1; }
 .categoryBlock { grid-column: 1 / -1; }
-.blockHeading { font-size: 1rem; font-weight: 600; margin: 0 0 1rem; }
-.visualCardGrid, .productCardGrid { display: grid; gap: 1.5rem; }
+.blockHeader { align-items: center; display: flex; justify-content: space-between; margin-bottom: 1rem; min-height: 2rem; }
+.blockHeading { font-size: 1rem; font-weight: 600; margin: 0; }
+.blockCTA { align-items: center; border: 1px solid color-mix(in srgb, var(--foreground) 16%, transparent); border-radius: .5rem; color: inherit; display: inline-flex; font-size: .875rem; font-weight: 600; justify-content: center; min-height: 2rem; padding: .35rem .625rem; text-decoration: none; }
+.blockCTA:hover { background: color-mix(in srgb, var(--foreground) 6%, transparent); border-color: color-mix(in srgb, var(--foreground) 24%, transparent); }
+.visualCardGrid { column-gap: 1.5rem; display: grid; row-gap: 1rem; }
+.productCardGrid { display: grid; gap: 1.5rem; }
 .visualGridOne { grid-template-columns: minmax(0, 1fr); }
 .visualGridTwo { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .visualGridThree { grid-template-columns: repeat(3, minmax(0, 1fr)); }
@@ -12,13 +16,14 @@
 .cardGroupTwo { grid-column: span 2; }
 .cardGroupFull { grid-column: 1 / -1; }
 .linkGroup { grid-column: span 1; }
-.richCardGroup { grid-column: span 2; }
+.richCardGroup { align-self: start; grid-column: span 2; }
 .navigationCard { color: inherit; display: flex; min-width: 0; text-decoration: none; }
-.navigationCardVisual { aspect-ratio: 16 / 9; display: block; overflow: hidden; position: relative; }
+.navigationCardVisual { aspect-ratio: 16 / 9; border-radius: .5rem; display: block; overflow: hidden; position: relative; }
 .navigationCardProduct, .navigationCardRich { flex-direction: column; }
 .navigationCardProduct { background: color-mix(in srgb, var(--foreground) 6%, var(--background)); border-radius: .5rem; overflow: hidden; padding: .75rem .75rem .875rem; }
 .navigationCardImage { background: var(--muted); display: block; overflow: hidden; position: relative; width: 100%; }
-.navigationCardProduct .navigationCardImage, .navigationCardRich .navigationCardImage { aspect-ratio: 4 / 3; }
+.navigationCardProduct .navigationCardImage { aspect-ratio: 4 / 3; }
+.navigationCardRich .navigationCardImage { aspect-ratio: 16 / 9; }
 .navigationCardProduct .navigationCardImage { background: transparent; }
 .navigationCardVisual .navigationCardImage { inset: 0; position: absolute; }
 .navigationCardImage :global(picture), .navigationCardImage :global(img) { height: 100%; width: 100%; }
@@ -26,17 +31,17 @@
 .navigationCardProduct .navigationCardImage :global(picture) { align-items: center; display: flex; justify-content: center; }
 .navigationCardProduct :global(img) { height: auto; max-height: 82%; max-width: 82%; width: auto; }
 .navigationCardVisual .navigationCardImage :global(img) { object-fit: cover; }
-.navigationCardGradient { background: linear-gradient(transparent, rgb(0 0 0 / 0.72)); inset: 25% 0 0; position: absolute; }
+.navigationCardGradient { background: linear-gradient(transparent, rgb(0 0 0 / 0.72)); inset: 65% 0 0; position: absolute; }
 .navigationCardBody { display: block; position: relative; }
-.navigationCardVisual .navigationCardBody { bottom: 0; color: white; left: 0; padding: 1rem 2.5rem 1rem 1rem; position: absolute; right: 0; z-index: 1; }
+.navigationCardVisual .navigationCardBody { bottom: 0; color: white; left: 0; padding: 1rem; position: absolute; right: 0; z-index: 1; }
 .navigationCardTitle { display: block; font-weight: 600; }
 .navigationCardDescription { color: var(--muted-foreground); display: block; font-size: .875rem; line-height: 1.5; margin-top: .5rem; }
-.navigationCardArrow { bottom: 1rem; position: absolute; right: 1rem; }
 .navigationCardProduct .navigationCardBody { align-items: center; display: flex; height: 2.7em; justify-content: center; margin-top: .5rem; text-align: center; }
 .navigationCardProduct .navigationCardTitle { display: -webkit-box; font-size: .875rem; line-height: 1.35; max-width: 100%; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
-.navigationCardRich .navigationCardBody { padding-top: 1rem; }
-.navigationCardRich { background: var(--muted); padding: 1rem; }
-.navigationCardRich .navigationCardTitle { font-size: 1.125rem; font-weight: 600; }
+.navigationCardRich .navigationCardBody { padding: 1rem; }
+.navigationCardRich { align-self: start; background: color-mix(in srgb, var(--foreground) 6%, var(--background)); border-radius: .5rem; height: auto; overflow: hidden; }
+.navigationCardRich .navigationCardTitle { display: -webkit-box; font-size: 1.125rem; font-weight: 600; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+.navigationCardRich .navigationCardDescription { display: -webkit-box; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 3; }
 .navigationCardRich .navigationCardBody { text-align: center; }
 .navigationCTA { color: inherit; display: inline-block; font-size: .875rem; font-weight: 600; margin-top: 1rem; text-decoration: none; }
 .categoryTabsDesktop { align-items: start; display: grid; gap: 2rem; grid-template-columns: minmax(11.25rem, 13.75rem) minmax(0, 1fr); }
@@ -55,17 +60,18 @@
 .categoryPrimaryCTA, .categoryActiveCTA { align-items: center; border: 1px solid color-mix(in srgb, var(--foreground) 16%, transparent); border-radius: .5rem; display: inline-flex; justify-content: center; min-height: 2.5rem; padding: .5rem .75rem; }
 .categoryPrimaryCTA { margin-top: auto; width: 100%; }
 .categoryActiveCTA { flex: 0 0 auto; margin: 0 0 0 1rem; min-height: 2rem; padding: .35rem .625rem; }
-.linkList { display: flex; flex-direction: column; gap: .625rem; }
-.linkList a { align-items: center; color: inherit; display: flex; min-height: 2.5rem; text-decoration: none; }
+.linkGroup .blockHeading { font-size: .75rem; font-weight: 700; }
+.linkList { display: flex; flex-direction: column; gap: .375rem; }
+.linkList a { align-items: center; color: inherit; display: flex; font-size: .875rem; font-weight: 400; min-height: 2rem; text-decoration: none; }
 .linkList a:hover { text-decoration: underline; text-underline-offset: .2em; }
 .categoryTabsCompact, .categoryAccordion { display: flex; flex-direction: column; }
 .categoryAccordion { border-bottom: 1px solid var(--border); }
 .categoryAccordionButton { align-items: center; background: none; border: 0; display: flex; justify-content: space-between; min-height: 3.25rem; padding: .75rem 0; text-align: left; }
 .categoryAccordionContent { padding: .5rem 0 1rem; }
 .categoryChevronOpen { transform: rotate(180deg); }
-@media (max-width: 767px) { .visualCardGrid:not(.visualGridOne), .productCardGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; } .categoryTabsDesktop { display: block; } }
+@media (max-width: 767px) { .visualCardGrid:not(.visualGridOne), .productCardGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; } .categoryTabsDesktop { display: block; } .linkList a { min-height: 2.75rem; } }
 @media (min-width: 768px) and (max-width: 1099px) { .visualGridMany, .productCardGrid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
-@media (max-width: 360px) { .visualCardGrid, .productCardGrid { grid-template-columns: minmax(0, 1fr); } }
-@media (prefers-reduced-motion: no-preference) and (hover: hover) { .navigationCardVisual :global(img), .navigationCardRich :global(img), .navigationCardProduct :global(img) { transition: transform 240ms ease; } .navigationCardVisual:hover :global(img), .navigationCardRich:hover :global(img) { transform: scale(1.04); } .navigationCardProduct:hover :global(img) { transform: scale(1.035); } }
+@media (max-width: 360px) { .productCardGrid { grid-template-columns: minmax(0, 1fr); } }
+@media (prefers-reduced-motion: no-preference) and (hover: hover) { .navigationCardVisual :global(img) { transition: transform 360ms ease; } .navigationCardRich :global(img), .navigationCardProduct :global(img) { transition: transform 240ms ease; } .navigationCardVisual:hover :global(img), .navigationCardRich:hover :global(img) { transform: scale(1.04); } .navigationCardProduct:hover :global(img) { transform: scale(1.035); } }
 @media (max-width: 767px) { .categoryAccordionButton:active { background: color-mix(in srgb, var(--foreground) 6%, transparent); } }
 @media (prefers-reduced-motion: reduce) { .categoryTab, .categoryTabActive { transition: none; } .categoryChevronOpen { transform: none; } }

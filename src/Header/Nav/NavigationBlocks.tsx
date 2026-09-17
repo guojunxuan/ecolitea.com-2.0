@@ -13,8 +13,16 @@ type NavigationBlocksProps = {
   onCompactAccordionChange?: (blockId: string, categoryId: string | null) => void
 }
 
-const CTA: React.FC<{ link: HeaderLinkData | null }> = ({ link }) =>
-  link ? <NavigationLink className={styles.navigationCTA} link={link}>{link.label} <span aria-hidden="true">→</span></NavigationLink> : null
+const CTA: React.FC<{ className?: string; link: HeaderLinkData | null }> = ({ className, link }) =>
+  link ? <NavigationLink className={className} link={link}>{link.label}</NavigationLink> : null
+
+const BlockHeader: React.FC<{ cta?: HeaderLinkData | null; heading: string | null }> = ({ cta = null, heading }) =>
+  heading || cta ? (
+    <div className={styles.blockHeader}>
+      {heading ? <h2 className={styles.blockHeading}>{heading}</h2> : <span />}
+      <CTA className={styles.blockCTA} link={cta} />
+    </div>
+  ) : null
 
 const visualGrid = (count: number) =>
   count === 1
@@ -38,15 +46,14 @@ export const NavigationBlocks: React.FC<NavigationBlocksProps> = ({
         const grid = visualGrid(block.cards.length)
         return (
         <section className={`${styles.cardGroup} ${block.cards.length <= 2 ? styles.cardGroupTwo : styles.cardGroupFull}`} data-block-layout={`cardGroup-${block.cards.length <= 2 ? 'two' : 'full'}`} data-card-count={block.cards.length} data-navigation-block={block.type} key={block.id}>
-          {block.heading && <h2 className={styles.blockHeading}>{block.heading}</h2>}
+          <BlockHeader cta={block.cta} heading={block.heading} />
           <div className={`${styles.visualCardGrid} ${grid.className}`}>{block.cards.map((card) => <NavigationCard card={card} key={card.id} size={grid.size} variant="visual" />)}</div>
-          <CTA link={block.cta} />
         </section>
         )
       }
       if (block.type === 'linkGroup') return (
         <section className={styles.linkGroup} data-block-layout="linkGroup-one" data-navigation-block={block.type} key={block.id}>
-          {block.heading && <h2 className={styles.blockHeading}>{block.heading}</h2>}
+          <BlockHeader heading={block.heading} />
           <div className={styles.linkList}>{block.links.map(({ id, link }) => <NavigationLink key={id} link={link} />)}</div>
         </section>
       )

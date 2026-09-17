@@ -1,4 +1,3 @@
-import { ArrowUpRight } from 'lucide-react'
 import React from 'react'
 
 import { Media } from '@/components/Media'
@@ -32,7 +31,9 @@ export const NavigationCard: React.FC<NavigationCardProps> = ({
   const imagePresentation =
     variant === 'visual'
       ? { image: { aspectRatio: { width: 16, height: 9 }, fit: 'cover' as const } }
-      : { image: { aspectRatio: { width: 4, height: 3 }, fit: 'contain' as const } }
+      : variant === 'rich'
+        ? { image: { aspectRatio: { width: 16, height: 9 }, fit: 'contain' as const } }
+        : { image: { aspectRatio: { width: 4, height: 3 }, fit: 'contain' as const } }
 
   return (
     <NavigationLink
@@ -52,9 +53,6 @@ export const NavigationCard: React.FC<NavigationCardProps> = ({
       <span className={styles.navigationCardBody}>
         <span className={styles.navigationCardTitle}>{card.title}</span>
         {variant !== 'product' && description ? <span className={styles.navigationCardDescription}>{description}</span> : null}
-        {variant === 'visual' && (
-          <ArrowUpRight aria-hidden="true" className={styles.navigationCardArrow} size={18} />
-        )}
       </span>
     </NavigationLink>
   )

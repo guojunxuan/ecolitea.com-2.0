@@ -51,7 +51,7 @@ afterEach(() => {
 })
 
 describe('Header navigation block rendering', () => {
-  it('keeps each visual card as one anchor with reserved media and puts CTA outside cards', () => {
+  it('keeps visual cards icon-free and places the group CTA in the heading row', () => {
     const block: HeaderNavigationBlockData = {
       cards: [card('one', 'First card'), card('two', 'Second card')],
       cta: { href: '/all', label: 'View all', newTab: false, type: 'custom' },
@@ -60,16 +60,33 @@ describe('Header navigation block rendering', () => {
       type: 'cardGroup',
     }
 
-    render(<NavigationBlocks blocks={[block]} />)
+    const { container } = render(<NavigationBlocks blocks={[block]} />)
 
     const cardLinks = screen.getAllByRole('link', { name: /card$/i })
+    const blockHeader = container.querySelector('[class*="blockHeader"]') as HTMLElement
+    const cta = screen.getByRole('link', { name: 'View all' })
     expect(cardLinks).toHaveLength(2)
     expect(cardLinks[0].querySelector('[data-media="reserved"]')).toBeTruthy()
+    expect(cardLinks[0].querySelector('[data-media]')?.getAttribute('data-presentation')).toBe(
+      JSON.stringify({ image: { aspectRatio: { width: 16, height: 9 }, fit: 'cover' } }),
+    )
     expect(cardLinks[0].textContent).toContain('First card')
-    expect(screen.getByRole('link', { name: 'View all' }).closest('a')).not.toBe(cardLinks[0])
+    expect(cardLinks.every((link) => link.querySelector('svg') === null)).toBe(true)
+    expect(within(blockHeader).getByRole('heading', { name: 'Featured' })).toBeTruthy()
+    expect(within(blockHeader).getByRole('link', { name: 'View all' })).toBe(cta)
+    expect(cta.className).toContain('blockCTA')
+    expect(container.textContent).not.toContain('→')
+
+    const css = readFileSync(resolve(process.cwd(), 'src/Header/Nav/blocks.module.css'), 'utf8')
+    expect(css).toMatch(/\.visualCardGrid\s*\{[^}]*column-gap:\s*1\.5rem[^}]*row-gap:\s*1rem/s)
+    expect(css).toMatch(/\.visualGridMany\s*\{[^}]*grid-template-columns:\s*repeat\(4,/s)
+    expect(css).toMatch(/@media\s*\(max-width:\s*767px\)[^{]*\{[^}]*\.visualCardGrid:not\(\.visualGridOne\)[^}]*grid-template-columns:\s*repeat\(2,/s)
+    expect(css).toMatch(/\.navigationCardVisual\s*\{[^}]*border-radius:\s*\.5rem/s)
+    expect(css).toMatch(/\.navigationCardGradient\s*\{[^}]*inset:\s*65%\s+0\s+0/s)
+    expect(css).toMatch(/\.navigationCardVisual[^}]*:global\(img\)[^}]*transition:\s*transform\s+360ms/s)
   })
 
-  it('renders rich card descriptions only when nonblank and uses contained 4:3 media', () => {
+  it('renders one independent natural-height rich card with contained 16:9 media and clamped text', () => {
     const block: HeaderNavigationBlockData = {
       card: card('rich', 'Rich title'),
       description: 'Helpful description',
@@ -77,15 +94,60 @@ describe('Header navigation block rendering', () => {
       type: 'richCard',
     }
 
-    render(<NavigationBlocks blocks={[block]} />)
+    const { container } = render(<NavigationBlocks blocks={[block]} />)
 
     expect(screen.getByText('Helpful description')).toBeTruthy()
     expect(screen.getByRole('link', { name: /Rich title/ })).toBeTruthy()
     expect(screen.getByRole('link', { name: /Rich title/ }).className).toContain('navigationCardRich')
     expect(screen.getByRole('link', { name: /Rich title/ }).querySelector('[data-media]')?.getAttribute('data-presentation')).toBe(
-      JSON.stringify({ image: { aspectRatio: { width: 4, height: 3 }, fit: 'contain' } }),
+      JSON.stringify({ image: { aspectRatio: { width: 16, height: 9 }, fit: 'contain' } }),
     )
     expect(screen.getByRole('link', { name: /Rich title/ }).querySelector('[data-media]')?.getAttribute('data-size')).toContain('100vw')
+    expect(container.querySelectorAll('[data-navigation-block="richCard"]')).toHaveLength(1)
+    expect(container.querySelector('[data-navigation-block="richCard"]')?.children).toHaveLength(1)
+    expect(container.querySelector('svg')).toBeNull()
+
+    const css = readFileSync(resolve(process.cwd(), 'src/Header/Nav/blocks.module.css'), 'utf8')
+    expect(css).toMatch(/\.richCardGroup\s*\{[^}]*align-self:\s*start/s)
+    expect(css).toMatch(/\.navigationCardRich\s+\.navigationCardImage\s*\{[^}]*aspect-ratio:\s*16\s*\/\s*9/s)
+    expect(css).toMatch(/\.navigationCardRich\s+\.navigationCardTitle\s*\{[^}]*-webkit-line-clamp:\s*2/s)
+    expect(css).toMatch(/\.navigationCardRich\s+\.navigationCardDescription\s*\{[^}]*-webkit-line-clamp:\s*3/s)
+  })
+
+  it('uses an empty header placeholder when a Card Group has a CTA without a heading', () => {
+    const block: HeaderNavigationBlockData = {
+      cards: [card('one', 'One')],
+      cta: { href: '/all', label: 'View all', newTab: false, type: 'custom' },
+      heading: null,
+      id: 'headingless-cards',
+      type: 'cardGroup',
+    }
+
+    const { container } = render(<NavigationBlocks blocks={[block]} />)
+    const blockHeader = container.querySelector('[class*="blockHeader"]') as HTMLElement
+    expect(blockHeader.firstElementChild?.tagName).toBe('SPAN')
+    expect(blockHeader.lastElementChild).toBe(screen.getByRole('link', { name: 'View all' }))
+  })
+
+  it('keeps Link Group anchors undecorated until underline-only hover', () => {
+    const block: HeaderNavigationBlockData = {
+      heading: 'Resources',
+      id: 'resources',
+      links: [{ id: 'guide', link: { href: '/guide', label: 'Guide', newTab: false, type: 'custom' } }],
+      type: 'linkGroup',
+    }
+
+    const { container } = render(<NavigationBlocks blocks={[block]} />)
+    const link = screen.getByRole('link', { name: 'Guide' })
+    expect(link.querySelector('svg')).toBeNull()
+    expect(link.textContent).toBe('Guide')
+    expect(container.textContent).not.toContain('→')
+
+    const css = readFileSync(resolve(process.cwd(), 'src/Header/Nav/blocks.module.css'), 'utf8')
+    expect(css).toMatch(/\.linkGroup\s+\.blockHeading\s*\{[^}]*font-size:\s*\.75rem[^}]*font-weight:\s*700/s)
+    expect(css).toMatch(/\.linkList\s+a\s*\{[^}]*font-size:\s*\.875rem[^}]*font-weight:\s*400[^}]*min-height:\s*2rem/s)
+    expect(css).toMatch(/\.linkList\s+a:hover\s*\{[^}]*text-decoration:\s*underline/s)
+    expect(css).toMatch(/@media\s*\(max-width:\s*767px\)[^{]*\{[\s\S]*?\.linkList\s+a\s*\{[^}]*min-height:\s*2\.75rem/s)
   })
 
   it('uses composition tracks based on block density without reordering blocks', () => {
