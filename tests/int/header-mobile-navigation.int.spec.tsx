@@ -5,6 +5,7 @@ import React from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { MobileNav } from '@/Header/Nav/MobileNav'
+import { HeaderNav } from '@/Header/Nav'
 import { initialNavigationState, navigationReducer } from '@/Header/Nav/navigationState'
 import type { HeaderNavigationData } from '@/Header/Nav/types'
 import type { LogoImage } from '@/components/Logo/types'
@@ -278,6 +279,27 @@ describe('MobileNav', () => {
     expect(window.matchMedia).toHaveBeenCalledWith('(width > 1170px)')
     act(() => desktopMedia.setMatches(true))
     expect(screen.queryByRole('dialog', { name: 'Navigation' })).toBeNull()
+  })
+
+  it('hands focus to the visible desktop navigation after the strict breakpoint transition', () => {
+    const { container } = render(
+      <HeaderNav
+        {...navigation}
+        logo={logo}
+        siteName="Ecolitea"
+      />,
+    )
+    fireEvent.click(screen.getByRole('button', { name: 'Open navigation' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Open Products' }))
+    const mobileCategory = screen.getByRole('button', { name: 'Lighting' })
+    mobileCategory.focus()
+
+    act(() => desktopMedia.setMatches(true))
+
+    const desktopRoot = container.querySelector<HTMLElement>('[data-desktop-nav-root="true"]')
+    const desktopPricing = within(desktopRoot!).getByRole('link', { name: 'Pricing' })
+    expect(screen.queryByRole('dialog', { name: 'Navigation' })).toBeNull()
+    expect(document.activeElement).toBe(desktopPricing)
   })
 
   it('resets an active section removed by live navigation data without closing the menu', () => {

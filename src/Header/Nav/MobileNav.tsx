@@ -65,6 +65,7 @@ export const MobileNav: React.FC<MobileNavProps> = ({
   const openButtonRef = useRef<HTMLButtonElement>(null)
   const rootPanelRef = useRef<HTMLElement>(null)
   const dialogRef = useRef<HTMLDivElement>(null)
+  const desktopFocusHandoffRef = useRef(false)
   const restoreFocusRef = useRef(false)
 
   useEffect(() => {
@@ -79,7 +80,16 @@ export const MobileNav: React.FC<MobileNavProps> = ({
   }, [])
 
   useEffect(() => {
-    if (isOpen || !restoreFocusRef.current) return
+    if (isOpen) return
+    if (desktopFocusHandoffRef.current) {
+      desktopFocusHandoffRef.current = false
+      const desktopNavigation = document.querySelector<HTMLElement>(
+        '[data-desktop-nav-root="true"]',
+      )
+      if (desktopNavigation) getFocusable(desktopNavigation).at(0)?.focus()
+      return
+    }
+    if (!restoreFocusRef.current) return
     restoreFocusRef.current = false
     openButtonRef.current?.focus()
   }, [isOpen])
@@ -117,7 +127,10 @@ export const MobileNav: React.FC<MobileNavProps> = ({
     const media = window.matchMedia?.('(width > 1170px)')
     if (!media) return
     const onChange = (event: MediaQueryListEvent | MediaQueryList) => {
-      if (event.matches) close(false)
+      if (event.matches) {
+        desktopFocusHandoffRef.current = true
+        close(false)
+      }
     }
     onChange(media)
     media.addEventListener('change', onChange)
