@@ -435,7 +435,7 @@ async function expectBackground(
 }
 
 async function expectIndicatorAligned(page: Page, control: ReturnType<Page['locator']>) {
-  const item = control.locator('..')
+  const item = page.locator('[data-nav-item-id]').filter({ has: control })
   const indicator = page.locator('[data-navigation-indicator="true"]')
   await expect(indicator).toHaveAttribute('data-visible', 'true')
   await expect
@@ -463,7 +463,7 @@ async function exerciseMobile(page: Page, testInfo: TestInfo) {
   await expect(dialog).toBeVisible()
   await expect(page.locator('body')).toHaveCSS('overflow', 'hidden')
   await expectBackground(surface, { alpha: 1, blue: 255, green: 255, red: 255 })
-  const dialogSurface = dialog.locator('[data-testid="mobile-navigation-root"]').locator('..')
+  const dialogSurface = dialog.locator('[data-mobile-navigation-surface="true"]')
   await expectBackground(dialogSurface, {
     alpha: 1,
     blue: 255,
@@ -587,9 +587,10 @@ async function exerciseMobile(page: Page, testInfo: TestInfo) {
   await openButton.click()
   const rootPanel = dialog.getByTestId('mobile-navigation-root')
   const rootCta = dialog.getByRole('link', { name: 'E2E Talk to sales' })
+  const ctaBar = dialog.locator('[data-mobile-cta-bar="true"]')
   await expect(rootCta).toBeVisible()
-  await expect(rootCta.locator('..')).toHaveCSS('position', 'fixed')
-  const ctaBarBox = await rootCta.locator('..').boundingBox()
+  await expect(ctaBar).toHaveCSS('position', 'fixed')
+  const ctaBarBox = await ctaBar.boundingBox()
   expect(ctaBarBox).not.toBeNull()
   expect(ctaBarBox!.y + ctaBarBox!.height).toBeCloseTo(viewport.height, 0)
   expect(await rootPanel.evaluate((panel) => panel.scrollHeight)).toBeGreaterThanOrEqual(
@@ -612,12 +613,12 @@ async function expectDesktopZones(page: Page) {
     [
       page.locator('header .site-container > a'),
       page.getByRole('navigation', { name: 'Primary' }),
-      page.getByRole('link', { name: 'Search' }).locator('..'),
+      page.getByRole('link', { name: 'Search' }),
     ],
     [
       page.locator('[data-footer-content="brand"]'),
       page.locator('[data-footer-content="navigation"]'),
-      page.locator('[data-footer-content="newsletter"]').locator('..'),
+      page.locator('[data-footer-content="newsletter"]'),
     ],
   ]
   for (const zones of zoneGroups) {
@@ -673,7 +674,7 @@ test.describe.serial('Responsive website shell', () => {
     await page.getByRole('button', { name: 'Open navigation' }).click()
     const dialog = page.getByRole('dialog', { name: 'Navigation' })
     await expect(dialog).toBeVisible()
-    const dialogSurface = dialog.getByTestId('mobile-navigation-root').locator('..')
+    const dialogSurface = dialog.locator('[data-mobile-navigation-surface="true"]')
     await expect(dialogSurface).toHaveCSS('opacity', '1')
     const dialogBox = await dialogSurface.boundingBox()
     expect(dialogBox).not.toBeNull()
@@ -903,53 +904,15 @@ test.describe.serial('Responsive website shell', () => {
   test('Desktop pointer intent delays initial open and close but switches menus immediately', async ({
     page,
   }) => {
+    await page.clock.install({ time: new Date('2026-01-01T08:00:00Z') })
     await openFixture(page, 1440)
+    await page.clock.pauseAt(new Date('2026-01-01T10:00:00Z'))
     const products = page.getByRole('button', { name: 'E2E Products' })
     const productsMenu = page.getByRole('region', { name: 'E2E Products menu' })
-    await products.evaluate((control) => {
-      const timing = { enteredAt: Number.NaN, openedAt: Number.NaN }
-      ;(
-        window as typeof window & {
-          __e2ePointerTiming?: typeof timing
-        }
-      ).__e2ePointerTiming = timing
-      control.addEventListener(
-        'pointerenter',
-        () => {
-          timing.enteredAt = performance.now()
-        },
-        { once: true },
-      )
-      const observer = new MutationObserver(() => {
-        if (!document.querySelector('[role="region"][aria-label="E2E Products menu"]')) return
-        timing.openedAt = performance.now()
-        observer.disconnect()
-      })
-      observer.observe(document.body, { childList: true, subtree: true })
-    })
     await products.hover()
-    await expect
-      .poll(() =>
-        page.evaluate(() => {
-          const timing = (
-            window as typeof window & {
-              __e2ePointerTiming?: { enteredAt: number; openedAt: number }
-            }
-          ).__e2ePointerTiming
-          return Boolean(timing && Number.isFinite(timing.enteredAt) && Number.isFinite(timing.openedAt))
-        }),
-      )
-      .toBe(true)
-    const initialOpenDelay = await page.evaluate(() => {
-      const timing = (
-        window as typeof window & {
-          __e2ePointerTiming?: { enteredAt: number; openedAt: number }
-        }
-      ).__e2ePointerTiming!
-      return timing.openedAt - timing.enteredAt
-    })
-    expect(initialOpenDelay).toBeGreaterThanOrEqual(90)
-    expect(initialOpenDelay).toBeLessThan(500)
+    await page.clock.runFor(99)
+    await expect(productsMenu).toHaveCount(0)
+    await page.clock.runFor(1)
     await expect(productsMenu).toBeVisible()
 
     const hybrid = page.getByRole('link', {
@@ -960,18 +923,26 @@ test.describe.serial('Responsive website shell', () => {
       name: 'E2E Hybrid Hub with a deliberately long label menu',
     })
     await hybrid.hover()
-    await expect(hybridMenu).toBeVisible({ timeout: 50 })
+    await expect(hybridMenu).toBeVisible()
 
     const overlay = page.locator('[data-navigation-overlay="true"]')
+    const menuShell = page.locator('[data-mega-menu-shell="true"]')
+    const surface = page.locator('header > div')
     const overlayBox = await overlay.boundingBox()
     expect(overlayBox).not.toBeNull()
     await page.mouse.move(
       overlayBox!.x + overlayBox!.width / 2,
       overlayBox!.y + overlayBox!.height - 4,
     )
-    await page.waitForTimeout(100)
+    await page.clock.runFor(199)
     await expect(hybridMenu).toBeVisible()
-    await expect(hybridMenu).toBeHidden({ timeout: 300 })
+    await expect(surface).toHaveAttribute('data-menu-open', 'true')
+    await expect(menuShell).toHaveAttribute('data-phase', 'open')
+    await page.clock.runFor(1)
+    await expect(surface).toHaveAttribute('data-menu-open', 'false')
+    await expect(menuShell).toHaveAttribute('data-phase', 'closing')
+    await page.clock.runFor(180)
+    await expect(hybridMenu).toHaveCount(0)
   })
 
   test('360px applies the computed one-column Card Group fallback', async ({ page }) => {

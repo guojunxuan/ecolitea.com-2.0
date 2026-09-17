@@ -236,7 +236,7 @@ export const MobileNav: React.FC<MobileNavProps> = ({
       </div>
 
       {isOpen ? (
-        <div className={styles.mobileNavDialog}>
+        <div className={styles.mobileNavDialog} data-mobile-navigation-surface="true">
           <section
             className={styles.mobileNavPanel}
             data-testid="mobile-navigation-root"

@@ -156,6 +156,7 @@ describe('MobileNav', () => {
     expect(within(dialog).getByRole('button', { name: 'Close navigation' })).toBe(menuButton)
     expect(within(dialog).getByRole('link', { name: 'Ecolitea' })).toBeTruthy()
     expect(within(dialog).getByRole('link', { name: 'Search' })).toBeTruthy()
+    expect(dialog.querySelector('[data-mobile-navigation-surface="true"]')).toBeTruthy()
     expect(within(dialog).getByTestId('mobile-navigation-root')).toBeTruthy()
     expect(screen.queryByTestId('mobile-navigation-section')).toBeNull()
     expect(screen.queryByRole('button', { name: 'Back to navigation' })).toBeNull()
