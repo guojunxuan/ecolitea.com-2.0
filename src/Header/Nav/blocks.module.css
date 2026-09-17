@@ -70,7 +70,7 @@
 .categoryChevronOpen { transform: rotate(180deg); }
 @media (max-width: 767px) { .visualCardGrid:not(.visualGridOne), .productCardGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; } .categoryTabsDesktop { display: block; } .linkList a { min-height: 2.75rem; } }
 @media (min-width: 768px) and (max-width: 1099px) { .visualGridMany, .productCardGrid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
-@media (max-width: 360px) { .productCardGrid { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 360px) { .visualCardGrid, .productCardGrid { grid-template-columns: minmax(0, 1fr); } }
 @media (prefers-reduced-motion: no-preference) and (hover: hover) { .navigationCardVisual :global(img) { transition: transform 360ms ease; } .navigationCardRich :global(img), .navigationCardProduct :global(img) { transition: transform 240ms ease; } .navigationCardVisual:hover :global(img), .navigationCardRich:hover :global(img) { transform: scale(1.04); } .navigationCardProduct:hover :global(img) { transform: scale(1.035); } }
 @media (max-width: 767px) { .categoryAccordionButton:active { background: color-mix(in srgb, var(--foreground) 6%, transparent); } }
 @media (prefers-reduced-motion: reduce) { .categoryTab, .categoryTabActive { transition: none; } .categoryChevronOpen { transform: none; } }

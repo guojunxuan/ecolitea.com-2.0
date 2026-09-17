@@ -590,6 +590,19 @@ describe('Header navigation block rendering', () => {
     expect(css).toMatch(/@media\s*\(max-width:\s*767px\)[^{]*\{[^}]*\.visualCardGrid:not\(\.visualGridOne\)[^}]*grid-template-columns:\s*repeat\(2,/s)
   })
 
+  it('falls multi-card visual grids back to one column at 360px with matching image hints', () => {
+    const blocks: HeaderNavigationBlockData[] = [
+      { cards: [card('two-a', 'Two A'), card('two-b', 'Two B')], cta: null, heading: null, id: 'two', type: 'cardGroup' },
+      { cards: [card('three-a', 'Three A'), card('three-b', 'Three B'), card('three-c', 'Three C')], cta: null, heading: null, id: 'three', type: 'cardGroup' },
+    ]
+    const { container } = render(<NavigationBlocks blocks={blocks} />)
+    const sizes = [...container.querySelectorAll('[data-media]')].map((node) => node.getAttribute('data-size'))
+    const css = readFileSync(resolve(process.cwd(), 'src/Header/Nav/blocks.module.css'), 'utf8')
+
+    expect(sizes.every((size) => size?.startsWith('(max-width: 360px) 100vw'))).toBe(true)
+    expect(css).toMatch(/@media\s*\(max-width:\s*360px\)[^{]*\{[^}]*\.visualCardGrid[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\)/s)
+  })
+
   it('uses card-count grids without reserving empty four-column tracks in half-width groups', () => {
     const blocks: HeaderNavigationBlockData[] = [
       { cards: [card('one', 'One')], cta: null, heading: null, id: 'one', type: 'cardGroup' },
