@@ -10,7 +10,6 @@
 .productCardGrid { display: grid; gap: 1.5rem; }
 .visualGridOne { grid-template-columns: minmax(0, 1fr); }
 .visualGridTwo { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-.visualGridThree { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .visualGridMany { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 .productCardGrid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 .cardGroupTwo { grid-column: span 2; }

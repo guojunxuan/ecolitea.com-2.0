@@ -569,6 +569,27 @@ describe('Header navigation block rendering', () => {
     expect(container.querySelector('svg')).toBeNull()
   })
 
+  it('uses the standard four-column desktop contract for exactly three visual cards', () => {
+    const block: HeaderNavigationBlockData = {
+      cards: [card('one', 'One'), card('two', 'Two'), card('three', 'Three')],
+      cta: null,
+      heading: null,
+      id: 'three-cards',
+      type: 'cardGroup',
+    }
+    const { container } = render(<NavigationBlocks blocks={[block]} />)
+    const grid = container.querySelector('[data-card-count="3"] > div') as HTMLElement
+    const sizes = [...grid.querySelectorAll('[data-media]')].map((node) => node.getAttribute('data-size'))
+    const css = readFileSync(resolve(process.cwd(), 'src/Header/Nav/blocks.module.css'), 'utf8')
+
+    expect(grid.className).toContain('visualGridMany')
+    expect(grid.className).not.toContain('visualGridThree')
+    expect(sizes.every((size) => size?.endsWith('25vw'))).toBe(true)
+    expect(css).toMatch(/\.visualGridMany\s*\{[^}]*grid-template-columns:\s*repeat\(4,/s)
+    expect(css).not.toMatch(/\.visualGridThree\s*\{/)
+    expect(css).toMatch(/@media\s*\(max-width:\s*767px\)[^{]*\{[^}]*\.visualCardGrid:not\(\.visualGridOne\)[^}]*grid-template-columns:\s*repeat\(2,/s)
+  })
+
   it('uses card-count grids without reserving empty four-column tracks in half-width groups', () => {
     const blocks: HeaderNavigationBlockData[] = [
       { cards: [card('one', 'One')], cta: null, heading: null, id: 'one', type: 'cardGroup' },
@@ -578,11 +599,11 @@ describe('Header navigation block rendering', () => {
     const { container } = render(<NavigationBlocks blocks={blocks} />)
     expect(container.querySelector('[data-card-count="1"] > div')?.className).toContain('visualGridOne')
     expect(container.querySelector('[data-card-count="2"] > div')?.className).toContain('visualGridTwo')
-    expect(container.querySelector('[data-card-count="3"] > div')?.className).toContain('visualGridThree')
+    expect(container.querySelector('[data-card-count="3"] > div')?.className).toContain('visualGridMany')
     const sizes = [...container.querySelectorAll('[data-navigation-block="cardGroup"] [data-media]')].map((node) => node.getAttribute('data-size'))
     expect(sizes[0]).toContain('50vw')
     expect(sizes[1]).toContain('25vw')
-    expect(sizes.at(-1)).toContain('33vw')
+    expect(sizes.at(-1)).toContain('25vw')
   })
 })
 

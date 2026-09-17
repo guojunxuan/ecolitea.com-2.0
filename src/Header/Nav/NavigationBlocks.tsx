@@ -29,9 +29,7 @@ const visualGrid = (count: number) =>
     ? { className: styles.visualGridOne, size: '(max-width: 360px) 100vw, (max-width: 1170px) 100vw, 50vw' }
     : count === 2
       ? { className: styles.visualGridTwo, size: '(max-width: 767px) 50vw, 25vw' }
-      : count === 3
-        ? { className: styles.visualGridThree, size: '(max-width: 767px) 50vw, 33vw' }
-        : { className: styles.visualGridMany, size: '(max-width: 360px) 100vw, (max-width: 767px) 50vw, (max-width: 1099px) 33vw, 25vw' }
+      : { className: styles.visualGridMany, size: '(max-width: 767px) 50vw, (max-width: 1099px) 33vw, 25vw' }
 
 export const NavigationBlocks: React.FC<NavigationBlocksProps> = ({
   blocks,
