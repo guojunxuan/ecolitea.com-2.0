@@ -168,9 +168,18 @@ describe('Header navigation block rendering', () => {
       { categories: [{ cards: [card('one', 'One'), card('two', 'Two')], cta: null, id: 'cat', label: 'Cat' }], cta: null, id: 'tabs', type: 'categoryTabs' },
       { cards: [card('visual', 'Visual')], cta: null, heading: null, id: 'visual', type: 'cardGroup' },
     ]
-    const { container } = render(<NavigationBlocks blocks={blocks} mode="compact" />)
+    const { container } = render(
+      <NavigationBlocks blocks={blocks} compactAccordion={{ tabs: 'cat' }} mode="compact" />,
+    )
     expect(container.querySelector('[data-navigation-block="categoryTabs"]')?.className).toContain('categoryBlock')
-    expect(container.querySelector('[data-navigation-block="cardGroup"] [data-media]')?.getAttribute('data-size')?.startsWith('(max-width: 360px) 100vw')).toBe(true)
+    const compactSizes = [
+      ...container.querySelectorAll('[data-navigation-block] [data-media]'),
+    ].map((node) => node.getAttribute('data-size'))
+    expect(compactSizes.every((size) => size?.startsWith('(max-width: 360px) 100vw'))).toBe(
+      true,
+    )
+    expect(compactSizes[0]).toContain('(max-width: 1170px) 50vw')
+    expect(compactSizes[0]).not.toContain('33vw')
   })
 
   it('matches visual-card sizes to compact breakpoints and wider card-count layouts', () => {
@@ -179,7 +188,9 @@ describe('Header navigation block rendering', () => {
     const { container, rerender } = render(<NavigationBlocks blocks={[oneCard]} mode="compact" />)
     expect(container.querySelector('[data-media]')?.getAttribute('data-size')?.startsWith('(max-width: 360px) 100vw')).toBe(true)
     rerender(<NavigationBlocks blocks={[manyCards]} mode="compact" />)
-    expect(container.querySelector('[data-media]')?.getAttribute('data-size')).toContain('(max-width: 767px) 50vw')
+    const compactSize = container.querySelector('[data-media]')?.getAttribute('data-size') ?? ''
+    expect(compactSize).toContain('(max-width: 1170px) 50vw')
+    expect(compactSize).not.toContain('33vw')
   })
 
   it('sizes a single visual card for its half-width desktop group', () => {
@@ -190,21 +201,43 @@ describe('Header navigation block rendering', () => {
     expect(size.endsWith('50vw')).toBe(true)
   })
 
-  it('sizes product cards to three columns at 768–1099px and rich cards to a full compact row', () => {
-    const productSize = (() => {
-      const { container, unmount } = render(<NavigationCard card={card('product', 'Product')} variant="product" />)
+  it('uses mode-aware product sizes while rich cards keep a full compact row', () => {
+    const desktopProductSize = (() => {
+      const { container, unmount } = render(
+        <NavigationCard card={card('product', 'Product')} mode="desktop" variant="product" />,
+      )
+      const value = container.querySelector('[data-media]')?.getAttribute('data-size') ?? ''
+      unmount()
+      return value
+    })()
+    const compactProductSize = (() => {
+      const { container, unmount } = render(
+        <NavigationCard card={card('product', 'Product')} mode="compact" variant="product" />,
+      )
       const value = container.querySelector('[data-media]')?.getAttribute('data-size') ?? ''
       unmount()
       return value
     })()
     const richSize = (() => {
-      const { container } = render(<NavigationCard card={card('rich', 'Rich')} variant="rich" />)
+      const { container } = render(
+        <NavigationCard card={card('rich', 'Rich')} mode="compact" variant="rich" />,
+      )
       return container.querySelector('[data-media]')?.getAttribute('data-size') ?? ''
     })()
-    expect(productSize.startsWith('(max-width: 360px) 100vw')).toBe(true)
-    expect(productSize).toContain('(max-width: 1099px) 33vw')
-    expect(productSize.endsWith('25vw')).toBe(true)
+    expect(desktopProductSize).toBe('25vw')
+    expect(compactProductSize).toBe(
+      '(max-width: 360px) 100vw, (max-width: 1170px) 50vw, 25vw',
+    )
     expect(richSize).toContain('(max-width: 1170px) 100vw')
+  })
+
+  it('separates adjacent major blocks in desktop and Compact layouts without changing tracks', () => {
+    const css = readFileSync(resolve(process.cwd(), 'src/Header/Nav/blocks.module.css'), 'utf8')
+
+    expect(css).toMatch(
+      /\.navigationBlocks\s*>\s*\[data-navigation-block\]\s*\+\s*\[data-navigation-block\][^}]*border-top:\s*1px solid/s,
+    )
+    expect(css).toMatch(/\.navigationBlocks\s*\{[^}]*grid-template-columns:\s*repeat\(4,/s)
   })
 
   it('implements vertical roving tabs with keyboard selection and labelled panels', () => {

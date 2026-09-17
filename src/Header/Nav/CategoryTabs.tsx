@@ -185,7 +185,7 @@ export const CategoryTabs: React.FC<CategoryTabsProps> = ({
               <div className={styles.categoryAccordionContent} hidden={!open} id={`${block.id}-compact-panel-${category.id}`}>
                 {open && (
                   <div className={styles.productCardGrid}>
-                    {category.cards.map((card) => <NavigationCard card={card} key={card.id} />)}
+                    {category.cards.map((card) => <NavigationCard card={card} key={card.id} mode={mode} />)}
                   </div>
                 )}
                 {open && category.cta && <CategoryCTA link={category.cta} />}
@@ -253,7 +253,7 @@ export const CategoryTabs: React.FC<CategoryTabsProps> = ({
                 tabIndex={selected ? 0 : -1}
               >
                 <div className={styles.productCardGrid} data-product-card-grid>
-                  {category.cards.map((card) => <NavigationCard card={card} key={card.id} />)}
+                  {category.cards.map((card) => <NavigationCard card={card} key={card.id} mode={mode} />)}
                 </div>
               </div>
             )
