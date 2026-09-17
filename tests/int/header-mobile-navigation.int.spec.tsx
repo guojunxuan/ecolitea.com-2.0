@@ -1,4 +1,6 @@
 import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/react'
+import { readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
 import React from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -10,12 +12,11 @@ import type { LogoImage } from '@/components/Logo/types'
 let pathname = '/'
 vi.mock('next/navigation', () => ({ usePathname: () => pathname }))
 
-const link = (label: string, href = `/${label.toLowerCase().replaceAll(' ', '-')}`) => ({
-  href,
-  label,
-  newTab: false,
-  type: 'custom' as const,
-})
+const link = (
+  label: string,
+  href = `/${label.toLowerCase().replaceAll(' ', '-')}`,
+  newTab = false,
+) => ({ href, label, newTab, type: 'custom' as const })
 
 const card = (id: string, title: string) => ({ id, image: null, link: link(title), title })
 
@@ -31,6 +32,20 @@ const navigation: HeaderNavigationData = {
     },
     {
       content: [
+        {
+          categories: [
+            { cards: [card('bulb', 'Bulb')], cta: null, id: 'lighting', label: 'Lighting' },
+            {
+              cards: [card('panel', 'Control panel')],
+              cta: null,
+              id: 'controls',
+              label: 'Controls',
+            },
+          ],
+          cta: null,
+          id: 'product-categories',
+          type: 'categoryTabs',
+        },
         {
           heading: 'Products',
           id: 'products-links',
@@ -54,7 +69,7 @@ const navigation: HeaderNavigationData = {
       ],
       id: 'company',
       label: 'Company',
-      link: link('Company'),
+      link: link('Company', '/company', true),
       navigationType: 'directLinkAndDropdown',
     },
   ],
@@ -79,34 +94,35 @@ class MediaQueryListMock {
 let desktopMedia: MediaQueryListMock
 
 describe('navigationReducer', () => {
-  it('tracks section identity and preserves session maps when returning to root', () => {
-    const open = navigationReducer(initialNavigationState, {
-      type: 'openSection',
+  it('keeps one top-level section open and clears compact Category state when it changes', () => {
+    const products = navigationReducer(initialNavigationState, {
+      type: 'toggleSection',
       sectionId: 'products',
     })
-    expect(open.activeSectionId).toBe('products')
-    const withScroll = navigationReducer(open, {
-      type: 'setSectionScrollTop',
-      sectionId: 'products',
-      scrollTop: 180,
-    })
-    const back = navigationReducer(withScroll, {
-      type: 'backToRoot',
-      sectionId: 'products',
-      scrollTop: 180,
-    })
-    expect(back.activeSectionId).toBeNull()
-    expect(back.sectionScrollTop.products).toBe(180)
-    expect(navigationReducer(back, { type: 'reset' })).toEqual(initialNavigationState)
-  })
-
-  it('allows one compact accordion state per block and ignores no legacy level actions', () => {
-    const next = navigationReducer(initialNavigationState, {
+    const withCategory = navigationReducer(products, {
       type: 'setSectionAccordion',
-      blockId: 'tabs',
+      blockId: 'product-categories',
       categoryId: 'lighting',
     })
-    expect(next.sectionAccordion).toEqual({ tabs: 'lighting' })
+    const company = navigationReducer(withCategory, {
+      type: 'toggleSection',
+      sectionId: 'company',
+    })
+
+    expect(company).toEqual({ activeSectionId: 'company', sectionAccordion: {} })
+  })
+
+  it('returns the exact initial state when the active section closes or navigation resets', () => {
+    const open = navigationReducer(initialNavigationState, {
+      type: 'toggleSection',
+      sectionId: 'products',
+    })
+
+    expect(navigationReducer(open, { type: 'toggleSection', sectionId: 'products' })).toEqual(
+      initialNavigationState,
+    )
+    expect(navigationReducer(open, { type: 'reset' })).toEqual(initialNavigationState)
+    expect(initialNavigationState).toEqual({ activeSectionId: null, sectionAccordion: {} })
   })
 })
 
@@ -128,155 +144,208 @@ describe('MobileNav', () => {
     vi.unstubAllGlobals()
   })
 
-  it('opens a compact root list and closes direct links', () => {
+  it('keeps one mobile root with the toolbar geometry and no drill-down view', () => {
     render(<MobileNav {...navigation} logo={logo} />)
-    const openButton = screen.getByRole('button', { name: 'Open navigation' })
-    expect(screen.getByRole('link', { name: 'Ecolitea' })).toBeTruthy()
-    expect(screen.getByRole('link', { name: 'Search' })).toBeTruthy()
-    fireEvent.click(openButton)
+    const menuButton = screen.getByRole('button', { name: 'Open navigation' })
+
+    expect(menuButton.querySelectorAll('span')).toHaveLength(3)
+    fireEvent.click(menuButton)
+
     const dialog = screen.getByRole('dialog', { name: 'Navigation' })
+    expect(within(dialog).getByRole('button', { name: 'Close navigation' })).toBe(menuButton)
     expect(within(dialog).getByRole('link', { name: 'Ecolitea' })).toBeTruthy()
     expect(within(dialog).getByRole('link', { name: 'Search' })).toBeTruthy()
-    expect(screen.getByRole('button', { name: 'Open Products' })).toBeTruthy()
-    expect(screen.getByRole('link', { name: 'Pricing' })).toBeTruthy()
-    expect(document.body.style.overflow).toBe('hidden')
-    fireEvent.click(screen.getByRole('link', { name: 'Pricing' }))
-    expect(screen.queryByRole('dialog', { name: 'Navigation' })).toBeNull()
-    expect(document.activeElement).toBe(openButton)
-    expect(dialog).toBeTruthy()
+    expect(within(dialog).getByTestId('mobile-navigation-root')).toBeTruthy()
+    expect(screen.queryByTestId('mobile-navigation-section')).toBeNull()
+    expect(screen.queryByRole('button', { name: 'Back to navigation' })).toBeNull()
   })
 
-  it('opens a section view, keeps hybrid destination separate, and returns with Back', () => {
+  it('allows one top-level expansion and renders the hybrid destination at its bottom', () => {
     render(<MobileNav {...navigation} />)
-    const openButton = screen.getByRole('button', { name: 'Open navigation' })
-    fireEvent.click(openButton)
-    const companyLink = screen.getByRole('link', { name: 'Company' })
-    expect(companyLink.getAttribute('href')).toBe('/company')
-    fireEvent.click(screen.getByRole('button', { name: 'Open Products' }))
-    expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Back to navigation' }))
-    expect(within(screen.getByRole('dialog')).queryByRole('link', { name: 'Search' })).toBeNull()
-    expect(screen.getAllByRole('heading', { name: 'Products' })).toHaveLength(2)
-    expect(screen.getByRole('link', { name: 'Overview' })).toBeTruthy()
-    expect(screen.getByRole('button', { name: 'Back to navigation' })).toBeTruthy()
-    fireEvent.click(screen.getByRole('button', { name: 'Back to navigation' }))
-    expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Open Products' }))
-  })
-
-  it('uses Escape as section → root → closed and restores focus', () => {
-    render(<MobileNav {...navigation} />)
-    const openButton = screen.getByRole('button', { name: 'Open navigation' })
-    fireEvent.click(openButton)
-    fireEvent.click(screen.getByRole('button', { name: 'Open Products' }))
-    fireEvent.keyDown(document, { key: 'Escape' })
-    expect(screen.getByRole('button', { name: 'Open Products' })).toBeTruthy()
-    fireEvent.keyDown(document, { key: 'Escape' })
-    expect(screen.queryByRole('dialog', { name: 'Navigation' })).toBeNull()
-    expect(document.activeElement).toBe(openButton)
-  })
-
-  it('renders the selected section blocks in compact mode and keeps CTA at root end', () => {
-    render(<MobileNav {...navigation} logo={logo} />)
     fireEvent.click(screen.getByRole('button', { name: 'Open navigation' }))
-    expect(screen.getByRole('link', { name: 'Talk to sales' }).getAttribute('href')).toBe(
-      '/contact',
-    )
-    fireEvent.click(screen.getByRole('button', { name: 'Open Company' }))
-    expect(
-      screen
-        .getByTestId('mobile-navigation-section')
-        .querySelector('[data-navigation-block="richCard"]'),
-    ).toBeTruthy()
-    expect(screen.queryByRole('link', { name: 'Talk to sales' })).toBeNull()
+
+    const products = screen.getByRole('button', { name: 'Open Products' })
+    const company = screen.getByRole('button', { name: 'Open Company' })
+    expect(products.getAttribute('aria-expanded')).toBe('false')
+    expect(company.getAttribute('aria-expanded')).toBe('false')
+
+    fireEvent.click(products)
+    expect(products.getAttribute('aria-expanded')).toBe('true')
+    expect(screen.getByRole('link', { name: 'Overview' })).toBeTruthy()
+
+    fireEvent.click(company)
+    expect(products.getAttribute('aria-expanded')).toBe('false')
+    expect(company.getAttribute('aria-expanded')).toBe('true')
+    expect(screen.queryByRole('link', { name: 'Overview' })).toBeNull()
+    const viewAll = screen.getByRole('link', { name: 'View all Company' })
+    expect(viewAll.getAttribute('href')).toBe('/company')
+    expect(viewAll.getAttribute('target')).toBe('_blank')
+    expect(viewAll.getAttribute('rel')).toBe('noopener noreferrer')
   })
 
-  it('closes on outside pointer, route change, and desktop mode transition', () => {
+  it('keeps compact Categories closed, single-open, and resets them across section changes', () => {
+    render(<MobileNav {...navigation} />)
+    fireEvent.click(screen.getByRole('button', { name: 'Open navigation' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Open Products' }))
+
+    const lighting = screen.getByRole('button', { name: 'Lighting' })
+    const controls = screen.getByRole('button', { name: 'Controls' })
+    expect(lighting.getAttribute('aria-expanded')).toBe('false')
+    expect(controls.getAttribute('aria-expanded')).toBe('false')
+
+    fireEvent.click(lighting)
+    expect(lighting.getAttribute('aria-expanded')).toBe('true')
+    expect(screen.getByRole('link', { name: 'Bulb' })).toBeTruthy()
+    fireEvent.click(controls)
+    expect(lighting.getAttribute('aria-expanded')).toBe('false')
+    expect(controls.getAttribute('aria-expanded')).toBe('true')
+    expect(screen.queryByRole('link', { name: 'Bulb' })).toBeNull()
+    expect(screen.getByRole('link', { name: 'Control panel' })).toBeTruthy()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Open Company' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Open Products' }))
+    expect(screen.getByRole('button', { name: 'Lighting' }).getAttribute('aria-expanded')).toBe(
+      'false',
+    )
+    expect(screen.getByRole('button', { name: 'Controls' }).getAttribute('aria-expanded')).toBe(
+      'false',
+    )
+  })
+
+  it('keeps direct links marked with a fixed arrow and the CTA outside the scrolling root', () => {
+    render(<MobileNav {...navigation} />)
+    fireEvent.click(screen.getByRole('button', { name: 'Open navigation' }))
+    const root = screen.getByTestId('mobile-navigation-root')
+    const pricing = screen.getByRole('link', { name: 'Pricing' })
+    const cta = screen.getByRole('link', { name: 'Talk to sales' })
+
+    expect(pricing.querySelector('svg')).toBeTruthy()
+    expect(root.contains(cta)).toBe(false)
+    expect(cta.parentElement?.getAttribute('data-mobile-cta-bar')).toBe('true')
+  })
+
+  it('closes, resets accordion and panel scroll, restores focus, and restores body scroll lock', () => {
+    Object.defineProperty(window, 'scrollY', { configurable: true, value: 420 })
+    render(<MobileNav {...navigation} />)
+    const menuButton = screen.getByRole('button', { name: 'Open navigation' })
+    fireEvent.click(menuButton)
+    const root = screen.getByTestId('mobile-navigation-root')
+    root.scrollTop = 140
+    fireEvent.click(screen.getByRole('button', { name: 'Open Products' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Lighting' }))
+    expect(document.body.style.overflow).toBe('hidden')
+
+    fireEvent.click(screen.getByRole('button', { name: 'Close navigation' }))
+
+    expect(screen.queryByRole('dialog', { name: 'Navigation' })).toBeNull()
+    expect(document.activeElement).toBe(menuButton)
+    expect(document.body.style.overflow).toBe('clip')
+    expect(window.scrollTo).toHaveBeenCalledWith(0, 420)
+
+    fireEvent.click(menuButton)
+    expect(screen.getByTestId('mobile-navigation-root').scrollTop).toBe(0)
+    expect(
+      screen.getByRole('button', { name: 'Open Products' }).getAttribute('aria-expanded'),
+    ).toBe('false')
+    expect(screen.queryByRole('button', { name: 'Lighting' })).toBeNull()
+  })
+
+  it('closes directly on Escape and returns focus to the hamburger', () => {
+    render(<MobileNav {...navigation} />)
+    const menuButton = screen.getByRole('button', { name: 'Open navigation' })
+    fireEvent.click(menuButton)
+    fireEvent.click(screen.getByRole('button', { name: 'Open Products' }))
+
+    fireEvent.keyDown(document, { key: 'Escape' })
+
+    expect(screen.queryByRole('dialog', { name: 'Navigation' })).toBeNull()
+    expect(document.activeElement).toBe(menuButton)
+  })
+
+  it('closes on outside pointer, route change, and the strict desktop transition', () => {
     const { rerender } = render(<MobileNav {...navigation} />)
-    const openButton = screen.getByRole('button', { name: 'Open navigation' })
-    fireEvent.click(openButton)
+    const menuButton = screen.getByRole('button', { name: 'Open navigation' })
+    fireEvent.click(menuButton)
     fireEvent.pointerDown(document.body)
     expect(screen.queryByRole('dialog', { name: 'Navigation' })).toBeNull()
-    fireEvent.click(openButton)
+
+    fireEvent.click(menuButton)
     pathname = '/next'
     rerender(<MobileNav {...navigation} />)
     expect(screen.queryByRole('dialog', { name: 'Navigation' })).toBeNull()
-    fireEvent.click(openButton)
+
+    fireEvent.click(menuButton)
+    expect(window.matchMedia).toHaveBeenCalledWith('(width > 1170px)')
     act(() => desktopMedia.setMatches(true))
     expect(screen.queryByRole('dialog', { name: 'Navigation' })).toBeNull()
   })
 
-  it('returns to the root view when live navigation data removes the active section', () => {
+  it('resets an active section removed by live navigation data without closing the menu', () => {
     const { rerender } = render(<MobileNav {...navigation} />)
     fireEvent.click(screen.getByRole('button', { name: 'Open navigation' }))
     fireEvent.click(screen.getByRole('button', { name: 'Open Products' }))
-    expect(screen.getByRole('button', { name: 'Back to navigation' })).toBeTruthy()
 
-    rerender(<MobileNav {...navigation} navItems={navigation.navItems.filter((item) => item.id !== 'products')} />)
+    rerender(
+      <MobileNav
+        {...navigation}
+        navItems={navigation.navItems.filter((item) => item.id !== 'products')}
+      />,
+    )
 
-    expect(screen.queryByRole('button', { name: 'Back to navigation' })).toBeNull()
-    expect(screen.getByRole('button', { name: 'Open navigation' }).getAttribute('aria-expanded')).toBe('true')
+    expect(screen.getByRole('dialog', { name: 'Navigation' })).toBeTruthy()
     expect(screen.getByRole('link', { name: 'Pricing' })).toBeTruthy()
+    expect(screen.queryByRole('link', { name: 'Overview' })).toBeNull()
   })
 
-  it('traps focus within the compact dialog', () => {
-    render(<MobileNav {...navigation} logo={logo} />)
-    fireEvent.click(screen.getByRole('button', { name: 'Open navigation' }))
+  it('traps focus and isolates background interaction for the complete mobile dialog', () => {
+    render(
+      <div>
+        <button data-testid="background-action" type="button">
+          Background action
+        </button>
+        <MobileNav {...navigation} logo={logo} />
+      </div>,
+    )
+    const background = screen.getByTestId('background-action')
+    const menuButton = screen.getByRole('button', { name: 'Open navigation' })
+    fireEvent.click(menuButton)
     const dialog = screen.getByRole('dialog', { name: 'Navigation' })
     const first = within(dialog).getByRole('button', { name: 'Close navigation' })
     const last = within(dialog).getByRole('link', { name: 'Talk to sales' })
+
+    expect(background.hasAttribute('inert')).toBe(true)
     last.focus()
     fireEvent.keyDown(document, { key: 'Tab' })
     expect(document.activeElement).toBe(first)
     first.focus()
     fireEvent.keyDown(document, { key: 'Tab', shiftKey: true })
     expect(document.activeElement).toBe(last)
-  })
-
-  it('isolates background interaction and pulls escaped focus back into the modal', () => {
-    render(
-      <div>
-        <button data-testid="background-action" type="button">Background action</button>
-        <MobileNav {...navigation} logo={logo} />
-      </div>,
-    )
-    const background = screen.getByTestId('background-action')
-    fireEvent.click(screen.getByRole('button', { name: 'Open navigation' }))
-    expect(background.hasAttribute('inert')).toBe(true)
     background.focus()
     fireEvent.focusIn(background)
-    expect(screen.getByRole('dialog', { name: 'Navigation' }).contains(document.activeElement)).toBe(true)
-    fireEvent.click(screen.getByRole('button', { name: 'Close navigation' }))
+    expect(dialog.contains(document.activeElement)).toBe(true)
+
+    fireEvent.click(first)
     expect(background.hasAttribute('inert')).toBe(false)
   })
 
-  it('restores root and per-section scroll positions and starts new sessions at zero', () => {
-    render(<MobileNav {...navigation} logo={logo} />)
-    const openButton = screen.getByRole('button', { name: 'Open navigation' })
-    fireEvent.click(openButton)
-    let rootPanel = screen.getByTestId('mobile-navigation-root')
-    expect(rootPanel.scrollTop).toBe(0)
-    rootPanel.scrollTop = 140
-    fireEvent.scroll(rootPanel)
-    fireEvent.click(screen.getByRole('button', { name: 'Open Products' }))
-    let sectionPanel = screen.getByTestId('mobile-navigation-section')
-    expect(sectionPanel.scrollTop).toBe(0)
-    sectionPanel.scrollTop = 90
-    fireEvent.scroll(sectionPanel)
-    fireEvent.click(screen.getByRole('button', { name: 'Back to navigation' }))
-    rootPanel = screen.getByTestId('mobile-navigation-root')
-    expect(rootPanel.scrollTop).toBe(140)
-    fireEvent.click(screen.getByRole('button', { name: 'Open Products' }))
-    sectionPanel = screen.getByTestId('mobile-navigation-section')
-    expect(sectionPanel.scrollTop).toBe(90)
-    fireEvent.click(screen.getByRole('button', { name: 'Close navigation' }))
-    fireEvent.click(openButton)
-    expect(screen.getByTestId('mobile-navigation-root').scrollTop).toBe(0)
-  })
+  it('defines accordion, hamburger, divider, fixed CTA, and compact card CSS contracts', () => {
+    const navigationCSS = readFileSync(
+      resolve(process.cwd(), 'src/Header/Nav/index.module.css'),
+      'utf8',
+    )
+    const blocksCSS = readFileSync(
+      resolve(process.cwd(), 'src/Header/Nav/blocks.module.css'),
+      'utf8',
+    )
 
-  it('restores the page scroll position when the lock is released', () => {
-    Object.defineProperty(window, 'scrollY', { configurable: true, value: 420 })
-    render(<MobileNav {...navigation} />)
-    fireEvent.click(screen.getByRole('button', { name: 'Open navigation' }))
-    fireEvent.click(screen.getByRole('button', { name: 'Close navigation' }))
-    expect(window.scrollTo).toHaveBeenCalledWith(0, 420)
+    expect(navigationCSS).toContain('grid-template-rows: 0fr')
+    expect(navigationCSS).toContain('grid-template-rows: 1fr')
+    expect(navigationCSS).toContain('200ms')
+    expect(navigationCSS).toContain('transform 300ms')
+    expect(navigationCSS).toContain('border-bottom: 1px solid var(--border)')
+    expect(navigationCSS).toMatch(/\.mobileMenuCtaBar\s*\{[^}]*position: fixed/s)
+    expect(blocksCSS).toMatch(
+      /\.navigationBlocksCompact[^}]*\.productCardGrid[^}]*repeat\(2, minmax\(0, 1fr\)\)/s,
+    )
   })
 })
