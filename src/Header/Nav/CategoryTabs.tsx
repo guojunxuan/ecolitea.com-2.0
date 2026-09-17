@@ -39,6 +39,8 @@ export const CategoryTabs: React.FC<CategoryTabsProps> = ({
   const selectorColumnRef = useRef<HTMLElement>(null)
   const selectorListRef = useRef<HTMLDivElement>(null)
   const hoverTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const reportedHeightRef = useRef(0)
+  const tabRefs = useRef(new Map<string, HTMLButtonElement>())
   const activeID = activeCategoryId === undefined ? internalActive : activeCategoryId
   const expandedID = expandedCategoryId === undefined ? internalExpanded : expandedCategoryId
   const active = block.categories.find((category) => category.id === activeID) ?? block.categories[0]
@@ -69,6 +71,19 @@ export const CategoryTabs: React.FC<CategoryTabsProps> = ({
     setInternalExpanded(next)
     onExpandedCategoryChange?.(next)
   }
+  const handleTabKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>, index: number) => {
+    let nextIndex: number | null = null
+    if (event.key === 'ArrowDown') nextIndex = (index + 1) % block.categories.length
+    if (event.key === 'ArrowUp') nextIndex = (index - 1 + block.categories.length) % block.categories.length
+    if (event.key === 'Home') nextIndex = 0
+    if (event.key === 'End') nextIndex = block.categories.length - 1
+    if (nextIndex === null) return
+    event.preventDefault()
+    const category = block.categories[nextIndex]
+    if (!category) return
+    selectImmediately(category.id)
+    tabRefs.current.get(category.id)?.focus()
+  }
 
   useEffect(() => () => {
     if (hoverTimerRef.current !== null) clearTimeout(hoverTimerRef.current)
@@ -84,16 +99,27 @@ export const CategoryTabs: React.FC<CategoryTabsProps> = ({
       const panel = panelRef.current
       if (!panel) return
       const next = Math.max(panel.scrollHeight, panel.clientHeight)
-      setVisitedHeight((current) => {
-        const height = Math.max(current, next)
-        if (height !== current) onSessionHeightChange?.(height)
-        return height
-      })
+      setVisitedHeight((current) => Math.max(current, next))
     }
     measure()
+    const observer = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(measure)
+    if (panelRef.current) observer?.observe(panelRef.current)
     window.addEventListener('resize', measure)
-    return () => window.removeEventListener('resize', measure)
-  }, [active?.id, mode, onSessionHeightChange, sessionOpen])
+    return () => {
+      observer?.disconnect()
+      window.removeEventListener('resize', measure)
+    }
+  }, [mode, sessionOpen])
+
+  useEffect(() => {
+    if (!sessionOpen || visitedHeight === 0) {
+      reportedHeightRef.current = 0
+      return
+    }
+    if (!onSessionHeightChange || reportedHeightRef.current === visitedHeight) return
+    reportedHeightRef.current = visitedHeight
+    onSessionHeightChange(visitedHeight)
+  }, [onSessionHeightChange, sessionOpen, visitedHeight])
 
   useEffect(() => {
     if (mode !== 'desktop' || !sessionOpen) return
@@ -101,6 +127,7 @@ export const CategoryTabs: React.FC<CategoryTabsProps> = ({
     const selectorList = selectorListRef.current
     if (!column || !selectorList) return
     const scrollport = column.closest<HTMLElement>('[data-mega-menu-scroll="true"]')
+    const primaryCTA = column.querySelector<HTMLElement>(`.${styles.categoryPrimaryCTA}`)
     const measure = () => {
       const availableHeight = (() => {
         if (!scrollport || scrollport.clientHeight === 0) {
@@ -115,7 +142,6 @@ export const CategoryTabs: React.FC<CategoryTabsProps> = ({
       const columnPadding =
         (Number.parseFloat(columnStyle.paddingTop) || 0) +
         (Number.parseFloat(columnStyle.paddingBottom) || 0)
-      const primaryCTA = column.querySelector<HTMLElement>(`.${styles.categoryPrimaryCTA}`)
       const intrinsicHeight =
         columnPadding +
         Math.max(selectorList.scrollHeight, selectorList.clientHeight, selectorList.offsetHeight) +
@@ -128,12 +154,14 @@ export const CategoryTabs: React.FC<CategoryTabsProps> = ({
     measure()
     const observer = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(measure)
     if (scrollport) observer?.observe(scrollport)
+    observer?.observe(selectorList)
+    if (primaryCTA) observer?.observe(primaryCTA)
     window.addEventListener('resize', measure)
     return () => {
       observer?.disconnect()
       window.removeEventListener('resize', measure)
     }
-  }, [active?.id, mode, sessionOpen])
+  }, [mode, sessionOpen])
 
   if (!active) return null
 
@@ -179,18 +207,24 @@ export const CategoryTabs: React.FC<CategoryTabsProps> = ({
         ref={selectorColumnRef}
         style={selectorFits && selectorAvailableHeight !== null ? { maxHeight: selectorAvailableHeight } : undefined}
       >
-        <div className={styles.categorySelector} ref={selectorListRef} role="tablist" aria-label="Categories">
-          {block.categories.map((category) => (
+        <div aria-label="Categories" aria-orientation="vertical" className={styles.categorySelector} ref={selectorListRef} role="tablist">
+          {block.categories.map((category, index) => (
             <button
               aria-selected={category.id === active.id}
-              aria-controls={`${block.id}-panel`}
-              aria-expanded={category.id === active.id}
+              aria-controls={`${block.id}-panel-${category.id}`}
               className={category.id === active.id ? styles.categoryTabActive : styles.categoryTab}
+              id={`${block.id}-tab-${category.id}`}
               key={category.id}
               onClick={() => selectImmediately(category.id)}
+              onKeyDown={(event) => handleTabKeyDown(event, index)}
               onPointerEnter={() => selectWithIntent(category.id)}
               onPointerLeave={clearHoverTimer}
+              ref={(node) => {
+                if (node) tabRefs.current.set(category.id, node)
+                else tabRefs.current.delete(category.id)
+              }}
               role="tab"
+              tabIndex={category.id === active.id ? 0 : -1}
               type="button"
             >
               {category.label}
@@ -204,10 +238,26 @@ export const CategoryTabs: React.FC<CategoryTabsProps> = ({
           <h2 className={styles.categoryHeading}>{active.label}</h2>
           {active.cta && <CategoryCTA className={styles.categoryActiveCTA} link={active.cta} />}
         </div>
-        <div className={styles.categoryPanel} id={`${block.id}-panel`} ref={panelRef} role="tabpanel" style={visitedHeight ? { minHeight: visitedHeight } : undefined} tabIndex={0}>
-          <div className={styles.productCardGrid} data-product-card-grid>
-            {active.cards.map((card) => <NavigationCard card={card} key={card.id} />)}
-          </div>
+        <div className={styles.categoryPanelStack} data-category-panel-stack id={`${block.id}-panel`} ref={panelRef} style={visitedHeight ? { minHeight: visitedHeight } : undefined}>
+          {block.categories.map((category) => {
+            const selected = category.id === active.id
+            return (
+              <div
+                aria-hidden={selected ? undefined : 'true'}
+                aria-labelledby={`${block.id}-tab-${category.id}`}
+                className={`${styles.categoryPanel} ${selected ? '' : styles.categoryPanelInactive}`}
+                id={`${block.id}-panel-${category.id}`}
+                inert={selected ? undefined : true}
+                key={category.id}
+                role="tabpanel"
+                tabIndex={selected ? 0 : -1}
+              >
+                <div className={styles.productCardGrid} data-product-card-grid>
+                  {category.cards.map((card) => <NavigationCard card={card} key={card.id} />)}
+                </div>
+              </div>
+            )
+          })}
         </div>
       </div>
     </section>

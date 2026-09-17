@@ -49,7 +49,9 @@
 .categoryContent { min-width: 0; }
 .categoryBlockHeader { align-items: center; display: flex; justify-content: space-between; margin-bottom: 1rem; min-height: 2.25rem; }
 .categoryHeading { font-size: 1rem; font-weight: 600; margin: 0; }
-.categoryPanel { min-width: 0; overflow-x: hidden; }
+.categoryPanelStack { display: grid; min-width: 0; }
+.categoryPanel { grid-area: 1 / 1; min-width: 0; overflow-x: hidden; }
+.categoryPanelInactive { pointer-events: none; visibility: hidden; }
 .categoryPrimaryCTA, .categoryActiveCTA { align-items: center; border: 1px solid color-mix(in srgb, var(--foreground) 16%, transparent); border-radius: .5rem; display: inline-flex; justify-content: center; min-height: 2.5rem; padding: .5rem .75rem; }
 .categoryPrimaryCTA { margin-top: auto; width: 100%; }
 .categoryActiveCTA { flex: 0 0 auto; margin: 0 0 0 1rem; min-height: 2rem; padding: .35rem .625rem; }
@@ -66,4 +68,4 @@
 @media (max-width: 360px) { .visualCardGrid, .productCardGrid { grid-template-columns: minmax(0, 1fr); } }
 @media (prefers-reduced-motion: no-preference) and (hover: hover) { .navigationCardVisual :global(img), .navigationCardRich :global(img), .navigationCardProduct :global(img) { transition: transform 240ms ease; } .navigationCardVisual:hover :global(img), .navigationCardRich:hover :global(img) { transform: scale(1.04); } .navigationCardProduct:hover :global(img) { transform: scale(1.035); } }
 @media (max-width: 767px) { .categoryAccordionButton:active { background: color-mix(in srgb, var(--foreground) 6%, transparent); } }
-@media (prefers-reduced-motion: reduce) { .categoryChevronOpen { transform: none; } }
+@media (prefers-reduced-motion: reduce) { .categoryTab, .categoryTabActive { transition: none; } .categoryChevronOpen { transform: none; } }

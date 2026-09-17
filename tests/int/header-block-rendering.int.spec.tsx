@@ -2,7 +2,7 @@ import { act, cleanup, fireEvent, render, screen, waitFor, within } from '@testi
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import React from 'react'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { HeaderNavigationBlockData } from '@/Header/Nav/types'
 
@@ -23,9 +23,31 @@ const card = (id: string, title: string) => ({
   title,
 })
 
+class ResizeObserverMock {
+  static instances: ResizeObserverMock[] = []
+  observed = new Set<Element>()
+
+  constructor(private readonly callback: ResizeObserverCallback) {
+    ResizeObserverMock.instances.push(this)
+  }
+
+  observe = vi.fn((element: Element) => this.observed.add(element))
+  disconnect = vi.fn()
+
+  emit() {
+    this.callback([], this as unknown as ResizeObserver)
+  }
+}
+
+beforeEach(() => {
+  ResizeObserverMock.instances = []
+  vi.stubGlobal('ResizeObserver', ResizeObserverMock)
+})
+
 afterEach(() => {
   cleanup()
   vi.useRealTimers()
+  vi.unstubAllGlobals()
 })
 
 describe('Header navigation block rendering', () => {
@@ -123,19 +145,39 @@ describe('Header navigation block rendering', () => {
     expect(richSize).toContain('(max-width: 1170px) 100vw')
   })
 
-  it('exposes accessible desktop category controls with stable panel relationships', () => {
+  it('implements vertical roving tabs with keyboard selection and labelled panels', () => {
     const block: HeaderNavigationBlockData = {
-      categories: [{ cards: [card('one', 'One')], cta: null, id: 'cat-one', label: 'Category One' }],
+      categories: [
+        { cards: [card('one', 'One')], cta: null, id: 'cat-one', label: 'Category One' },
+        { cards: [card('two', 'Two')], cta: null, id: 'cat-two', label: 'Category Two' },
+        { cards: [card('three', 'Three')], cta: null, id: 'cat-three', label: 'Category Three' },
+      ],
       cta: null,
       id: 'categories',
       type: 'categoryTabs',
     }
     render(<NavigationBlocks blocks={[block]} />)
-    const tab = screen.getByRole('tab', { name: 'Category One' })
-    expect(tab.getAttribute('aria-controls')).toBe('categories-panel')
-    expect(tab.getAttribute('aria-expanded')).toBe('true')
-    expect(document.getElementById('categories-panel')).toBeTruthy()
-    expect([...screen.getAllByRole('tab')].every((control) => document.getElementById(control.getAttribute('aria-controls') ?? '') !== null)).toBe(true)
+    const tablist = screen.getByRole('tablist', { name: 'Categories' })
+    const tabs = screen.getAllByRole('tab')
+    expect(tablist.getAttribute('aria-orientation')).toBe('vertical')
+    expect(tabs.map((tab) => tab.tabIndex)).toEqual([0, -1, -1])
+    expect(new Set(tabs.map((tab) => tab.getAttribute('aria-controls'))).size).toBe(3)
+    for (const tab of tabs) {
+      const panel = document.getElementById(tab.getAttribute('aria-controls') ?? '')
+      expect(panel?.getAttribute('aria-labelledby')).toBe(tab.id)
+    }
+
+    tabs[0].focus()
+    fireEvent.keyDown(tabs[0], { key: 'ArrowDown' })
+    expect(document.activeElement).toBe(tabs[1])
+    expect(tabs.map((tab) => tab.tabIndex)).toEqual([-1, 0, -1])
+    fireEvent.keyDown(tabs[1], { key: 'End' })
+    expect(document.activeElement).toBe(tabs[2])
+    fireEvent.keyDown(tabs[2], { key: 'Home' })
+    expect(document.activeElement).toBe(tabs[0])
+    fireEvent.keyDown(tabs[0], { key: 'ArrowUp' })
+    expect(document.activeElement).toBe(tabs[2])
+    expect(screen.getByRole('tabpanel').getAttribute('aria-labelledby')).toBe(tabs[2].id)
   })
 
   it('keeps category CTAs with their owners without rendering arrow glyphs', () => {
@@ -233,6 +275,81 @@ describe('Header navigation block rendering', () => {
     expect(categoryPanelRule).not.toMatch(/max-height\s*:/)
   })
 
+  it('reports a committed maximum height once when the parent updates in response', async () => {
+    const onHeight = vi.fn()
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined)
+    const block: HeaderNavigationBlockData = {
+      categories: [{ cards: [card('one', 'One')], cta: null, id: 'cat-one', label: 'Category One' }],
+      cta: null,
+      id: 'reported-height-tabs',
+      type: 'categoryTabs',
+    }
+    const Harness = () => {
+      const [, setHeight] = React.useState(0)
+      return (
+        <CategoryTabs
+          block={block}
+          onSessionHeightChange={(height) => {
+            onHeight(height)
+            setHeight(height)
+          }}
+        />
+      )
+    }
+    const { container } = render(<Harness />)
+    const panelStack = container.querySelector('[data-category-panel-stack]') as HTMLElement
+    Object.defineProperty(panelStack, 'scrollHeight', { configurable: true, value: 720 })
+    Object.defineProperty(panelStack, 'clientHeight', { configurable: true, value: 400 })
+
+    window.dispatchEvent(new Event('resize'))
+
+    await waitFor(() => expect(onHeight).toHaveBeenCalledTimes(1))
+    window.dispatchEvent(new Event('resize'))
+    await waitFor(() => expect(onHeight).toHaveBeenCalledTimes(1))
+    expect(consoleError.mock.calls.flat().join(' ')).not.toContain('Cannot update a component')
+    consoleError.mockRestore()
+  })
+
+  it('reserves the tallest category before switching from a short first category', async () => {
+    const block: HeaderNavigationBlockData = {
+      categories: [
+        { cards: [card('short', 'Short product')], cta: null, id: 'short', label: 'Short category' },
+        {
+          cards: Array.from({ length: 8 }, (_, index) => card(`tall-${index}`, `Tall product ${index + 1}`)),
+          cta: null,
+          id: 'tall',
+          label: 'Tall category',
+        },
+      ],
+      cta: null,
+      id: 'stable-tabs',
+      type: 'categoryTabs',
+    }
+    const { container } = render(
+      <>
+        <CategoryTabs block={block} />
+        <div data-testid="following-block">Following block</div>
+      </>,
+    )
+    const panelStack = container.querySelector('[data-category-panel-stack]') as HTMLElement
+    const followingBlock = screen.getByTestId('following-block')
+    expect(screen.getAllByRole('tabpanel', { hidden: true })).toHaveLength(2)
+    const css = readFileSync(resolve(process.cwd(), 'src/Header/Nav/blocks.module.css'), 'utf8')
+    expect(css).toMatch(/\.categoryPanelStack\s*\{[^}]*display:\s*grid/s)
+    expect(css).toMatch(/\.categoryPanel\s*\{[^}]*grid-area:\s*1\s*\/\s*1/s)
+    expect(css).toMatch(/\.categoryPanelInactive\s*\{[^}]*visibility:\s*hidden/s)
+    Object.defineProperty(panelStack, 'scrollHeight', { configurable: true, value: 720 })
+    Object.defineProperty(panelStack, 'clientHeight', { configurable: true, value: 720 })
+
+    window.dispatchEvent(new Event('resize'))
+
+    await waitFor(() => expect(panelStack.style.minHeight).toBe('720px'))
+    fireEvent.click(screen.getByRole('tab', { name: 'Tall category' }))
+    expect(screen.getByRole('link', { name: 'Tall product 8' })).toBeTruthy()
+    expect(panelStack.style.minHeight).toBe('720px')
+    expect(screen.getByTestId('following-block')).toBe(followingBlock)
+  })
+
   it('uses a local sticky category column only when its contents fit the visible height', async () => {
     const block: HeaderNavigationBlockData = {
       categories: [{ cards: [card('one', 'One')], cta: null, id: 'cat-one', label: 'Category One' }],
@@ -322,6 +439,40 @@ describe('Header navigation block rendering', () => {
     })
   })
 
+  it('remeasures sticky fit when intrinsic controls resize and disconnects observers', async () => {
+    const block: HeaderNavigationBlockData = {
+      categories: [{ cards: [card('one', 'One')], cta: null, id: 'cat-one', label: 'Category One' }],
+      cta: { href: '/all', label: 'View all products', newTab: false, type: 'custom' },
+      id: 'observed-tabs',
+      type: 'categoryTabs',
+    }
+    const { container, unmount } = render(
+      <div data-mega-menu-scroll="true" data-testid="observed-scrollport">
+        <CategoryTabs block={block} />
+      </div>,
+    )
+    const scrollport = screen.getByTestId('observed-scrollport')
+    const selectorColumn = container.querySelector('[data-category-selector-column]') as HTMLElement
+    const selectorList = screen.getByRole('tablist', { name: 'Categories' })
+    const primaryCTA = screen.getByRole('link', { name: 'View all products' })
+    Object.defineProperty(scrollport, 'clientHeight', { configurable: true, value: 600 })
+    Object.defineProperty(selectorList, 'scrollHeight', { configurable: true, value: 400 })
+    Object.defineProperty(primaryCTA, 'scrollHeight', { configurable: true, value: 80 })
+    const observer = ResizeObserverMock.instances.find((instance) => instance.observed.has(scrollport))
+
+    expect(observer?.observed.has(selectorList)).toBe(true)
+    expect(observer?.observed.has(primaryCTA)).toBe(true)
+    observer?.emit()
+    await waitFor(() => expect(selectorColumn.getAttribute('data-sticky')).toBe('true'))
+
+    Object.defineProperty(selectorList, 'scrollHeight', { configurable: true, value: 560 })
+    observer?.emit()
+    await waitFor(() => expect(selectorColumn.getAttribute('data-sticky')).toBe('false'))
+
+    unmount()
+    expect(observer?.disconnect).toHaveBeenCalledOnce()
+  })
+
   it('renders eight product cards as a stable four-by-two grid with the product-card contract', () => {
     const block: HeaderNavigationBlockData = {
       categories: [
@@ -345,6 +496,7 @@ describe('Header navigation block rendering', () => {
     expect(css).toMatch(/\.navigationCardProduct\s*\{[^}]*background:/s)
     expect(css).toMatch(/\.navigationCardProduct[^}]*:global\(img\)[^}]*max-(?:height|width):\s*82%/s)
     expect(css).toMatch(/\.navigationCardProduct:hover[^}]*:global\(img\)[^}]*scale\(1\.035\)/s)
+    expect(css).toMatch(/@media \(prefers-reduced-motion: reduce\)[^{]*\{[^}]*\.categoryTab[^}]*transition:\s*none/s)
   })
 
   it('omits descriptions and icons from product cards', () => {
