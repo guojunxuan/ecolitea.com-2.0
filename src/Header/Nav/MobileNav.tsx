@@ -46,9 +46,19 @@ const getFocusable = (root: HTMLElement) =>
     (element) => !element.closest('[inert]'),
   )
 
-type MobileNavProps = HeaderNavigationData & { logo?: LogoImage | null; siteName?: string }
+type MobileNavProps = HeaderNavigationData & {
+  logo?: LogoImage | null
+  onOpenChange?: (open: boolean) => void
+  siteName?: string
+}
 
-export const MobileNav: React.FC<MobileNavProps> = ({ logo, menuCta, navItems, siteName }) => {
+export const MobileNav: React.FC<MobileNavProps> = ({
+  logo,
+  menuCta,
+  navItems,
+  onOpenChange,
+  siteName,
+}) => {
   const pathname = usePathname()
   const [isOpen, setIsOpen] = useState(false)
   const [state, dispatch] = useReducer(navigationReducer, initialNavigationState)
@@ -60,6 +70,10 @@ export const MobileNav: React.FC<MobileNavProps> = ({ logo, menuCta, navItems, s
   const sectionBackButtonRef = useRef<HTMLButtonElement>(null)
   const dialogRef = useRef<HTMLDivElement>(null)
   const restoreFocusRef = useRef(false)
+
+  useEffect(() => {
+    onOpenChange?.(isOpen)
+  }, [isOpen, onOpenChange])
 
   const close = useCallback((restoreFocus = true) => {
     restoreFocusRef.current = restoreFocus

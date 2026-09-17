@@ -1,4 +1,6 @@
 import { cleanup, fireEvent, render, screen } from '@testing-library/react'
+import { readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
 import React from 'react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
@@ -128,19 +130,69 @@ describe('HeaderClient', () => {
     expect(screen.getByRole('button', { name: 'Open navigation' })).toBeTruthy()
   })
 
-  it('keeps a fixed light shell and only adds its divider cue after scrolling', () => {
+  it('starts transparent and changes its surface only after the 30px threshold', () => {
     Object.defineProperty(window, 'scrollY', { configurable: true, value: 0, writable: true })
     const { container } = render(<HeaderClient {...navigation} logo={null} siteName="Ecolitea" />)
-    const surface = container.querySelector('[data-scrolled]')
+    const surface = container.querySelector('[data-scrolled]') as HTMLElement
 
-    expect(surface?.getAttribute('data-scrolled')).toBe('false')
-    expect(surface?.className).toContain('fixed')
-    expect(surface?.className).toContain('bg-background')
+    expect(surface.getAttribute('data-scrolled')).toBe('false')
+    expect(surface.getAttribute('data-menu-open')).toBe('false')
+    expect(surface.parentElement?.className).not.toContain('h-[var(--header-height)]')
 
     window.scrollY = 24
     fireEvent.scroll(window)
+    expect(surface.getAttribute('data-scrolled')).toBe('false')
 
-    expect(surface?.getAttribute('data-scrolled')).toBe('true')
-    expect(surface?.className).toContain('border-b')
+    window.scrollY = 31
+    fireEvent.scroll(window)
+    expect(surface.getAttribute('data-scrolled')).toBe('true')
+  })
+
+  it('reports desktop and mobile navigation open state on the shared surface', () => {
+    const desktopNavigation: HeaderNavigationData = {
+      menuCta: null,
+      navItems: [
+        {
+          content: [
+            {
+              heading: 'Explore',
+              id: 'explore-links',
+              links: [],
+              type: 'linkGroup',
+            },
+          ],
+          id: 'products',
+          label: 'Products',
+          link: null,
+          navigationType: 'dropdown',
+        },
+      ],
+    }
+    const { container } = render(
+      <HeaderClient {...desktopNavigation} logo={null} siteName="Ecolitea" />,
+    )
+    const surface = container.querySelector('[data-scrolled]') as HTMLElement
+
+    fireEvent.click(screen.getByRole('button', { name: 'Products' }))
+    expect(surface.getAttribute('data-menu-open')).toBe('true')
+
+    fireEvent.click(screen.getByRole('button', { name: 'Close navigation menu' }))
+    expect(surface.getAttribute('data-menu-open')).toBe('false')
+
+    fireEvent.click(screen.getByRole('button', { name: 'Open navigation' }))
+    expect(surface.getAttribute('data-menu-open')).toBe('true')
+
+    fireEvent.click(screen.getByRole('button', { name: 'Close navigation' }))
+    expect(surface.getAttribute('data-menu-open')).toBe('false')
+  })
+
+  it('defines translucent desktop and solid mobile surface states in scoped CSS', () => {
+    const css = readFileSync(resolve(process.cwd(), 'src/Header/Component.module.css'), 'utf8')
+
+    expect(css).toContain('rgb(255 255 255 / 90%)')
+    expect(css).toContain("[data-menu-open='true']")
+    expect(css).toContain("[data-scrolled='true']")
+    expect(css).toContain('@media (width <= 1170px)')
+    expect(css).toContain('rgb(255 255 255)')
   })
 })

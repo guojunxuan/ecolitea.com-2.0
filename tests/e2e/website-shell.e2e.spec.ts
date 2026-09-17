@@ -275,7 +275,7 @@ async function openFixture(page: Page, width: number, options: { failMedia?: str
   ;(page as Page & { e2eFailedRequests?: string[] }).e2eFailedRequests = failedRequests
   await page.setViewportSize({ height: width < 768 ? 844 : 960, width })
   await page.goto(`${baseURL}${fixturePath}`)
-  await expect(page.locator('header')).toBeVisible()
+  await expect(page.locator('header > div')).toBeVisible()
   await expect(page.locator('main#main-content')).toBeAttached()
   await expect(page.locator('footer')).toBeVisible()
 }
@@ -324,18 +324,20 @@ async function expectShell(page: Page) {
     .toBe(true)
   const geometry = await page.evaluate(() => {
     const header = document.querySelector('header')!.getBoundingClientRect()
+    const headerSurface = document.querySelector('header > div')!.getBoundingClientRect()
     const main = document.querySelector('main#main-content')!.getBoundingClientRect()
     const footer = document.querySelector('footer')!.getBoundingClientRect()
     return {
       footerTop: footer.top,
       headerBottom: header.bottom,
       headerHeight: header.height,
+      headerSurfaceBottom: headerSurface.bottom,
       mainBottom: main.bottom,
       mainTop: main.top,
     }
   })
-  expect(geometry.headerHeight).toBeGreaterThan(0)
-  expect(geometry.mainTop).toBeGreaterThanOrEqual(geometry.headerBottom)
+  expect(geometry.headerHeight).toBe(0)
+  expect(geometry.mainTop).toBeLessThanOrEqual(geometry.headerSurfaceBottom)
   expect(geometry.footerTop).toBeGreaterThanOrEqual(geometry.mainBottom)
   expect(
     await page
@@ -581,7 +583,7 @@ test.describe.serial('Responsive website shell', () => {
       await expectDesktopZones(page)
       await shot(page, testInfo, 'closed')
 
-      const products = await exposeDesktopControl(page, 'E2E Products menu')
+      const products = await exposeDesktopControl(page, 'E2E Products')
       await products.hover()
       const menu = page.getByRole('region', { name: 'E2E Products menu' })
       await expect(menu).toBeVisible()
@@ -610,24 +612,25 @@ test.describe.serial('Responsive website shell', () => {
       await shot(page, testInfo, 'desktop-mega-menu')
       await page.keyboard.press('Escape')
 
-      const hybridButton = await exposeDesktopControl(
-        page,
-        'E2E Hybrid Hub with a deliberately long label menu',
-      )
-      const before = page.url()
-      await hybridButton.click()
-      await expect(page).toHaveURL(before)
-      await expect(hybridButton).toHaveAttribute('aria-expanded', 'true')
+      const hybridLink = page.getByRole('link', {
+        name: 'E2E Hybrid Hub with a deliberately long label',
+        exact: true,
+      })
+      await hybridLink.hover()
       await expect(
         page.getByRole('region', {
           name: 'E2E Hybrid Hub with a deliberately long label menu',
         }),
       ).toBeVisible()
       await page.keyboard.press('Escape')
-      const hybridLink = page.getByRole('link', {
-        name: 'E2E Hybrid Hub with a deliberately long label',
-        exact: true,
-      })
+      await hybridLink.focus()
+      await page.keyboard.press('ArrowDown')
+      await expect(
+        page.getByRole('region', {
+          name: 'E2E Hybrid Hub with a deliberately long label menu',
+        }),
+      ).toBeVisible()
+      await page.keyboard.press('Escape')
       await hybridLink.click()
       await expect(page).toHaveURL(`${baseURL}${routePath}`)
 
@@ -637,6 +640,42 @@ test.describe.serial('Responsive website shell', () => {
       await expect(footer.locator('section').first().locator('h2')).toBeVisible()
     })
   }
+
+  test('Desktop navigation keeps the Mega Menu open while wheel input chains to the page', async ({
+    page,
+  }) => {
+    await openFixture(page, 1280)
+    await page.evaluate(() => {
+      document.body.style.minHeight = '200vh'
+    })
+    await page.getByRole('button', { name: 'E2E Products' }).click()
+    const menu = page.getByRole('region', { name: 'E2E Products menu' })
+    const scrollRegion = menu.locator('[data-mega-menu-scroll="true"]')
+    await expect(menu).toBeVisible()
+    await expect
+      .poll(() => scrollRegion.evaluate((element) => element.scrollHeight > element.clientHeight))
+      .toBe(true)
+
+    await scrollRegion.evaluate((element) => {
+      element.scrollTop = element.scrollHeight
+    })
+    const box = await scrollRegion.boundingBox()
+    expect(box).not.toBeNull()
+    await page.mouse.move(box!.x + box!.width / 2, box!.y + box!.height / 2)
+    const beforeDown = await page.evaluate(() => window.scrollY)
+    await page.mouse.wheel(0, 600)
+    await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(beforeDown)
+    await expect(menu).toBeVisible()
+
+    await page.evaluate(() => window.scrollTo(0, 500))
+    await scrollRegion.evaluate((element) => {
+      element.scrollTop = 0
+    })
+    const beforeUp = await page.evaluate(() => window.scrollY)
+    await page.mouse.wheel(0, -600)
+    await expect.poll(() => page.evaluate(() => window.scrollY)).toBeLessThan(beforeUp)
+    await expect(menu).toBeVisible()
+  })
 
   test('strict >1170px mode query keeps 1170px Compact and switches 1171px to Desktop', async ({
     page,
@@ -657,9 +696,9 @@ test.describe.serial('Responsive website shell', () => {
       .toBe(true)
     await expect(page.getByRole('dialog', { name: 'Navigation' })).toBeHidden()
     await expect(page.locator('body')).not.toHaveCSS('overflow', 'hidden')
-    await expect(page.getByRole('button', { name: 'E2E Products menu' })).toBeVisible()
+    await expect(page.getByRole('button', { name: 'E2E Products' })).toBeVisible()
 
-    await page.getByRole('button', { name: 'E2E Products menu' }).click()
+    await page.getByRole('button', { name: 'E2E Products' }).click()
     await expect(page.getByRole('region', { name: 'E2E Products menu' })).toBeVisible()
     await page.setViewportSize({ width: 1024, height: 960 })
     await expect(page.getByRole('region', { name: 'E2E Products menu' })).toBeHidden()
@@ -669,7 +708,7 @@ test.describe.serial('Responsive website shell', () => {
 
   test('retains usable card anchors when a local navigation image fails', async ({ page }) => {
     await openFixture(page, 1280, { failMedia: 'e2e-navigation-6.png' })
-    await page.getByRole('button', { name: 'E2E Products menu' }).click()
+    await page.getByRole('button', { name: 'E2E Products' }).click()
     const failedImageCard = page.getByRole('link', {
       name: 'E2E Visual three card with a deliberately long title that wraps safely',
     })
@@ -728,7 +767,7 @@ test.describe.serial('Responsive website shell', () => {
     page,
   }) => {
     await openFixture(page, 1280)
-    const products = page.getByRole('button', { name: 'E2E Products menu' })
+    const products = page.getByRole('button', { name: 'E2E Products' })
     await products.focus()
     await page.keyboard.press('Enter')
     const menu = page.getByRole('region', { name: 'E2E Products menu' })

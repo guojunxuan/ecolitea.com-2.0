@@ -37,7 +37,7 @@
 .categorySelector { display: flex; flex-direction: column; gap: .5rem; }
 .categoryTab, .categoryTabActive { background: none; border: 0; cursor: pointer; padding: .5rem 0; text-align: left; }
 .categoryTabActive { font-weight: 700; }
-.categoryPanel { max-height: min(70vh, 36rem); min-width: 0; overflow-x: hidden; overflow-y: auto; }
+.categoryPanel { min-width: 0; overflow-x: hidden; }
 .linkList { display: flex; flex-direction: column; gap: .625rem; }
 .linkList a { align-items: center; color: inherit; display: flex; min-height: 2.5rem; text-decoration: none; }
 .linkList a:hover { text-decoration: underline; text-underline-offset: .2em; }

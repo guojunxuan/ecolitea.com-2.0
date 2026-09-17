@@ -9,16 +9,25 @@ import type { HeaderNavigationData } from './types'
 
 type HeaderNavProps = HeaderNavigationData & {
   logo: LogoImage | null
+  onDesktopOpenChange?: (open: boolean) => void
+  onMobileOpenChange?: (open: boolean) => void
   siteName: string
 }
 
-export const HeaderNav: React.FC<HeaderNavProps> = ({ logo, menuCta, navItems, siteName }) => {
+export const HeaderNav: React.FC<HeaderNavProps> = ({
+  logo,
+  menuCta,
+  navItems,
+  onDesktopOpenChange,
+  onMobileOpenChange,
+  siteName,
+}) => {
   const navigation = { menuCta, navItems }
 
   return (
     <>
-      <DesktopNav {...navigation} />
-      <MobileNav {...navigation} logo={logo} siteName={siteName} />
+      <DesktopNav {...navigation} onOpenChange={onDesktopOpenChange} />
+      <MobileNav {...navigation} logo={logo} onOpenChange={onMobileOpenChange} siteName={siteName} />
     </>
   )
 }

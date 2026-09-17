@@ -154,7 +154,9 @@ describe('Header navigation block rendering', () => {
       expect(panel.style.maxHeight).toBe('576px')
     })
     const css = readFileSync(resolve(process.cwd(), 'src/Header/Nav/blocks.module.css'), 'utf8')
-    expect(css).toMatch(/\.categoryPanel\s*\{[^}]*overflow-y:\s*auto/s)
+    const categoryPanelRule = css.match(/\.categoryPanel\s*\{([^}]*)\}/s)?.[1] ?? ''
+    expect(categoryPanelRule).not.toMatch(/overflow-y\s*:/)
+    expect(categoryPanelRule).not.toMatch(/max-height\s*:/)
   })
 
   it('uses card-count grids without reserving empty four-column tracks in half-width groups', () => {
