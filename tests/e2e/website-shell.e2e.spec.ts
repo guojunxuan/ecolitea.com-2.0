@@ -251,7 +251,11 @@ async function seedFixtures() {
   })
 }
 
-async function openFixture(page: Page, width: number, options: { failMedia?: string } = {}) {
+async function openFixture(
+  page: Page,
+  width: number,
+  options: { failMedia?: string; height?: number } = {},
+) {
   const placeholderRequests: string[] = []
   const requests: string[] = []
   const failedRequests: string[] = []
@@ -273,7 +277,7 @@ async function openFixture(page: Page, width: number, options: { failMedia?: str
     placeholderRequests
   ;(page as Page & { e2eRequests?: string[] }).e2eRequests = requests
   ;(page as Page & { e2eFailedRequests?: string[] }).e2eFailedRequests = failedRequests
-  await page.setViewportSize({ height: width < 768 ? 844 : 960, width })
+  await page.setViewportSize({ height: options.height ?? (width < 768 ? 844 : 960), width })
   await page.goto(`${baseURL}${fixturePath}`)
   await expect(page.locator('header > div')).toBeVisible()
   await expect(page.locator('main#main-content')).toBeAttached()
@@ -657,6 +661,45 @@ test.describe.serial('Responsive website shell', () => {
     })
   }
 
+  test('768x1024 keeps the full-screen Compact navigation boundary', async ({
+    page,
+  }, testInfo) => {
+    await openFixture(page, 768, { height: 1024 })
+    expect(page.viewportSize()).toEqual({ height: 1024, width: 768 })
+    await expectShell(page)
+    await expect(page.getByRole('button', { name: 'Open navigation' })).toBeVisible()
+    await expect(page.locator('[data-desktop-nav-root="true"]')).toBeHidden()
+
+    await page.getByRole('button', { name: 'Open navigation' }).click()
+    const dialog = page.getByRole('dialog', { name: 'Navigation' })
+    await expect(dialog).toBeVisible()
+    const dialogSurface = dialog.getByTestId('mobile-navigation-root').locator('..')
+    await expect(dialogSurface).toHaveCSS('opacity', '1')
+    const dialogBox = await dialogSurface.boundingBox()
+    expect(dialogBox).not.toBeNull()
+    expect(dialogBox!.x).toBe(0)
+    expect(dialogBox!.width).toBe(768)
+    expect(dialogBox!.height + dialogBox!.y).toBeCloseTo(1024, 0)
+    await shot(page, testInfo, 'tablet-root')
+
+    const products = dialog
+      .locator('button[aria-controls^="mobile-navigation-section-"]')
+      .filter({ hasText: 'E2E Products' })
+    await products.click()
+    const productsPanelID = await products.getAttribute('aria-controls')
+    expect(productsPanelID).toBeTruthy()
+    const visualCards = dialog.locator(
+      `#${productsPanelID} [data-navigation-block="cardGroup"] a:not([href="/e2e-card-group"])`,
+    )
+    await expect(visualCards).toHaveCount(8)
+    const computedColumns = await visualCards
+      .first()
+      .locator('..')
+      .evaluate((grid) => getComputedStyle(grid).gridTemplateColumns)
+    expect(computedColumns.trim().split(/\s+/)).toHaveLength(3)
+    await expectNoProductionDomainRequests(page)
+  })
+
   for (const width of [1171, 1280, 1440]) {
     test(`${width}px uses three desktop zones and desktop menus`, async ({ page }, testInfo) => {
       await openFixture(page, width)
@@ -863,9 +906,51 @@ test.describe.serial('Responsive website shell', () => {
     await openFixture(page, 1440)
     const products = page.getByRole('button', { name: 'E2E Products' })
     const productsMenu = page.getByRole('region', { name: 'E2E Products menu' })
+    await products.evaluate((control) => {
+      const timing = { enteredAt: Number.NaN, openedAt: Number.NaN }
+      ;(
+        window as typeof window & {
+          __e2ePointerTiming?: typeof timing
+        }
+      ).__e2ePointerTiming = timing
+      control.addEventListener(
+        'pointerenter',
+        () => {
+          timing.enteredAt = performance.now()
+        },
+        { once: true },
+      )
+      const observer = new MutationObserver(() => {
+        if (!document.querySelector('[role="region"][aria-label="E2E Products menu"]')) return
+        timing.openedAt = performance.now()
+        observer.disconnect()
+      })
+      observer.observe(document.body, { childList: true, subtree: true })
+    })
     await products.hover()
-    await expect(productsMenu).toBeHidden({ timeout: 50 })
-    await expect(productsMenu).toBeVisible({ timeout: 500 })
+    await expect
+      .poll(() =>
+        page.evaluate(() => {
+          const timing = (
+            window as typeof window & {
+              __e2ePointerTiming?: { enteredAt: number; openedAt: number }
+            }
+          ).__e2ePointerTiming
+          return Boolean(timing && Number.isFinite(timing.enteredAt) && Number.isFinite(timing.openedAt))
+        }),
+      )
+      .toBe(true)
+    const initialOpenDelay = await page.evaluate(() => {
+      const timing = (
+        window as typeof window & {
+          __e2ePointerTiming?: { enteredAt: number; openedAt: number }
+        }
+      ).__e2ePointerTiming!
+      return timing.openedAt - timing.enteredAt
+    })
+    expect(initialOpenDelay).toBeGreaterThanOrEqual(90)
+    expect(initialOpenDelay).toBeLessThan(500)
+    await expect(productsMenu).toBeVisible()
 
     const hybrid = page.getByRole('link', {
       exact: true,
