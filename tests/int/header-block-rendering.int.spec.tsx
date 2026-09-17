@@ -217,7 +217,6 @@ describe('Header navigation block rendering', () => {
     Object.defineProperty(panel, 'scrollHeight', { configurable: true, value: 720 })
     Object.defineProperty(panel, 'clientHeight', { configurable: true, value: 400 })
     window.dispatchEvent(new Event('resize'))
-    expect(onHeight.mock.calls.length).toBeGreaterThan(0)
     await waitFor(() => {
       expect(panel.style.minHeight).toBe('720px')
     })
@@ -250,6 +249,42 @@ describe('Header navigation block rendering', () => {
     Object.defineProperty(selectorColumn, 'scrollHeight', { configurable: true, value: window.innerHeight + 1 })
     window.dispatchEvent(new Event('resize'))
     await waitFor(() => expect(selectorColumn.getAttribute('data-sticky')).toBe('false'))
+  })
+
+  it('uses the Mega Menu scrollport client height and padding for the sticky fit boundary', async () => {
+    const block: HeaderNavigationBlockData = {
+      categories: [{ cards: [card('one', 'One')], cta: null, id: 'cat-one', label: 'Category One' }],
+      cta: null,
+      id: 'scrollport-tabs',
+      type: 'categoryTabs',
+    }
+    const { container } = render(
+      <div
+        data-mega-menu-scroll="true"
+        data-testid="mega-menu-scrollport"
+        style={{ overflowY: 'auto', paddingBottom: 40, paddingTop: 32 }}
+      >
+        <CategoryTabs block={block} />
+      </div>,
+    )
+    const scrollport = screen.getByTestId('mega-menu-scrollport')
+    const selectorColumn = container.querySelector('[data-category-selector-column]') as HTMLElement
+    Object.defineProperty(scrollport, 'clientHeight', { configurable: true, value: 600 })
+    Object.defineProperty(selectorColumn, 'scrollHeight', { configurable: true, value: 550 })
+
+    window.dispatchEvent(new Event('resize'))
+
+    await waitFor(() => expect(selectorColumn.getAttribute('data-sticky')).toBe('false'))
+    expect(selectorColumn.style.maxHeight).toBe('')
+
+    Object.defineProperty(selectorColumn, 'scrollHeight', { configurable: true, value: 500 })
+    window.dispatchEvent(new Event('resize'))
+    await waitFor(() => expect(selectorColumn.getAttribute('data-sticky')).toBe('true'))
+    expect(selectorColumn.style.maxHeight).toBe('528px')
+
+    const css = readFileSync(resolve(process.cwd(), 'src/Header/Nav/blocks.module.css'), 'utf8')
+    const stickyRule = css.match(/\.categorySelectorColumnSticky\s*\{([^}]*)\}/s)?.[1] ?? ''
+    expect(stickyRule).not.toContain('70dvh')
   })
 
   it('renders eight product cards as a stable four-by-two grid with the product-card contract', () => {

@@ -41,7 +41,7 @@
 .navigationCTA { color: inherit; display: inline-block; font-size: .875rem; font-weight: 600; margin-top: 1rem; text-decoration: none; }
 .categoryTabsDesktop { align-items: start; display: grid; gap: 2rem; grid-template-columns: minmax(11.25rem, 13.75rem) minmax(0, 1fr); }
 .categorySelectorColumn { align-self: stretch; display: flex; flex-direction: column; min-width: 0; }
-.categorySelectorColumnSticky { align-self: start; height: min(100%, calc(70dvh - 4.5rem)); position: sticky; top: 0; }
+.categorySelectorColumnSticky { position: sticky; top: 0; }
 .categorySelector { display: flex; flex-direction: column; gap: .5rem; }
 .categoryTab, .categoryTabActive { background: transparent; border: 0; border-radius: .5rem; cursor: pointer; min-height: 2.625rem; padding: .625rem .75rem; text-align: left; transition: background-color 180ms ease; width: 100%; }
 .categoryTab:hover, .categoryTabActive { background: color-mix(in srgb, var(--foreground) 6%, transparent); }
