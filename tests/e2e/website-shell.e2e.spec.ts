@@ -417,25 +417,89 @@ async function shot(page: Page, testInfo: TestInfo, state: string) {
   })
 }
 
+async function expectBackground(
+  locator: ReturnType<Page['locator']>,
+  expected: { alpha: number; blue: number; green: number; red: number },
+) {
+  await expect
+    .poll(async () => {
+      const color = await locator.evaluate((element) => getComputedStyle(element).backgroundColor)
+      const channels = color.match(/[\d.]+/g)?.map(Number) ?? []
+      return [...channels.slice(0, 3), channels[3] ?? 1]
+    })
+    .toEqual([expected.red, expected.green, expected.blue, expected.alpha])
+}
+
+async function expectIndicatorAligned(page: Page, control: ReturnType<Page['locator']>) {
+  const item = control.locator('..')
+  const indicator = page.locator('[data-navigation-indicator="true"]')
+  await expect(indicator).toHaveAttribute('data-visible', 'true')
+  await expect
+    .poll(async () => {
+      const [indicatorBox, itemBox] = await Promise.all([
+        indicator.boundingBox(),
+        item.boundingBox(),
+      ])
+      if (!indicatorBox || !itemBox) return Number.POSITIVE_INFINITY
+      return Math.max(
+        Math.abs(indicatorBox.x - itemBox.x),
+        Math.abs(indicatorBox.width - itemBox.width),
+      )
+    })
+    .toBeLessThanOrEqual(1)
+}
+
 async function exerciseMobile(page: Page, testInfo: TestInfo) {
   const openButton = page.getByRole('button', { name: 'Open navigation' })
+  const surface = page.locator('header > div')
+  await expectBackground(surface, { alpha: 0, blue: 0, green: 0, red: 0 })
   const dialog = page.getByRole('dialog', { name: 'Navigation' })
   await openButton.focus()
   await page.keyboard.press('Enter')
   await expect(dialog).toBeVisible()
   await expect(page.locator('body')).toHaveCSS('overflow', 'hidden')
+  await expectBackground(surface, { alpha: 1, blue: 255, green: 255, red: 255 })
+  const dialogSurface = dialog.locator('[data-testid="mobile-navigation-root"]').locator('..')
+  await expectBackground(dialogSurface, {
+    alpha: 1,
+    blue: 255,
+    green: 255,
+    red: 255,
+  })
+  await expect(page.locator('[data-navigation-overlay="true"]')).toHaveCount(0)
   const viewport = page.viewportSize()!
-  const dialogBox = await dialog.boundingBox()
+  const dialogBox = await dialogSurface.boundingBox()
   expect(dialogBox).not.toBeNull()
   expect(dialogBox!.x).toBe(0)
   expect(dialogBox!.width).toBe(viewport.width)
   expect(dialogBox!.y).toBeGreaterThan(0)
   expect(dialogBox!.height + dialogBox!.y).toBeCloseTo(viewport.height, 0)
+  const logoBox = await dialog.getByRole('link', { name: 'E2E website shell logo' }).boundingBox()
+  expect(logoBox).not.toBeNull()
+  expect(logoBox!.x + logoBox!.width / 2).toBeCloseTo(viewport.width / 2, 0)
+  const menuLines = dialog.getByRole('button', { name: 'Close navigation' }).locator('span')
+  await expect(menuLines).toHaveCount(3)
+  await expect(menuLines.nth(0)).toHaveCSS('transform', /matrix/)
+  await expect(menuLines.nth(1)).toHaveCSS('opacity', '0')
 
-  const products = dialog.getByRole('button', { name: 'Open E2E Products' })
+  const products = dialog
+    .locator('button[aria-controls^="mobile-navigation-section-"]')
+    .filter({ hasText: 'E2E Products' })
+  const hybrid = dialog
+    .locator('button[aria-controls^="mobile-navigation-section-"]')
+    .filter({ hasText: 'E2E Hybrid Hub with a deliberately long label' })
+  await expect(products).toHaveAttribute('aria-expanded', 'false')
+  await expect(hybrid).toHaveAttribute('aria-expanded', 'false')
   await products.focus()
   await page.keyboard.press('Enter')
-  await expect(dialog.getByRole('heading', { name: 'E2E Products' })).toBeVisible()
+  const productsPanelID = await products.getAttribute('aria-controls')
+  expect(productsPanelID).toBeTruthy()
+  const productsPanel = dialog.locator(`#${productsPanelID}`)
+  await expect(products).toHaveAttribute('aria-expanded', 'true')
+  await expect(hybrid).toHaveAttribute('aria-expanded', 'false')
+  await expect(products).toBeVisible()
+  await expect(hybrid).toBeVisible()
+  await expect(dialog.getByRole('button', { name: 'Back to navigation' })).toHaveCount(0)
   const foundations = dialog.getByRole('button', { name: 'E2E Foundations' })
   const advanced = dialog.getByRole('button', {
     name: 'E2E Advanced long category label for overflow coverage',
@@ -449,7 +513,6 @@ async function exerciseMobile(page: Page, testInfo: TestInfo) {
     /e2e-navigation-2\.png/,
     /e2e-navigation-3\.png/,
   )
-  await expect(dialog.getByRole('button', { name: 'Back to navigation' })).toBeFocused()
   await foundations.click()
   await expect(foundations).toBeFocused()
   await expect(foundations).toHaveAttribute('aria-expanded', 'true')
@@ -463,7 +526,7 @@ async function exerciseMobile(page: Page, testInfo: TestInfo) {
   await expectImageRequests(page, /e2e-navigation-3\.png/)
   await expectNoProductionDomainRequests(page)
   await expect(dialog.getByRole('heading', { name: 'E2E Featured card group' })).toBeVisible()
-  await expect(dialog.locator('[data-navigation-block="cardGroup"] a')).toHaveCount(9)
+  await expect(productsPanel.locator('[data-navigation-block="cardGroup"] a')).toHaveCount(9)
   await expect(dialog.getByRole('link', { name: 'E2E Rich card' })).toBeVisible()
   const blockWidths = await dialog.locator('[data-navigation-block]').evaluateAll((blocks) =>
     blocks.map((block) => ({
@@ -474,19 +537,32 @@ async function exerciseMobile(page: Page, testInfo: TestInfo) {
   for (const block of blockWidths) {
     expect(Math.abs(block.width - block.availableWidth)).toBeLessThanOrEqual(1)
   }
+  if (viewport.width > 360) {
+    await foundations.click()
+    await expect(foundations).toHaveAttribute('aria-expanded', 'true')
+    const productCards = dialog.getByRole('link', { name: /E2E Foundation (?:card|reserve card)/ })
+    const productBoxes = await productCards.evaluateAll((cards) =>
+      cards.map((card) => card.getBoundingClientRect()).map(({ width, x, y }) => ({ width, x, y })),
+    )
+    expect(productBoxes).toHaveLength(2)
+    expect(Math.abs(productBoxes[0]!.y - productBoxes[1]!.y)).toBeLessThanOrEqual(1)
+    expect(productBoxes[1]!.x).toBeGreaterThan(productBoxes[0]!.x + productBoxes[0]!.width)
+  }
   await shot(page, testInfo, 'mobile-section')
-  await page.keyboard.press('Escape')
-  await expect(dialog.getByRole('heading', { name: 'E2E Products' })).toBeHidden()
-  await expect(products).toBeFocused()
-  await products.click()
-  await expect(advanced).toHaveAttribute('aria-expanded', 'true')
-  await dialog.getByRole('button', { name: 'Back to navigation' }).click()
-  await expect(products).toBeFocused()
+
+  await hybrid.click()
+  await expect(products).toHaveAttribute('aria-expanded', 'false')
+  await expect(hybrid).toHaveAttribute('aria-expanded', 'true')
+  await expect(
+    dialog.getByRole('link', { name: 'View all E2E Hybrid Hub with a deliberately long label' }),
+  ).toHaveAttribute('href', routePath)
+  await expect(dialog.getByRole('button', { name: 'E2E Foundations' })).toHaveAttribute(
+    'aria-expanded',
+    'false',
+  )
 
   const first = dialog.locator('a[href], button:not([disabled])').first()
-  const last = dialog
-    .locator('section:not([inert]) a[href], section:not([inert]) button:not([disabled])')
-    .last()
+  const last = dialog.locator('a[href], button:not([disabled])').last()
   await first.focus()
   await page.keyboard.press('Shift+Tab')
   await expect(last).toBeFocused()
@@ -496,12 +572,22 @@ async function exerciseMobile(page: Page, testInfo: TestInfo) {
   await expect(dialog).toBeHidden()
   await expect(openButton).toBeFocused()
   await expect(page.locator('body')).not.toHaveCSS('overflow', 'hidden')
+  await page.evaluate(() => {
+    document.body.style.minHeight = '200vh'
+    window.scrollTo(0, 100)
+  })
+  await expect(surface).toHaveAttribute('data-scrolled', 'true')
+  await expectBackground(surface, { alpha: 1, blue: 255, green: 255, red: 255 })
+  await page.evaluate(() => window.scrollTo(0, 0))
 
   await openButton.click()
   const rootPanel = dialog.getByTestId('mobile-navigation-root')
   const rootCta = dialog.getByRole('link', { name: 'E2E Talk to sales' })
-  await rootCta.scrollIntoViewIfNeeded()
   await expect(rootCta).toBeVisible()
+  await expect(rootCta.locator('..')).toHaveCSS('position', 'fixed')
+  const ctaBarBox = await rootCta.locator('..').boundingBox()
+  expect(ctaBarBox).not.toBeNull()
+  expect(ctaBarBox!.y + ctaBarBox!.height).toBeCloseTo(viewport.height, 0)
   expect(await rootPanel.evaluate((panel) => panel.scrollHeight)).toBeGreaterThanOrEqual(
     await rootPanel.evaluate((panel) => panel.clientHeight),
   )
@@ -509,7 +595,8 @@ async function exerciseMobile(page: Page, testInfo: TestInfo) {
   await expect(dialog).toBeHidden()
   await expect(page.locator('body')).not.toHaveCSS('overflow', 'hidden')
   await openButton.click()
-  await dialog.getByRole('button', { name: 'Open E2E Products' }).click()
+  await expect(products).toHaveAttribute('aria-expanded', 'false')
+  await products.click()
   await dialog.getByRole('link', { name: 'E2E Product overview' }).click()
   await expect(page).toHaveURL(`${baseURL}/e2e-product-overview`)
   await expect(dialog).toBeHidden()
@@ -552,9 +639,7 @@ test.describe.serial('Responsive website shell', () => {
   })
 
   for (const width of [390, 1024]) {
-    test(`${width}px uses shared full-screen three-level navigation`, async ({
-      page,
-    }, testInfo) => {
+    test(`${width}px uses shared full-screen accordion navigation`, async ({ page }, testInfo) => {
       await openFixture(page, width)
       await expectShell(page)
       await expectThemeInvariant(page)
@@ -582,6 +667,16 @@ test.describe.serial('Responsive website shell', () => {
       await expect(page.getByRole('button', { name: 'Open navigation' })).toBeHidden()
       await expectDesktopZones(page)
       await shot(page, testInfo, 'closed')
+      const surface = page.locator('header > div')
+      await expectBackground(surface, { alpha: 0, blue: 0, green: 0, red: 0 })
+      await page.evaluate(() => {
+        document.body.style.minHeight = '200vh'
+        window.scrollTo(0, 100)
+      })
+      await expect(surface).toHaveAttribute('data-scrolled', 'true')
+      await expectBackground(surface, { alpha: 0.9, blue: 255, green: 255, red: 255 })
+      await page.evaluate(() => window.scrollTo(0, 0))
+      await expect(surface).toHaveAttribute('data-scrolled', 'false')
 
       if (width === 1280) {
         const strip = page.getByRole('navigation', { name: 'Primary' })
@@ -595,23 +690,85 @@ test.describe.serial('Responsive website shell', () => {
           scrollLeft: element.scrollLeft,
           scrollWidth: element.scrollWidth,
         }))
-        expect(Math.abs(rightEdge.scrollLeft + rightEdge.clientWidth - rightEdge.scrollWidth)).toBeLessThanOrEqual(1)
+        expect(
+          Math.abs(rightEdge.scrollLeft + rightEdge.clientWidth - rightEdge.scrollWidth),
+        ).toBeLessThanOrEqual(1)
+        expect(rightEdge.scrollLeft).toBeGreaterThan(0)
         await page.emulateMedia({ reducedMotion: 'reduce' })
+        const products = await exposeDesktopControl(page, 'E2E Products')
+        await products.focus()
+        await expect
+          .poll(() => strip.evaluate((element) => element.scrollLeft))
+          .toBeLessThan(rightEdge.scrollLeft)
+        await expectIndicatorAligned(page, products)
+        const indicatorBeforeScroll = await page
+          .locator('[data-navigation-indicator="true"]')
+          .boundingBox()
+        await scrollRight.focus()
+        await page.keyboard.press('Enter')
+        await expect.poll(() => strip.evaluate((element) => element.scrollLeft)).toBeGreaterThan(0)
+        await expectIndicatorAligned(page, products)
+        const indicatorAfterScroll = await page
+          .locator('[data-navigation-indicator="true"]')
+          .boundingBox()
+        expect(indicatorAfterScroll).not.toBeNull()
+        expect(indicatorBeforeScroll).not.toBeNull()
+        expect(indicatorAfterScroll!.x).not.toBeCloseTo(indicatorBeforeScroll!.x, 0)
         await scrollLeft.focus()
         await page.keyboard.press('Enter')
-        await expect.poll(() => strip.evaluate((element) => element.scrollLeft)).toBeLessThan(rightEdge.scrollLeft)
       }
 
       const products = await exposeDesktopControl(page, 'E2E Products')
+      await expect(page.getByRole('navigation', { name: 'Primary' }).locator('svg')).toHaveCount(0)
       await products.hover()
       const menu = page.getByRole('region', { name: 'E2E Products menu' })
       await expect(menu).toBeVisible()
+      await expect(surface).toHaveAttribute('data-menu-open', 'true')
+      await expectBackground(surface, { alpha: 0.9, blue: 255, green: 255, red: 255 })
+      await expectBackground(menu, { alpha: 0.82, blue: 255, green: 255, red: 255 })
+      const overlay = page.locator('[data-navigation-overlay="true"]')
+      await expect(overlay).toBeVisible()
+      await expectBackground(overlay, { alpha: 0.07, blue: 0, green: 0, red: 0 })
       await expect(menu.locator('[data-navigation-block="categoryTabs"]')).toHaveCount(1)
       await expect(menu.locator('[data-navigation-block="cardGroup"]')).toHaveCount(1)
       await expect(menu.locator('[data-navigation-block="linkGroup"]')).toHaveCount(1)
       await expect(menu.locator('[data-navigation-block="richCard"]')).toHaveCount(1)
       await expect(menu.getByRole('link', { name: 'E2E Foundation card' })).toBeVisible()
       await expect(menu.locator('[data-navigation-block="cardGroup"] a')).toHaveCount(9)
+      await expect(menu.locator('[data-mega-menu-scroll="true"]')).toHaveCount(1)
+      const visualCards = menu
+        .locator('[data-navigation-block="cardGroup"]')
+        .locator('a:not([href="/e2e-card-group"])')
+      await expect(visualCards).toHaveCount(8)
+      const visualCardRows = await visualCards.evaluateAll((cards) => {
+        const rows = new Map<number, number>()
+        for (const card of cards) {
+          const top = Math.round(card.getBoundingClientRect().top)
+          rows.set(top, (rows.get(top) ?? 0) + 1)
+        }
+        return [...rows.values()]
+      })
+      expect(visualCardRows).toEqual([4, 4])
+      const categoryBlock = menu.locator('[data-navigation-block="categoryTabs"]')
+      await expect(categoryBlock.locator('[data-category-selector-column]')).toHaveCSS(
+        'position',
+        'sticky',
+      )
+      const primaryCategoryCta = categoryBlock.getByRole('link', {
+        name: 'E2E Browse every category',
+      })
+      const activeCategoryCta = categoryBlock.getByRole('link', {
+        name: 'E2E Browse foundations',
+      })
+      await expect(primaryCategoryCta).toBeVisible()
+      await expect(activeCategoryCta).toBeVisible()
+      const [primaryCtaBox, activeCtaBox] = await Promise.all([
+        primaryCategoryCta.boundingBox(),
+        activeCategoryCta.boundingBox(),
+      ])
+      expect(primaryCtaBox).not.toBeNull()
+      expect(activeCtaBox).not.toBeNull()
+      expect(primaryCtaBox!.x).toBeLessThan(activeCtaBox!.x)
       await menu.getByRole('link', { name: 'E2E Foundation card' }).hover()
       await expect(menu).toBeVisible()
       if (width === 1280) {
@@ -622,18 +779,25 @@ test.describe.serial('Responsive website shell', () => {
         await expect(menu).toBeVisible()
       }
       await shot(page, testInfo, 'desktop-mega-menu')
-      await page.keyboard.press('Escape')
+      const overlayBox = await overlay.boundingBox()
+      expect(overlayBox).not.toBeNull()
+      await page.mouse.click(
+        overlayBox!.x + overlayBox!.width / 2,
+        overlayBox!.y + overlayBox!.height - 4,
+      )
+      await expect(menu).toBeHidden()
+      await expect(surface).toHaveAttribute('data-menu-open', 'false')
 
       const hybridLink = page.getByRole('link', {
         name: 'E2E Hybrid Hub with a deliberately long label',
         exact: true,
       })
       await hybridLink.hover()
-      await expect(
-        page.getByRole('region', {
-          name: 'E2E Hybrid Hub with a deliberately long label menu',
-        }),
-      ).toBeVisible()
+      const hybridMenu = page.getByRole('region', {
+        name: 'E2E Hybrid Hub with a deliberately long label menu',
+      })
+      await expect(hybridMenu).toBeVisible()
+      await expectIndicatorAligned(page, hybridLink)
       await page.keyboard.press('Escape')
       await hybridLink.focus()
       await page.keyboard.press('ArrowDown')
@@ -693,6 +857,70 @@ test.describe.serial('Responsive website shell', () => {
     await expect(menu).toBeVisible()
   })
 
+  test('Desktop pointer intent delays initial open and close but switches menus immediately', async ({
+    page,
+  }) => {
+    await openFixture(page, 1440)
+    const products = page.getByRole('button', { name: 'E2E Products' })
+    const productsMenu = page.getByRole('region', { name: 'E2E Products menu' })
+    await products.hover()
+    await expect(productsMenu).toBeHidden({ timeout: 50 })
+    await expect(productsMenu).toBeVisible({ timeout: 500 })
+
+    const hybrid = page.getByRole('link', {
+      exact: true,
+      name: 'E2E Hybrid Hub with a deliberately long label',
+    })
+    const hybridMenu = page.getByRole('region', {
+      name: 'E2E Hybrid Hub with a deliberately long label menu',
+    })
+    await hybrid.hover()
+    await expect(hybridMenu).toBeVisible({ timeout: 50 })
+
+    const overlay = page.locator('[data-navigation-overlay="true"]')
+    const overlayBox = await overlay.boundingBox()
+    expect(overlayBox).not.toBeNull()
+    await page.mouse.move(
+      overlayBox!.x + overlayBox!.width / 2,
+      overlayBox!.y + overlayBox!.height - 4,
+    )
+    await page.waitForTimeout(100)
+    await expect(hybridMenu).toBeVisible()
+    await expect(hybridMenu).toBeHidden({ timeout: 300 })
+  })
+
+  test('360px applies the computed one-column Card Group fallback', async ({ page }) => {
+    await openFixture(page, 360)
+    await page.getByRole('button', { name: 'Open navigation' }).click()
+    const dialog = page.getByRole('dialog', { name: 'Navigation' })
+    await dialog
+      .locator('button[aria-controls^="mobile-navigation-section-"]')
+      .filter({ hasText: 'E2E Products' })
+      .click()
+    const products = dialog
+      .locator('button[aria-controls^="mobile-navigation-section-"]')
+      .filter({ hasText: 'E2E Products' })
+    const productsPanelID = await products.getAttribute('aria-controls')
+    expect(productsPanelID).toBeTruthy()
+    const cardGroup = dialog.locator(`#${productsPanelID} [data-navigation-block="cardGroup"]`)
+    const cards = cardGroup.locator('a:not([href="/e2e-card-group"])')
+    await expect(cards).toHaveCount(8)
+    const computedColumns = await cards
+      .first()
+      .locator('..')
+      .evaluate((grid) => getComputedStyle(grid).gridTemplateColumns)
+    expect(computedColumns.trim().split(/\s+/)).toHaveLength(1)
+    const firstTwo = await cards.evaluateAll((elements) =>
+      elements.slice(0, 2).map((element) => {
+        const box = element.getBoundingClientRect()
+        return { x: box.x, y: box.y }
+      }),
+    )
+    expect(firstTwo[0]!.x).toBeCloseTo(firstTwo[1]!.x, 0)
+    expect(firstTwo[1]!.y).toBeGreaterThan(firstTwo[0]!.y)
+    await expectShell(page)
+  })
+
   test('strict >1170px mode query keeps 1170px Compact and switches 1171px to Desktop', async ({
     page,
   }) => {
@@ -743,9 +971,7 @@ test.describe.serial('Responsive website shell', () => {
     await expectNoProductionDomainRequests(page)
   })
 
-  test('close resets Compact session state while Back restores root and section scroll state', async ({
-    page,
-  }) => {
+  test('close and top-level switches reset Compact accordion session state', async ({ page }) => {
     await openFixture(page, 390)
     await page.setViewportSize({ width: 390, height: 520 })
     const openButton = page.getByRole('button', { name: 'Open navigation' })
@@ -755,27 +981,28 @@ test.describe.serial('Responsive website shell', () => {
     await setPanelScrollTop(rootPanel, 120)
     await expect.poll(() => rootPanel.evaluate((panel) => panel.scrollTop)).toBeGreaterThan(0)
 
-    const products = dialog.getByRole('button', { name: 'Open E2E Products' })
+    const products = dialog
+      .locator('button[aria-controls^="mobile-navigation-section-"]')
+      .filter({ hasText: 'E2E Products' })
+    const hybrid = dialog
+      .locator('button[aria-controls^="mobile-navigation-section-"]')
+      .filter({ hasText: 'E2E Hybrid Hub with a deliberately long label' })
     await products.evaluate((button) => (button as HTMLButtonElement).click())
-    const sectionPanel = dialog.getByTestId('mobile-navigation-section')
-    await setPanelScrollTop(sectionPanel, 120)
-    await expect.poll(() => sectionPanel.evaluate((panel) => panel.scrollTop)).toBeGreaterThan(0)
-    await dialog.getByRole('button', { name: 'Back to navigation' }).click()
-    await expect.poll(() => rootPanel.evaluate((panel) => panel.scrollTop)).toBeGreaterThan(0)
-
-    await products.evaluate((button) => (button as HTMLButtonElement).click())
-    await expect.poll(() => sectionPanel.evaluate((panel) => panel.scrollTop)).toBeGreaterThan(0)
+    const foundations = dialog.getByRole('button', { name: 'E2E Foundations' })
+    await foundations.click()
+    await expect(foundations).toHaveAttribute('aria-expanded', 'true')
+    await hybrid.click()
+    await expect(products).toHaveAttribute('aria-expanded', 'false')
+    await expect(hybrid).toHaveAttribute('aria-expanded', 'true')
+    await products.click()
+    await expect(foundations).toHaveAttribute('aria-expanded', 'false')
     await dialog.getByRole('button', { name: 'Close navigation' }).click()
     await expect(dialog).toBeHidden()
 
     await openButton.click()
     await expect.poll(() => rootPanel.evaluate((panel) => panel.scrollTop)).toBe(0)
-    await products.evaluate((button) => (button as HTMLButtonElement).click())
-    await expect(dialog.getByRole('button', { name: 'E2E Foundations' })).toHaveAttribute(
-      'aria-expanded',
-      'false',
-    )
-    await expect.poll(() => sectionPanel.evaluate((panel) => panel.scrollTop)).toBe(0)
+    await expect(products).toHaveAttribute('aria-expanded', 'false')
+    await expect(hybrid).toHaveAttribute('aria-expanded', 'false')
     await expectNoProductionDomainRequests(page)
   })
 
