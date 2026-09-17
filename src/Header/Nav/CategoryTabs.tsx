@@ -37,6 +37,7 @@ export const CategoryTabs: React.FC<CategoryTabsProps> = ({
   const [selectorFits, setSelectorFits] = useState(true)
   const panelRef = useRef<HTMLDivElement>(null)
   const selectorColumnRef = useRef<HTMLElement>(null)
+  const selectorListRef = useRef<HTMLDivElement>(null)
   const hoverTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const activeID = activeCategoryId === undefined ? internalActive : activeCategoryId
   const expandedID = expandedCategoryId === undefined ? internalExpanded : expandedCategoryId
@@ -97,7 +98,8 @@ export const CategoryTabs: React.FC<CategoryTabsProps> = ({
   useEffect(() => {
     if (mode !== 'desktop' || !sessionOpen) return
     const column = selectorColumnRef.current
-    if (!column) return
+    const selectorList = selectorListRef.current
+    if (!column || !selectorList) return
     const scrollport = column.closest<HTMLElement>('[data-mega-menu-scroll="true"]')
     const measure = () => {
       const availableHeight = (() => {
@@ -109,8 +111,19 @@ export const CategoryTabs: React.FC<CategoryTabsProps> = ({
         const paddingBottom = Number.parseFloat(style.paddingBottom) || 0
         return Math.max(0, scrollport.clientHeight - paddingTop - paddingBottom)
       })()
+      const columnStyle = window.getComputedStyle(column)
+      const columnPadding =
+        (Number.parseFloat(columnStyle.paddingTop) || 0) +
+        (Number.parseFloat(columnStyle.paddingBottom) || 0)
+      const primaryCTA = column.querySelector<HTMLElement>(`.${styles.categoryPrimaryCTA}`)
+      const intrinsicHeight =
+        columnPadding +
+        Math.max(selectorList.scrollHeight, selectorList.clientHeight, selectorList.offsetHeight) +
+        (primaryCTA
+          ? Math.max(primaryCTA.scrollHeight, primaryCTA.clientHeight, primaryCTA.offsetHeight)
+          : 0)
       setSelectorAvailableHeight(availableHeight)
-      setSelectorFits(column.scrollHeight <= availableHeight)
+      setSelectorFits(intrinsicHeight <= availableHeight)
     }
     measure()
     const observer = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(measure)
@@ -166,7 +179,7 @@ export const CategoryTabs: React.FC<CategoryTabsProps> = ({
         ref={selectorColumnRef}
         style={selectorFits && selectorAvailableHeight !== null ? { maxHeight: selectorAvailableHeight } : undefined}
       >
-        <div className={styles.categorySelector} role="tablist" aria-label="Categories">
+        <div className={styles.categorySelector} ref={selectorListRef} role="tablist" aria-label="Categories">
           {block.categories.map((category) => (
             <button
               aria-selected={category.id === active.id}
