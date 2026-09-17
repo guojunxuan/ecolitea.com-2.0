@@ -597,16 +597,25 @@ test.describe.serial('Responsive website shell', () => {
       await expect(menu).toBeVisible()
       if (width === 1280) {
         const strip = page.getByRole('navigation', { name: 'Primary' })
+        const scrollLeft = page.getByRole('button', { name: 'Scroll navigation left' })
         const scrollRight = page.getByRole('button', { name: 'Scroll navigation right' })
         await expect(scrollRight).toBeVisible()
+        await expect(scrollRight).toBeDisabled()
+        await expect(scrollLeft).toBeEnabled()
+        const rightEdge = await strip.evaluate((element) => ({
+          clientWidth: element.clientWidth,
+          scrollLeft: element.scrollLeft,
+          scrollWidth: element.scrollWidth,
+        }))
+        expect(Math.abs(rightEdge.scrollLeft + rightEdge.clientWidth - rightEdge.scrollWidth)).toBeLessThanOrEqual(1)
         await page.emulateMedia({ reducedMotion: 'reduce' })
         await expect(menu.locator('[data-navigation-block="cardGroup"] img').first()).toHaveCSS(
           'transition-duration',
           '0s',
         )
-        await scrollRight.focus()
+        await scrollLeft.focus()
         await page.keyboard.press('Enter')
-        expect(await strip.evaluate((element) => element.scrollLeft)).toBeGreaterThan(0)
+        await expect.poll(() => strip.evaluate((element) => element.scrollLeft)).toBeLessThan(rightEdge.scrollLeft)
         await expect(menu).toBeVisible()
       }
       await shot(page, testInfo, 'desktop-mega-menu')
@@ -665,6 +674,8 @@ test.describe.serial('Responsive website shell', () => {
     const beforeDown = await page.evaluate(() => window.scrollY)
     await page.mouse.wheel(0, 600)
     await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(beforeDown)
+    const afterDown = await page.evaluate(() => window.scrollY)
+    expect(afterDown - beforeDown).toBeLessThanOrEqual(600)
     await expect(menu).toBeVisible()
 
     await page.evaluate(() => window.scrollTo(0, 500))
@@ -674,6 +685,8 @@ test.describe.serial('Responsive website shell', () => {
     const beforeUp = await page.evaluate(() => window.scrollY)
     await page.mouse.wheel(0, -600)
     await expect.poll(() => page.evaluate(() => window.scrollY)).toBeLessThan(beforeUp)
+    const afterUp = await page.evaluate(() => window.scrollY)
+    expect(beforeUp - afterUp).toBeLessThanOrEqual(600)
     await expect(menu).toBeVisible()
   })
 

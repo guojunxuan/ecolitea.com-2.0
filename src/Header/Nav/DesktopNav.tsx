@@ -26,6 +26,7 @@ export const DesktopNav: React.FC<DesktopNavProps> = ({ menuCta, navItems, onOpe
   const triggerRefs = useRef<Record<string, HTMLElement | null>>({})
   const itemRefs = useRef<Record<string, HTMLElement | null>>({})
   const initializedOverflowKeyRef = useRef<string | null>(null)
+  const userNavigationScrollRef = useRef(false)
   const indicatorOwnerRef = useRef<string | null>(null)
   const openTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -42,6 +43,7 @@ export const DesktopNav: React.FC<DesktopNavProps> = ({ menuCta, navItems, onOpe
   const [atStart, setAtStart] = useState(true)
   const [atEnd, setAtEnd] = useState(true)
   const [indicator, setIndicator] = useState<IndicatorState>({ left: 0, visible: false, width: 0 })
+  const navigationKey = navItems.map((item) => item.id).join('|')
 
   const clearOpenTimer = useCallback(() => {
     if (openTimerRef.current) clearTimeout(openTimerRef.current)
@@ -150,6 +152,7 @@ export const DesktopNav: React.FC<DesktopNavProps> = ({ menuCta, navItems, onOpe
   )
 
   const ensureVisible = useCallback((id: string) => {
+    userNavigationScrollRef.current = true
     itemRefs.current[id]?.scrollIntoView?.({ behavior: 'instant', block: 'nearest', inline: 'nearest' })
   }, [])
 
@@ -157,16 +160,17 @@ export const DesktopNav: React.FC<DesktopNavProps> = ({ menuCta, navItems, onOpe
     const strip = stripRef.current
     if (!strip) return
     const overflowing = isOverflowing(strip)
-    const navigationKey = navItems.map((item) => item.id).join('|')
-    if (overflowing && initializedOverflowKeyRef.current !== navigationKey) {
-      strip.scrollLeft = Math.max(0, strip.scrollWidth - strip.clientWidth)
+    if (initializedOverflowKeyRef.current !== navigationKey) {
       initializedOverflowKeyRef.current = navigationKey
+      userNavigationScrollRef.current = false
     }
-    if (!overflowing) initializedOverflowKeyRef.current = null
+    if (overflowing && !userNavigationScrollRef.current) {
+      strip.scrollLeft = Math.max(0, strip.scrollWidth - strip.clientWidth)
+    }
     setOverflow(overflowing)
     setAtStart(strip.scrollLeft <= 1)
     setAtEnd(strip.scrollLeft + strip.clientWidth >= strip.scrollWidth - 1)
-  }, [navItems])
+  }, [navigationKey])
 
   useEffect(() => onOpenChange?.(openID !== null), [onOpenChange, openID])
   useEffect(
@@ -197,6 +201,14 @@ export const DesktopNav: React.FC<DesktopNavProps> = ({ menuCta, navItems, onOpe
     if (viewportRef.current) observer.observe(viewportRef.current)
     return () => observer.disconnect()
   }, [updateIndicator, updateOverflow])
+
+  useLayoutEffect(() => {
+    const strip = stripRef.current
+    if (!strip || !overflow || userNavigationScrollRef.current) return
+    strip.scrollLeft = Math.max(0, strip.scrollWidth - strip.clientWidth)
+    setAtStart(strip.scrollLeft <= 1)
+    setAtEnd(strip.scrollLeft + strip.clientWidth >= strip.scrollWidth - 1)
+  }, [navigationKey, overflow])
 
   useLayoutEffect(() => {
     const panel = panelRef.current
@@ -261,6 +273,7 @@ export const DesktopNav: React.FC<DesktopNavProps> = ({ menuCta, navItems, onOpe
   const scrollToItem = (direction: 'left' | 'right') => {
     const strip = stripRef.current
     if (!strip) return
+    userNavigationScrollRef.current = true
     const entries = navItems.map((item) => itemRefs.current[item.id]).filter(Boolean) as HTMLElement[]
     const viewportStart = strip.scrollLeft
     const viewportEnd = viewportStart + strip.clientWidth

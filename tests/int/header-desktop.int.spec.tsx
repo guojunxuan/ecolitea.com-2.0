@@ -400,15 +400,17 @@ describe('DesktopNav', () => {
     const frame = container.querySelector('[data-navigation-frame="true"]') as HTMLElement
     const strip = screen.getByRole('navigation', { name: 'Primary' })
     Object.defineProperties(strip, {
-      clientWidth: { configurable: true, value: 300 },
+      clientWidth: {
+        configurable: true,
+        get: () => (frame.getAttribute('data-overflow') === 'true' ? 236 : 300),
+      },
       scrollWidth: { configurable: true, value: 700 },
       scrollLeft: { configurable: true, value: 0, writable: true },
     })
     strip.scrollTo = vi.fn()
     act(() => ResizeObserverMock.instances.forEach((observer) => observer.emit()))
-    await waitFor(() =>
-      expect(strip.scrollLeft).toBe(400),
-    )
+    await waitFor(() => expect(Math.abs(strip.scrollLeft + strip.clientWidth - strip.scrollWidth)).toBeLessThanOrEqual(1))
+    expect(strip.scrollLeft).toBe(464)
     expect(frame.getAttribute('data-overflow')).toBe('true')
     expect(frame.getAttribute('data-at-start')).toBe('false')
     expect(frame.getAttribute('data-at-end')).toBe('true')
