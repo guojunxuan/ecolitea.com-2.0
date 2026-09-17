@@ -51,7 +51,7 @@ export const NavigationCard: React.FC<NavigationCardProps> = ({
       </span>
       <span className={styles.navigationCardBody}>
         <span className={styles.navigationCardTitle}>{card.title}</span>
-        {description ? <span className={styles.navigationCardDescription}>{description}</span> : null}
+        {variant !== 'product' && description ? <span className={styles.navigationCardDescription}>{description}</span> : null}
         {variant === 'visual' && (
           <ArrowUpRight aria-hidden="true" className={styles.navigationCardArrow} size={18} />
         )}
