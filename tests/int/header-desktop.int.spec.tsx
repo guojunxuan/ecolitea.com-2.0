@@ -431,6 +431,30 @@ describe('DesktopNav', () => {
     expect(frame.getAttribute('data-at-end')).toBe('false')
   })
 
+  it('preserves native horizontal scrolling before an overflow arrow is used', async () => {
+    const { container } = render(<DesktopNav {...navigation} />)
+    const frame = container.querySelector('[data-navigation-frame="true"]') as HTMLElement
+    const strip = screen.getByRole('navigation', { name: 'Primary' })
+    Object.defineProperties(strip, {
+      clientWidth: {
+        configurable: true,
+        get: () => (frame.getAttribute('data-overflow') === 'true' ? 236 : 300),
+      },
+      scrollWidth: { configurable: true, value: 700 },
+      scrollLeft: { configurable: true, value: 0, writable: true },
+    })
+
+    act(() => ResizeObserverMock.instances.forEach((observer) => observer.emit()))
+    await waitFor(() => expect(strip.scrollLeft).toBe(464))
+
+    strip.scrollLeft = 200
+    fireEvent.scroll(strip)
+
+    expect(strip.scrollLeft).toBe(200)
+    expect(frame.getAttribute('data-at-start')).toBe('false')
+    expect(frame.getAttribute('data-at-end')).toBe('false')
+  })
+
   it('moves one shared indicator across pointer, focus, and strip scrolling', () => {
     const { container } = render(<DesktopNav {...navigation} />)
     const frame = container.querySelector('[data-navigation-frame="true"]') as HTMLElement

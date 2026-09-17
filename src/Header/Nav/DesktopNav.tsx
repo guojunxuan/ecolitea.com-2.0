@@ -26,6 +26,7 @@ export const DesktopNav: React.FC<DesktopNavProps> = ({ menuCta, navItems, onOpe
   const triggerRefs = useRef<Record<string, HTMLElement | null>>({})
   const itemRefs = useRef<Record<string, HTMLElement | null>>({})
   const initializedOverflowKeyRef = useRef<string | null>(null)
+  const pendingAlignmentScrollRef = useRef<number | null>(null)
   const userNavigationScrollRef = useRef(false)
   const indicatorOwnerRef = useRef<string | null>(null)
   const openTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -156,7 +157,7 @@ export const DesktopNav: React.FC<DesktopNavProps> = ({ menuCta, navItems, onOpe
     itemRefs.current[id]?.scrollIntoView?.({ behavior: 'instant', block: 'nearest', inline: 'nearest' })
   }, [])
 
-  const updateOverflow = useCallback(() => {
+  const updateOverflow = useCallback((alignToEnd = true) => {
     const strip = stripRef.current
     if (!strip) return
     const overflowing = isOverflowing(strip)
@@ -164,8 +165,10 @@ export const DesktopNav: React.FC<DesktopNavProps> = ({ menuCta, navItems, onOpe
       initializedOverflowKeyRef.current = navigationKey
       userNavigationScrollRef.current = false
     }
-    if (overflowing && !userNavigationScrollRef.current) {
-      strip.scrollLeft = Math.max(0, strip.scrollWidth - strip.clientWidth)
+    if (overflowing && alignToEnd && !userNavigationScrollRef.current) {
+      const target = Math.max(0, strip.scrollWidth - strip.clientWidth)
+      pendingAlignmentScrollRef.current = target
+      strip.scrollLeft = target
     }
     setOverflow(overflowing)
     setAtStart(strip.scrollLeft <= 1)
@@ -205,7 +208,9 @@ export const DesktopNav: React.FC<DesktopNavProps> = ({ menuCta, navItems, onOpe
   useLayoutEffect(() => {
     const strip = stripRef.current
     if (!strip || !overflow || userNavigationScrollRef.current) return
-    strip.scrollLeft = Math.max(0, strip.scrollWidth - strip.clientWidth)
+    const target = Math.max(0, strip.scrollWidth - strip.clientWidth)
+    pendingAlignmentScrollRef.current = target
+    strip.scrollLeft = target
     setAtStart(strip.scrollLeft <= 1)
     setAtEnd(strip.scrollLeft + strip.clientWidth >= strip.scrollWidth - 1)
   }, [navigationKey, overflow])
@@ -227,8 +232,14 @@ export const DesktopNav: React.FC<DesktopNavProps> = ({ menuCta, navItems, onOpe
     const strip = stripRef.current
     if (!strip) return
     const onScroll = () => {
+      const alignmentTarget = pendingAlignmentScrollRef.current
+      if (alignmentTarget !== null && Math.abs(strip.scrollLeft - alignmentTarget) <= 1) {
+        pendingAlignmentScrollRef.current = null
+      } else {
+        userNavigationScrollRef.current = true
+      }
       suppressHoverRef.current = true
-      updateOverflow()
+      updateOverflow(false)
       updateIndicator(indicatorOwnerRef.current, indicatorOwnerRef.current !== null)
     }
     strip.addEventListener('scroll', onScroll, { passive: true })

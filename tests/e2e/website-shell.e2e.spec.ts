@@ -583,18 +583,6 @@ test.describe.serial('Responsive website shell', () => {
       await expectDesktopZones(page)
       await shot(page, testInfo, 'closed')
 
-      const products = await exposeDesktopControl(page, 'E2E Products')
-      await products.hover()
-      const menu = page.getByRole('region', { name: 'E2E Products menu' })
-      await expect(menu).toBeVisible()
-      await expect(menu.locator('[data-navigation-block="categoryTabs"]')).toHaveCount(1)
-      await expect(menu.locator('[data-navigation-block="cardGroup"]')).toHaveCount(1)
-      await expect(menu.locator('[data-navigation-block="linkGroup"]')).toHaveCount(1)
-      await expect(menu.locator('[data-navigation-block="richCard"]')).toHaveCount(1)
-      await expect(menu.getByRole('link', { name: 'E2E Foundation card' })).toBeVisible()
-      await expect(menu.locator('[data-navigation-block="cardGroup"] a')).toHaveCount(9)
-      await menu.getByRole('link', { name: 'E2E Foundation card' }).hover()
-      await expect(menu).toBeVisible()
       if (width === 1280) {
         const strip = page.getByRole('navigation', { name: 'Primary' })
         const scrollLeft = page.getByRole('button', { name: 'Scroll navigation left' })
@@ -609,13 +597,28 @@ test.describe.serial('Responsive website shell', () => {
         }))
         expect(Math.abs(rightEdge.scrollLeft + rightEdge.clientWidth - rightEdge.scrollWidth)).toBeLessThanOrEqual(1)
         await page.emulateMedia({ reducedMotion: 'reduce' })
+        await scrollLeft.focus()
+        await page.keyboard.press('Enter')
+        await expect.poll(() => strip.evaluate((element) => element.scrollLeft)).toBeLessThan(rightEdge.scrollLeft)
+      }
+
+      const products = await exposeDesktopControl(page, 'E2E Products')
+      await products.hover()
+      const menu = page.getByRole('region', { name: 'E2E Products menu' })
+      await expect(menu).toBeVisible()
+      await expect(menu.locator('[data-navigation-block="categoryTabs"]')).toHaveCount(1)
+      await expect(menu.locator('[data-navigation-block="cardGroup"]')).toHaveCount(1)
+      await expect(menu.locator('[data-navigation-block="linkGroup"]')).toHaveCount(1)
+      await expect(menu.locator('[data-navigation-block="richCard"]')).toHaveCount(1)
+      await expect(menu.getByRole('link', { name: 'E2E Foundation card' })).toBeVisible()
+      await expect(menu.locator('[data-navigation-block="cardGroup"] a')).toHaveCount(9)
+      await menu.getByRole('link', { name: 'E2E Foundation card' }).hover()
+      await expect(menu).toBeVisible()
+      if (width === 1280) {
         await expect(menu.locator('[data-navigation-block="cardGroup"] img').first()).toHaveCSS(
           'transition-duration',
           '0s',
         )
-        await scrollLeft.focus()
-        await page.keyboard.press('Enter')
-        await expect.poll(() => strip.evaluate((element) => element.scrollLeft)).toBeLessThan(rightEdge.scrollLeft)
         await expect(menu).toBeVisible()
       }
       await shot(page, testInfo, 'desktop-mega-menu')
