@@ -1,9 +1,13 @@
 .navigationBlocks { display: grid; gap: 2rem; grid-template-columns: repeat(4, minmax(0, 1fr)); min-width: 0; }
 .navigationBlocksCompact { gap: 1.5rem; }
-.navigationBlocksCompact > * { grid-column: 1 / -1; }
+.navigationBlocks.navigationBlocksCompact > * { grid-column: 1 / -1; }
 .categoryBlock { grid-column: 1 / -1; }
 .blockHeading { font-size: 1rem; font-weight: 600; margin: 0 0 1rem; }
-.visualCardGrid, .productCardGrid { display: grid; gap: 1.5rem; grid-template-columns: repeat(4, minmax(140px, 1fr)); }
+.visualCardGrid, .productCardGrid { display: grid; gap: 1.5rem; }
+.visualGridOne { grid-template-columns: minmax(0, 1fr); }
+.visualGridTwo { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.visualGridThree { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.visualGridMany, .productCardGrid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 .cardGroupTwo { grid-column: span 2; }
 .cardGroupFull { grid-column: 1 / -1; }
 .linkGroup { grid-column: span 1; }
@@ -19,7 +23,7 @@
 .navigationCardVisual .navigationCardImage :global(img) { object-fit: cover; }
 .navigationCardGradient { background: linear-gradient(transparent, rgb(0 0 0 / 0.72)); inset: 25% 0 0; position: absolute; }
 .navigationCardBody { display: block; position: relative; }
-.navigationCardVisual .navigationCardBody { bottom: 0; color: white; left: 0; padding: 1rem; position: absolute; right: 0; z-index: 1; }
+.navigationCardVisual .navigationCardBody { bottom: 0; color: white; left: 0; padding: 1rem 2.5rem 1rem 1rem; position: absolute; right: 0; z-index: 1; }
 .navigationCardTitle { display: block; font-weight: 600; }
 .navigationCardDescription { color: var(--muted-foreground); display: block; font-size: .875rem; line-height: 1.5; margin-top: .5rem; }
 .navigationCardArrow { bottom: 1rem; position: absolute; right: 1rem; }
@@ -33,7 +37,7 @@
 .categorySelector { display: flex; flex-direction: column; gap: .5rem; }
 .categoryTab, .categoryTabActive { background: none; border: 0; cursor: pointer; padding: .5rem 0; text-align: left; }
 .categoryTabActive { font-weight: 700; }
-.categoryPanel { max-height: min(70vh, 36rem); min-width: 0; overflow: hidden; }
+.categoryPanel { max-height: min(70vh, 36rem); min-width: 0; overflow-x: hidden; overflow-y: auto; }
 .linkList { display: flex; flex-direction: column; gap: .625rem; }
 .linkList a { align-items: center; color: inherit; display: flex; min-height: 2.5rem; text-decoration: none; }
 .linkList a:hover { text-decoration: underline; text-underline-offset: .2em; }
@@ -42,10 +46,9 @@
 .categoryAccordionButton { align-items: center; background: none; border: 0; display: flex; justify-content: space-between; min-height: 3.25rem; padding: .75rem 0; text-align: left; }
 .categoryAccordionContent { padding: .5rem 0 1rem; }
 .categoryChevronOpen { transform: rotate(180deg); }
-@media (max-width: 767px) { .visualCardGrid, .productCardGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; } .categoryTabsDesktop { display: block; } }
-@media (min-width: 768px) and (max-width: 1099px) { .visualCardGrid, .productCardGrid { grid-template-columns: repeat(3, minmax(140px, 1fr)); } }
-@media (max-width: 520px) { .visualCardGrid, .productCardGrid { grid-template-columns: repeat(2, minmax(140px, 1fr)); } }
-@media (max-width: 360px) { .visualCardGrid, .productCardGrid { grid-template-columns: minmax(140px, 1fr); } }
+@media (max-width: 767px) { .visualCardGrid:not(.visualGridOne), .productCardGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; } .categoryTabsDesktop { display: block; } }
+@media (min-width: 768px) and (max-width: 1099px) { .visualGridMany, .productCardGrid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 360px) { .visualCardGrid, .productCardGrid { grid-template-columns: minmax(0, 1fr); } }
 @media (prefers-reduced-motion: no-preference) and (hover: hover) { .navigationCardVisual :global(img), .navigationCardRich :global(img) { transition: transform 240ms ease; } .navigationCardVisual:hover :global(img), .navigationCardRich:hover :global(img) { transform: scale(1.04); } }
 @media (max-width: 767px) { .categoryAccordionButton:active { background: color-mix(in srgb, var(--foreground) 6%, transparent); } }
 @media (prefers-reduced-motion: reduce) { .categoryChevronOpen { transform: none; } }

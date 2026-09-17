@@ -1,9 +1,9 @@
 'use client'
 
-import { ArrowLeft, ChevronRight, Menu, X } from 'lucide-react'
+import { ArrowLeft, ChevronRight, Menu, SearchIcon, X } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import React, { useCallback, useEffect, useReducer, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useLayoutEffect, useReducer, useRef, useState } from 'react'
 
 import { Logo } from '@/components/Logo/Logo'
 import type { LogoImage } from '@/components/Logo/types'
@@ -59,14 +59,21 @@ export const MobileNav: React.FC<MobileNavProps> = ({ logo, menuCta, navItems, s
   const pendingFocusRef = useRef<HTMLElement | null>(null)
   const sectionBackButtonRef = useRef<HTMLButtonElement>(null)
   const dialogRef = useRef<HTMLDivElement>(null)
+  const restoreFocusRef = useRef(false)
 
   const close = useCallback((restoreFocus = true) => {
-    if (restoreFocus) openButtonRef.current?.focus()
+    restoreFocusRef.current = restoreFocus
     setIsOpen(false)
     dispatch({ type: 'reset' })
   }, [])
 
   const open = () => setIsOpen(true)
+
+  useEffect(() => {
+    if (isOpen || !restoreFocusRef.current) return
+    restoreFocusRef.current = false
+    openButtonRef.current?.focus()
+  }, [isOpen])
 
   const backToRoot = useCallback(() => {
     const sectionId = state.activeSectionId
@@ -81,8 +88,15 @@ export const MobileNav: React.FC<MobileNavProps> = ({ logo, menuCta, navItems, s
     dispatch({ type: 'openSection', sectionId: id })
   }
 
-  // Scroll maps are read only when entering a view; adding them as dependencies
-  // would refocus the view on every scroll event.
+  useLayoutEffect(() => {
+    if (!isOpen) return
+    const panel = state.activeSectionId ? sectionPanelRef.current : rootPanelRef.current
+    if (!panel) return
+    panel.scrollTop = state.activeSectionId
+      ? (state.sectionScrollTop[state.activeSectionId] ?? 0)
+      : state.rootScrollTop
+  }, [isOpen, state.activeSectionId, state.rootScrollTop, state.sectionScrollTop])
+
   useEffect(() => {
     if (!isOpen) return
     const pending = pendingFocusRef.current
@@ -103,17 +117,35 @@ export const MobileNav: React.FC<MobileNavProps> = ({ logo, menuCta, navItems, s
     }
     const activePanel = state.activeSectionId ? sectionPanelRef.current : rootPanelRef.current
     if (!activePanel) return
-    const savedTop = state.activeSectionId
-      ? (state.sectionScrollTop[state.activeSectionId] ?? 0)
-      : state.rootScrollTop
-    activePanel.scrollTop = savedTop
     getFocusable(activePanel).at(0)?.focus()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, state.activeSectionId])
 
   useEffect(() => {
     if (!isOpen) return
     return acquireBodyScrollLock()
+  }, [isOpen])
+
+  useLayoutEffect(() => {
+    const dialog = dialogRef.current
+    if (!isOpen || !dialog) return
+    const changed = new Map<Element, boolean>()
+    let child: Element = dialog
+    let parent = child.parentElement
+    while (parent) {
+      for (const sibling of Array.from(parent.children)) {
+        if (sibling === child) continue
+        changed.set(sibling, sibling.hasAttribute('inert'))
+        sibling.setAttribute('inert', '')
+      }
+      if (parent === document.body) break
+      child = parent
+      parent = parent.parentElement
+    }
+    return () => {
+      changed.forEach((wasInert, element) => {
+        if (!wasInert) element.removeAttribute('inert')
+      })
+    }
   }, [isOpen])
 
   useEffect(() => {
@@ -155,30 +187,62 @@ export const MobileNav: React.FC<MobileNavProps> = ({ logo, menuCta, navItems, s
       }
     }
     const onPointerDown = (event: PointerEvent) => {
-      if (!dialogRef.current?.contains(event.target as Node)) close()
+      if (!dialogRef.current?.contains(event.target as Node)) {
+        event.preventDefault()
+        close()
+      }
+    }
+    const onFocusIn = (event: FocusEvent) => {
+      const dialog = dialogRef.current
+      if (!dialog || dialog.contains(event.target as Node)) return
+      getFocusable(dialog).at(0)?.focus()
     }
     document.addEventListener('keydown', onKeyDown)
     document.addEventListener('pointerdown', onPointerDown)
+    document.addEventListener('focusin', onFocusIn)
     return () => {
       document.removeEventListener('keydown', onKeyDown)
       document.removeEventListener('pointerdown', onPointerDown)
+      document.removeEventListener('focusin', onFocusIn)
     }
   }, [backToRoot, close, isOpen, state.activeSectionId])
 
   const activeItem = navItems.find((item) => item.id === state.activeSectionId) ?? null
 
+  useEffect(() => {
+    if (!isOpen || !state.activeSectionId || activeItem) return
+    // Live Payload updates can remove the section while its view is open.
+    // Reset before rendering an empty section so the user stays in navigation.
+    pendingFocusRef.current = null
+    dispatch({ type: 'reset' })
+  }, [activeItem, isOpen, state.activeSectionId])
+
+  const brand = logo ? (
+    <Logo className={styles.mobileLogo} image={logo} loading="eager" priority="high" />
+  ) : (
+    <span className={styles.mobileNavTitle}>{siteName || 'Menu'}</span>
+  )
+
   return (
     <div className={styles.mobileNav}>
-      <button
-        aria-expanded={isOpen}
-        aria-label="Open navigation"
-        className={styles.mobileMenuButton}
-        onClick={open}
-        ref={openButtonRef}
-        type="button"
-      >
-        <Menu aria-hidden="true" />
-      </button>
+      <div className={styles.mobileToolbar} data-open={isOpen ? 'true' : 'false'}>
+        <button
+          aria-expanded={isOpen}
+          aria-label="Open navigation"
+          className={styles.mobileMenuButton}
+          onClick={open}
+          ref={openButtonRef}
+          type="button"
+        >
+          <Menu aria-hidden="true" />
+        </button>
+        <Link aria-label={logo?.alt || siteName || 'Home'} className={styles.mobileLogoLink} href="/">
+          {brand}
+        </Link>
+        <Link aria-label="Search" className={styles.mobileIconButton} href="/search">
+          <SearchIcon aria-hidden="true" />
+        </Link>
+      </div>
 
       {isOpen ? (
         <div
@@ -200,7 +264,14 @@ export const MobileNav: React.FC<MobileNavProps> = ({ logo, menuCta, navItems, s
                 <ArrowLeft aria-hidden="true" />
               </button>
             ) : (
-              <span className={styles.mobileNavHeaderSpacer} aria-hidden="true" />
+              <button
+                aria-label="Close navigation"
+                className={styles.mobileIconButton}
+                onClick={() => close()}
+                type="button"
+              >
+                <X aria-hidden="true" />
+              </button>
             )}
             {state.activeSectionId ? (
               <h2 className={styles.mobileNavTitle}>{activeItem?.label ?? 'Menu'}</h2>
@@ -211,21 +282,27 @@ export const MobileNav: React.FC<MobileNavProps> = ({ logo, menuCta, navItems, s
                 href="/"
                 onClick={() => close()}
               >
-                <Logo className={styles.mobileLogo} image={logo} loading="eager" priority="high" />
+                {brand}
               </Link>
             ) : (
               <Link className={styles.mobileNavTitle} href="/" onClick={() => close()}>
                 {siteName || 'Menu'}
               </Link>
             )}
-            <button
-              aria-label="Close navigation"
-              className={styles.mobileIconButton}
-              onClick={() => close()}
-              type="button"
-            >
-              <X aria-hidden="true" />
-            </button>
+            {state.activeSectionId ? (
+              <button
+                aria-label="Close navigation"
+                className={styles.mobileIconButton}
+                onClick={() => close()}
+                type="button"
+              >
+                <X aria-hidden="true" />
+              </button>
+            ) : (
+              <Link aria-label="Search" className={styles.mobileIconButton} href="/search" onClick={() => close(false)}>
+                <SearchIcon aria-hidden="true" />
+              </Link>
+            )}
           </div>
 
           {!state.activeSectionId ? (

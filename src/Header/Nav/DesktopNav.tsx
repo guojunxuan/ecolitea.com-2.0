@@ -15,9 +15,10 @@ const Trigger: React.FC<{
   menuID: string
   onEnter: () => void
   onToggle: () => void
+  onPointerDown?: () => void
   open: boolean
   setRef: (node: HTMLElement | null) => void
-}> = ({ item, menuID, onEnter, onToggle, open, setRef }) => {
+}> = ({ item, menuID, onEnter, onToggle, onPointerDown, open, setRef }) => {
   if (item.navigationType === 'directLink')
     return <NavigationLink className={styles.topLevelLink} link={item.link} />
   if (item.navigationType === 'directLinkAndDropdown') {
@@ -30,6 +31,7 @@ const Trigger: React.FC<{
           aria-label={`${item.label} menu`}
           className={styles.disclosureButton}
           onClick={onToggle}
+          onPointerDown={onPointerDown}
           onPointerEnter={onEnter}
           ref={setRef}
           type="button"
@@ -46,6 +48,7 @@ const Trigger: React.FC<{
       aria-label={`${item.label} menu`}
       className={styles.dropdownButton}
       onClick={onToggle}
+      onPointerDown={onPointerDown}
       onPointerEnter={onEnter}
       ref={setRef}
       type="button"
@@ -67,6 +70,8 @@ export const DesktopNav: React.FC<HeaderNavigationData> = ({ menuCta, navItems }
   const itemRefs = useRef<Record<string, HTMLElement | null>>({})
   const itemRootRefs = useRef<Record<string, HTMLElement | null>>({})
   const clickedClosedRef = useRef<string | null>(null)
+  const pointerDownRef = useRef(false)
+  const hoverOpenedRef = useRef(false)
   const suppressHoverRef = useRef(false)
   const [openID, setOpenID] = useState<string | null>(null)
   const [overflow, setOverflow] = useState(false)
@@ -84,18 +89,27 @@ export const DesktopNav: React.FC<HeaderNavigationData> = ({ menuCta, navItems }
   const close = useCallback(() => {
     setOpenID(null)
     clickedClosedRef.current = null
+    hoverOpenedRef.current = false
   }, [])
 
   const enter = useCallback((id: string) => {
     if (suppressHoverRef.current) return
     if (clickedClosedRef.current === id) return
     clickedClosedRef.current = null
+    hoverOpenedRef.current = true
     setOpenID(id)
   }, [])
 
   const toggle = useCallback((id: string) => {
     setOpenID((current) => {
       if (current === id) {
+        if (hoverOpenedRef.current && pointerDownRef.current) {
+          hoverOpenedRef.current = false
+          pointerDownRef.current = false
+          return current
+        }
+        pointerDownRef.current = false
+        hoverOpenedRef.current = false
         clickedClosedRef.current = id
         return null
       }
@@ -243,12 +257,16 @@ export const DesktopNav: React.FC<HeaderNavigationData> = ({ menuCta, navItems }
                   key={item.id}
                   onFocus={() => ensureVisible(item.id)}
                   onPointerEnter={() => {
-                    if (item.navigationType === 'directLink') close()
+                    if (item.navigationType === 'directLink') {
+                      if (!suppressHoverRef.current) close()
+                    }
                     else enter(item.id)
                   }}
                   onPointerMove={() => {
-                    if (suppressHoverRef.current) suppressHoverRef.current = false
-                    if (item.navigationType !== 'directLink') enter(item.id)
+                    const wasSuppressed = suppressHoverRef.current
+                    if (wasSuppressed) suppressHoverRef.current = false
+                    if (item.navigationType === 'directLink') close()
+                    else enter(item.id)
                   }}
                   ref={(node) => {
                     itemRootRefs.current[item.id] = node
@@ -259,6 +277,9 @@ export const DesktopNav: React.FC<HeaderNavigationData> = ({ menuCta, navItems }
                     menuID={menuID}
                     onEnter={() => enter(item.id)}
                     onToggle={() => toggle(item.id)}
+                    onPointerDown={() => {
+                      pointerDownRef.current = true
+                    }}
                     open={openID === item.id}
                     setRef={(node) => {
                       itemRefs.current[item.id] = node
@@ -281,6 +302,9 @@ export const DesktopNav: React.FC<HeaderNavigationData> = ({ menuCta, navItems }
           </button>
         )}
       </div>
+      {activeItem?.content && activeItem.content.length > 0 && (
+        <span aria-hidden="true" className={styles.navigationHoverBridge} data-navigation-hover-bridge="true" />
+      )}
       <div className={styles.actions}>
         <Link aria-label="Search" className={styles.searchLink} href="/search">
           <SearchIcon aria-hidden="true" size={19} strokeWidth={1.75} />

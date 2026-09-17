@@ -118,6 +118,19 @@ describe('DesktopNav', () => {
     expect(screen.getByRole('region', { name: 'Platform menu' })).toBeTruthy()
   })
 
+  it('provides a continuous interaction bridge from the header controls to the fixed panel', () => {
+    const { container } = render(<DesktopNav {...navigation} />)
+    fireEvent.click(screen.getByRole('button', { name: 'Platform menu' }))
+    const root = container.querySelector('[data-desktop-nav-root="true"]') as HTMLElement
+    const bridge = container.querySelector('[data-navigation-hover-bridge="true"]') as HTMLElement
+    const panelRegion = screen.getByRole('region', { name: 'Platform menu' })
+
+    expect(bridge).toBeTruthy()
+    fireEvent.pointerLeave(root, { relatedTarget: bridge })
+    fireEvent.pointerLeave(bridge, { relatedTarget: panelRegion })
+    expect(screen.getByRole('region', { name: 'Platform menu' })).toBeTruthy()
+  })
+
   it('makes an explicit click-to-close win while the pointer remains over the trigger', () => {
     render(<DesktopNav {...navigation} />)
     const platform = screen.getByRole('button', { name: 'Platform menu' })
@@ -129,6 +142,18 @@ describe('DesktopNav', () => {
     fireEvent.pointerEnter(screen.getByRole('button', { name: 'Company menu' }))
     fireEvent.pointerEnter(platform)
     expect(screen.getByRole('region', { name: 'Platform menu' })).toBeTruthy()
+  })
+
+  it('does not immediately close a panel when pointer entry precedes the first click', () => {
+    render(<DesktopNav {...navigation} />)
+    const company = screen.getByRole('button', { name: 'Company menu' })
+    fireEvent.pointerEnter(company)
+    fireEvent.pointerDown(company)
+    fireEvent.click(company)
+    expect(screen.getByRole('region', { name: 'Company menu' })).toBeTruthy()
+    fireEvent.pointerDown(company)
+    fireEvent.click(company)
+    expect(screen.queryByRole('region', { name: 'Company menu' })).toBeNull()
   })
 
   it('closes on Escape, outside activation, and route changes', () => {
@@ -179,6 +204,38 @@ describe('DesktopNav', () => {
     expect(screen.getByRole('region', { name: 'Platform menu' })).toBeTruthy()
     fireEvent.pointerMove(company)
     expect(screen.getByRole('region', { name: 'Company menu' })).toBeTruthy()
+  })
+
+  it('opens a hybrid disclosure explicitly after overflow scrolling suppresses hover', async () => {
+    const { container } = render(<DesktopNav {...navigation} />)
+    const strip = container.querySelector('[data-overflow]') as HTMLElement
+    Object.defineProperties(strip, {
+      clientWidth: { configurable: true, value: 300 },
+      scrollWidth: { configurable: true, value: 700 },
+      scrollLeft: { configurable: true, value: 120, writable: true },
+    })
+    fireEvent.scroll(strip)
+    fireEvent.click(screen.getByRole('button', { name: 'Company menu' }))
+    expect(screen.getByRole('region', { name: 'Company menu' })).toBeTruthy()
+  })
+
+  it('does not close an active panel when scrolling moves a direct link under a stationary pointer', async () => {
+    const { container } = render(<DesktopNav {...navigation} />)
+    const strip = container.querySelector('[data-overflow]') as HTMLElement
+    Object.defineProperties(strip, {
+      clientWidth: { configurable: true, value: 300 },
+      scrollWidth: { configurable: true, value: 700 },
+      scrollLeft: { configurable: true, value: 0, writable: true },
+    })
+    ResizeObserverMock.instances[0]?.emit()
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Scroll navigation right' })).toBeTruthy())
+    fireEvent.click(screen.getByRole('button', { name: 'Platform menu' }))
+    const pricing = screen.getByRole('link', { name: 'Pricing' }).closest('[data-nav-item-id]')!
+    fireEvent.scroll(strip)
+    fireEvent.pointerEnter(pricing)
+    expect(screen.getByRole('region', { name: 'Platform menu' })).toBeTruthy()
+    fireEvent.pointerMove(pricing)
+    expect(screen.queryByRole('region', { name: 'Platform menu' })).toBeNull()
   })
 
   it('scrolls a focused primary item into view and clears a removed active owner', () => {

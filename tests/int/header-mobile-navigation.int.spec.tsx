@@ -131,9 +131,12 @@ describe('MobileNav', () => {
   it('opens a compact root list and closes direct links', () => {
     render(<MobileNav {...navigation} logo={logo} />)
     const openButton = screen.getByRole('button', { name: 'Open navigation' })
+    expect(screen.getByRole('link', { name: 'Ecolitea' })).toBeTruthy()
+    expect(screen.getByRole('link', { name: 'Search' })).toBeTruthy()
     fireEvent.click(openButton)
     const dialog = screen.getByRole('dialog', { name: 'Navigation' })
-    expect(screen.getByRole('link', { name: 'Ecolitea' })).toBeTruthy()
+    expect(within(dialog).getByRole('link', { name: 'Ecolitea' })).toBeTruthy()
+    expect(within(dialog).getByRole('link', { name: 'Search' })).toBeTruthy()
     expect(screen.getByRole('button', { name: 'Open Products' })).toBeTruthy()
     expect(screen.getByRole('link', { name: 'Pricing' })).toBeTruthy()
     expect(document.body.style.overflow).toBe('hidden')
@@ -151,6 +154,7 @@ describe('MobileNav', () => {
     expect(companyLink.getAttribute('href')).toBe('/company')
     fireEvent.click(screen.getByRole('button', { name: 'Open Products' }))
     expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Back to navigation' }))
+    expect(within(screen.getByRole('dialog')).queryByRole('link', { name: 'Search' })).toBeNull()
     expect(screen.getAllByRole('heading', { name: 'Products' })).toHaveLength(2)
     expect(screen.getByRole('link', { name: 'Overview' })).toBeTruthy()
     expect(screen.getByRole('button', { name: 'Back to navigation' })).toBeTruthy()
@@ -200,11 +204,24 @@ describe('MobileNav', () => {
     expect(screen.queryByRole('dialog', { name: 'Navigation' })).toBeNull()
   })
 
+  it('returns to the root view when live navigation data removes the active section', () => {
+    const { rerender } = render(<MobileNav {...navigation} />)
+    fireEvent.click(screen.getByRole('button', { name: 'Open navigation' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Open Products' }))
+    expect(screen.getByRole('button', { name: 'Back to navigation' })).toBeTruthy()
+
+    rerender(<MobileNav {...navigation} navItems={navigation.navItems.filter((item) => item.id !== 'products')} />)
+
+    expect(screen.queryByRole('button', { name: 'Back to navigation' })).toBeNull()
+    expect(screen.getByRole('button', { name: 'Open navigation' }).getAttribute('aria-expanded')).toBe('true')
+    expect(screen.getByRole('link', { name: 'Pricing' })).toBeTruthy()
+  })
+
   it('traps focus within the compact dialog', () => {
     render(<MobileNav {...navigation} logo={logo} />)
     fireEvent.click(screen.getByRole('button', { name: 'Open navigation' }))
     const dialog = screen.getByRole('dialog', { name: 'Navigation' })
-    const first = within(dialog).getByRole('link', { name: 'Ecolitea' })
+    const first = within(dialog).getByRole('button', { name: 'Close navigation' })
     const last = within(dialog).getByRole('link', { name: 'Talk to sales' })
     last.focus()
     fireEvent.keyDown(document, { key: 'Tab' })
@@ -212,6 +229,47 @@ describe('MobileNav', () => {
     first.focus()
     fireEvent.keyDown(document, { key: 'Tab', shiftKey: true })
     expect(document.activeElement).toBe(last)
+  })
+
+  it('isolates background interaction and pulls escaped focus back into the modal', () => {
+    render(
+      <div>
+        <button data-testid="background-action" type="button">Background action</button>
+        <MobileNav {...navigation} logo={logo} />
+      </div>,
+    )
+    const background = screen.getByTestId('background-action')
+    fireEvent.click(screen.getByRole('button', { name: 'Open navigation' }))
+    expect(background.hasAttribute('inert')).toBe(true)
+    background.focus()
+    fireEvent.focusIn(background)
+    expect(screen.getByRole('dialog', { name: 'Navigation' }).contains(document.activeElement)).toBe(true)
+    fireEvent.click(screen.getByRole('button', { name: 'Close navigation' }))
+    expect(background.hasAttribute('inert')).toBe(false)
+  })
+
+  it('restores root and per-section scroll positions and starts new sessions at zero', () => {
+    render(<MobileNav {...navigation} logo={logo} />)
+    const openButton = screen.getByRole('button', { name: 'Open navigation' })
+    fireEvent.click(openButton)
+    let rootPanel = screen.getByTestId('mobile-navigation-root')
+    expect(rootPanel.scrollTop).toBe(0)
+    rootPanel.scrollTop = 140
+    fireEvent.scroll(rootPanel)
+    fireEvent.click(screen.getByRole('button', { name: 'Open Products' }))
+    let sectionPanel = screen.getByTestId('mobile-navigation-section')
+    expect(sectionPanel.scrollTop).toBe(0)
+    sectionPanel.scrollTop = 90
+    fireEvent.scroll(sectionPanel)
+    fireEvent.click(screen.getByRole('button', { name: 'Back to navigation' }))
+    rootPanel = screen.getByTestId('mobile-navigation-root')
+    expect(rootPanel.scrollTop).toBe(140)
+    fireEvent.click(screen.getByRole('button', { name: 'Open Products' }))
+    sectionPanel = screen.getByTestId('mobile-navigation-section')
+    expect(sectionPanel.scrollTop).toBe(90)
+    fireEvent.click(screen.getByRole('button', { name: 'Close navigation' }))
+    fireEvent.click(openButton)
+    expect(screen.getByTestId('mobile-navigation-root').scrollTop).toBe(0)
   })
 
   it('restores the page scroll position when the lock is released', () => {

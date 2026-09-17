@@ -1,4 +1,6 @@
 import { cleanup, render, screen, waitFor } from '@testing-library/react'
+import { readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
 import React from 'react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
@@ -93,12 +95,12 @@ describe('Header navigation block rendering', () => {
     expect(container.querySelector('[data-media]')?.getAttribute('data-size')).toContain('(max-width: 767px) 50vw')
   })
 
-  it('uses the shared desktop grid breakpoints regardless of card count', () => {
+  it('sizes a single visual card for its half-width desktop group', () => {
     const block: HeaderNavigationBlockData = { cards: [card('one', 'One')], cta: null, heading: null, id: 'one', type: 'cardGroup' }
     const { container } = render(<NavigationBlocks blocks={[block]} />)
     const size = container.querySelector('[data-media]')?.getAttribute('data-size') ?? ''
-    expect(size).toContain('(max-width: 1099px) 33vw')
-    expect(size.endsWith('25vw')).toBe(true)
+    expect(size).toContain('(max-width: 1170px) 100vw')
+    expect(size.endsWith('50vw')).toBe(true)
   })
 
   it('sizes product cards to three columns at 768–1099px and rich cards to a full compact row', () => {
@@ -151,6 +153,24 @@ describe('Header navigation block rendering', () => {
       expect(panel.style.minHeight).toBe('576px')
       expect(panel.style.maxHeight).toBe('576px')
     })
+    const css = readFileSync(resolve(process.cwd(), 'src/Header/Nav/blocks.module.css'), 'utf8')
+    expect(css).toMatch(/\.categoryPanel\s*\{[^}]*overflow-y:\s*auto/s)
+  })
+
+  it('uses card-count grids without reserving empty four-column tracks in half-width groups', () => {
+    const blocks: HeaderNavigationBlockData[] = [
+      { cards: [card('one', 'One')], cta: null, heading: null, id: 'one', type: 'cardGroup' },
+      { cards: [card('two-a', 'Two A'), card('two-b', 'Two B')], cta: null, heading: null, id: 'two', type: 'cardGroup' },
+      { cards: [card('three-a', 'Three A'), card('three-b', 'Three B'), card('three-c', 'Three C')], cta: null, heading: null, id: 'three', type: 'cardGroup' },
+    ]
+    const { container } = render(<NavigationBlocks blocks={blocks} />)
+    expect(container.querySelector('[data-card-count="1"] > div')?.className).toContain('visualGridOne')
+    expect(container.querySelector('[data-card-count="2"] > div')?.className).toContain('visualGridTwo')
+    expect(container.querySelector('[data-card-count="3"] > div')?.className).toContain('visualGridThree')
+    const sizes = [...container.querySelectorAll('[data-navigation-block="cardGroup"] [data-media]')].map((node) => node.getAttribute('data-size'))
+    expect(sizes[0]).toContain('50vw')
+    expect(sizes[1]).toContain('25vw')
+    expect(sizes.at(-1)).toContain('33vw')
   })
 })
 

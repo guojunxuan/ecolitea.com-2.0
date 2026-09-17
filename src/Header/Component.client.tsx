@@ -36,7 +36,7 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({
         data-scrolled={scrolled ? 'true' : 'false'}
       >
         <div className="site-container flex h-[var(--header-height)] items-center justify-between gap-6">
-          <Link className="shrink-0" href="/">
+          <Link className="shrink-0 max-[1170px]:hidden" href="/">
             {logo ? (
               <Logo image={logo} loading="eager" priority="high" className="h-7 sm:h-8 lg:h-10" />
             ) : (

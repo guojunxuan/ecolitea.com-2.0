@@ -16,6 +16,15 @@ type NavigationBlocksProps = {
 const CTA: React.FC<{ link: HeaderLinkData | null }> = ({ link }) =>
   link ? <NavigationLink className={styles.navigationCTA} link={link}>{link.label} <span aria-hidden="true">→</span></NavigationLink> : null
 
+const visualGrid = (count: number) =>
+  count === 1
+    ? { className: styles.visualGridOne, size: '(max-width: 360px) 100vw, (max-width: 1170px) 100vw, 50vw' }
+    : count === 2
+      ? { className: styles.visualGridTwo, size: '(max-width: 767px) 50vw, 25vw' }
+      : count === 3
+        ? { className: styles.visualGridThree, size: '(max-width: 767px) 50vw, 33vw' }
+        : { className: styles.visualGridMany, size: '(max-width: 360px) 100vw, (max-width: 767px) 50vw, (max-width: 1099px) 33vw, 25vw' }
+
 export const NavigationBlocks: React.FC<NavigationBlocksProps> = ({
   blocks,
   compactAccordion,
@@ -25,13 +34,16 @@ export const NavigationBlocks: React.FC<NavigationBlocksProps> = ({
   <div className={`${styles.navigationBlocks} ${mode === 'compact' ? styles.navigationBlocksCompact : ''}`}>
     {blocks.map((block) => {
       if (block.type === 'categoryTabs') return <section className={styles.categoryBlock} data-navigation-block={block.type} key={block.id}><CategoryTabs block={block} expandedCategoryId={compactAccordion?.[block.id]} mode={mode} onExpandedCategoryChange={(id) => onCompactAccordionChange?.(block.id, id)} /></section>
-      if (block.type === 'cardGroup') return (
-        <section className={`${styles.cardGroup} ${block.cards.length <= 2 ? styles.cardGroupTwo : styles.cardGroupFull}`} data-block-layout={`cardGroup-${block.cards.length <= 2 ? 'two' : 'full'}`} data-navigation-block={block.type} key={block.id}>
+      if (block.type === 'cardGroup') {
+        const grid = visualGrid(block.cards.length)
+        return (
+        <section className={`${styles.cardGroup} ${block.cards.length <= 2 ? styles.cardGroupTwo : styles.cardGroupFull}`} data-block-layout={`cardGroup-${block.cards.length <= 2 ? 'two' : 'full'}`} data-card-count={block.cards.length} data-navigation-block={block.type} key={block.id}>
           {block.heading && <h2 className={styles.blockHeading}>{block.heading}</h2>}
-          <div className={styles.visualCardGrid}>{block.cards.map((card) => <NavigationCard card={card} key={card.id} variant="visual" />)}</div>
+          <div className={`${styles.visualCardGrid} ${grid.className}`}>{block.cards.map((card) => <NavigationCard card={card} key={card.id} size={grid.size} variant="visual" />)}</div>
           <CTA link={block.cta} />
         </section>
-      )
+        )
+      }
       if (block.type === 'linkGroup') return (
         <section className={styles.linkGroup} data-block-layout="linkGroup-one" data-navigation-block={block.type} key={block.id}>
           {block.heading && <h2 className={styles.blockHeading}>{block.heading}</h2>}

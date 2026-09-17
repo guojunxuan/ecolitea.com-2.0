@@ -3,8 +3,20 @@
 }
 
 .mobileNav {
-  margin-left: auto;
+  flex: 1 1 auto;
+  min-width: 0;
 }
+
+.mobileToolbar {
+  align-items: center;
+  display: grid;
+  grid-template-columns: 2.75rem minmax(0, 1fr) 2.75rem;
+  width: 100%;
+}
+
+.mobileToolbar > :nth-child(2) { justify-self: center; }
+.mobileToolbar > :last-child { justify-self: end; }
+.mobileToolbar[data-open='true'] { visibility: hidden; }
 
 .mobileMenuButton,
 .mobileIconButton,
@@ -174,6 +186,7 @@
     gap: clamp(1rem, 2vw, 2rem);
     justify-content: flex-end;
     min-width: 0;
+    align-self: stretch;
     position: relative;
   }
 
@@ -286,6 +299,12 @@
     top: var(--header-height);
     transform: translateX(-50%);
     width: 100vw;
+  }
+
+  .navigationHoverBridge {
+    inset: 0;
+    pointer-events: none;
+    position: absolute;
   }
 
   .megaMenuInner {

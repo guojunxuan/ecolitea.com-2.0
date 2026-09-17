@@ -106,7 +106,7 @@ describe('Header navigation Blocks', () => {
     const cta = findNamed(fieldsWithin(block), 'cta')
     expect(cta?.admin?.condition?.({}, { enableCta: false })).toBe(false)
     expect(cta?.admin?.condition?.({}, { enableCta: true })).toBe(true)
-    expect(items).toMatchObject({ type: 'array', required: true, minRows: 1, maxRows: 8 })
+    expect(items).toMatchObject({ type: 'array', required: true, minRows: 1, maxRows: 16 })
     expect(linkHasLabel(findNamed(fieldsWithin(items), 'link'))).toBe(false)
   })
 

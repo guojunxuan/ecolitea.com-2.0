@@ -68,14 +68,14 @@ export const cardLinkField = (): Field => unlabeledNavigationLink({ label: 'Dest
 
 export const cardItemFields = (): Field[] => [imageField(), titleField(), cardLinkField()]
 
-export const cardItemsField = (): Field => ({
+export const cardItemsField = (maxRows = HEADER_CARD_ITEMS_MAX): Field => ({
   name: 'items',
   type: 'array',
   label: 'Cards',
   labels: { singular: 'Card', plural: 'Cards' },
   required: true,
   minRows: HEADER_CARD_ITEMS_MIN,
-  maxRows: HEADER_CARD_ITEMS_MAX,
+  maxRows,
   admin: { initCollapsed: true },
   fields: cardItemFields(),
 })

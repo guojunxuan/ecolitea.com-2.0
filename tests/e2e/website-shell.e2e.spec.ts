@@ -293,17 +293,17 @@ async function expectNoProductionDomainRequests(page: Page) {
 const placeholderRequests = (page: Page) =>
   (page as Page & { e2ePlaceholderRequests?: string[] }).e2ePlaceholderRequests ?? []
 
-async function expectImageRequests(page: Page, ...names: string[]) {
+async function expectImageRequests(page: Page, ...names: RegExp[]) {
   await expect
     .poll(() => placeholderRequests(page))
-    .toEqual(expect.arrayContaining(names.map((name) => expect.stringMatching(new RegExp(name)))))
+    .toEqual(expect.arrayContaining(names.map((name) => expect.stringMatching(name))))
 }
 
-async function expectNoImageRequests(page: Page, ...names: string[]) {
+async function expectNoImageRequests(page: Page, ...names: RegExp[]) {
   for (const name of names) {
     await expect
       .poll(() => placeholderRequests(page))
-      .not.toEqual(expect.arrayContaining([expect.stringMatching(new RegExp(name))]))
+      .not.toEqual(expect.arrayContaining([expect.stringMatching(name)]))
   }
 }
 
@@ -443,26 +443,35 @@ async function exerciseMobile(page: Page, testInfo: TestInfo) {
   await expect(dialog.getByRole('link', { name: 'E2E Foundation card' })).toHaveCount(0)
   await expectNoImageRequests(
     page,
-    'e2e-navigation-1\\.png',
-    'e2e-navigation-2\\.png',
-    'e2e-navigation-3\\.png',
+    /e2e-navigation-1\.png/,
+    /e2e-navigation-2\.png/,
+    /e2e-navigation-3\.png/,
   )
   await expect(dialog.getByRole('button', { name: 'Back to navigation' })).toBeFocused()
   await foundations.click()
   await expect(foundations).toBeFocused()
   await expect(foundations).toHaveAttribute('aria-expanded', 'true')
   await expect(dialog.getByRole('link', { name: 'E2E Foundation card' })).toBeVisible()
-  await expectImageRequests(page, 'e2e-navigation-1\\.png', 'e2e-navigation-2\\.png')
+  await expectImageRequests(page, /e2e-navigation-1\.png/, /e2e-navigation-2\.png/)
   await advanced.click()
   await expect(advanced).toBeFocused()
   await expect(foundations).toHaveAttribute('aria-expanded', 'false')
   await expect(advanced).toHaveAttribute('aria-expanded', 'true')
   await expect(dialog.getByRole('link', { name: 'E2E Advanced card' })).toBeVisible()
-  await expectImageRequests(page, 'e2e-navigation-3\\.png')
+  await expectImageRequests(page, /e2e-navigation-3\.png/)
   await expectNoProductionDomainRequests(page)
   await expect(dialog.getByRole('heading', { name: 'E2E Featured card group' })).toBeVisible()
   await expect(dialog.locator('[data-navigation-block="cardGroup"] a')).toHaveCount(9)
   await expect(dialog.getByRole('link', { name: 'E2E Rich card' })).toBeVisible()
+  const blockWidths = await dialog.locator('[data-navigation-block]').evaluateAll((blocks) =>
+    blocks.map((block) => ({
+      width: block.getBoundingClientRect().width,
+      availableWidth: block.parentElement!.getBoundingClientRect().width,
+    })),
+  )
+  for (const block of blockWidths) {
+    expect(Math.abs(block.width - block.availableWidth)).toBeLessThanOrEqual(1)
+  }
   await shot(page, testInfo, 'mobile-section')
   await page.keyboard.press('Escape')
   await expect(dialog.getByRole('heading', { name: 'E2E Products' })).toBeHidden()
@@ -527,7 +536,7 @@ async function expectDesktopZones(page: Page) {
 }
 
 async function exposeDesktopControl(page: Page, name: string) {
-  return page.getByRole('button', { name })
+  return page.getByRole('button', { exact: true, name })
 }
 
 test.describe.serial('Responsive website shell', () => {
@@ -608,7 +617,12 @@ test.describe.serial('Responsive website shell', () => {
       const before = page.url()
       await hybridButton.click()
       await expect(page).toHaveURL(before)
-      await expect(page.getByRole('region', { name: 'E2E Hybrid Hub menu' })).toBeVisible()
+      await expect(hybridButton).toHaveAttribute('aria-expanded', 'true')
+      await expect(
+        page.getByRole('region', {
+          name: 'E2E Hybrid Hub with a deliberately long label menu',
+        }),
+      ).toBeVisible()
       await page.keyboard.press('Escape')
       const hybridLink = page.getByRole('link', {
         name: 'E2E Hybrid Hub with a deliberately long label',
@@ -678,6 +692,7 @@ test.describe.serial('Responsive website shell', () => {
     page,
   }) => {
     await openFixture(page, 390)
+    await page.setViewportSize({ width: 390, height: 520 })
     const openButton = page.getByRole('button', { name: 'Open navigation' })
     const dialog = page.getByRole('dialog', { name: 'Navigation' })
     await openButton.click()

@@ -12,6 +12,7 @@ export type NavigationCardVariant = 'product' | 'visual' | 'rich'
 type NavigationCardProps = {
   card: HeaderCardData
   description?: string | null
+  size?: string
   variant?: NavigationCardVariant
 }
 
@@ -25,6 +26,7 @@ const cardSize = (variant: NavigationCardVariant) =>
 export const NavigationCard: React.FC<NavigationCardProps> = ({
   card,
   description,
+  size,
   variant = 'product',
 }) => {
   const imagePresentation =
@@ -43,7 +45,7 @@ export const NavigationCard: React.FC<NavigationCardProps> = ({
           htmlElement={null}
           presentation={imagePresentation}
           resource={card.image}
-          size={cardSize(variant)}
+          size={size ?? cardSize(variant)}
         />
         {variant === 'visual' && <span aria-hidden="true" className={styles.navigationCardGradient} />}
       </span>

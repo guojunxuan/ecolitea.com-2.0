@@ -120,8 +120,11 @@ describe('HeaderClient', () => {
   it('renders Site Name as the home brand when no logo resolves', () => {
     render(<HeaderClient {...navigation} logo={null} siteName="Ecolitea" />)
 
-    expect(screen.getByRole('link', { name: 'Ecolitea' }).getAttribute('href')).toBe('/')
-    expect(screen.getByRole('link', { name: 'Search' })).toBeTruthy()
+    const brandLinks = screen.getAllByRole('link', { name: 'Ecolitea' })
+    expect(brandLinks).toHaveLength(2)
+    expect(brandLinks.every((link) => link.getAttribute('href') === '/')).toBe(true)
+    expect(brandLinks[0]?.className).toContain('max-[1170px]:hidden')
+    expect(screen.getAllByRole('link', { name: 'Search' })).toHaveLength(2)
     expect(screen.getByRole('button', { name: 'Open navigation' })).toBeTruthy()
   })
 

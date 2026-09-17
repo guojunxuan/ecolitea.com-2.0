@@ -296,22 +296,25 @@ describe('branding integration', () => {
   })
 
   it('keeps the Header home link from shrinking the logo on narrow screens', () => {
-    const { getByRole } = render(
+    const { getAllByRole } = render(
       <HeaderClient logo={primaryLogo} menuCta={null} navItems={[]} siteName="Ecolitea" />,
     )
 
-    const homeLink = getByRole('link', { name: 'Primary logo' })
+    const homeLink = getAllByRole('link', { name: 'Primary logo' }).find((link) =>
+      link.className.includes('shrink-0'),
+    )
 
-    expect(homeLink.className).toBe('shrink-0')
-    expect(homeLink.getAttribute('href')).toBe('/')
+    expect(homeLink).toBeTruthy()
+    expect(homeLink?.className).toContain('shrink-0')
+    expect(homeLink?.getAttribute('href')).toBe('/')
   })
 
   it('falls back to Site Name when no Header logo presentation data resolves', () => {
-    const { getByRole } = render(
+    const { getAllByRole } = render(
       <HeaderClient logo={null} menuCta={null} navItems={[]} siteName="Ecolitea" />,
     )
 
-    expect(getByRole('link', { name: 'Ecolitea' }).getAttribute('href')).toBe('/')
+    expect(getAllByRole('link', { name: 'Ecolitea' }).every((link) => link.getAttribute('href') === '/')).toBe(true)
   })
 
   it('omits the Footer home link when no logo presentation data resolves', async () => {
