@@ -455,6 +455,36 @@ describe('DesktopNav', () => {
     expect(frame.getAttribute('data-at-end')).toBe('false')
   })
 
+  it('removes overflow controls when the full frame can fit the navigation again', async () => {
+    const { container } = render(<DesktopNav {...navigation} />)
+    const frame = container.querySelector('[data-navigation-frame="true"]') as HTMLElement
+    const strip = screen.getByRole('navigation', { name: 'Primary' })
+    let frameWidth = 300
+    Object.defineProperties(frame, {
+      clientWidth: { configurable: true, get: () => frameWidth },
+    })
+    Object.defineProperties(strip, {
+      clientWidth: {
+        configurable: true,
+        get: () => frameWidth - (frame.getAttribute('data-overflow') === 'true' ? 64 : 0),
+      },
+      scrollWidth: { configurable: true, value: 350 },
+      scrollLeft: { configurable: true, value: 0, writable: true },
+    })
+
+    act(() => ResizeObserverMock.instances.forEach((observer) => observer.emit()))
+    await waitFor(() => expect(frame.getAttribute('data-overflow')).toBe('true'))
+    expect(screen.getByRole('button', { name: 'Scroll navigation left' })).toBeTruthy()
+
+    frameWidth = 360
+    act(() => ResizeObserverMock.instances.forEach((observer) => observer.emit()))
+
+    await waitFor(() => expect(frame.getAttribute('data-overflow')).toBe('false'))
+    expect(screen.queryByRole('button', { name: 'Scroll navigation left' })).toBeNull()
+    expect(screen.queryByRole('button', { name: 'Scroll navigation right' })).toBeNull()
+    expect(strip.clientWidth).toBe(360)
+  })
+
   it('moves one shared indicator across pointer, focus, and strip scrolling', () => {
     const { container } = render(<DesktopNav {...navigation} />)
     const frame = container.querySelector('[data-navigation-frame="true"]') as HTMLElement

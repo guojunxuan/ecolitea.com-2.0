@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react'
+import React, { useRef } from 'react'
 
 import type { LogoImage } from '@/components/Logo/types'
 import { DesktopNav } from './DesktopNav'
@@ -23,11 +23,25 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
   siteName,
 }) => {
   const navigation = { menuCta, navItems }
+  const desktopRootRef = useRef<HTMLDivElement>(null)
+  const mobileTriggerRef = useRef<HTMLButtonElement>(null)
 
   return (
     <>
-      <DesktopNav {...navigation} onOpenChange={onDesktopOpenChange} />
-      <MobileNav {...navigation} logo={logo} onOpenChange={onMobileOpenChange} siteName={siteName} />
+      <DesktopNav
+        {...navigation}
+        compactFocusTargetRef={mobileTriggerRef}
+        onOpenChange={onDesktopOpenChange}
+        rootElementRef={desktopRootRef}
+      />
+      <MobileNav
+        {...navigation}
+        desktopNavigationRef={desktopRootRef}
+        logo={logo}
+        onOpenChange={onMobileOpenChange}
+        siteName={siteName}
+        triggerRef={mobileTriggerRef}
+      />
     </>
   )
 }

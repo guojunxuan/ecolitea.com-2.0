@@ -303,6 +303,34 @@ describe('MobileNav', () => {
     expect(document.activeElement).toBe(desktopPricing)
   })
 
+  it('hands focus from desktop menu content to the visible Compact trigger', () => {
+    desktopMedia.setMatches(true)
+    const { container } = render(
+      <HeaderNav
+        {...navigation}
+        logo={logo}
+        siteName="Ecolitea"
+      />,
+    )
+    const desktopRoot = container.querySelector<HTMLElement>('[data-desktop-nav-root="true"]')
+    fireEvent.click(within(desktopRoot!).getByRole('button', { name: 'Products' }))
+    const desktopMenuLink = within(desktopRoot!).getByRole('link', { name: 'Overview' })
+    desktopMenuLink.focus()
+    desktopMedia.matches = false
+    desktopMenuLink.blur()
+
+    act(() =>
+      desktopMedia.listeners.forEach((listener) =>
+        listener({ matches: false } as MediaQueryListEvent),
+      ),
+    )
+
+    expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Open navigation' }))
+    expect(
+      within(desktopRoot!).getByRole('button', { name: 'Products' }).getAttribute('aria-expanded'),
+    ).toBe('false')
+  })
+
   it('resets an active section removed by live navigation data without closing the menu', () => {
     const { rerender } = render(<MobileNav {...navigation} />)
     fireEvent.click(screen.getByRole('button', { name: 'Open navigation' }))
@@ -369,6 +397,16 @@ describe('MobileNav', () => {
     expect(navigationCSS).toMatch(/\.mobileMenuCtaBar\s*\{[^}]*position: fixed/s)
     expect(blocksCSS).toMatch(
       /\.navigationBlocksCompact[^}]*\.productCardGrid[^}]*repeat\(2, minmax\(0, 1fr\)\)/s,
+    )
+    expect(blocksCSS).toMatch(
+      /\.navigationBlocksCompact[^}]*\.visualCardGrid:not\(\.visualGridOne\)[^}]*repeat\(2, minmax\(0, 1fr\)\)/s,
+    )
+    expect(blocksCSS).toMatch(/\.navigationBlocksCompact[^}]*\.linkList a[^}]*min-height: 2\.75rem/s)
+    expect(blocksCSS).toMatch(
+      /\.navigationBlocksCompact\s*>\s*\*\s*\+\s*\*[^}]*border-top: 1px solid/s,
+    )
+    expect(blocksCSS).not.toMatch(
+      /@media \(prefers-reduced-motion: reduce\)[\s\S]*?\.categoryChevronOpen\s*\{[^}]*transform: none/,
     )
   })
 })

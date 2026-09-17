@@ -47,22 +47,27 @@ const getFocusable = (root: HTMLElement) =>
   )
 
 type MobileNavProps = HeaderNavigationData & {
+  desktopNavigationRef?: React.RefObject<HTMLElement | null>
   logo?: LogoImage | null
   onOpenChange?: (open: boolean) => void
   siteName?: string
+  triggerRef?: React.RefObject<HTMLButtonElement | null>
 }
 
 export const MobileNav: React.FC<MobileNavProps> = ({
+  desktopNavigationRef,
   logo,
   menuCta,
   navItems,
   onOpenChange,
   siteName,
+  triggerRef,
 }) => {
   const pathname = usePathname()
   const [isOpen, setIsOpen] = useState(false)
   const [state, dispatch] = useReducer(navigationReducer, initialNavigationState)
-  const openButtonRef = useRef<HTMLButtonElement>(null)
+  const internalOpenButtonRef = useRef<HTMLButtonElement>(null)
+  const openButtonRef = triggerRef ?? internalOpenButtonRef
   const rootPanelRef = useRef<HTMLElement>(null)
   const dialogRef = useRef<HTMLDivElement>(null)
   const desktopFocusHandoffRef = useRef(false)
@@ -83,16 +88,14 @@ export const MobileNav: React.FC<MobileNavProps> = ({
     if (isOpen) return
     if (desktopFocusHandoffRef.current) {
       desktopFocusHandoffRef.current = false
-      const desktopNavigation = document.querySelector<HTMLElement>(
-        '[data-desktop-nav-root="true"]',
-      )
+      const desktopNavigation = desktopNavigationRef?.current
       if (desktopNavigation) getFocusable(desktopNavigation).at(0)?.focus()
       return
     }
     if (!restoreFocusRef.current) return
     restoreFocusRef.current = false
     openButtonRef.current?.focus()
-  }, [isOpen])
+  }, [desktopNavigationRef, isOpen, openButtonRef])
 
   useEffect(() => {
     if (!isOpen) return

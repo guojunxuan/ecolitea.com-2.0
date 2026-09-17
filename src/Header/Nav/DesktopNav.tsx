@@ -10,15 +10,28 @@ import { NavigationLink } from './NavigationLink'
 import type { HeaderNavigationData } from './types'
 import styles from './index.module.css'
 
-const isOverflowing = (element: HTMLElement) => element.scrollWidth > element.clientWidth + 1
+const isOverflowing = (element: HTMLElement, availableWidth = element.clientWidth) =>
+  element.scrollWidth > availableWidth + 1
 
 type IndicatorState = { left: number; visible: boolean; width: number }
-type DesktopNavProps = HeaderNavigationData & { onOpenChange?: (open: boolean) => void }
+type DesktopNavProps = HeaderNavigationData & {
+  compactFocusTargetRef?: React.RefObject<HTMLElement | null>
+  onOpenChange?: (open: boolean) => void
+  rootElementRef?: React.RefObject<HTMLDivElement | null>
+}
 
-export const DesktopNav: React.FC<DesktopNavProps> = ({ menuCta, navItems, onOpenChange }) => {
+export const DesktopNav: React.FC<DesktopNavProps> = ({
+  compactFocusTargetRef,
+  menuCta,
+  navItems,
+  onOpenChange,
+  rootElementRef,
+}) => {
   const pathname = usePathname()
   const idPrefix = useId().replaceAll(':', '')
-  const rootRef = useRef<HTMLDivElement>(null)
+  const internalRootRef = useRef<HTMLDivElement>(null)
+  const rootRef = rootElementRef ?? internalRootRef
+  const frameRef = useRef<HTMLDivElement>(null)
   const viewportRef = useRef<HTMLDivElement>(null)
   const stripRef = useRef<HTMLElement>(null)
   const trackRef = useRef<HTMLDivElement>(null)
@@ -28,6 +41,7 @@ export const DesktopNav: React.FC<DesktopNavProps> = ({ menuCta, navItems, onOpe
   const initializedOverflowKeyRef = useRef<string | null>(null)
   const pendingAlignmentScrollRef = useRef<number | null>(null)
   const userNavigationScrollRef = useRef(false)
+  const ownsFocusRef = useRef(false)
   const indicatorOwnerRef = useRef<string | null>(null)
   const openTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -106,7 +120,7 @@ export const DesktopNav: React.FC<DesktopNavProps> = ({ menuCta, navItems, onOpe
       setIndicator((current) => ({ ...current, visible: false }))
       close()
     }, 200)
-  }, [clearCloseTimer, clearOpenTimer, close])
+  }, [clearCloseTimer, clearOpenTimer, close, rootRef])
 
   const open = useCallback(
     (id: string, delayed: boolean) => {
@@ -160,7 +174,8 @@ export const DesktopNav: React.FC<DesktopNavProps> = ({ menuCta, navItems, onOpe
   const updateOverflow = useCallback((alignToEnd = true) => {
     const strip = stripRef.current
     if (!strip) return
-    const overflowing = isOverflowing(strip)
+    const frameWidth = frameRef.current?.clientWidth
+    const overflowing = isOverflowing(strip, frameWidth || strip.clientWidth)
     if (initializedOverflowKeyRef.current !== navigationKey) {
       initializedOverflowKeyRef.current = navigationKey
       userNavigationScrollRef.current = false
@@ -202,6 +217,7 @@ export const DesktopNav: React.FC<DesktopNavProps> = ({ menuCta, navItems, onOpe
     if (stripRef.current) observer.observe(stripRef.current)
     if (trackRef.current) observer.observe(trackRef.current)
     if (viewportRef.current) observer.observe(viewportRef.current)
+    if (frameRef.current) observer.observe(frameRef.current)
     return () => observer.disconnect()
   }, [updateIndicator, updateOverflow])
 
@@ -255,12 +271,20 @@ export const DesktopNav: React.FC<DesktopNavProps> = ({ menuCta, navItems, onOpe
     const media = window.matchMedia?.('(width > 1170px)')
     if (!media) return
     const onChange = (event: MediaQueryListEvent | MediaQueryList) => {
-      if (!event.matches) close()
+      if (event.matches) return
+      const focused = document.activeElement
+      const shouldHandoffFocus =
+        ownsFocusRef.current || (focused instanceof Node && rootRef.current?.contains(focused))
+      close()
+      if (shouldHandoffFocus) {
+        ownsFocusRef.current = false
+        compactFocusTargetRef?.current?.focus()
+      }
     }
     onChange(media)
     media.addEventListener('change', onChange)
     return () => media.removeEventListener('change', onChange)
-  }, [close])
+  }, [close, compactFocusTargetRef, rootRef])
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -271,7 +295,10 @@ export const DesktopNav: React.FC<DesktopNavProps> = ({ menuCta, navItems, onOpe
       owner?.scrollIntoView?.({ behavior: 'instant', block: 'nearest', inline: 'nearest' })
     }
     const onPointerDown = (event: PointerEvent) => {
-      if (!rootRef.current?.contains(event.target as Node)) close()
+      if (!rootRef.current?.contains(event.target as Node)) {
+        ownsFocusRef.current = false
+        close()
+      }
     }
     document.addEventListener('keydown', onKeyDown)
     document.addEventListener('pointerdown', onPointerDown)
@@ -279,7 +306,7 @@ export const DesktopNav: React.FC<DesktopNavProps> = ({ menuCta, navItems, onOpe
       document.removeEventListener('keydown', onKeyDown)
       document.removeEventListener('pointerdown', onPointerDown)
     }
-  }, [close, openID])
+  }, [close, openID, rootRef])
 
   const scrollToItem = (direction: 'left' | 'right') => {
     const strip = stripRef.current
@@ -310,7 +337,13 @@ export const DesktopNav: React.FC<DesktopNavProps> = ({ menuCta, navItems, onOpe
       data-desktop-nav-root="true"
       onBlur={(event) => {
         if (event.relatedTarget instanceof Node && rootRef.current?.contains(event.relatedTarget)) return
+        if (event.relatedTarget instanceof Node || window.matchMedia('(width > 1170px)').matches) {
+          ownsFocusRef.current = false
+        }
         if (!pointerInsideRef.current) scheduleClose()
+      }}
+      onFocusCapture={() => {
+        ownsFocusRef.current = true
       }}
       onPointerEnter={(event) => {
         if ((event.target as Element).closest?.('[data-navigation-overlay="true"]')) {
@@ -343,6 +376,7 @@ export const DesktopNav: React.FC<DesktopNavProps> = ({ menuCta, navItems, onOpe
         data-at-start={atStart ? 'true' : 'false'}
         data-navigation-frame="true"
         data-overflow={overflow ? 'true' : 'false'}
+        ref={frameRef}
       >
         {overflow && (
           <button aria-label="Scroll navigation left" className={styles.scrollButton} disabled={atStart} onClick={() => scrollToItem('left')} type="button">

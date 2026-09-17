@@ -697,7 +697,7 @@ test.describe.serial('Responsive website shell', () => {
       .first()
       .locator('..')
       .evaluate((grid) => getComputedStyle(grid).gridTemplateColumns)
-    expect(computedColumns.trim().split(/\s+/)).toHaveLength(3)
+    expect(computedColumns.trim().split(/\s+/)).toHaveLength(2)
     await expectNoProductionDomainRequests(page)
   })
 
@@ -989,7 +989,24 @@ test.describe.serial('Responsive website shell', () => {
     const compactOpen = page.getByRole('button', { name: 'Open navigation' })
     await expect(compactOpen).toBeVisible()
     await compactOpen.click()
-    await expect(page.getByRole('dialog', { name: 'Navigation' })).toBeVisible()
+    const compactDialog = page.getByRole('dialog', { name: 'Navigation' })
+    await expect(compactDialog).toBeVisible()
+    const compactProducts = compactDialog
+      .locator('button[aria-controls^="mobile-navigation-section-"]')
+      .filter({ hasText: 'E2E Products' })
+    await compactProducts.click()
+    const compactProductPanelID = await compactProducts.getAttribute('aria-controls')
+    expect(compactProductPanelID).toBeTruthy()
+    const compactCardGrid = compactDialog.locator(
+      `#${compactProductPanelID} [data-navigation-block="cardGroup"] > div:last-child`,
+    )
+    await expect
+      .poll(() =>
+        compactCardGrid.evaluate(
+          (grid) => getComputedStyle(grid).gridTemplateColumns.split(' ').length,
+        ),
+      )
+      .toBe(2)
     await page.setViewportSize({ width: 1171, height: 960 })
     await expect
       .poll(() => page.evaluate(() => window.matchMedia('(width > 1170px)').matches))
@@ -999,10 +1016,14 @@ test.describe.serial('Responsive website shell', () => {
     await expect(page.getByRole('button', { name: 'E2E Products' })).toBeVisible()
 
     await page.getByRole('button', { name: 'E2E Products' }).click()
-    await expect(page.getByRole('region', { name: 'E2E Products menu' })).toBeVisible()
+    const desktopMenu = page.getByRole('region', { name: 'E2E Products menu' })
+    await expect(desktopMenu).toBeVisible()
+    await desktopMenu.getByRole('link', { name: 'E2E Foundation card' }).focus()
     await page.setViewportSize({ width: 1024, height: 960 })
-    await expect(page.getByRole('region', { name: 'E2E Products menu' })).toBeHidden()
-    await expect(page.getByRole('button', { name: 'Open navigation' })).toBeVisible()
+    await expect(desktopMenu).toBeHidden()
+    const compactTrigger = page.getByRole('button', { name: 'Open navigation' })
+    await expect(compactTrigger).toBeVisible()
+    await expect(compactTrigger).toBeFocused()
     await expectNoProductionDomainRequests(page)
   })
 
@@ -1101,7 +1122,7 @@ test.describe.serial('Responsive website shell', () => {
     await foundations.click()
     const chevron = foundations.locator('svg')
     await expect(chevron).toHaveCSS('transition-duration', '0s')
-    await expect(chevron).toHaveCSS('transform', 'none')
+    await expect(chevron).toHaveCSS('transform', 'matrix(-1, 0, 0, -1, 0, 0)')
     await expectNoProductionDomainRequests(page)
   })
 })
