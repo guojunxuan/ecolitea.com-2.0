@@ -376,7 +376,8 @@
   }
 
   .pageOverlay {
-    background: rgb(0 0 0 / 7%);
+    /* Keep the backdrop available to Mega Menu; this layer only handles outside clicks. */
+    background: transparent;
     border: 0;
     bottom: 0;
     cursor: default;
@@ -386,7 +387,7 @@
     right: 0;
     top: var(--header-height);
     transition: opacity 180ms ease;
-    z-index: -2;
+    z-index: 40;
   }
 
   .megaMenuShell[data-phase='closing'] .pageOverlay {
@@ -397,15 +398,15 @@
     animation: mega-menu-open 220ms ease both;
     backdrop-filter: blur(28px) saturate(120%);
     -webkit-backdrop-filter: blur(28px) saturate(120%);
-    background: rgb(255 255 255 / 82%);
+    background: rgb(255 255 255 / 70%);
     border-block: 1px solid color-mix(in oklch, var(--foreground) 9%, transparent);
-    box-shadow: 0 1.25rem 2.5rem color-mix(in oklch, var(--foreground) 10%, transparent);
+    box-shadow: 0 1.25rem 2.5rem color-mix(in oklch, var(--foreground) 7%, transparent);
     left: 0;
     position: fixed;
     right: 0;
     top: var(--header-height);
     transition: height 220ms ease, opacity 180ms ease, transform 180ms ease;
-    z-index: -1;
+    z-index: 55;
   }
 
   .megaMenuShell[data-phase='closing'] .megaMenu {

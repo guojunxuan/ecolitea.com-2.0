@@ -11,15 +11,29 @@
   position: fixed;
   right: 0;
   top: 0;
-  transition: background-color 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+  transition:
+    background-color 260ms ease,
+    backdrop-filter 260ms ease,
+    -webkit-backdrop-filter 260ms ease,
+    box-shadow 260ms ease,
+    border-color 260ms ease;
   z-index: 50;
 }
 
-.surface[data-scrolled='true'],
-.surface[data-menu-open='true'] {
+.surface[data-scrolled='true'] {
   background: rgb(255 255 255 / 90%);
   border-bottom: 1px solid color-mix(in oklch, var(--foreground) 10%, transparent);
   box-shadow: 0 0.25rem 1rem color-mix(in oklch, var(--foreground) 8%, transparent);
+  backdrop-filter: blur(18px) saturate(115%);
+  -webkit-backdrop-filter: blur(18px) saturate(115%);
+}
+
+.surface[data-menu-open='true'] {
+  background: rgb(255 255 255 / 90%);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border-bottom-color: transparent;
+  box-shadow: none;
 }
 
 .inner {
@@ -33,7 +47,7 @@
 @media (width <= 1170px) {
   .surface[data-scrolled='true'],
   .surface[data-menu-open='true'] {
-    background: rgb(255 255 255);
+    background: rgb(255 255 255 / 90%);
   }
 }
 
