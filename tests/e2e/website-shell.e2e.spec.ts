@@ -591,7 +591,7 @@ async function exerciseMobile(page: Page, testInfo: TestInfo) {
     window.scrollTo(0, 100)
   })
   await expect(surface).toHaveAttribute('data-scrolled', 'true')
-  await expectBackground(surface, { alpha: 1, blue: 255, green: 255, red: 255 })
+  await expectBackground(surface, { alpha: 0.9, blue: 255, green: 255, red: 255 })
   await page.evaluate(() => window.scrollTo(0, 0))
 
   await openButton.click()
@@ -672,9 +672,7 @@ test.describe.serial('Responsive website shell', () => {
     })
   }
 
-  test('768x1024 keeps the full-screen Compact navigation boundary', async ({
-    page,
-  }, testInfo) => {
+  test('768x1024 keeps the full-screen Compact navigation boundary', async ({ page }, testInfo) => {
     await openFixture(page, 768, { height: 1024 })
     expect(page.viewportSize()).toEqual({ height: 1024, width: 768 })
     await expectShell(page)
