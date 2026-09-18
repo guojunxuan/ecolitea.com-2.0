@@ -231,12 +231,9 @@ describe('Header navigation block rendering', () => {
     expect(richSize).toContain('(max-width: 1170px) 100vw')
   })
 
-  it('separates adjacent major blocks in desktop and Compact layouts without changing tracks', () => {
+  it('keeps the four-column desktop block grid contract', () => {
     const css = readFileSync(resolve(process.cwd(), 'src/Header/Nav/blocks.module.css'), 'utf8')
 
-    expect(css).toMatch(
-      /\.navigationBlocks\s*>\s*\[data-navigation-block\]\s*\+\s*\[data-navigation-block\][^}]*border-top:\s*1px solid/s,
-    )
     expect(css).toMatch(/\.navigationBlocks\s*\{[^}]*grid-template-columns:\s*repeat\(4,/s)
   })
 

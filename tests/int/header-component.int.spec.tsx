@@ -193,6 +193,6 @@ describe('HeaderClient', () => {
     expect(css).toContain("[data-menu-open='true']")
     expect(css).toContain("[data-scrolled='true']")
     expect(css).toContain('@media (width <= 1170px)')
-    expect(css).toContain('rgb(255 255 255)')
+    expect(css).toContain('rgb(255 255 255 / 90%)')
   })
 })

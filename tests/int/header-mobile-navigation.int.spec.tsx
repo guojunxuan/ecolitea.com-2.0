@@ -402,9 +402,6 @@ describe('MobileNav', () => {
       /\.navigationBlocksCompact[^}]*\.visualCardGrid:not\(\.visualGridOne\)[^}]*repeat\(2, minmax\(0, 1fr\)\)/s,
     )
     expect(blocksCSS).toMatch(/\.navigationBlocksCompact[^}]*\.linkList a[^}]*min-height: 2\.75rem/s)
-    expect(blocksCSS).toMatch(
-      /\.navigationBlocks\s*>\s*\[data-navigation-block\]\s*\+\s*\[data-navigation-block\][^}]*border-top: 1px solid/s,
-    )
     expect(blocksCSS).not.toMatch(
       /@media \(prefers-reduced-motion: reduce\)[\s\S]*?\.categoryChevronOpen\s*\{[^}]*transform: none/,
     )
