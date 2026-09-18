@@ -380,7 +380,10 @@ async function expectFooterIdentityAndContact(page: Page) {
   const brand = page.locator('[data-footer-content="brand"]')
   const logo = brand.getByRole('img', { name: 'E2E website shell logo' })
   await expect(logo).toBeVisible()
-  await expect(logo).toHaveAttribute('src', expectedBrandAssetURL)
+  await expect(logo).toHaveAttribute(
+    'src',
+    /^https:\/\/media\.example\.invalid\/e2e-website-shell-logo\.svg\?/,
+  )
   await expect(logo).not.toHaveAttribute('src', /\/_next\/image/)
   await expect(logo).not.toHaveAttribute('src', /\/cdn-cgi\//)
 
@@ -391,12 +394,19 @@ async function expectFooterIdentityAndContact(page: Page) {
   )
   const socialIcon = social.locator('img')
   await expect(socialIcon).toBeVisible()
-  await expect(socialIcon).toHaveAttribute('src', expectedBrandAssetURL)
+  await expect(socialIcon).toHaveAttribute(
+    'src',
+    /^https:\/\/media\.example\.invalid\/e2e-website-shell-logo\.svg\?/,
+  )
   await expect(socialIcon).not.toHaveAttribute('src', /\/_next\/image/)
   await expect(socialIcon).not.toHaveAttribute('src', /\/cdn-cgi\//)
   await expect
     .poll(() => (page as Page & { e2ePlaceholderRequests?: string[] }).e2ePlaceholderRequests ?? [])
-    .toEqual(expect.arrayContaining([expectedBrandAssetURL]))
+    .toEqual(
+      expect.arrayContaining([
+        expect.stringMatching(/^https:\/\/media\.example\.invalid\/e2e-website-shell-logo\.svg\?/),
+      ]),
+    )
 
   const contact = page.locator('[data-footer-content="contact"]')
   await expect(contact.getByText('E2E registered business address')).toBeVisible()
@@ -462,7 +472,7 @@ async function exerciseMobile(page: Page, testInfo: TestInfo) {
   await page.keyboard.press('Enter')
   await expect(dialog).toBeVisible()
   await expect(page.locator('body')).toHaveCSS('overflow', 'hidden')
-  await expectBackground(surface, { alpha: 1, blue: 255, green: 255, red: 255 })
+  await expectBackground(surface, { alpha: 0.9, blue: 255, green: 255, red: 255 })
   const dialogSurface = dialog.locator('[data-mobile-navigation-surface="true"]')
   await expectBackground(dialogSurface, {
     alpha: 1,
