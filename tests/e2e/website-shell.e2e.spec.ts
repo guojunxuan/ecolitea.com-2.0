@@ -482,12 +482,16 @@ async function exerciseMobile(page: Page, testInfo: TestInfo) {
   })
   await expect(page.locator('[data-navigation-overlay="true"]')).toHaveCount(0)
   const viewport = page.viewportSize()!
+  await expect
+    .poll(async () => {
+      const box = await dialogSurface.boundingBox()
+      if (!box) return null
+      return { x: box.x, width: box.width, y: box.y, bottom: box.y + box.height }
+    })
+    .toEqual({ x: 0, width: viewport.width, y: expect.any(Number), bottom: viewport.height })
   const dialogBox = await dialogSurface.boundingBox()
   expect(dialogBox).not.toBeNull()
-  expect(dialogBox!.x).toBe(0)
-  expect(dialogBox!.width).toBe(viewport.width)
   expect(dialogBox!.y).toBeGreaterThan(0)
-  expect(dialogBox!.height + dialogBox!.y).toBeCloseTo(viewport.height, 0)
   const logoBox = await dialog.getByRole('link', { name: 'E2E website shell logo' }).boundingBox()
   expect(logoBox).not.toBeNull()
   expect(logoBox!.x + logoBox!.width / 2).toBeCloseTo(viewport.width / 2, 0)
