@@ -688,11 +688,15 @@ test.describe.serial('Responsive website shell', () => {
     await expect(dialog).toBeVisible()
     const dialogSurface = dialog.locator('[data-mobile-navigation-surface="true"]')
     await expect(dialogSurface).toHaveCSS('opacity', '1')
-    const dialogBox = await dialogSurface.boundingBox()
-    expect(dialogBox).not.toBeNull()
-    expect(dialogBox!.x).toBe(0)
-    expect(dialogBox!.width).toBe(768)
-    expect(dialogBox!.height + dialogBox!.y).toBeCloseTo(1024, 0)
+    // The mobile navigation opens with a short transform animation. Wait for
+    // the final full-height geometry instead of sampling its intermediate
+    // 60px header-height state.
+    await expect
+      .poll(async () => {
+        const box = await dialogSurface.boundingBox()
+        return box ? { x: box.x, width: box.width, bottom: box.y + box.height } : null
+      })
+      .toEqual({ x: 0, width: 768, bottom: 1024 })
     await shot(page, testInfo, 'tablet-root')
 
     const products = dialog
