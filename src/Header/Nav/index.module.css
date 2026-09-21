@@ -379,8 +379,7 @@
   }
 
   .pageOverlay {
-    /* Keep the backdrop available to Mega Menu; this layer only handles outside clicks. */
-    background: transparent;
+    background: rgb(0 0 0 / 7%);
     border: 0;
     bottom: 0;
     cursor: default;
@@ -401,7 +400,7 @@
     animation: mega-menu-open 220ms ease both;
     backdrop-filter: blur(28px) saturate(120%);
     -webkit-backdrop-filter: blur(28px) saturate(120%);
-    background: rgb(255 255 255 / 70%);
+    background: rgb(255 255 255 / 82%);
     border-block: 1px solid color-mix(in oklch, var(--foreground) 9%, transparent);
     box-shadow: 0 1.25rem 2.5rem color-mix(in oklch, var(--foreground) 7%, transparent);
     left: 0;
