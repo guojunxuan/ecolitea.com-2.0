@@ -590,16 +590,15 @@ describe('DesktopNav', () => {
 
   it('defines the approved glass, overlay, single-scroll, and reduced-motion CSS', () => {
     const css = readFileSync(resolve(process.cwd(), 'src/Header/Nav/index.module.css'), 'utf8')
-    expect(css).toContain('rgb(255 255 255 / 70%)')
+    expect(css).toContain('rgb(255 255 255 / 82%)')
     expect(css).toContain('blur(28px) saturate(120%)')
-    expect(css).toContain('background: transparent')
+    expect(css).toContain('background: rgb(0 0 0 / 7%)')
     expect(css).toContain('max-height: min(70dvh, 42rem)')
     expect(css).toContain('overscroll-behavior-y: auto')
     expect(css).toContain('180ms')
     expect(css).toContain('height 220ms')
     expect(css).toContain('opacity 160ms')
     expect(css).toContain('translateY(4px)')
-    expect(css).not.toContain('rgb(255 255 255 / 82%)')
     expect(css).toContain('@media (prefers-reduced-motion: reduce)')
   })
 })
