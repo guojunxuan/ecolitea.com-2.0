@@ -21,20 +21,6 @@ export const brandingTab: Tab = {
       },
     },
     {
-      name: 'logoDark',
-      type: 'upload',
-      relationTo: 'brand-assets',
-      label: 'Logo for Dark Backgrounds',
-      filterOptions: {
-        mimeType: {
-          equals: 'image/svg+xml',
-        },
-      },
-      admin: {
-        description: 'Optional SVG variant for dark backgrounds. Falls back to Logo.',
-      },
-    },
-    {
       name: 'favicon',
       type: 'upload',
       relationTo: 'brand-assets',

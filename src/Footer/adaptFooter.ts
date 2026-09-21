@@ -1,6 +1,5 @@
 import { resolveLinkHref, type CMSLinkType } from '@/components/Link'
 import { resolveBrandAsset } from '@/components/Logo/resolveBrandAsset'
-import { selectLogo } from '@/components/Logo/selectLogo'
 import type { Footer, SiteSettings } from '@/payload-types'
 
 import type {
@@ -115,11 +114,7 @@ export const adaptFooter = (footer: Footer, siteSettings: SiteSettings): FooterD
   ].filter((link): link is FooterLinkData => link !== null)
 
   return {
-    logo: selectLogo(
-      resolveBrandAsset(siteSettings.logo),
-      resolveBrandAsset(siteSettings.logoDark),
-      true,
-    ),
+    logo: resolveBrandAsset(siteSettings.logo),
     siteDescription: text(siteSettings.siteDescription),
     socialLinks: adaptSocialLinks(siteSettings.socialLinks),
     columns: adaptColumns(footer.columns),

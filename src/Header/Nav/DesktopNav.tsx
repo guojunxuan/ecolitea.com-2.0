@@ -263,6 +263,26 @@ export const DesktopNav: React.FC<DesktopNavProps> = ({
   }, [updateIndicator, updateOverflow])
 
   useEffect(() => {
+    const strip = stripRef.current
+    if (!strip) return
+    const onWheel = (event: WheelEvent) => {
+      if (!overflow || Math.abs(event.deltaX) <= Math.abs(event.deltaY)) return
+      const maxScrollLeft = Math.max(0, strip.scrollWidth - strip.clientWidth)
+      const movingLeft = event.deltaX < 0 && strip.scrollLeft > 0
+      const movingRight = event.deltaX > 0 && strip.scrollLeft < maxScrollLeft
+      if (!movingLeft && !movingRight) return
+      event.preventDefault()
+      userNavigationScrollRef.current = true
+      suppressHoverRef.current = true
+      strip.scrollLeft = Math.max(0, Math.min(maxScrollLeft, strip.scrollLeft + event.deltaX))
+      updateOverflow(false)
+      updateIndicator(indicatorOwnerRef.current, indicatorOwnerRef.current !== null)
+    }
+    strip.addEventListener('wheel', onWheel, { passive: false })
+    return () => strip.removeEventListener('wheel', onWheel)
+  }, [overflow, updateIndicator, updateOverflow])
+
+  useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     close()
   }, [close, pathname])

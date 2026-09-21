@@ -121,7 +121,7 @@
 @media (width >= 73.125rem) {
   :root {
     --site-gutter: clamp(2.5rem, 4vw, 3rem);
-    --header-height: 5.625rem;
+    --header-height: 4.5rem;
   }
 }
 

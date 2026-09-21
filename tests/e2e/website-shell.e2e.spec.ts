@@ -4,11 +4,19 @@ import { getPayload, type Payload } from 'payload'
 import config from '../../src/payload.config.js'
 import { assertRunScopedE2EDatabaseURI } from '../helpers/e2eDatabase'
 import { getE2EBaseURL } from '../helpers/e2eBaseURL'
-import { getMediaUrl } from '../../src/utilities/getMediaUrl'
 
 const baseURL = getE2EBaseURL()
 const E2E_MEDIA_ORIGIN = 'https://media.example.invalid'
 const NAVIGATION_IMAGE_ALT_PREFIX = 'E2E website shell navigation image'
+type HeaderThemeTransitionSample = {
+  color: string | null
+  headerTheme: string | null
+  markerTheme: string | null
+}
+type WindowWithHeaderThemeSamples = Window & {
+  __headerThemeSamples?: HeaderThemeTransitionSample[]
+  __headerThemeObserver?: MutationObserver
+}
 const disableRevalidate = { context: { disableRevalidate: true } }
 const runID = process.env.PLAYWRIGHT_E2E_RUN_ID!
 const slugs = {
@@ -21,7 +29,6 @@ const slugs = {
 const fixturePath = `/${slugs.main}`
 const routePath = `/${slugs.route}`
 let payload: Payload
-let expectedBrandAssetURL = ''
 
 const customLink = (label: string, url: string) => ({ label, type: 'custom' as const, url })
 const unlabeledLink = (url: string) => ({ type: 'custom' as const, url })
@@ -31,7 +38,7 @@ const navigationImagePNG = Buffer.from(
 )
 const emptyPage = (slug: string, title: string) => ({
   _status: 'published' as const,
-  hero: { type: 'none' as const },
+  hero: { headerTheme: 'light' as const, type: 'none' as const },
   layout: [{ blockType: 'content' as const, columns: [] }],
   slug,
   title,
@@ -71,7 +78,12 @@ async function seedFixtures() {
     Object.entries(slugs).map(([key, slug]) =>
       payload.create({
         collection: 'pages',
-        data: emptyPage(slug, `E2E ${key} page`),
+        data: {
+          ...emptyPage(slug, `E2E ${key} page`),
+          ...(key === 'route'
+            ? { hero: { headerTheme: 'dark' as const, type: 'lowImpact' as const } }
+            : {}),
+        },
         ...disableRevalidate,
       }),
     ),
@@ -107,7 +119,6 @@ async function seedFixtures() {
   if (persistedLogo.url !== originalBrandAssetURL) {
     throw new Error('E2E storage must persist the controlled Brand Asset original URL.')
   }
-  expectedBrandAssetURL = getMediaUrl(originalBrandAssetURL, persistedLogo.updatedAt)
   const routePage = bySlug[slugs.route]!
   const directPage = bySlug[slugs.direct]!
 
@@ -230,7 +241,6 @@ async function seedFixtures() {
       copyrightText: '© E2E Company. All rights reserved.',
       legalCompanyName: 'E2E Company Limited',
       logo: logo.id,
-      logoDark: logo.id,
       newsletter: {
         buttonLabel: 'E2E Subscribe',
         description: 'E2E product updates and practical insights.',
@@ -352,7 +362,13 @@ async function expectShell(page: Page) {
 }
 
 async function expectThemeInvariant(page: Page) {
-  await expect(page.locator('[data-theme]')).toHaveCount(0)
+  await expect(page.locator('[data-theme]')).toHaveCount(1)
+  await expect(page.locator('header > div')).toHaveAttribute('data-theme', 'light')
+  expect(
+    await page
+      .locator('html, body, main#main-content, footer')
+      .evaluateAll((elements) => elements.some((element) => element.hasAttribute('data-theme'))),
+  ).toBe(false)
   await expect(
     page.getByRole('button', { name: /(?:theme|dark mode|light mode|auto mode)/i }),
   ).toHaveCount(0)
@@ -380,12 +396,10 @@ async function expectFooterIdentityAndContact(page: Page) {
   const brand = page.locator('[data-footer-content="brand"]')
   const logo = brand.getByRole('img', { name: 'E2E website shell logo' })
   await expect(logo).toBeVisible()
-  await expect(logo).toHaveAttribute(
-    'src',
-    /^https:\/\/media\.example\.invalid\/e2e-website-shell-logo\.svg\?/,
-  )
-  await expect(logo).not.toHaveAttribute('src', /\/_next\/image/)
-  await expect(logo).not.toHaveAttribute('src', /\/cdn-cgi\//)
+  await expect(logo).not.toHaveAttribute('src', /.*/)
+  await expect
+    .poll(() => logo.evaluate((element) => getComputedStyle(element).maskImage))
+    .toMatch(/^url\("https:\/\/media\.example\.invalid\/e2e-website-shell-logo\.svg\?/)
 
   const social = page.locator('[data-footer-content="social"]')
   await expect(social.getByRole('link', { name: 'E2E LinkedIn' })).toHaveAttribute(
@@ -717,6 +731,25 @@ test.describe.serial('Responsive website shell', () => {
     await expectNoProductionDomainRequests(page)
   })
 
+  test('Desktop overflow navigation follows horizontal trackpad input', async ({ page }) => {
+    await openFixture(page, 1280)
+    const strip = page.getByRole('navigation', { name: 'Primary' })
+    const scrollLeft = page.getByRole('button', { name: 'Scroll navigation left' })
+    const scrollRight = page.getByRole('button', { name: 'Scroll navigation right' })
+    await expect(scrollRight).toBeVisible()
+    await expect(scrollRight).toBeDisabled()
+    await expect(scrollLeft).toBeEnabled()
+    const rightEdge = await strip.evaluate((element) => element.scrollLeft)
+    const stripBox = await strip.boundingBox()
+    expect(stripBox).not.toBeNull()
+    await page.mouse.move(stripBox!.x + stripBox!.width / 2, stripBox!.y + stripBox!.height / 2)
+    await page.mouse.wheel(-80, 0)
+    await expect.poll(() => strip.evaluate((element) => element.scrollLeft)).toBeLessThan(rightEdge)
+    await expect(scrollRight).toBeEnabled()
+    await page.mouse.wheel(1000, 0)
+    await expect(scrollRight).toBeDisabled()
+  })
+
   for (const width of [1171, 1280, 1440]) {
     test(`${width}px uses three desktop zones and desktop menus`, async ({ page }, testInfo) => {
       await openFixture(page, width)
@@ -876,6 +909,143 @@ test.describe.serial('Responsive website shell', () => {
       await expect(footer.locator('section').first().locator('h2')).toBeVisible()
     })
   }
+
+  test('Hero theme changes Header foreground while Logo uses the SVG CSS mask', async ({ page }) => {
+    const serverResponse = await page.request.get(`${baseURL}${routePath}`)
+    expect(serverResponse.ok()).toBe(true)
+    expect(await serverResponse.text()).toContain('data-header-theme="dark"')
+
+    const serverRenderedPage = await page.context().newPage()
+    await serverRenderedPage.setViewportSize({ width: 1280, height: 960 })
+    await serverRenderedPage.route('**/*', async (route) => {
+      if (route.request().resourceType() === 'script') {
+        await route.abort()
+        return
+      }
+      await route.continue()
+    })
+    await serverRenderedPage.goto(`${baseURL}${routePath}`)
+    const serverHeaderSurface = serverRenderedPage.locator('header > div')
+    await expect(serverHeaderSurface).toHaveAttribute('data-theme', 'light')
+    await expect(serverRenderedPage.getByRole('button', { name: 'E2E Products' })).toHaveCSS(
+      'color',
+      'rgb(255, 255, 255)',
+    )
+    await expect(serverRenderedPage.getByRole('link', { name: 'Search' })).toHaveCSS(
+      'color',
+      'rgb(255, 255, 255)',
+    )
+    await expect(serverRenderedPage.getByRole('link', { name: 'E2E Talk to sales' })).toHaveCSS(
+      'color',
+      'rgb(255, 255, 255)',
+    )
+    await serverRenderedPage.close()
+
+    await openFixture(page, 1280)
+    const headerSurface = page.locator('header > div')
+    await expect(headerSurface).toHaveAttribute('data-theme', 'light')
+
+    await page.goto(`${baseURL}${routePath}`)
+    await expect(headerSurface).toHaveAttribute('data-theme', 'dark')
+    const products = page.getByRole('button', { name: 'E2E Products' })
+    const search = page.getByRole('link', { name: 'Search' })
+    const menuCta = page.getByRole('link', { name: 'E2E Talk to sales' })
+    const scrollButton = page.getByRole('button', { name: 'Scroll navigation left' })
+    const indicator = page.locator('[data-navigation-indicator="true"]')
+    const expectedForeground = await page.evaluate(() => {
+      const probe = document.createElement('span')
+      probe.style.color = 'var(--foreground)'
+      document.body.append(probe)
+      const color = getComputedStyle(probe).color
+      probe.remove()
+      return color
+    })
+    expect(expectedForeground).not.toBe('rgb(255, 255, 255)')
+    await expect(products).toHaveCSS('color', 'rgb(255, 255, 255)')
+    await expect(search).toHaveCSS('color', 'rgb(255, 255, 255)')
+    await expect(menuCta).toHaveCSS('color', 'rgb(255, 255, 255)')
+    await expect(menuCta).toHaveCSS('border-color', 'rgb(255, 255, 255)')
+    await expect(scrollButton).toBeVisible()
+    await expect(scrollButton).toHaveCSS('color', 'rgb(255, 255, 255)')
+    await expect(indicator).toHaveCSS('background-color', 'rgb(255, 255, 255)')
+    const headerLogo = page.locator('header .site-container > a [role="img"]')
+    await expect(headerLogo).toBeVisible()
+    await expect(headerLogo).toHaveCSS('background-color', 'rgb(255, 255, 255)')
+    await expect(headerLogo).not.toHaveAttribute('src', /.*/)
+    await expect
+      .poll(() => headerLogo.evaluate((element) => getComputedStyle(element).maskImage))
+      .toMatch(/^url\("https:\/\/media\.example\.invalid\/e2e-website-shell-logo\.svg\?/)
+
+    await products.hover()
+    await expect(headerSurface).toHaveAttribute('data-menu-open', 'true')
+    const menuForeground = await headerSurface.evaluate((element) => getComputedStyle(element).color)
+    expect(menuForeground).toBe(expectedForeground)
+    await expect(products).toHaveCSS('color', menuForeground)
+    await expect(search).toHaveCSS('color', menuForeground)
+    await expect(menuCta).toHaveCSS('color', menuForeground)
+    await expect(menuCta).toHaveCSS('border-color', menuForeground)
+    await expect(scrollButton).toHaveCSS('color', menuForeground)
+    await expect(indicator).toHaveCSS('background-color', menuForeground)
+
+    await page.keyboard.press('Escape')
+    await expect(headerSurface).toHaveAttribute('data-menu-open', 'false')
+    await page.evaluate(() => {
+      document.body.style.minHeight = '200vh'
+      window.scrollTo(0, 100)
+    })
+    await expect(headerSurface).toHaveAttribute('data-scrolled', 'true')
+    const scrolledForeground = await headerSurface.evaluate((element) => getComputedStyle(element).color)
+    expect(scrolledForeground).toBe(expectedForeground)
+    await expect(products).toHaveCSS('color', scrolledForeground)
+    await expect(search).toHaveCSS('color', scrolledForeground)
+    await expect(menuCta).toHaveCSS('color', scrolledForeground)
+    await expect(menuCta).toHaveCSS('border-color', scrolledForeground)
+    await expect(scrollButton).toHaveCSS('color', scrolledForeground)
+
+    await page.evaluate(() => {
+      const browserWindow = window as WindowWithHeaderThemeSamples
+      browserWindow.__headerThemeSamples = []
+      const observer = new MutationObserver(() => {
+        const headerSurface = document.querySelector('header > div')
+        const marker = document.querySelector('main [data-header-theme]')
+        browserWindow.__headerThemeSamples?.push({
+          color: headerSurface ? getComputedStyle(headerSurface).color : null,
+          headerTheme: headerSurface?.getAttribute('data-theme') ?? null,
+          markerTheme: marker?.getAttribute('data-header-theme') ?? null,
+        })
+      })
+      observer.observe(document.body, {
+        attributes: true,
+        attributeFilter: ['data-header-theme', 'data-theme'],
+        childList: true,
+        subtree: true,
+      })
+      browserWindow.__headerThemeObserver = observer
+    })
+
+    const directLink = page.getByRole('link', { name: 'E2E Direct' })
+    await directLink.scrollIntoViewIfNeeded()
+    await directLink.click()
+    await expect(page).toHaveURL(`${baseURL}/${slugs.direct}`)
+    await expect(headerSurface).toHaveAttribute('data-theme', 'light')
+    await expect(page.locator('main [data-header-theme="dark"]')).toHaveCount(0)
+    await expect(headerSurface).toHaveCSS('color', expectedForeground)
+    await expect(search).toHaveCSS('color', expectedForeground)
+
+    const transitionSamples = await page.evaluate(() => {
+      const browserWindow = window as WindowWithHeaderThemeSamples
+      browserWindow.__headerThemeObserver?.disconnect()
+      return browserWindow.__headerThemeSamples ?? []
+    })
+    expect(transitionSamples.length).toBeGreaterThan(0)
+    expect(
+      transitionSamples.filter(
+        (sample) =>
+          sample.markerTheme !== 'dark' &&
+          (sample.headerTheme !== 'light' || sample.color !== expectedForeground),
+      ),
+    ).toEqual([])
+  })
 
   test('Desktop navigation keeps the Mega Menu open while wheel input chains to the page', async ({
     page,

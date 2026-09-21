@@ -6,10 +6,12 @@ import { CMSLink } from '@/components/Link'
 import { Media } from '@/components/Media'
 import { MEDIA_PRESENTATION } from '@/components/Media/config'
 import RichText from '@/components/RichText'
+import { HeaderThemeSync } from '@/heros/HeaderThemeSync'
 
-export const HighImpactHero: React.FC<Page['hero']> = ({ links, media, richText }) => {
+export const HighImpactHero: React.FC<Page['hero']> = ({ headerTheme, links, media, richText }) => {
   return (
     <div className="relative flex items-center justify-center bg-black text-white">
+      <HeaderThemeSync theme={headerTheme} />
       <div className="container mb-8 z-10 relative flex items-center justify-center">
         <div className="max-w-[36.5rem] md:text-center">
           {richText && (

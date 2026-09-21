@@ -195,7 +195,7 @@ export const MobileNav: React.FC<MobileNavProps> = ({
   }, [activeItem, isOpen, state.activeSectionId])
 
   const brand = logo ? (
-    <Logo className={styles.mobileLogo} image={logo} loading="eager" priority="high" />
+    <Logo className={styles.mobileLogo} image={logo} />
   ) : (
     <span className={styles.mobileNavTitle}>{siteName || 'Menu'}</span>
   )

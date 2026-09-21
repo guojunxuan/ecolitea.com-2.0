@@ -91,7 +91,6 @@ describe('adaptFooter', () => {
         id: 'site-settings',
         siteName: 'Ecolitea',
         logo: asset('primary'),
-        logoDark: asset('inverse'),
       } as never,
     )
 
@@ -120,7 +119,7 @@ describe('adaptFooter', () => {
     expect(result.columns[2]?.navItems[1]?.link.href).toBe('/posts?category=sustainability')
     expect(result.columns.find((column) => column.id === 'company')).toBeUndefined()
     expect(JSON.stringify(result)).not.toContain('Legacy')
-    expect(result.logo?.src).toContain('/inverse.svg')
+    expect(result.logo?.src).toContain('/primary.svg')
     expect(JSON.parse(JSON.stringify(result))).toEqual(result)
   })
 
@@ -172,7 +171,6 @@ describe('adaptFooter', () => {
         siteName: '  ',
         legalCompanyName: '  Ecolitea Limited  ',
         logo: asset('primary'),
-        logoDark: 'unresolved-inverse-id',
         siteDescription: '  Sustainable tea systems.  ',
         salesEmail: ' sales@example.com ',
         phone: null,

@@ -6,10 +6,12 @@ import { CMSLink } from '@/components/Link'
 import { Media } from '@/components/Media'
 import { MEDIA_PRESENTATION } from '@/components/Media/config'
 import RichText from '@/components/RichText'
+import { HeaderThemeSync } from '@/heros/HeaderThemeSync'
 
-export const MediumImpactHero: React.FC<Page['hero']> = ({ links, media, richText }) => {
+export const MediumImpactHero: React.FC<Page['hero']> = ({ headerTheme, links, media, richText }) => {
   return (
     <div className="pt-[var(--section-space-standard)]">
+      <HeaderThemeSync theme={headerTheme} />
       <div className="site-container mb-8">
         {richText && <RichText className="mb-6" data={richText} enableGutter={false} />}
 

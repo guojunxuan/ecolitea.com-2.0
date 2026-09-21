@@ -85,10 +85,10 @@ describe('existing media consumers', () => {
   })
 
   it.each([
-    ['high-impact', () => render(<HighImpactHero media={media as never} type="highImpact" />)],
+    ['high-impact', () => render(<HighImpactHero headerTheme="dark" media={media as never} type="highImpact" />)],
     [
       'medium-impact',
-      () => render(<MediumImpactHero media={media as never} type="mediumImpact" />),
+      () => render(<MediumImpactHero headerTheme="light" media={media as never} type="mediumImpact" />),
     ],
     [
       'post',
@@ -118,7 +118,7 @@ describe('existing media consumers', () => {
   })
 
   it('preserves the existing fill and object-cover composition for overlay heroes', () => {
-    render(<HighImpactHero media={media as never} type="highImpact" />)
+    render(<HighImpactHero headerTheme="dark" media={media as never} type="highImpact" />)
 
     expect(getMediaBoundary().getAttribute('data-fill')).toBe('true')
     expect(getMediaBoundary().getAttribute('data-image-class')).toBe('-z-10 object-cover')

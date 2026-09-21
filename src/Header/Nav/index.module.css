@@ -260,10 +260,12 @@
 
   .primaryNavigationTrack {
     align-items: center;
-    display: inline-flex;
-    gap: 1.5rem;
-    min-width: max-content;
+    display: flex;
+    gap: clamp(0.875rem, 1.2vw, 1.25rem);
+    justify-content: flex-end;
+    min-width: 100%;
     white-space: nowrap;
+    width: max-content;
   }
 
   .primaryNavigationItem {
@@ -287,7 +289,7 @@
     align-items: center;
     background: transparent;
     border: 0;
-    color: var(--foreground);
+    color: inherit;
     cursor: pointer;
     display: inline-flex;
     flex: 0 0 2rem;
@@ -306,8 +308,8 @@
   .topLevelLink,
   .dropdownButton,
   .searchLink {
-    color: var(--foreground);
-    font-size: 0.875rem;
+    color: inherit;
+    font-size: 0.9375rem;
     font-weight: 500;
     text-decoration: none;
   }
@@ -333,7 +335,7 @@
   }
 
   .navigationIndicator {
-    background: var(--foreground);
+    background: currentColor;
     border-radius: 999px;
     bottom: 0;
     height: 2px;
@@ -365,9 +367,10 @@
   }
 
   .menuCta {
-    background: var(--primary);
+    background: transparent;
+    border: 1px solid currentColor;
     border-radius: 999px;
-    color: var(--primary-foreground);
+    color: inherit;
     font-size: 0.8125rem;
     font-weight: 600;
     padding: 0.6875rem 1.125rem;

@@ -20,7 +20,6 @@ import { Header } from '@/Header/Component'
 import { Logo } from '@/components/Logo/Logo'
 import { resolveBrandAsset } from '@/components/Logo/resolveBrandAsset'
 import { resolveFavicon } from '@/components/Logo/resolveFavicon'
-import { selectLogo } from '@/components/Logo/selectLogo'
 import type { LogoImage } from '@/components/Logo/types'
 import type { BrandAsset, Footer as FooterData, Header as HeaderData } from '@/payload-types'
 import { buildSiteMetadata } from '@/utilities/buildSiteMetadata'
@@ -39,13 +38,6 @@ const brandAsset = (overrides: Partial<BrandAsset> = {}): BrandAsset => ({
 const primaryLogo: LogoImage = {
   src: '/primary.svg',
   alt: 'Primary logo',
-  width: 1302,
-  height: 296,
-}
-
-const inverseLogo: LogoImage = {
-  src: '/inverse.svg',
-  alt: 'Inverse logo',
   width: 1302,
   height: 296,
 }
@@ -186,7 +178,7 @@ describe('buildSiteMetadata', () => {
 })
 
 describe('Logo', () => {
-  it('renders the supplied native image attributes and responsive classes', () => {
+  it('renders the supplied SVG URL as a colorable mask', () => {
     const image: LogoImage = {
       src: '/ecolitea.svg',
       alt: 'Ecolitea',
@@ -194,19 +186,18 @@ describe('Logo', () => {
       height: 296,
     }
     const { getByRole } = render(
-      <Logo image={image} loading="eager" priority="high" className="h-7 sm:h-8 lg:h-10" />,
+      <Logo image={image} className="h-7 sm:h-8 lg:h-10" />,
     )
 
     const logo = getByRole('img')
 
-    expect(logo.getAttribute('src')).toBe('/ecolitea.svg')
-    expect(logo.getAttribute('alt')).toBe('Ecolitea')
-    expect(logo.getAttribute('width')).toBe('1302')
-    expect(logo.getAttribute('height')).toBe('296')
-    expect(logo.getAttribute('loading')).toBe('eager')
-    expect(logo.getAttribute('fetchpriority')).toBe('high')
-    expect(logo.getAttribute('decoding')).toBe('async')
-    expect(logo.className).toBe('block w-auto max-w-full h-7 sm:h-8 lg:h-10')
+    expect(logo.getAttribute('aria-label')).toBe('Ecolitea')
+    expect(logo.getAttribute('style')).toContain('--logo-url: url("/ecolitea.svg")')
+    expect(logo.getAttribute('style')).toContain('--logo-aspect-ratio: 1302 / 296')
+    expect(logo.className).toContain('block')
+    expect(logo.className).toContain('h-7')
+    expect(logo.className).toContain('sm:h-8')
+    expect(logo.className).toContain('lg:h-10')
   })
 
   it('renders nothing when image data is missing', () => {
@@ -216,47 +207,20 @@ describe('Logo', () => {
   })
 })
 
-describe('selectLogo', () => {
-  it('selects the primary logo in normal mode', () => {
-    expect(selectLogo(primaryLogo, inverseLogo, false)).toBe(primaryLogo)
-  })
-
-  it('selects the inverse logo in inverse mode', () => {
-    expect(selectLogo(primaryLogo, inverseLogo, true)).toBe(inverseLogo)
-  })
-
-  it('falls back to the primary logo when inverse artwork is unavailable', () => {
-    expect(selectLogo(primaryLogo, null, true)).toBe(primaryLogo)
-  })
-
-  it('returns null in normal mode when primary artwork is unavailable', () => {
-    expect(selectLogo(null, inverseLogo, false)).toBeNull()
-  })
-})
-
 describe('branding integration', () => {
   const primaryAsset = brandAsset({
     alt: 'Primary brand',
     url: '/api/brand-assets/file/primary.svg',
   })
-  const inverseAsset = brandAsset({
-    alt: 'Inverse brand',
-    id: 'inverse-brand-asset-id',
-    url: '/api/brand-assets/file/inverse.svg',
-  })
-
   const useGlobalFixtures = ({
     logo = primaryAsset,
-    logoDark = inverseAsset,
   }: {
     logo?: BrandAsset | string | null
-    logoDark?: BrandAsset | string | null
   } = {}) => {
     const siteSettings = {
       id: 'site-settings',
       siteName: 'Ecolitea',
       logo,
-      logoDark,
     }
 
     getCachedHeaderMock.mockResolvedValue(headerData)
@@ -280,15 +244,15 @@ describe('branding integration', () => {
     })
   })
 
-  it('renders the inverse Site Settings logo from the Footer server boundary', async () => {
+  it('renders the configured Site Settings logo from the Footer server boundary', async () => {
     useGlobalFixtures()
 
     const footer = await Footer()
     const logo = findElementByType(footer, Logo)
 
     expect(logo?.props.image).toEqual({
-      src: '/api/brand-assets/file/inverse.svg?2026-09-01T01%3A02%3A03.000Z',
-      alt: 'Inverse brand',
+      src: '/api/brand-assets/file/primary.svg?2026-09-01T01%3A02%3A03.000Z',
+      alt: 'Primary brand',
       width: 1302,
       height: 296,
     })
@@ -318,7 +282,7 @@ describe('branding integration', () => {
   })
 
   it('omits the Footer home link when no logo presentation data resolves', async () => {
-    useGlobalFixtures({ logo: 'unexpanded-brand-id', logoDark: null })
+    useGlobalFixtures({ logo: 'unexpanded-brand-id' })
 
     const footer = await Footer()
 
@@ -326,7 +290,7 @@ describe('branding integration', () => {
   })
 
   it('falls back to the primary logo in the Footer when inverse artwork is unavailable', async () => {
-    useGlobalFixtures({ logoDark: null })
+    useGlobalFixtures()
 
     const footer = await Footer()
     const logo = findElementByType(footer, Logo)

@@ -13,11 +13,17 @@
   top: 0;
   transition:
     background-color 260ms ease,
-    backdrop-filter 260ms ease,
-    -webkit-backdrop-filter 260ms ease,
     box-shadow 260ms ease,
     border-color 260ms ease;
   z-index: 50;
+}
+
+.surface[data-theme='dark'] {
+  color: #fff;
+}
+
+:global(body:has(main [data-header-theme='dark'])) .surface:not([data-scrolled='true']):not([data-menu-open='true']) {
+  color: #fff;
 }
 
 .surface[data-scrolled='true'] {
@@ -26,6 +32,11 @@
   box-shadow: 0 0.25rem 1rem color-mix(in oklch, var(--foreground) 8%, transparent);
   backdrop-filter: blur(18px) saturate(115%);
   -webkit-backdrop-filter: blur(18px) saturate(115%);
+}
+
+.surface[data-scrolled='true'],
+.surface[data-menu-open='true'] {
+  color: var(--foreground);
 }
 
 .surface[data-menu-open='true'] {
@@ -42,6 +53,11 @@
   gap: 1.5rem;
   height: var(--header-height);
   justify-content: space-between;
+}
+
+.desktopLogo {
+  height: 2.4375rem;
+  width: 8.125rem;
 }
 
 @media (width <= 1170px) {

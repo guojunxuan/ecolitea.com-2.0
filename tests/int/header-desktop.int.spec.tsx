@@ -104,6 +104,37 @@ describe('DesktopNav', () => {
     expect(css).not.toContain('73.1875rem')
   })
 
+  it('right-aligns the desktop navigation track while preserving overflow width', () => {
+    const css = readFileSync(resolve(process.cwd(), 'src/Header/Nav/index.module.css'), 'utf8')
+    const track = css.match(/\.primaryNavigationTrack\s*\{([^}]*)\}/)?.[1] ?? ''
+
+    expect(track).toContain('justify-content: flex-end')
+    expect(track).toContain('min-width: 100%')
+    expect(track).toContain('width: max-content')
+  })
+
+  it('uses balanced fluid spacing and 15px typography for the desktop navigation', () => {
+    const css = readFileSync(resolve(process.cwd(), 'src/Header/Nav/index.module.css'), 'utf8')
+    const track = css.match(/\.primaryNavigationTrack\s*\{([^}]*)\}/)?.[1] ?? ''
+    const controls =
+      css.match(/\.topLevelLink,\s*\.dropdownButton,\s*\.searchLink\s*\{([^}]*)\}/)?.[1] ?? ''
+
+    expect(track).toContain('gap: clamp(0.875rem, 1.2vw, 1.25rem)')
+    expect(controls).toContain('font-size: 0.9375rem')
+  })
+
+  it('lets the desktop menu CTA inherit the Header foreground without changing the mobile CTA', () => {
+    const css = readFileSync(resolve(process.cwd(), 'src/Header/Nav/index.module.css'), 'utf8')
+    const desktopCTA = css.match(/\.menuCta\s*\{([^}]*)\}/)?.[1] ?? ''
+    const mobileCTA = css.match(/\.mobileMenuCta\s*\{([^}]*)\}/)?.[1] ?? ''
+
+    expect(desktopCTA).toContain('background: transparent')
+    expect(desktopCTA).toContain('border: 1px solid currentColor')
+    expect(desktopCTA).toContain('color: inherit')
+    expect(mobileCTA).toContain('background: var(--primary)')
+    expect(mobileCTA).toContain('color: var(--primary-foreground)')
+  })
+
   it('uses 100ms first-open intent and switches immediately once a menu is open', () => {
     vi.useFakeTimers()
     render(<DesktopNav {...navigation} />)
@@ -451,6 +482,38 @@ describe('DesktopNav', () => {
     fireEvent.scroll(strip)
 
     expect(strip.scrollLeft).toBe(200)
+    expect(frame.getAttribute('data-at-start')).toBe('false')
+    expect(frame.getAttribute('data-at-end')).toBe('false')
+  })
+
+  it('moves the complete overflowing navigation track with horizontal wheel input', async () => {
+    const { container } = render(<DesktopNav {...navigation} />)
+    const frame = container.querySelector('[data-navigation-frame="true"]') as HTMLElement
+    const strip = screen.getByRole('navigation', { name: 'Primary' })
+    Object.defineProperties(strip, {
+      clientWidth: {
+        configurable: true,
+        get: () => (frame.getAttribute('data-overflow') === 'true' ? 236 : 300),
+      },
+      scrollWidth: { configurable: true, value: 700 },
+      scrollLeft: { configurable: true, value: 0, writable: true },
+    })
+
+    act(() => ResizeObserverMock.instances.forEach((observer) => observer.emit()))
+    await waitFor(() => expect(strip.scrollLeft).toBe(464))
+
+    strip.scrollLeft = 200
+    fireEvent.scroll(strip)
+    const horizontalWheel = new WheelEvent('wheel', {
+      bubbles: true,
+      cancelable: true,
+      deltaX: -60,
+      deltaY: 0,
+    })
+    act(() => strip.dispatchEvent(horizontalWheel))
+
+    expect(horizontalWheel.defaultPrevented).toBe(true)
+    expect(strip.scrollLeft).toBe(140)
     expect(frame.getAttribute('data-at-start')).toBe('false')
     expect(frame.getAttribute('data-at-end')).toBe('false')
   })

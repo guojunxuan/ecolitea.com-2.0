@@ -266,6 +266,17 @@ describe('FooterNavigation', () => {
     expect(css).not.toMatch(/48rem[^}]*grid-template-columns:\s*repeat\(2/s)
   })
 
+  it('uses the reference Footer brand frame while preserving the logo aspect ratio', () => {
+    const css = readFileSync(resolve(process.cwd(), 'src/Footer/index.module.css'), 'utf8')
+    const brandLink = css.match(/\.brandLink\s*\{([^}]*)\}/)?.[1] ?? ''
+    const logo = css.match(/\.logo\s*\{([^}]*)\}/)?.[1] ?? ''
+
+    expect(brandLink).toContain('min-height: 2.375rem')
+    expect(brandLink).toContain('width: min(100%, 10.5rem)')
+    expect(logo).toContain('height: auto')
+    expect(logo).toContain('width: 100%')
+  })
+
   it('does not render accordion or desktop headings for empty columns', () => {
     render(
       <FooterNavigation

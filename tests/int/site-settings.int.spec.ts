@@ -259,19 +259,13 @@ describe('Site Settings Global', () => {
   })
 
   it('uses the dedicated brand asset store and filters each branding purpose', () => {
-    const [logo, logoDark, favicon] = brandingTab.fields
+    const [logo, favicon] = brandingTab.fields
 
     expect(logo).toMatchObject({
       name: 'logo',
       type: 'upload',
       relationTo: 'brand-assets',
       required: true,
-      filterOptions: { mimeType: { equals: 'image/svg+xml' } },
-    })
-    expect(logoDark).toMatchObject({
-      name: 'logoDark',
-      type: 'upload',
-      relationTo: 'brand-assets',
       filterOptions: { mimeType: { equals: 'image/svg+xml' } },
     })
     expect(favicon).toMatchObject({

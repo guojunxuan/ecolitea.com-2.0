@@ -195,4 +195,14 @@ describe('HeaderClient', () => {
     expect(css).toContain('@media (width <= 1170px)')
     expect(css).toContain('rgb(255 255 255 / 90%)')
   })
+
+  it('matches the reference desktop Header logo frame without changing the mobile logo', () => {
+    const css = readFileSync(resolve(process.cwd(), 'src/Header/Component.module.css'), 'utf8')
+    const source = readFileSync(resolve(process.cwd(), 'src/Header/Component.client.tsx'), 'utf8')
+    const desktopLogo = css.match(/\.desktopLogo\s*\{([^}]*)\}/)?.[1] ?? ''
+
+    expect(desktopLogo).toContain('height: 2.4375rem')
+    expect(desktopLogo).toContain('width: 8.125rem')
+    expect(source).toContain('className={styles.desktopLogo}')
+  })
 })

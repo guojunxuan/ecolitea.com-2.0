@@ -35,11 +35,10 @@ describe('public website shell', () => {
     expect(source).not.toContain('data-theme')
   })
 
-  it('keeps Providers as a compatibility wrapper without mounting theme providers', () => {
+  it('mounts the HeaderThemeProvider around public content', () => {
     const source = readSource('src/providers/index.tsx')
 
-    expect(source).not.toContain('ThemeProvider')
-    expect(source).not.toContain('HeaderThemeProvider')
+    expect(source).toContain('HeaderThemeProvider')
 
     const { container } = render(
       <Providers>
@@ -50,11 +49,11 @@ describe('public website shell', () => {
     const child = screen.getByRole('region', { name: 'compatibility child' })
 
     expect(container.children).toHaveLength(1)
-    expect(container.firstElementChild).toBe(child)
+    expect(container.querySelector('[aria-label="compatibility child"]')).toBe(child)
     expect(child.textContent).toBe('Unchanged child content')
   })
 
-  it('keeps public website source free of the removed theme runtime and dark variants', () => {
+  it('keeps public website source free of the removed global theme runtime', () => {
     const sourceFiles = [
       'src/app/(frontend)',
       'src/Header',
@@ -64,10 +63,7 @@ describe('public website shell', () => {
       'src/providers',
     ].flatMap(readSourceTree)
     const forbiddenReferences = [
-      'useHeaderTheme',
-      'setHeaderTheme',
       'ThemeSelector',
-      'data-theme=',
       'dark:',
       'dark:prose-invert',
     ]
@@ -82,7 +78,7 @@ describe('public website shell', () => {
 
     expect(violations).toEqual([])
     expect(fs.existsSync(path.join(process.cwd(), 'src/providers/Theme'))).toBe(false)
-    expect(fs.existsSync(path.join(process.cwd(), 'src/providers/HeaderTheme'))).toBe(false)
+    expect(fs.existsSync(path.join(process.cwd(), 'src/providers/HeaderTheme'))).toBe(true)
   })
 
   it('keeps HighImpact readable on its fixed dark surface without theme state', () => {
@@ -99,6 +95,9 @@ describe('public website shell', () => {
     expect(source).toContain('--site-max-width: 76.25rem;')
     expect(source).toContain('--reading-max-width: 46rem;')
     expect(source).toContain('--header-height: 3.75rem;')
+    expect(source).toMatch(
+      /@media \(width >= 73\.125rem\)[\s\S]*--header-height:\s*4\.5rem;/,
+    )
     expect(source).toContain('--section-space-compact: clamp(2rem, 4vw, 3rem);')
     expect(source).toContain('--section-space-standard: clamp(3rem, 6vw, 5rem);')
     expect(source).toContain('--section-space-spacious: clamp(4.5rem, 9vw, 7.5rem);')

@@ -324,6 +324,7 @@ export interface Page {
   title: string;
   hero: {
     type: 'none' | 'highImpact' | 'mediumImpact' | 'lowImpact';
+    headerTheme: 'light' | 'dark';
     richText?: LexicalRichText<LexicalNodes_106E6C8F> | null;
     links?:
       | {
@@ -777,6 +778,7 @@ export interface CaseStudy {
   title: string;
   hero: {
     type: 'none' | 'highImpact' | 'mediumImpact' | 'lowImpact';
+    headerTheme: 'light' | 'dark';
     richText?: LexicalRichText<LexicalNodes_106E6C8F> | null;
     links?:
       | {
@@ -1143,6 +1145,7 @@ export interface PagesSelect<T extends boolean = true> {
     | T
     | {
         type?: T;
+        headerTheme?: T;
         richText?: T;
         links?:
           | T
@@ -1373,6 +1376,7 @@ export interface CaseStudiesSelect<T extends boolean = true> {
     | T
     | {
         type?: T;
+        headerTheme?: T;
         richText?: T;
         links?:
           | T
@@ -1990,10 +1994,6 @@ export interface SiteSettings {
    */
   logo: string | BrandAsset;
   /**
-   * Optional SVG variant for dark backgrounds. Falls back to Logo.
-   */
-  logoDark?: (string | null) | BrandAsset;
-  /**
    * Use a square SVG, PNG, or ICO image suitable for a browser icon.
    */
   favicon?: (string | null) | BrandAsset;
@@ -2258,7 +2258,6 @@ export interface SiteSettingsSelect<T extends boolean = true> {
   siteDescription?: T;
   customFields?: T | SiteSettingsCustomFieldSelect<T>;
   logo?: T;
-  logoDark?: T;
   favicon?: T;
   salesEmail?: T;
   phone?: T;

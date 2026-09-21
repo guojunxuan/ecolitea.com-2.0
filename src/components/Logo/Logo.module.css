@@ -1,0 +1,6 @@
+.logo {
+  aspect-ratio: var(--logo-aspect-ratio);
+  background-color: currentColor;
+  mask: var(--logo-url) center / contain no-repeat;
+  -webkit-mask: var(--logo-url) center / contain no-repeat;
+}
