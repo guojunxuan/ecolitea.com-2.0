@@ -671,6 +671,23 @@ test.describe.serial('Responsive website shell', () => {
     await deleteFixtures()
   })
 
+  for (const viewport of [
+    { height: 844, width: 390 },
+    { height: 1024, width: 768 },
+    { height: 768, width: 1024 },
+    { height: 900, width: 1440 },
+  ]) {
+    test('keeps shell geometry at ' + viewport.width, async ({ page }) => {
+      await openFixture(page, viewport.width, { height: viewport.height })
+      await expect
+        .poll(() => page.evaluate(() => document.documentElement.scrollWidth <= innerWidth))
+        .toBe(true)
+      await expect(page.locator('header')).toBeAttached()
+      await expect(page.locator('main#main-content')).toBeAttached()
+      await expect(page.locator('footer')).toBeVisible()
+    })
+  }
+
   for (const width of [390, 1024]) {
     test(`${width}px uses shared full-screen accordion navigation`, async ({ page }, testInfo) => {
       await openFixture(page, width)
