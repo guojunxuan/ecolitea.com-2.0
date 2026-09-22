@@ -1,0 +1,92 @@
+/* Keep foundations in the existing base layer so utilities and modules win. */
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+    border: 0 solid;
+  }
+
+  * {
+    border-color: var(--website-color-border);
+    /* Preserve the existing outline-ring/50 baseline without adding focus behavior. */
+    outline-color: color-mix(in oklab, var(--website-color-focus) 50%, transparent);
+  }
+
+  html {
+    font-family: var(--website-font-sans);
+    line-height: 1.5;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    display: flex;
+    min-height: 100vh;
+    margin: 0;
+    flex-direction: column;
+    background: var(--website-color-background);
+    color: var(--website-color-foreground);
+  }
+
+  button,
+  input,
+  optgroup,
+  select,
+  textarea {
+    margin: 0;
+    color: inherit;
+    font: inherit;
+    letter-spacing: inherit;
+  }
+
+  /* Match Preflight exactly: picture is inline outside prose; only images and
+     videos have a max-width constraint. Do not constrain icons or canvases. */
+  img,
+  svg,
+  video,
+  canvas,
+  audio,
+  iframe,
+  embed,
+  object {
+    display: block;
+    vertical-align: middle;
+  }
+
+  img,
+  video {
+    max-width: 100%;
+    height: auto;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  p,
+  blockquote,
+  figure,
+  ol,
+  ul {
+    margin: 0;
+  }
+
+  ol,
+  ul,
+  menu {
+    padding: 0;
+    list-style: none;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: inherit;
+  }
+
+  table {
+    border-collapse: collapse;
+    text-indent: 0;
+  }
+}

@@ -1,0 +1,35 @@
+@layer utilities {
+  /* .container is the temporary RichText compatibility class (Task 4). */
+  .container,
+  .site-container,
+  .wide-container,
+  .reading-container {
+    width: min(100% - (2 * var(--website-gutter)), var(--website-container-max));
+    margin-inline: auto;
+  }
+
+  .container,
+  .site-container {
+    --website-container-max: var(--website-container-site);
+  }
+
+  .wide-container {
+    --website-container-max: var(--website-container-wide);
+  }
+
+  .reading-container {
+    --website-container-max: var(--website-container-reading);
+  }
+
+  .website-section {
+    padding-block: var(--website-section-standard);
+  }
+
+  .website-section--compact {
+    padding-block: var(--website-section-compact);
+  }
+
+  .website-section--spacious {
+    padding-block: var(--website-section-spacious);
+  }
+}
