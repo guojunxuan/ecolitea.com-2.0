@@ -1,0 +1,52 @@
+.pagination {
+  display: flex;
+  width: 100%;
+  margin-inline: auto;
+  justify-content: center;
+}
+
+.content {
+  display: flex;
+  flex-direction: row;
+  gap: var(--website-space-1);
+  align-items: center;
+}
+
+.item {
+  display: list-item;
+}
+
+.previous {
+  gap: var(--website-space-1);
+  padding-left: 0.625rem;
+}
+
+.next {
+  gap: var(--website-space-1);
+  padding-right: 0.625rem;
+}
+
+.ellipsis {
+  display: flex;
+  width: 2.25rem;
+  height: 2.25rem;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon {
+  width: var(--website-space-4);
+  height: var(--website-space-4);
+}
+
+.screenReaderOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
