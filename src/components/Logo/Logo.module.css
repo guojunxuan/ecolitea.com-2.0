@@ -1,6 +1,11 @@
-.logo {
-  aspect-ratio: var(--logo-aspect-ratio);
-  background-color: currentColor;
-  mask: var(--logo-url) center / contain no-repeat;
-  -webkit-mask: var(--logo-url) center / contain no-repeat;
+@layer components {
+  .logo {
+    display: block;
+    width: auto;
+    max-width: 100%;
+    aspect-ratio: var(--logo-aspect-ratio);
+    background-color: currentColor;
+    mask: var(--logo-url) center / contain no-repeat;
+    -webkit-mask: var(--logo-url) center / contain no-repeat;
+  }
 }

@@ -1,0 +1,53 @@
+@layer components {
+  .card {
+    overflow: hidden;
+    background-color: var(--website-color-surface);
+    border: 1px solid var(--website-color-border);
+    border-radius: var(--website-radius-control);
+  }
+
+  @media (hover: hover) {
+    .card:hover {
+      cursor: pointer;
+    }
+  }
+
+  .media {
+    position: relative;
+    width: 100%;
+  }
+
+  .body {
+    padding: var(--website-space-4);
+  }
+
+  .categoryLabel {
+    margin-bottom: var(--website-space-4);
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    text-transform: uppercase;
+  }
+
+  .title {
+    max-width: 65ch;
+    font-size: 1rem;
+    line-height: 1.75;
+  }
+
+  .title h3 {
+    margin: 0;
+    color: inherit;
+    font-size: 1.25em;
+    font-weight: 600;
+    line-height: 1.6;
+  }
+
+  .link {
+    color: inherit;
+    text-decoration: inherit;
+  }
+
+  .description {
+    margin-top: var(--website-space-2);
+  }
+}

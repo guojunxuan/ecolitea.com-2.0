@@ -12,6 +12,8 @@ import { buildCloudflareImageURL } from '../cloudflare'
 import { cssVariables } from '@/cssVariables'
 import { getMediaUrl } from '@/utilities/getMediaUrl'
 
+import styles from './index.module.css'
+
 const { breakpoints } = cssVariables
 
 // A base64 encoded image to use as a placeholder while the image is loading
@@ -92,7 +94,8 @@ export const ImageMedia: React.FC<MediaProps> = (props) => {
     <picture className={cn(pictureClassName)}>
       <NextImage
         alt={alt || ''}
-        className={cn(imgClassName)}
+        className={cn(styles.image, imgClassName)}
+        data-media-kind="image"
         fill={fill}
         height={!fill ? height : undefined}
         loader={loader}

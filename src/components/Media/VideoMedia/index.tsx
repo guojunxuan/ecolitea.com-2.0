@@ -8,6 +8,8 @@ import type { Props as MediaProps } from '../types'
 import { buildCloudflareVideoURL } from '../cloudflare'
 import { getMediaUrl } from '@/utilities/getMediaUrl'
 
+import styles from './index.module.css'
+
 export const VideoMedia: React.FC<MediaProps> = (props) => {
   const { onClick, presentation, resource, videoClassName } = props
 
@@ -41,8 +43,9 @@ export const VideoMedia: React.FC<MediaProps> = (props) => {
     return (
       <video
         autoPlay
-        className={cn(videoClassName)}
+        className={cn(styles.video, videoClassName)}
         controls={false}
+        data-media-kind="video"
         loop
         muted
         onClick={onClick}

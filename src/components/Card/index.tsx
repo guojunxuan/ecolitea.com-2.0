@@ -9,6 +9,8 @@ import type { Post } from '@/payload-types'
 import { Media } from '@/components/Media'
 import { MEDIA_PRESENTATION } from '@/components/Media/config'
 
+import styles from './index.module.css'
+
 export type CardPostData = Pick<Post, 'slug' | 'categories' | 'meta' | 'title'>
 
 export const Card: React.FC<{
@@ -31,22 +33,16 @@ export const Card: React.FC<{
   const href = `/${relationTo}/${slug}`
 
   return (
-    <article
-      className={cn(
-        'border border-border rounded-lg overflow-hidden bg-card hover:cursor-pointer',
-        className,
-      )}
-      ref={cardRef}
-    >
-      <div className="relative w-full ">
-        {!metaImage && <div className="">No image</div>}
+    <article className={cn(styles.card, className)} data-slot="content-card" ref={cardRef}>
+      <div className={styles.media} data-slot="content-card-media">
+        {!metaImage && <div>No image</div>}
         {metaImage && typeof metaImage !== 'string' && (
           <Media presentation={MEDIA_PRESENTATION.card} resource={metaImage} size="33vw" />
         )}
       </div>
-      <div className="p-4">
+      <div className={styles.body} data-slot="content-card-body">
         {showCategories && hasCategories && (
-          <div className="uppercase text-sm mb-4">
+          <div className={styles.categoryLabel} data-slot="content-card-category">
             {categories?.map((category, index) => {
               if (typeof category === 'object') {
                 const { title: titleFromCategory } = category
@@ -68,15 +64,19 @@ export const Card: React.FC<{
           </div>
         )}
         {titleToUse && (
-          <div className="prose">
+          <div className={styles.title} data-slot="content-card-title">
             <h3>
-              <Link className="not-prose" href={href} ref={linkRef}>
+              <Link className={styles.link} data-slot="content-card-link" href={href} ref={linkRef}>
                 {titleToUse}
               </Link>
             </h3>
           </div>
         )}
-        {description && <div className="mt-2">{description && <p>{sanitizedDescription}</p>}</div>}
+        {description && (
+          <div className={styles.description} data-slot="content-card-description">
+            <p>{sanitizedDescription}</p>
+          </div>
+        )}
       </div>
     </article>
   )

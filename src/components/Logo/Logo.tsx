@@ -18,7 +18,8 @@ export const Logo = (props: Props) => {
     <span
       aria-label={image.alt}
       role="img"
-      className={clsx(styles.logo, 'block w-auto max-w-full', className)}
+      className={clsx(styles.logo, className)}
+      data-slot="logo"
       style={
         {
           '--logo-url': `url("${image.src}")`,

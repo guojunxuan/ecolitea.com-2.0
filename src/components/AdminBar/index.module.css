@@ -1,0 +1,40 @@
+@layer components {
+  .adminBar {
+    padding-block: var(--website-space-2);
+    background-color: #000;
+    color: #fff;
+  }
+
+  .visible {
+    display: block;
+  }
+
+  .hidden {
+    display: none;
+  }
+
+  .container {
+    width: min(100% - (2 * var(--website-gutter)), var(--website-container-site));
+    margin-inline: auto;
+  }
+
+  .bar {
+    padding-block: var(--website-space-2);
+    color: #fff;
+  }
+
+  .controls {
+    color: #fff;
+    font-weight: 500;
+  }
+
+  .text {
+    color: #fff;
+  }
+
+  @media (max-width: 768px) {
+    .adminBar {
+      display: none;
+    }
+  }
+}

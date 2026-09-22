@@ -18,6 +18,7 @@ import { Footer } from '@/Footer/Component'
 import { HeaderClient } from '@/Header/Component.client'
 import { Header } from '@/Header/Component'
 import { Logo } from '@/components/Logo/Logo'
+import logoStyles from '@/components/Logo/Logo.module.css'
 import { resolveBrandAsset } from '@/components/Logo/resolveBrandAsset'
 import { resolveFavicon } from '@/components/Logo/resolveFavicon'
 import type { LogoImage } from '@/components/Logo/types'
@@ -185,16 +186,16 @@ describe('Logo', () => {
       width: 1302,
       height: 296,
     }
-    const { getByRole } = render(
-      <Logo image={image} className="h-7 sm:h-8 lg:h-10" />,
-    )
+    const { getByRole } = render(<Logo image={image} className="h-7 sm:h-8 lg:h-10" />)
 
     const logo = getByRole('img')
 
     expect(logo.getAttribute('aria-label')).toBe('Ecolitea')
+    expect(logo.getAttribute('data-slot')).toBe('logo')
+    expect(logo.classList).toContain(logoStyles.logo)
     expect(logo.getAttribute('style')).toContain('--logo-url: url("/ecolitea.svg")')
     expect(logo.getAttribute('style')).toContain('--logo-aspect-ratio: 1302 / 296')
-    expect(logo.className).toContain('block')
+    expect(logo.className).not.toMatch(/\b(?:block|w-auto|max-w-full)\b/)
     expect(logo.className).toContain('h-7')
     expect(logo.className).toContain('sm:h-8')
     expect(logo.className).toContain('lg:h-10')
@@ -278,7 +279,9 @@ describe('branding integration', () => {
       <HeaderClient logo={null} menuCta={null} navItems={[]} siteName="Ecolitea" />,
     )
 
-    expect(getAllByRole('link', { name: 'Ecolitea' }).every((link) => link.getAttribute('href') === '/')).toBe(true)
+    expect(
+      getAllByRole('link', { name: 'Ecolitea' }).every((link) => link.getAttribute('href') === '/'),
+    ).toBe(true)
   })
 
   it('omits the Footer home link when no logo presentation data resolves', async () => {

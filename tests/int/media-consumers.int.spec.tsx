@@ -32,6 +32,7 @@ vi.mock('@/components/Media', () => ({
 
 import { MediaBlock } from '@/blocks/MediaBlock/Component'
 import { Card } from '@/components/Card'
+import cardStyles from '@/components/Card/index.module.css'
 import { HighImpactHero } from '@/heros/HighImpact'
 import { MediumImpactHero } from '@/heros/MediumImpact'
 import { PostHero } from '@/heros/PostHero'
@@ -71,6 +72,10 @@ describe('existing media consumers', () => {
       '{"image":{"aspectRatio":{"width":4,"height":3},"fit":"cover","quality":85}}',
     )
     expect(getMediaBoundary().getAttribute('data-size')).toBe('33vw')
+    expect(screen.getByRole('article').getAttribute('data-slot')).toBe('content-card')
+    expect(screen.getByRole('article').classList).toContain(cardStyles.card)
+    expect(getMediaBoundary().parentElement?.getAttribute('data-slot')).toBe('content-card-media')
+    expect(getMediaBoundary().parentElement?.classList).toContain(cardStyles.media)
   })
 
   it('declares original-ratio body presentation for Media Blocks', () => {
@@ -79,16 +84,17 @@ describe('existing media consumers', () => {
     expect(getMediaBoundary().getAttribute('data-presentation')).toBe(
       '{"image":{"fit":"scale-down","quality":85}}',
     )
-    expect(getMediaBoundary().getAttribute('data-image-class')).toContain(
-      'border border-border rounded-[0.8rem]',
-    )
   })
 
   it.each([
-    ['high-impact', () => render(<HighImpactHero headerTheme="dark" media={media as never} type="highImpact" />)],
+    [
+      'high-impact',
+      () => render(<HighImpactHero headerTheme="dark" media={media as never} type="highImpact" />),
+    ],
     [
       'medium-impact',
-      () => render(<MediumImpactHero headerTheme="light" media={media as never} type="mediumImpact" />),
+      () =>
+        render(<MediumImpactHero headerTheme="light" media={media as never} type="mediumImpact" />),
     ],
     [
       'post',
@@ -117,10 +123,12 @@ describe('existing media consumers', () => {
     )
   })
 
-  it('preserves the existing fill and object-cover composition for overlay heroes', () => {
+  it('preserves the existing fill presentation contract for overlay heroes', () => {
     render(<HighImpactHero headerTheme="dark" media={media as never} type="highImpact" />)
 
     expect(getMediaBoundary().getAttribute('data-fill')).toBe('true')
-    expect(getMediaBoundary().getAttribute('data-image-class')).toBe('-z-10 object-cover')
+    expect(getMediaBoundary().getAttribute('data-presentation')).toBe(
+      '{"image":{"fit":"scale-down","quality":85}}',
+    )
   })
 })

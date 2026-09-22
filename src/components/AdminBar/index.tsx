@@ -8,11 +8,9 @@ import { PayloadAdminBar } from '@payloadcms/admin-bar'
 import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
 
-import './index.css'
+import styles from './index.module.css'
 
 import { getClientSideURL } from '@/utilities/getURL'
-
-const baseClass = 'admin-bar'
 
 const collectionLabels = {
   pages: {
@@ -48,19 +46,20 @@ export const AdminBar: React.FC<{
 
   return (
     <div
-      className={cn(baseClass, 'py-2 bg-black text-white', {
-        block: show,
-        hidden: !show,
+      className={cn(styles.adminBar, {
+        [styles.visible]: show,
+        [styles.hidden]: !show,
       })}
+      data-slot="admin-bar"
     >
-      <div className="container">
+      <div className={styles.container}>
         <PayloadAdminBar
           {...adminBarProps}
-          className="py-2 text-white"
+          className={styles.bar}
           classNames={{
-            controls: 'font-medium text-white',
-            logo: 'text-white',
-            user: 'text-white',
+            controls: styles.controls,
+            logo: styles.text,
+            user: styles.text,
           }}
           cmsURL={getClientSideURL()}
           collectionSlug={collection}

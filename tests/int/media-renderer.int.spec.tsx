@@ -7,6 +7,8 @@ import type { Media as MediaResource } from '@/payload-types'
 vi.mock('next/image', () => ({
   default: ({
     alt,
+    className,
+    'data-media-kind': mediaKind,
     height,
     loader,
     quality,
@@ -15,6 +17,8 @@ vi.mock('next/image', () => ({
     width,
   }: {
     alt: string
+    className?: string
+    'data-media-kind'?: string
     height?: number
     loader?: (args: { quality?: number; src: string; width: number }) => string
     quality?: number
@@ -32,7 +36,9 @@ vi.mock('next/image', () => ({
       // eslint-disable-next-line @next/next/no-img-element
       <img
         alt={alt}
+        className={className}
         data-has-loader={loader ? 'true' : 'false'}
+        data-media-kind={mediaKind}
         data-sizes={sizes}
         height={height}
         src={renderedSource}
@@ -44,6 +50,8 @@ vi.mock('next/image', () => ({
 
 import { Media } from '@/components/Media'
 import { MEDIA_PRESENTATION } from '@/components/Media/config'
+import imageStyles from '@/components/Media/ImageMedia/index.module.css'
+import videoStyles from '@/components/Media/VideoMedia/index.module.css'
 
 const media = (overrides: Partial<MediaResource>): MediaResource => ({
   id: 'media-id',
@@ -72,6 +80,8 @@ describe('Media renderer', () => {
 
     const image = screen.getByRole('img', { name: 'Tea card' })
     expect(image.getAttribute('data-has-loader')).toBe('true')
+    expect(image.getAttribute('data-media-kind')).toBe('image')
+    expect(image.classList).toContain(imageStyles.image)
     expect(image.getAttribute('data-sizes')).toBe('(max-width: 768px) 100vw, 33vw')
     expect(image.getAttribute('src')).toBe(
       'https://assets.example.com/cdn-cgi/image/width=640,height=480,fit=cover,quality=73,format=auto/photos/tea.jpg?2026-09-12T01%3A02%3A03.000Z',
@@ -126,6 +136,8 @@ describe('Media renderer', () => {
       )
 
       const source = document.querySelector('video source')
+      expect(source?.parentElement?.getAttribute('data-media-kind')).toBe('video')
+      expect(source?.parentElement?.classList).toContain(videoStyles.video)
       expect(source?.getAttribute('src')).toContain(
         'https://assets.example.com/cdn-cgi/media/mode=video,width=1280,fit=contain/',
       )
