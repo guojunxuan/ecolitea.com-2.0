@@ -1,3 +1,6 @@
+import fs from 'node:fs'
+import path from 'node:path'
+
 import { cleanup, render } from '@testing-library/react'
 import React from 'react'
 import { afterEach, describe, expect, it } from 'vitest'
@@ -31,6 +34,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import selectStyles from '@/components/ui/select.module.css'
 import { Textarea } from '@/components/ui/textarea'
 
 afterEach(cleanup)
@@ -41,6 +45,9 @@ const expectModuleClass = (element: Element) => {
   expect(className).toBeTruthy()
   expect(className).not.toMatch(/\b(?:bg-primary|border-input|rounded-md|text-sm)\b/)
 }
+
+const readSource = (relativePath: string) =>
+  fs.readFileSync(path.join(process.cwd(), relativePath), 'utf8')
 
 describe('UI style primitives', () => {
   it('renders every Button variant and size with its public slot and CSS Module classes', () => {
@@ -98,6 +105,14 @@ describe('UI style primitives', () => {
     expect((button as HTMLButtonElement).disabled).toBe(true)
     expect(button.classList).toContain('consumer-class')
     expectModuleClass(button)
+  })
+
+  it('keeps Button component defaults in the components layer so caller utilities override them', () => {
+    const buttonSource = readSource('src/components/ui/button.module.css')
+    const copyButtonSource = readSource('src/blocks/Code/CopyButton.tsx')
+
+    expect(buttonSource).toMatch(/@layer components\s*{\s*\.button\s*{/)
+    expect(copyButtonSource).toContain('className="flex gap-1"')
   })
 
   it('renders Card slots with CSS Module classes', () => {
@@ -173,6 +188,40 @@ describe('UI style primitives', () => {
     expect(label.tagName).toBe('LABEL')
     expect(label.getAttribute('for')).toBe('name')
     expectModuleClass(label)
+  })
+
+  it('renders open Select portal content with selected and disabled option states', () => {
+    const { getByRole } = render(
+      <Select defaultValue="green" open>
+        <SelectTrigger aria-label="Open tea choices">
+          <SelectValue placeholder="Choose tea" />
+        </SelectTrigger>
+        <SelectContent position="popper">
+          <SelectItem value="green">Green</SelectItem>
+          <SelectItem disabled value="black">
+            Black
+          </SelectItem>
+        </SelectContent>
+      </Select>,
+    )
+
+    const content = document.querySelector('[data-slot="select-content"]')
+    expect(content).not.toBeNull()
+    expect(content?.getAttribute('data-state')).toBe('open')
+    expect(content?.getAttribute('data-side')).toBeTruthy()
+    expect(content?.classList).toContain(selectStyles.content)
+    expect(content?.classList).toContain(selectStyles.popper)
+
+    const selectedOption = getByRole('option', { name: 'Green' })
+    expect(selectedOption.getAttribute('data-slot')).toBe('select-item')
+    expect(selectedOption.getAttribute('data-state')).toBe('checked')
+    expect(selectedOption.getAttribute('aria-selected')).toBe('false')
+    expectModuleClass(selectedOption)
+
+    const disabledOption = getByRole('option', { name: 'Black' })
+    expect(disabledOption.hasAttribute('data-disabled')).toBe(true)
+    expect(disabledOption.getAttribute('aria-disabled')).toBe('true')
+    expectModuleClass(disabledOption)
   })
 
   it('renders Pagination navigation and active state with CSS Module classes', () => {
