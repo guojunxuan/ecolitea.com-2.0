@@ -9,6 +9,7 @@ import React from 'react'
 
 import { Error } from '../Error'
 import { Width } from '../Width'
+import styles from './index.module.css'
 
 export const Checkbox: React.FC<
   CheckboxField & {
@@ -21,7 +22,7 @@ export const Checkbox: React.FC<
 
   return (
     <Width width={width}>
-      <div className="flex items-center gap-2">
+      <div className={styles.control}>
         <CheckboxUi
           defaultChecked={defaultValue}
           id={name}
@@ -32,8 +33,8 @@ export const Checkbox: React.FC<
         />
         <Label htmlFor={name}>
           {required && (
-            <span className="required">
-              * <span className="sr-only">(required)</span>
+            <span className={styles.required}>
+              * <span className={styles.requiredText}>(required)</span>
             </span>
           )}
           {label}

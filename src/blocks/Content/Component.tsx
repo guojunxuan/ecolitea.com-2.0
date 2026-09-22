@@ -5,20 +5,23 @@ import RichText from '@/components/RichText'
 import type { ContentBlock as ContentBlockProps } from '@/payload-types'
 
 import { CMSLink } from '../../components/Link'
+import styles from './Component.module.css'
+
+type ColumnSize = NonNullable<NonNullable<ContentBlockProps['columns']>[number]['size']>
+
+const columnClasses: Record<ColumnSize, string> = {
+  full: styles.full,
+  half: styles.half,
+  oneThird: styles.oneThird,
+  twoThirds: styles.twoThirds,
+}
 
 export const ContentBlock: React.FC<ContentBlockProps> = (props) => {
   const { columns } = props
 
-  const colsSpanClasses = {
-    full: '12',
-    half: '6',
-    oneThird: '4',
-    twoThirds: '8',
-  }
-
   return (
-    <div className="site-container">
-      <div className="grid grid-cols-4 lg:grid-cols-12 gap-y-8 gap-x-16">
+    <div className={styles.container}>
+      <div className={styles.grid}>
         {columns &&
           columns.length > 0 &&
           columns.map((col, index) => {
@@ -26,8 +29,8 @@ export const ContentBlock: React.FC<ContentBlockProps> = (props) => {
 
             return (
               <div
-                className={cn(`col-span-4 lg:col-span-${colsSpanClasses[size!]}`, {
-                  'md:col-span-2': size !== 'full',
+                className={cn(styles.column, size && columnClasses[size], {
+                  [styles.partial]: size !== 'full',
                 })}
                 key={index}
               >

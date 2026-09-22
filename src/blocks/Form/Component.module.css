@@ -1,0 +1,36 @@
+@layer components {
+  .container {
+    width: min(100% - (2 * var(--website-gutter)), var(--website-container-reading));
+    margin-inline: auto;
+  }
+
+  .intro {
+    margin-bottom: var(--website-space-8);
+  }
+
+  .panel {
+    padding: var(--website-space-4);
+    border: 1px solid var(--website-color-border);
+    border-radius: var(--website-radius-content);
+  }
+
+  .fields {
+    margin-bottom: var(--website-space-4);
+  }
+  .field {
+    margin-bottom: var(--website-space-6);
+  }
+  .fields:last-child,
+  .field:last-child {
+    margin-bottom: 0;
+  }
+
+  @media (width >= 64rem) {
+    .intro {
+      margin-bottom: var(--website-space-12);
+    }
+    .panel {
+      padding: var(--website-space-6);
+    }
+  }
+}

@@ -1,0 +1,49 @@
+@layer components {
+  .banner {
+    width: 100%;
+    margin-inline: auto;
+    margin-block: var(--website-space-8);
+  }
+
+  .surface {
+    display: flex;
+    align-items: center;
+    padding-block: var(--website-space-3);
+    padding-inline: var(--website-space-6);
+    border: 1px solid var(--website-color-border);
+    border-radius: 0.25rem;
+  }
+
+  .info {
+    border-color: var(--website-status-info-border);
+    background-color: var(--website-status-info-background);
+  }
+
+  .error {
+    border-color: var(--website-status-error-border);
+    background-color: var(--website-status-error-accent);
+  }
+
+  .warning {
+    border-color: var(--website-status-warning-border);
+    background-color: var(--website-status-warning-accent);
+  }
+
+  .success {
+    border-color: var(--website-status-success-border);
+    background-color: var(--website-status-success-accent);
+  }
+
+  /* Preserve the installed utility's color space and unsupported-browser fallback. */
+  @supports (color: color-mix(in lab, red, red)) {
+    .error {
+      background-color: color-mix(in oklab, var(--website-status-error-accent) 30%, transparent);
+    }
+    .warning {
+      background-color: color-mix(in oklab, var(--website-status-warning-accent) 30%, transparent);
+    }
+    .success {
+      background-color: color-mix(in oklab, var(--website-status-success-accent) 30%, transparent);
+    }
+  }
+}

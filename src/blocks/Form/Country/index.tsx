@@ -14,6 +14,7 @@ import { Controller } from 'react-hook-form'
 
 import { Error } from '../Error'
 import { Width } from '../Width'
+import styles from './index.module.css'
 import { countryOptions } from './options'
 
 export const Country: React.FC<
@@ -24,12 +25,12 @@ export const Country: React.FC<
 > = ({ name, control, errors, label, required, width }) => {
   return (
     <Width width={width}>
-      <Label className="" htmlFor={name}>
+      <Label htmlFor={name}>
         {label}
 
         {required && (
-          <span className="required">
-            * <span className="sr-only">(required)</span>
+          <span className={styles.required}>
+            * <span className={styles.requiredText}>(required)</span>
           </span>
         )}
       </Label>
@@ -42,7 +43,7 @@ export const Country: React.FC<
 
           return (
             <Select onValueChange={(val) => onChange(val)} value={controlledValue?.value}>
-              <SelectTrigger className="w-full" id={name}>
+              <SelectTrigger className={styles.trigger} id={name}>
                 <SelectValue placeholder={label} />
               </SelectTrigger>
               <SelectContent>

@@ -1,0 +1,12 @@
+@layer components {
+  .intro {
+    width: min(100% - (2 * var(--website-gutter)), var(--website-container-site));
+    margin-inline: auto;
+    margin-bottom: var(--website-section-compact);
+  }
+
+  .introText {
+    margin-inline-start: 0;
+    max-width: 48rem;
+  }
+}

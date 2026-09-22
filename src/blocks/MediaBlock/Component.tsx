@@ -8,6 +8,7 @@ import type { MediaBlock as MediaBlockProps } from '@/payload-types'
 
 import { Media } from '../../components/Media'
 import { MEDIA_PRESENTATION } from '../../components/Media/config'
+import styles from './Component.module.css'
 
 type Props = MediaBlockProps & {
   breakout?: boolean
@@ -36,16 +37,15 @@ export const MediaBlock: React.FC<Props> = (props) => {
   return (
     <div
       className={cn(
-        '',
         {
-          container: enableGutter,
+          [styles.container]: enableGutter,
         },
         className,
       )}
     >
       {(media || staticImage) && (
         <Media
-          imgClassName={cn('border border-border rounded-[0.8rem]', imgClassName)}
+          imgClassName={cn(styles.image, imgClassName)}
           presentation={MEDIA_PRESENTATION.body}
           resource={media}
           src={staticImage}
@@ -54,9 +54,9 @@ export const MediaBlock: React.FC<Props> = (props) => {
       {caption && (
         <div
           className={cn(
-            'mt-6',
+            styles.caption,
             {
-              container: !disableInnerContainer,
+              [styles.container]: !disableInnerContainer,
             },
             captionClassName,
           )}

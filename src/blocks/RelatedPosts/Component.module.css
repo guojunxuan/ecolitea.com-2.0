@@ -1,0 +1,31 @@
+.grid {
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  gap: var(--website-space-4);
+  align-items: stretch;
+}
+
+@media (width >= 48rem) {
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--website-space-8);
+  }
+}
+
+/* The legacy lg:container has width caps but no site-container gutters or margins. */
+@media (width >= 64rem) {
+  .container {
+    width: 100%;
+    max-width: 64rem;
+  }
+}
+@media (width >= 80rem) {
+  .container {
+    max-width: 80rem;
+  }
+}
+@media (width >= 86rem) {
+  .container {
+    max-width: 86rem;
+  }
+}

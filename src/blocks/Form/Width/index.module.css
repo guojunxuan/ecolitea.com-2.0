@@ -1,0 +1,3 @@
+.width {
+  max-width: var(--form-field-width, none);
+}

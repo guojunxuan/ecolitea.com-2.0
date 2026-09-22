@@ -7,6 +7,7 @@ import React from 'react'
 
 import { Error } from '../Error'
 import { Width } from '../Width'
+import styles from './index.module.css'
 
 export const Textarea: React.FC<
   TextField & {
@@ -21,8 +22,8 @@ export const Textarea: React.FC<
         {label}
 
         {required && (
-          <span className="required">
-            * <span className="sr-only">(required)</span>
+          <span className={styles.required}>
+            * <span className={styles.requiredText}>(required)</span>
           </span>
         )}
       </Label>

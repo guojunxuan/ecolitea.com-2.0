@@ -14,6 +14,7 @@ import { Controller } from 'react-hook-form'
 
 import { Error } from '../Error'
 import { Width } from '../Width'
+import styles from './index.module.css'
 import { stateOptions } from './options'
 
 export const State: React.FC<
@@ -27,8 +28,8 @@ export const State: React.FC<
       <Label htmlFor={name}>
         {label}
         {required && (
-          <span className="required">
-            * <span className="sr-only">(required)</span>
+          <span className={styles.required}>
+            * <span className={styles.requiredText}>(required)</span>
           </span>
         )}
       </Label>
@@ -41,7 +42,7 @@ export const State: React.FC<
 
           return (
             <Select onValueChange={(val) => onChange(val)} value={controlledValue?.value}>
-              <SelectTrigger className="w-full" id={name}>
+              <SelectTrigger className={styles.trigger} id={name}>
                 <SelectValue placeholder={label} />
               </SelectTrigger>
               <SelectContent>

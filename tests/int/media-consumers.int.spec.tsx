@@ -31,6 +31,7 @@ vi.mock('@/components/Media', () => ({
 }))
 
 import { MediaBlock } from '@/blocks/MediaBlock/Component'
+import mediaBlockStyles from '@/blocks/MediaBlock/Component.module.css'
 import { Card } from '@/components/Card'
 import cardStyles from '@/components/Card/index.module.css'
 import { HighImpactHero } from '@/heros/HighImpact'
@@ -83,6 +84,9 @@ describe('existing media consumers', () => {
 
     expect(getMediaBoundary().getAttribute('data-presentation')).toBe(
       '{"image":{"fit":"scale-down","quality":85}}',
+    )
+    expect(getMediaBoundary().getAttribute('data-image-class')?.split(' ')).toContain(
+      mediaBlockStyles.image,
     )
   })
 

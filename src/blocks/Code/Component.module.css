@@ -1,0 +1,35 @@
+.code {
+  padding: var(--website-space-4);
+  border: 1px solid var(--website-color-border);
+  border-radius: 0.25rem;
+  overflow-x: auto;
+  background-color: #000;
+  font-family:
+    var(--website-font-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    'Liberation Mono', 'Courier New', monospace;
+  font-size: 0.75rem;
+  line-height: 1rem;
+}
+
+.line {
+  display: table-row;
+}
+.lineNumber {
+  display: table-cell;
+  user-select: none;
+  text-align: right;
+  color: rgb(255 255 255 / 25%);
+}
+.lineContent {
+  display: table-cell;
+  padding-left: var(--website-space-4);
+}
+.copy {
+  display: flex;
+  justify-content: flex-end;
+  vertical-align: middle;
+}
+.copyButton {
+  display: flex;
+  gap: var(--website-space-1);
+}

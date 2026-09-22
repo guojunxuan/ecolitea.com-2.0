@@ -26,19 +26,24 @@ const shellFacingFiles = [
 describe('website layout primitives', () => {
   it('uses the shared section rhythm at the Block owner instead of duplicate my-16 margins', () => {
     const renderBlocks = readSource('src/blocks/RenderBlocks.tsx')
+    const renderBlockStyles = readSource('src/blocks/RenderBlocks.module.css')
     const sources = shellFacingFiles.map(readSource)
 
-    expect(renderBlocks).toContain('className="py-[var(--section-space-standard)]"')
+    expect(renderBlocks).toContain('className={styles.section}')
+    expect(renderBlockStyles).toContain('padding-block: var(--website-section-standard);')
     expect(sources.some((source) => source.includes('my-16'))).toBe(false)
   })
 
-  it('uses site-container for ordinary shell-facing sections', () => {
+  it('uses module-backed site containers for Blocks and preserves shell container primitives', () => {
+    expect(readSource('src/blocks/Content/Component.tsx')).toContain('styles.container')
+    expect(readSource('src/blocks/ArchiveBlock/Component.tsx')).toContain('styles.intro')
     for (const file of [
-      'src/blocks/Content/Component.tsx',
-      'src/blocks/ArchiveBlock/Component.tsx',
-      'src/heros/LowImpact/index.tsx',
-      'src/heros/MediumImpact/index.tsx',
+      'src/blocks/Content/Component.module.css',
+      'src/blocks/ArchiveBlock/Component.module.css',
     ]) {
+      expect(readSource(file), file).toContain('var(--website-container-site)')
+    }
+    for (const file of ['src/heros/LowImpact/index.tsx', 'src/heros/MediumImpact/index.tsx']) {
       expect(readSource(file), file).toContain('site-container')
     }
   })
@@ -93,7 +98,10 @@ describe('website layout primitives', () => {
   })
 
   it('uses the reading container contract for long-form post content and forms', () => {
-    expect(readSource('src/blocks/Form/Component.tsx')).toContain('reading-container')
+    expect(readSource('src/blocks/Form/Component.tsx')).toContain('styles.container')
+    expect(readSource('src/blocks/Form/Component.module.css')).toContain(
+      'var(--website-container-reading)',
+    )
     expect(readSource('src/app/(frontend)/posts/[slug]/page.tsx')).toContain('styles.postContent')
   })
 

@@ -107,12 +107,14 @@ describe('UI style primitives', () => {
     expectModuleClass(button)
   })
 
-  it('keeps Button component defaults in the components layer so caller utilities override them', () => {
+  it('keeps Button component defaults in the components layer and migrates the Code copy slot', () => {
     const buttonSource = readSource('src/components/ui/button.module.css')
     const copyButtonSource = readSource('src/blocks/Code/CopyButton.tsx')
+    const codeSource = readSource('src/blocks/Code/Component.module.css')
 
     expect(buttonSource).toMatch(/@layer components\s*{\s*\.button\s*{/)
-    expect(copyButtonSource).toContain('className="flex gap-1"')
+    expect(copyButtonSource).toContain('className={styles.copyButton}')
+    expect(codeSource).toMatch(/\.copyButton\s*{\s*display: flex;\s*gap: var\(--website-space-1\);/)
   })
 
   it('keeps Pagination edge padding in the components layer so Button icon padding wins', () => {

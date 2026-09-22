@@ -2,6 +2,7 @@
 import { Button } from '@/components/ui/button'
 import { CopyIcon } from '@payloadcms/ui/icons/Copy'
 import { useState } from 'react'
+import styles from './Component.module.css'
 
 export function CopyButton({ code }: { code: string }) {
   const [text, setText] = useState('Copy')
@@ -16,9 +17,9 @@ export function CopyButton({ code }: { code: string }) {
   }
 
   return (
-    <div className="flex justify-end align-middle">
+    <div className={styles.copy}>
       <Button
-        className="flex gap-1"
+        className={styles.copyButton}
         variant={'secondary'}
         onClick={async () => {
           await navigator.clipboard.writeText(code)

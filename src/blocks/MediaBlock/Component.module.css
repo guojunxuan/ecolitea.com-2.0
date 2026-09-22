@@ -1,0 +1,41 @@
+@layer components {
+  .container {
+    width: min(100% - (2 * var(--website-gutter)), var(--website-container-site));
+    margin-inline: auto;
+  }
+
+  .image {
+    border: 1px solid var(--website-color-border);
+    border-radius: var(--website-radius-content);
+  }
+
+  .caption {
+    margin-top: var(--website-space-6);
+  }
+
+  @media (width >= 40rem) {
+    .container {
+      max-width: 40rem;
+    }
+  }
+  @media (width >= 48rem) {
+    .container {
+      max-width: 48rem;
+    }
+  }
+  @media (width >= 64rem) {
+    .container {
+      max-width: 64rem;
+    }
+  }
+  @media (width >= 80rem) {
+    .container {
+      max-width: 80rem;
+    }
+  }
+  @media (width >= 86rem) {
+    .container {
+      max-width: 86rem;
+    }
+  }
+}

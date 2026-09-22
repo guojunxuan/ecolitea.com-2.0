@@ -1,0 +1,63 @@
+@layer components {
+  .container {
+    width: min(100% - (2 * var(--website-gutter)), var(--website-container-site));
+    margin-inline: auto;
+  }
+
+  .panel {
+    display: flex;
+    flex-direction: column;
+    gap: var(--website-space-8);
+    padding: var(--website-space-4);
+    border: 1px solid var(--website-color-border);
+    border-radius: 0.25rem;
+    background-color: var(--website-color-surface);
+  }
+
+  .content {
+    display: flex;
+    align-items: center;
+    max-width: 48rem;
+  }
+
+  .richText {
+    margin-bottom: 0;
+  }
+
+  .links {
+    display: flex;
+    flex-direction: column;
+    gap: var(--website-space-8);
+  }
+
+  @media (width >= 40rem) {
+    .container {
+      max-width: 40rem;
+    }
+  }
+  @media (width >= 48rem) {
+    .container {
+      max-width: 48rem;
+    }
+    .panel {
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+    }
+  }
+  @media (width >= 64rem) {
+    .container {
+      max-width: 64rem;
+    }
+  }
+  @media (width >= 80rem) {
+    .container {
+      max-width: 80rem;
+    }
+  }
+  @media (width >= 86rem) {
+    .container {
+      max-width: 86rem;
+    }
+  }
+}

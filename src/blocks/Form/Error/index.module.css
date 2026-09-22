@@ -1,0 +1,6 @@
+.error {
+  margin-top: var(--website-space-2);
+  color: oklch(63.7% 0.237 25.331deg);
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}

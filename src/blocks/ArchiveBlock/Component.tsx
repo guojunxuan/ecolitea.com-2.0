@@ -6,6 +6,7 @@ import React from 'react'
 import RichText from '@/components/RichText'
 
 import { CollectionArchive } from '@/components/CollectionArchive'
+import styles from './Component.module.css'
 
 export const ArchiveBlock: React.FC<
   ArchiveBlockProps & {
@@ -55,8 +56,8 @@ export const ArchiveBlock: React.FC<
   return (
     <div id={`block-${id}`}>
       {introContent && (
-        <div className="site-container mb-[var(--section-space-compact)]">
-          <RichText className="ms-0 max-w-[48rem]" data={introContent} enableGutter={false} />
+        <div className={styles.intro}>
+          <RichText className={styles.introText} data={introContent} enableGutter={false} />
         </div>
       )}
       <CollectionArchive posts={posts} />
