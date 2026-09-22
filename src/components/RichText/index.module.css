@@ -1,6 +1,9 @@
 .root {
   min-width: 0;
   max-width: none;
+}
+
+.content {
   margin-inline: auto;
 }
 
@@ -10,7 +13,11 @@
 
 .withGutter {
   width: min(100% - (2 * var(--website-gutter)), var(--website-container-site));
-  max-width: var(--website-container-site);
+  margin-inline: auto;
+}
+
+.withGutter.content {
+  max-width: 65ch;
 }
 
 .embeddedBanner {
@@ -39,4 +46,34 @@
 .mediaCaption {
   max-width: 48rem;
   margin-inline: auto;
+}
+
+@media (width >= 40rem) {
+  .withGutter.plain {
+    max-width: 40rem;
+  }
+}
+
+@media (width >= 48rem) {
+  .withGutter.plain {
+    max-width: 48rem;
+  }
+}
+
+@media (width >= 64rem) {
+  .withGutter.plain {
+    max-width: 64rem;
+  }
+}
+
+@media (width >= 80rem) {
+  .withGutter.plain {
+    max-width: 80rem;
+  }
+}
+
+@media (width >= 86rem) {
+  .withGutter.plain {
+    max-width: 86rem;
+  }
 }

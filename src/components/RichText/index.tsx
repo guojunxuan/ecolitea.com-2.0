@@ -91,6 +91,7 @@ export default function RichText(props: Props) {
         {
           'payload-richtext--content': enableProse,
           'payload-richtext--plain': !enableProse,
+          [styles.content]: enableProse,
           [styles.plain]: !enableProse,
           [styles.withGutter]: enableGutter,
         },

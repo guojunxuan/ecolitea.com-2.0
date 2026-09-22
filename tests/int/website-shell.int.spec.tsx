@@ -82,7 +82,8 @@ describe('public website shell', () => {
 
     expect(source).toContain('bg-black')
     expect(source).toContain('text-white')
-    expect(source).toContain('className="mb-6 prose-invert"')
+    expect(source).toContain('className="mb-6 payload-richtext--inverse"')
+    expect(source).not.toContain('prose-invert')
   })
 
   it('defines the shared responsive layout tokens and containers', () => {

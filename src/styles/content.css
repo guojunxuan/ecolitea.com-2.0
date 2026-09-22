@@ -2,37 +2,77 @@
    current inherited body/heading color. RichText activates this content mode
    explicitly; embedded Blocks own their internal styling beyond the boundary. */
 @layer components {
-  .payload-richtext:where(.payload-richtext--content):where(:not(.payload-richtext--plain)) {
-    color: inherit;
-    max-width: 65ch;
-    font-size: 1rem;
-    line-height: 1.75;
-    :where(
-      :not(
-        .payload-richtext__embedded,
-        .payload-richtext__embedded *,
-        .payload-richtext--plain,
-        .payload-richtext--plain *
-      )
-    ) {
+  @scope (.payload-richtext.payload-richtext--content) to (.payload-richtext__embedded) {
+    :scope {
+      --payload-richtext-body: inherit;
+      --payload-richtext-headings: inherit;
+      --payload-richtext-lead: oklch(44.6% 0.03 256.802);
+      --payload-richtext-links: oklch(21% 0.034 264.665);
+      --payload-richtext-bold: oklch(21% 0.034 264.665);
+      --payload-richtext-counters: oklch(55.1% 0.027 264.364);
+      --payload-richtext-bullets: oklch(87.2% 0.01 258.338);
+      --payload-richtext-hr: oklch(92.8% 0.006 264.531);
+      --payload-richtext-quotes: oklch(21% 0.034 264.665);
+      --payload-richtext-quote-borders: oklch(92.8% 0.006 264.531);
+      --payload-richtext-captions: oklch(55.1% 0.027 264.364);
+      --payload-richtext-kbd: oklch(21% 0.034 264.665);
+      --payload-richtext-kbd-shadows: color-mix(
+        in oklab,
+        oklch(21% 0.034 264.665) 10%,
+        transparent
+      );
+      --payload-richtext-code: oklch(21% 0.034 264.665);
+      --payload-richtext-pre-code: oklch(92.8% 0.006 264.531);
+      --payload-richtext-pre-bg: oklch(27.8% 0.033 256.848);
+      --payload-richtext-th-borders: oklch(87.2% 0.01 258.338);
+      --payload-richtext-td-borders: oklch(92.8% 0.006 264.531);
+
+      color: var(--payload-richtext-body);
+      max-width: 65ch;
+      font-size: 1rem;
+      line-height: 1.75;
+    }
+
+    :scope:where(.payload-richtext--inverse) {
+      --payload-richtext-body: oklch(87.2% 0.01 258.338);
+      --payload-richtext-headings: #fff;
+      --payload-richtext-lead: oklch(70.7% 0.022 261.325);
+      --payload-richtext-links: #fff;
+      --payload-richtext-bold: #fff;
+      --payload-richtext-counters: oklch(70.7% 0.022 261.325);
+      --payload-richtext-bullets: oklch(44.6% 0.03 256.802);
+      --payload-richtext-hr: oklch(37.3% 0.034 259.733);
+      --payload-richtext-quotes: oklch(96.7% 0.003 264.542);
+      --payload-richtext-quote-borders: oklch(37.3% 0.034 259.733);
+      --payload-richtext-captions: oklch(70.7% 0.022 261.325);
+      --payload-richtext-kbd: #fff;
+      --payload-richtext-kbd-shadows: rgb(255 255 255 / 10%);
+      --payload-richtext-code: #fff;
+      --payload-richtext-pre-code: oklch(87.2% 0.01 258.338);
+      --payload-richtext-pre-bg: rgb(0 0 0 / 50%);
+      --payload-richtext-th-borders: oklch(44.6% 0.03 256.802);
+      --payload-richtext-td-borders: oklch(37.3% 0.034 259.733);
+    }
+
+    :where(*) {
       &:where(p) {
         margin-top: 1.25em;
         margin-bottom: 1.25em;
       }
       &:where([class~='lead']) {
-        color: oklch(44.6% 0.03 256.802);
+        color: var(--payload-richtext-lead);
         font-size: 1.25em;
         line-height: 1.6;
         margin-top: 1.2em;
         margin-bottom: 1.2em;
       }
       &:where(a) {
-        color: oklch(21% 0.034 264.665);
+        color: var(--payload-richtext-links);
         text-decoration: underline;
         font-weight: 500;
       }
       &:where(strong) {
-        color: oklch(21% 0.034 264.665);
+        color: var(--payload-richtext-bold);
         font-weight: 600;
       }
       &:where(a strong) {
@@ -85,18 +125,18 @@
       }
       &:where(ol > li)::marker {
         font-weight: 400;
-        color: oklch(55.1% 0.027 264.364);
+        color: var(--payload-richtext-counters);
       }
       &:where(ul > li)::marker {
-        color: oklch(87.2% 0.01 258.338);
+        color: var(--payload-richtext-bullets);
       }
       &:where(dt) {
-        color: inherit;
+        color: var(--payload-richtext-headings);
         font-weight: 600;
         margin-top: 1.25em;
       }
       &:where(hr) {
-        border-color: oklch(92.8% 0.006 264.531);
+        border-color: var(--payload-richtext-hr);
         border-top-width: 1px;
         margin-top: 3em;
         margin-bottom: 3em;
@@ -104,9 +144,9 @@
       &:where(blockquote) {
         font-weight: 500;
         font-style: italic;
-        color: oklch(21% 0.034 264.665);
+        color: var(--payload-richtext-quotes);
         border-inline-start-width: 0.25rem;
-        border-inline-start-color: oklch(92.8% 0.006 264.531);
+        border-inline-start-color: var(--payload-richtext-quote-borders);
         quotes: '\201C' '\201D' '\2018' '\2019';
         margin-top: 1.6em;
         margin-bottom: 1.6em;
@@ -119,7 +159,7 @@
         content: close-quote;
       }
       &:where(h1) {
-        color: inherit;
+        color: var(--payload-richtext-headings);
         font-weight: normal;
         font-size: 2.25em;
         margin-top: 0;
@@ -128,10 +168,10 @@
       }
       &:where(h1 strong) {
         font-weight: 900;
-        color: inherit;
+        color: var(--payload-richtext-headings);
       }
       &:where(h2) {
-        color: inherit;
+        color: var(--payload-richtext-headings);
         font-weight: 700;
         font-size: 1.5em;
         margin-top: 2em;
@@ -140,10 +180,10 @@
       }
       &:where(h2 strong) {
         font-weight: 800;
-        color: inherit;
+        color: var(--payload-richtext-headings);
       }
       &:where(h3) {
-        color: inherit;
+        color: var(--payload-richtext-headings);
         font-weight: 600;
         font-size: 1.25em;
         margin-top: 1.6em;
@@ -155,7 +195,7 @@
         color: inherit;
       }
       &:where(h4) {
-        color: inherit;
+        color: var(--payload-richtext-headings);
         font-weight: 600;
         margin-top: 1.5em;
         margin-bottom: 0.5em;
@@ -181,10 +221,10 @@
       &:where(kbd) {
         font-weight: 500;
         font-family: inherit;
-        color: oklch(21% 0.034 264.665);
+        color: var(--payload-richtext-kbd);
         box-shadow:
-          0 0 0 1px color-mix(in oklab, oklch(21% 0.034 264.665) 10%, transparent),
-          0 3px 0 color-mix(in oklab, oklch(21% 0.034 264.665) 10%, transparent);
+          0 0 0 1px var(--payload-richtext-kbd-shadows),
+          0 3px 0 var(--payload-richtext-kbd-shadows);
         font-size: 0.875em;
         border-radius: 0.3125rem;
         padding-top: 0.1875em;
@@ -193,7 +233,7 @@
         padding-inline-start: 0.375em;
       }
       &:where(code) {
-        color: oklch(21% 0.034 264.665);
+        color: var(--payload-richtext-code);
         font-weight: 600;
         font-size: 0.875em;
       }
@@ -227,8 +267,8 @@
         color: inherit;
       }
       &:where(pre) {
-        color: oklch(92.8% 0.006 264.531);
-        background-color: oklch(27.8% 0.033 256.848);
+        color: var(--payload-richtext-pre-code);
+        background-color: var(--payload-richtext-pre-bg);
         overflow-x: auto;
         font-weight: 400;
         font-size: 0.875em;
@@ -268,10 +308,10 @@
       }
       &:where(thead) {
         border-bottom-width: 1px;
-        border-bottom-color: oklch(87.2% 0.01 258.338);
+        border-bottom-color: var(--payload-richtext-th-borders);
       }
       &:where(thead th) {
-        color: inherit;
+        color: var(--payload-richtext-headings);
         font-weight: 600;
         vertical-align: bottom;
         padding-inline-end: 0.5714286em;
@@ -280,7 +320,7 @@
       }
       &:where(tbody tr) {
         border-bottom-width: 1px;
-        border-bottom-color: oklch(92.8% 0.006 264.531);
+        border-bottom-color: var(--payload-richtext-td-borders);
       }
       &:where(tbody tr:last-child) {
         border-bottom-width: 0;
@@ -290,7 +330,7 @@
       }
       &:where(tfoot) {
         border-top-width: 1px;
-        border-top-color: oklch(87.2% 0.01 258.338);
+        border-top-color: var(--payload-richtext-th-borders);
       }
       &:where(tfoot td) {
         vertical-align: top;
@@ -303,7 +343,7 @@
         margin-bottom: 0;
       }
       &:where(figcaption) {
-        color: oklch(55.1% 0.027 264.364);
+        color: var(--payload-richtext-captions);
         font-size: 0.875em;
         line-height: 1.4285714;
         margin-top: 0.8571429em;
@@ -321,22 +361,6 @@
       }
       &:where(ul > li) {
         padding-inline-start: 0.375em;
-      }
-      &:where(.payload-richtext > ul > li p) {
-        margin-top: 0.75em;
-        margin-bottom: 0.75em;
-      }
-      &:where(.payload-richtext > ul > li > p:first-child) {
-        margin-top: 1.25em;
-      }
-      &:where(.payload-richtext > ul > li > p:last-child) {
-        margin-bottom: 1.25em;
-      }
-      &:where(.payload-richtext > ol > li > p:first-child) {
-        margin-top: 1.25em;
-      }
-      &:where(.payload-richtext > ol > li > p:last-child) {
-        margin-bottom: 1.25em;
       }
       &:where(ul ul, ul ol, ol ul, ol ol) {
         margin-top: 0.75em;
@@ -384,37 +408,40 @@
         margin-top: 2em;
         margin-bottom: 2em;
       }
-      &:where(.payload-richtext > :first-child) {
-        margin-top: 0;
-      }
-      &:where(.payload-richtext > :last-child) {
-        margin-bottom: 0;
-      }
     }
-  }
 
-  @media (width >= 48rem) {
-    .payload-richtext:where(.payload-richtext--content):where(:not(.payload-richtext--plain))
-      :where(h1):not(
-        :where(
-          .payload-richtext--plain,
-          .payload-richtext--plain *,
-          .payload-richtext__embedded,
-          .payload-richtext__embedded *
-        )
-      ) {
-      font-size: 3.5rem;
+    :scope > :where(ul) > :where(li) :where(p) {
+      margin-top: 0.75em;
+      margin-bottom: 0.75em;
     }
-    .payload-richtext:where(.payload-richtext--content):where(:not(.payload-richtext--plain))
-      :where(h2):not(
-        :where(
-          .payload-richtext--plain,
-          .payload-richtext--plain *,
-          .payload-richtext__embedded,
-          .payload-richtext__embedded *
-        )
-      ) {
-      font-size: 1.5rem;
+    :scope > :where(ul) > :where(li) > :where(p:first-child) {
+      margin-top: 1.25em;
+    }
+    :scope > :where(ul) > :where(li) > :where(p:last-child) {
+      margin-bottom: 1.25em;
+    }
+    :scope > :where(ol) > :where(li) > :where(p:first-child) {
+      margin-top: 1.25em;
+    }
+    :scope > :where(ol) > :where(li) > :where(p:last-child) {
+      margin-bottom: 1.25em;
+    }
+    :scope > :where(:first-child) {
+      margin-top: 0;
+    }
+    :scope > :where(:last-child) {
+      margin-bottom: 0;
+    }
+
+    @media (width >= 48rem) {
+      :where(*) {
+        &:where(h1) {
+          font-size: 3.5rem;
+        }
+        &:where(h2) {
+          font-size: 1.5rem;
+        }
+      }
     }
   }
 }

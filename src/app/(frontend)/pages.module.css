@@ -72,14 +72,6 @@
   margin-block: 1.25em var(--website-space-4);
 }
 
-@media (width >= 48rem) {
-  .pageHeader h1,
-  .pageHeaderCentered h1,
-  .notFound h1 {
-    font-size: 3.5rem;
-  }
-}
-
 @media (width >= 64rem) {
   .pageHeaderCentered h1 {
     margin-bottom: var(--website-space-16);

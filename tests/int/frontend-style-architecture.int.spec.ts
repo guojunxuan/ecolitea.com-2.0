@@ -1,11 +1,17 @@
 import fs from 'node:fs'
 import path from 'node:path'
 
-import postcss, { type Rule } from 'postcss'
+import postcss, { type AtRule, type Rule } from 'postcss'
 import { describe, expect, it } from 'vitest'
 
 const read = (relativePath: string) =>
   fs.readFileSync(path.join(process.cwd(), relativePath), 'utf8')
+
+const isRuleOrAtRule = (node: unknown): node is AtRule | Rule =>
+  typeof node === 'object' &&
+  node !== null &&
+  'type' in node &&
+  (node.type === 'rule' || node.type === 'atrule')
 
 describe('frontend style architecture', () => {
   it('loads the focused frontend stylesheets in dependency order', () => {
@@ -88,15 +94,21 @@ describe('frontend style architecture', () => {
     const ungatedRules: string[] = []
 
     root.walkRules((rule) => {
-      let current: Rule | undefined = rule
+      let current: AtRule | Rule | undefined = rule
       let isGated = false
 
       while (current) {
-        if (current.selector.includes('.payload-richtext--content')) {
+        if (
+          (current.type === 'rule' && current.selector.includes('.payload-richtext--content')) ||
+          (current.type === 'atrule' &&
+            current.name === 'scope' &&
+            current.params.includes('.payload-richtext--content'))
+        ) {
           isGated = true
           break
         }
-        current = current.parent?.type === 'rule' ? current.parent : undefined
+
+        current = isRuleOrAtRule(current.parent) ? current.parent : undefined
       }
 
       if (!isGated) ungatedRules.push(rule.selector)
@@ -104,11 +116,14 @@ describe('frontend style architecture', () => {
 
     expect(ungatedRules).toEqual([])
     expect(source).toContain('.payload-richtext--content')
-    expect(source).toContain('.payload-richtext--plain')
+    expect(source).toMatch(
+      /@scope\s*\(\.payload-richtext\.payload-richtext--content\)\s*to\s*\(\.payload-richtext__embedded\)/,
+    )
     expect(source).toContain('.payload-richtext__embedded')
     expect(source).not.toContain('--tw-prose-')
     expect(source).not.toContain('.not-prose')
     expect(read('src/components/RichText/index.tsx')).toContain('payload-richtext--content')
+    expect(read('src/components/RichText/index.tsx')).toContain('payload-richtext--plain')
   })
 
   it('keeps frontend and Payload global styles isolated', () => {
