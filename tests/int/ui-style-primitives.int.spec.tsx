@@ -115,6 +115,18 @@ describe('UI style primitives', () => {
     expect(copyButtonSource).toContain('className="flex gap-1"')
   })
 
+  it('keeps Pagination edge padding in the components layer so Button icon padding wins', () => {
+    const buttonSource = readSource('src/components/ui/button.module.css')
+    const paginationSource = readSource('src/components/ui/pagination.module.css')
+
+    expect(buttonSource).toMatch(
+      /\.sizeDefault:has\(> svg\)\s*{\s*padding-inline: var\(--website-space-3\);/,
+    )
+    expect(paginationSource).toMatch(
+      /@layer components\s*{\s*\.previous\s*{\s*gap: var\(--website-space-1\);\s*padding-left: 0\.625rem;\s*}\s*\.next\s*{\s*gap: var\(--website-space-1\);\s*padding-right: 0\.625rem;/,
+    )
+  })
+
   it('renders Card slots with CSS Module classes', () => {
     const { getByText } = render(
       <Card>

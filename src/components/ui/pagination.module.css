@@ -16,14 +16,16 @@
   display: list-item;
 }
 
-.previous {
-  gap: var(--website-space-1);
-  padding-left: 0.625rem;
-}
+@layer components {
+  .previous {
+    gap: var(--website-space-1);
+    padding-left: 0.625rem;
+  }
 
-.next {
-  gap: var(--website-space-1);
-  padding-right: 0.625rem;
+  .next {
+    gap: var(--website-space-1);
+    padding-right: 0.625rem;
+  }
 }
 
 .ellipsis {
