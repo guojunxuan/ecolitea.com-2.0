@@ -190,6 +190,24 @@ describe('RichText style modes', () => {
     )
   })
 
+  it('resets an ordinary nested RichText color contract below inverse content', () => {
+    render(<RichText className="payload-richtext--inverse" data={data} />)
+
+    const outer = screen.getByTestId('rich-text')
+    const nestedCaption = screen.getByTestId('media-caption-rich-text')
+    const nestedCTA = screen.getByTestId('cta-rich-text')
+
+    expect(outer.classList).toContain('payload-richtext--inverse')
+    expect(nestedCaption.classList).not.toContain('payload-richtext--inverse')
+    expect(nestedCTA.classList).not.toContain('payload-richtext--inverse')
+    expect(contentStyles).not.toContain('--payload-richtext-')
+    expect(contentStyles).toMatch(/:scope\s*{[^}]*color:\s*inherit;/s)
+    expect(contentStyles).not.toMatch(/--website-richtext-(?:body|headings):\s*inherit;/)
+    expect(contentStyles).toMatch(
+      /:scope:where\(\.payload-richtext--inverse\)\s*{[^}]*color:\s*oklch\(87\.2% 0\.01 258\.338\);/s,
+    )
+  })
+
   it('keeps root-level prose spacing attached to the content scope', () => {
     const stylesheet = postcss.parse(contentStyles)
     const rootLevelRules: string[] = []
@@ -226,9 +244,9 @@ describe('RichText style modes', () => {
 
     expect(screen.getByTestId('rich-text').classList).toContain('payload-richtext--inverse')
     expect(contentStyles).toMatch(
-      /:scope:where\(\.payload-richtext--inverse\)\s*{[^}]*--payload-richtext-links:\s*#fff;/s,
+      /:scope:where\(\.payload-richtext--inverse\)\s*{[^}]*--website-richtext-links:\s*#fff;/s,
     )
-    expect(contentStyles).toContain('--payload-richtext-pre-bg: rgb(0 0 0 / 50%);')
+    expect(contentStyles).toContain('--website-richtext-pre-bg: rgb(0 0 0 / 50%);')
   })
 
   it('wires every RichText layout boundary through semantic CSS Module exports', () => {

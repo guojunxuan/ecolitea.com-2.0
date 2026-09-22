@@ -4,54 +4,55 @@
 @layer components {
   @scope (.payload-richtext.payload-richtext--content) to (.payload-richtext__embedded) {
     :scope {
-      --payload-richtext-body: inherit;
-      --payload-richtext-headings: inherit;
-      --payload-richtext-lead: oklch(44.6% 0.03 256.802);
-      --payload-richtext-links: oklch(21% 0.034 264.665);
-      --payload-richtext-bold: oklch(21% 0.034 264.665);
-      --payload-richtext-counters: oklch(55.1% 0.027 264.364);
-      --payload-richtext-bullets: oklch(87.2% 0.01 258.338);
-      --payload-richtext-hr: oklch(92.8% 0.006 264.531);
-      --payload-richtext-quotes: oklch(21% 0.034 264.665);
-      --payload-richtext-quote-borders: oklch(92.8% 0.006 264.531);
-      --payload-richtext-captions: oklch(55.1% 0.027 264.364);
-      --payload-richtext-kbd: oklch(21% 0.034 264.665);
-      --payload-richtext-kbd-shadows: color-mix(
+      --website-richtext-lead: oklch(44.6% 0.03 256.802);
+      --website-richtext-links: oklch(21% 0.034 264.665);
+      --website-richtext-bold: oklch(21% 0.034 264.665);
+      --website-richtext-counters: oklch(55.1% 0.027 264.364);
+      --website-richtext-bullets: oklch(87.2% 0.01 258.338);
+      --website-richtext-hr: oklch(92.8% 0.006 264.531);
+      --website-richtext-quotes: oklch(21% 0.034 264.665);
+      --website-richtext-quote-borders: oklch(92.8% 0.006 264.531);
+      --website-richtext-captions: oklch(55.1% 0.027 264.364);
+      --website-richtext-kbd: oklch(21% 0.034 264.665);
+      --website-richtext-kbd-shadows: color-mix(
         in oklab,
         oklch(21% 0.034 264.665) 10%,
         transparent
       );
-      --payload-richtext-code: oklch(21% 0.034 264.665);
-      --payload-richtext-pre-code: oklch(92.8% 0.006 264.531);
-      --payload-richtext-pre-bg: oklch(27.8% 0.033 256.848);
-      --payload-richtext-th-borders: oklch(87.2% 0.01 258.338);
-      --payload-richtext-td-borders: oklch(92.8% 0.006 264.531);
+      --website-richtext-code: oklch(21% 0.034 264.665);
+      --website-richtext-pre-code: oklch(92.8% 0.006 264.531);
+      --website-richtext-pre-bg: oklch(27.8% 0.033 256.848);
+      --website-richtext-th-borders: oklch(87.2% 0.01 258.338);
+      --website-richtext-td-borders: oklch(92.8% 0.006 264.531);
 
-      color: var(--payload-richtext-body);
+      color: inherit;
       max-width: 65ch;
       font-size: 1rem;
       line-height: 1.75;
     }
 
     :scope:where(.payload-richtext--inverse) {
-      --payload-richtext-body: oklch(87.2% 0.01 258.338);
-      --payload-richtext-headings: #fff;
-      --payload-richtext-lead: oklch(70.7% 0.022 261.325);
-      --payload-richtext-links: #fff;
-      --payload-richtext-bold: #fff;
-      --payload-richtext-counters: oklch(70.7% 0.022 261.325);
-      --payload-richtext-bullets: oklch(44.6% 0.03 256.802);
-      --payload-richtext-hr: oklch(37.3% 0.034 259.733);
-      --payload-richtext-quotes: oklch(96.7% 0.003 264.542);
-      --payload-richtext-quote-borders: oklch(37.3% 0.034 259.733);
-      --payload-richtext-captions: oklch(70.7% 0.022 261.325);
-      --payload-richtext-kbd: #fff;
-      --payload-richtext-kbd-shadows: rgb(255 255 255 / 10%);
-      --payload-richtext-code: #fff;
-      --payload-richtext-pre-code: oklch(87.2% 0.01 258.338);
-      --payload-richtext-pre-bg: rgb(0 0 0 / 50%);
-      --payload-richtext-th-borders: oklch(44.6% 0.03 256.802);
-      --payload-richtext-td-borders: oklch(37.3% 0.034 259.733);
+      --website-richtext-lead: oklch(70.7% 0.022 261.325);
+      --website-richtext-links: #fff;
+      --website-richtext-bold: #fff;
+      --website-richtext-counters: oklch(70.7% 0.022 261.325);
+      --website-richtext-bullets: oklch(44.6% 0.03 256.802);
+      --website-richtext-hr: oklch(37.3% 0.034 259.733);
+      --website-richtext-quotes: oklch(96.7% 0.003 264.542);
+      --website-richtext-quote-borders: oklch(37.3% 0.034 259.733);
+      --website-richtext-captions: oklch(70.7% 0.022 261.325);
+      --website-richtext-kbd: #fff;
+      --website-richtext-kbd-shadows: rgb(255 255 255 / 10%);
+      --website-richtext-code: #fff;
+      --website-richtext-pre-code: oklch(87.2% 0.01 258.338);
+      --website-richtext-pre-bg: rgb(0 0 0 / 50%);
+      --website-richtext-th-borders: oklch(44.6% 0.03 256.802);
+      --website-richtext-td-borders: oklch(37.3% 0.034 259.733);
+      color: oklch(87.2% 0.01 258.338);
+    }
+
+    :scope:where(.payload-richtext--inverse) :where(dt, h1, h2, h3, h4, thead th) {
+      color: #fff;
     }
 
     :where(*) {
@@ -60,19 +61,19 @@
         margin-bottom: 1.25em;
       }
       &:where([class~='lead']) {
-        color: var(--payload-richtext-lead);
+        color: var(--website-richtext-lead);
         font-size: 1.25em;
         line-height: 1.6;
         margin-top: 1.2em;
         margin-bottom: 1.2em;
       }
       &:where(a) {
-        color: var(--payload-richtext-links);
+        color: var(--website-richtext-links);
         text-decoration: underline;
         font-weight: 500;
       }
       &:where(strong) {
-        color: var(--payload-richtext-bold);
+        color: var(--website-richtext-bold);
         font-weight: 600;
       }
       &:where(a strong) {
@@ -125,18 +126,18 @@
       }
       &:where(ol > li)::marker {
         font-weight: 400;
-        color: var(--payload-richtext-counters);
+        color: var(--website-richtext-counters);
       }
       &:where(ul > li)::marker {
-        color: var(--payload-richtext-bullets);
+        color: var(--website-richtext-bullets);
       }
       &:where(dt) {
-        color: var(--payload-richtext-headings);
+        color: inherit;
         font-weight: 600;
         margin-top: 1.25em;
       }
       &:where(hr) {
-        border-color: var(--payload-richtext-hr);
+        border-color: var(--website-richtext-hr);
         border-top-width: 1px;
         margin-top: 3em;
         margin-bottom: 3em;
@@ -144,9 +145,9 @@
       &:where(blockquote) {
         font-weight: 500;
         font-style: italic;
-        color: var(--payload-richtext-quotes);
+        color: var(--website-richtext-quotes);
         border-inline-start-width: 0.25rem;
-        border-inline-start-color: var(--payload-richtext-quote-borders);
+        border-inline-start-color: var(--website-richtext-quote-borders);
         quotes: '\201C' '\201D' '\2018' '\2019';
         margin-top: 1.6em;
         margin-bottom: 1.6em;
@@ -159,7 +160,7 @@
         content: close-quote;
       }
       &:where(h1) {
-        color: var(--payload-richtext-headings);
+        color: inherit;
         font-weight: normal;
         font-size: 2.25em;
         margin-top: 0;
@@ -168,10 +169,10 @@
       }
       &:where(h1 strong) {
         font-weight: 900;
-        color: var(--payload-richtext-headings);
+        color: inherit;
       }
       &:where(h2) {
-        color: var(--payload-richtext-headings);
+        color: inherit;
         font-weight: 700;
         font-size: 1.5em;
         margin-top: 2em;
@@ -180,10 +181,10 @@
       }
       &:where(h2 strong) {
         font-weight: 800;
-        color: var(--payload-richtext-headings);
+        color: inherit;
       }
       &:where(h3) {
-        color: var(--payload-richtext-headings);
+        color: inherit;
         font-weight: 600;
         font-size: 1.25em;
         margin-top: 1.6em;
@@ -195,7 +196,7 @@
         color: inherit;
       }
       &:where(h4) {
-        color: var(--payload-richtext-headings);
+        color: inherit;
         font-weight: 600;
         margin-top: 1.5em;
         margin-bottom: 0.5em;
@@ -221,10 +222,10 @@
       &:where(kbd) {
         font-weight: 500;
         font-family: inherit;
-        color: var(--payload-richtext-kbd);
+        color: var(--website-richtext-kbd);
         box-shadow:
-          0 0 0 1px var(--payload-richtext-kbd-shadows),
-          0 3px 0 var(--payload-richtext-kbd-shadows);
+          0 0 0 1px var(--website-richtext-kbd-shadows),
+          0 3px 0 var(--website-richtext-kbd-shadows);
         font-size: 0.875em;
         border-radius: 0.3125rem;
         padding-top: 0.1875em;
@@ -233,7 +234,7 @@
         padding-inline-start: 0.375em;
       }
       &:where(code) {
-        color: var(--payload-richtext-code);
+        color: var(--website-richtext-code);
         font-weight: 600;
         font-size: 0.875em;
       }
@@ -267,8 +268,8 @@
         color: inherit;
       }
       &:where(pre) {
-        color: var(--payload-richtext-pre-code);
-        background-color: var(--payload-richtext-pre-bg);
+        color: var(--website-richtext-pre-code);
+        background-color: var(--website-richtext-pre-bg);
         overflow-x: auto;
         font-weight: 400;
         font-size: 0.875em;
@@ -308,10 +309,10 @@
       }
       &:where(thead) {
         border-bottom-width: 1px;
-        border-bottom-color: var(--payload-richtext-th-borders);
+        border-bottom-color: var(--website-richtext-th-borders);
       }
       &:where(thead th) {
-        color: var(--payload-richtext-headings);
+        color: inherit;
         font-weight: 600;
         vertical-align: bottom;
         padding-inline-end: 0.5714286em;
@@ -320,7 +321,7 @@
       }
       &:where(tbody tr) {
         border-bottom-width: 1px;
-        border-bottom-color: var(--payload-richtext-td-borders);
+        border-bottom-color: var(--website-richtext-td-borders);
       }
       &:where(tbody tr:last-child) {
         border-bottom-width: 0;
@@ -330,7 +331,7 @@
       }
       &:where(tfoot) {
         border-top-width: 1px;
-        border-top-color: var(--payload-richtext-th-borders);
+        border-top-color: var(--website-richtext-th-borders);
       }
       &:where(tfoot td) {
         vertical-align: top;
@@ -343,7 +344,7 @@
         margin-bottom: 0;
       }
       &:where(figcaption) {
-        color: var(--payload-richtext-captions);
+        color: var(--website-richtext-captions);
         font-size: 0.875em;
         line-height: 1.4285714;
         margin-top: 0.8571429em;

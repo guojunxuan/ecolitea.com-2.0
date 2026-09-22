@@ -121,6 +121,8 @@ describe('frontend style architecture', () => {
     )
     expect(source).toContain('.payload-richtext__embedded')
     expect(source).not.toContain('--tw-prose-')
+    expect(source).not.toContain('--payload-richtext-')
+    expect(source).toContain('--website-richtext-')
     expect(source).not.toContain('.not-prose')
     expect(read('src/components/RichText/index.tsx')).toContain('payload-richtext--content')
     expect(read('src/components/RichText/index.tsx')).toContain('payload-richtext--plain')
