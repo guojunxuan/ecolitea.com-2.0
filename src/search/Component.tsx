@@ -5,6 +5,8 @@ import React, { useState, useEffect } from 'react'
 import { useDebounce } from '@/utilities/useDebounce'
 import { useRouter } from 'next/navigation'
 
+import styles from './Component.module.css'
+
 export const Search: React.FC = () => {
   const [value, setValue] = useState('')
   const router = useRouter()
@@ -18,11 +20,12 @@ export const Search: React.FC = () => {
   return (
     <div>
       <form
+        className={styles.form}
         onSubmit={(e) => {
           e.preventDefault()
         }}
       >
-        <Label htmlFor="search" className="sr-only">
+        <Label htmlFor="search" className={styles.visuallyHidden}>
           Search
         </Label>
         <Input
@@ -32,7 +35,7 @@ export const Search: React.FC = () => {
           }}
           placeholder="Search"
         />
-        <button type="submit" className="sr-only">
+        <button type="submit" className={styles.visuallyHidden}>
           submit
         </button>
       </form>

@@ -36,21 +36,61 @@ describe('website layout primitives', () => {
     for (const file of [
       'src/blocks/Content/Component.tsx',
       'src/blocks/ArchiveBlock/Component.tsx',
-      'src/components/CollectionArchive/index.tsx',
       'src/heros/LowImpact/index.tsx',
       'src/heros/MediumImpact/index.tsx',
-      'src/app/(frontend)/posts/page.tsx',
-      'src/app/(frontend)/posts/page/[pageNumber]/page.tsx',
-      'src/app/(frontend)/search/page.tsx',
-      'src/app/(frontend)/not-found.tsx',
     ]) {
       expect(readSource(file), file).toContain('site-container')
     }
   })
 
-  it('uses reading-container for long-form post content and forms', () => {
+  it('uses semantic CSS Module slots for shared archives and public page shells', () => {
+    const archive = readSource('src/components/CollectionArchive/index.tsx')
+    const pageRange = readSource('src/components/PageRange/index.tsx')
+    const pagination = readSource('src/components/Pagination/index.tsx')
+    const search = readSource('src/search/Component.tsx')
+    const pages = [
+      'src/app/(frontend)/posts/page.tsx',
+      'src/app/(frontend)/posts/page/[pageNumber]/page.tsx',
+      'src/app/(frontend)/posts/[slug]/page.tsx',
+      'src/app/(frontend)/search/page.tsx',
+      'src/app/(frontend)/not-found.tsx',
+    ].map(readSource)
+
+    expect(archive).toContain('styles.archive')
+    expect(archive).toContain('styles.grid')
+    expect(archive).toContain('styles.card')
+    expect(pageRange).toContain('styles.range')
+    expect(pagination).toContain('styles.pagination')
+    expect(search).toContain('styles.form')
+    expect(search).toContain('styles.visuallyHidden')
+    expect(pages.some((source) => source.includes('styles.pageSection'))).toBe(true)
+    expect(pages.some((source) => source.includes('styles.pageHeader'))).toBe(true)
+    expect(pages.some((source) => source.includes('styles.pageHeaderCentered'))).toBe(true)
+    expect(pages.some((source) => source.includes('styles.searchField'))).toBe(true)
+    expect(pages.some((source) => source.includes('styles.postContent'))).toBe(true)
+    expect(pages.some((source) => source.includes('styles.notFound'))).toBe(true)
+  })
+
+  it('keeps shared layout values in module properties instead of utility strings', () => {
+    const archiveStyles = readSource('src/components/CollectionArchive/index.module.css')
+    const pageStyles = readSource('src/app/(frontend)/pages.module.css')
+
+    expect(archiveStyles).toContain('var(--website-container-site)')
+    expect(archiveStyles).toContain('grid-template-columns: repeat(4, minmax(0, 1fr));')
+    expect(archiveStyles).toMatch(
+      /@media \(width >= 40rem\)[\s\S]*grid-template-columns: repeat\(8, minmax\(0, 1fr\)\);/,
+    )
+    expect(archiveStyles).toMatch(
+      /@media \(width >= 64rem\)[\s\S]*grid-template-columns: repeat\(12, minmax\(0, 1fr\)\);/,
+    )
+    expect(pageStyles).toContain('var(--website-section-spacious)')
+    expect(pageStyles).toContain('var(--website-container-reading)')
+    expect(pageStyles).toContain('var(--website-space-16)')
+  })
+
+  it('uses the reading container contract for long-form post content and forms', () => {
     expect(readSource('src/blocks/Form/Component.tsx')).toContain('reading-container')
-    expect(readSource('src/app/(frontend)/posts/[slug]/page.tsx')).toContain('reading-container')
+    expect(readSource('src/app/(frontend)/posts/[slug]/page.tsx')).toContain('styles.postContent')
   })
 
   it('preserves the existing MediumImpact media bleed through the wide container primitive', () => {

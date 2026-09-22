@@ -1,6 +1,7 @@
 import fs from 'node:fs'
 import path from 'node:path'
 
+import postcss, { type Rule } from 'postcss'
 import { describe, expect, it } from 'vitest'
 
 const read = (relativePath: string) =>
@@ -81,13 +82,33 @@ describe('frontend style architecture', () => {
     expect(source).not.toContain('[data-theme=')
   })
 
-  it('keeps future content styles opt-in until the RichText consumer migrates', () => {
+  it('gates every content rule behind the explicit RichText content mode', () => {
     const source = read('src/styles/content.css')
+    const root = postcss.parse(source)
+    const ungatedRules: string[] = []
+
+    root.walkRules((rule) => {
+      let current: Rule | undefined = rule
+      let isGated = false
+
+      while (current) {
+        if (current.selector.includes('.payload-richtext--content')) {
+          isGated = true
+          break
+        }
+        current = current.parent?.type === 'rule' ? current.parent : undefined
+      }
+
+      if (!isGated) ungatedRules.push(rule.selector)
+    })
+
+    expect(ungatedRules).toEqual([])
     expect(source).toContain('.payload-richtext--content')
     expect(source).toContain('.payload-richtext--plain')
-    expect(source).toContain('.payload-richtext--wide')
+    expect(source).toContain('.payload-richtext__embedded')
     expect(source).not.toContain('--tw-prose-')
-    expect(read('src/components/RichText/index.tsx')).not.toContain('payload-richtext--content')
+    expect(source).not.toContain('.not-prose')
+    expect(read('src/components/RichText/index.tsx')).toContain('payload-richtext--content')
   })
 
   it('keeps frontend and Payload global styles isolated', () => {

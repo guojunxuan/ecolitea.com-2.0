@@ -1,13 +1,20 @@
-/* Opt-in until Task 4 migrates RichText. Values copied from the installed
-   Tailwind Typography output, including its current inherited body/heading color.
-   The not-prose exclusion is temporary for embedded Blocks awaiting migration. */
+/* Values copied from the installed Tailwind Typography output, including its
+   current inherited body/heading color. RichText activates this content mode
+   explicitly; embedded Blocks own their internal styling beyond the boundary. */
 @layer components {
   .payload-richtext:where(.payload-richtext--content):where(:not(.payload-richtext--plain)) {
     color: inherit;
     max-width: 65ch;
     font-size: 1rem;
     line-height: 1.75;
-    :where(:not(.not-prose, .not-prose *, .payload-richtext--plain, .payload-richtext--plain *)) {
+    :where(
+      :not(
+        .payload-richtext__embedded,
+        .payload-richtext__embedded *,
+        .payload-richtext--plain,
+        .payload-richtext--plain *
+      )
+    ) {
       &:where(p) {
         margin-top: 1.25em;
         margin-bottom: 1.25em;
@@ -392,8 +399,8 @@
         :where(
           .payload-richtext--plain,
           .payload-richtext--plain *,
-          [class~='not-prose'],
-          [class~='not-prose'] *
+          .payload-richtext__embedded,
+          .payload-richtext__embedded *
         )
       ) {
       font-size: 3.5rem;
@@ -403,15 +410,11 @@
         :where(
           .payload-richtext--plain,
           .payload-richtext--plain *,
-          [class~='not-prose'],
-          [class~='not-prose'] *
+          .payload-richtext__embedded,
+          .payload-richtext__embedded *
         )
       ) {
       font-size: 1.5rem;
     }
-  }
-
-  .payload-richtext:where(.payload-richtext--content).payload-richtext--wide {
-    max-width: none;
   }
 }

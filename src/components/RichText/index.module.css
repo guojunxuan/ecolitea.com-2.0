@@ -1,0 +1,42 @@
+.root {
+  min-width: 0;
+  max-width: none;
+  margin-inline: auto;
+}
+
+.plain {
+  max-width: none;
+}
+
+.withGutter {
+  width: min(100% - (2 * var(--website-gutter)), var(--website-container-site));
+  max-width: var(--website-container-site);
+}
+
+.embeddedBanner {
+  grid-column-start: 2;
+  margin-bottom: var(--website-space-4);
+}
+
+.embeddedMedia {
+  grid-column: span 3 / span 3;
+  grid-column-start: 1;
+}
+
+.embeddedCode {
+  grid-column-start: 2;
+}
+
+.embeddedCTA {
+  grid-column: 1 / -1;
+  min-width: 0;
+}
+
+.mediaImage {
+  margin: 0;
+}
+
+.mediaCaption {
+  max-width: 48rem;
+  margin-inline: auto;
+}

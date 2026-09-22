@@ -62,11 +62,7 @@ describe('public website shell', () => {
       'src/components',
       'src/providers',
     ].flatMap(readSourceTree)
-    const forbiddenReferences = [
-      'ThemeSelector',
-      'dark:',
-      'dark:prose-invert',
-    ]
+    const forbiddenReferences = ['ThemeSelector', 'dark:', 'dark:prose-invert']
 
     const violations = sourceFiles.flatMap(({ file, source }) => {
       const sourceWithoutAllowedPrismTheme = source.replaceAll('themes.vsDark', '')
@@ -90,31 +86,26 @@ describe('public website shell', () => {
   })
 
   it('defines the shared responsive layout tokens and containers', () => {
-    const source = readSource('src/app/(frontend)/globals.css')
+    const tokens = readSource('src/styles/tokens.css')
+    const layout = readSource('src/styles/layout.css')
 
-    expect(source).toContain('--site-max-width: 76.25rem;')
-    expect(source).toContain('--reading-max-width: 46rem;')
-    expect(source).toContain('--header-height: 3.75rem;')
-    expect(source).toMatch(
-      /@media \(width >= 73\.125rem\)[\s\S]*--header-height:\s*4\.5rem;/,
-    )
-    expect(source).toContain('--section-space-compact: clamp(2rem, 4vw, 3rem);')
-    expect(source).toContain('--section-space-standard: clamp(3rem, 6vw, 5rem);')
-    expect(source).toContain('--section-space-spacious: clamp(4.5rem, 9vw, 7.5rem);')
-    expect(source).toContain('@media (width >= 73.125rem)')
+    expect(tokens).toContain('--website-container-site: 76.25rem;')
+    expect(tokens).toContain('--website-container-reading: 46rem;')
+    expect(tokens).toContain('--header-height: 3.75rem;')
+    expect(tokens).toMatch(/@media \(width >= 73\.125rem\)[\s\S]*--header-height:\s*4\.5rem;/)
+    expect(tokens).toContain('--website-section-compact: clamp(2rem, 4vw, 3rem);')
+    expect(tokens).toContain('--website-section-standard: clamp(3rem, 6vw, 5rem);')
+    expect(tokens).toContain('--website-section-spacious: clamp(4.5rem, 9vw, 7.5rem);')
+    expect(tokens).toContain('@media (width >= 73.125rem)')
 
-    expect(source).toMatch(
-      /\.site-container\s*{[^}]*width:\s*min\(100% - \(2 \* var\(--site-gutter\)\), var\(--site-max-width\)\);[^}]*margin-inline:\s*auto;/s,
+    expect(layout).toMatch(
+      /\.site-container[^}]*{[^}]*width:\s*min\(100% - \(2 \* var\(--website-gutter\)\), var\(--website-container-max\)\);[^}]*margin-inline:\s*auto;/s,
     )
-    expect(source).toMatch(
-      /\.wide-container\s*{[^}]*width:\s*min\(100% - \(2 \* var\(--site-gutter\)\), var\(--wide-max-width\)\);[^}]*margin-inline:\s*auto;/s,
-    )
-    expect(source).toMatch(
-      /\.reading-container\s*{[^}]*width:\s*min\(100% - \(2 \* var\(--site-gutter\)\), var\(--reading-max-width\)\);[^}]*margin-inline:\s*auto;/s,
-    )
+    expect(layout).toContain('--website-container-max: var(--website-container-wide);')
+    expect(layout).toContain('--website-container-max: var(--website-container-reading);')
 
-    expect(source).not.toContain("[data-theme='dark']")
-    expect(source).not.toMatch(/@custom-variant\s+dark\b/)
-    expect(source).not.toMatch(/html[^{}]*{[^}]*opacity\s*:/s)
+    expect(tokens).not.toContain("[data-theme='dark']")
+    expect(tokens).not.toMatch(/@custom-variant\s+dark\b/)
+    expect(tokens).not.toMatch(/html[^{}]*{[^}]*opacity\s*:/s)
   })
 })

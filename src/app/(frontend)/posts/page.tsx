@@ -7,6 +7,8 @@ import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 import React from 'react'
 
+import styles from '../pages.module.css'
+
 export const dynamic = 'force-static'
 export const revalidate = 600
 
@@ -27,14 +29,12 @@ export default async function Page() {
   })
 
   return (
-    <div className="py-[var(--section-space-spacious)]">
-      <div className="site-container mb-[var(--section-space-standard)]">
-        <div className="prose max-w-none">
-          <h1>Posts</h1>
-        </div>
+    <div className={styles.pageSection}>
+      <div className={styles.pageHeader}>
+        <h1>Posts</h1>
       </div>
 
-      <div className="site-container mb-8">
+      <div className={styles.pageRange}>
         <PageRange
           collection="posts"
           currentPage={posts.page}
@@ -45,7 +45,7 @@ export default async function Page() {
 
       <CollectionArchive posts={posts.docs} />
 
-      <div className="site-container">
+      <div className={styles.paginationContainer}>
         {posts.totalPages > 1 && posts.page && (
           <Pagination page={posts.page} totalPages={posts.totalPages} />
         )}

@@ -22,6 +22,8 @@ import { BannerBlock } from '@/blocks/Banner/Component'
 import { CallToActionBlock } from '@/blocks/CallToAction/Component'
 import { cn } from '@/utilities/ui'
 
+import styles from './index.module.css'
+
 type NodeTypes = WithDefaultNodes<
   | SerializedBlockNode<BannerBlockProps>
   | SerializedBlockNode<CTABlockProps>
@@ -42,19 +44,33 @@ const jsxConverters: JSXConvertersFunction<NodeTypes> = ({ defaultConverters }) 
   ...defaultConverters,
   ...LinkJSXConverter({ internalDocToHref }),
   blocks: {
-    banner: ({ node }) => <BannerBlock className="col-start-2 mb-4" {...node.fields} />,
+    banner: ({ node }) => (
+      <BannerBlock
+        className={cn('payload-richtext__embedded', styles.embeddedBanner)}
+        {...node.fields}
+      />
+    ),
     mediaBlock: ({ node }) => (
       <MediaBlock
-        className="col-start-1 col-span-3"
-        imgClassName="m-0"
+        className={cn('payload-richtext__embedded', styles.embeddedMedia)}
+        imgClassName={styles.mediaImage}
         {...node.fields}
-        captionClassName="mx-auto max-w-[48rem]"
+        captionClassName={styles.mediaCaption}
         enableGutter={false}
         disableInnerContainer={true}
       />
     ),
-    code: ({ node }) => <CodeBlock className="col-start-2" {...node.fields} />,
-    cta: ({ node }) => <CallToActionBlock {...node.fields} />,
+    code: ({ node }) => (
+      <CodeBlock
+        className={cn('payload-richtext__embedded', styles.embeddedCode)}
+        {...node.fields}
+      />
+    ),
+    cta: ({ node }) => (
+      <div className={cn('payload-richtext__embedded', styles.embeddedCTA)}>
+        <CallToActionBlock {...node.fields} />
+      </div>
+    ),
   },
 })
 
@@ -71,10 +87,12 @@ export default function RichText(props: Props) {
       converters={jsxConverters}
       className={cn(
         'payload-richtext',
+        styles.root,
         {
-          container: enableGutter,
-          'max-w-none': !enableGutter,
-          'mx-auto prose md:prose-md': enableProse,
+          'payload-richtext--content': enableProse,
+          'payload-richtext--plain': !enableProse,
+          [styles.plain]: !enableProse,
+          [styles.withGutter]: enableGutter,
         },
         className,
       )}

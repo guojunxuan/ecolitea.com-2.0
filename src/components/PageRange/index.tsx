@@ -1,5 +1,9 @@
 import React from 'react'
 
+import { cn } from '@/utilities/ui'
+
+import styles from './index.module.css'
+
 const defaultLabels = {
   plural: 'Docs',
   singular: 'Doc',
@@ -45,7 +49,7 @@ export const PageRange: React.FC<{
     {}
 
   return (
-    <div className={[className, 'font-semibold'].filter(Boolean).join(' ')}>
+    <div className={cn(styles.range, className)}>
       {(typeof totalDocs === 'undefined' || totalDocs === 0) && 'Search produced no results.'}
       {typeof totalDocs !== 'undefined' &&
         totalDocs > 0 &&
