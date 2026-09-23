@@ -83,7 +83,11 @@ describe('Header navigation block rendering', () => {
     expect(css).toMatch(/@media\s*\(max-width:\s*767px\)[^{]*\{[^}]*\.visualCardGrid:not\(\.visualGridOne\)[^}]*grid-template-columns:\s*repeat\(2,/s)
     expect(css).toMatch(/\.navigationCardVisual\s*\{[^}]*border-radius:\s*\.5rem/s)
     expect(css).toMatch(/\.navigationCardGradient\s*\{[^}]*inset:\s*65%\s+0\s+0/s)
-    expect(css).toMatch(/\.navigationCardVisual[^}]*:global\(img\)[^}]*transition:\s*transform\s+360ms/s)
+    expect(css).toMatch(
+      /\.navigationCardVisual\s+:global\(img\)\s*\{[^}]*transition:\s*transform\s+var\(--website-duration-slow\)\s+ease\s*;/s,
+    )
+    const tokens = readFileSync(resolve(process.cwd(), 'src/styles/tokens.css'), 'utf8')
+    expect(tokens).toMatch(/--website-duration-slow:\s*360ms\s*;/)
   })
 
   it('renders one independent natural-height rich card with contained 16:9 media and clamped text', () => {

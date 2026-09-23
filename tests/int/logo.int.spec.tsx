@@ -1,5 +1,7 @@
 import { cleanup, render } from '@testing-library/react'
 import Link from 'next/link'
+import { readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
 import React from 'react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
@@ -17,6 +19,7 @@ vi.mock('@/components/RichText', () => ({ default: () => null }))
 import { Footer } from '@/Footer/Component'
 import { HeaderClient } from '@/Header/Component.client'
 import { Header } from '@/Header/Component'
+import headerStyles from '@/Header/Component.module.css'
 import { Logo } from '@/components/Logo/Logo'
 import logoStyles from '@/components/Logo/Logo.module.css'
 import { resolveBrandAsset } from '@/components/Logo/resolveBrandAsset'
@@ -260,18 +263,20 @@ describe('branding integration', () => {
     expect(logo?.props.className).toBeTruthy()
   })
 
-  it('keeps the Header home link from shrinking the logo on narrow screens', () => {
+  it('keeps the Header desktop home link from shrinking the logo', () => {
     const { getAllByRole } = render(
       <HeaderClient logo={primaryLogo} menuCta={null} navItems={[]} siteName="Ecolitea" />,
     )
 
     const homeLink = getAllByRole('link', { name: 'Primary logo' }).find((link) =>
-      link.className.includes('shrink-0'),
+      link.classList.contains(headerStyles.desktopBrandLink),
     )
 
     expect(homeLink).toBeTruthy()
-    expect(homeLink?.className).toContain('shrink-0')
     expect(homeLink?.getAttribute('href')).toBe('/')
+
+    const css = readFileSync(resolve(process.cwd(), 'src/Header/Component.module.css'), 'utf8')
+    expect(css).toMatch(/\.desktopBrandLink\s*\{[^}]*flex-shrink:\s*0\s*;/s)
   })
 
   it('falls back to Site Name when no Header logo presentation data resolves', () => {
