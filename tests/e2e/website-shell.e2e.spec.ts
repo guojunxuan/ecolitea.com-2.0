@@ -2,6 +2,7 @@ import { expect, type Page, test, type TestInfo } from '@playwright/test'
 import { getPayload, type Payload } from 'payload'
 
 import config from '../../src/payload.config.js'
+import { normalizeComputedColor } from '../helpers/computedColor'
 import { assertRunScopedE2EDatabaseURI } from '../helpers/e2eDatabase'
 import { getE2EBaseURL } from '../helpers/e2eBaseURL'
 
@@ -455,8 +456,7 @@ async function expectBackground(
   await expect
     .poll(async () => {
       const color = await locator.evaluate((element) => getComputedStyle(element).backgroundColor)
-      const channels = color.match(/[\d.]+/g)?.map(Number) ?? []
-      return [...channels.slice(0, 3), channels[3] ?? 1]
+      return normalizeComputedColor(color)
     })
     .toEqual([expected.red, expected.green, expected.blue, expected.alpha])
 }
