@@ -197,6 +197,8 @@ describe('HeaderClient', () => {
     expect(css).toContain("[data-menu-open='true']")
     expect(css).toContain("[data-scrolled='true']")
     expect(css).toContain('@media (width <= 1170px)')
+    expect(css).toMatch(/@media \(width < 1170px\)\s*\{\s*\.desktopBrandLink\s*\{\s*display: none;/)
+    expect(css).not.toMatch(/@media \(width <= 1170px\)\s*\{\s*\.desktopBrandLink/)
     expect(css).toContain('rgb(255 255 255 / 90%)')
   })
 

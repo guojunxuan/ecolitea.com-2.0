@@ -1218,6 +1218,7 @@ test.describe.serial('Responsive website shell', () => {
     page,
   }) => {
     await openFixture(page, 1170)
+    await expect(page.locator('header .site-container > a').first()).toBeVisible()
     // Playwright only accepts integral CSS viewport pixels. The production selector is
     // nevertheless fractional-safe: any width strictly greater than 1170px matches.
     await expect
@@ -1225,6 +1226,9 @@ test.describe.serial('Responsive website shell', () => {
       .toBe(false)
     const compactOpen = page.getByRole('button', { name: 'Open navigation' })
     await expect(compactOpen).toBeVisible()
+    await page.setViewportSize({ width: 1169, height: 960 })
+    await expect(page.locator('header .site-container > a').first()).toBeHidden()
+    await page.setViewportSize({ width: 1170, height: 960 })
     await compactOpen.click()
     const compactDialog = page.getByRole('dialog', { name: 'Navigation' })
     await expect(compactDialog).toBeVisible()

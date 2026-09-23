@@ -72,12 +72,15 @@
 }
 
 @media (width <= 1170px) {
-  .desktopBrandLink {
-    display: none;
-  }
   .surface[data-scrolled='true'],
   .surface[data-menu-open='true'] {
     background: rgb(255 255 255 / 90%);
+  }
+}
+
+@media (width < 1170px) {
+  .desktopBrandLink {
+    display: none;
   }
 }
 
