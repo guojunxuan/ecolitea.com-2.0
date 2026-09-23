@@ -6,6 +6,7 @@ import { Textarea as TextAreaComponent } from '@/components/ui/textarea'
 import React from 'react'
 
 import { Error } from '../Error'
+import { useFormFieldIds } from '../useFormFieldIds'
 import { Width } from '../Width'
 import styles from './index.module.css'
 
@@ -16,9 +17,11 @@ export const Textarea: React.FC<
     rows?: number
   }
 > = ({ name, defaultValue, errors, label, register, required, rows = 3, width }) => {
+  const { controlID, errorID } = useFormFieldIds()
+
   return (
     <Width width={width}>
-      <Label htmlFor={name}>
+      <Label htmlFor={controlID}>
         {label}
 
         {required && (
@@ -29,15 +32,15 @@ export const Textarea: React.FC<
       </Label>
 
       <TextAreaComponent
-        aria-describedby={errors[name] ? `${name}-error` : undefined}
+        aria-describedby={errors[name] ? errorID : undefined}
         aria-invalid={errors[name] ? true : undefined}
         defaultValue={defaultValue}
-        id={name}
+        id={controlID}
         rows={rows}
         {...register(name, { required: required })}
       />
 
-      {errors[name] && <Error name={name} />}
+      {errors[name] && <Error id={errorID} name={name} />}
     </Width>
   )
 }

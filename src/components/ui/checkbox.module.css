@@ -25,7 +25,7 @@
 }
 
 @media (hover: hover) and (pointer: fine) {
-  .checkbox:not(:disabled):hover {
+  .checkbox:not(:disabled):not([aria-invalid='true']):hover {
     border-color: var(--website-color-foreground);
   }
 }

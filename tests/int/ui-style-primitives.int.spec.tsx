@@ -232,6 +232,21 @@ describe('UI style primitives', () => {
     expect(disabledLabel.some((entry) => entry.prop === 'opacity')).toBe(false)
   })
 
+  it('keeps invalid control borders from being overridden by ordinary hover', () => {
+    for (const [file, selector] of [
+      ['checkbox.module.css', '.checkbox'],
+      ['input.module.css', '.input'],
+      ['select.module.css', '.trigger'],
+      ['textarea.module.css', '.textarea'],
+    ]) {
+      const hover = auditCss(readSource(`src/components/ui/${file}`)).blocks.find(
+        (block) => block.header.startsWith(selector) && block.header.includes(':hover'),
+      )
+      expect(hover, `${file} ${selector} hover rule`).toBeTruthy()
+      expect(hover?.header).toContain(":not([aria-invalid='true'])")
+    }
+  })
+
   it('keeps checkbox and select affordances on the control radius and 44px target contract', () => {
     const checkboxRules = auditCss(readSource('src/components/ui/checkbox.module.css'))
     expect(

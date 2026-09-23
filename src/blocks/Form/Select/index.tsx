@@ -13,6 +13,7 @@ import React from 'react'
 import { Controller } from 'react-hook-form'
 
 import { Error } from '../Error'
+import { useFormFieldIds } from '../useFormFieldIds'
 import { Width } from '../Width'
 import styles from './index.module.css'
 
@@ -22,9 +23,11 @@ export const Select: React.FC<
     errors: Partial<FieldErrorsImpl>
   }
 > = ({ name, control, errors, label, options, required, width, defaultValue }) => {
+  const { controlID, errorID } = useFormFieldIds()
+
   return (
     <Width width={width}>
-      <Label htmlFor={name}>
+      <Label htmlFor={controlID}>
         {label}
         {required && (
           <span className={styles.required}>
@@ -42,10 +45,10 @@ export const Select: React.FC<
           return (
             <SelectComponent onValueChange={(val) => onChange(val)} value={controlledValue?.value}>
               <SelectTrigger
-                aria-describedby={errors[name] ? `${name}-error` : undefined}
+                aria-describedby={errors[name] ? errorID : undefined}
                 aria-invalid={errors[name] ? true : undefined}
                 className={styles.trigger}
-                id={name}
+                id={controlID}
               >
                 <SelectValue placeholder={label} />
               </SelectTrigger>
@@ -63,7 +66,7 @@ export const Select: React.FC<
         }}
         rules={{ required }}
       />
-      {errors[name] && <Error name={name} />}
+      {errors[name] && <Error id={errorID} name={name} />}
     </Width>
   )
 }

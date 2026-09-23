@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label'
 import React from 'react'
 
 import { Error } from '../Error'
+import { useFormFieldIds } from '../useFormFieldIds'
 import { Width } from '../Width'
 import styles from './index.module.css'
 
@@ -15,9 +16,11 @@ export const Email: React.FC<
     register: UseFormRegister<FieldValues>
   }
 > = ({ name, defaultValue, errors, label, register, required, width }) => {
+  const { controlID, errorID } = useFormFieldIds()
+
   return (
     <Width width={width}>
-      <Label htmlFor={name}>
+      <Label htmlFor={controlID}>
         {label}
 
         {required && (
@@ -27,15 +30,15 @@ export const Email: React.FC<
         )}
       </Label>
       <Input
-        aria-describedby={errors[name] ? `${name}-error` : undefined}
+        aria-describedby={errors[name] ? errorID : undefined}
         aria-invalid={errors[name] ? true : undefined}
         defaultValue={defaultValue}
-        id={name}
+        id={controlID}
         type="text"
         {...register(name, { pattern: /^\S[^\s@]*@\S+$/, required })}
       />
 
-      {errors[name] && <Error name={name} />}
+      {errors[name] && <Error id={errorID} name={name} />}
     </Width>
   )
 }

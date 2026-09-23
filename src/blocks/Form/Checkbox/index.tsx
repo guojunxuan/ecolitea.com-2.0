@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label'
 import React from 'react'
 
 import { Error } from '../Error'
+import { useFormFieldIds } from '../useFormFieldIds'
 import { Width } from '../Width'
 import styles from './index.module.css'
 
@@ -19,21 +20,22 @@ export const Checkbox: React.FC<
 > = ({ name, defaultValue, errors, label, register, required, width }) => {
   const props = register(name, { required: required })
   const { setValue } = useFormContext()
+  const { controlID, errorID } = useFormFieldIds()
 
   return (
     <Width width={width}>
       <div className={styles.control}>
         <CheckboxUi
           defaultChecked={defaultValue}
-          id={name}
+          id={controlID}
           {...props}
-          aria-describedby={errors[name] ? `${name}-error` : undefined}
+          aria-describedby={errors[name] ? errorID : undefined}
           aria-invalid={errors[name] ? true : undefined}
           onCheckedChange={(checked) => {
             setValue(props.name, checked)
           }}
         />
-        <Label htmlFor={name}>
+        <Label htmlFor={controlID}>
           {required && (
             <span className={styles.required}>
               * <span className={styles.requiredText}>(required)</span>
@@ -42,7 +44,7 @@ export const Checkbox: React.FC<
           {label}
         </Label>
       </div>
-      {errors[name] && <Error name={name} />}
+      {errors[name] && <Error id={errorID} name={name} />}
     </Width>
   )
 }

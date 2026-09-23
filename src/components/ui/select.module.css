@@ -223,7 +223,7 @@
 }
 
 @media (hover: hover) and (pointer: fine) {
-  .trigger:not(:disabled):hover {
+  .trigger:not(:disabled):not([aria-invalid='true']):hover {
     border-color: var(--website-color-foreground);
   }
 

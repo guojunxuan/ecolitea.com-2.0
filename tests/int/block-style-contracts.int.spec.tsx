@@ -185,7 +185,6 @@ describe('Form behavior across the style migration', () => {
   it('preserves every field renderer, labels, required text, native types, and widths', () => {
     const { container } = render(<FormBlock enableIntro={false} form={form()} />)
     const name = screen.getByRole('textbox', { name: /Name/ })
-    expect(name.id).toBe('name')
     expect(name.parentElement?.classList).toContain(style('Form/Width/index', 'width'))
     expect((name.parentElement as HTMLElement).style.getPropertyValue('--form-field-width')).toBe(
       '50%',
@@ -198,9 +197,21 @@ describe('Form behavior across the style migration', () => {
     expect(screen.getByRole('checkbox', { name: /Consent/ }).getAttribute('aria-checked')).toBe(
       'false',
     )
+    const controls = [
+      name,
+      screen.getByRole('textbox', { name: /Email/ }),
+      screen.getByRole('spinbutton', { name: 'Quantity' }),
+      screen.getByRole('textbox', { name: 'Notes' }),
+      screen.getByRole('checkbox', { name: /Consent/ }),
+      ...screen.getAllByRole('combobox'),
+    ]
     expect(screen.getAllByRole('combobox')).toHaveLength(3)
-    for (const id of ['tea', 'country', 'state'])
-      expect(container.querySelector(`label[for="${id}"]`)).not.toBeNull()
+    expect(new Set(controls.map((control) => control.id)).size).toBe(controls.length)
+    for (const control of controls) {
+      expect(control.id).toBeTruthy()
+      expect(control.id).not.toBe(control.getAttribute('name'))
+      expect(container.querySelector(`label[for="${control.id}"]`)).not.toBeNull()
+    }
     expect(screen.getByText('Tell us about your tea')).toBeTruthy()
     const requiredText = screen.getAllByText('(required)', { selector: 'span' })
     expect(requiredText).toHaveLength(3)
@@ -240,13 +251,56 @@ describe('Form behavior across the style migration', () => {
     for (const error of screen.getAllByText('This field is required'))
       expect(error.classList).toContain(style('Form/Error/index', 'error'))
 
-    for (const [control, errorID] of [
-      [screen.getByRole('textbox', { name: /Name/ }), 'name-error'],
-      [screen.getByRole('textbox', { name: /Email/ }), 'email-error'],
-    ] as const) {
+    for (const control of [
+      screen.getByRole('textbox', { name: /Name/ }),
+      screen.getByRole('textbox', { name: /Email/ }),
+    ]) {
+      const errorID = control.getAttribute('aria-describedby')
       expect(control.getAttribute('aria-invalid')).toBe('true')
-      expect(control.getAttribute('aria-describedby')).toBe(errorID)
-      const error = document.getElementById(errorID)
+      expect(errorID).toBeTruthy()
+      const error = document.getElementById(errorID!)
+      expect(error?.getAttribute('role')).toBe('alert')
+      expect(error?.textContent).toBe('This field is required')
+    }
+  })
+
+  it('scopes repeated field names and errors to each rendered Form Block', async () => {
+    const repeatedField = (label: string): FormBlockType['form']['fields'] => [
+      { blockType: 'text', name: 'shared-name', label, required: true },
+    ]
+    render(
+      <>
+        <FormBlock
+          enableIntro={false}
+          form={form({ id: 'first-form', fields: repeatedField('First shared field') })}
+        />
+        <FormBlock
+          enableIntro={false}
+          form={form({ id: 'second-form', fields: repeatedField('Second shared field') })}
+        />
+      </>,
+    )
+
+    const initialControlIDs = screen.getAllByRole('textbox').map((control) => control.id)
+    for (const button of screen.getAllByRole('button', { name: 'Send' })) fireEvent.click(button)
+    expect(await screen.findAllByText('This field is required')).toHaveLength(2)
+
+    const controls = screen.getAllByRole('textbox')
+    expect(controls).toHaveLength(2)
+    expect(controls.map((control) => control.id)).toEqual(initialControlIDs)
+    expect(controls.map((control) => control.getAttribute('name'))).toEqual([
+      'shared-name',
+      'shared-name',
+    ])
+    expect(new Set(controls.map((control) => control.id)).size).toBe(2)
+
+    const errorIDs = controls.map((control) => control.getAttribute('aria-describedby'))
+    expect(errorIDs.every(Boolean)).toBe(true)
+    expect(new Set(errorIDs).size).toBe(2)
+    for (const [index, control] of controls.entries()) {
+      const label = screen.getByText(index === 0 ? 'First shared field' : 'Second shared field')
+      expect(label.getAttribute('for')).toBe(control.id)
+      const error = document.getElementById(errorIDs[index]!)
       expect(error?.getAttribute('role')).toBe('alert')
       expect(error?.textContent).toBe('This field is required')
     }
