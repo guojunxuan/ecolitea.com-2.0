@@ -44,7 +44,12 @@ const jsxConverters: JSXConvertersFunction<NodeTypes> = ({ defaultConverters }) 
   ...defaultConverters,
   ...LinkJSXConverter({ internalDocToHref }),
   table: ({ node, nodesToJSX }) => (
-    <div aria-label="Scrollable table" className={styles.tableScroll} role="region" tabIndex={0}>
+    <div
+      aria-label="Scrollable table"
+      className={cn('payload-richtext__table-scroll', styles.tableScroll)}
+      role="region"
+      tabIndex={0}
+    >
       <table>
         <tbody>{nodesToJSX({ nodes: node.children })}</tbody>
       </table>

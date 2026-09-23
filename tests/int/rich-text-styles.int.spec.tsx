@@ -11,8 +11,10 @@ vi.mock('@payloadcms/richtext-lexical/react', () => ({
   RichText: ({
     className,
     converters,
+    data,
   }: {
     className?: string
+    data?: { root?: { children?: Array<{ type: string }> } }
     converters: (args: { defaultConverters: Record<string, never> }) => {
       blocks: Record<string, (args: { node: { fields: Record<string, never> } }) => React.ReactNode>
       table?: (args: {
@@ -23,6 +25,22 @@ vi.mock('@payloadcms/richtext-lexical/react', () => ({
   }) => {
     const { blocks, table } = converters({ defaultConverters: {} })
     const node = { fields: {} }
+    const renderedTable = table?.({
+      node: { children: [] },
+      nodesToJSX: () => (
+        <tr>
+          <th scope="col">Title</th>
+        </tr>
+      ),
+    })
+
+    if (data?.root?.children?.some((child) => child.type === 'table')) {
+      return (
+        <div className={className} data-testid="rich-text">
+          {renderedTable}
+        </div>
+      )
+    }
 
     return (
       <div className={className} data-testid="rich-text">
@@ -30,14 +48,7 @@ vi.mock('@payloadcms/richtext-lexical/react', () => ({
         {blocks.mediaBlock({ node })}
         {blocks.code({ node })}
         {blocks.cta({ node })}
-        {table?.({
-          node: { children: [] },
-          nodesToJSX: () => (
-            <tr>
-              <th scope="col">Title</th>
-            </tr>
-          ),
-        })}
+        {renderedTable}
       </div>
     )
   },
@@ -153,6 +164,30 @@ describe('RichText style modes', () => {
     expect(region.querySelector('table')).not.toBeNull()
     expect(region.querySelector('th[scope="col"]')).not.toBeNull()
     expect(richTextStyles).toContain('overflow-x: auto;')
+  })
+
+  it('trims table-only content at both outer edges while keeping adjacent-table rhythm', () => {
+    const tableOnly = { root: { children: [{ type: 'table' }], type: 'root', version: 1 } } as never
+    render(<RichText data={tableOnly} />)
+    const root = screen.getByTestId('rich-text')
+    const wrapper = screen.getByRole('region', { name: 'Scrollable table' })
+    expect(root.firstElementChild).toBe(wrapper)
+    expect(root.lastElementChild).toBe(wrapper)
+    expect(wrapper.classList).toContain('payload-richtext__table-scroll')
+
+    const declarations = auditCss(contentStyles).declarations
+    const forSelector = (selector: string) =>
+      declarations
+        .filter((entry) => entry.header === selector)
+        .map(({ prop, value }) => `${prop}: ${value}`)
+
+    expect(forSelector('&:where(table)')).not.toContain('margin-block-start: 2em')
+    expect(forSelector('&:where(table)')).not.toContain('margin-block-end: 2em')
+    expect(forSelector('&:where(.payload-richtext__table-scroll)')).toEqual(
+      expect.arrayContaining(['margin-block-start: 2em', 'margin-block-end: 2em']),
+    )
+    expect(forSelector(':scope > :where(:first-child)')).toContain('margin-block-start: 0')
+    expect(forSelector(':scope > :where(:last-child)')).toContain('margin-block-end: 0')
   })
 
   it.each([

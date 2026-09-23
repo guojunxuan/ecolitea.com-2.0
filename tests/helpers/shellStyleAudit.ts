@@ -227,6 +227,7 @@ const globalClasses = new Set([
   'payload-richtext--plain',
   'payload-richtext--inverse',
   'payload-richtext__embedded',
+  'payload-richtext__table-scroll',
   // Owned Payload Admin hook, styled only in its component stylesheet.
   'site-settings-social-links',
 ])

@@ -331,12 +331,14 @@
       &:where(pre code)::after {
         content: none;
       }
+      &:where(.payload-richtext__table-scroll) {
+        margin-block-start: 2em;
+        margin-block-end: 2em;
+      }
       &:where(table) {
         width: max-content;
         min-width: 100%;
         table-layout: auto;
-        margin-block-start: 2em;
-        margin-block-end: 2em;
         font-size: 14px;
         line-height: 22px;
       }
