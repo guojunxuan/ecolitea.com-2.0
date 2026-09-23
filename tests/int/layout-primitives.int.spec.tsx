@@ -118,7 +118,7 @@ describe('website layout primitives', () => {
     expect(pageStyles).toContain('var(--website-section-spacious)')
     expect(pageStyles).toContain('var(--website-container-reading)')
     expect(pageStyles).toContain('var(--website-space-16)')
-    expect(pageStyles).toMatch(/\.pageHeader h1,[\s\S]*font-size:\s*2\.25rem;/)
+    expect(pageStyles).toContain('composes: website-type-heading-large from global;')
     expect(pageStyles).not.toMatch(
       /@media \(width >= 48rem\)[\s\S]*\.(?:pageHeader|pageHeaderCentered|notFound) h1[\s\S]*font-size:\s*3\.5rem;/,
     )

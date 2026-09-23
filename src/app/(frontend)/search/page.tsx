@@ -63,7 +63,7 @@ export default async function Page({ searchParams: searchParamsPromise }: Args) 
   return (
     <div className={styles.pageSection}>
       <div className={styles.pageHeaderCentered}>
-        <h1>Search</h1>
+        <h1 className={styles.pageTitle}>Search</h1>
 
         <div className={styles.searchField}>
           <Search />

@@ -31,7 +31,7 @@ export default async function Page() {
   return (
     <div className={styles.pageSection}>
       <div className={styles.pageHeader}>
-        <h1>Posts</h1>
+        <h1 className={styles.pageTitle}>Posts</h1>
       </div>
 
       <div className={styles.pageRange}>

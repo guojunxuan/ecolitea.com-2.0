@@ -11,7 +11,7 @@
   .panel {
     padding: var(--website-space-4);
     border: 1px solid var(--website-color-border);
-    border-radius: var(--website-radius-content);
+    border-radius: var(--website-radius-panel);
   }
 
   .fields {

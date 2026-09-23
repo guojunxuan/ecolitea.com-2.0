@@ -65,7 +65,7 @@ export const Card: React.FC<{
         )}
         {titleToUse && (
           <div className={styles.title} data-slot="content-card-title">
-            <h3>
+            <h3 className={styles.heading}>
               <Link className={styles.link} data-slot="content-card-link" href={href} ref={linkRef}>
                 {titleToUse}
               </Link>

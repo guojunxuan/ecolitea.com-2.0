@@ -78,9 +78,3 @@
     max-width: 80rem;
   }
 }
-
-@media (width >= 86rem) {
-  .withGutter.plain {
-    max-width: 86rem;
-  }
-}

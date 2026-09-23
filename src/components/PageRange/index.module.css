@@ -1,3 +1,5 @@
 .range {
+  composes: website-type-body-small from global;
+
   font-weight: 600;
 }

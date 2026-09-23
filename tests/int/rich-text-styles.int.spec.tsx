@@ -301,7 +301,7 @@ describe('RichText style modes', () => {
   it('preserves distinct gutter widths for content and plain modes', () => {
     expect(richTextStyles).toMatch(/\.root\s*{[^}]*max-width:\s*none;/s)
     expect(richTextStyles).toMatch(/\.withGutter\.content\s*{[^}]*max-width:\s*65ch;/s)
-    for (const width of [40, 48, 64, 80, 86]) {
+    for (const width of [40, 48, 64, 80]) {
       expect(richTextStyles, `${width}rem container maximum`).toMatch(
         new RegExp(
           `@media \\(width >= ${width}rem\\)[^{}]*\\{[^{}]*\\.withGutter\\.plain\\s*\\{[^}]*max-width:\\s*${width}rem;`,

@@ -35,10 +35,6 @@
   --website-color-disabled-foreground: var(--website-color-subtle-foreground);
   --website-color-disabled-border: var(--website-color-border);
 
-  /* Temporary aliases retained until the component adoption tasks migrate consumers. */
-  --website-color-surface-foreground: var(--website-color-foreground);
-  --website-color-muted: var(--website-color-muted-surface);
-
   --website-status-info-accent: #2563eb;
   --website-status-info-background: #eff6ff;
   --website-status-info-foreground: #1e3a8a;
@@ -130,8 +126,6 @@
   --website-color-disabled-surface: var(--website-color-neutral-100);
   --website-color-disabled-foreground: var(--website-color-neutral-500);
   --website-color-disabled-border: var(--website-color-neutral-300);
-  --website-color-surface-foreground: var(--website-color-foreground);
-  --website-color-muted: var(--website-color-muted-surface);
   --website-status-error-inline-foreground: var(--website-status-error-foreground);
 }
 
@@ -152,8 +146,6 @@
   --website-color-disabled-surface: rgb(255 255 255 / 8%);
   --website-color-disabled-foreground: rgb(255 255 255 / 48%);
   --website-color-disabled-border: rgb(255 255 255 / 18%);
-  --website-color-surface-foreground: var(--website-color-foreground);
-  --website-color-muted: var(--website-color-muted-surface);
   --website-status-error-inline-foreground: var(--website-status-error-border);
 }
 

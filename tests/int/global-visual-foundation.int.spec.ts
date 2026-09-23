@@ -86,22 +86,11 @@ describe('global visual foundation', () => {
     ])
       expect(css, declaration).toContain(declaration)
 
-    const rootAliases = `
-  --website-color-surface-foreground: var(--website-color-foreground);
-  --website-color-muted: var(--website-color-muted-surface);
-`
     const defaultTheme = css.match(/\[data-website-theme='default'\] \{([^}]+)\}/)?.[1]
     const inverseTheme = css.match(/\[data-website-theme='inverse'\] \{([^}]+)\}/)?.[1]
 
-    expect(css, 'root compatibility aliases').toContain(rootAliases)
-    expect(defaultTheme, 'default compatibility aliases').toContain(
-      '--website-color-surface-foreground: var(--website-color-foreground);',
-    )
-    expect(defaultTheme).toContain('--website-color-muted: var(--website-color-muted-surface);')
-    expect(inverseTheme, 'inverse compatibility aliases').toContain(
-      '--website-color-surface-foreground: var(--website-color-foreground);',
-    )
-    expect(inverseTheme).toContain('--website-color-muted: var(--website-color-muted-surface);')
+    expect(defaultTheme).toBeTruthy()
+    expect(inverseTheme).toBeTruthy()
     expect(inverseTheme).toContain('--website-color-foreground: var(--website-color-brand-white);')
     expect(inverseTheme).toContain('--website-color-muted-surface: rgb(255 255 255 / 6%);')
   })

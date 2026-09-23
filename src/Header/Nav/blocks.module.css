@@ -21,7 +21,7 @@
 .navigationCardVisual { aspect-ratio: 16 / 9; border-radius: .5rem; display: block; overflow: hidden; position: relative; }
 .navigationCardProduct, .navigationCardRich { flex-direction: column; }
 .navigationCardProduct { background: color-mix(in srgb, var(--website-color-foreground) 6%, var(--website-color-background)); border-radius: .5rem; overflow: hidden; padding: .75rem .75rem .875rem; }
-.navigationCardImage { background: var(--website-color-muted); display: block; overflow: hidden; position: relative; width: 100%; }
+.navigationCardImage { background: var(--website-color-muted-surface); display: block; overflow: hidden; position: relative; width: 100%; }
 .navigationCardProduct .navigationCardImage { aspect-ratio: 4 / 3; }
 .navigationCardRich .navigationCardImage { aspect-ratio: 16 / 9; }
 .navigationCardProduct .navigationCardImage { background: transparent; }

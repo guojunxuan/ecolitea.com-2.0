@@ -3,7 +3,7 @@
     overflow: hidden;
     background-color: var(--website-color-surface);
     border: 1px solid var(--website-color-border);
-    border-radius: var(--website-radius-control);
+    border-radius: var(--website-radius-content);
   }
 
   @media (hover: hover) {
@@ -22,24 +22,21 @@
   }
 
   .categoryLabel {
+    composes: website-type-body-small from global;
+
     margin-bottom: var(--website-space-4);
-    font-size: 0.875rem;
-    line-height: 1.25rem;
     text-transform: uppercase;
   }
 
   .title {
     max-width: 65ch;
-    font-size: 1rem;
-    line-height: 1.75;
   }
 
-  .title h3 {
+  .heading {
+    composes: website-type-heading-small from global;
+
     margin: 0;
     color: inherit;
-    font-size: 1.25em;
-    font-weight: 600;
-    line-height: 1.6;
   }
 
   .link {
@@ -48,6 +45,8 @@
   }
 
   .description {
+    composes: website-type-body from global;
+
     margin-top: var(--website-space-2);
   }
 }

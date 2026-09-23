@@ -218,8 +218,7 @@ describe('public website shell', () => {
     expect(footer).toContain(".navigation[data-enhanced='true'] .linkPanel")
     expect(code).toContain('background-color: var(--website-color-background)')
     expect(code).toContain('color: var(--website-color-foreground)')
-    expect(code).toContain('font-size: 0.875rem')
-    expect(code).toContain('line-height: 1.375rem')
+    expect(code).toContain('composes: website-type-code from global;')
     expect(readSource('src/blocks/Code/Component.client.tsx')).toContain('themes.vsDark')
   })
 

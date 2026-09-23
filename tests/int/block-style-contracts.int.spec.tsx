@@ -225,7 +225,7 @@ describe('Form behavior across the style migration', () => {
     }
     for (const path of ['Form/Text/index', 'Form/Email/index', 'Form/Checkbox/index']) {
       const css = readFileSync(`src/blocks/${path}.module.css`, 'utf8')
-      expect(css).toMatch(/clip:\s*rect\(0, 0, 0, 0\)/)
+      expect(css).toContain('composes: visually-hidden from global;')
     }
     expect(screen.getByRole('button', { name: 'Send' }).getAttribute('form')).toBe('contact-form')
   })

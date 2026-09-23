@@ -11,39 +11,35 @@
     padding-block: var(--website-space-3);
     padding-inline: var(--website-space-6);
     border: 1px solid var(--website-color-border);
-    border-radius: 0.25rem;
+    border-left-width: 2px;
+    border-radius: var(--website-radius-control);
   }
 
   .info {
     border-color: var(--website-status-info-border);
+    border-left-color: var(--website-status-info-accent);
     background-color: var(--website-status-info-background);
+    color: var(--website-status-info-foreground);
   }
 
   .error {
     border-color: var(--website-status-error-border);
-    background-color: var(--website-status-error-accent);
+    border-left-color: var(--website-status-error-accent);
+    background-color: var(--website-status-error-background);
+    color: var(--website-status-error-foreground);
   }
 
   .warning {
     border-color: var(--website-status-warning-border);
-    background-color: var(--website-status-warning-accent);
+    border-left-color: var(--website-status-warning-accent);
+    background-color: var(--website-status-warning-background);
+    color: var(--website-status-warning-foreground);
   }
 
   .success {
     border-color: var(--website-status-success-border);
-    background-color: var(--website-status-success-accent);
-  }
-
-  /* Preserve the installed utility's color space and unsupported-browser fallback. */
-  @supports (color: color-mix(in lab, red, red)) {
-    .error {
-      background-color: color-mix(in oklab, var(--website-status-error-accent) 30%, transparent);
-    }
-    .warning {
-      background-color: color-mix(in oklab, var(--website-status-warning-accent) 30%, transparent);
-    }
-    .success {
-      background-color: color-mix(in oklab, var(--website-status-success-accent) 30%, transparent);
-    }
+    border-left-color: var(--website-status-success-accent);
+    background-color: var(--website-status-success-background);
+    color: var(--website-status-success-foreground);
   }
 }

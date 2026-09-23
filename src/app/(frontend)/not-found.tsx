@@ -9,7 +9,7 @@ export default function NotFound() {
   return (
     <div className={styles.notFound}>
       <div>
-        <h1>404</h1>
+        <h1 className={styles.pageTitle}>404</h1>
         <p>This page could not be found.</p>
       </div>
       <Button asChild variant="default">

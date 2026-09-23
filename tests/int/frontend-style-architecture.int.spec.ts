@@ -373,13 +373,17 @@ describe('frontend style architecture', () => {
     const violations = files.flatMap((file) => scanShellCss(file, read(file), tokens))
 
     expect(violations).toEqual([])
-    expect(read('src/Header/Component.module.css')).toContain('260ms ease')
+    expect(read('src/Header/Component.module.css')).toContain(
+      'var(--website-duration-standard) var(--website-easing-standard)',
+    )
     expect(read('src/Header/Nav/index.module.css')).toContain('(width > 1170px)')
     expect(read('src/Footer/index.module.css')).toContain(
       'grid-template-columns: minmax(0, 20fr) minmax(0, 55fr) minmax(0, 25fr)',
     )
-    expect(read('src/Footer/index.module.css')).toContain('180ms ease')
-    expect(read('src/Footer/index.module.css')).toContain('200ms ease')
+    expect(read('src/Footer/index.module.css')).toContain('var(--website-duration-fast) ease')
+    expect(read('src/Footer/index.module.css')).toContain(
+      'var(--website-duration-standard) var(--website-easing-standard)',
+    )
   })
 
   it('keeps all owned TSX free of utility and unknown literal classes', async () => {
