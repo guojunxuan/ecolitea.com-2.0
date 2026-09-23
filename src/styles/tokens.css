@@ -1,4 +1,4 @@
-/* Phase 1 compatibility values. --header-height remains Header-owned. */
+/* Global website tokens. --header-height remains Header-owned. */
 :root {
   --website-font-sans: var(--font-geist-sans);
   --website-font-mono: var(--font-geist-mono);
@@ -12,62 +12,91 @@
   --website-section-standard: clamp(3rem, 6vw, 5rem);
   --website-section-spacious: clamp(4.5rem, 9vw, 7.5rem);
 
-  --website-space-1: 0.25rem;
-  --website-space-2: 0.5rem;
-  --website-space-3: 0.75rem;
-  --website-space-4: 1rem;
-  --website-space-6: 1.5rem;
-  --website-space-8: 2rem;
-  --website-space-12: 3rem;
-  --website-space-16: 4rem;
+  --website-color-brand-black: #0a0a0a;
+  --website-color-brand-white: #ffffff;
+  --website-color-neutral-900: #262629;
+  --website-color-neutral-600: #76767f;
+  --website-color-neutral-500: #9a9aa1;
+  --website-color-neutral-100: #f7f7f8;
+  --website-color-neutral-200: #ededee;
+  --website-color-neutral-300: #e0e0e2;
+  --website-color-neutral-400: #d4d4d7;
 
-  --website-color-background: oklch(100% 0 0deg);
-  --website-color-foreground: oklch(14.5% 0 0deg);
-  --website-color-surface: oklch(96.5% 0.005 265deg);
-  --website-color-surface-foreground: oklch(14.5% 0 0deg);
-  --website-color-muted: oklch(97% 0 0deg);
-  --website-color-muted-foreground: oklch(55.6% 0 0deg);
-  --website-color-action: oklch(20.5% 0 0deg);
-  --website-color-action-foreground: oklch(98.5% 0 0deg);
-  --website-color-border: oklch(92.2% 0 0deg);
-  --website-color-input: oklch(92.2% 0 0deg);
-  --website-color-focus: oklch(70.8% 0 0deg);
-  --website-status-info-accent: var(--website-color-foreground);
-  --website-status-info-background: var(--website-color-surface);
-  --website-status-info-foreground: var(--website-color-foreground);
-  --website-status-info-border: var(--website-color-border);
-  --website-status-success-accent: oklch(78% 0.08 200deg);
-  --website-status-success-background: color-mix(
-    in oklch,
-    var(--website-status-success-accent) 30%,
-    transparent
-  );
-  --website-status-success-foreground: var(--website-color-foreground);
-  --website-status-success-border: var(--website-status-success-accent);
-  --website-status-warning-accent: oklch(89% 0.1 75deg);
-  --website-status-warning-background: color-mix(
-    in oklch,
-    var(--website-status-warning-accent) 30%,
-    transparent
-  );
-  --website-status-warning-foreground: var(--website-color-foreground);
-  --website-status-warning-border: var(--website-status-warning-accent);
-  --website-status-error-accent: oklch(75% 0.15 25deg);
-  --website-status-error-background: color-mix(
-    in oklch,
-    var(--website-status-error-accent) 30%,
-    transparent
-  );
-  --website-status-error-foreground: var(--website-color-foreground);
-  --website-status-error-border: var(--website-status-error-accent);
+  --website-color-background: var(--website-color-brand-white);
+  --website-color-foreground: #262629;
+  --website-color-muted-foreground: #76767f;
+  --website-color-subtle-foreground: var(--website-color-neutral-500);
+  --website-color-surface: var(--website-color-brand-white);
+  --website-color-muted-surface: var(--website-color-neutral-100);
+  --website-color-interactive-surface: var(--website-color-neutral-200);
+  --website-color-border: var(--website-color-neutral-300);
+  --website-color-input: var(--website-color-neutral-400);
+  --website-color-action: var(--website-color-brand-black);
+  --website-color-action-foreground: var(--website-color-brand-white);
+  --website-color-focus: var(--website-color-brand-black);
+  --website-color-focus-gap: var(--website-color-brand-white);
+  --website-color-disabled-surface: var(--website-color-muted-surface);
+  --website-color-disabled-foreground: var(--website-color-subtle-foreground);
+  --website-color-disabled-border: var(--website-color-border);
 
-  --website-radius-control: 0.625rem;
-  --website-radius-content: 0.8rem;
+  /* Temporary aliases retained until the component adoption tasks migrate consumers. */
+  --website-color-surface-foreground: var(--website-color-foreground);
+  --website-color-muted: var(--website-color-muted-surface);
+
+  --website-status-info-accent: #2563eb;
+  --website-status-info-background: #eff6ff;
+  --website-status-info-foreground: #1e3a8a;
+  --website-status-info-border: #bfdbfe;
+  --website-status-success-accent: #16845b;
+  --website-status-success-background: #ecfdf5;
+  --website-status-success-foreground: #14532d;
+  --website-status-success-border: #a7f3d0;
+  --website-status-warning-accent: #c36a00;
+  --website-status-warning-background: #fff8e6;
+  --website-status-warning-foreground: #713f12;
+  --website-status-warning-border: #fde68a;
+  --website-status-error-accent: #d92d20;
+  --website-status-error-background: #fef3f2;
+  --website-status-error-foreground: #7f1d1d;
+  --website-status-error-border: #fecaca;
+
+  --website-space-1: 4px;
+  --website-space-2: 8px;
+  --website-space-3: 12px;
+  --website-space-4: 16px;
+  --website-space-6: 24px;
+  --website-space-8: 32px;
+  --website-space-12: 48px;
+  --website-space-16: 64px;
+  --website-space-20: 80px;
+  --website-space-30: 120px;
+
+  --website-radius-none: 0;
+  --website-radius-small: 4px;
+  --website-radius-control: 8px;
+  --website-radius-content: 12px;
+  --website-radius-panel: 16px;
   --website-radius-pill: 999px;
+  --website-radius-circle: 50%;
+
+  --website-control-compact: 40px;
+  --website-control-default: 48px;
+  --website-control-large: 56px;
+  --website-control-target-min: 44px;
+
+  --website-icon-small: 16px;
+  --website-icon-medium: 20px;
+  --website-icon-large: 24px;
+  --website-icon-xlarge: 32px;
+
+  --website-shadow-subtle: 0 4px 16px rgb(0 0 0 / 8%);
+  --website-shadow-raised: 0 12px 40px rgb(0 0 0 / 12%);
+  --website-shadow-overlay: 0 24px 64px rgb(0 0 0 / 18%);
+
   --website-duration-fast: 160ms;
-  --website-duration-standard: 260ms;
+  --website-duration-standard: 240ms;
   --website-duration-slow: 360ms;
-  --website-easing-standard: ease;
+  --website-easing-standard: cubic-bezier(0.2, 0.8, 0.2, 1);
 
   --website-z-base: 0;
   --website-z-raised: 10;
@@ -77,30 +106,52 @@
   --website-z-overlay: 70;
   --website-z-modal: 80;
   --website-z-toast: 90;
+
+  --website-scrim-subtle: 24%;
+  --website-scrim-standard: 48%;
+  --website-scrim-strong: 72%;
+  --website-glass-surface: rgb(255 255 255 / 90%);
+  --website-glass-border: color-mix(in srgb, var(--website-color-foreground) 10%, transparent);
+  --website-glass-blur: 18px;
+  --website-glass-saturation: 115%;
 }
 
 [data-website-theme='default'] {
-  --website-color-background: oklch(100% 0 0deg);
-  --website-color-foreground: oklch(14.5% 0 0deg);
-  --website-color-surface: oklch(96.5% 0.005 265deg);
-  --website-color-surface-foreground: oklch(14.5% 0 0deg);
-  --website-color-muted: oklch(97% 0 0deg);
-  --website-color-muted-foreground: oklch(55.6% 0 0deg);
-  --website-color-action: oklch(20.5% 0 0deg);
-  --website-color-action-foreground: oklch(98.5% 0 0deg);
-  --website-color-border: oklch(92.2% 0 0deg);
-  --website-color-input: oklch(92.2% 0 0deg);
-  --website-color-focus: oklch(70.8% 0 0deg);
+  --website-color-background: var(--website-color-brand-white);
+  --website-color-foreground: #262629;
+  --website-color-muted-foreground: #76767f;
+  --website-color-subtle-foreground: var(--website-color-neutral-500);
+  --website-color-surface: var(--website-color-brand-white);
+  --website-color-muted-surface: var(--website-color-neutral-100);
+  --website-color-interactive-surface: var(--website-color-neutral-200);
+  --website-color-border: var(--website-color-neutral-300);
+  --website-color-input: var(--website-color-neutral-400);
+  --website-color-action: var(--website-color-brand-black);
+  --website-color-action-foreground: var(--website-color-brand-white);
+  --website-color-focus: var(--website-color-brand-black);
+  --website-color-focus-gap: var(--website-color-brand-white);
+  --website-color-disabled-surface: var(--website-color-neutral-100);
+  --website-color-disabled-foreground: var(--website-color-neutral-500);
+  --website-color-disabled-border: var(--website-color-neutral-300);
 }
 
 [data-website-theme='inverse'] {
-  --website-color-background: #0a0a0a;
-  --website-color-foreground: #fff;
-  --website-color-muted-foreground: rgb(255 255 255 / 65%);
+  --website-color-background: var(--website-color-brand-black);
+  --website-color-foreground: var(--website-color-brand-white);
+  --website-color-muted-foreground: rgb(255 255 255 / 68%);
+  --website-color-subtle-foreground: rgb(255 255 255 / 48%);
+  --website-color-surface: var(--website-color-brand-black);
+  --website-color-muted-surface: rgb(255 255 255 / 6%);
+  --website-color-interactive-surface: rgb(255 255 255 / 8%);
   --website-color-border: rgb(255 255 255 / 18%);
-  --website-color-action: #fff;
-  --website-color-action-foreground: #0a0a0a;
-  --website-color-focus: #fff;
+  --website-color-input: rgb(255 255 255 / 24%);
+  --website-color-action: var(--website-color-brand-white);
+  --website-color-action-foreground: var(--website-color-brand-black);
+  --website-color-focus: var(--website-color-brand-white);
+  --website-color-focus-gap: var(--website-color-brand-black);
+  --website-color-disabled-surface: rgb(255 255 255 / 8%);
+  --website-color-disabled-foreground: rgb(255 255 255 / 48%);
+  --website-color-disabled-border: rgb(255 255 255 / 18%);
 }
 
 @media (width >= 48rem) {
