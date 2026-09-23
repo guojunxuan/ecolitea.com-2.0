@@ -6,7 +6,7 @@
   height: var(--website-icon-medium);
   flex-shrink: 0;
   border: 1px solid var(--website-color-input);
-  border-radius: var(--website-radius-small);
+  border-radius: var(--website-radius-control);
   background-color: var(--website-color-surface);
   color: var(--website-color-foreground);
   transition-property: color, background-color, border-color;

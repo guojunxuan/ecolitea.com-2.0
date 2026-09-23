@@ -178,7 +178,7 @@ describe('global visual foundation', () => {
     const rules = auditCss(read('src/components/ui/select.module.css'))
     const reducedMotion = '@media (prefers-reduced-motion: reduce)'
     const popper = rules.declarations.filter(
-      (entry) => entry.header === '.popper' && entry.ancestors.includes(reducedMotion),
+      (entry) => entry.header === '.popper[data-side]' && entry.ancestors.includes(reducedMotion),
     )
     expect(popper.find((entry) => entry.prop === 'translate')?.value).toBe('none')
 
@@ -203,5 +203,26 @@ describe('global visual foundation', () => {
             entry.prop === 'opacity',
         ),
       ).toBe(true)
+  })
+
+  it('maps inline form errors to readable default and inverse semantic colors', () => {
+    const rules = auditCss(read('src/styles/tokens.css'))
+    const inlineError = (selector: string) =>
+      rules.declarations.find(
+        (entry) =>
+          entry.header === selector && entry.prop === '--website-status-error-inline-foreground',
+      )?.value
+
+    expect(inlineError(':root')).toBe('var(--website-status-error-foreground)')
+    expect(inlineError("[data-website-theme='default']")).toBe(
+      'var(--website-status-error-foreground)',
+    )
+    expect(inlineError("[data-website-theme='inverse']")).toBe('var(--website-status-error-border)')
+
+    const errorRules = auditCss(read('src/blocks/Form/Error/index.module.css'))
+    expect(
+      errorRules.declarations.find((entry) => entry.header === '.error' && entry.prop === 'color')
+        ?.value,
+    ).toBe('var(--website-status-error-inline-foreground)')
   })
 })

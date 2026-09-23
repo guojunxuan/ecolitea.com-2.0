@@ -55,6 +55,7 @@
   --website-status-error-background: #fef3f2;
   --website-status-error-foreground: #7f1d1d;
   --website-status-error-border: #fecaca;
+  --website-status-error-inline-foreground: var(--website-status-error-foreground);
 
   --website-space-1: 4px;
   --website-space-2: 8px;
@@ -131,6 +132,7 @@
   --website-color-disabled-border: var(--website-color-neutral-300);
   --website-color-surface-foreground: var(--website-color-foreground);
   --website-color-muted: var(--website-color-muted-surface);
+  --website-status-error-inline-foreground: var(--website-status-error-foreground);
 }
 
 [data-website-theme='inverse'] {
@@ -152,6 +154,7 @@
   --website-color-disabled-border: rgb(255 255 255 / 18%);
   --website-color-surface-foreground: var(--website-color-foreground);
   --website-color-muted: var(--website-color-muted-surface);
+  --website-status-error-inline-foreground: var(--website-status-error-border);
 }
 
 @media (width >= 48rem) {

@@ -232,6 +232,29 @@ describe('UI style primitives', () => {
     expect(disabledLabel.some((entry) => entry.prop === 'opacity')).toBe(false)
   })
 
+  it('keeps checkbox and select affordances on the control radius and 44px target contract', () => {
+    const checkboxRules = auditCss(readSource('src/components/ui/checkbox.module.css'))
+    expect(
+      checkboxRules.declarations.find(
+        (entry) => entry.header === '.checkbox' && entry.prop === 'border-radius',
+      )?.value,
+    ).toBe('var(--website-radius-control)')
+
+    const selectRules = auditCss(readSource('src/components/ui/select.module.css'))
+    for (const selector of ['.selectItem', '.scrollButton'])
+      expect(
+        selectRules.declarations.find(
+          (entry) => entry.header === selector && entry.prop === 'min-height',
+        )?.value,
+        selector,
+      ).toBe('var(--website-control-target-min)')
+    expect(
+      selectRules.declarations.find(
+        (entry) => entry.header === '.selectItem' && entry.prop === 'border-radius',
+      )?.value,
+    ).toBe('var(--website-radius-control)')
+  })
+
   it('keeps Button component defaults in the components layer and migrates the Code copy slot', () => {
     const buttonSource = readSource('src/components/ui/button.module.css')
     const copyButtonSource = readSource('src/blocks/Code/CopyButton.tsx')

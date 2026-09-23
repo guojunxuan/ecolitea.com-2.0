@@ -1,6 +1,6 @@
 .error {
   margin-top: var(--website-space-2);
-  color: var(--website-status-error-foreground);
+  color: var(--website-status-error-inline-foreground);
   font-size: 0.875rem;
   font-weight: 500;
   line-height: 1.25rem;
