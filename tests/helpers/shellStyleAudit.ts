@@ -226,6 +226,48 @@ export const scanShellClasses = (
     const line = parsed.getLineAndCharacterOfPosition(node.getStart(parsed)).line + 1
     for (const token of value.split(/\s+/).filter(Boolean)) candidates.push({ line, token })
   }
+  const propertyName = (node: ts.PropertyName) =>
+    ts.isIdentifier(node) || ts.isStringLiteralLike(node) ? node.text : undefined
+
+  // Configuration objects can live in local bindings, arrays, or conditional
+  // branches. Visit their values without mistaking variant selectors for classes.
+  const visitObjects = (
+    node: ts.Node,
+    seen: Set<string>,
+    visit: (object: ts.ObjectLiteralExpression, seen: Set<string>) => void,
+  ) => {
+    if (ts.isIdentifier(node)) {
+      const initializer = variables.get(node.text)
+      if (initializer && !seen.has(node.text)) {
+        visitObjects(initializer, new Set(seen).add(node.text), visit)
+      }
+    } else if (ts.isObjectLiteralExpression(node)) {
+      visit(node, seen)
+      for (const property of node.properties) {
+        if (ts.isSpreadAssignment(property)) visitObjects(property.expression, seen, visit)
+      }
+    } else if (ts.isConditionalExpression(node)) {
+      visitObjects(node.whenTrue, seen, visit)
+      visitObjects(node.whenFalse, seen, visit)
+    } else {
+      ts.forEachChild(node, (child) => visitObjects(child, seen, visit))
+    }
+  }
+  const scanClassFields = (object: ts.ObjectLiteralExpression, seen: Set<string>) => {
+    for (const property of object.properties) {
+      if (
+        ts.isPropertyAssignment(property) &&
+        ['class', 'className'].includes(propertyName(property.name) ?? '')
+      ) {
+        scanExpression(property.initializer, seen)
+      } else if (
+        ts.isShorthandPropertyAssignment(property) &&
+        ['class', 'className'].includes(property.name.text)
+      ) {
+        scanExpression(property.name, seen)
+      }
+    }
+  }
   const scanExpression = (node: ts.Node, seenVariables = new Set<string>()) => {
     if (ts.isStringLiteralLike(node)) {
       scanLiteral(node, node.text)
@@ -279,31 +321,48 @@ export const scanShellClasses = (
       } else if (name === 'cva') {
         if (node.arguments[0]) scanExpression(node.arguments[0], seenVariables)
         const options = node.arguments[1]
-        if (options && ts.isObjectLiteralExpression(options)) {
-          const variants = options.properties.find(
-            (prop) => prop.name?.getText(parsed) === 'variants',
-          )
-          if (
-            variants &&
-            ts.isPropertyAssignment(variants) &&
-            ts.isObjectLiteralExpression(variants.initializer)
-          ) {
-            for (const variant of variants.initializer.properties) {
-              if (
-                ts.isPropertyAssignment(variant) &&
-                ts.isObjectLiteralExpression(variant.initializer)
-              ) {
-                for (const value of variant.initializer.properties) {
-                  if (ts.isPropertyAssignment(value))
-                    scanExpression(value.initializer, seenVariables)
+        if (options)
+          visitObjects(options, seenVariables, (options, optionsSeen) => {
+            const variants = options.properties.find(
+              (prop) => prop.name && propertyName(prop.name) === 'variants',
+            )
+            if (
+              variants &&
+              ts.isPropertyAssignment(variants) &&
+              ts.isObjectLiteralExpression(variants.initializer)
+            ) {
+              for (const variant of variants.initializer.properties) {
+                if (
+                  ts.isPropertyAssignment(variant) &&
+                  ts.isObjectLiteralExpression(variant.initializer)
+                ) {
+                  for (const value of variant.initializer.properties) {
+                    if (ts.isPropertyAssignment(value))
+                      scanExpression(value.initializer, optionsSeen)
+                  }
                 }
               }
             }
+            for (const property of options.properties) {
+              if (
+                ts.isPropertyAssignment(property) &&
+                propertyName(property.name) === 'compoundVariants'
+              ) {
+                visitObjects(property.initializer, optionsSeen, scanClassFields)
+              }
+            }
+          })
+      } else {
+        // Class helpers may pass through any literal argument. Object options
+        // contribute only explicit class fields (variant selectors are metadata).
+        scanExpression(node.expression, seenVariables)
+        for (const argument of node.arguments) {
+          if (ts.isObjectLiteralExpression(argument)) {
+            visitObjects(argument, seenVariables, scanClassFields)
+          } else {
+            scanExpression(argument, seenVariables)
           }
         }
-      } else {
-        // Variant options and other function inputs are not class strings.
-        scanExpression(node.expression, seenVariables)
       }
       return
     }

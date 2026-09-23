@@ -22,6 +22,54 @@ const shellFiles = (suffix: string) =>
   ['src/Header', 'src/Footer'].flatMap((directory) => listFiles(directory, suffix))
 
 describe('frontend style architecture', () => {
+  it('audits literal-producing arguments of unknown class helpers', () => {
+    const source = `
+      const forbidden = 'rounded-[19px]'
+      const View = () => <>
+        <div className={join('site-container', 'md:flex')} />
+        <div className={helpers.join(styles.root, active ? forbidden : ['hover:bg-black'])} />
+        <div className={join('site-container', styles.root, active && 'visually-hidden')} />
+      </>
+    `
+    expect(scanShellClasses('test.tsx', source).map((entry) => entry.split(': ').at(-1))).toEqual([
+      'md:flex',
+      'rounded-[19px]',
+      'hover:bg-black',
+    ])
+    expect(
+      scanShellClasses('test.tsx', '<div className={join("site-container", styles.root)} />'),
+    ).toEqual([])
+  })
+
+  it('audits cva compound class fields through arrays, conditions, and local references', () => {
+    const source = `
+      const extra = ['lg:grid', active && 'text-white']
+      const compound = { intent: ['small', 'large'], class: extra }
+      const compounds = [compound, active ? { class: 'p-4' } : { className: ['md:flex', styles.root] }]
+      const options = {
+        variants: { intent: { small: styles.small } },
+        compoundVariants: compounds,
+        defaultVariants: { intent: 'small' },
+      }
+      const variants = cva(styles.root, options)
+      const View = () => <div className={variants({ intent: 'small' })} />
+    `
+    expect(
+      new Set(scanShellClasses('test.tsx', source).map((entry) => entry.split(': ').at(-1))),
+    ).toEqual(new Set(['lg:grid', 'text-white', 'p-4', 'md:flex']))
+    expect(
+      scanShellClasses(
+        'test.tsx',
+        `
+      const variants = cva(styles.root, {
+        compoundVariants: [{ intent: ['small', 'large'], class: ['site-container', styles.small], className: active ? 'visually-hidden' : styles.hidden }],
+      })
+      const View = () => <div className={variants({ intent: 'small', class: styles.root })} />
+    `,
+      ),
+    ).toEqual([])
+  })
+
   it('preserves the native-element reset after removing the utility framework', () => {
     const declarations = auditCss(read('src/styles/base.css')).declarations
     for (const [selector, prop, value] of [

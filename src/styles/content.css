@@ -1,6 +1,6 @@
-/* Values copied from the installed Tailwind Typography output, including its
-   current inherited body/heading color. RichText activates this content mode
-   explicitly; embedded Blocks own their internal styling beyond the boundary. */
+/* Preserve the migrated content values and inherited body/heading color.
+   RichText activates this content mode explicitly; embedded Blocks own their
+   internal styling beyond the boundary. */
 @layer components {
   @scope (.payload-richtext.payload-richtext--content) to (.payload-richtext__embedded) {
     :scope {
