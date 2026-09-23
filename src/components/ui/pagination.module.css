@@ -37,8 +37,9 @@
 }
 
 .icon {
-  width: var(--website-space-4);
-  height: var(--website-space-4);
+  width: var(--website-icon-small);
+  height: var(--website-icon-small);
+  color: currentColor;
 }
 
 .screenReaderOnly {

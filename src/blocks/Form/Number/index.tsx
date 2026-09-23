@@ -26,6 +26,8 @@ export const Number: React.FC<
         )}
       </Label>
       <Input
+        aria-describedby={errors[name] ? `${name}-error` : undefined}
+        aria-invalid={errors[name] ? true : undefined}
         defaultValue={defaultValue}
         id={name}
         type="number"

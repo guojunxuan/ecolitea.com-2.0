@@ -2,8 +2,11 @@ import fs from 'node:fs'
 import path from 'node:path'
 
 import { cleanup, render } from '@testing-library/react'
+import { Search } from 'lucide-react'
 import React from 'react'
 import { afterEach, describe, expect, it } from 'vitest'
+
+import { auditCss } from '../helpers/cssAudit'
 
 import { Button, buttonVariants } from '@/components/ui/button'
 import buttonStyles from '@/components/ui/button.module.css'
@@ -94,6 +97,78 @@ describe('UI style primitives', () => {
     expect(buttonVariants({ size: 'clear' })).toContain(buttonStyles.clear)
   })
 
+  it('maps compact, default, large, and icon controls to the shared geometry contract', () => {
+    const { getByRole } = render(
+      <section data-testid="inverse-theme" data-website-theme="inverse">
+        <Button size="sm">Compact</Button>
+        <div data-testid="nested-default" data-website-theme="default">
+          <Button>Default</Button>
+        </div>
+        <Button size="lg">Large</Button>
+        <Button aria-label="Search" size="icon">
+          <Search className={buttonStyles.iconMedium} />
+        </Button>
+      </section>,
+    )
+
+    const inverseTheme = document.querySelector('[data-testid="inverse-theme"]')!
+    const nestedDefault = document.querySelector('[data-testid="nested-default"]')!
+    expect(inverseTheme.getAttribute('data-website-theme')).toBe('inverse')
+    expect(nestedDefault.getAttribute('data-website-theme')).toBe('default')
+    const compactButton = getByRole('button', { name: 'Compact' })
+    expect(compactButton.classList).toContain(buttonStyles.sizeSmall)
+    expect(compactButton.classList).toContain(buttonStyles.compactTarget)
+    expect(getByRole('button', { name: 'Default' }).classList).toContain(buttonStyles.sizeDefault)
+    expect(getByRole('button', { name: 'Large' }).classList).toContain(buttonStyles.sizeLarge)
+
+    const iconButton = getByRole('button', { name: 'Search' })
+    expect(iconButton.classList).toContain(buttonStyles.sizeIcon)
+    expect(iconButton.classList).toContain(buttonStyles.targetMinimum)
+    expect(iconButton.querySelector('svg')?.classList).toContain(buttonStyles.iconMedium)
+    expect(getByRole('button', { name: 'Default' }).closest('[data-website-theme]')).toBe(
+      nestedDefault,
+    )
+    expect(getByRole('button', { name: 'Large' }).closest('[data-website-theme]')).toBe(
+      inverseTheme,
+    )
+
+    const rules = auditCss(readSource('src/components/ui/button.module.css'))
+    for (const [selector, value] of [
+      ['.sizeSmall', 'var(--website-control-compact)'],
+      ['.sizeDefault', 'var(--website-control-default)'],
+      ['.sizeLarge', 'var(--website-control-large)'],
+    ])
+      expect(
+        rules.declarations.find((entry) => entry.header === selector && entry.prop === 'height')
+          ?.value,
+        selector,
+      ).toBe(value)
+    for (const prop of ['min-width', 'min-height'])
+      expect(
+        rules.declarations.find((entry) => entry.header === '.targetMinimum' && entry.prop === prop)
+          ?.value,
+        prop,
+      ).toBe('var(--website-control-target-min)')
+    expect(
+      rules.declarations.find(
+        (entry) => entry.header === '.compactTarget::before' && entry.prop === 'height',
+      )?.value,
+    ).toBe('var(--website-control-target-min)')
+    for (const [selector, value] of [
+      ['.iconSmall', 'var(--website-icon-small)'],
+      ['.iconMedium', 'var(--website-icon-medium)'],
+      ['.iconLarge', 'var(--website-icon-large)'],
+      ['.iconXLarge', 'var(--website-icon-xlarge)'],
+    ]) {
+      const declarations = rules.declarations.filter((entry) => entry.header === selector)
+      expect(declarations.find((entry) => entry.prop === 'width')?.value, selector).toBe(value)
+      expect(declarations.find((entry) => entry.prop === 'height')?.value, selector).toBe(value)
+      expect(declarations.find((entry) => entry.prop === 'color')?.value, selector).toBe(
+        'currentColor',
+      )
+    }
+  })
+
   it('preserves Button disabled state and caller classes', () => {
     const { getByRole } = render(
       <Button className="consumer-class" disabled>
@@ -105,6 +180,56 @@ describe('UI style primitives', () => {
     expect((button as HTMLButtonElement).disabled).toBe(true)
     expect(button.classList).toContain('consumer-class')
     expectModuleClass(button)
+
+    const rules = auditCss(readSource('src/components/ui/button.module.css'))
+    const disabled = rules.declarations.filter((entry) => entry.header === '.button:disabled')
+    expect(disabled.find((entry) => entry.prop === 'color')?.value).toBe(
+      'var(--website-color-disabled-foreground)',
+    )
+    expect(disabled.find((entry) => entry.prop === 'background-color')?.value).toBe(
+      'var(--website-color-disabled-surface)',
+    )
+    expect(disabled.find((entry) => entry.prop === 'border-color')?.value).toBe(
+      'var(--website-color-disabled-border)',
+    )
+    expect(disabled.some((entry) => entry.prop === 'opacity')).toBe(false)
+  })
+
+  it('keeps component hover rules fine-pointer-only and disabled controls opacity-free', () => {
+    for (const file of [
+      'button.module.css',
+      'checkbox.module.css',
+      'input.module.css',
+      'select.module.css',
+      'textarea.module.css',
+    ]) {
+      const rules = auditCss(readSource(`src/components/ui/${file}`))
+      const hoverBlocks = rules.blocks.filter((block) => block.header.includes(':hover'))
+      expect(hoverBlocks.length, `${file} has a hover affordance`).toBeGreaterThan(0)
+      for (const block of hoverBlocks)
+        expect(block.ancestors, `${file}:${block.line} ${block.header}`).toContain(
+          '@media (hover: hover) and (pointer: fine)',
+        )
+
+      const disabledOpacity = rules.declarations.filter(
+        (entry) =>
+          (entry.header.includes(':disabled') || entry.header.includes('[data-disabled]')) &&
+          entry.prop === 'opacity',
+      )
+      expect(disabledOpacity, file).toEqual([])
+
+      const suppressedFocus = rules.declarations.filter(
+        (entry) =>
+          (entry.prop === 'outline' || entry.prop === 'outline-style') && entry.value === 'none',
+      )
+      expect(suppressedFocus, `${file} preserves the global focus indicator`).toEqual([])
+    }
+
+    const labelRules = auditCss(readSource('src/components/ui/label.module.css'))
+    const disabledLabel = labelRules.declarations.filter((entry) =>
+      entry.header.includes(':disabled'),
+    )
+    expect(disabledLabel.some((entry) => entry.prop === 'opacity')).toBe(false)
   })
 
   it('keeps Button component defaults in the components layer and migrates the Code copy slot', () => {

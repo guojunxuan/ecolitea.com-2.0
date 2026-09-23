@@ -1,23 +1,19 @@
 .input {
-  --ui-input-destructive: oklch(57.7% 0.245 27.325deg);
-  --ui-input-shadow: 0 1px 2px 0 rgb(0 0 0 / 5%);
-
   display: flex;
   width: 100%;
   min-width: 0;
-  height: 2.25rem;
+  height: var(--website-control-default);
   padding-block: var(--website-space-1);
   padding-inline: var(--website-space-3);
   border: 1px solid var(--website-color-input);
-  border-radius: calc(var(--website-radius-control) - 2px);
-  outline-color: color-mix(in oklab, var(--website-color-focus) 50%, transparent);
-  background-color: transparent;
+  border-radius: var(--website-radius-control);
+  background-color: var(--website-color-surface);
+  color: var(--website-color-foreground);
   font-size: 1rem;
   line-height: 1.5rem;
-  box-shadow: var(--ui-input-shadow);
-  transition-property: color, box-shadow;
-  transition-duration: 0.15s;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-property: color, background-color, border-color;
+  transition-duration: var(--website-duration-fast);
+  transition-timing-function: var(--website-easing-standard);
 }
 
 .input::placeholder {
@@ -40,30 +36,22 @@
   line-height: 1.25rem;
 }
 
-.input:focus-visible {
-  outline-style: solid;
-  outline-width: 1px;
-  box-shadow:
-    0 0 0 4px color-mix(in oklab, var(--website-color-focus) 10%, transparent),
-    var(--ui-input-shadow);
-}
-
 .input[aria-invalid='true'] {
-  border-color: color-mix(in oklab, var(--ui-input-destructive) 60%, transparent);
-  outline-color: color-mix(in oklab, var(--ui-input-destructive) 60%, transparent);
-}
-
-.input[aria-invalid='true']:focus-visible {
-  outline-style: none;
-  box-shadow:
-    0 0 0 3px color-mix(in oklab, var(--ui-input-destructive) 20%, transparent),
-    var(--ui-input-shadow);
+  border-color: var(--website-status-error-accent);
 }
 
 .input:disabled {
   pointer-events: none;
   cursor: not-allowed;
-  opacity: 0.5;
+  color: var(--website-color-disabled-foreground);
+  border-color: var(--website-color-disabled-border);
+  background-color: var(--website-color-disabled-surface);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .input:not(:disabled):hover {
+    border-color: var(--website-color-foreground);
+  }
 }
 
 @media (width >= 48rem) {

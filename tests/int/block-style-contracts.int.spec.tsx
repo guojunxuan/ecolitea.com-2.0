@@ -239,6 +239,17 @@ describe('Form behavior across the style migration', () => {
     expect(fetchMock).not.toHaveBeenCalled()
     for (const error of screen.getAllByText('This field is required'))
       expect(error.classList).toContain(style('Form/Error/index', 'error'))
+
+    for (const [control, errorID] of [
+      [screen.getByRole('textbox', { name: /Name/ }), 'name-error'],
+      [screen.getByRole('textbox', { name: /Email/ }), 'email-error'],
+    ] as const) {
+      expect(control.getAttribute('aria-invalid')).toBe('true')
+      expect(control.getAttribute('aria-describedby')).toBe(errorID)
+      const error = document.getElementById(errorID)
+      expect(error?.getAttribute('role')).toBe('alert')
+      expect(error?.textContent).toBe('This field is required')
+    }
   })
 
   it('posts registered values, preserves delayed loading and enabled submit, then shows confirmation', async () => {
@@ -277,8 +288,10 @@ describe('Form behavior across the style migration', () => {
     await act(async () => {
       vi.advanceTimersByTime(1000)
     })
-    expect(screen.getByText('Loading, please wait...')).toBeTruthy()
-    expect((screen.getByRole('button', { name: 'Send' }) as HTMLButtonElement).disabled).toBe(false)
+    expect(screen.getByRole('status').textContent).toBe('Loading, please wait...')
+    const submit = screen.getByRole('button', { name: 'Send' })
+    expect(submit.getAttribute('aria-busy')).toBe('true')
+    expect((submit as HTMLButtonElement).disabled).toBe(false)
     await act(async () => {
       resolve(new Response(JSON.stringify({ doc: { id: 'submission' } }), { status: 201 }))
     })
@@ -299,7 +312,7 @@ describe('Form behavior across the style migration', () => {
     )
     render(<FormBlock enableIntro={false} form={form({ fields: [] })} />)
     fireEvent.click(screen.getByRole('button', { name: 'Send' }))
-    expect(await screen.findByText('429: Try later')).toBeTruthy()
+    expect((await screen.findByRole('alert')).textContent).toBe('429: Try later')
     expect((screen.getByRole('button', { name: 'Send' }) as HTMLButtonElement).disabled).toBe(false)
   })
 

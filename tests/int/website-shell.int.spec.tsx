@@ -185,9 +185,9 @@ describe('public website shell', () => {
     expect(tokens).toContain('--website-container-reading: 46rem;')
     expect(tokens).toContain('--header-height: 3.75rem;')
     expect(tokens).toMatch(/@media \(width >= 73\.125rem\)[\s\S]*--header-height:\s*4\.5rem;/)
-    expect(tokens).toContain('--website-section-compact: clamp(2rem, 4vw, 3rem);')
-    expect(tokens).toContain('--website-section-standard: clamp(3rem, 6vw, 5rem);')
-    expect(tokens).toContain('--website-section-spacious: clamp(4.5rem, 9vw, 7.5rem);')
+    expect(layout).toContain('--website-section-compact: clamp(32px, 4vw, 48px);')
+    expect(layout).toContain('--website-section-standard: clamp(48px, 6vw, 80px);')
+    expect(layout).toContain('--website-section-spacious: clamp(72px, 9vw, 120px);')
     expect(tokens).toContain('@media (width >= 73.125rem)')
 
     expect(layout).toMatch(

@@ -122,10 +122,25 @@ export const FormBlock: React.FC<
       <div className={styles.panel}>
         <FormProvider {...formMethods}>
           {!isLoading && hasSubmitted && confirmationType === 'message' && (
-            <RichText data={confirmationMessage} />
+            <div className={`${styles.status} ${styles.successStatus}`} role="status">
+              <RichText data={confirmationMessage} />
+            </div>
           )}
-          {isLoading && !hasSubmitted && <p>Loading, please wait...</p>}
-          {error && <div>{`${error.status || '500'}: ${error.message || ''}`}</div>}
+          {isLoading && !hasSubmitted && (
+            <p
+              aria-atomic="true"
+              aria-live="polite"
+              className={`${styles.status} ${styles.loadingStatus}`}
+              role="status"
+            >
+              Loading, please wait...
+            </p>
+          )}
+          {error && (
+            <div className={`${styles.status} ${styles.errorStatus}`} role="alert">
+              {`${error.status || '500'}: ${error.message || ''}`}
+            </div>
+          )}
           {!hasSubmitted && (
             <form id={formID} onSubmit={handleSubmit(onSubmit)}>
               <div className={styles.fields}>
@@ -152,7 +167,7 @@ export const FormBlock: React.FC<
                   })}
               </div>
 
-              <Button form={formID} type="submit" variant="default">
+              <Button aria-busy={isLoading} form={formID} type="submit" variant="default">
                 {submitButtonLabel}
               </Button>
             </form>

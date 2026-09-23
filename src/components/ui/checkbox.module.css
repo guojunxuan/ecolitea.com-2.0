@@ -1,18 +1,33 @@
 .checkbox {
   composes: peer from global;
 
-  --ui-checkbox-shadow: 0 1px 2px 0 rgb(0 0 0 / 5%);
-
-  width: var(--website-space-4);
-  height: var(--website-space-4);
+  position: relative;
+  width: var(--website-icon-medium);
+  height: var(--website-icon-medium);
   flex-shrink: 0;
   border: 1px solid var(--website-color-input);
-  border-radius: 4px;
-  outline-color: color-mix(in oklab, var(--website-color-focus) 50%, transparent);
-  box-shadow: var(--ui-checkbox-shadow);
-  transition-property: color, box-shadow;
-  transition-duration: 0.15s;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: var(--website-radius-small);
+  background-color: var(--website-color-surface);
+  color: var(--website-color-foreground);
+  transition-property: color, background-color, border-color;
+  transition-duration: var(--website-duration-fast);
+  transition-timing-function: var(--website-easing-standard);
+}
+
+.checkbox::before {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: var(--website-control-target-min);
+  height: var(--website-control-target-min);
+  transform: translate(-50%, -50%);
+  content: '';
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .checkbox:not(:disabled):hover {
+    border-color: var(--website-color-foreground);
+  }
 }
 
 .checkbox[data-state='checked'] {
@@ -21,21 +36,15 @@
   border-color: var(--website-color-action);
 }
 
-.checkbox:focus-visible {
-  outline-style: solid;
-  outline-width: 1px;
-  box-shadow:
-    0 0 0 4px color-mix(in oklab, var(--website-color-focus) 10%, transparent),
-    var(--ui-checkbox-shadow);
-}
-
-.checkbox[aria-invalid='true']:focus-visible {
-  box-shadow: var(--ui-checkbox-shadow);
+.checkbox[aria-invalid='true'] {
+  border-color: var(--website-status-error-accent);
 }
 
 .checkbox:disabled {
   cursor: not-allowed;
-  opacity: 0.5;
+  color: var(--website-color-disabled-foreground);
+  border-color: var(--website-color-disabled-border);
+  background-color: var(--website-color-disabled-surface);
 }
 
 .indicator {
@@ -46,6 +55,7 @@
 }
 
 .checkIcon {
-  width: 0.875rem;
-  height: 0.875rem;
+  width: var(--website-icon-small);
+  height: var(--website-icon-small);
+  color: currentColor;
 }

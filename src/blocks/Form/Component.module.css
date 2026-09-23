@@ -25,6 +25,36 @@
     margin-bottom: 0;
   }
 
+  .status {
+    padding-block: var(--website-space-3);
+    padding-inline: var(--website-space-4);
+    margin-bottom: var(--website-space-4);
+    border: 1px solid;
+    border-left-width: 4px;
+    border-radius: var(--website-radius-control);
+  }
+
+  .loadingStatus {
+    color: var(--website-status-info-foreground);
+    border-color: var(--website-status-info-border);
+    border-left-color: var(--website-status-info-accent);
+    background-color: var(--website-status-info-background);
+  }
+
+  .successStatus {
+    color: var(--website-status-success-foreground);
+    border-color: var(--website-status-success-border);
+    border-left-color: var(--website-status-success-accent);
+    background-color: var(--website-status-success-background);
+  }
+
+  .errorStatus {
+    color: var(--website-status-error-foreground);
+    border-color: var(--website-status-error-border);
+    border-left-color: var(--website-status-error-accent);
+    background-color: var(--website-status-error-background);
+  }
+
   @media (width >= 64rem) {
     .intro {
       margin-bottom: var(--website-space-12);

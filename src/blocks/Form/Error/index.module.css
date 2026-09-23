@@ -1,6 +1,7 @@
 .error {
   margin-top: var(--website-space-2);
-  color: oklch(63.7% 0.237 25.331deg);
+  color: var(--website-status-error-foreground);
   font-size: 0.875rem;
+  font-weight: 500;
   line-height: 1.25rem;
 }

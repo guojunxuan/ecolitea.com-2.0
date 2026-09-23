@@ -187,7 +187,7 @@
 
   * {
     border-color: var(--website-color-border);
-    /* Preserve the existing outline-ring/50 baseline without adding focus behavior. */
+    /* Keep a semantic fallback for non-keyboard outline consumers. */
     outline-color: color-mix(in oklab, var(--website-color-focus) 50%, transparent);
   }
 
@@ -198,5 +198,37 @@
     flex-direction: column;
     background: var(--website-color-background);
     color: var(--website-color-foreground);
+  }
+
+  :where(a, button, input, select, textarea, [tabindex]):focus-visible {
+    outline: 2px solid var(--website-color-focus);
+    outline-offset: 2px;
+  }
+
+  ::selection {
+    background: var(--website-color-action);
+    color: var(--website-color-action-foreground);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html:focus-within {
+      scroll-behavior: auto;
+    }
+  }
+
+  @media (forced-colors: active) {
+    :where(a, button, input, select, textarea, [tabindex]):focus-visible {
+      outline-color: Highlight;
+    }
+
+    :where(button, input, select, textarea, [role='button']) {
+      border-color: ButtonText;
+      box-shadow: none;
+    }
+
+    svg {
+      color: currentColor;
+      forced-color-adjust: auto;
+    }
   }
 }

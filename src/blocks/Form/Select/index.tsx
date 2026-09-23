@@ -41,7 +41,12 @@ export const Select: React.FC<
 
           return (
             <SelectComponent onValueChange={(val) => onChange(val)} value={controlledValue?.value}>
-              <SelectTrigger className={styles.trigger} id={name}>
+              <SelectTrigger
+                aria-describedby={errors[name] ? `${name}-error` : undefined}
+                aria-invalid={errors[name] ? true : undefined}
+                className={styles.trigger}
+                id={name}
+              >
                 <SelectValue placeholder={label} />
               </SelectTrigger>
               <SelectContent>
