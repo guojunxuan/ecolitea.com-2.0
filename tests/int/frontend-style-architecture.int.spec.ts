@@ -172,9 +172,11 @@ describe('frontend style architecture', () => {
     expect(read('src/Footer/index.module.css')).toContain('200ms ease')
   })
 
-  it('keeps owned Header and Footer TSX free of Tailwind utilities', () => {
+  it('keeps owned Header and Footer TSX free of Tailwind utilities', async () => {
     const files = shellFiles('.tsx')
-    const violations = files.flatMap((file) => scanShellClasses(file, read(file)))
+    const violations = (
+      await Promise.all(files.map((file) => scanShellClasses(file, read(file))))
+    ).flat()
 
     expect(violations).toEqual([])
   })
@@ -205,6 +207,8 @@ describe('frontend style architecture', () => {
         border-radius: 0.8rem;
         transition-duration: 0.36s;
       }
+      .shorthand { background: white no-repeat; }
+      .gradient { background: linear-gradient(white, transparent); }
     `,
       tokens,
     )
@@ -230,6 +234,7 @@ describe('frontend style architecture', () => {
         expect.stringContaining('slow duration'),
       ]),
     )
+    expect(header.filter((violation) => violation.includes('default background'))).toHaveLength(2)
   })
 
   it('allows documented local Header and Footer values', () => {
@@ -257,7 +262,7 @@ describe('frontend style architecture', () => {
     ).toEqual([])
   })
 
-  it('detects Tailwind utilities across JSX class expressions and permits project hooks', () => {
+  it('detects Tailwind utilities across JSX class expressions and permits project hooks', async () => {
     const source = `
       const utility = 'shrink-0'
       const View = ({ active }) => <>
@@ -266,22 +271,44 @@ describe('frontend style architecture', () => {
         <div className={\`site-container \${active ? 'mt-auto' : ''}\`} />
         <div className={clsx(styles.root, active && 'text-white', ['font-semibold'])} />
         <div className={cn({ 'max-[1170px]:hidden': active })} />
+        <div className={clsx('group', 'peer', 'group/menu', 'peer/input', 'aspect-video', 'object-cover', 'animate-spin', 'ring-2', 'size-4', 'md:flex', 'hover:bg-black', 'group-hover:opacity-50', 'peer-checked:block', 'w-[37px]', '[color:red]', 'bg-card', 'prose', 'not-prose')} />
         <div className={utility} data-hook="custom-hook" />
       </>
     `
-    expect(scanShellClasses('test.tsx', source)).toEqual(
+    const detected = (await scanShellClasses('test.tsx', source)).map((violation) =>
+      violation.split(': ').at(-1),
+    )
+    expect(detected).toEqual(
       expect.arrayContaining([
-        expect.stringContaining('flex'),
-        expect.stringContaining('bg-black'),
-        expect.stringContaining('mt-auto'),
-        expect.stringContaining('text-white'),
-        expect.stringContaining('font-semibold'),
-        expect.stringContaining('max-[1170px]:hidden'),
-        expect.stringContaining('shrink-0'),
+        'flex',
+        'bg-black',
+        'mt-auto',
+        'text-white',
+        'font-semibold',
+        'max-[1170px]:hidden',
+        'shrink-0',
+        'group',
+        'peer',
+        'group/menu',
+        'peer/input',
+        'aspect-video',
+        'object-cover',
+        'animate-spin',
+        'ring-2',
+        'size-4',
+        'md:flex',
+        'hover:bg-black',
+        'group-hover:opacity-50',
+        'peer-checked:block',
+        'w-[37px]',
+        '[color:red]',
+        'bg-card',
+        'prose',
+        'not-prose',
       ]),
     )
     expect(
-      scanShellClasses(
+      await scanShellClasses(
         'test.tsx',
         '<div className="site-container custom-hook" data-hook="bg-black" />',
       ),

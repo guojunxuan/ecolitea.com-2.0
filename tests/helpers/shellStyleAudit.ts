@@ -1,4 +1,8 @@
-import postcss from 'postcss'
+import { readFileSync } from 'node:fs'
+import path from 'node:path'
+
+import postcss, { type AtRule } from 'postcss'
+import { compile } from 'tailwindcss'
 import ts from 'typescript'
 
 type Color = { red: number; green: number; blue: number; alpha: number }
@@ -43,8 +47,8 @@ const sameColor = (left: Color | null, right: Color | null) =>
   left.blue === right.blue &&
   Math.abs(left.alpha - right.alpha) < 0.000001
 
-const colorsIn = (value: string) =>
-  [...value.matchAll(colorPattern)].map(([color]) => parseColor(color))
+const topLevelColors = (value: string) =>
+  postcss.list.comma(value).flatMap((layer) => postcss.list.space(layer).map(parseColor))
 
 const sameUnitLength = (left: string, right: string) => {
   const parse = (value: string) => value.trim().match(/^([\d.]+)(rem|px)$/i)
@@ -106,10 +110,18 @@ export const scanShellCss = (file: string, source: string, tokensSource: string)
   const sameTokenColor = (value: string, token: string) => {
     const tokenValue = defaults.get(token)
     if (!tokenValue) return false
-    if (value.replace(/\s+/g, '').toLowerCase() === tokenValue.replace(/\s+/g, '').toLowerCase()) {
-      return true
-    }
-    return sameColor(parseColor(value), parseColor(tokenValue))
+    return postcss.list
+      .comma(value)
+      .some((layer) =>
+        postcss.list
+          .space(layer)
+          .some(
+            (part) =>
+              part.replace(/\s+/g, '').toLowerCase() ===
+                tokenValue.replace(/\s+/g, '').toLowerCase() ||
+              sameColor(parseColor(part), parseColor(tokenValue)),
+          ),
+      )
   }
 
   postcss.parse(source, { from: file }).walkDecls((decl) => {
@@ -122,7 +134,7 @@ export const scanShellCss = (file: string, source: string, tokensSource: string)
     }
 
     if (isFooter) {
-      const colors = colorsIn(value)
+      const colors = topLevelColors(value)
       const hasColor = (token: string) =>
         colors.some((color) => sameColor(color, inverse.get(token) ?? null))
       if (/^background(?:-color)?$/.test(prop) && hasColor('--website-color-background')) {
@@ -147,8 +159,7 @@ export const scanShellCss = (file: string, source: string, tokensSource: string)
       if (prop === 'color' && sameTokenColor(value, '--website-color-foreground')) {
         violations.push(`${location}: raw default foreground`)
       }
-      const borderColor = value.replace(/^.*\b(?:solid|dashed|dotted)\s+/, '')
-      if (/^border(?:-|$)/.test(prop) && sameTokenColor(borderColor, '--website-color-border')) {
+      if (/^border(?:-|$)/.test(prop) && sameTokenColor(value, '--website-color-border')) {
         violations.push(`${location}: raw default border`)
       }
     }
@@ -188,16 +199,34 @@ export const scanShellCss = (file: string, source: string, tokensSource: string)
   return violations
 }
 
-const utilityPattern =
-  /^(?:!?-?(?:m[trblxy]?|p[trblxy]?|w|h|min-w|min-h|max-w|max-h|gap|space-x|space-y|inset|top|bottom|left|right|z|rounded|shadow|opacity|duration|ease|border|bg|text|font|tracking|leading|items|justify|flex|grid|col|row|order|shrink|grow|basis|overflow|whitespace|cursor|pointer-events|transition|translate|rotate|scale)(?:-|$).*|!?-?(?:hidden|block|inline|inline-block|inline-flex|flex|grid|absolute|relative|fixed|sticky|sr-only|truncate|container)|\[[^\]]+\])$/
+// Compile against the installed public Tailwind API and this site's actual theme/plugins.
+// A valid candidate adds CSS; project-owned class hooks such as `site-container` do not.
+const compileWebsiteUtilities = async () => {
+  const theme = readFileSync(path.join(process.cwd(), 'node_modules/tailwindcss/theme.css'), 'utf8')
+  const globals = postcss.parse(
+    readFileSync(path.join(process.cwd(), 'src/app/(frontend)/globals.css'), 'utf8'),
+  )
+  const extensions = globals.nodes
+    .filter(
+      (node): node is AtRule =>
+        node.type === 'atrule' && ['theme', 'custom-variant', 'plugin'].includes(node.name),
+    )
+    .map((node) => `${node.toString()}${node.nodes ? '' : ';'}`)
+    .join('\n')
 
-const utilityTokens = (text: string) =>
-  text.split(/\s+/).filter((token) => {
-    const core = token.split(':').at(-1) ?? ''
-    return utilityPattern.test(core)
+  return compile(`${theme}\n${extensions}\n@tailwind utilities;`, {
+    loadModule: async (id, base) => ({
+      path: import.meta.resolve(id),
+      base,
+      module: (await import(id)).default,
+    }),
   })
+}
 
-export const scanShellClasses = (file: string, source: string): string[] => {
+// These Tailwind marker classes generate no standalone CSS but activate variants/plugins.
+const cssLessMarker = /^(?:(?:group|peer)(?:\/[\w-]+)?|not-prose)$/
+
+export const scanShellClasses = async (file: string, source: string): Promise<string[]> => {
   const parsed = ts.createSourceFile(file, source, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX)
   const variables = new Map<string, ts.Expression>()
   const collectVariables = (node: ts.Node) => {
@@ -207,11 +236,11 @@ export const scanShellClasses = (file: string, source: string): string[] => {
     ts.forEachChild(node, collectVariables)
   }
   collectVariables(parsed)
-  const violations: string[] = []
+  const candidates: Array<{ line: number; token: string }> = []
 
   const scanLiteral = (node: ts.Node, value: string) => {
     const line = parsed.getLineAndCharacterOfPosition(node.getStart(parsed)).line + 1
-    for (const token of utilityTokens(value)) violations.push(`${file}:${line}: ${token}`)
+    for (const token of value.split(/\s+/).filter(Boolean)) candidates.push({ line, token })
   }
   const scanExpression = (node: ts.Node, seenVariables = new Set<string>()) => {
     if (ts.isStringLiteralLike(node)) {
@@ -252,5 +281,19 @@ export const scanShellClasses = (file: string, source: string): string[] => {
     ts.forEachChild(node, walk)
   }
   walk(parsed)
+  const compiler = await compileWebsiteUtilities()
+  const checked = new Map<string, boolean>()
+  const violations: string[] = []
+  let compiled = compiler.build([])
+  for (const { line, token } of candidates) {
+    let valid = checked.get(token)
+    if (valid === undefined) {
+      const next = compiler.build([token])
+      valid = cssLessMarker.test(token) || next !== compiled
+      compiled = next
+      checked.set(token, valid)
+    }
+    if (valid) violations.push(`${file}:${line}: ${token}`)
+  }
   return violations
 }
