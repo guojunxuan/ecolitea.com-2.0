@@ -229,6 +229,73 @@ export const scanShellClasses = (
   const propertyName = (node: ts.PropertyName) =>
     ts.isIdentifier(node) || ts.isStringLiteralLike(node) ? node.text : undefined
 
+  const resolveLocal = (node: ts.Node, seen = new Set<ts.Node>()): ts.Node | undefined => {
+    if (seen.has(node)) return undefined
+    const nextSeen = new Set(seen).add(node)
+    if (ts.isIdentifier(node)) {
+      const initializer = variables.get(node.text)
+      return initializer ? resolveLocal(initializer, nextSeen) : undefined
+    }
+    if (
+      ts.isParenthesizedExpression(node) ||
+      ts.isAsExpression(node) ||
+      ts.isSatisfiesExpression(node)
+    ) {
+      return resolveLocal(node.expression, nextSeen)
+    }
+    if (ts.isPropertyAccessExpression(node) || ts.isElementAccessExpression(node)) {
+      const object = resolveLocal(node.expression, nextSeen)
+      const keyNode = ts.isPropertyAccessExpression(node)
+        ? node.name
+        : resolveLocal(node.argumentExpression, nextSeen)
+      const key =
+        keyNode &&
+        (ts.isIdentifier(keyNode) ||
+          ts.isStringLiteralLike(keyNode) ||
+          ts.isNumericLiteral(keyNode))
+          ? keyNode.text
+          : undefined
+      if (!object || key === undefined) return undefined
+      if (ts.isArrayLiteralExpression(object)) {
+        const value = object.elements[Number(key)]
+        return value ? resolveLocal(value, nextSeen) : undefined
+      }
+      if (ts.isObjectLiteralExpression(object)) {
+        for (const property of [...object.properties].reverse()) {
+          if (ts.isPropertyAssignment(property) && propertyName(property.name) === key)
+            return resolveLocal(property.initializer, nextSeen)
+          if (ts.isShorthandPropertyAssignment(property) && property.name.text === key)
+            return resolveLocal(property.name, nextSeen)
+        }
+      }
+      return undefined
+    }
+    return node
+  }
+  const unresolvedConfig = (node: ts.Node) => {
+    candidates.push({
+      line: parsed.getLineAndCharacterOfPosition(node.getStart(parsed)).line + 1,
+      token: 'unresolved class configuration',
+    })
+  }
+  // This project-owned exported factory is audited in its defining TSX file.
+  const importedFactories = new Set<string>()
+  for (const statement of parsed.statements) {
+    if (
+      !ts.isImportDeclaration(statement) ||
+      !ts.isStringLiteral(statement.moduleSpecifier) ||
+      statement.moduleSpecifier.text !== '@/components/ui/button'
+    )
+      continue
+    const bindings = statement.importClause?.namedBindings
+    if (bindings && ts.isNamedImports(bindings)) {
+      for (const binding of bindings.elements) {
+        if ((binding.propertyName ?? binding.name).text === 'buttonVariants')
+          importedFactories.add(binding.name.text)
+      }
+    }
+  }
+
   // Configuration objects can live in local bindings, arrays, or conditional
   // branches. Visit their values without mistaking variant selectors for classes.
   const visitObjects = (
@@ -236,11 +303,15 @@ export const scanShellClasses = (
     seen: Set<string>,
     visit: (object: ts.ObjectLiteralExpression, seen: Set<string>) => void,
   ) => {
-    if (ts.isIdentifier(node)) {
-      const initializer = variables.get(node.text)
-      if (initializer && !seen.has(node.text)) {
-        visitObjects(initializer, new Set(seen).add(node.text), visit)
-      }
+    const resolved = resolveLocal(node)
+    if (!resolved) {
+      unresolvedConfig(node)
+      return
+    }
+    if (resolved !== node) {
+      const key = node.getText(parsed)
+      if (seen.has(key)) unresolvedConfig(node)
+      else visitObjects(resolved, new Set(seen).add(key), visit)
     } else if (ts.isObjectLiteralExpression(node)) {
       visit(node, seen)
       for (const property of node.properties) {
@@ -249,8 +320,16 @@ export const scanShellClasses = (
     } else if (ts.isConditionalExpression(node)) {
       visitObjects(node.whenTrue, seen, visit)
       visitObjects(node.whenFalse, seen, visit)
-    } else {
+    } else if (
+      ts.isArrayLiteralExpression(node) ||
+      ts.isSpreadElement(node) ||
+      ts.isParenthesizedExpression(node) ||
+      ts.isAsExpression(node) ||
+      ts.isSatisfiesExpression(node)
+    ) {
       ts.forEachChild(node, (child) => visitObjects(child, seen, visit))
+    } else {
+      unresolvedConfig(node)
     }
   }
   const scanClassFields = (object: ts.ObjectLiteralExpression, seen: Set<string>) => {
@@ -349,18 +428,27 @@ export const scanShellClasses = (
                 propertyName(property.name) === 'compoundVariants'
               ) {
                 visitObjects(property.initializer, optionsSeen, scanClassFields)
+              } else if (
+                ts.isShorthandPropertyAssignment(property) &&
+                property.name.text === 'compoundVariants'
+              ) {
+                visitObjects(property.name, optionsSeen, scanClassFields)
               }
             }
           })
       } else {
-        // Class helpers may pass through any literal argument. Object options
-        // contribute only explicit class fields (variant selectors are metadata).
+        const factory = resolveLocal(node.expression)
+        const isVariantFactory =
+          (factory &&
+            ts.isCallExpression(factory) &&
+            factory.expression.getText(parsed) === 'cva') ||
+          importedFactories.has(name)
         scanExpression(node.expression, seenVariables)
         for (const argument of node.arguments) {
-          if (ts.isObjectLiteralExpression(argument)) {
+          if (isVariantFactory) {
             visitObjects(argument, seenVariables, scanClassFields)
           } else {
-            scanExpression(argument, seenVariables)
+            scanHelperValue(argument, seenVariables)
           }
         }
       }
@@ -387,6 +475,49 @@ export const scanShellClasses = (
       return
     }
     ts.forEachChild(node, (child) => scanExpression(child, seenVariables))
+  }
+  // Unknown producers may use any object value as a class. Only traverse objects
+  // reached from a class-producing call; unrelated application config is ignored.
+  const scanHelperValue = (node: ts.Node, seen: Set<string>) => {
+    const resolved = resolveLocal(node)
+    if (resolved && resolved !== node) {
+      const key = node.getText(parsed)
+      if (seen.has(key)) unresolvedConfig(node)
+      else scanHelperValue(resolved, new Set(seen).add(key))
+    } else if (ts.isObjectLiteralExpression(node)) {
+      for (const property of node.properties) {
+        if (ts.isPropertyAssignment(property)) {
+          const key = propertyName(property.name)
+          if (key) scanLiteral(property.name, key)
+          else if (ts.isComputedPropertyName(property.name))
+            scanHelperValue(property.name.expression, seen)
+          scanHelperValue(property.initializer, seen)
+        } else if (ts.isSpreadAssignment(property)) scanHelperValue(property.expression, seen)
+        else if (ts.isShorthandPropertyAssignment(property)) scanHelperValue(property.name, seen)
+      }
+    } else if (ts.isConditionalExpression(node)) {
+      scanHelperValue(node.whenTrue, seen)
+      scanHelperValue(node.whenFalse, seen)
+    } else if (ts.isArrayLiteralExpression(node)) {
+      for (const element of node.elements) scanHelperValue(element, seen)
+    } else if (ts.isSpreadElement(node)) {
+      scanHelperValue(node.expression, seen)
+    } else if (ts.isBinaryExpression(node)) {
+      if (node.operatorToken.kind === ts.SyntaxKind.AmpersandAmpersandToken) {
+        scanHelperValue(node.right, seen)
+      } else if (
+        [
+          ts.SyntaxKind.BarBarToken,
+          ts.SyntaxKind.QuestionQuestionToken,
+          ts.SyntaxKind.PlusToken,
+        ].includes(node.operatorToken.kind)
+      ) {
+        scanHelperValue(node.left, seen)
+        scanHelperValue(node.right, seen)
+      }
+    } else {
+      scanExpression(node, seen)
+    }
   }
   const walk = (node: ts.Node) => {
     if (

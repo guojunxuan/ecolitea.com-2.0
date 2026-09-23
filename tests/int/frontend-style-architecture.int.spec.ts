@@ -22,6 +22,62 @@ const shellFiles = (suffix: string) =>
   ['src/Header', 'src/Footer'].flatMap((directory) => listFiles(directory, suffix))
 
 describe('frontend style architecture', () => {
+  it('inspects nested object values flowing into unknown class helpers', () => {
+    const source = `
+      const unrelated = { mode: 'compact', classLabels: ['md:grid'] }
+      configure({ mode: 'desktop' })
+      const nested = { 'site-container': [{ 'visually-hidden': active ? 'lg:grid' : ['hover:bg-black'] }] }
+      const View = () => <>
+        <div className={join({ 'site-container': 'md:flex' })} />
+        <div className={join(nested)} />
+        <div className={join(active && { 'site-container': [{ 'visually-hidden': 'xl:flex' }] })} />
+        <div className={join({ 'site-container': ['site-container', active ? styles.active : 'visually-hidden'] })} />
+        <div className={join({ 'md:grid': true })} />
+      </>
+    `
+    expect(scanShellClasses('test.tsx', source).map((entry) => entry.split(': ').at(-1))).toEqual([
+      'md:flex',
+      'lg:grid',
+      'hover:bg-black',
+      'xl:flex',
+      'md:grid',
+    ])
+  })
+
+  it('resolves compound variant property chains and rejects opaque configuration', () => {
+    const fixture = (value: string) => `
+      const registry = { entries: [{ intent: 'primary', class: ${value} }], nested: { lists: [[{ class: ${value} }]] } }
+      const key = 'lists'
+      const compounds = registry.entries
+      const deep = registry.nested[key][0]
+      const variants = cva(styles.root, { compoundVariants: [...compounds, ...deep] })
+      const View = () => <div className={variants({ intent: 'primary' })} />
+    `
+    expect(
+      scanShellClasses('test.tsx', fixture("'md:flex'")).map((entry) => entry.split(': ').at(-1)),
+    ).toEqual(['md:flex', 'md:flex'])
+    expect(scanShellClasses('test.tsx', fixture("['site-container', styles.root]"))).toEqual([])
+    for (const expression of [
+      'external.entries',
+      'registry[unknownKey]',
+      'loadCompounds()',
+      'cyclic',
+    ]) {
+      expect(
+        scanShellClasses(
+          'test.tsx',
+          `
+        const registry = { entries: [] }
+        const cyclic = cyclic
+        const variants = cva(styles.root, { compoundVariants: ${expression} })
+        const View = () => <div className={variants()} />
+      `,
+        ),
+        expression,
+      ).toEqual([expect.stringContaining('unresolved class configuration')])
+    }
+  })
+
   it('audits literal-producing arguments of unknown class helpers', () => {
     const source = `
       const forbidden = 'rounded-[19px]'
