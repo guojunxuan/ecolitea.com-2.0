@@ -75,6 +75,19 @@ corepack pnpm build               # Create a production build
 corepack pnpm start               # Start a completed production build
 ```
 
+## Styling ownership
+
+The public website uses native CSS custom properties and CSS Modules; it does not use Tailwind.
+`src/app/(frontend)/globals.css` is the website-only entry point for the shared foundations in
+`src/styles/`. Those files own stable cross-module tokens, base styles, typography, rich-text
+content rules, layout primitives, and a small set of semantic utilities. Components, Blocks,
+Heroes, Header, and Footer keep their structure, composition, and local states in colocated CSS
+Modules.
+
+Payload Admin has a separate styling boundary. It uses Payload's own CSS plus
+`src/app/(payload)/custom.css`; public website foundations and component CSS Modules must not be
+imported into the Admin route group.
+
 Integration and end-to-end tests require MongoDB. Playwright also requires its Chromium browser:
 
 ```bash
