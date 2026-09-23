@@ -71,6 +71,7 @@ export const scanShellCss = (file: string, source: string, tokensSource: string)
   const tokens = auditCss(tokensSource)
   const values = new Map<string, string>()
   const defaults = new Map<string, string>()
+  const inverseValues = new Map<string, string>()
   const deprecatedAliases = new Set<string>()
   for (const decl of tokens.declarations) {
     if (
@@ -80,14 +81,30 @@ export const scanShellCss = (file: string, source: string, tokensSource: string)
     ) {
       defaults.set(decl.prop, decl.value)
     }
+    if (
+      decl.header.includes("[data-website-theme='inverse']") &&
+      decl.prop.startsWith('--website-color-')
+    ) {
+      inverseValues.set(decl.prop, decl.value)
+    }
     if (decl.prop.startsWith('--website-')) values.set(decl.prop, decl.value)
     else if (/^var\(--website-[\w-]+\)$/.test(decl.value.trim())) deprecatedAliases.add(decl.prop)
   }
+  const resolveColorValue = (
+    name: string,
+    overrides = defaults,
+    seen = new Set<string>(),
+  ): string | null => {
+    if (seen.has(name)) return null
+    const value = overrides.get(name) ?? defaults.get(name)
+    if (!value) return null
+    const alias = value.trim().match(/^var\((--website-[\w-]+)\)$/)
+    return alias ? resolveColorValue(alias[1]!, overrides, new Set(seen).add(name)) : value.trim()
+  }
   const inverse = new Map<string, Color>()
-  for (const decl of tokens.declarations) {
-    if (!decl.header.includes("[data-website-theme='inverse']")) continue
-    const color = parseColor(decl.value)
-    if (color) inverse.set(decl.prop, color)
+  for (const name of inverseValues.keys()) {
+    const color = parseColor(resolveColorValue(name, inverseValues) ?? '')
+    if (color) inverse.set(name, color)
   }
   const radii = ['control', 'content', 'pill']
     .map((name) => ({ name, value: values.get(`--website-radius-${name}`) }))
@@ -101,7 +118,7 @@ export const scanShellCss = (file: string, source: string, tokensSource: string)
   const violations: string[] = []
   const isFooter = file.startsWith('src/Footer/')
   const sameTokenColor = (value: string, token: string) => {
-    const tokenValue = defaults.get(token)
+    const tokenValue = resolveColorValue(token)
     if (!tokenValue) return false
     return cssTerms(value).some(
       (part) =>
@@ -194,6 +211,14 @@ const globalClasses = new Set([
   'website-section',
   'website-section--compact',
   'website-section--spacious',
+  'website-type-display',
+  'website-type-heading-large',
+  'website-type-heading-medium',
+  'website-type-heading-small',
+  'website-type-body-large',
+  'website-type-body',
+  'website-type-body-small',
+  'website-type-caption',
   'website-type-code',
   'visually-hidden',
   'full-bleed',

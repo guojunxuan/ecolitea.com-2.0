@@ -24,6 +24,30 @@ const shellFacingFiles = [
 ]
 
 describe('website layout primitives', () => {
+  it('owns the approved responsive gutter and section spacing without token duplicates', () => {
+    const layout = readSource('src/styles/layout.css')
+    const tokens = readSource('src/styles/tokens.css')
+    for (const step of [
+      '--website-gutter: 16px;',
+      '@media (width >= 40rem)',
+      '--website-gutter: 24px;',
+      '@media (width >= 48rem)',
+      '--website-gutter: 32px;',
+      '@media (width >= 73.125rem)',
+      '--website-gutter: clamp(40px, 4vw, 48px);',
+      '--website-section-compact: clamp(32px, 4vw, 48px);',
+      '--website-section-standard: clamp(48px, 6vw, 80px);',
+      '--website-section-spacious: clamp(72px, 9vw, 120px);',
+      '--website-anchor-offset: calc(var(--header-height) + 24px);',
+      'scroll-margin-block-start: var(--website-anchor-offset);',
+    ])
+      expect(layout, step).toContain(step)
+    expect(tokens).not.toContain('--website-gutter:')
+    expect(tokens).not.toContain('--website-section-')
+    for (const width of ['46rem', '76.25rem', '90rem']) expect(tokens).toContain(width)
+    expect(tokens).toContain('--header-height: 4.5rem;')
+  })
+
   it('uses the shared section rhythm at the Block owner instead of duplicate my-16 margins', () => {
     const renderBlocks = readSource('src/blocks/RenderBlocks.tsx')
     const renderBlockStyles = readSource('src/blocks/RenderBlocks.module.css')

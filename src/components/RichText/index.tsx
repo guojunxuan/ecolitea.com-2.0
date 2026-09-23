@@ -43,6 +43,13 @@ const internalDocToHref = ({ linkNode }: { linkNode: SerializedLinkNode }) => {
 const jsxConverters: JSXConvertersFunction<NodeTypes> = ({ defaultConverters }) => ({
   ...defaultConverters,
   ...LinkJSXConverter({ internalDocToHref }),
+  table: ({ node, nodesToJSX }) => (
+    <div aria-label="Scrollable table" className={styles.tableScroll} role="region" tabIndex={0}>
+      <table>
+        <tbody>{nodesToJSX({ nodes: node.children })}</tbody>
+      </table>
+    </div>
+  ),
   blocks: {
     banner: ({ node }) => (
       <BannerBlock

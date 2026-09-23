@@ -22,6 +22,29 @@ const shellFiles = (suffix: string) =>
   ['src/Header', 'src/Footer'].flatMap((directory) => listFiles(directory, suffix))
 
 describe('frontend style architecture', () => {
+  it('recognizes all approved global typography roles in component classes', () => {
+    const roles = [
+      'display',
+      'heading-large',
+      'heading-medium',
+      'heading-small',
+      'body-large',
+      'body',
+      'body-small',
+      'caption',
+      'code',
+    ]
+    for (const role of roles) {
+      expect(
+        scanShellClasses(
+          'src/Header/test.tsx',
+          `const View = () => <div className="website-type-${role}" />`,
+        ),
+        role,
+      ).toEqual([])
+    }
+  })
+
   it('resolves every cva variant map and class-value reference', () => {
     for (const expression of [
       'intents',
@@ -299,7 +322,8 @@ describe('frontend style architecture', () => {
     }
     expect(source).toContain('--website-container-site: 76.25rem;')
     expect(source).toContain('--website-container-reading: 46rem;')
-    expect(source).toContain('--website-gutter: clamp(2.5rem, 4vw, 3rem);')
+    expect(source).not.toContain('--website-gutter:')
+    expect(read('src/styles/layout.css')).toContain('--website-gutter: clamp(40px, 4vw, 48px);')
     expect(source).toContain('--header-height: 3.75rem;')
     expect(source).toContain('--header-height: 4rem;')
     expect(source).toContain('--header-height: 4.5rem;')
@@ -374,9 +398,9 @@ describe('frontend style architecture', () => {
       `
       .example {
         background: rgb(10, 10, 10);
-        color: rgba(255, 255, 255, .65);
+        color: rgba(255, 255, 255, .68);
         border-block-color: rgba(255, 255, 255, .18);
-        border-radius: .625rem;
+        border-radius: 8px;
         transition: opacity .16s ease;
         box-shadow: 0 1px 2px rgba(0, 0, 0, .1);
       }
@@ -389,8 +413,8 @@ describe('frontend style architecture', () => {
       `
       .example {
         background: rgb(255 255 255);
-        color: oklch(14.5% 0 0deg);
-        border-radius: 0.8rem;
+        color: rgb(38 38 41);
+        border-radius: 12px;
         transition-duration: 0.36s;
       }
       .shorthand { background: white no-repeat; }
@@ -421,6 +445,27 @@ describe('frontend style architecture', () => {
       ]),
     )
     expect(header.filter((violation) => violation.includes('default background'))).toHaveLength(2)
+  })
+
+  it('finds raw scheme colors through chained primitive and semantic aliases', () => {
+    const tokens = `
+      :root {
+        --website-color-brand-white: #ffffff;
+        --website-color-brand-black: #0a0a0a;
+        --website-color-base: var(--website-color-brand-white);
+        --website-color-background: var(--website-color-base);
+      }
+      [data-website-theme='inverse'] {
+        --website-color-base: var(--website-color-brand-black);
+        --website-color-background: var(--website-color-base);
+      }
+    `
+    expect(
+      scanShellCss('src/Header/test.module.css', '.sample { background: white; }', tokens),
+    ).toEqual([expect.stringContaining('raw default background')])
+    expect(
+      scanShellCss('src/Footer/test.module.css', '.sample { background: rgb(10 10 10); }', tokens),
+    ).toEqual([expect.stringContaining('raw inverse background')])
   })
 
   it('allows documented local Header and Footer values', () => {

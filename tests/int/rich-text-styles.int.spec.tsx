@@ -15,9 +15,13 @@ vi.mock('@payloadcms/richtext-lexical/react', () => ({
     className?: string
     converters: (args: { defaultConverters: Record<string, never> }) => {
       blocks: Record<string, (args: { node: { fields: Record<string, never> } }) => React.ReactNode>
+      table?: (args: {
+        node: { children: never[] }
+        nodesToJSX: () => React.ReactNode
+      }) => React.ReactNode
     }
   }) => {
-    const { blocks } = converters({ defaultConverters: {} })
+    const { blocks, table } = converters({ defaultConverters: {} })
     const node = { fields: {} }
 
     return (
@@ -26,6 +30,14 @@ vi.mock('@payloadcms/richtext-lexical/react', () => ({
         {blocks.mediaBlock({ node })}
         {blocks.code({ node })}
         {blocks.cta({ node })}
+        {table?.({
+          node: { children: [] },
+          nodesToJSX: () => (
+            <tr>
+              <th scope="col">Title</th>
+            </tr>
+          ),
+        })}
       </div>
     )
   },
@@ -114,6 +126,35 @@ const richTextStyles = fs.readFileSync(
 const contentStyles = fs.readFileSync(path.join(process.cwd(), 'src/styles/content.css'), 'utf8')
 
 describe('RichText style modes', () => {
+  it('provides scoped heading rhythm, readable links, and long-content safeguards', () => {
+    for (const selector of ['h1', 'h2', 'h3', 'h4', 'h5, h6'])
+      expect(contentStyles, selector).toContain(`&:where(${selector})`)
+    for (const declaration of [
+      'font-size: 16px;',
+      'line-height: 26px;',
+      'overflow-wrap: anywhere;',
+      'text-decoration-thickness: 1px;',
+      'text-underline-offset: 0.2em;',
+      'max-inline-size: 100%;',
+      'margin-block-start: 0;',
+      'margin-block-end: 0;',
+      'list-style-type: decimal;',
+      'list-style-type: disc;',
+    ])
+      expect(contentStyles, declaration).toContain(declaration)
+    expect(contentStyles).toContain('to (.payload-richtext__embedded)')
+    expect(contentStyles).toContain('overflow-x: auto;')
+  })
+
+  it('makes converted tables a named keyboard reachable scroll region', () => {
+    render(<RichText data={data} />)
+    const region = screen.getByRole('region', { name: 'Scrollable table' })
+    expect(region.getAttribute('tabindex')).toBe('0')
+    expect(region.querySelector('table')).not.toBeNull()
+    expect(region.querySelector('th[scope="col"]')).not.toBeNull()
+    expect(richTextStyles).toContain('overflow-x: auto;')
+  })
+
   it.each([
     { enableGutter: true, enableProse: true },
     { enableGutter: true, enableProse: false },

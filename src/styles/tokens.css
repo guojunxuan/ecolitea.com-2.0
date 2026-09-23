@@ -6,11 +6,7 @@
   --website-container-site: 76.25rem;
   --website-container-wide: 90rem;
   --website-container-reading: 46rem;
-  --website-gutter: 1rem;
   --header-height: 3.75rem;
-  --website-section-compact: clamp(2rem, 4vw, 3rem);
-  --website-section-standard: clamp(3rem, 6vw, 5rem);
-  --website-section-spacious: clamp(4.5rem, 9vw, 7.5rem);
 
   --website-color-brand-black: #0a0a0a;
   --website-color-brand-white: #ffffff;
@@ -160,14 +156,12 @@
 
 @media (width >= 48rem) {
   :root {
-    --website-gutter: 2rem;
     --header-height: 4rem;
   }
 }
 
 @media (width >= 73.125rem) {
   :root {
-    --website-gutter: clamp(2.5rem, 4vw, 3rem);
     --header-height: 4.5rem;
   }
 }

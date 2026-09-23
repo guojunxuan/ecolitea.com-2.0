@@ -48,6 +48,13 @@
   margin-inline: auto;
 }
 
+.tableScroll {
+  max-inline-size: 100%;
+  min-inline-size: 0;
+  overflow-x: auto;
+  box-shadow: inset -12px 0 12px -12px var(--website-color-border);
+}
+
 @media (width >= 40rem) {
   .withGutter.plain {
     max-width: 40rem;
