@@ -8,7 +8,7 @@ R2 stores uploaded media.
 
 - Next.js 16 and React 19
 - Payload CMS 4
-- TypeScript and Tailwind CSS
+- TypeScript, shared CSS foundations, and CSS Modules
 - MongoDB 7
 - Cloudflare R2 media storage
 - Docker Compose and Caddy for production

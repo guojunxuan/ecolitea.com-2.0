@@ -1001,7 +1001,7 @@ test.describe.serial('Responsive website shell', () => {
     const indicator = page.locator('[data-navigation-indicator="true"]')
     const expectedForeground = await page.evaluate(() => {
       const probe = document.createElement('span')
-      probe.style.color = 'var(--foreground)'
+      probe.style.color = 'var(--website-color-foreground)'
       document.body.append(probe)
       const color = getComputedStyle(probe).color
       probe.remove()

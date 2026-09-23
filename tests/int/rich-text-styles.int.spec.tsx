@@ -1,7 +1,7 @@
 import { cleanup, render, screen } from '@testing-library/react'
 import fs from 'node:fs'
 import path from 'node:path'
-import postcss, { type AtRule } from 'postcss'
+import { auditCss } from '../helpers/cssAudit'
 import React from 'react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
@@ -209,16 +209,15 @@ describe('RichText style modes', () => {
   })
 
   it('keeps root-level prose spacing attached to the content scope', () => {
-    const stylesheet = postcss.parse(contentStyles)
+    const stylesheet = auditCss(contentStyles)
     const rootLevelRules: string[] = []
 
-    stylesheet.walkRules((rule) => {
-      if (rule.selector.includes(':scope >')) {
-        rootLevelRules.push(rule.selector)
-        expect(rule.parent?.type).toBe('atrule')
-        expect((rule.parent as AtRule).name).toBe('scope')
+    for (const rule of stylesheet.blocks) {
+      if (rule.header.includes(':scope >')) {
+        rootLevelRules.push(rule.header)
+        expect(rule.ancestors.at(-1)).toMatch(/^@scope\b/)
       }
-    })
+    }
 
     expect(rootLevelRules).toHaveLength(7)
   })

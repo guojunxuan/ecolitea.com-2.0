@@ -1,9 +1,9 @@
 import fs from 'node:fs'
 import path from 'node:path'
 
-import postcss, { type AtRule, type Rule } from 'postcss'
 import { describe, expect, it } from 'vitest'
 
+import { auditCss, cssTerms } from '../helpers/cssAudit'
 import { scanShellClasses, scanShellCss } from '../helpers/shellStyleAudit'
 
 const read = (relativePath: string) =>
@@ -21,13 +21,98 @@ const listFiles = (relativePath: string, suffix: string): string[] =>
 const shellFiles = (suffix: string) =>
   ['src/Header', 'src/Footer'].flatMap((directory) => listFiles(directory, suffix))
 
-const isRuleOrAtRule = (node: unknown): node is AtRule | Rule =>
-  typeof node === 'object' &&
-  node !== null &&
-  'type' in node &&
-  (node.type === 'rule' || node.type === 'atrule')
-
 describe('frontend style architecture', () => {
+  it('preserves the native-element reset after removing the utility framework', () => {
+    const declarations = auditCss(read('src/styles/base.css')).declarations
+    for (const [selector, prop, value] of [
+      ['*', 'padding', '0'],
+      ['*', 'margin', '0'],
+      ['button', 'background-color', 'transparent'],
+      ['button', 'border-radius', '0'],
+      ['button', 'opacity', '1'],
+      ['html', 'tab-size', '4'],
+      ['code', 'font-size', '1em'],
+      ['textarea', 'resize', 'vertical'],
+      ['[hidden]', 'display', 'none !important'],
+    ]) {
+      expect(
+        declarations.some(
+          (decl) => decl.header.includes(selector!) && decl.prop === prop && decl.value === value,
+        ),
+        `${selector}: ${prop}`,
+      ).toBe(true)
+    }
+  })
+
+  it('visits nested CSS without treating comments or quoted delimiters as syntax', () => {
+    const source = String.raw`
+      /* .fake { color: white; } */
+      @media (width > 30rem) {
+        @scope (.payload-richtext--content) {
+          .example[data-label="};"] {
+            content: "escaped \" ; { }";
+            background: url("data:image/svg+xml;a:b{c}");
+            color: /* comment ; } */ white;
+            &::before { color: rgb(1 2 3 / 50%) }
+          }
+        }
+      }
+    `
+    const parsed = auditCss(source)
+    expect(parsed.blocks).toHaveLength(4)
+    expect(parsed.declarations.map(({ prop }) => prop)).toEqual([
+      'content',
+      'background',
+      'color',
+      'color',
+    ])
+    expect(parsed.declarations.at(-1)?.ancestors).toHaveLength(4)
+    expect(cssTerms('white linear-gradient(white, transparent), rgb(1 2 3 / 50%)')).toEqual([
+      'white',
+      'linear-gradient(white, transparent)',
+      'rgb(1 2 3 / 50%)',
+    ])
+    expect(
+      scanShellCss('src/Header/test.module.css', source, read('src/styles/tokens.css')),
+    ).toEqual([])
+    expect(
+      scanShellCss(
+        'src/Header/test.module.css',
+        source.replace('color: /* comment ; } */ white', 'background: /* comment ; } */ white'),
+        read('src/styles/tokens.css'),
+      ),
+    ).toEqual([expect.stringContaining('raw default background')])
+    expect(() => auditCss('.broken { color: white;')).toThrow('Unclosed CSS block')
+  })
+
+  it('has no obsolete build configuration or direct styling dependencies', () => {
+    const manifest = JSON.parse(read('package.json'))
+    const dependencies = { ...manifest.dependencies, ...manifest.devDependencies }
+    expect(
+      Object.keys(dependencies).filter((name) =>
+        /tailwind|^tw-animate-css$|^autoprefixer$|^postcss$/.test(name),
+      ),
+    ).toEqual([])
+    for (const file of ['tailwind.config.mjs', 'postcss.config.js', 'components.json']) {
+      expect(fs.existsSync(path.join(process.cwd(), file)), file).toBe(false)
+    }
+  })
+
+  it('has no Tailwind directives, package imports, or legacy token consumers', () => {
+    const files = listFiles('src', '').concat(listFiles('tests', ''), listFiles('scripts', ''))
+    const violations = files.flatMap((file) => {
+      const source = read(file)
+      return [
+        ...(file.startsWith('src/')
+          ? source.matchAll(/@(?:apply|theme|source|config|plugin|custom-variant)\b/g)
+          : []),
+        ...source.matchAll(
+          /(?:from\s*|@import\s*|import\s*\()['"](?:tailwind[^'"]*|@tailwindcss[^'"]*|tw-animate-css|postcss)['"]|var\(--(?:background|foreground|card|popover|primary|secondary|muted|accent|border|input|ring|radius|success|warning|error|site-max-width|wide-max-width|reading-max-width|site-gutter|section-space-(?:compact|standard|spacious))(?:-foreground)?\)/g,
+        ),
+      ].map((match) => `${file}: ${match[0]}`)
+    })
+    expect(violations).toEqual([])
+  })
   it('loads the focused frontend stylesheets in dependency order', () => {
     const source = read('src/app/(frontend)/globals.css')
     const imports = [
@@ -39,58 +124,13 @@ describe('frontend style architecture', () => {
       "@import '../../styles/utilities.css';",
     ]
 
-    let previousIndex = -1
-    for (const statement of imports) {
-      const index = source.indexOf(statement)
-      expect(index, statement).toBeGreaterThan(previousIndex)
-      previousIndex = index
-    }
+    expect(source.trim()).toBe(imports.join('\n'))
   })
 
-  it('keeps every CSS import before other at-rules', () => {
-    const source = read('src/app/(frontend)/globals.css')
-    const atRules = [...source.matchAll(/@(\w[\w-]*)\b/g)].map((match) => match[1])
-    const firstOtherRule = atRules.findIndex((name) => name !== 'import')
-
-    expect(atRules.slice(firstOtherRule)).not.toContain('import')
-  })
-
-  it('owns compatibility tokens in the website namespace with only deprecated aliases', () => {
+  it('owns tokens exclusively in the website namespace apart from Header height', () => {
     const source = read('src/styles/tokens.css')
-    const legacyAliases = [
-      'site-max-width',
-      'wide-max-width',
-      'reading-max-width',
-      'site-gutter',
-      'section-space-compact',
-      'section-space-standard',
-      'section-space-spacious',
-      'background',
-      'foreground',
-      'card',
-      'card-foreground',
-      'popover',
-      'popover-foreground',
-      'primary',
-      'primary-foreground',
-      'secondary',
-      'secondary-foreground',
-      'muted',
-      'muted-foreground',
-      'accent',
-      'accent-foreground',
-      'border',
-      'input',
-      'ring',
-      'radius',
-      'success',
-      'warning',
-      'error',
-    ]
-    for (const [, name, value] of source.matchAll(/--([\w-]+):\s*([^;]+);/g)) {
-      if (name.startsWith('website-') || name === 'header-height') continue
-      expect(legacyAliases, name).toContain(name)
-      expect(value, name).toMatch(/^var\(--website-[\w-]+\)$/)
+    for (const [, name] of source.matchAll(/--([\w-]+):\s*([^;]+);/g)) {
+      expect(name.startsWith('website-') || name === 'header-height', name).toBe(true)
     }
     expect(source).toContain('--website-container-site: 76.25rem;')
     expect(source).toContain('--website-container-reading: 46rem;')
@@ -104,30 +144,11 @@ describe('frontend style architecture', () => {
 
   it('gates every content rule behind the explicit RichText content mode', () => {
     const source = read('src/styles/content.css')
-    const root = postcss.parse(source)
-    const ungatedRules: string[] = []
-
-    root.walkRules((rule) => {
-      let current: AtRule | Rule | undefined = rule
-      let isGated = false
-
-      while (current) {
-        if (
-          (current.type === 'rule' && current.selector.includes('.payload-richtext--content')) ||
-          (current.type === 'atrule' &&
-            current.name === 'scope' &&
-            current.params.includes('.payload-richtext--content'))
-        ) {
-          isGated = true
-          break
-        }
-
-        current = isRuleOrAtRule(current.parent) ? current.parent : undefined
-      }
-
-      if (!isGated) ungatedRules.push(rule.selector)
-    })
-
+    const ungatedRules = auditCss(source).blocks.filter(
+      ({ header, ancestors }) =>
+        !header.startsWith('@') &&
+        ![header, ...ancestors].some((selector) => selector.includes('.payload-richtext--content')),
+    )
     expect(ungatedRules).toEqual([])
     expect(source).toContain('.payload-richtext--content')
     expect(source).toMatch(
@@ -172,8 +193,8 @@ describe('frontend style architecture', () => {
     expect(read('src/Footer/index.module.css')).toContain('200ms ease')
   })
 
-  it('keeps owned Header and Footer TSX free of Tailwind utilities', async () => {
-    const files = shellFiles('.tsx')
+  it('keeps all owned TSX free of utility and unknown literal classes', async () => {
+    const files = listFiles('src', '.tsx')
     const violations = (
       await Promise.all(files.map((file) => scanShellClasses(file, read(file))))
     ).flat()
@@ -266,7 +287,7 @@ describe('frontend style architecture', () => {
     const source = `
       const utility = 'shrink-0'
       const View = ({ active }) => <>
-        <div className="site-container custom-hook flex" />
+        <div className="site-container flex" />
         <div className={'bg-black'} />
         <div className={\`site-container \${active ? 'mt-auto' : ''}\`} />
         <div className={clsx(styles.root, active && 'text-white', ['font-semibold'])} />
@@ -308,14 +329,11 @@ describe('frontend style architecture', () => {
       ]),
     )
     expect(
-      await scanShellClasses(
-        'test.tsx',
-        '<div className="site-container custom-hook" data-hook="bg-black" />',
-      ),
+      await scanShellClasses('test.tsx', '<div className="site-container" data-hook="bg-black" />'),
     ).toEqual([])
   })
 
-  it('detects utilities from the frontend animation stylesheet import', async () => {
+  it('rejects obsolete animation utilities without loading an animation plugin', async () => {
     const source = `
       <div className={clsx('animate-in fade-in-0 slide-in-from-top-4',
         active && 'animation-duration-300 zoom-out-95',
@@ -333,6 +351,27 @@ describe('frontend style architecture', () => {
       'zoom-out-95',
       'hover:slide-in-from-right-2',
       'md:animate-out',
+    ])
+  })
+
+  it('checks class maps, variant factories, and alternate class props without inspecting conditions', () => {
+    const source = `
+      import styles from './example.module.css'
+      const choices = { active: 'rounded-[17px]', idle: 'md:flex' }
+      const variants = cva('grid', { variants: { intent: { small: 'p-4' } }, defaultVariants: { intent: 'small' } })
+      const View = () => <>
+        <div className={clsx({ flex: active, [styles.active]: active }, choices[state], variants({ intent: 'small' }))} />
+        <Media imgClassName="object-cover" />
+        <div className={mode === 'compact' ? styles.compact : styles.root} />
+      </>
+    `
+    expect(scanShellClasses('test.tsx', source).map((entry) => entry.split(': ').at(-1))).toEqual([
+      'flex',
+      'rounded-[17px]',
+      'md:flex',
+      'grid',
+      'p-4',
+      'object-cover',
     ])
   })
 })

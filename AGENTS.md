@@ -20,7 +20,7 @@ be implemented through these boundaries rather than around them.
 
 Treat `package.json` and the lockfile as the source of truth for versions. The
 project currently uses Next.js 16, React 19, Payload 4 canary, TypeScript,
-Tailwind CSS, MongoDB 7, and pnpm. Do not assume APIs from older stable releases
+CSS Modules, MongoDB 7, and pnpm. Do not assume APIs from older stable releases
 are compatible with the installed versions.
 
 ## Technical documentation

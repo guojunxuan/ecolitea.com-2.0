@@ -1,4 +1,4 @@
-// Keep these in sync with the CSS variables in your tailwind configuration
+// Image sizes use these viewport thresholds; component breakpoints remain CSS-owned.
 
 export const cssVariables = {
   breakpoints: {
