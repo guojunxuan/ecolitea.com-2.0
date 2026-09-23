@@ -131,8 +131,8 @@ describe('DesktopNav', () => {
     expect(desktopCTA).toContain('background: transparent')
     expect(desktopCTA).toContain('border: 1px solid currentColor')
     expect(desktopCTA).toContain('color: inherit')
-    expect(mobileCTA).toContain('background: var(--primary)')
-    expect(mobileCTA).toContain('color: var(--primary-foreground)')
+    expect(mobileCTA).toContain('background: var(--website-color-action)')
+    expect(mobileCTA).toContain('color: var(--website-color-action-foreground)')
   })
 
   it('uses 100ms first-open intent and switches immediately once a menu is open', () => {
@@ -597,7 +597,7 @@ describe('DesktopNav', () => {
     expect(css).toContain('overscroll-behavior-y: auto')
     expect(css).toContain('180ms')
     expect(css).toContain('height 220ms')
-    expect(css).toContain('opacity 160ms')
+    expect(css).toContain('opacity var(--website-duration-fast)')
     expect(css).toContain('translateY(4px)')
     expect(css).toContain('@media (prefers-reduced-motion: reduce)')
   })

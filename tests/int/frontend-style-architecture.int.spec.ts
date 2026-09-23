@@ -142,4 +142,75 @@ describe('frontend style architecture', () => {
     expect(frontend).toContain('<body')
     expect(payload).toContain('@payloadcms/next/layouts')
   })
+
+  it('keeps Header and Footer on exact website tokens while retaining local geometry', () => {
+    const files = [
+      'src/Header/Component.module.css',
+      'src/Header/Nav/index.module.css',
+      'src/Header/Nav/blocks.module.css',
+      'src/Footer/index.module.css',
+    ]
+    const violations: string[] = []
+
+    for (const file of files) {
+      const isFooter = file.startsWith('src/Footer/')
+      postcss.parse(read(file), { from: file }).walkDecls((decl) => {
+        const value = decl.value.trim()
+        const normalized = value.replace(/\s+/g, ' ')
+        if (
+          /var\(--(?:foreground|background|border|muted|muted-foreground|primary|primary-foreground|site-gutter)\)/.test(
+            value,
+          )
+        ) {
+          violations.push(`${file}: deprecated token in ${decl.prop}`)
+        }
+        if (decl.prop === 'border-radius' && value === '999px') {
+          violations.push(`${file}: raw pill radius`)
+        }
+        if (/\b(?:160|360)ms\b/.test(value)) {
+          violations.push(`${file}: raw shared duration in ${decl.prop}`)
+        }
+        if (
+          isFooter &&
+          ((decl.prop === 'background' && value === '#0a0a0a') ||
+            (decl.prop === 'color' && value === '#fff') ||
+            (decl.prop === 'color' && normalized === 'rgb(255 255 255 / 65%)') ||
+            (/^border(?:-(?:top|bottom))?$/.test(decl.prop) &&
+              normalized === '1px solid rgb(255 255 255 / 18%)'))
+        ) {
+          violations.push(`${file}: raw inverse ${decl.prop}`)
+        }
+      })
+    }
+
+    expect(violations).toEqual([])
+    expect(read('src/Header/Component.module.css')).toContain('260ms ease')
+    expect(read('src/Header/Nav/index.module.css')).toContain('(width > 1170px)')
+    expect(read('src/Footer/index.module.css')).toContain(
+      'grid-template-columns: minmax(0, 20fr) minmax(0, 55fr) minmax(0, 25fr)',
+    )
+    expect(read('src/Footer/index.module.css')).toContain('180ms ease')
+    expect(read('src/Footer/index.module.css')).toContain('200ms ease')
+  })
+
+  it('keeps owned Header and Footer TSX free of Tailwind utilities', () => {
+    const files = ['src/Header', 'src/Footer'].flatMap((directory) => {
+      const walk = (relativePath: string): string[] =>
+        fs.statSync(path.join(process.cwd(), relativePath)).isDirectory()
+          ? fs
+              .readdirSync(path.join(process.cwd(), relativePath))
+              .flatMap((entry) => walk(path.join(relativePath, entry)))
+          : relativePath.endsWith('.tsx')
+            ? [relativePath]
+            : []
+      return walk(directory)
+    })
+    const violations = files.flatMap((file) =>
+      [...read(file).matchAll(/className="([^"]+)"/g)]
+        .filter((match) => match[1] !== 'site-container')
+        .map((match) => `${file}: ${match[1]}`),
+    )
+
+    expect(violations).toEqual([])
+  })
 })

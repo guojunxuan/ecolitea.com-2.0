@@ -146,7 +146,9 @@ describe('Footer server boundary', () => {
     expect(getCachedFooterMock).toHaveBeenCalledOnce()
     expect(getCachedSiteSettingsMock).toHaveBeenCalledOnce()
     expect(element.props['data-theme']).toBeUndefined()
-    expect(element.props.className).toContain('bg-black')
+    expect(element.props['data-website-theme']).toBe('inverse')
+    expect(element.props.className).toContain('footer')
+    expect(element.props.className).not.toContain('bg-black')
   })
 
   it('renders contact icons and every semantic content zone with CMS newsletter copy', async () => {

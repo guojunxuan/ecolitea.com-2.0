@@ -393,7 +393,7 @@ describe('MobileNav', () => {
     expect(navigationCSS).toContain('grid-template-rows: 1fr')
     expect(navigationCSS).toContain('200ms')
     expect(navigationCSS).toContain('transform 300ms')
-    expect(navigationCSS).toContain('border-bottom: 1px solid var(--border)')
+    expect(navigationCSS).toContain('border-bottom: 1px solid var(--website-color-border)')
     expect(navigationCSS).toMatch(/\.mobileMenuCtaBar\s*\{[^}]*position: fixed/s)
     expect(blocksCSS).toMatch(
       /\.navigationBlocksCompact[^}]*\.productCardGrid[^}]*repeat\(2, minmax\(0, 1fr\)\)/s,

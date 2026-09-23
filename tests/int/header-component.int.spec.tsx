@@ -125,7 +125,11 @@ describe('HeaderClient', () => {
     const brandLinks = screen.getAllByRole('link', { name: 'Ecolitea' })
     expect(brandLinks).toHaveLength(2)
     expect(brandLinks.every((link) => link.getAttribute('href') === '/')).toBe(true)
-    expect(brandLinks[0]?.className).toContain('max-[1170px]:hidden')
+    expect(brandLinks[0]?.className).toContain('desktopBrandLink')
+    const css = readFileSync(resolve(process.cwd(), 'src/Header/Component.module.css'), 'utf8')
+    expect(css).toMatch(
+      /\.desktopBrandFallback\s*\{[^}]*font-size:\s*1rem;[^}]*font-weight:\s*600;[^}]*letter-spacing:\s*-0\.025em;[^}]*line-height:\s*1\.5;/s,
+    )
     expect(screen.getAllByRole('link', { name: 'Search' })).toHaveLength(2)
     expect(screen.getByRole('button', { name: 'Open navigation' })).toBeTruthy()
   })

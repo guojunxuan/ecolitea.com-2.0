@@ -41,11 +41,11 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({
         data-scrolled={scrolled ? 'true' : 'false'}
       >
         <div className={`site-container ${styles.inner}`}>
-          <Link className="shrink-0 max-[1170px]:hidden" href="/">
+          <Link className={styles.desktopBrandLink} href="/">
             {logo ? (
               <Logo image={logo} className={styles.desktopLogo} />
             ) : (
-              <span className="text-base font-semibold tracking-tight">{siteName}</span>
+              <span className={styles.desktopBrandFallback}>{siteName}</span>
             )}
           </Link>
           <HeaderNav

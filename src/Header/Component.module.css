@@ -6,7 +6,7 @@
 
 .surface {
   background: transparent;
-  color: var(--foreground);
+  color: var(--website-color-foreground);
   left: 0;
   position: fixed;
   right: 0;
@@ -28,15 +28,15 @@
 
 .surface[data-scrolled='true'] {
   background: rgb(255 255 255 / 90%);
-  border-bottom: 1px solid color-mix(in oklch, var(--foreground) 10%, transparent);
-  box-shadow: 0 0.25rem 1rem color-mix(in oklch, var(--foreground) 8%, transparent);
+  border-bottom: 1px solid color-mix(in oklch, var(--website-color-foreground) 10%, transparent);
+  box-shadow: 0 0.25rem 1rem color-mix(in oklch, var(--website-color-foreground) 8%, transparent);
   backdrop-filter: blur(18px) saturate(115%);
   -webkit-backdrop-filter: blur(18px) saturate(115%);
 }
 
 .surface[data-scrolled='true'],
 .surface[data-menu-open='true'] {
-  color: var(--foreground);
+  color: var(--website-color-foreground);
 }
 
 .surface[data-menu-open='true'] {
@@ -60,7 +60,21 @@
   width: 8.125rem;
 }
 
+.desktopBrandLink {
+  flex-shrink: 0;
+}
+
+.desktopBrandFallback {
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  line-height: 1.5;
+}
+
 @media (width <= 1170px) {
+  .desktopBrandLink {
+    display: none;
+  }
   .surface[data-scrolled='true'],
   .surface[data-menu-open='true'] {
     background: rgb(255 255 255 / 90%);

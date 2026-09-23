@@ -364,6 +364,9 @@ async function expectShell(page: Page) {
 async function expectThemeInvariant(page: Page) {
   await expect(page.locator('[data-theme]')).toHaveCount(1)
   await expect(page.locator('header > div')).toHaveAttribute('data-theme', 'light')
+  await expect(page.locator('footer')).toHaveAttribute('data-website-theme', 'inverse')
+  await expect(page.locator('footer')).toHaveCSS('background-color', 'rgb(10, 10, 10)')
+  await expect(page.locator('footer')).toHaveCSS('color', 'rgb(255, 255, 255)')
   expect(
     await page
       .locator('html, body, main#main-content, footer')

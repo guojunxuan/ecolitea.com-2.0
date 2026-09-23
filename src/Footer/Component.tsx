@@ -16,7 +16,7 @@ export async function Footer() {
   const footer = adaptFooter(footerGlobal, siteSettings)
 
   return (
-    <footer className={`${styles.footer} mt-auto bg-black text-white`}>
+    <footer className={styles.footer} data-website-theme="inverse">
       <div className="site-container">
         <div className={styles.primaryGrid}>
           <section aria-label="Brand" className={styles.brand} data-footer-content="brand">
