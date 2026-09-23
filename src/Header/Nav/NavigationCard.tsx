@@ -53,7 +53,7 @@ export const NavigationCard: React.FC<NavigationCardProps> = ({
         />
         {variant === 'visual' && <span aria-hidden="true" className={styles.navigationCardGradient} />}
       </span>
-      <span className={styles.navigationCardBody}>
+      <span className={styles.navigationCardBody} data-website-theme={variant === 'visual' ? 'inverse' : undefined}>
         <span className={styles.navigationCardTitle}>{card.title}</span>
         {variant !== 'product' && description ? <span className={styles.navigationCardDescription}>{description}</span> : null}
       </span>

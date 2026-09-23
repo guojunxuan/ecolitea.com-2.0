@@ -57,7 +57,7 @@
 .accordionIcon {
   font-size: 1.25rem;
   font-weight: 400;
-  transition: transform 180ms ease;
+  transition: transform var(--website-duration-standard) var(--website-easing-standard);
 }
 .accordionTrigger[aria-expanded='true'] .accordionIcon {
   transform: rotate(45deg);
@@ -82,8 +82,8 @@
   grid-template-rows: 0fr;
   visibility: hidden;
   transition:
-    grid-template-rows 200ms ease,
-    visibility 200ms ease;
+    grid-template-rows var(--website-duration-standard) var(--website-easing-standard),
+    visibility var(--website-duration-standard) var(--website-easing-standard);
 }
 .navigation[data-enhanced='true'] .linkPanel[data-open='true'] {
   grid-template-rows: 1fr;
@@ -99,7 +99,7 @@
   display: inline-flex;
   min-height: 44px;
   align-items: center;
-  color: rgb(255 255 255 / 72%);
+  color: var(--website-color-muted-foreground);
   transition: color var(--website-duration-fast) ease;
 }
 .navLink:hover {
@@ -121,21 +121,21 @@
 .newsletterInput,
 .newsletterButton {
   min-height: 48px;
-  border: 1px solid rgb(255 255 255 / 24%);
+  border: 1px solid var(--website-color-input);
 }
 .newsletterInput {
   min-width: 0;
   border-radius: 0.25rem 0 0 0.25rem;
   padding-inline: 0.875rem;
   background: transparent;
-  color: var(--website-color-foreground);
+  color: var(--website-color-disabled-foreground);
 }
 .newsletterButton {
   border-left: 0;
   border-radius: 0 0.25rem 0.25rem 0;
   padding-inline: 1rem;
-  background: rgb(255 255 255 / 12%);
-  color: rgb(255 255 255 / 52%);
+  background: var(--website-color-disabled-surface);
+  color: var(--website-color-disabled-foreground);
 }
 .information {
   display: grid;
@@ -194,8 +194,8 @@
     background-color var(--website-duration-fast) ease;
 }
 .socialLink:hover {
-  border-color: rgb(255 255 255 / 45%);
-  background: rgb(255 255 255 / 8%);
+  border-color: var(--website-color-foreground);
+  background: var(--website-color-interactive-surface);
 }
 .bottomBar {
   display: flex;
@@ -215,7 +215,7 @@
   }
   .newsletterButton {
     border-top: 0;
-    border-left: 1px solid rgb(255 255 255 / 24%);
+    border-left: 1px solid var(--website-color-input);
     border-radius: 0 0 0.25rem 0.25rem;
   }
 }
@@ -267,5 +267,12 @@
   .navLink {
     min-height: auto;
     padding-block: 0.25rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .accordionIcon,
+  .navigation[data-enhanced='true'] .linkPanel {
+    transition-duration: 0.01ms;
   }
 }

@@ -15,7 +15,7 @@ export const Code: React.FC<Props> = ({ code, language = '' }) => {
   return (
     <Highlight code={code} language={language} theme={themes.vsDark}>
       {({ getLineProps, getTokenProps, tokens }) => (
-        <pre className={styles.code}>
+        <pre className={styles.code} data-website-theme="inverse">
           {tokens.map((line, i) => (
             <div key={i} {...getLineProps({ className: styles.line, line })}>
               <span className={styles.lineNumber}>{i + 1}</span>

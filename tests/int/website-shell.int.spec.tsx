@@ -109,7 +109,10 @@ describe('public website shell', () => {
     const source = readSource('src/heros/HighImpact/index.module.css')
     const markup = readSource('src/heros/HighImpact/index.tsx')
 
-    expect(source).toMatch(/\.root\s*{[^}]*background-color:\s*#000;[^}]*color:\s*#fff;/s)
+    expect(markup).toContain('data-website-theme="inverse"')
+    expect(source).toContain('background-color: var(--website-color-background);')
+    expect(source).toContain('color: var(--website-color-foreground);')
+    expect(source).toContain('var(--website-scrim-strong)')
     expect(markup).toContain('payload-richtext--inverse')
     expect(markup).not.toContain('prose-invert')
   })
@@ -171,10 +174,65 @@ describe('public website shell', () => {
     expect(post).toContain('grid-template-columns: 1fr 48rem 1fr;')
     expect(post).toContain('min-height: 80vh;')
     expect(post).toMatch(
-      /\.overlay\s*{[^}]*height:\s*50%;[^}]*linear-gradient\(to top, #000, transparent\)/s,
+      /\.overlay\s*{[^}]*height:\s*50%;[^}]*linear-gradient\(to top, rgb\(0 0 0 \/ var\(--website-scrim-strong\)\), transparent\)/s,
     )
     expect(post).toMatch(/@media \(width >= 48rem\)[\s\S]*font-size:\s*3rem;/)
     expect(post).toMatch(/@media \(width >= 64rem\)[\s\S]*font-size:\s*3\.75rem;/)
+  })
+
+  it('keeps inverse ownership on dark content and local foreground adaptation on the Header', () => {
+    expect(readSource('src/heros/PostHero/index.tsx')).toContain('data-website-theme="inverse"')
+    expect(readSource('src/blocks/Code/Component.client.tsx')).toContain(
+      'data-website-theme="inverse"',
+    )
+    const header = readSource('src/Header/Component.client.tsx')
+    expect(header).toContain('data-theme={headerTheme')
+    expect(header).not.toContain('data-website-theme')
+  })
+
+  it('uses named shell layers and a supported Glass fallback', () => {
+    const header = readSource('src/Header/Component.module.css')
+    const navigation = readSource('src/Header/Nav/index.module.css')
+    expect(header).toContain('z-index: var(--website-z-header)')
+    expect(navigation).toContain('z-index: var(--website-z-dropdown)')
+    expect(navigation).toContain('z-index: var(--website-z-overlay)')
+    expect(header).toContain('background: var(--website-glass-surface)')
+    expect(header).toContain('border-bottom: 1px solid var(--website-glass-border)')
+    expect(header).toContain('box-shadow: var(--website-shadow-subtle)')
+    expect(header).toContain(
+      'backdrop-filter: blur(var(--website-glass-blur)) saturate(var(--website-glass-saturation))',
+    )
+    expect(header).toContain('@supports not (backdrop-filter: blur(1px))')
+    expect(header).toContain('@media (width <= 1170px)')
+    expect(`${header}\n${navigation}`).not.toMatch(/z-index:\s*(?:999|9999)\b/)
+  })
+
+  it('uses semantic inverse surfaces for Footer and Code without changing Prism scope', () => {
+    const footer = readSource('src/Footer/index.module.css')
+    const code = readSource('src/blocks/Code/Component.module.css')
+    expect(footer).toContain('var(--website-color-muted-foreground)')
+    expect(footer).toContain('var(--website-color-border)')
+    expect(footer).toContain('var(--website-color-disabled-foreground)')
+    expect(footer).not.toMatch(/rgb\(255 255 255 \/ \d+%\)/)
+    expect(footer).toContain('@media (prefers-reduced-motion: reduce)')
+    expect(footer).toContain(".navigation[data-enhanced='true'] .linkPanel")
+    expect(code).toContain('background-color: var(--website-color-background)')
+    expect(code).toContain('color: var(--website-color-foreground)')
+    expect(code).toContain('font-size: 0.875rem')
+    expect(code).toContain('line-height: 1.375rem')
+    expect(readSource('src/blocks/Code/Component.client.tsx')).toContain('themes.vsDark')
+  })
+
+  it('keeps image overlay coverage local to Heroes and visual navigation cards', () => {
+    const high = readSource('src/heros/HighImpact/index.module.css')
+    const post = readSource('src/heros/PostHero/index.module.css')
+    const card = readSource('src/Header/Nav/blocks.module.css')
+    const markup = readSource('src/Header/Nav/NavigationCard.tsx')
+    expect(high).toContain('var(--website-scrim-strong)')
+    expect(post).toContain('height: 50%')
+    expect(card).toContain('var(--website-scrim-strong)')
+    expect(card).toContain('inset: 65% 0 0')
+    expect(markup).toContain("variant === 'visual' ? 'inverse' : undefined")
   })
 
   it('defines the shared responsive layout tokens and containers', () => {

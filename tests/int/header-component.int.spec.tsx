@@ -190,16 +190,16 @@ describe('HeaderClient', () => {
     expect(surface.getAttribute('data-menu-open')).toBe('false')
   })
 
-  it('defines translucent desktop and solid mobile surface states in scoped CSS', () => {
+  it('defines glass, menu-open, and 1170px surface states in scoped CSS', () => {
     const css = readFileSync(resolve(process.cwd(), 'src/Header/Component.module.css'), 'utf8')
 
-    expect(css).toContain('rgb(255 255 255 / 90%)')
+    expect(css).toContain('background: var(--website-glass-surface)')
     expect(css).toContain("[data-menu-open='true']")
     expect(css).toContain("[data-scrolled='true']")
     expect(css).toContain('@media (width <= 1170px)')
     expect(css).toMatch(/@media \(width < 1170px\)\s*\{\s*\.desktopBrandLink\s*\{\s*display: none;/)
     expect(css).not.toMatch(/@media \(width <= 1170px\)\s*\{\s*\.desktopBrandLink/)
-    expect(css).toContain('rgb(255 255 255 / 90%)')
+    expect(css).toContain('@supports not (backdrop-filter: blur(1px))')
   })
 
   it('matches the reference desktop Header logo frame without changing the mobile logo', () => {

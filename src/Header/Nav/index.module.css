@@ -84,7 +84,7 @@
   position: fixed;
   right: 0;
   top: var(--header-height);
-  z-index: 60;
+  z-index: var(--website-z-dropdown);
 }
 
 .mobileNavTitle {
@@ -389,7 +389,7 @@
     right: 0;
     top: var(--header-height);
     transition: opacity 180ms ease;
-    z-index: 40;
+    z-index: var(--website-z-overlay);
   }
 
   .megaMenuShell[data-phase='closing'] .pageOverlay {
@@ -408,7 +408,7 @@
     right: 0;
     top: var(--header-height);
     transition: height 220ms ease, opacity 180ms ease, transform 180ms ease;
-    z-index: 55;
+    z-index: var(--website-z-overlay);
   }
 
   .megaMenuShell[data-phase='closing'] .megaMenu {
@@ -457,6 +457,12 @@
   }
   to {
     opacity: 1;
+  }
+}
+
+@supports not (backdrop-filter: blur(1px)) {
+  .megaMenu {
+    background: var(--website-color-brand-white);
   }
 }
 

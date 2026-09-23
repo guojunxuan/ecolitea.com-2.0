@@ -12,7 +12,7 @@ import styles from './index.module.css'
 
 export const HighImpactHero: React.FC<Page['hero']> = ({ headerTheme, links, media, richText }) => {
   return (
-    <div className={styles.root} data-hero="high-impact">
+    <div className={styles.root} data-hero="high-impact" data-website-theme="inverse">
       <HeaderThemeSync theme={headerTheme} />
       <div className={styles.content}>
         <div className={styles.intro}>

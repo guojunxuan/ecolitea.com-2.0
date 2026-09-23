@@ -18,7 +18,7 @@ export const PostHero: React.FC<{
     populatedAuthors && populatedAuthors.length > 0 && formatAuthors(populatedAuthors) !== ''
 
   return (
-    <div className={styles.root} data-hero="post">
+    <div className={styles.root} data-hero="post" data-website-theme="inverse">
       <div className={styles.content}>
         <div className={styles.body}>
           <div className={styles.categories}>

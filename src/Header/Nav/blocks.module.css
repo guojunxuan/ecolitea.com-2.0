@@ -31,7 +31,7 @@
 .navigationCardProduct .navigationCardImage :global(picture) { align-items: center; display: flex; justify-content: center; }
 .navigationCardProduct :global(img) { height: auto; max-height: 82%; max-width: 82%; width: auto; }
 .navigationCardVisual .navigationCardImage :global(img) { object-fit: cover; }
-.navigationCardGradient { background: linear-gradient(transparent, rgb(0 0 0 / 0.72)); inset: 65% 0 0; position: absolute; }
+.navigationCardGradient { background: linear-gradient(transparent, rgb(0 0 0 / var(--website-scrim-strong))); inset: 65% 0 0; position: absolute; }
 .navigationCardBody { display: block; position: relative; }
 .navigationCardVisual .navigationCardBody { bottom: 0; color: white; left: 0; padding: 1rem; position: absolute; right: 0; z-index: 1; }
 .navigationCardTitle { display: block; font-weight: 600; }
