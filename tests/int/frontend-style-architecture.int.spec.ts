@@ -22,6 +22,65 @@ const shellFiles = (suffix: string) =>
   ['src/Header', 'src/Footer'].flatMap((directory) => listFiles(directory, suffix))
 
 describe('frontend style architecture', () => {
+  it('resolves every cva variant map and class-value reference', () => {
+    for (const expression of [
+      'intents',
+      'registry.intents',
+      "registry['intents']",
+      '{ intent: intentMap }',
+      '{ intent: registry.maps[0] }',
+    ]) {
+      const fixture = (value: string) => `
+        import styles from './example.module.css'
+        const moduleClass = styles.root
+        const values = { entries: [${value}] }
+        const intentMap = { primary: values.entries[0] }
+        const intents = { intent: intentMap }
+        const registry = { intents, maps: [intentMap] }
+        const variant = cva(styles.root, { variants: ${expression}, defaultVariants: { intent: 'primary' } })
+        const View = () => <div className={variant({ intent: 'primary' })} />
+      `
+      expect(
+        scanShellClasses(
+          'test.tsx',
+          fixture("active ? ['md:flex', 'hover:bg-black'] : 'lg:grid'"),
+        ).map((entry) => entry.split(': ').at(-1)),
+        expression,
+      ).toEqual(['md:flex', 'hover:bg-black', 'lg:grid'])
+      expect(
+        scanShellClasses(
+          'test.tsx',
+          fixture("active ? ['site-container', moduleClass] : styles.active"),
+        ),
+        expression,
+      ).toEqual([])
+    }
+  })
+
+  it('fails closed for unresolved cva variant configurations and values', () => {
+    for (const expression of ['external.maps', 'registry[key]', 'loadVariants()', 'cycle']) {
+      for (const variants of [
+        expression,
+        `{ intent: ${expression} }`,
+        `{ intent: { primary: ${expression} } }`,
+      ]) {
+        expect(
+          scanShellClasses(
+            'test.tsx',
+            `
+          import styles from './example.module.css'
+          const registry = { maps: {} }
+          const cycle = cycle
+          const variant = cva(styles.root, { variants: ${variants} })
+          const View = () => <div className={variant()} />
+        `,
+          ),
+          variants,
+        ).toEqual([expect.stringContaining('unresolved class configuration')])
+      }
+    }
+  })
+
   it('inspects nested object values flowing into unknown class helpers', () => {
     const source = `
       const unrelated = { mode: 'compact', classLabels: ['md:grid'] }
@@ -99,6 +158,7 @@ describe('frontend style architecture', () => {
 
   it('audits cva compound class fields through arrays, conditions, and local references', () => {
     const source = `
+      import styles from './example.module.css'
       const extra = ['lg:grid', active && 'text-white']
       const compound = { intent: ['small', 'large'], class: extra }
       const compounds = [compound, active ? { class: 'p-4' } : { className: ['md:flex', styles.root] }]

@@ -244,6 +244,7 @@ export const scanShellClasses = (
       return resolveLocal(node.expression, nextSeen)
     }
     if (ts.isPropertyAccessExpression(node) || ts.isElementAccessExpression(node)) {
+      if (ts.isIdentifier(node.expression) && cssModules.has(node.expression.text)) return node
       const object = resolveLocal(node.expression, nextSeen)
       const keyNode = ts.isPropertyAccessExpression(node)
         ? node.name
@@ -280,7 +281,16 @@ export const scanShellClasses = (
   }
   // This project-owned exported factory is audited in its defining TSX file.
   const importedFactories = new Set<string>()
+  const cssModules = new Set<string>()
   for (const statement of parsed.statements) {
+    if (
+      ts.isImportDeclaration(statement) &&
+      ts.isStringLiteral(statement.moduleSpecifier) &&
+      statement.moduleSpecifier.text.endsWith('.module.css') &&
+      statement.importClause?.name
+    ) {
+      cssModules.add(statement.importClause.name.text)
+    }
     if (
       !ts.isImportDeclaration(statement) ||
       !ts.isStringLiteral(statement.moduleSpecifier) ||
@@ -347,6 +357,62 @@ export const scanShellClasses = (
       }
     }
   }
+  const scanConfiguredClasses = (node: ts.Node, seen: Set<string>) => {
+    // Module exports are the only opaque property values accepted as classes.
+    if (
+      (ts.isPropertyAccessExpression(node) || ts.isElementAccessExpression(node)) &&
+      ts.isIdentifier(node.expression) &&
+      cssModules.has(node.expression.text)
+    )
+      return
+    const resolved = resolveLocal(node)
+    if (!resolved) {
+      unresolvedConfig(node)
+    } else if (resolved !== node) {
+      const key = node.getText(parsed)
+      if (seen.has(key)) unresolvedConfig(node)
+      else scanConfiguredClasses(resolved, new Set(seen).add(key))
+    } else if (ts.isStringLiteralLike(node)) {
+      scanLiteral(node, node.text)
+    } else if (ts.isArrayLiteralExpression(node)) {
+      for (const element of node.elements) scanConfiguredClasses(element, seen)
+    } else if (ts.isSpreadElement(node)) {
+      scanConfiguredClasses(node.expression, seen)
+    } else if (ts.isConditionalExpression(node)) {
+      scanConfiguredClasses(node.whenTrue, seen)
+      scanConfiguredClasses(node.whenFalse, seen)
+    } else if (
+      ts.isBinaryExpression(node) &&
+      node.operatorToken.kind === ts.SyntaxKind.AmpersandAmpersandToken
+    ) {
+      scanConfiguredClasses(node.right, seen)
+    } else if (
+      ts.isBinaryExpression(node) &&
+      [ts.SyntaxKind.BarBarToken, ts.SyntaxKind.QuestionQuestionToken].includes(
+        node.operatorToken.kind,
+      )
+    ) {
+      scanConfiguredClasses(node.left, seen)
+      scanConfiguredClasses(node.right, seen)
+    } else if (
+      ![ts.SyntaxKind.NullKeyword, ts.SyntaxKind.FalseKeyword, ts.SyntaxKind.TrueKeyword].includes(
+        node.kind,
+      )
+    ) {
+      unresolvedConfig(node)
+    }
+  }
+  const visitPropertyValues = (
+    object: ts.ObjectLiteralExpression,
+    seen: Set<string>,
+    visit: (node: ts.Node, seen: Set<string>) => void,
+  ) => {
+    for (const property of object.properties) {
+      if (ts.isPropertyAssignment(property)) visit(property.initializer, seen)
+      else if (ts.isShorthandPropertyAssignment(property)) visit(property.name, seen)
+      else if (!ts.isSpreadAssignment(property)) unresolvedConfig(property)
+    }
+  }
   const scanExpression = (node: ts.Node, seenVariables = new Set<string>()) => {
     if (ts.isStringLiteralLike(node)) {
       scanLiteral(node, node.text)
@@ -402,27 +468,23 @@ export const scanShellClasses = (
         const options = node.arguments[1]
         if (options)
           visitObjects(options, seenVariables, (options, optionsSeen) => {
-            const variants = options.properties.find(
-              (prop) => prop.name && propertyName(prop.name) === 'variants',
-            )
-            if (
-              variants &&
-              ts.isPropertyAssignment(variants) &&
-              ts.isObjectLiteralExpression(variants.initializer)
-            ) {
-              for (const variant of variants.initializer.properties) {
-                if (
-                  ts.isPropertyAssignment(variant) &&
-                  ts.isObjectLiteralExpression(variant.initializer)
-                ) {
-                  for (const value of variant.initializer.properties) {
-                    if (ts.isPropertyAssignment(value))
-                      scanExpression(value.initializer, optionsSeen)
-                  }
-                }
-              }
-            }
             for (const property of options.properties) {
+              if (property.name && propertyName(property.name) === 'variants') {
+                const value = ts.isPropertyAssignment(property)
+                  ? property.initializer
+                  : ts.isShorthandPropertyAssignment(property)
+                    ? property.name
+                    : undefined
+                if (!value) unresolvedConfig(property)
+                else
+                  visitObjects(value, optionsSeen, (variants, variantsSeen) => {
+                    visitPropertyValues(variants, variantsSeen, (map, mapSeen) => {
+                      visitObjects(map, mapSeen, (choices, choicesSeen) => {
+                        visitPropertyValues(choices, choicesSeen, scanConfiguredClasses)
+                      })
+                    })
+                  })
+              }
               if (
                 ts.isPropertyAssignment(property) &&
                 propertyName(property.name) === 'compoundVariants'
