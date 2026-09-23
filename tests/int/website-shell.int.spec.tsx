@@ -235,6 +235,14 @@ describe('public website shell', () => {
     expect(markup).toContain("variant === 'visual' ? 'inverse' : undefined")
   })
 
+  it('keeps a Strong Scrim floor under HighImpact text over bright imagery', () => {
+    const high = readSource('src/heros/HighImpact/index.module.css')
+    expect(high).toMatch(
+      /\.root::before\s*\{[^}]*background:\s*linear-gradient\([\s\S]*?\),\s*rgb\(0 0 0 \/ var\(--website-scrim-strong\)\);/,
+    )
+    expect(high).toContain('var(--website-scrim-subtle)')
+  })
+
   it('defines the shared responsive layout tokens and containers', () => {
     const tokens = readSource('src/styles/tokens.css')
     const layout = readSource('src/styles/layout.css')

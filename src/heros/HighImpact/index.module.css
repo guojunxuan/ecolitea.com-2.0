@@ -9,11 +9,9 @@
 }
 
 .root::before {
-  background: linear-gradient(
-    to top,
-    rgb(0 0 0 / var(--website-scrim-strong)),
-    rgb(0 0 0 / var(--website-scrim-subtle))
-  );
+  background:
+    linear-gradient(to top, rgb(0 0 0 / var(--website-scrim-subtle)), transparent),
+    rgb(0 0 0 / var(--website-scrim-strong));
   content: '';
   inset: 0;
   pointer-events: none;

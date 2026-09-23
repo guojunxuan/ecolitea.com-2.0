@@ -1,5 +1,6 @@
 import { expect, type Page, test, type TestInfo } from '@playwright/test'
 import { getPayload, type Payload } from 'payload'
+import sharp from 'sharp'
 
 import config from '../../src/payload.config.js'
 import { normalizeComputedColor } from '../helpers/computedColor'
@@ -9,6 +10,7 @@ import { getE2EBaseURL } from '../helpers/e2eBaseURL'
 const baseURL = getE2EBaseURL()
 const E2E_MEDIA_ORIGIN = 'https://media.example.invalid'
 const NAVIGATION_IMAGE_ALT_PREFIX = 'E2E website shell navigation image'
+const HERO_IMAGE_ALT_PREFIX = 'E2E website shell Hero image'
 type HeaderThemeTransitionSample = {
   color: string | null
   headerTheme: string | null
@@ -22,20 +24,37 @@ const disableRevalidate = { context: { disableRevalidate: true } }
 const runID = process.env.PLAYWRIGHT_E2E_RUN_ID!
 const slugs = {
   direct: `e2e-website-shell-${runID}-direct`,
+  highImpact: `e2e-website-shell-${runID}-high-impact`,
   main: `e2e-website-shell-${runID}-main`,
   privacy: `e2e-website-shell-${runID}-privacy`,
   route: `e2e-website-shell-${runID}-route`,
   terms: `e2e-website-shell-${runID}-terms`,
 } as const
+const postHeroSlug = `e2e-website-shell-${runID}-post-hero`
 const fixturePath = `/${slugs.main}`
 const routePath = `/${slugs.route}`
 let payload: Payload
+let brightCollagePNG: Buffer
 
 const customLink = (label: string, url: string) => ({ label, type: 'custom' as const, url })
 const unlabeledLink = (url: string) => ({ type: 'custom' as const, url })
 const navigationImagePNG = Buffer.from(
   'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=',
   'base64',
+)
+const brightCollageSVG = Buffer.from(
+  `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice">
+    <defs>
+      <linearGradient id="paper" x2="1" y2="1"><stop stop-color="#fff7b8"/><stop offset=".48" stop-color="#ffffff"/><stop offset="1" stop-color="#b8f5e6"/></linearGradient>
+      <pattern id="grid" width="56" height="56" patternUnits="userSpaceOnUse"><path d="M0 0h56v56H0z" fill="none" stroke="#172554" stroke-opacity=".18" stroke-width="2"/><circle cx="28" cy="28" r="5" fill="#f43f5e"/></pattern>
+    </defs>
+    <path fill="url(#paper)" d="M0 0h1600v900H0z"/><path fill="url(#grid)" d="M0 0h1600v900H0z"/>
+    <rect x="380" y="250" width="840" height="400" fill="#fff"/>
+    <path fill="#ff4d6d" d="M0 0h330L0 440z"/><path fill="#00c2ff" d="M1600 0h-340l340 400z"/>
+    <path fill="#a3e635" d="M0 900h420L0 520z"/><path fill="#8b5cf6" d="M1600 900h-430l430-390z"/>
+    <circle cx="220" cy="450" r="145" fill="#ffb703"/><circle cx="1380" cy="450" r="145" fill="#fb7185"/>
+    <path d="M600 90l400 0-80 170H680zM620 700h360l-70 120H690z" fill="#14b8a6"/>
+  </svg>`,
 )
 const emptyPage = (slug: string, title: string) => ({
   _status: 'published' as const,
@@ -54,6 +73,11 @@ async function deleteFixtures() {
     ...disableRevalidate,
   })
   await payload.delete({
+    collection: 'posts',
+    where: { slug: { equals: postHeroSlug } },
+    ...disableRevalidate,
+  })
+  await payload.delete({
     collection: 'social-platforms',
     where: { platform: { equals: 'E2E LinkedIn' } },
     ...disableRevalidate,
@@ -66,6 +90,11 @@ async function deleteFixtures() {
   await payload.delete({
     collection: 'media',
     where: { alt: { like: NAVIGATION_IMAGE_ALT_PREFIX } },
+    ...disableRevalidate,
+  })
+  await payload.delete({
+    collection: 'media',
+    where: { alt: { like: HERO_IMAGE_ALT_PREFIX } },
     ...disableRevalidate,
   })
   await payload.db.globals.deleteMany({
@@ -142,6 +171,132 @@ async function seedFixtures() {
       return image
     }),
   )
+  const heroImages = await Promise.all(
+    ['high-impact', 'post-hero'].map((kind) =>
+      payload.create({
+        collection: 'media',
+        data: { alt: `${HERO_IMAGE_ALT_PREFIX} ${kind}` },
+        file: {
+          data: brightCollagePNG,
+          mimetype: 'image/png',
+          name: `e2e-${kind}-bright-collage.png`,
+          size: brightCollagePNG.byteLength,
+        },
+        ...disableRevalidate,
+      }),
+    ),
+  )
+  await payload.update({
+    collection: 'pages',
+    id: bySlug[slugs.highImpact]!.id,
+    data: {
+      hero: {
+        headerTheme: 'dark',
+        type: 'highImpact',
+        media: heroImages[0]!.id,
+        richText: {
+          root: {
+            children: [
+              {
+                children: [
+                  {
+                    detail: 0,
+                    format: 0,
+                    mode: 'normal',
+                    style: '',
+                    text: 'E2E High Impact bright collage',
+                    type: 'text',
+                    version: 1,
+                  },
+                ],
+                direction: 'ltr',
+                format: '',
+                indent: 0,
+                tag: 'h1',
+                type: 'heading',
+                version: 1,
+              },
+              {
+                children: [
+                  {
+                    detail: 0,
+                    format: 0,
+                    mode: 'normal',
+                    style: '',
+                    text: 'Readable copy over a bright, detailed image.',
+                    type: 'text',
+                    version: 1,
+                  },
+                ],
+                direction: 'ltr',
+                format: '',
+                indent: 0,
+                type: 'paragraph',
+                version: 1,
+              },
+            ],
+            direction: 'ltr',
+            format: '',
+            indent: 0,
+            type: 'root',
+            version: 1,
+          },
+        },
+        links: [
+          {
+            link: {
+              label: 'E2E Inverse Hero CTA',
+              type: 'custom',
+              url: '/e2e-inverse-hero-cta',
+              appearance: 'default',
+            },
+          },
+        ],
+      },
+    },
+    ...disableRevalidate,
+  })
+  await payload.create({
+    collection: 'posts',
+    data: {
+      _status: 'published',
+      content: {
+        root: {
+          children: [
+            {
+              children: [
+                {
+                  detail: 0,
+                  format: 0,
+                  mode: 'normal',
+                  style: '',
+                  text: 'E2E post fixture content.',
+                  type: 'text',
+                  version: 1,
+                },
+              ],
+              direction: 'ltr',
+              format: '',
+              indent: 0,
+              textFormat: 0,
+              textStyle: '',
+              type: 'paragraph',
+              version: 1,
+            },
+          ],
+          direction: 'ltr',
+          format: '',
+          indent: 0,
+          type: 'root',
+          version: 1,
+        },
+      },
+      heroImage: heroImages[1]!.id,
+      slug: postHeroSlug,
+      title: 'E2E Post Hero bright collage',
+    },
+    ...disableRevalidate,
+  })
   const card = (title: string, index: number) => ({
     image: media[index]!.id,
     link: unlabeledLink(`/e2e-card-${index + 1}`),
@@ -461,6 +616,44 @@ async function expectBackground(
     .toEqual([expected.red, expected.green, expected.blue, expected.alpha])
 }
 
+const relativeLuminance = ([red, green, blue]: readonly number[]) => {
+  const [r, g, b] = [red, green, blue].map((channel) => {
+    const normalized = channel! / 255
+    return normalized <= 0.04045 ? normalized / 12.92 : ((normalized + 0.055) / 1.055) ** 2.4
+  })
+  return 0.2126 * r! + 0.7152 * g! + 0.0722 * b!
+}
+
+async function sampleHighImpactTextContrast(page: Page) {
+  const sample = await page.locator('[data-hero="high-impact"] p').evaluate((copy) => {
+    const box = copy.getBoundingClientRect()
+    return {
+      color: getComputedStyle(copy).color,
+      x: Math.round(box.right + 8), // Outside the glyphs, at the same gradient height.
+      y: Math.round(box.top + box.height / 2),
+    }
+  })
+  const foreground = normalizeComputedColor(sample.color)
+  expect(foreground).not.toBeNull()
+  expect(foreground![3]).toBe(1)
+
+  const screenshot = await page.screenshot({ scale: 'css' })
+  const pixel = await sharp(screenshot)
+    .extract({ left: sample.x, top: sample.y, width: 1, height: 1 })
+    .removeAlpha()
+    .raw()
+    .toBuffer()
+  const textLuminance = relativeLuminance(foreground!)
+  const backgroundLuminance = relativeLuminance([pixel[0]!, pixel[1]!, pixel[2]!])
+  return {
+    background: [pixel[0], pixel[1], pixel[2]],
+    foreground: foreground!.slice(0, 3),
+    ratio:
+      (Math.max(textLuminance, backgroundLuminance) + 0.05) /
+      (Math.min(textLuminance, backgroundLuminance) + 0.05),
+  }
+}
+
 async function expectIndicatorAligned(page: Page, control: ReturnType<Page['locator']>) {
   const item = page.locator('[data-nav-item-id]').filter({ has: control })
   const indicator = page.locator('[data-navigation-indicator="true"]')
@@ -668,6 +861,7 @@ test.describe.serial('Responsive website shell', () => {
   test.setTimeout(120_000)
   test.beforeAll(async () => {
     payload = await getPayload({ config })
+    brightCollagePNG = await sharp(brightCollageSVG).png().toBuffer()
     await seedFixtures()
   })
   test.afterAll(async () => {
@@ -1101,6 +1295,110 @@ test.describe.serial('Responsive website shell', () => {
           (sample.headerTheme !== 'light' || sample.color !== expectedForeground),
       ),
     ).toEqual([])
+  })
+
+  test('HighImpact and PostHero keep text and imagery layered over bright complex media', async ({
+    page,
+  }, testInfo) => {
+    await openFixture(page, 390)
+    await page.route('https://media.example.invalid/**', async (route) => {
+      await route.fulfill({ body: brightCollagePNG, contentType: 'image/png' })
+    })
+
+    await page.goto(`${baseURL}/${slugs.highImpact}`)
+    const highImpact = page.locator('[data-hero="high-impact"]')
+    const highImage = highImpact.locator('img')
+    const highCopy = highImpact.getByText('Readable copy over a bright, detailed image.')
+    await expect(highImpact).toHaveAttribute('data-website-theme', 'inverse')
+    await expect(
+      highImpact.getByRole('heading', { name: 'E2E High Impact bright collage' }),
+    ).toBeVisible()
+    await expect(highCopy).toBeVisible()
+    await expect(highImage).toBeVisible()
+    await expect
+      .poll(() => highImage.evaluate((image) => (image as HTMLImageElement).naturalWidth))
+      .toBeGreaterThan(0)
+    const inverseCTA = highImpact.getByRole('link', { name: 'E2E Inverse Hero CTA' })
+    await inverseCTA.focus()
+    await expect(inverseCTA).toHaveCSS('outline-style', 'solid')
+    await expect(inverseCTA).toHaveCSS('outline-width', '2px')
+    const highEvidence = await page.evaluate(() => {
+      const hero = document.querySelector('[data-hero="high-impact"]')!
+      const image = hero.querySelector('img')!
+      const content = hero.querySelector('[data-header-theme]')!.nextElementSibling!
+      return {
+        image: {
+          complete: (image as HTMLImageElement).complete,
+          height: (image as HTMLImageElement).naturalHeight,
+          visibility: getComputedStyle(image).visibility,
+          width: (image as HTMLImageElement).naturalWidth,
+          zIndex: getComputedStyle(image).zIndex,
+        },
+        scrimZIndex: getComputedStyle(hero, '::before').zIndex,
+        textZIndex: getComputedStyle(content).zIndex,
+      }
+    })
+    console.log(`HighImpact bright-image evidence: ${JSON.stringify(highEvidence)}`)
+    expect(highEvidence.image.visibility).toBe('visible')
+    expect(Number(highEvidence.image.zIndex)).toBeLessThan(Number(highEvidence.scrimZIndex))
+    expect(Number(highEvidence.scrimZIndex)).toBeLessThan(Number(highEvidence.textZIndex))
+    const mobileContrast = await sampleHighImpactTextContrast(page)
+    console.log(`HighImpact 390px rendered text contrast: ${JSON.stringify(mobileContrast)}`)
+    expect(mobileContrast.ratio).toBeGreaterThanOrEqual(4.5)
+    await shot(page, testInfo, 'high-impact-bright')
+
+    await page.emulateMedia({ forcedColors: 'active' })
+    await inverseCTA.focus()
+    await expect
+      .poll(() => page.evaluate(() => matchMedia('(forced-colors: active)').matches))
+      .toBe(true)
+    await expect(inverseCTA).toHaveCSS('outline-style', 'solid')
+    await expect(inverseCTA).toHaveCSS('outline-width', '2px')
+    const forcedFocusColor = await inverseCTA.evaluate(
+      (element) => getComputedStyle(element).outlineColor,
+    )
+    console.log(`Forced-colors inverse CTA focus outline: ${forcedFocusColor}`)
+    await page.emulateMedia({ forcedColors: 'none' })
+
+    await page.setViewportSize({ width: 1440, height: 900 })
+    await page.goto(`${baseURL}/${slugs.highImpact}`)
+    await expect(highCopy).toBeVisible()
+    await expect
+      .poll(() => highImage.evaluate((image) => (image as HTMLImageElement).naturalWidth))
+      .toBeGreaterThan(0)
+    const desktopContrast = await sampleHighImpactTextContrast(page)
+    console.log(`HighImpact 1440px rendered text contrast: ${JSON.stringify(desktopContrast)}`)
+    expect(desktopContrast.ratio).toBeGreaterThanOrEqual(4.5)
+
+    await page.goto(`${baseURL}/posts/${postHeroSlug}`)
+    const postHero = page.locator('[data-hero="post"]')
+    const postImage = postHero.locator('img')
+    await expect(postHero).toHaveAttribute('data-website-theme', 'inverse')
+    await expect(
+      postHero.getByRole('heading', { name: 'E2E Post Hero bright collage' }),
+    ).toBeVisible()
+    await expect(postImage).toBeVisible()
+    await expect
+      .poll(() => postImage.evaluate((image) => (image as HTMLImageElement).naturalWidth))
+      .toBeGreaterThan(0)
+    const postEvidence = await postHero.evaluate((hero) => {
+      const image = hero.querySelector('img')!
+      const content = hero.firstElementChild!
+      const overlay = hero.lastElementChild!.lastElementChild!
+      return {
+        contentZIndex: getComputedStyle(content).zIndex,
+        imageVisibility: getComputedStyle(image).visibility,
+        imageZIndex: getComputedStyle(image).zIndex,
+        overlayZIndex: getComputedStyle(overlay).zIndex,
+        titleColor: getComputedStyle(hero.querySelector('h1')!).color,
+      }
+    })
+    console.log(`PostHero bright-image evidence: ${JSON.stringify(postEvidence)}`)
+    expect(Number(postEvidence.imageZIndex)).toBeLessThan(Number(postEvidence.overlayZIndex))
+    expect(Number(postEvidence.overlayZIndex)).toBeLessThan(Number(postEvidence.contentZIndex))
+    expect(postEvidence.imageVisibility).toBe('visible')
+    await shot(page, testInfo, 'post-hero-bright')
+    await expectNoProductionDomainRequests(page)
   })
 
   test('Desktop navigation keeps the Mega Menu open while wheel input chains to the page', async ({
