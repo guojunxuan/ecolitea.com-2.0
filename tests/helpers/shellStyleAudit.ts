@@ -1,7 +1,9 @@
 import { readFileSync } from 'node:fs'
+import { findPackageJSON } from 'node:module'
 import path from 'node:path'
+import { fileURLToPath, pathToFileURL } from 'node:url'
 
-import postcss, { type AtRule } from 'postcss'
+import postcss from 'postcss'
 import { compile } from 'tailwindcss'
 import ts from 'typescript'
 
@@ -199,27 +201,54 @@ export const scanShellCss = (file: string, source: string, tokensSource: string)
   return violations
 }
 
-// Compile against the installed public Tailwind API and this site's actual theme/plugins.
+// Compile the real frontend CSS import graph with Tailwind's public loader hooks.
 // A valid candidate adds CSS; project-owned class hooks such as `site-container` do not.
 const compileWebsiteUtilities = async () => {
-  const theme = readFileSync(path.join(process.cwd(), 'node_modules/tailwindcss/theme.css'), 'utf8')
-  const globals = postcss.parse(
-    readFileSync(path.join(process.cwd(), 'src/app/(frontend)/globals.css'), 'utf8'),
-  )
-  const extensions = globals.nodes
-    .filter(
-      (node): node is AtRule =>
-        node.type === 'atrule' && ['theme', 'custom-variant', 'plugin'].includes(node.name),
-    )
-    .map((node) => `${node.toString()}${node.nodes ? '' : ';'}`)
-    .join('\n')
-
-  return compile(`${theme}\n${extensions}\n@tailwind utilities;`, {
-    loadModule: async (id, base) => ({
-      path: import.meta.resolve(id),
-      base,
-      module: (await import(id)).default,
-    }),
+  const entry = path.join(process.cwd(), 'src/app/(frontend)/globals.css')
+  const stylesheet = postcss.parse(readFileSync(entry, 'utf8'))
+  // Inline sources pre-generate candidates, so remove only those directives for validity checks.
+  stylesheet.walkAtRules('source', (rule) => {
+    rule.remove()
+  })
+  return compile(stylesheet.toString(), {
+    from: entry,
+    base: path.dirname(entry),
+    loadStylesheet: async (id, base) => {
+      let stylesheet: string
+      if (id.startsWith('.')) {
+        stylesheet = path.resolve(base, id)
+      } else {
+        const manifestPath = findPackageJSON(
+          id,
+          pathToFileURL(path.join(base, '__tailwind_loader__.css')).href,
+        )
+        if (!manifestPath) throw new Error(`Cannot resolve CSS package ${id}`)
+        const manifest = JSON.parse(readFileSync(manifestPath, 'utf8')) as {
+          name: string
+          style?: string
+          exports?: Record<string, string | { style?: string }>
+        }
+        const exported = manifest.exports?.[`.${id.slice(manifest.name.length)}`]
+        const style = (typeof exported === 'string' ? exported : exported?.style) ?? manifest.style
+        if (!style) throw new Error(`CSS package ${id} has no style entry`)
+        stylesheet = path.resolve(path.dirname(manifestPath), style)
+      }
+      return {
+        path: stylesheet,
+        base: path.dirname(stylesheet),
+        content: readFileSync(stylesheet, 'utf8'),
+      }
+    },
+    loadModule: async (id, base) => {
+      const modulePath = id.startsWith('.')
+        ? path.resolve(base, id)
+        : fileURLToPath(import.meta.resolve(id))
+      return {
+        path: modulePath,
+        base: path.dirname(modulePath),
+        module: (await import(pathToFileURL(modulePath).href)).default,
+      }
+    },
   })
 }
 

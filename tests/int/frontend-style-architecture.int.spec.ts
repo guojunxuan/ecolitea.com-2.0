@@ -314,4 +314,25 @@ describe('frontend style architecture', () => {
       ),
     ).toEqual([])
   })
+
+  it('detects utilities from the frontend animation stylesheet import', async () => {
+    const source = `
+      <div className={clsx('animate-in fade-in-0 slide-in-from-top-4',
+        active && 'animation-duration-300 zoom-out-95',
+        ['hover:slide-in-from-right-2', 'md:animate-out'])} />
+    `
+    const detected = (await scanShellClasses('test.tsx', source)).map((violation) =>
+      violation.split(': ').at(-1),
+    )
+
+    expect(detected).toEqual([
+      'animate-in',
+      'fade-in-0',
+      'slide-in-from-top-4',
+      'animation-duration-300',
+      'zoom-out-95',
+      'hover:slide-in-from-right-2',
+      'md:animate-out',
+    ])
+  })
 })
