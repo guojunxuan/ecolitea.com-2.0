@@ -1,0 +1,9 @@
+.root {
+  width: min(100% - (2 * var(--website-gutter)), var(--website-container-site));
+  margin-inline: auto;
+  padding-top: var(--website-section-standard);
+}
+
+.content {
+  max-width: 48rem;
+}

@@ -43,8 +43,11 @@ describe('website layout primitives', () => {
     ]) {
       expect(readSource(file), file).toContain('var(--website-container-site)')
     }
-    for (const file of ['src/heros/LowImpact/index.tsx', 'src/heros/MediumImpact/index.tsx']) {
-      expect(readSource(file), file).toContain('site-container')
+    for (const file of [
+      'src/heros/LowImpact/index.module.css',
+      'src/heros/MediumImpact/index.module.css',
+    ]) {
+      expect(readSource(file), file).toContain('var(--website-container-site)')
     }
   })
 
@@ -106,9 +109,9 @@ describe('website layout primitives', () => {
   })
 
   it('preserves the existing MediumImpact media bleed through the wide container primitive', () => {
-    const source = readSource('src/heros/MediumImpact/index.tsx')
+    const source = readSource('src/heros/MediumImpact/index.module.css')
 
-    expect(source).toContain('wide-container')
+    expect(source).toContain('var(--website-container-wide)')
     expect(source).not.toMatch(/-mx-/)
   })
 

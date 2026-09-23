@@ -5,6 +5,8 @@ import type { Page } from '@/payload-types'
 import RichText from '@/components/RichText'
 import { HeaderThemeSync } from '@/heros/HeaderThemeSync'
 
+import styles from './index.module.css'
+
 type LowImpactHeroType = {
   children?: React.ReactNode
   headerTheme?: Page['hero']['headerTheme'] | null
@@ -13,9 +15,9 @@ type LowImpactHeroType = {
 
 export const LowImpactHero: React.FC<LowImpactHeroType> = ({ children, headerTheme, richText }) => {
   return (
-    <div className="site-container pt-[var(--section-space-standard)]">
+    <div className={styles.root} data-hero="low-impact">
       <HeaderThemeSync theme={headerTheme} />
-      <div className="max-w-[48rem]">
+      <div className={styles.content}>
         {children || (richText && <RichText data={richText} enableGutter={false} />)}
       </div>
     </div>

@@ -8,21 +8,23 @@ import { MEDIA_PRESENTATION } from '@/components/Media/config'
 import RichText from '@/components/RichText'
 import { HeaderThemeSync } from '@/heros/HeaderThemeSync'
 
+import styles from './index.module.css'
+
 export const HighImpactHero: React.FC<Page['hero']> = ({ headerTheme, links, media, richText }) => {
   return (
-    <div className="relative flex items-center justify-center bg-black text-white">
+    <div className={styles.root} data-hero="high-impact">
       <HeaderThemeSync theme={headerTheme} />
-      <div className="container mb-8 z-10 relative flex items-center justify-center">
-        <div className="max-w-[36.5rem] md:text-center">
+      <div className={styles.content}>
+        <div className={styles.intro}>
           {richText && (
             <RichText
-              className="mb-6 payload-richtext--inverse"
+              className={`${styles.richText} payload-richtext--inverse`}
               data={richText}
               enableGutter={false}
             />
           )}
           {Array.isArray(links) && links.length > 0 && (
-            <ul className="flex md:justify-center gap-4">
+            <ul className={styles.links}>
               {links.map(({ link }, i) => {
                 return (
                   <li key={i}>
@@ -34,11 +36,11 @@ export const HighImpactHero: React.FC<Page['hero']> = ({ headerTheme, links, med
           )}
         </div>
       </div>
-      <div className="min-h-[80vh] select-none">
+      <div className={styles.mediaFrame}>
         {media && typeof media === 'object' && (
           <Media
             fill
-            imgClassName="-z-10 object-cover"
+            imgClassName={styles.image}
             presentation={MEDIA_PRESENTATION.hero}
             priority
             resource={media}

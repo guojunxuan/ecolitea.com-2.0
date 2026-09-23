@@ -8,15 +8,22 @@ import { MEDIA_PRESENTATION } from '@/components/Media/config'
 import RichText from '@/components/RichText'
 import { HeaderThemeSync } from '@/heros/HeaderThemeSync'
 
-export const MediumImpactHero: React.FC<Page['hero']> = ({ headerTheme, links, media, richText }) => {
+import styles from './index.module.css'
+
+export const MediumImpactHero: React.FC<Page['hero']> = ({
+  headerTheme,
+  links,
+  media,
+  richText,
+}) => {
   return (
-    <div className="pt-[var(--section-space-standard)]">
+    <div className={styles.root} data-hero="medium-impact">
       <HeaderThemeSync theme={headerTheme} />
-      <div className="site-container mb-8">
-        {richText && <RichText className="mb-6" data={richText} enableGutter={false} />}
+      <div className={styles.content}>
+        {richText && <RichText className={styles.richText} data={richText} enableGutter={false} />}
 
         {Array.isArray(links) && links.length > 0 && (
-          <ul className="flex gap-4">
+          <ul className={styles.links}>
             {links.map(({ link }, i) => {
               return (
                 <li key={i}>
@@ -27,7 +34,7 @@ export const MediumImpactHero: React.FC<Page['hero']> = ({ headerTheme, links, m
           </ul>
         )}
       </div>
-      <div className="wide-container">
+      <div className={styles.mediaContainer}>
         {media && typeof media === 'object' && (
           <div>
             <Media
@@ -37,7 +44,7 @@ export const MediumImpactHero: React.FC<Page['hero']> = ({ headerTheme, links, m
               resource={media}
             />
             {media?.caption && (
-              <div className="mt-3">
+              <div className={styles.caption}>
                 <RichText data={media.caption} enableGutter={false} />
               </div>
             )}

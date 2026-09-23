@@ -1,0 +1,27 @@
+.root {
+  padding-top: var(--website-section-standard);
+}
+
+.content {
+  width: min(100% - (2 * var(--website-gutter)), var(--website-container-site));
+  margin-inline: auto;
+  margin-bottom: var(--website-space-8);
+}
+
+.richText {
+  margin-bottom: var(--website-space-6);
+}
+
+.links {
+  display: flex;
+  gap: var(--website-space-4);
+}
+
+.mediaContainer {
+  width: min(100% - (2 * var(--website-gutter)), var(--website-container-wide));
+  margin-inline: auto;
+}
+
+.caption {
+  margin-top: var(--website-space-3);
+}

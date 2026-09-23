@@ -927,7 +927,9 @@ test.describe.serial('Responsive website shell', () => {
     })
   }
 
-  test('Hero theme changes Header foreground while Logo uses the SVG CSS mask', async ({ page }) => {
+  test('Hero theme changes Header foreground while Logo uses the SVG CSS mask', async ({
+    page,
+  }) => {
     const serverResponse = await page.request.get(`${baseURL}${routePath}`)
     expect(serverResponse.ok()).toBe(true)
     expect(await serverResponse.text()).toContain('data-header-theme="dark"')
@@ -964,6 +966,31 @@ test.describe.serial('Responsive website shell', () => {
 
     await page.goto(`${baseURL}${routePath}`)
     await expect(headerSurface).toHaveAttribute('data-theme', 'dark')
+    const lowImpactHero = page.locator('[data-hero="low-impact"]')
+    await expect(lowImpactHero).toBeVisible()
+    const lowImpactLayout = await lowImpactHero.evaluate((element) => {
+      const rootStyles = getComputedStyle(document.documentElement)
+      const probe = document.createElement('div')
+      probe.style.paddingTop = 'var(--website-section-standard)'
+      probe.style.paddingLeft = 'var(--website-gutter)'
+      document.body.append(probe)
+      const probeStyles = getComputedStyle(probe)
+      const expectedPadding = probeStyles.paddingTop
+      const gutter = Number.parseFloat(probeStyles.paddingLeft)
+      probe.remove()
+
+      const siteMax =
+        Number.parseFloat(rootStyles.getPropertyValue('--website-container-site')) *
+        Number.parseFloat(rootStyles.fontSize)
+      return {
+        expectedPadding,
+        expectedWidth: Math.min(window.innerWidth - 2 * gutter, siteMax),
+        padding: getComputedStyle(element).paddingTop,
+        width: element.getBoundingClientRect().width,
+      }
+    })
+    expect(lowImpactLayout.padding).toBe(lowImpactLayout.expectedPadding)
+    expect(lowImpactLayout.width).toBeCloseTo(lowImpactLayout.expectedWidth, 0)
     const products = page.getByRole('button', { name: 'E2E Products' })
     const search = page.getByRole('link', { name: 'Search' })
     const menuCta = page.getByRole('link', { name: 'E2E Talk to sales' })
@@ -995,7 +1022,9 @@ test.describe.serial('Responsive website shell', () => {
 
     await products.hover()
     await expect(headerSurface).toHaveAttribute('data-menu-open', 'true')
-    const menuForeground = await headerSurface.evaluate((element) => getComputedStyle(element).color)
+    const menuForeground = await headerSurface.evaluate(
+      (element) => getComputedStyle(element).color,
+    )
     expect(menuForeground).toBe(expectedForeground)
     await expect(products).toHaveCSS('color', menuForeground)
     await expect(search).toHaveCSS('color', menuForeground)
@@ -1011,7 +1040,9 @@ test.describe.serial('Responsive website shell', () => {
       window.scrollTo(0, 100)
     })
     await expect(headerSurface).toHaveAttribute('data-scrolled', 'true')
-    const scrolledForeground = await headerSurface.evaluate((element) => getComputedStyle(element).color)
+    const scrolledForeground = await headerSurface.evaluate(
+      (element) => getComputedStyle(element).color,
+    )
     expect(scrolledForeground).toBe(expectedForeground)
     await expect(products).toHaveCSS('color', scrolledForeground)
     await expect(search).toHaveCSS('color', scrolledForeground)

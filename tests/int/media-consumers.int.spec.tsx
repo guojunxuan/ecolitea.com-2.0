@@ -1,3 +1,6 @@
+import fs from 'node:fs'
+import path from 'node:path'
+
 import { cleanup, render, screen } from '@testing-library/react'
 import React from 'react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
@@ -37,6 +40,9 @@ import cardStyles from '@/components/Card/index.module.css'
 import { HighImpactHero } from '@/heros/HighImpact'
 import { MediumImpactHero } from '@/heros/MediumImpact'
 import { PostHero } from '@/heros/PostHero'
+
+const readSource = (relativePath: string) =>
+  fs.readFileSync(path.join(process.cwd(), relativePath), 'utf8')
 
 const media = {
   alt: 'Tea plantation',
@@ -133,6 +139,20 @@ describe('existing media consumers', () => {
     expect(getMediaBoundary().getAttribute('data-fill')).toBe('true')
     expect(getMediaBoundary().getAttribute('data-presentation')).toBe(
       '{"image":{"fit":"scale-down","quality":85}}',
+    )
+    expect(readSource('src/heros/HighImpact/index.tsx')).toContain('imgClassName={styles.image}')
+    expect(readSource('src/heros/HighImpact/index.module.css')).toMatch(
+      /\.image\s*{[^}]*object-fit:\s*cover;/s,
+    )
+  })
+
+  it('keeps the Post Hero fill image visually cropped beneath its overlay', () => {
+    render(<PostHero post={{ categories: [], heroImage: media, title: 'Tea' } as never} />)
+
+    expect(getMediaBoundary().getAttribute('data-fill')).toBe('true')
+    expect(readSource('src/heros/PostHero/index.tsx')).toContain('imgClassName={styles.image}')
+    expect(readSource('src/heros/PostHero/index.module.css')).toMatch(
+      /\.image\s*{[^}]*object-fit:\s*cover;/s,
     )
   })
 })

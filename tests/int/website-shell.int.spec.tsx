@@ -1,10 +1,22 @@
 import fs from 'node:fs'
 import path from 'node:path'
 
-import { render, screen } from '@testing-library/react'
-import { describe, expect, it } from 'vitest'
+import { cleanup, render, screen } from '@testing-library/react'
+import React from 'react'
+import { describe, expect, it, vi } from 'vitest'
 
+vi.mock('next/navigation', () => ({ useRouter: () => ({ push: vi.fn() }) }))
+vi.mock('@/components/Link', () => ({ CMSLink: () => null }))
+vi.mock('@/components/RichText', () => ({ default: () => null }))
+vi.mock('@/components/Media', () => ({ Media: () => null }))
+
+import { HeaderThemeSync } from '@/heros/HeaderThemeSync'
+import { HighImpactHero } from '@/heros/HighImpact'
+import { LowImpactHero } from '@/heros/LowImpact'
+import { MediumImpactHero } from '@/heros/MediumImpact'
+import { PostHero } from '@/heros/PostHero'
 import { Providers } from '@/providers'
+import { useHeaderTheme } from '@/providers/HeaderTheme'
 
 const readSource = (relativePath: string) =>
   fs.readFileSync(path.join(process.cwd(), relativePath), 'utf8')
@@ -18,6 +30,22 @@ const readSourceTree = (relativePath: string): Array<{ file: string; source: str
         .flatMap((entry) => readSourceTree(path.join(relativePath, entry)))
     : [{ file: relativePath, source: fs.readFileSync(absolutePath, 'utf8') }]
 }
+
+const ThemeProbe = () => {
+  const { headerTheme } = useHeaderTheme()
+  return <output data-testid="active-header-theme">{headerTheme ?? 'reset'}</output>
+}
+
+const heroDirectories = ['HighImpact', 'LowImpact', 'MediumImpact', 'PostHero'] as const
+
+const HeroModules = () => (
+  <>
+    <HighImpactHero headerTheme="dark" type="highImpact" />
+    <LowImpactHero headerTheme="light">Low content</LowImpactHero>
+    <MediumImpactHero headerTheme="light" type="mediumImpact" />
+    <PostHero post={{ categories: [], title: 'Post title' } as never} />
+  </>
+)
 
 describe('public website shell', () => {
   it('renders the Header, main content landmark, and Footer without the admin or theme runtime', () => {
@@ -78,12 +106,75 @@ describe('public website shell', () => {
   })
 
   it('keeps HighImpact readable on its fixed dark surface without theme state', () => {
-    const source = readSource('src/heros/HighImpact/index.tsx')
+    const source = readSource('src/heros/HighImpact/index.module.css')
+    const markup = readSource('src/heros/HighImpact/index.tsx')
 
-    expect(source).toContain('bg-black')
-    expect(source).toContain('text-white')
-    expect(source).toContain('className="mb-6 payload-richtext--inverse"')
-    expect(source).not.toContain('prose-invert')
+    expect(source).toMatch(/\.root\s*{[^}]*background-color:\s*#000;[^}]*color:\s*#fff;/s)
+    expect(markup).toContain('payload-richtext--inverse')
+    expect(markup).not.toContain('prose-invert')
+  })
+
+  it('updates and resets Header theme across Hero changes and unmount', () => {
+    const { rerender } = render(
+      <Providers>
+        <ThemeProbe />
+        <HeaderThemeSync theme="dark" />
+      </Providers>,
+    )
+    expect(screen.getByTestId('active-header-theme').textContent).toBe('dark')
+    expect(document.querySelector('[data-header-theme]')?.getAttribute('data-header-theme')).toBe(
+      'dark',
+    )
+
+    rerender(
+      <Providers>
+        <ThemeProbe />
+        <HeaderThemeSync theme="light" />
+      </Providers>,
+    )
+    expect(screen.getByTestId('active-header-theme').textContent).toBe('light')
+
+    rerender(
+      <Providers>
+        <ThemeProbe />
+      </Providers>,
+    )
+    expect(screen.getByTestId('active-header-theme').textContent).toBe('reset')
+    cleanup()
+  })
+
+  it('keeps all Hero markup on semantic module slots', () => {
+    const { container } = render(<HeroModules />)
+    for (const slot of ['high-impact', 'low-impact', 'medium-impact', 'post']) {
+      expect(container.querySelector(`[data-hero="${slot}"]`)).not.toBeNull()
+    }
+    for (const directory of heroDirectories) {
+      const source = readSource(`src/heros/${directory}/index.tsx`)
+      expect(source).toContain("import styles from './index.module.css'")
+      expect(source).not.toMatch(/className="[^"]*"/)
+    }
+  })
+
+  it('preserves Hero composition, breakpoints, and overlay geometry in colocated CSS', () => {
+    const high = readSource('src/heros/HighImpact/index.module.css')
+    const low = readSource('src/heros/LowImpact/index.module.css')
+    const medium = readSource('src/heros/MediumImpact/index.module.css')
+    const post = readSource('src/heros/PostHero/index.module.css')
+
+    expect(high).toContain('max-width: 36.5rem;')
+    expect(high).toContain('min-height: 80vh;')
+    expect(high).toMatch(/@media \(width >= 48rem\)[\s\S]*text-align:\s*center;/)
+    expect(low).toContain('max-width: 48rem;')
+    expect(low).toContain('padding-top: var(--website-section-standard);')
+    expect(medium).toContain('padding-top: var(--website-section-standard);')
+    expect(medium).toContain('var(--website-container-wide)')
+    expect(post).toContain('grid-template-columns: 1fr 48rem 1fr;')
+    expect(post).toContain('min-height: 80vh;')
+    expect(post).toMatch(
+      /\.overlay\s*{[^}]*height:\s*50%;[^}]*linear-gradient\(to top, #000, transparent\)/s,
+    )
+    expect(post).toMatch(/@media \(width >= 48rem\)[\s\S]*font-size:\s*3rem;/)
+    expect(post).toMatch(/@media \(width >= 64rem\)[\s\S]*font-size:\s*3\.75rem;/)
   })
 
   it('defines the shared responsive layout tokens and containers', () => {
