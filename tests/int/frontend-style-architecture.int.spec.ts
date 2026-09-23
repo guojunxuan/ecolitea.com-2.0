@@ -32,7 +32,8 @@ describe('frontend style architecture', () => {
     ]) {
       const fixture = (value: string) => `
         import styles from './example.module.css'
-        const moduleClass = styles.root
+        const localStyles = styles
+        const moduleClass = localStyles['root']
         const values = { entries: [${value}] }
         const intentMap = { primary: values.entries[0] }
         const intents = { intent: intentMap }

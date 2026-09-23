@@ -233,6 +233,7 @@ export const scanShellClasses = (
     if (seen.has(node)) return undefined
     const nextSeen = new Set(seen).add(node)
     if (ts.isIdentifier(node)) {
+      if (cssModules.has(node.text)) return node
       const initializer = variables.get(node.text)
       return initializer ? resolveLocal(initializer, nextSeen) : undefined
     }
@@ -246,6 +247,7 @@ export const scanShellClasses = (
     if (ts.isPropertyAccessExpression(node) || ts.isElementAccessExpression(node)) {
       if (ts.isIdentifier(node.expression) && cssModules.has(node.expression.text)) return node
       const object = resolveLocal(node.expression, nextSeen)
+      if (object && ts.isIdentifier(object) && cssModules.has(object.text)) return node
       const keyNode = ts.isPropertyAccessExpression(node)
         ? node.name
         : resolveLocal(node.argumentExpression, nextSeen)
@@ -305,6 +307,10 @@ export const scanShellClasses = (
       }
     }
   }
+  const isCssModuleReference = (node: ts.Node) => {
+    const resolved = resolveLocal(node)
+    return Boolean(resolved && ts.isIdentifier(resolved) && cssModules.has(resolved.text))
+  }
 
   // Configuration objects can live in local bindings, arrays, or conditional
   // branches. Visit their values without mistaking variant selectors for classes.
@@ -361,8 +367,7 @@ export const scanShellClasses = (
     // Module exports are the only opaque property values accepted as classes.
     if (
       (ts.isPropertyAccessExpression(node) || ts.isElementAccessExpression(node)) &&
-      ts.isIdentifier(node.expression) &&
-      cssModules.has(node.expression.text)
+      isCssModuleReference(node.expression)
     )
       return
     const resolved = resolveLocal(node)
