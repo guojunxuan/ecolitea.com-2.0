@@ -3,8 +3,11 @@ import fs from 'node:fs'
 import React from 'react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
-const { push } = vi.hoisted(() => ({ push: vi.fn() }))
-vi.mock('next/navigation', () => ({ useRouter: () => ({ push }) }))
+const navigation = vi.hoisted(() => ({ push: vi.fn(), query: '' }))
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({ push: navigation.push }),
+  useSearchParams: () => new URLSearchParams(navigation.query),
+}))
 
 import { Search } from '@/search/Component'
 import { normalizeSearchQuery } from '@/search/query'
@@ -12,7 +15,8 @@ import { normalizeSearchQuery } from '@/search/query'
 afterEach(() => {
   cleanup()
   vi.useRealTimers()
-  push.mockClear()
+  navigation.push.mockClear()
+  navigation.query = ''
 })
 
 describe('Search query navigation', () => {
@@ -23,35 +27,39 @@ describe('Search query navigation', () => {
   })
   it('keeps a deep-linked query in the field without navigating on mount', () => {
     vi.useFakeTimers()
+    navigation.query = 'q=oolong+tea'
     render(<Search initialQuery="oolong tea" />)
 
     expect(screen.getByRole('textbox', { name: 'Search' })).toHaveProperty('value', 'oolong tea')
     act(() => vi.advanceTimersByTime(250))
-    expect(push).not.toHaveBeenCalled()
+    expect(navigation.push).not.toHaveBeenCalled()
   })
 
   it('navigates only after edits, encoding a new query and allowing a deliberate clear', () => {
     vi.useFakeTimers()
+    navigation.query = 'q=oolong+tea'
     render(<Search initialQuery="oolong tea" />)
     const input = screen.getByRole('textbox', { name: 'Search' })
 
     fireEvent.change(input, { target: { value: 'green & black' } })
     act(() => vi.advanceTimersByTime(250))
-    expect(push).toHaveBeenLastCalledWith('/search?q=green%20%26%20black')
+    expect(navigation.push).toHaveBeenLastCalledWith('/search?q=green%20%26%20black')
 
     fireEvent.change(input, { target: { value: '' } })
     act(() => vi.advanceTimersByTime(250))
-    expect(push).toHaveBeenLastCalledWith('/search')
+    expect(navigation.push).toHaveBeenLastCalledWith('/search')
   })
 
   it('shows a query from external back or forward navigation without a new push', () => {
     vi.useFakeTimers()
+    navigation.query = 'q=oolong'
     const { rerender } = render(<Search initialQuery="oolong" />)
 
+    navigation.query = 'q=jasmine'
     rerender(<Search initialQuery="jasmine" />)
     expect(screen.getByRole('textbox', { name: 'Search' })).toHaveProperty('value', 'jasmine')
     act(() => vi.advanceTimersByTime(250))
-    expect(push).not.toHaveBeenCalled()
+    expect(navigation.push).not.toHaveBeenCalled()
   })
 
   it('does not overwrite newer typing when an earlier search response arrives', () => {
@@ -64,19 +72,19 @@ describe('Search query navigation', () => {
 
     fireEvent.change(input, { target: { value: 'tea' } })
     act(() => vi.advanceTimersByTime(250))
-    expect(push).toHaveBeenLastCalledWith('/search?q=tea')
+    expect(navigation.push).toHaveBeenLastCalledWith('/search?q=tea')
 
     fireEvent.change(input, { target: { value: 'teapot' } })
     rerender(<Search initialQuery="tea" />)
     expect(input).toHaveProperty('value', 'teapot')
 
     act(() => vi.advanceTimersByTime(250))
-    expect(push).toHaveBeenLastCalledWith('/search?q=teapot')
+    expect(navigation.push).toHaveBeenLastCalledWith('/search?q=teapot')
     rerender(<Search initialQuery="teapot" />)
     expect(input).toHaveProperty('value', 'teapot')
   })
 
-  it('ignores a stale own response after a newer response has arrived', () => {
+  it('ignores stale server props after the newer URL has committed', () => {
     vi.useFakeTimers()
     const { rerender } = render(<Search initialQuery="" />)
     const input = screen.getByRole('textbox', { name: 'Search' })
@@ -86,6 +94,7 @@ describe('Search query navigation', () => {
     fireEvent.change(input, { target: { value: 'teapot' } })
     act(() => vi.advanceTimersByTime(250))
 
+    navigation.query = 'q=teapot'
     rerender(<Search initialQuery="teapot" />)
     rerender(<Search initialQuery="tea" />)
     expect(input).toHaveProperty('value', 'teapot')
@@ -103,5 +112,45 @@ describe('Search query navigation', () => {
 
     rerender(<Search initialQuery="tea" />)
     expect(input).toHaveProperty('value', '')
+  })
+
+  it('syncs an external Link to a previously searched query', () => {
+    vi.useFakeTimers()
+    const { rerender } = render(<Search initialQuery="" />)
+    const input = screen.getByRole('textbox', { name: 'Search' })
+
+    fireEvent.change(input, { target: { value: 'tea' } })
+    act(() => vi.advanceTimersByTime(250))
+    navigation.query = 'q=tea'
+    rerender(<Search initialQuery="tea" />)
+
+    fireEvent.change(input, { target: { value: 'teapot' } })
+    act(() => vi.advanceTimersByTime(250))
+    navigation.query = 'q=teapot'
+    rerender(<Search initialQuery="teapot" />)
+    expect(input).toHaveProperty('value', 'teapot')
+
+    navigation.query = 'q=tea'
+    rerender(<Search initialQuery="tea" />)
+    expect(input).toHaveProperty('value', 'tea')
+    act(() => vi.advanceTimersByTime(250))
+    expect(navigation.push).toHaveBeenCalledTimes(2)
+  })
+
+  it('does not retain an older own query when only the newer URL commits', () => {
+    vi.useFakeTimers()
+    const { rerender } = render(<Search initialQuery="" />)
+    const input = screen.getByRole('textbox', { name: 'Search' })
+
+    fireEvent.change(input, { target: { value: 'tea' } })
+    act(() => vi.advanceTimersByTime(250))
+    fireEvent.change(input, { target: { value: 'teapot' } })
+    act(() => vi.advanceTimersByTime(250))
+
+    navigation.query = 'q=teapot'
+    rerender(<Search initialQuery="teapot" />)
+    navigation.query = 'q=tea'
+    rerender(<Search initialQuery="tea" />)
+    expect(input).toHaveProperty('value', 'tea')
   })
 })
