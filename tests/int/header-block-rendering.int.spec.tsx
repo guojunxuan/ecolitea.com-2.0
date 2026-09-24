@@ -81,7 +81,7 @@ describe('Header navigation block rendering', () => {
     expect(css).toMatch(/\.visualCardGrid\s*\{[^}]*column-gap:\s*1\.5rem[^}]*row-gap:\s*1rem/s)
     expect(css).toMatch(/\.visualGridMany\s*\{[^}]*grid-template-columns:\s*repeat\(4,/s)
     expect(css).toMatch(/@media\s*\(max-width:\s*767px\)[^{]*\{[^}]*\.visualCardGrid:not\(\.visualGridOne\)[^}]*grid-template-columns:\s*repeat\(2,/s)
-    expect(css).toMatch(/\.navigationCardVisual\s*\{[^}]*border-radius:\s*\.5rem/s)
+    expect(css).toMatch(/\.navigationCardVisual\s*\{[^}]*border-radius:\s*var\(--website-radius-content\)/s)
     expect(css).toMatch(/\.navigationCardGradient\s*\{[^}]*inset:\s*65%\s+0\s+0/s)
     expect(css).toMatch(
       /\.navigationCardVisual\s+:global\(img\)\s*\{[^}]*transition:\s*transform\s+var\(--website-duration-slow\)\s+ease\s*;/s,
