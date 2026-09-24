@@ -266,22 +266,30 @@ describe('RichText style modes', () => {
     )
   })
 
-  it('resets an ordinary nested RichText color contract below inverse content', () => {
-    render(<RichText className="payload-richtext--inverse" data={data} />)
+  it('inherits semantic content colors without requiring a local inverse class', () => {
+    render(
+      <section data-website-theme="inverse">
+        <RichText data={data} />
+      </section>,
+    )
 
     const outer = screen.getByTestId('rich-text')
     const nestedCaption = screen.getByTestId('media-caption-rich-text')
     const nestedCTA = screen.getByTestId('cta-rich-text')
 
-    expect(outer.classList).toContain('payload-richtext--inverse')
+    expect(outer.closest('[data-website-theme="inverse"]')).not.toBeNull()
+    expect(outer.classList).not.toContain('payload-richtext--inverse')
     expect(nestedCaption.classList).not.toContain('payload-richtext--inverse')
     expect(nestedCTA.classList).not.toContain('payload-richtext--inverse')
     expect(contentStyles).not.toContain('--payload-richtext-')
     expect(contentStyles).toMatch(/:scope\s*{[^}]*color:\s*inherit;/s)
     expect(contentStyles).not.toMatch(/--website-richtext-(?:body|headings):\s*inherit;/)
-    expect(contentStyles).toMatch(
-      /:scope:where\(\.payload-richtext--inverse\)\s*{[^}]*color:\s*oklch\(87\.2% 0\.01 258\.338\);/s,
+    expect(contentStyles).not.toContain(':scope:where(.payload-richtext--inverse)')
+    expect(contentStyles).not.toMatch(/(?:oklch\(|#fff\b|rgb\(255 255 255)/)
+    expect(contentStyles).toContain(
+      '--website-richtext-lead: var(--website-color-muted-foreground);',
     )
+    expect(contentStyles).toContain('--website-richtext-bold: var(--website-color-foreground);')
   })
 
   it('keeps root-level prose spacing attached to the content scope', () => {
@@ -317,11 +325,10 @@ describe('RichText style modes', () => {
   it('uses the migrated inverse content contract for the real HighImpact consumer', () => {
     render(<HighImpactHero headerTheme="dark" richText={data} type="highImpact" />)
 
-    expect(screen.getByTestId('rich-text').classList).toContain('payload-richtext--inverse')
-    expect(contentStyles).toMatch(
-      /:scope:where\(\.payload-richtext--inverse\)\s*{[^}]*--website-richtext-links:\s*#fff;/s,
-    )
-    expect(contentStyles).toContain('--website-richtext-pre-bg: rgb(0 0 0 / 50%);')
+    expect(screen.getByTestId('rich-text').closest('[data-website-theme="inverse"]')).not.toBeNull()
+    expect(screen.getByTestId('rich-text').classList).not.toContain('payload-richtext--inverse')
+    expect(contentStyles).toContain('--website-richtext-links: var(--website-color-foreground);')
+    expect(contentStyles).toContain('--website-richtext-pre-bg: var(--website-color-action);')
   })
 
   it('wires every RichText layout boundary through semantic CSS Module exports', () => {

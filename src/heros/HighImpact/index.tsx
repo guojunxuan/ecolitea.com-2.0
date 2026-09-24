@@ -17,11 +17,7 @@ export const HighImpactHero: React.FC<Page['hero']> = ({ headerTheme, links, med
       <div className={styles.content}>
         <div className={styles.intro}>
           {richText && (
-            <RichText
-              className={`${styles.richText} payload-richtext--inverse`}
-              data={richText}
-              enableGutter={false}
-            />
+            <RichText className={styles.richText} data={richText} enableGutter={false} />
           )}
           {Array.isArray(links) && links.length > 0 && (
             <ul className={styles.links}>

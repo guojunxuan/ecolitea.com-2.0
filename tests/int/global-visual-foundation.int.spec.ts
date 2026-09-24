@@ -66,6 +66,23 @@ describe('global visual foundation', () => {
     }
   })
 
+  it('limits shell hover-only feedback to fine hover pointers while preserving selected state', () => {
+    for (const file of ['src/Footer/index.module.css', 'src/Header/Nav/blocks.module.css']) {
+      const rules = auditCss(read(file))
+      for (const block of rules.blocks.filter((entry) => entry.header.includes(':hover'))) {
+        expect(
+          block.ancestors.some(
+            (ancestor) =>
+              ancestor.includes('(hover: hover)') && ancestor.includes('(pointer: fine)'),
+          ),
+          `${file}:${block.line} ${block.header}`,
+        ).toBe(true)
+      }
+    }
+    const headerCss = read('src/Header/Nav/blocks.module.css')
+    expect(headerCss).toMatch(/\.categoryTabActive\s*\{[^}]*background:/s)
+  })
+
   it('defines the approved primitives and semantic schemes', () => {
     const css = read('src/styles/tokens.css')
     for (const declaration of [

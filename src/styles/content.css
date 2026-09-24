@@ -1,29 +1,28 @@
-/* Preserve the migrated content values and inherited body/heading color.
-   RichText activates this content mode explicitly; embedded Blocks own their
-   internal styling beyond the boundary. */
+/* RichText inherits the nearest website semantic theme; embedded Blocks own
+   their internal styling beyond the boundary. */
 @layer components {
   @scope (.payload-richtext.payload-richtext--content) to (.payload-richtext__embedded) {
     :scope {
-      --website-richtext-lead: oklch(44.6% 0.03 256.802);
-      --website-richtext-links: oklch(21% 0.034 264.665);
-      --website-richtext-bold: oklch(21% 0.034 264.665);
-      --website-richtext-counters: oklch(55.1% 0.027 264.364);
-      --website-richtext-bullets: oklch(87.2% 0.01 258.338);
-      --website-richtext-hr: oklch(92.8% 0.006 264.531);
-      --website-richtext-quotes: oklch(21% 0.034 264.665);
-      --website-richtext-quote-borders: oklch(92.8% 0.006 264.531);
-      --website-richtext-captions: oklch(55.1% 0.027 264.364);
-      --website-richtext-kbd: oklch(21% 0.034 264.665);
+      --website-richtext-lead: var(--website-color-muted-foreground);
+      --website-richtext-links: var(--website-color-foreground);
+      --website-richtext-bold: var(--website-color-foreground);
+      --website-richtext-counters: var(--website-color-muted-foreground);
+      --website-richtext-bullets: var(--website-color-subtle-foreground);
+      --website-richtext-hr: var(--website-color-border);
+      --website-richtext-quotes: var(--website-color-foreground);
+      --website-richtext-quote-borders: var(--website-color-border);
+      --website-richtext-captions: var(--website-color-muted-foreground);
+      --website-richtext-kbd: var(--website-color-foreground);
       --website-richtext-kbd-shadows: color-mix(
         in oklab,
-        oklch(21% 0.034 264.665) 10%,
+        var(--website-color-foreground) 10%,
         transparent
       );
-      --website-richtext-code: oklch(21% 0.034 264.665);
-      --website-richtext-pre-code: oklch(92.8% 0.006 264.531);
-      --website-richtext-pre-bg: oklch(27.8% 0.033 256.848);
-      --website-richtext-th-borders: oklch(87.2% 0.01 258.338);
-      --website-richtext-td-borders: oklch(92.8% 0.006 264.531);
+      --website-richtext-code: var(--website-color-foreground);
+      --website-richtext-pre-code: var(--website-color-action-foreground);
+      --website-richtext-pre-bg: var(--website-color-action);
+      --website-richtext-th-borders: var(--website-color-input);
+      --website-richtext-td-borders: var(--website-color-border);
 
       color: inherit;
       max-inline-size: 65ch;
@@ -32,30 +31,6 @@
       font-family: var(--website-font-sans);
       font-size: 16px;
       line-height: 26px;
-    }
-
-    :scope:where(.payload-richtext--inverse) {
-      --website-richtext-lead: oklch(70.7% 0.022 261.325);
-      --website-richtext-links: #fff;
-      --website-richtext-bold: #fff;
-      --website-richtext-counters: oklch(70.7% 0.022 261.325);
-      --website-richtext-bullets: oklch(44.6% 0.03 256.802);
-      --website-richtext-hr: oklch(37.3% 0.034 259.733);
-      --website-richtext-quotes: oklch(96.7% 0.003 264.542);
-      --website-richtext-quote-borders: oklch(37.3% 0.034 259.733);
-      --website-richtext-captions: oklch(70.7% 0.022 261.325);
-      --website-richtext-kbd: #fff;
-      --website-richtext-kbd-shadows: rgb(255 255 255 / 10%);
-      --website-richtext-code: #fff;
-      --website-richtext-pre-code: oklch(87.2% 0.01 258.338);
-      --website-richtext-pre-bg: rgb(0 0 0 / 50%);
-      --website-richtext-th-borders: oklch(44.6% 0.03 256.802);
-      --website-richtext-td-borders: oklch(37.3% 0.034 259.733);
-      color: oklch(87.2% 0.01 258.338);
-    }
-
-    :scope:where(.payload-richtext--inverse) :where(dt, h1, h2, h3, h4, thead th) {
-      color: #fff;
     }
 
     :where(*) {

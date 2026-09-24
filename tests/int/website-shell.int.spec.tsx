@@ -113,7 +113,7 @@ describe('public website shell', () => {
     expect(source).toContain('background-color: var(--website-color-background);')
     expect(source).toContain('color: var(--website-color-foreground);')
     expect(source).toContain('var(--website-scrim-strong)')
-    expect(markup).toContain('payload-richtext--inverse')
+    expect(markup).not.toContain('payload-richtext--inverse')
     expect(markup).not.toContain('prose-invert')
   })
 

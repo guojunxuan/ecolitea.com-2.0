@@ -102,8 +102,10 @@
   color: var(--website-color-muted-foreground);
   transition: color var(--website-duration-fast) ease;
 }
-.navLink:hover {
-  color: var(--website-color-foreground);
+@media (hover: hover) and (pointer: fine) {
+  .navLink:hover {
+    color: var(--website-color-foreground);
+  }
 }
 .newsletterHeading {
   font-size: 1rem;
@@ -172,9 +174,11 @@
 .bottomBar a {
   color: inherit;
 }
-.information a:hover,
-.bottomBar a:hover {
-  color: var(--website-color-foreground);
+@media (hover: hover) and (pointer: fine) {
+  .information a:hover,
+  .bottomBar a:hover {
+    color: var(--website-color-foreground);
+  }
 }
 .socialIcon {
   width: 1.125rem;
@@ -193,9 +197,11 @@
     border-color var(--website-duration-fast) ease,
     background-color var(--website-duration-fast) ease;
 }
-.socialLink:hover {
-  border-color: var(--website-color-foreground);
-  background: var(--website-color-interactive-surface);
+@media (hover: hover) and (pointer: fine) {
+  .socialLink:hover {
+    border-color: var(--website-color-foreground);
+    background: var(--website-color-interactive-surface);
+  }
 }
 .bottomBar {
   display: flex;
