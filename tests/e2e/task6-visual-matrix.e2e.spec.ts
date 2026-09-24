@@ -529,6 +529,7 @@ test.describe.serial('Task 6 visual matrix fixtures', () => {
   }, testInfo) => {
     await preparePage(page, 390, 844, { failMedia: true })
     const failedImage = page.locator('main img').last()
+    await failedImage.scrollIntoViewIfNeeded()
     await expect
       .poll(() => failedImage.evaluate((image) => (image as HTMLImageElement).complete))
       .toBe(true)
