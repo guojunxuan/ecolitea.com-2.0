@@ -31,6 +31,7 @@ const slugs = {
   terms: `e2e-website-shell-${runID}-terms`,
 } as const
 const postHeroSlug = `e2e-website-shell-${runID}-post-hero`
+const postCodeFixture = `const longFixtureLine = '${'x'.repeat(240)}'`
 const fixturePath = `/${slugs.main}`
 const routePath = `/${slugs.route}`
 let payload: Payload
@@ -281,6 +282,17 @@ async function seedFixtures() {
               textFormat: 0,
               textStyle: '',
               type: 'paragraph',
+              version: 1,
+            },
+            {
+              fields: {
+                blockType: 'code',
+                code: postCodeFixture,
+                id: `e2e-code-${runID}`,
+                language: 'javascript',
+              },
+              format: '',
+              type: 'block',
               version: 1,
             },
           ],
@@ -1400,6 +1412,29 @@ test.describe.serial('Responsive website shell', () => {
     const postHeroContrast = await sampleRenderedTextContrast(page, '[data-hero="post"] h1')
     console.log(`PostHero 1440px rendered title contrast: ${JSON.stringify(postHeroContrast)}`)
     expect(postHeroContrast.ratio).toBeGreaterThanOrEqual(3)
+    const richText = page.locator('.payload-richtext--content').last()
+    const code = richText.locator('pre[data-website-theme="inverse"]')
+    await expect(code).toBeVisible()
+    for (const parentTheme of ['default', 'inverse']) {
+      await richText.evaluate((element, theme) => {
+        element.setAttribute('data-website-theme', theme)
+      }, parentTheme)
+      const codeStyles = await code.evaluate((element) => {
+        const style = getComputedStyle(element)
+        return {
+          backgroundColor: style.backgroundColor,
+          color: style.color,
+          clientWidth: element.clientWidth,
+          overflowX: style.overflowX,
+          scrollWidth: element.scrollWidth,
+        }
+      })
+      console.log(`RichText code pre under ${parentTheme}: ${JSON.stringify(codeStyles)}`)
+      expect(codeStyles.backgroundColor).toBe('rgb(10, 10, 10)')
+      expect(codeStyles.color).toBe('rgb(255, 255, 255)')
+      expect(codeStyles.overflowX).toBe('auto')
+      expect(codeStyles.scrollWidth).toBeGreaterThan(codeStyles.clientWidth)
+    }
     await shot(page, testInfo, 'post-hero-bright')
     await expectNoProductionDomainRequests(page)
   })
