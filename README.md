@@ -94,6 +94,17 @@ Integration and end-to-end tests require MongoDB. Playwright also requires its C
 corepack pnpm exec playwright install chromium
 ```
 
+The static `/posts` first-page Card and pagination visual checks require content before Next.js
+builds the page. Run the opt-in matrix against Playwright's run-scoped test database with:
+
+```bash
+PLAYWRIGHT_PRESEED_TASK6_ARCHIVE=true corepack pnpm test:e2e tests/e2e/task6-visual-matrix.e2e.spec.ts
+```
+
+Without this flag, the matrix still checks Banner, dynamic archive page 2, and search, but
+explicitly annotates the static first-page checks as a coverage gap. The opt-in seed uses no R2
+storage and only replaces Posts with slugs generated for that isolated E2E run.
+
 ## Environment configuration
 
 Copy `.env.example` to `.env` and replace its placeholders. The main configuration groups are:
