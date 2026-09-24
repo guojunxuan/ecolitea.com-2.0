@@ -328,7 +328,13 @@ describe('RichText style modes', () => {
     expect(screen.getByTestId('rich-text').closest('[data-website-theme="inverse"]')).not.toBeNull()
     expect(screen.getByTestId('rich-text').classList).not.toContain('payload-richtext--inverse')
     expect(contentStyles).toContain('--website-richtext-links: var(--website-color-foreground);')
-    expect(contentStyles).toContain('--website-richtext-pre-bg: var(--website-color-action);')
+    expect(contentStyles).toContain('--website-richtext-pre-bg: var(--website-color-code-surface);')
+    expect(contentStyles).toContain(
+      '--website-richtext-pre-code: var(--website-color-code-foreground);',
+    )
+    expect(contentStyles).toContain(
+      '--website-richtext-pre-border: var(--website-color-code-border);',
+    )
   })
 
   it('wires every RichText layout boundary through semantic CSS Module exports', () => {

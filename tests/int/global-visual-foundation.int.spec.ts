@@ -112,6 +112,20 @@ describe('global visual foundation', () => {
     expect(inverseTheme).toContain('--website-color-muted-surface: rgb(255 255 255 / 6%);')
   })
 
+  it('keeps RichText code blocks on a readable dark inverse surface in either content theme', () => {
+    const tokens = read('src/styles/tokens.css')
+    const content = read('src/styles/content.css')
+    expect(tokens).toContain('--website-color-code-surface: var(--website-color-brand-black);')
+    expect(tokens).toContain('--website-color-code-foreground: var(--website-color-brand-white);')
+    expect(tokens).toContain('--website-color-code-border: rgb(255 255 255 / 18%);')
+    expect(content).toContain('--website-richtext-pre-bg: var(--website-color-code-surface);')
+    expect(content).toContain('--website-richtext-pre-code: var(--website-color-code-foreground);')
+    expect(content).toContain('--website-richtext-pre-border: var(--website-color-code-border);')
+    expect(content).toMatch(
+      /&:where\(pre\)\s*\{[^}]*border:\s*1px solid var\(--website-richtext-pre-border\);/s,
+    )
+  })
+
   it('resets every interactive semantic in nested default and inverse schemes', () => {
     const rules = auditCss(read('src/styles/tokens.css'))
     const semanticProperties = [

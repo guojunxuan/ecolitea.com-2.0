@@ -19,8 +19,9 @@
         transparent
       );
       --website-richtext-code: var(--website-color-foreground);
-      --website-richtext-pre-code: var(--website-color-action-foreground);
-      --website-richtext-pre-bg: var(--website-color-action);
+      --website-richtext-pre-code: var(--website-color-code-foreground);
+      --website-richtext-pre-bg: var(--website-color-code-surface);
+      --website-richtext-pre-border: var(--website-color-code-border);
       --website-richtext-th-borders: var(--website-color-input);
       --website-richtext-td-borders: var(--website-color-border);
 
@@ -282,7 +283,7 @@
         line-height: 22px;
         margin-block-start: 1.7142857em;
         margin-block-end: 1.7142857em;
-        border: 1px solid var(--website-color-border);
+        border: 1px solid var(--website-richtext-pre-border);
         border-radius: 12px;
         padding-block-start: 0.8571429em;
         padding-inline-end: 1.1428571em;
