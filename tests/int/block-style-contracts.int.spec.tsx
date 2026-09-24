@@ -140,6 +140,11 @@ describe('Block CSS module contracts', () => {
       const content = screen.getByText('Notice').closest('.payload-richtext')!
       expect(content.classList).toContain('payload-richtext--plain')
       expect(content.parentElement?.classList).toContain(style('Banner/Component', status))
+      const banner = screen.getByRole('note')
+      const labels = { info: 'Information', warning: 'Warning', error: 'Error', success: 'Success' }
+      expect(banner.contains(screen.getByText(labels[status]))).toBe(true)
+      expect(banner.contains(content)).toBe(true)
+      expect(banner.getAttribute('aria-live')).toBeNull()
     },
   )
 

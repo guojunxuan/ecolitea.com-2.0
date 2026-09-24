@@ -8,11 +8,17 @@
   .surface {
     display: flex;
     align-items: center;
+    gap: var(--website-space-3);
     padding-block: var(--website-space-3);
     padding-inline: var(--website-space-6);
     border: 1px solid var(--website-color-border);
     border-left-width: 2px;
     border-radius: var(--website-radius-control);
+  }
+
+  .statusLabel {
+    flex: none;
+    font-weight: 700;
   }
 
   .info {
