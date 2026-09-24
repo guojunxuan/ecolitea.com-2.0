@@ -259,7 +259,7 @@ describe('FooterNavigation', () => {
     const css = readFileSync(resolve(process.cwd(), 'src/Footer/index.module.css'), 'utf8')
 
     expect(css).toContain('min-height: 54px')
-    expect(css).toMatch(/\.socialLink\s*\{[^}]*min-height:\s*44px/s)
+    expect(css).toMatch(/\.socialLink\s*\{[^}]*min-height:\s*var\(--website-control-target-min\)/s)
     expect(css).not.toMatch(/\.socialIcon\s*\{[^}]*filter:/s)
     expect(css).toMatch(/\.contactItem\s*\{[^}]*display:\s*grid/s)
     expect(css).toMatch(/\.contactIcon\s*\{[^}]*color:\s*inherit/s)

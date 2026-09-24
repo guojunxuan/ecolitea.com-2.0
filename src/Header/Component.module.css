@@ -19,11 +19,11 @@
 }
 
 .surface[data-theme='dark'] {
-  color: #fff;
+  color: var(--website-color-brand-white);
 }
 
 :global(body:has(main [data-header-theme='dark'])) .surface:not([data-scrolled='true']):not([data-menu-open='true']) {
-  color: #fff;
+  color: var(--website-color-brand-white);
 }
 
 .surface[data-scrolled='true'] {

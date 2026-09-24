@@ -6,7 +6,15 @@ import { describe, expect, it } from 'vitest'
 import { auditCss } from '../helpers/cssAudit'
 
 const root = process.cwd()
-const moduleRoots = ['src/components', 'src/blocks', 'src/search', 'src/app/(frontend)']
+const moduleRoots = [
+  'src/components',
+  'src/blocks',
+  'src/search',
+  'src/app/(frontend)',
+  'src/Header',
+  'src/Footer',
+  'src/heros',
+]
 
 const cssModules = (directory: string): string[] =>
   fs.readdirSync(path.join(root, directory), { withFileTypes: true }).flatMap((entry) => {
@@ -22,7 +30,13 @@ describe('frontend module visual roles', () => {
   it('reports each duplicated system value by file, line and value', () => {
     const violations = moduleRoots.flatMap(cssModules).flatMap((file) =>
       declarations(file).flatMap(({ prop, value, line }) => {
-        const rawColor = /(?:#[\da-f]{3,8}\b|\brgba?\(|\boklch\()/i.test(value)
+        // Modules own Scrim coverage/direction while the approved opacity remains token-driven.
+        const tokenizedScrim = /rgb\(0 0 0 \/ var\(--website-scrim-(?:subtle|standard|strong)\)\)/.test(
+          value,
+        )
+        const rawColor =
+          (!tokenizedScrim && /(?:#[\da-f]{3,8}\b|\brgba?\(|\boklch\()/i.test(value)) ||
+          /^(?:white|black)$/i.test(value)
         const rawRadius =
           prop === 'border-radius' &&
           /(?:^|\s)(?:0?\.25|0?\.5|0?\.75|1)rem\b|\b(?:4|8|12|16|999)px\b/.test(value)

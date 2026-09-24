@@ -379,7 +379,7 @@
   }
 
   .pageOverlay {
-    background: rgb(0 0 0 / 7%);
+    background: color-mix(in srgb, var(--website-color-brand-black) 7%, transparent);
     border: 0;
     bottom: 0;
     cursor: default;
@@ -400,7 +400,7 @@
     animation: mega-menu-open 220ms ease both;
     backdrop-filter: blur(28px) saturate(120%);
     -webkit-backdrop-filter: blur(28px) saturate(120%);
-    background: rgb(255 255 255 / 82%);
+    background: color-mix(in srgb, var(--website-color-brand-white) 82%, transparent);
     border-block: 1px solid color-mix(in oklch, var(--website-color-foreground) 9%, transparent);
     box-shadow: 0 1.25rem 2.5rem color-mix(in oklch, var(--website-color-foreground) 7%, transparent);
     left: 0;
