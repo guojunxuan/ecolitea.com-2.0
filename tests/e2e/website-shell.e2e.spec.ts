@@ -624,8 +624,8 @@ const relativeLuminance = ([red, green, blue]: readonly number[]) => {
   return 0.2126 * r! + 0.7152 * g! + 0.0722 * b!
 }
 
-async function sampleHighImpactTextContrast(page: Page) {
-  const sample = await page.locator('[data-hero="high-impact"] p').evaluate((copy) => {
+async function sampleRenderedTextContrast(page: Page, selector: string) {
+  const sample = await page.locator(selector).evaluate((copy) => {
     const box = copy.getBoundingClientRect()
     return {
       color: getComputedStyle(copy).color,
@@ -1039,7 +1039,7 @@ test.describe.serial('Responsive website shell', () => {
       await expect(menu).toHaveCSS('z-index', '70')
       const overlay = page.locator('[data-navigation-overlay="true"]')
       await expect(overlay).toBeVisible()
-      await expectBackground(overlay, { alpha: 0.07, blue: 0, green: 0, red: 0 })
+      await expectBackground(overlay, { alpha: 0.07, blue: 10, green: 10, red: 10 })
       await expect(overlay).toHaveCSS('z-index', '70')
       await expect(menu.locator('[data-navigation-block="categoryTabs"]')).toHaveCount(1)
       await expect(menu.locator('[data-navigation-block="cardGroup"]')).toHaveCount(1)
@@ -1342,7 +1342,7 @@ test.describe.serial('Responsive website shell', () => {
     expect(highEvidence.image.visibility).toBe('visible')
     expect(Number(highEvidence.image.zIndex)).toBeLessThan(Number(highEvidence.scrimZIndex))
     expect(Number(highEvidence.scrimZIndex)).toBeLessThan(Number(highEvidence.textZIndex))
-    const mobileContrast = await sampleHighImpactTextContrast(page)
+    const mobileContrast = await sampleRenderedTextContrast(page, '[data-hero="high-impact"] p')
     console.log(`HighImpact 390px rendered text contrast: ${JSON.stringify(mobileContrast)}`)
     expect(mobileContrast.ratio).toBeGreaterThanOrEqual(4.5)
     await shot(page, testInfo, 'high-impact-bright')
@@ -1366,7 +1366,7 @@ test.describe.serial('Responsive website shell', () => {
     await expect
       .poll(() => highImage.evaluate((image) => (image as HTMLImageElement).naturalWidth))
       .toBeGreaterThan(0)
-    const desktopContrast = await sampleHighImpactTextContrast(page)
+    const desktopContrast = await sampleRenderedTextContrast(page, '[data-hero="high-impact"] p')
     console.log(`HighImpact 1440px rendered text contrast: ${JSON.stringify(desktopContrast)}`)
     expect(desktopContrast.ratio).toBeGreaterThanOrEqual(4.5)
 
@@ -1397,6 +1397,9 @@ test.describe.serial('Responsive website shell', () => {
     expect(Number(postEvidence.imageZIndex)).toBeLessThan(Number(postEvidence.overlayZIndex))
     expect(Number(postEvidence.overlayZIndex)).toBeLessThan(Number(postEvidence.contentZIndex))
     expect(postEvidence.imageVisibility).toBe('visible')
+    const postHeroContrast = await sampleRenderedTextContrast(page, '[data-hero="post"] h1')
+    console.log(`PostHero 1440px rendered title contrast: ${JSON.stringify(postHeroContrast)}`)
+    expect(postHeroContrast.ratio).toBeGreaterThanOrEqual(3)
     await shot(page, testInfo, 'post-hero-bright')
     await expectNoProductionDomainRequests(page)
   })
