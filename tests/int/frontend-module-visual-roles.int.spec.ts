@@ -26,28 +26,45 @@ const cssModules = (directory: string): string[] =>
 const declarations = (file: string) =>
   auditCss(fs.readFileSync(path.join(root, file), 'utf8')).declarations
 
+const violationsFor = (file: string, css: string) =>
+  auditCss(css).declarations.flatMap(({ prop, value, line }) => {
+    // Modules own Scrim coverage/direction; exempt only the approved token-driven fragment.
+    const withoutTokenizedScrim = value.replace(
+      /rgb\(0 0 0 \/ var\(--website-scrim-(?:subtle|standard|strong)\)\)/g,
+      '',
+    )
+    const rawColor =
+      /(?:#[\da-f]{3,8}\b|\brgba?\(|\boklch\()/i.test(withoutTokenizedScrim) ||
+      /^(?:white|black)$/i.test(value)
+    const rawRadius =
+      prop === 'border-radius' &&
+      /(?:^|\s)(?:0?\.25|0?\.5|0?\.75|1)rem\b|\b(?:4|8|12|16|999)px\b/.test(value)
+    const rawDuration = /\b(?:160|240|360)ms\b/.test(value)
+    const rawControl =
+      /^(?:width|min-width|height|min-height)$/.test(prop) && /\b(?:44|48|56)px\b/.test(value)
+    const rawLayer = prop === 'z-index' && /^(?:0|10|20|50|60|70|80|90)$/.test(value)
+    return rawColor || rawRadius || rawDuration || rawControl || rawLayer
+      ? [`${file}:${line} ${prop}: ${value}`]
+      : []
+  })
+
 describe('frontend module visual roles', () => {
+  it('does not let an approved Scrim hide another raw color in the same declaration', () => {
+    const value = 'linear-gradient(rgb(0 0 0 / var(--website-scrim-strong)), #ff0000)'
+    expect(violationsFor('fixture.module.css', `.overlay { background: ${value}; }`)).toEqual([
+      `fixture.module.css:1 background: ${value}`,
+    ])
+    expect(
+      violationsFor(
+        'fixture.module.css',
+        '.overlay { background: rgb(0 0 0 / var(--website-scrim-strong)); }',
+      ),
+    ).toEqual([])
+  })
+
   it('reports each duplicated system value by file, line and value', () => {
     const violations = moduleRoots.flatMap(cssModules).flatMap((file) =>
-      declarations(file).flatMap(({ prop, value, line }) => {
-        // Modules own Scrim coverage/direction while the approved opacity remains token-driven.
-        const tokenizedScrim = /rgb\(0 0 0 \/ var\(--website-scrim-(?:subtle|standard|strong)\)\)/.test(
-          value,
-        )
-        const rawColor =
-          (!tokenizedScrim && /(?:#[\da-f]{3,8}\b|\brgba?\(|\boklch\()/i.test(value)) ||
-          /^(?:white|black)$/i.test(value)
-        const rawRadius =
-          prop === 'border-radius' &&
-          /(?:^|\s)(?:0?\.25|0?\.5|0?\.75|1)rem\b|\b(?:4|8|12|16|999)px\b/.test(value)
-        const rawDuration = /\b(?:160|240|360)ms\b/.test(value)
-        const rawControl =
-          /^(?:width|min-width|height|min-height)$/.test(prop) && /\b(?:44|48|56)px\b/.test(value)
-        const rawLayer = prop === 'z-index' && /^(?:0|10|20|50|60|70|80|90)$/.test(value)
-        return rawColor || rawRadius || rawDuration || rawControl || rawLayer
-          ? [`${file}:${line} ${prop}: ${value}`]
-          : []
-      }),
+      violationsFor(file, fs.readFileSync(path.join(root, file), 'utf8')),
     )
     expect(violations).toEqual([])
   })
