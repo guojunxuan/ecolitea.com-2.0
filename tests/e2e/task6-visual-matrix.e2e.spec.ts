@@ -7,8 +7,18 @@ import { getE2EBaseURL } from '../helpers/e2eBaseURL'
 
 const baseURL = getE2EBaseURL()
 const runID = process.env.PLAYWRIGHT_E2E_RUN_ID!
+const hasPreseededArchive = process.env.PLAYWRIGHT_PRESEED_TASK6_ARCHIVE === 'true'
 const pageSlug = `e2e-task6-matrix-${runID}`
 const postPrefix = `e2e-task6-matrix-${runID}-post-`
+const matrixPostSlugs = [
+  `${postPrefix}banners`,
+  ...Array.from({ length: 13 }, (_, index) => `${postPrefix}${String(index + 1).padStart(2, '0')}`),
+]
+const archivePostPrefix = `e2e-task6-matrix-archive-${runID}-post-`
+const archivePostSlugs = Array.from(
+  { length: 13 },
+  (_, index) => `${archivePostPrefix}${String(index + 1).padStart(2, '0')}`,
+)
 const postHeroSlug = `${postPrefix}banners`
 const bannerQuery = 'banners'
 const mediaAlt = `E2E Task6 matrix media ${runID}`
@@ -271,7 +281,7 @@ async function cleanupFixtures() {
   })
   await payload.delete({
     collection: 'posts',
-    where: { slug: { like: `${postPrefix}%` } },
+    where: { slug: { in: matrixPostSlugs } },
     ...disableRevalidate,
   })
   await payload.delete({
@@ -282,6 +292,16 @@ async function cleanupFixtures() {
   await payload.delete({
     collection: 'media',
     where: { alt: { equals: mediaAlt } },
+    ...disableRevalidate,
+  })
+}
+
+async function cleanupPrebuildArchiveFixtures() {
+  if (!payload) return
+  assertRunScopedE2EDatabaseURI(process.env.DATABASE_URI!, runID)
+  await payload.delete({
+    collection: 'posts',
+    where: { slug: { in: archivePostSlugs } },
     ...disableRevalidate,
   })
 }
@@ -452,7 +472,10 @@ test.describe.serial('Task 6 visual matrix fixtures', () => {
     payload = await getPayload({ config })
     await seedFixtures()
   })
-  test.afterAll(async () => cleanupFixtures())
+  test.afterAll(async () => {
+    await cleanupFixtures()
+    await cleanupPrebuildArchiveFixtures()
+  })
 
   test('Medium Hero, rich content, embedded media, and table scrolling at key widths', async ({
     page,
@@ -628,16 +651,52 @@ test.describe.serial('Task 6 visual matrix fixtures', () => {
 
       await page.goto(`${baseURL}/posts`)
       await expect(page.getByRole('heading', { name: 'Posts' })).toBeVisible()
-      const archiveCards = await page.locator('[data-slot="content-card"]').count()
+      const archiveCards = page.locator('[data-slot="content-card"]')
       const nextPageControl = page.getByRole('button', { name: 'Go to next page' })
-      const hasNextPageControl = (await nextPageControl.count()) > 0
-      console.log(
-        `Static posts archive at ${width}px: ${JSON.stringify({ archiveCards, hasNextPageControl })}`,
-      )
-      await expect
-        .poll(() => page.evaluate(() => document.documentElement.scrollWidth <= innerWidth))
-        .toBe(true)
-      if (width === 390 || width === 1440) await save(page, testInfo, 'archive-page-1')
+      if (hasPreseededArchive) {
+        await expect(archiveCards).toHaveCount(12)
+        await expect(nextPageControl).toBeVisible()
+        const firstCardStyles = await archiveCards.first().evaluate((card) => {
+          const body = card.querySelector('[data-slot="content-card-body"]')
+          const grid = card.parentElement?.parentElement
+          if (!body || !grid) throw new Error('Expected a Card body inside the archive grid.')
+          const cardStyle = getComputedStyle(card)
+          const bodyStyle = getComputedStyle(body)
+          const gridStyle = getComputedStyle(grid)
+          return {
+            background: cardStyle.backgroundColor,
+            borderColor: cardStyle.borderTopColor,
+            borderRadius: cardStyle.borderTopLeftRadius,
+            borderStyle: cardStyle.borderTopStyle,
+            borderWidth: cardStyle.borderTopWidth,
+            bodyPadding: bodyStyle.padding,
+            gridColumns: gridStyle.gridTemplateColumns.split(' ').length,
+          }
+        })
+        const expectedGridColumns = width < 640 ? 4 : width < 1024 ? 8 : 12
+        expect(firstCardStyles).toMatchObject({
+          background: 'rgb(255, 255, 255)',
+          borderColor: 'rgb(224, 224, 226)',
+          borderRadius: '12px',
+          borderStyle: 'solid',
+          borderWidth: '1px',
+          bodyPadding: '16px',
+          gridColumns: expectedGridColumns,
+        })
+        await expect
+          .poll(() => page.evaluate(() => document.documentElement.scrollWidth <= innerWidth))
+          .toBe(true)
+        if (width === 390 || width === 1440) await save(page, testInfo, 'archive-page-1')
+      } else if (width === 390) {
+        test.info().annotations.push({
+          type: 'coverage-gap',
+          description:
+            'Static /posts page-1 card count, Next control, and Card styles require PLAYWRIGHT_PRESEED_TASK6_ARCHIVE=true; dynamic page 2 and search still run.',
+        })
+        console.log(
+          'Skipped static /posts page-1 Card assertions: set PLAYWRIGHT_PRESEED_TASK6_ARCHIVE=true to seed before Next build.',
+        )
+      }
 
       const pageTwoResponse = await page.goto(`${baseURL}/posts/page/2`)
       const pageTwoHeading = await page.getByRole('heading', { name: 'Posts' }).count()

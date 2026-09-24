@@ -59,6 +59,11 @@ process.env.R2_ENDPOINT = e2eStorageEndpoint
 process.env.R2_PUBLIC_URL = e2eMediaOrigin
 process.env.R2_SECRET_ACCESS_KEY = 'e2e-local-secret-key'
 
+const task6ArchiveSeedCommand =
+  process.env.PLAYWRIGHT_PRESEED_TASK6_ARCHIVE === 'true'
+    ? 'DISABLE_R2_STORAGE=true pnpm exec tsx tests/helpers/seedTask6ArchiveBeforeBuild.ts && '
+    : ''
+
 /**
  * See https://playwright.dev/docs/test-configuration.
  */
@@ -101,8 +106,7 @@ export default defineConfig({
       url: `${e2eStorageEndpoint}/health`,
     },
     {
-      command:
-        'pnpm exec next build --webpack && mkdir -p .next-e2e/standalone/.next-e2e && cp -R .next-e2e/static .next-e2e/standalone/.next-e2e/static && if [ -d public ]; then cp -R public .next-e2e/standalone/public; fi && node .next-e2e/standalone/server.js',
+      command: `${task6ArchiveSeedCommand}pnpm exec next build --webpack && mkdir -p .next-e2e/standalone/.next-e2e && cp -R .next-e2e/static .next-e2e/standalone/.next-e2e/static && if [ -d public ]; then cp -R public .next-e2e/standalone/public; fi && node .next-e2e/standalone/server.js`,
       env: {
         ...process.env,
         DATABASE_URI: e2eDatabaseURI,
