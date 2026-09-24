@@ -6,7 +6,27 @@ import { auditCss } from '../helpers/cssAudit'
 
 const read = (file: string) => fs.readFileSync(path.join(process.cwd(), file), 'utf8')
 
+function layeredCssFiles(directory: string): string[] {
+  return fs.readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
+    const filename = path.join(directory, entry.name)
+    if (entry.isDirectory()) return layeredCssFiles(filename)
+    if (!filename.endsWith('.css')) return []
+    return /@layer\s+(?:base|components|utilities)\s*\{/.test(read(filename)) ? [filename] : []
+  })
+}
+
 describe('global visual foundation', () => {
+  it('establishes the cascade layer order before any layered frontend rule', () => {
+    for (const file of layeredCssFiles('src')) {
+      const css = read(file)
+      const firstLayer = css.indexOf('@layer')
+      expect(
+        css.slice(firstLayer).startsWith('@layer base, components, utilities;'),
+        `${file} must declare the layer order before its first layered rule`,
+      ).toBe(true)
+    }
+  })
+
   it('defines all nine margin-free type roles and the desktop heading steps', () => {
     const css = read('src/styles/typography.css')
     const rules = auditCss(css)

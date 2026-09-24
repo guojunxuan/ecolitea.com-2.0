@@ -1,3 +1,5 @@
+@layer base, components, utilities;
+
 @layer components {
   .container {
     width: min(100% - (2 * var(--website-gutter)), var(--website-container-reading));

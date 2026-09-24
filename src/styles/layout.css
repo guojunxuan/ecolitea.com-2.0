@@ -25,6 +25,8 @@
   }
 }
 
+@layer base, components, utilities;
+
 @layer utilities {
   [id] {
     scroll-margin-block-start: var(--website-anchor-offset);

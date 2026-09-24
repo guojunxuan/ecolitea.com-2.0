@@ -1,4 +1,6 @@
 /* Preserve the native-element baseline; component modules own presentation. */
+@layer base, components, utilities;
+
 @layer base {
   *,
   ::after,

@@ -1,3 +1,5 @@
+@layer base, components, utilities;
+
 @layer components {
   .adminBar {
     padding-block: var(--website-space-2);

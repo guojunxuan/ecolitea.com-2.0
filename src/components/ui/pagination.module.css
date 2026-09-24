@@ -16,6 +16,8 @@
   display: list-item;
 }
 
+@layer base, components, utilities;
+
 @layer components {
   .previous {
     gap: var(--website-space-1);

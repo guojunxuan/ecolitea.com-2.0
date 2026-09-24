@@ -1,5 +1,7 @@
 /* RichText inherits the nearest website semantic theme; embedded Blocks own
    their internal styling beyond the boundary. */
+@layer base, components, utilities;
+
 @layer components {
   @scope (.payload-richtext.payload-richtext--content) to (.payload-richtext__embedded) {
     :scope {
