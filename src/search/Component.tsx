@@ -7,15 +7,17 @@ import { useRouter } from 'next/navigation'
 
 import styles from './Component.module.css'
 
-export const Search: React.FC = () => {
-  const [value, setValue] = useState('')
+export const Search: React.FC<{ initialQuery: string }> = ({ initialQuery }) => {
+  const [value, setValue] = useState(initialQuery)
   const router = useRouter()
 
   const debouncedValue = useDebounce(value)
 
   useEffect(() => {
-    router.push(`/search${debouncedValue ? `?q=${debouncedValue}` : ''}`)
-  }, [debouncedValue, router])
+    if (debouncedValue !== initialQuery) {
+      router.push(`/search${debouncedValue ? `?q=${encodeURIComponent(debouncedValue)}` : ''}`)
+    }
+  }, [debouncedValue, initialQuery, router])
 
   return (
     <div>
@@ -30,6 +32,7 @@ export const Search: React.FC = () => {
         </Label>
         <Input
           id="search"
+          value={value}
           onChange={(event) => {
             setValue(event.target.value)
           }}

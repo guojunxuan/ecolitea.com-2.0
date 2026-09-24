@@ -11,7 +11,7 @@ import styles from '../pages.module.css'
 
 type Args = {
   searchParams: Promise<{
-    q: string
+    q?: string
   }>
 }
 export default async function Page({ searchParams: searchParamsPromise }: Args) {
@@ -66,7 +66,7 @@ export default async function Page({ searchParams: searchParamsPromise }: Args) 
         <h1 className={styles.pageTitle}>Search</h1>
 
         <div className={styles.searchField}>
-          <Search />
+          <Search key={query ?? ''} initialQuery={query ?? ''} />
         </div>
       </div>
 
