@@ -188,6 +188,7 @@
   width: var(--website-icon-medium);
   height: var(--website-icon-medium);
   object-fit: contain;
+  filter: brightness(0) invert(1);
 }
 .socialLink {
   display: flex;

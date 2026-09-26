@@ -260,7 +260,7 @@ describe('FooterNavigation', () => {
 
     expect(css).toContain('min-height: 54px')
     expect(css).toMatch(/\.socialLink\s*\{[^}]*min-height:\s*var\(--website-control-target-min\)/s)
-    expect(css).not.toMatch(/\.socialIcon\s*\{[^}]*filter:/s)
+    expect(css).toMatch(/\.socialIcon\s*\{[^}]*filter:\s*brightness\(0\) invert\(1\)/s)
     expect(css).toMatch(/\.contactItem\s*\{[^}]*display:\s*grid/s)
     expect(css).toMatch(/\.contactIcon\s*\{[^}]*color:\s*inherit/s)
     expect(css).toMatch(/width < 30rem[\s\S]*\.newsletterControls\s*\{[^}]*grid-template-columns:\s*1fr/s)
