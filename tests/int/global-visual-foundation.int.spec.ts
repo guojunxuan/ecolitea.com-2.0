@@ -89,7 +89,7 @@ describe('global visual foundation', () => {
       if (block.header.startsWith('@') || block.header === ':scope') continue
       const scoped =
         block.header.includes('.payload-richtext') ||
-        block.ancestors.some((ancestor) => /^@scope\s*\([^)]*\.payload-richtext/.test(ancestor))
+        block.ancestors.some((ancestor) => /^@scope\s*\([\s\S]*?\.payload-richtext/.test(ancestor))
       expect(scoped, `Unscoped selector at line ${block.line}: ${block.header}`).toBe(true)
     }
   })

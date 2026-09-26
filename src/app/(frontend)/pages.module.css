@@ -17,7 +17,7 @@
 }
 
 .pageTitle {
-  composes: website-type-heading-large from global;
+  composes: website-type-heading-1 from global;
 
   margin: 0;
   color: inherit;

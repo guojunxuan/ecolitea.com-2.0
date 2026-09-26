@@ -142,7 +142,7 @@ describe('RichText style modes', () => {
       expect(contentStyles, selector).toContain(`&:where(${selector})`)
     for (const declaration of [
       'font-size: 16px;',
-      'line-height: 26px;',
+      'line-height: 1.5;',
       'overflow-wrap: anywhere;',
       'text-decoration-thickness: 1px;',
       'text-underline-offset: 0.2em;',

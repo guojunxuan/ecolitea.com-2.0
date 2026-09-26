@@ -28,9 +28,8 @@
 }
 
 .title {
+  composes: website-type-display-1 from global;
   margin-bottom: var(--website-space-6);
-  font-size: 1.875rem;
-  line-height: 2.25rem;
 }
 
 .meta,
@@ -76,11 +75,6 @@
 }
 
 @media (width >= 48rem) {
-  .title {
-    font-size: 3rem;
-    line-height: 1;
-  }
-
   .meta {
     flex-direction: row;
     gap: var(--website-space-16);
@@ -97,8 +91,4 @@
     grid-column: 2 / span 2;
   }
 
-  .title {
-    font-size: 3.75rem;
-    line-height: 1;
-  }
 }

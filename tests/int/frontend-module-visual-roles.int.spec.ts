@@ -127,7 +127,7 @@ describe('frontend module visual roles', () => {
       ['src/components/ui/card.module.css', '.description', 'body-small'],
       ['src/components/PageRange/index.module.css', '.range', 'body-small'],
       ['src/components/Card/index.module.css', '.description', 'body'],
-      ['src/app/(frontend)/pages.module.css', '.pageTitle', 'heading-large'],
+      ['src/app/(frontend)/pages.module.css', '.pageTitle', 'heading-1'],
     ]) {
       const typeClass = declarations(file).find(
         (entry) => entry.header === selector && entry.prop === 'composes',
