@@ -27,21 +27,23 @@ describe('global visual foundation', () => {
     }
   })
 
-  it('defines all nine margin-free type roles and the desktop heading steps', () => {
+  it('defines the approved Geist Sans roles and responsive title steps', () => {
     const css = read('src/styles/typography.css')
     const rules = auditCss(css)
     const expected = {
-      display: ['48px', '52px', '600'],
-      'heading-large': ['28px', '32px', '600'],
-      'heading-medium': ['24px', '30px', '600'],
-      'heading-small': ['20px', '28px', '600'],
-      'body-large': ['18px', '28px', '400'],
-      body: ['16px', '26px', '400'],
-      'body-small': ['14px', '22px', '400'],
-      caption: ['12px', '18px', '400'],
-      code: ['14px', '22px', '400'],
+      'display-1': ['48px', '1', '700', '-1.6px'],
+      'display-2': ['42px', '1.04', '700', '-1.5px'],
+      'heading-1': ['32px', '1.1', '700', '-0.8px'],
+      'heading-2': ['24px', '1.23', '700', '-0.5px'],
+      'heading-3': ['20px', '1.27', '700', '-0.25px'],
+      title: ['20px', '1.4', '600', '-0.125px'],
+      'body-md': ['16px', '1.5', '400', '0'],
+      'body-sm': ['15px', '1.33', '400', '0'],
+      button: ['16px', '1.5', '500', '0'],
+      caption: ['14px', '1.43', '400', '0'],
+      eyebrow: ['12px', '1.33', '600', '0.125px'],
     }
-    for (const [role, [size, height, weight]] of Object.entries(expected)) {
+    for (const [role, [size, height, weight, tracking]] of Object.entries(expected)) {
       const selector = `.website-type-${role}`
       const declarations = rules.declarations.filter(
         (entry) =>
@@ -55,15 +57,20 @@ describe('global visual foundation', () => {
       expect(declarations.find((entry) => entry.prop === 'font-weight')?.value, selector).toBe(
         weight,
       )
+      expect(declarations.find((entry) => entry.prop === 'letter-spacing')?.value, selector).toBe(tracking)
       expect(declarations.find((entry) => entry.prop === 'font-family')?.value, selector).toBe(
-        role === 'code' ? 'var(--website-font-mono)' : 'var(--website-font-sans)',
+        'var(--website-font-sans)',
       )
+      expect(declarations.find((entry) => entry.prop === 'font-feature-settings')?.value, selector).toBe("'lnum', 'locl'")
     }
+    expect(css).toMatch(/\.website-type-code\s*\{[^}]*font-family:\s*var\(--website-font-mono\)/s)
     expect(rules.declarations.filter((entry) => entry.prop.startsWith('margin'))).toEqual([])
-    for (const [role, size, height] of [
-      ['display', '56px', '60px'],
-      ['heading-large', '40px', '44px'],
-      ['heading-medium', '28px', '34px'],
+    for (const [role, size, height, tracking] of [
+      ['display-1', '64px', '1', '-2.125px'],
+      ['display-2', '54px', '1.04', '-1.875px'],
+      ['heading-1', '40px', '1.1', '-1px'],
+      ['heading-2', '26px', '1.23', '-0.625px'],
+      ['heading-3', '22px', '1.27', '-0.25px'],
     ]) {
       const declarations = rules.declarations.filter(
         (entry) =>
@@ -72,6 +79,7 @@ describe('global visual foundation', () => {
       )
       expect(declarations.find((entry) => entry.prop === 'font-size')?.value).toBe(size)
       expect(declarations.find((entry) => entry.prop === 'line-height')?.value).toBe(height)
+      expect(declarations.find((entry) => entry.prop === 'letter-spacing')?.value).toBe(tracking)
     }
   })
 

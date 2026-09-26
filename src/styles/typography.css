@@ -13,6 +13,105 @@
 }
 
 @layer components {
+  .website-type-display-1 {
+    font-family: var(--website-font-sans);
+    font-size: 48px;
+    line-height: 1;
+    font-weight: 700;
+    letter-spacing: -1.6px;
+    font-feature-settings: 'lnum', 'locl';
+  }
+
+  .website-type-display-2 {
+    font-family: var(--website-font-sans);
+    font-size: 42px;
+    line-height: 1.04;
+    font-weight: 700;
+    letter-spacing: -1.5px;
+    font-feature-settings: 'lnum', 'locl';
+  }
+
+  .website-type-heading-1 {
+    font-family: var(--website-font-sans);
+    font-size: 32px;
+    line-height: 1.1;
+    font-weight: 700;
+    letter-spacing: -0.8px;
+    font-feature-settings: 'lnum', 'locl';
+  }
+
+  .website-type-heading-2 {
+    font-family: var(--website-font-sans);
+    font-size: 24px;
+    line-height: 1.23;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    font-feature-settings: 'lnum', 'locl';
+  }
+
+  .website-type-heading-3 {
+    font-family: var(--website-font-sans);
+    font-size: 20px;
+    line-height: 1.27;
+    font-weight: 700;
+    letter-spacing: -0.25px;
+    font-feature-settings: 'lnum', 'locl';
+  }
+
+  .website-type-title {
+    font-family: var(--website-font-sans);
+    font-size: 20px;
+    line-height: 1.4;
+    font-weight: 600;
+    letter-spacing: -0.125px;
+    font-feature-settings: 'lnum', 'locl';
+  }
+
+  .website-type-body-md {
+    font-family: var(--website-font-sans);
+    font-size: 16px;
+    line-height: 1.5;
+    font-weight: 400;
+    letter-spacing: 0;
+    font-feature-settings: 'lnum', 'locl';
+  }
+
+  .website-type-body-sm {
+    font-family: var(--website-font-sans);
+    font-size: 15px;
+    line-height: 1.33;
+    font-weight: 400;
+    letter-spacing: 0;
+    font-feature-settings: 'lnum', 'locl';
+  }
+
+  .website-type-button {
+    font-family: var(--website-font-sans);
+    font-size: 16px;
+    line-height: 1.5;
+    font-weight: 500;
+    letter-spacing: 0;
+    font-feature-settings: 'lnum', 'locl';
+  }
+
+  .website-type-caption {
+    font-family: var(--website-font-sans);
+    font-size: 14px;
+    line-height: 1.43;
+    font-weight: 400;
+    letter-spacing: 0;
+    font-feature-settings: 'lnum', 'locl';
+  }
+
+  .website-type-eyebrow {
+    font-family: var(--website-font-sans);
+    font-size: 12px;
+    line-height: 1.33;
+    font-weight: 600;
+    letter-spacing: 0.125px;
+    font-feature-settings: 'lnum', 'locl';
+  }
+
   .website-type-display {
     font-family: var(--website-font-sans);
     font-size: 48px;
@@ -25,6 +124,7 @@
     font-size: 28px;
     line-height: 32px;
     font-weight: 600;
+    letter-spacing: -0.025em;
   }
 
   .website-type-heading-medium {
@@ -77,6 +177,11 @@
   }
 
   @media (width >= 48rem) {
+    .website-type-display-1 { font-size: 64px; line-height: 1; letter-spacing: -2.125px; }
+    .website-type-display-2 { font-size: 54px; line-height: 1.04; letter-spacing: -1.875px; }
+    .website-type-heading-1 { font-size: 40px; line-height: 1.1; letter-spacing: -1px; }
+    .website-type-heading-2 { font-size: 26px; line-height: 1.23; letter-spacing: -0.625px; }
+    .website-type-heading-3 { font-size: 22px; line-height: 1.27; letter-spacing: -0.25px; }
     .website-type-display {
       font-size: 56px;
       line-height: 60px;
