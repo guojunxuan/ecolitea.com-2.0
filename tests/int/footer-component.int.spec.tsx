@@ -279,6 +279,28 @@ describe('FooterNavigation', () => {
     expect(logo).toContain('width: 100%')
   })
 
+  it('consumes global type roles while retaining Footer-owned emphasis and icon sizing', () => {
+    const css = readFileSync(resolve(process.cwd(), 'src/Footer/index.module.css'), 'utf8')
+    for (const [selector, role] of [
+      ['description', 'body-sm'],
+      ['desktopHeading', 'body-sm'],
+      ['accordionTrigger', 'body-sm'],
+      ['navLink', 'body-sm'],
+      ['newsletterHeading', 'title'],
+      ['newsletterDescription', 'body-sm'],
+      ['newsletterInput', 'body-sm'],
+      ['newsletterButton', 'button'],
+      ['information', 'caption'],
+      ['bottomBar', 'caption'],
+    ]) {
+      expect(css, selector).toMatch(new RegExp(`\\.${selector}\\s*\\{[^}]*composes: website-type-${role} from global;`, 's'))
+    }
+    expect(css).toMatch(/\.desktopHeading\s*\{[^}]*font-weight:\s*600/s)
+    expect(css).toMatch(/\.desktopHeading\s*\{[^}]*letter-spacing:\s*0\.035em/s)
+    expect(css).toMatch(/\.socialIcon\s*\{[^}]*width:\s*var\(--website-icon-medium\)/s)
+    expect(css).toMatch(/\.contactIcon\s*\{[^}]*width:\s*var\(--website-icon-small\)/s)
+  })
+
   it('does not render accordion or desktop headings for empty columns', () => {
     render(
       <FooterNavigation
