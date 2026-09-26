@@ -88,8 +88,7 @@
 }
 
 .mobileNavTitle {
-  font-size: 0.875rem;
-  font-weight: 700;
+  composes: website-type-eyebrow from global;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   text-align: center;
@@ -131,13 +130,32 @@
   align-items: center;
   color: var(--website-color-foreground);
   display: flex;
-  font-size: 1.25rem;
   justify-content: space-between;
   min-height: 4rem;
   padding: 0.875rem 0;
   text-align: left;
   text-decoration: none;
   width: 100%;
+}
+
+.mobileDirectLink {
+  composes: website-type-title from global;
+}
+
+.mobileAccordionTrigger {
+  composes: website-type-title from global;
+}
+
+.topLevelLink {
+  composes: website-type-body-sm from global;
+}
+
+.dropdownButton {
+  composes: website-type-body-sm from global;
+}
+
+.searchLink {
+  composes: website-type-body-sm from global;
 }
 
 .mobileDirectLink svg,
@@ -309,8 +327,6 @@
   .dropdownButton,
   .searchLink {
     color: inherit;
-    font-size: 0.9375rem;
-    font-weight: 500;
     text-decoration: none;
   }
 

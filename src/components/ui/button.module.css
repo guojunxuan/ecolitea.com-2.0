@@ -2,15 +2,13 @@
 
 @layer components {
   .button {
+  composes: website-type-button from global;
     display: inline-flex;
     gap: var(--website-space-2);
     align-items: center;
     justify-content: center;
     border: 1px solid transparent;
     border-radius: var(--website-radius-control);
-    font-size: 0.875rem;
-    font-weight: 500;
-    line-height: 1.25rem;
     white-space: nowrap;
     transition-property: color, background-color, border-color, box-shadow;
     transition-duration: var(--website-duration-fast);

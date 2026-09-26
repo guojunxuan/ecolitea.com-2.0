@@ -61,8 +61,8 @@
 .categoryPrimaryCTA { margin-top: auto; width: 100%; }
 .categoryActiveCTA { flex: 0 0 auto; margin: 0 0 0 1rem; min-height: 2rem; padding: .35rem .625rem; }
 .linkGroup .blockHeading { font-size: .75rem; font-weight: 700; }
-.linkList { display: flex; flex-direction: column; gap: .375rem; }
-.linkList a { align-items: center; color: inherit; display: flex; font-size: .875rem; font-weight: 400; min-height: 2rem; text-decoration: none; }
+.linkList { composes: website-type-body-sm from global; display: flex; flex-direction: column; gap: .375rem; }
+.linkList a { align-items: center; color: inherit; display: flex; min-height: 2rem; text-decoration: none; }
 .navigationBlocksCompact .linkList a { min-height: 2.75rem; }
 @media (hover: hover) and (pointer: fine) { .linkList a:hover { text-decoration: underline; text-underline-offset: .2em; } }
 .categoryTabsCompact, .categoryAccordion { display: flex; flex-direction: column; }

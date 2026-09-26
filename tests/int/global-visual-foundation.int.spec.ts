@@ -64,6 +64,9 @@ describe('global visual foundation', () => {
       expect(declarations.find((entry) => entry.prop === 'font-feature-settings')?.value, selector).toBe("'lnum', 'locl'")
     }
     expect(css).toMatch(/\.website-type-code\s*\{[^}]*font-family:\s*var\(--website-font-mono\)/s)
+    for (const oldRole of ['display', 'heading-large', 'heading-medium', 'heading-small', 'body-large', 'body', 'body-small']) {
+      expect(css).not.toMatch(new RegExp(`\\.website-type-${oldRole}\\s*\\{`))
+    }
     expect(rules.declarations.filter((entry) => entry.prop.startsWith('margin'))).toEqual([])
     for (const [role, size, height, tracking] of [
       ['display-1', '64px', '1', '-2.125px'],

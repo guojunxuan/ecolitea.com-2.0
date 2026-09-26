@@ -1,4 +1,5 @@
 .textarea {
+  composes: website-type-body-md from global;
   field-sizing: content;
   display: flex;
   width: 100%;
@@ -9,8 +10,6 @@
   border-radius: var(--website-radius-control);
   background-color: var(--website-color-surface);
   color: var(--website-color-foreground);
-  font-size: 1rem;
-  line-height: 1.5rem;
   transition-property: color, background-color, border-color;
   transition-duration: var(--website-duration-fast);
   transition-timing-function: var(--website-easing-standard);
@@ -38,8 +37,4 @@
 }
 
 @media (width >= 48rem) {
-  .textarea {
-    font-size: 0.875rem;
-    line-height: 1.25rem;
-  }
 }

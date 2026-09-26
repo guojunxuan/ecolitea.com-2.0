@@ -1,8 +1,6 @@
 .label {
+  composes: website-type-caption from global;
   color: var(--website-color-foreground);
-  font-size: 0.875rem;
-  font-weight: 500;
-  line-height: 1;
 }
 
 :global(.peer):disabled ~ .label {

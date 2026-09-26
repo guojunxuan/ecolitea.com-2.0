@@ -13,11 +13,11 @@
 }
 
 .title {
-  composes: website-type-heading-medium from global;
+  composes: website-type-heading-3 from global;
 }
 
 .description {
-  composes: website-type-body-small from global;
+  composes: website-type-body-sm from global;
 
   color: var(--website-color-muted-foreground);
 }
