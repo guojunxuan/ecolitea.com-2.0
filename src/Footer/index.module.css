@@ -45,7 +45,7 @@
   border-top: 1px solid var(--website-color-border);
 }
 .accordionTrigger {
-  composes: website-type-body-sm from global;
+  composes: website-type-caption from global;
   display: none;
   width: 100%;
   min-height: 54px;
@@ -53,6 +53,8 @@
   justify-content: space-between;
   color: inherit;
   font-weight: 600;
+  letter-spacing: 0.055em;
+  text-transform: uppercase;
   text-align: left;
 }
 .accordionIcon {
@@ -64,11 +66,12 @@
   transform: rotate(45deg);
 }
 .desktopHeading {
-  composes: website-type-body-sm from global;
+  composes: website-type-caption from global;
   display: block;
   padding-block: 1rem 0.5rem;
   font-weight: 600;
-  letter-spacing: 0.035em;
+  letter-spacing: 0.055em;
+  text-transform: uppercase;
 }
 .navigation[data-enhanced='true'] .desktopHeading {
   display: none;
@@ -98,7 +101,7 @@
   overflow: hidden;
 }
 .navLink {
-  composes: website-type-body-sm from global;
+  composes: website-type-caption from global;
   display: inline-flex;
   min-height: var(--website-control-target-min);
   align-items: center;
@@ -185,8 +188,8 @@
   }
 }
 .socialIcon {
-  width: var(--website-icon-medium);
-  height: var(--website-icon-medium);
+  width: var(--website-icon-large);
+  height: var(--website-icon-large);
   object-fit: contain;
   filter: brightness(0) invert(1);
 }

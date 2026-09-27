@@ -45,7 +45,7 @@ Mobile title tracking preserves the desktop's tight direction at the smaller siz
 | Content card titles | `heading-3` |
 | Feature/callout titles and Footer newsletter heading | `title` |
 | General descriptions, card descriptions, and prose paragraphs | `body-md` |
-| Dense copy, public navigation links, and Footer navigation links | `body-sm` |
+| Dense copy and public navigation links outside Footer | `body-sm` |
 | Public buttons and Footer subscription placeholder button | `button` |
 | Metadata, image captions, Footer contact/legal/copyright text | `caption` |
 | Category and other compact labels | `eyebrow` |
@@ -62,12 +62,13 @@ Footer consumes the global typography roles and theme tokens as follows:
 
 | Element | Global foundation | Footer-owned presentation |
 | --- | --- | --- |
-| Brand description, navigation links, newsletter description and input | `body-sm` / Geist Sans | Width and intra-group spacing |
-| Navigation column heading | `body-sm` / Geist Sans | 600 weight and slight positive tracking to make it stronger than 400-weight links at the same 15px size |
+| Brand description, newsletter description and input | `body-sm` / Geist Sans | Width and intra-group spacing |
+| Footer navigation links | `caption` / Geist Sans, 14px / 400 | Existing link spacing and target behavior |
+| Navigation column heading and mobile trigger | `caption` / Geist Sans, 14px | Footer-owned 600 weight, 0.055em tracking, and uppercase treatment make them stronger than links |
 | Newsletter heading | `title` | Existing position within the right column |
 | Disabled subscription button | `button` | Disabled border, surface, and adjoining input shape |
 | Address, telephone, email, copyright and legal links | `caption` | Icon alignment and group spacing |
-| Social SVGs and contact icons | Semantic global color, border, size, and control tokens | Icon dimensions, circular social button, icon/text alignment, hover and focus treatment |
+| Social SVGs and contact icons | Semantic global color, border, size, and control tokens | Social icons use 24px artwork within the existing 44px target; contact icon alignment, hover and focus treatment stay component-owned |
 
 The footer should use existing `--website-space-*` values for its internal spacing where they express the approved visual rhythm. This must not move sections between columns or reorder them. Social icon assets continue to come from Site Settings' Social Platform relationship; the Global stores content and assets, not CSS settings. The Footer component styles the assets and uses the inverse theme's semantic colors. No Payload schema, generated type, migration, or data change is required.
 

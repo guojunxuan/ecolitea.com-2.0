@@ -93,7 +93,7 @@
 
 **Interfaces:**
 - Consumes: Task 1 roles; `--website-color-*`, `--website-space-*`, `--website-icon-*`, and `--website-control-target-min` tokens; existing Footer presentation data.
-- Produces: brand/navigation/newsletter/input `body-sm`, navigation-heading `body-sm` with Footer-owned 600-weight/slight-tracking emphasis, newsletter `title`, disabled subscription button `button`, contact/legal/copyright `caption`, and tokenized social/contact icon presentation.
+- Produces: brand/newsletter/input `body-sm`, Footer navigation links `caption` at 14px / 400, navigation headings and mobile triggers `caption` at 14px with Footer-owned 600 weight / 0.055em tracking / uppercase emphasis, newsletter `title`, disabled subscription button `button`, contact/legal/copyright `caption`, and 24px social icons inside 44px targets.
 
 - [ ] **Step 1: Write failing tests.** Assert the Footer role compositions, navigation heading's 600 weight against 400-weight links at equal 15px base size, social target size and icon token usage, caption contact/legal mapping, and existing three-column breakpoint/accordion selectors. Add a component case with absent social/contact fields and verify no empty rendered list rows.
 - [ ] **Step 2: Verify failure.** Run `corepack pnpm test:int -- tests/int/footer-component.int.spec.tsx tests/int/frontend-module-visual-roles.int.spec.ts`; expect the new style assertions to fail.
