@@ -176,8 +176,9 @@ describe('public website shell', () => {
     expect(post).toMatch(
       /\.overlay\s*{[^}]*height:\s*50%;[^}]*linear-gradient\(to top, rgb\(0 0 0 \/ var\(--website-scrim-strong\)\), transparent\)/s,
     )
-    expect(post).toMatch(/@media \(width >= 48rem\)[\s\S]*font-size:\s*3rem;/)
-    expect(post).toMatch(/@media \(width >= 64rem\)[\s\S]*font-size:\s*3\.75rem;/)
+    // The display-1 role owns the PostHero title scale and its breakpoint step.
+    expect(post).toMatch(/\.title\s*\{\s*composes:\s*website-type-display-1 from global;/)
+    expect(post).not.toMatch(/\.title\s*\{[^}]*font-size/)
   })
 
   it('keeps inverse ownership on dark content and local foreground adaptation on the Header', () => {
