@@ -22,6 +22,8 @@ type Props = MediaBlockProps & {
 
 export const MediaBlock: React.FC<Props> = (props) => {
   const {
+    caption: blockCaption,
+    width = 'default',
     captionClassName,
     className,
     enableGutter = true,
@@ -31,12 +33,14 @@ export const MediaBlock: React.FC<Props> = (props) => {
     disableInnerContainer,
   } = props
 
-  let caption
-  if (media && typeof media === 'object') caption = media.caption
+  const caption = blockCaption ?? (media && typeof media === 'object' ? media.caption : undefined)
 
   return (
-    <div
+    <figure
+      data-width={width || 'default'}
       className={cn(
+        styles.figure,
+        width === 'wide' && styles.wide,
         {
           [styles.container]: enableGutter,
         },
@@ -52,7 +56,7 @@ export const MediaBlock: React.FC<Props> = (props) => {
         />
       )}
       {caption && (
-        <div
+        <figcaption
           className={cn(
             styles.caption,
             {
@@ -62,8 +66,8 @@ export const MediaBlock: React.FC<Props> = (props) => {
           )}
         >
           <RichText data={caption} enableGutter={false} />
-        </div>
+        </figcaption>
       )}
-    </div>
+    </figure>
   )
 }

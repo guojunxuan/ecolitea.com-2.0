@@ -4,6 +4,16 @@ import path from 'path'
 import { buildConfig, PayloadRequest } from 'payload'
 import { fileURLToPath } from 'url'
 
+import { Archive } from './blocks/ArchiveBlock/config'
+import { Content } from './blocks/Content/config'
+import { FormBlock } from './blocks/Form/config'
+import { Code } from './blocks/Code/config'
+import { Prose } from './blocks/Prose/config'
+import { MediaBlock } from './blocks/MediaBlock/config'
+import { KeyTakeaways } from './blocks/KeyTakeaways/config'
+import { CallToAction } from './blocks/CallToAction/config'
+import { Banner } from './blocks/Banner/config'
+
 import { Categories } from './collections/Categories'
 import { BrandAssets } from './collections/BrandAssets'
 import { CaseStudies } from './collections/CaseStudies'
@@ -24,6 +34,7 @@ const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 
 export default buildConfig({
+  blocks: [Archive, Content, FormBlock, Code, Prose, MediaBlock, KeyTakeaways, CallToAction, Banner],
   admin: {
     components: {
       // The `BeforeLogin` component renders a message that you see while logging into your admin panel.

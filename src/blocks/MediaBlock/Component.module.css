@@ -1,9 +1,23 @@
 @layer base, components, utilities;
 
 @layer components {
+  .figure {
+    width: 100%;
+    max-width: var(--website-container-reading);
+    margin: 0 auto;
+  }
+
   .container {
-    width: min(100% - (2 * var(--website-gutter)), var(--website-container-site));
+    width: min(100% - (2 * var(--website-gutter)), var(--website-container-reading));
     margin-inline: auto;
+  }
+
+  .wide {
+    max-width: 56.25rem;
+  }
+
+  .wide.container {
+    width: min(100% - (2 * var(--website-gutter)), 56.25rem);
   }
 
   .image {
@@ -13,26 +27,6 @@
 
   .caption {
     margin-top: var(--website-space-6);
-  }
-
-  @media (width >= 40rem) {
-    .container {
-      max-width: 40rem;
-    }
-  }
-  @media (width >= 48rem) {
-    .container {
-      max-width: 48rem;
-    }
-  }
-  @media (width >= 64rem) {
-    .container {
-      max-width: 64rem;
-    }
-  }
-  @media (width >= 80rem) {
-    .container {
-      max-width: 80rem;
-    }
+    color: var(--website-color-muted-foreground);
   }
 }

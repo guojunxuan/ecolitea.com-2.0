@@ -1,0 +1,10 @@
+@layer base, components, utilities;
+
+@layer components {
+  .prose {
+    width: 100%;
+    max-width: var(--website-container-reading);
+    margin-inline: auto;
+    color: var(--website-color-foreground);
+  }
+}

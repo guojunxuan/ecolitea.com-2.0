@@ -7,13 +7,15 @@
 @layer components {
   .banner {
     width: 100%;
+    max-width: var(--website-container-reading);
     margin-inline: auto;
     margin-block: var(--website-space-8);
   }
 
   .surface {
-    display: flex;
-    align-items: center;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: start;
     gap: var(--website-space-3);
     padding-block: var(--website-space-3);
     padding-inline: var(--website-space-6);
@@ -22,9 +24,20 @@
     border-radius: var(--website-radius-control);
   }
 
-  .statusLabel {
-    flex: none;
+  .icon {
+    grid-column: 1;
+    grid-row: 1 / span 2;
+  }
+
+  .title {
+    margin: 0;
+    font-size: inherit;
     font-weight: 700;
+  }
+
+  .surface > :not(.icon) {
+    grid-column: 2;
+    min-width: 0;
   }
 
   .info {
