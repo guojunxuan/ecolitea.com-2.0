@@ -108,7 +108,8 @@ export const DesktopNav: React.FC<DesktopNavProps> = ({
     exitTimerRef.current = setTimeout(() => {
       setRenderedID(null)
       setMenuPhase('open')
-    }, 180)
+      // Matches the --website-duration-fast close transition on .megaMenu and .pageOverlay.
+    }, 160)
   }, [clearCloseTimer, clearContentTimer, clearExitTimer, clearOpenTimer])
 
   const scheduleClose = useCallback(() => {

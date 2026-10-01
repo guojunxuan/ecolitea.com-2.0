@@ -113,26 +113,39 @@ describe('DesktopNav', () => {
     expect(track).toContain('width: max-content')
   })
 
-  it('uses balanced fluid spacing and 15px typography for the desktop navigation', () => {
+  it('uses balanced fluid spacing and the body-sm role for the desktop navigation', () => {
     const css = readFileSync(resolve(process.cwd(), 'src/Header/Nav/index.module.css'), 'utf8')
     const track = css.match(/\.primaryNavigationTrack\s*\{([^}]*)\}/)?.[1] ?? ''
-    const controls =
-      css.match(/\.topLevelLink,\s*\.dropdownButton,\s*\.searchLink\s*\{([^}]*)\}/)?.[1] ?? ''
 
     expect(track).toContain('gap: clamp(0.875rem, 1.2vw, 1.25rem)')
-    expect(controls).toContain('font-size: 0.9375rem')
+    for (const selector of ['topLevelLink', 'dropdownButton', 'searchLink'])
+      expect(css).toMatch(new RegExp(`\\.${selector}\\s*\\{\\s*composes:\\s*website-type-body-sm from global;`))
   })
 
-  it('lets the desktop menu CTA inherit the Header foreground without changing the mobile CTA', () => {
+  it('renders the menu CTA as a solid control that inverts over the dark hero', () => {
     const css = readFileSync(resolve(process.cwd(), 'src/Header/Nav/index.module.css'), 'utf8')
-    const desktopCTA = css.match(/\.menuCta\s*\{([^}]*)\}/)?.[1] ?? ''
+    const desktopCTA = [...css.matchAll(/\.menuCta\s*\{([^}]*)\}/g)].map((match) => match[1]).join('\n')
     const mobileCTA = css.match(/\.mobileMenuCta\s*\{([^}]*)\}/)?.[1] ?? ''
 
-    expect(desktopCTA).toContain('background: transparent')
-    expect(desktopCTA).toContain('border: 1px solid currentColor')
-    expect(desktopCTA).toContain('color: inherit')
+    expect(desktopCTA).toContain('composes: website-type-caption from global')
+    expect(desktopCTA).toContain('background: var(--website-color-action)')
+    expect(desktopCTA).toContain('color: var(--website-color-action-foreground)')
+    expect(desktopCTA).toContain('border-radius: var(--website-radius-control)')
+    expect(desktopCTA).toContain('font-weight: 500')
+    expect(desktopCTA).toContain('min-height: var(--website-control-compact)')
+    expect(desktopCTA).not.toContain('border:')
+    expect(css).toMatch(/\.menuCta:hover\s*\{[^}]*color-mix\(in srgb, var\(--website-color-action\)/s)
     expect(mobileCTA).toContain('background: var(--website-color-action)')
     expect(mobileCTA).toContain('color: var(--website-color-action-foreground)')
+    expect(mobileCTA).toContain('border-radius: var(--website-radius-control)')
+
+    const surface = readFileSync(resolve(process.cwd(), 'src/Header/Component.module.css'), 'utf8')
+    const inverted = /--website-color-action:\s*var\(--website-color-brand-white\);\s*--website-color-action-foreground:\s*var\(--website-color-brand-black\);/
+    expect(surface).toMatch(new RegExp(`\\.surface\\[data-theme='dark'\\]\\s*\\{[^}]*${inverted.source}`, 's'))
+    expect(surface).toMatch(new RegExp(`:not\\(\\[data-menu-open='true'\\]\\)\\s*\\{[^}]*${inverted.source}`, 's'))
+    expect(surface).toMatch(
+      /\.surface\[data-scrolled='true'\],\s*\.surface\[data-menu-open='true'\]\s*\{[^}]*--website-color-action:\s*var\(--website-color-brand-black\);\s*--website-color-action-foreground:\s*var\(--website-color-brand-white\);/s,
+    )
   })
 
   it('uses 100ms first-open intent and switches immediately once a menu is open', () => {
@@ -151,7 +164,7 @@ describe('DesktopNav', () => {
     vi.useRealTimers()
   })
 
-  it('keeps one shell mounted for the 180ms close phase and reports logical close immediately', () => {
+  it('keeps one shell mounted for the 160ms close phase and reports logical close immediately', () => {
     vi.useFakeTimers()
     try {
       const onOpenChange = vi.fn()
@@ -164,7 +177,7 @@ describe('DesktopNav', () => {
       expect(onOpenChange).toHaveBeenLastCalledWith(false)
       expect(container.querySelector('[data-mega-menu-shell="true"]')).toBe(shell)
       expect(shell.getAttribute('data-phase')).toBe('closing')
-      act(() => vi.advanceTimersByTime(179))
+      act(() => vi.advanceTimersByTime(159))
       expect(container.querySelector('[data-mega-menu-shell="true"]')).toBe(shell)
       act(() => vi.advanceTimersByTime(1))
       expect(container.querySelector('[data-mega-menu-shell="true"]')).toBeNull()
@@ -595,8 +608,9 @@ describe('DesktopNav', () => {
     expect(css).toContain('background: color-mix(in srgb, var(--website-color-brand-black) 7%, transparent)')
     expect(css).toContain('max-height: min(70dvh, 42rem)')
     expect(css).toContain('overscroll-behavior-y: auto')
-    expect(css).toContain('180ms')
-    expect(css).toContain('height 220ms')
+    expect(css).toContain('opacity var(--website-duration-fast) ease, transform var(--website-duration-fast) ease')
+    expect(css).toContain('height var(--website-duration-standard)')
+    expect(css).not.toMatch(/(?<![.\d])\d+ms\b/)
     expect(css).toContain('opacity var(--website-duration-fast)')
     expect(css).toContain('translateY(4px)')
     expect(css).toContain('@media (prefers-reduced-motion: reduce)')

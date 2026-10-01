@@ -16,10 +16,14 @@ type NavigationBlocksProps = {
 const CTA: React.FC<{ className?: string; link: HeaderLinkData | null }> = ({ className, link }) =>
   link ? <NavigationLink className={className} link={link}>{link.label}</NavigationLink> : null
 
-const BlockHeader: React.FC<{ cta?: HeaderLinkData | null; heading: string | null }> = ({ cta = null, heading }) =>
+const BlockHeader: React.FC<{ cta?: HeaderLinkData | null; heading: string | null; headingClassName?: string }> = ({
+  cta = null,
+  heading,
+  headingClassName = styles.blockHeading,
+}) =>
   heading || cta ? (
     <div className={styles.blockHeader}>
-      {heading ? <h2 className={styles.blockHeading}>{heading}</h2> : <span />}
+      {heading ? <h2 className={headingClassName}>{heading}</h2> : <span />}
       <CTA className={styles.blockCTA} link={cta} />
     </div>
   ) : null
@@ -53,7 +57,7 @@ export const NavigationBlocks: React.FC<NavigationBlocksProps> = ({
       }
       if (block.type === 'linkGroup') return (
         <section className={styles.linkGroup} data-block-layout="linkGroup-one" data-navigation-block={block.type} key={block.id}>
-          <BlockHeader heading={block.heading} />
+          <BlockHeader heading={block.heading} headingClassName={styles.linkGroupHeading} />
           <div className={styles.linkList}>{block.links.map(({ id, link }) => <NavigationLink key={id} link={link} />)}</div>
         </section>
       )

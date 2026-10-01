@@ -78,7 +78,7 @@ describe('Header navigation block rendering', () => {
     expect(container.textContent).not.toContain('→')
 
     const css = readFileSync(resolve(process.cwd(), 'src/Header/Nav/blocks.module.css'), 'utf8')
-    expect(css).toMatch(/\.visualCardGrid\s*\{[^}]*column-gap:\s*1\.5rem[^}]*row-gap:\s*1rem/s)
+    expect(css).toMatch(/\.visualCardGrid\s*\{[^}]*column-gap:\s*var\(--website-space-6\)[^}]*row-gap:\s*var\(--website-space-4\)/s)
     expect(css).toMatch(/\.visualGridMany\s*\{[^}]*grid-template-columns:\s*repeat\(4,/s)
     expect(css).toMatch(/@media\s*\(max-width:\s*767px\)[^{]*\{[^}]*\.visualCardGrid:not\(\.visualGridOne\)[^}]*grid-template-columns:\s*repeat\(2,/s)
     expect(css).toMatch(/\.navigationCardVisual\s*\{[^}]*border-radius:\s*var\(--website-radius-content\)/s)
@@ -148,10 +148,13 @@ describe('Header navigation block rendering', () => {
     expect(container.textContent).not.toContain('→')
 
     const css = readFileSync(resolve(process.cwd(), 'src/Header/Nav/blocks.module.css'), 'utf8')
-    expect(css).toMatch(/\.linkGroup\s+\.blockHeading\s*\{[^}]*font-size:\s*\.75rem[^}]*font-weight:\s*700/s)
-    expect(css).toMatch(/\.linkList\s+a\s*\{[^}]*font-size:\s*\.875rem[^}]*font-weight:\s*400[^}]*min-height:\s*2rem/s)
+    expect(screen.getByRole('heading', { name: 'Resources' }).className).toContain('linkGroupHeading')
+    expect(css).toMatch(/\.linkGroupHeading\s*\{[^}]*composes:\s*website-type-caption from global[^}]*font-weight:\s*600[^}]*text-transform:\s*uppercase/s)
+    expect(css).not.toMatch(/\.linkGroup\s+\.blockHeading\s*\{/)
+    expect(css).toMatch(/\.linkList\s*\{[^}]*composes:\s*website-type-body-sm from global/s)
+    expect(css).toMatch(/\.linkList\s+a\s*\{[^}]*min-height:\s*2rem/s)
     expect(css).toMatch(/\.linkList\s+a:hover\s*\{[^}]*text-decoration:\s*underline/s)
-    expect(css).toMatch(/@media\s*\(max-width:\s*767px\)[^{]*\{[\s\S]*?\.linkList\s+a\s*\{[^}]*min-height:\s*2\.75rem/s)
+    expect(css).toMatch(/@media\s*\(max-width:\s*767px\)[^{]*\{[\s\S]*?\.linkList\s+a\s*\{[^}]*min-height:\s*var\(--website-control-target-min\)/s)
   })
 
   it('uses composition tracks based on block density without reordering blocks', () => {
@@ -228,6 +231,20 @@ describe('Header navigation block rendering', () => {
       )
       return container.querySelector('[data-media]')?.getAttribute('data-size') ?? ''
     })()
+    const productPresentation = (mode: 'compact' | 'desktop') => {
+      const { container, unmount } = render(
+        <NavigationCard card={card('product', 'Product')} mode={mode} variant="product" />,
+      )
+      const value = container.querySelector('[data-media]')?.getAttribute('data-presentation')
+      unmount()
+      return value
+    }
+    expect(productPresentation('desktop')).toBe(
+      JSON.stringify({ image: { aspectRatio: { width: 2, height: 1 }, fit: 'contain' } }),
+    )
+    expect(productPresentation('compact')).toBe(
+      JSON.stringify({ image: { aspectRatio: { width: 4, height: 3 }, fit: 'contain' } }),
+    )
     expect(desktopProductSize).toBe('25vw')
     expect(compactProductSize).toBe(
       '(max-width: 360px) 100vw, (max-width: 1170px) 50vw, 25vw',
@@ -589,8 +606,17 @@ describe('Header navigation block rendering', () => {
     expect([...grid.children].every((node) => node.className.includes('navigationCardProduct'))).toBe(true)
     const css = readFileSync(resolve(process.cwd(), 'src/Header/Nav/blocks.module.css'), 'utf8')
     expect(css).toMatch(/\.productCardGrid\s*\{[^}]*grid-template-columns:\s*repeat\(4,/s)
-    expect(css).toMatch(/\.navigationCardProduct\s*\{[^}]*background:/s)
-    expect(css).toMatch(/\.navigationCardProduct[^}]*:global\(img\)[^}]*max-(?:height|width):\s*82%/s)
+    expect(css).toMatch(/\.navigationCardProduct\s*\{[^}]*background:\s*var\(--website-color-muted-surface\)/s)
+    expect(css).toMatch(/\.navigationCardRich\s*\{[^}]*background:\s*var\(--website-color-muted-surface\)/s)
+    expect(css).toMatch(/\.categoryTabActive\s*\{[^}]*background:\s*var\(--website-color-interactive-surface\)/s)
+    for (const selector of ['blockCTA', 'categoryPrimaryCTA, \\.categoryActiveCTA'])
+      expect(css).toMatch(
+        new RegExp(`\\.${selector}\\s*\\{[^}]*background:\\s*var\\(--website-color-surface\\);\\s*border:\\s*1px solid var\\(--website-color-border\\)`, 's'),
+      )
+    expect(css).not.toContain('color-mix(')
+    expect(css).toMatch(/\.navigationCardProduct[^}]*:global\(img\)[^}]*max-(?:height|width):\s*90%/s)
+    expect(css).toMatch(/\.navigationCardProduct\s+\.navigationCardImage\s*\{[^}]*aspect-ratio:\s*2 \/ 1/s)
+    expect(css).toMatch(/\.navigationBlocksCompact\s+\.navigationCardProduct\s+\.navigationCardImage\s*\{[^}]*aspect-ratio:\s*4 \/ 3/s)
     expect(css).toMatch(/\.navigationCardProduct:hover[^}]*:global\(img\)[^}]*scale\(1\.035\)/s)
     expect(css).toMatch(/@media \(prefers-reduced-motion: reduce\)[^{]*\{[^}]*\.categoryTab[^}]*transition:\s*none/s)
   })

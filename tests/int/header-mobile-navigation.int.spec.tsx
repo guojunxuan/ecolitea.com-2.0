@@ -391,8 +391,8 @@ describe('MobileNav', () => {
 
     expect(navigationCSS).toContain('grid-template-rows: 0fr')
     expect(navigationCSS).toContain('grid-template-rows: 1fr')
-    expect(navigationCSS).toContain('200ms')
-    expect(navigationCSS).toContain('transform 300ms')
+    expect(navigationCSS).toContain('grid-template-rows var(--website-duration-standard)')
+    expect(navigationCSS).toContain('transform var(--website-duration-standard)')
     expect(navigationCSS).toContain('border-bottom: 1px solid var(--website-color-border)')
     expect(navigationCSS).toMatch(/\.mobileMenuCtaBar\s*\{[^}]*position: fixed/s)
     expect(blocksCSS).toMatch(
@@ -401,7 +401,7 @@ describe('MobileNav', () => {
     expect(blocksCSS).toMatch(
       /\.navigationBlocksCompact[^}]*\.visualCardGrid:not\(\.visualGridOne\)[^}]*repeat\(2, minmax\(0, 1fr\)\)/s,
     )
-    expect(blocksCSS).toMatch(/\.navigationBlocksCompact[^}]*\.linkList a[^}]*min-height: 2\.75rem/s)
+    expect(blocksCSS).toMatch(/\.navigationBlocksCompact[^}]*\.linkList a[^}]*min-height: var\(--website-control-target-min\)/s)
     expect(blocksCSS).not.toMatch(
       /@media \(prefers-reduced-motion: reduce\)[\s\S]*?\.categoryChevronOpen\s*\{[^}]*transform: none/,
     )

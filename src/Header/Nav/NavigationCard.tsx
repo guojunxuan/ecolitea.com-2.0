@@ -16,6 +16,12 @@ type NavigationCardProps = {
   variant?: NavigationCardVariant
 }
 
+const titleRole: Record<NavigationCardVariant, string | undefined> = {
+  product: styles.productCardTitle,
+  rich: undefined,
+  visual: styles.visualCardTitle,
+}
+
 const cardSize = (variant: NavigationCardVariant, mode: 'compact' | 'desktop') => {
   if (variant === 'rich') return '(max-width: 1170px) 100vw, 50vw'
   if (mode === 'compact') {
@@ -36,7 +42,13 @@ export const NavigationCard: React.FC<NavigationCardProps> = ({
       ? { image: { aspectRatio: { width: 16, height: 9 }, fit: 'cover' as const } }
       : variant === 'rich'
         ? { image: { aspectRatio: { width: 16, height: 9 }, fit: 'contain' as const } }
-        : { image: { aspectRatio: { width: 4, height: 3 }, fit: 'contain' as const } }
+        : {
+            image: {
+              // Matches the 2:1 desktop and 4:3 compact product frames in blocks.module.css.
+              aspectRatio: mode === 'compact' ? { width: 4, height: 3 } : { width: 2, height: 1 },
+              fit: 'contain' as const,
+            },
+          }
 
   return (
     <NavigationLink
@@ -54,7 +66,7 @@ export const NavigationCard: React.FC<NavigationCardProps> = ({
         {variant === 'visual' && <span aria-hidden="true" className={styles.navigationCardGradient} />}
       </span>
       <span className={styles.navigationCardBody} data-website-theme={variant === 'visual' ? 'inverse' : undefined}>
-        <span className={styles.navigationCardTitle}>{card.title}</span>
+        <span className={`${styles.navigationCardTitle} ${titleRole[variant] ?? ''}`}>{card.title}</span>
         {variant !== 'product' && description ? <span className={styles.navigationCardDescription}>{description}</span> : null}
       </span>
     </NavigationLink>

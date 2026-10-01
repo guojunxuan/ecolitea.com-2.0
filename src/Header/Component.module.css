@@ -19,10 +19,14 @@
 }
 
 .surface[data-theme='dark'] {
+  --website-color-action: var(--website-color-brand-white);
+  --website-color-action-foreground: var(--website-color-brand-black);
   color: var(--website-color-brand-white);
 }
 
 :global(body:has(main [data-header-theme='dark'])) .surface:not([data-scrolled='true']):not([data-menu-open='true']) {
+  --website-color-action: var(--website-color-brand-white);
+  --website-color-action-foreground: var(--website-color-brand-black);
   color: var(--website-color-brand-white);
 }
 
@@ -36,6 +40,8 @@
 
 .surface[data-scrolled='true'],
 .surface[data-menu-open='true'] {
+  --website-color-action: var(--website-color-brand-black);
+  --website-color-action-foreground: var(--website-color-brand-white);
   color: var(--website-color-foreground);
 }
 
@@ -50,7 +56,7 @@
 .inner {
   align-items: center;
   display: flex;
-  gap: 1.5rem;
+  gap: var(--website-space-6);
   height: var(--header-height);
   justify-content: space-between;
 }
@@ -65,10 +71,9 @@
 }
 
 .desktopBrandFallback {
-  font-size: 1rem;
+  composes: website-type-body-md from global;
   font-weight: 600;
   letter-spacing: -0.025em;
-  line-height: 1.5;
 }
 
 @media (width <= 1170px) {

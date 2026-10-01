@@ -1144,6 +1144,7 @@ test.describe.serial('Responsive website shell', () => {
   test('Hero theme changes Header foreground while Logo uses the SVG CSS mask', async ({
     page,
   }) => {
+    const brandBlack = 'rgb(10, 10, 10)'
     const serverResponse = await page.request.get(`${baseURL}${routePath}`)
     expect(serverResponse.ok()).toBe(true)
     expect(await serverResponse.text()).toContain('data-header-theme="dark"')
@@ -1168,10 +1169,10 @@ test.describe.serial('Responsive website shell', () => {
       'color',
       'rgb(255, 255, 255)',
     )
-    await expect(serverRenderedPage.getByRole('link', { name: 'E2E Talk to sales' })).toHaveCSS(
-      'color',
-      'rgb(255, 255, 255)',
-    )
+    // The solid menu CTA inverts over the dark hero: white fill, brand-black label.
+    const serverMenuCta = serverRenderedPage.getByRole('link', { name: 'E2E Talk to sales' })
+    await expect(serverMenuCta).toHaveCSS('background-color', 'rgb(255, 255, 255)')
+    await expect(serverMenuCta).toHaveCSS('color', brandBlack)
     await serverRenderedPage.close()
 
     await openFixture(page, 1280)
@@ -1221,8 +1222,8 @@ test.describe.serial('Responsive website shell', () => {
     expect(expectedForeground).not.toBe('rgb(255, 255, 255)')
     await expect(products).toHaveCSS('color', 'rgb(255, 255, 255)')
     await expect(search).toHaveCSS('color', 'rgb(255, 255, 255)')
-    await expect(menuCta).toHaveCSS('color', 'rgb(255, 255, 255)')
-    await expect(menuCta).toHaveCSS('border-color', 'rgb(255, 255, 255)')
+    await expect(menuCta).toHaveCSS('background-color', 'rgb(255, 255, 255)')
+    await expect(menuCta).toHaveCSS('color', brandBlack)
     await expect(scrollButton).toBeVisible()
     await expect(scrollButton).toHaveCSS('color', 'rgb(255, 255, 255)')
     await expect(indicator).toHaveCSS('background-color', 'rgb(255, 255, 255)')
@@ -1242,8 +1243,8 @@ test.describe.serial('Responsive website shell', () => {
     expect(menuForeground).toBe(expectedForeground)
     await expect(products).toHaveCSS('color', menuForeground)
     await expect(search).toHaveCSS('color', menuForeground)
-    await expect(menuCta).toHaveCSS('color', menuForeground)
-    await expect(menuCta).toHaveCSS('border-color', menuForeground)
+    await expect(menuCta).toHaveCSS('background-color', brandBlack)
+    await expect(menuCta).toHaveCSS('color', 'rgb(255, 255, 255)')
     await expect(scrollButton).toHaveCSS('color', menuForeground)
     await expect(indicator).toHaveCSS('background-color', menuForeground)
 
@@ -1260,8 +1261,8 @@ test.describe.serial('Responsive website shell', () => {
     expect(scrolledForeground).toBe(expectedForeground)
     await expect(products).toHaveCSS('color', scrolledForeground)
     await expect(search).toHaveCSS('color', scrolledForeground)
-    await expect(menuCta).toHaveCSS('color', scrolledForeground)
-    await expect(menuCta).toHaveCSS('border-color', scrolledForeground)
+    await expect(menuCta).toHaveCSS('background-color', brandBlack)
+    await expect(menuCta).toHaveCSS('color', 'rgb(255, 255, 255)')
     await expect(scrollButton).toHaveCSS('color', scrolledForeground)
 
     await page.evaluate(() => {

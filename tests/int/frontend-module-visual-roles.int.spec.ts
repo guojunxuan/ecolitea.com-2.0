@@ -141,6 +141,13 @@ describe('frontend module visual roles', () => {
       ['src/Header/Nav/index.module.css', '.dropdownButton', 'body-sm'],
       ['src/Header/Nav/index.module.css', '.searchLink', 'body-sm'],
       ['src/Header/Nav/blocks.module.css', '.linkList', 'body-sm'],
+      ['src/Header/Nav/blocks.module.css', '.blockHeading', 'title'],
+      ['src/Header/Nav/blocks.module.css', '.linkGroupHeading', 'caption'],
+      ['src/Header/Nav/blocks.module.css', '.productCardTitle', 'caption'],
+      ['src/Header/Nav/blocks.module.css', '.visualCardTitle', 'body-md'],
+      ['src/Header/Nav/blocks.module.css', '.navigationCardDescription', 'caption'],
+      ['src/Header/Nav/blocks.module.css', '.categoryAccordionButton', 'body-md'],
+      ['src/Header/Component.module.css', '.desktopBrandFallback', 'body-md'],
       ['src/app/(frontend)/pages.module.css', '.pageTitle', 'heading-1'],
     ]) {
       const typeClass = declarations(file).find(
