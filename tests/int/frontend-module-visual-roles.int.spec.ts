@@ -148,6 +148,15 @@ describe('frontend module visual roles', () => {
       )
       expect(typeClass?.value, `${file} ${selector}`).toBe(`website-type-${role} from global`)
     }
+    // Turbopack rejects `composes` inside @layer, @media or any other nested rule.
+    const nestedComposes = moduleRoots
+      .flatMap(cssModules)
+      .flatMap((file) =>
+        declarations(file)
+          .filter((entry) => entry.prop === 'composes' && entry.ancestors.length > 1)
+          .map((entry) => `${file}:${entry.line} ${entry.header}`),
+      )
+    expect(nestedComposes).toEqual([])
     expect(fs.readFileSync(path.join(root, 'src/components/Card/index.tsx'), 'utf8')).toContain(
       '<h3 className={styles.heading}>',
     )

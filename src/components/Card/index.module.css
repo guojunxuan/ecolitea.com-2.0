@@ -1,5 +1,17 @@
 @layer base, components, utilities;
 
+.categoryLabel {
+  composes: website-type-eyebrow from global;
+}
+
+.heading {
+  composes: website-type-heading-3 from global;
+}
+
+.description {
+  composes: website-type-body-md from global;
+}
+
 @layer components {
   .card {
     overflow: hidden;
@@ -24,8 +36,6 @@
   }
 
   .categoryLabel {
-    composes: website-type-eyebrow from global;
-
     margin-bottom: var(--website-space-4);
     text-transform: uppercase;
   }
@@ -35,8 +45,6 @@
   }
 
   .heading {
-    composes: website-type-heading-3 from global;
-
     margin: 0;
     color: inherit;
   }
@@ -47,8 +55,6 @@
   }
 
   .description {
-    composes: website-type-body-md from global;
-
     margin-top: var(--website-space-2);
   }
 }

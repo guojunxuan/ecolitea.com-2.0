@@ -1,8 +1,11 @@
 @layer base, components, utilities;
 
+.button {
+  composes: website-type-button from global;
+}
+
 @layer components {
   .button {
-  composes: website-type-button from global;
     display: inline-flex;
     gap: var(--website-space-2);
     align-items: center;

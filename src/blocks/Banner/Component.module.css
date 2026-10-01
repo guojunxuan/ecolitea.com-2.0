@@ -1,5 +1,9 @@
 @layer base, components, utilities;
 
+.surface {
+  composes: website-type-body-md from global;
+}
+
 @layer components {
   .banner {
     width: 100%;
@@ -8,7 +12,6 @@
   }
 
   .surface {
-  composes: website-type-body-md from global;
     display: flex;
     align-items: center;
     gap: var(--website-space-3);
