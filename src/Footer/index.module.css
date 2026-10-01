@@ -25,10 +25,13 @@
   object-fit: contain;
 }
 .description,
-.newsletterDescription,
-.information,
-.bottomBar {
+.information {
   color: var(--website-color-muted-foreground);
+}
+/* Supporting and legal copy sits one tier below navigation. */
+.newsletterDescription,
+.bottomBar {
+  color: var(--website-color-subtle-foreground);
 }
 .description {
   composes: website-type-body-sm from global;
@@ -36,7 +39,11 @@
   max-width: 22rem;
 }
 .socialList {
-  margin-top: var(--website-space-6);
+  /* The 44px targets carry their own padding, so the row sits closer to the
+     description and the first icon is pulled back into optical alignment. */
+  margin-top: var(--website-space-4);
+  margin-inline-start: -8px;
+  gap: 0;
 }
 .navigation {
   display: grid;
@@ -52,6 +59,7 @@
   align-items: center;
   justify-content: space-between;
   color: inherit;
+  font-size: 14px;
   font-weight: 600;
   letter-spacing: 0.055em;
   text-transform: uppercase;
@@ -69,6 +77,7 @@
   composes: website-type-caption from global;
   display: block;
   padding-block: 1rem 0.5rem;
+  font-size: 14px;
   font-weight: 600;
   letter-spacing: 0.055em;
   text-transform: uppercase;
@@ -114,10 +123,17 @@
   }
 }
 .newsletterHeading {
-  composes: website-type-title from global;
+  composes: website-type-caption from global;
+  font-weight: 600;
+  letter-spacing: 0.055em;
+  text-transform: uppercase;
 }
 .newsletterDescription {
-  composes: website-type-body-sm from global;
+  composes: website-type-caption from global;
+  /* Footer-local legal/supporting tier. No 12px/400 role exists globally and
+     this and .bottomBar are its only consumers, so it stays a local override. */
+  font-size: 12px;
+  line-height: 1.5;
   margin-top: 0.5rem;
 }
 .newsletterControls {
@@ -127,11 +143,11 @@
 }
 .newsletterInput,
 .newsletterButton {
-  min-height: var(--website-control-default);
+  min-height: var(--website-control-compact);
   border: 1px solid var(--website-color-input);
 }
 .newsletterInput {
-  composes: website-type-body-sm from global;
+  composes: website-type-caption from global;
   min-width: 0;
   border-radius: var(--website-radius-control) 0 0 var(--website-radius-control);
   padding-inline: 0.875rem;
@@ -139,7 +155,7 @@
   color: var(--website-color-disabled-foreground);
 }
 .newsletterButton {
-  composes: website-type-button from global;
+  composes: website-type-caption from global;
   border-left: 0;
   border-radius: 0 var(--website-radius-control) var(--website-radius-control) 0;
   padding-inline: 1rem;
@@ -150,20 +166,22 @@
   composes: website-type-caption from global;
   display: grid;
   gap: 1rem;
-  margin-top: 2rem;
-  border-top: 1px solid var(--website-color-border);
-  padding-top: 1.5rem;
+  /* Separated by whitespace rather than a rule; .bottomBar keeps the only
+     divider so the Footer reads as one block instead of stacked slabs. */
+  margin-top: var(--website-space-12);
   font-style: normal;
 }
 .socialList,
 .legalList {
   display: flex;
   flex-wrap: wrap;
+}
+.legalList {
   gap: 0.75rem 1.25rem;
 }
 .contactList {
   display: grid;
-  gap: 0.75rem;
+  gap: var(--website-space-3);
 }
 .contactItem {
   display: grid;
@@ -188,51 +206,38 @@
   }
 }
 .socialIcon {
-  width: var(--website-icon-large);
-  height: var(--website-icon-large);
+  width: var(--website-icon-medium);
+  height: var(--website-icon-medium);
   object-fit: contain;
+  /* Uploaded brand marks are dark; the Footer is pinned to the inverse theme. */
   filter: brightness(0) invert(1);
+  opacity: 0.68;
+  transition: opacity var(--website-duration-fast) ease;
 }
 .socialLink {
   display: flex;
-  width: 2.75rem;
+  /* Width stays at 36px so five icons still fit the brand column at 1170px;
+     height carries the touch target. */
+  width: 36px;
   min-height: var(--website-control-target-min);
   align-items: center;
   justify-content: center;
-  border: 1px solid var(--website-color-border);
-  border-radius: 50%;
-  background: var(--website-color-muted-surface);
-  transition:
-    border-color var(--website-duration-fast) ease,
-    background-color var(--website-duration-fast) ease;
 }
 @media (hover: hover) and (pointer: fine) {
-  .socialLink:hover {
-    border-color: var(--website-color-foreground);
-    background: var(--website-color-interactive-surface);
+  .socialLink:hover .socialIcon {
+    opacity: 1;
   }
 }
 .bottomBar {
   composes: website-type-caption from global;
+  /* Matches .newsletterDescription; see the note there. */
+  font-size: 12px;
+  line-height: 1.5;
   display: flex;
   flex-direction: column;
   gap: 1rem;
   border-top: 1px solid var(--website-color-border);
   padding-block: 1.5rem 2rem;
-}
-
-@media (width < 30rem) {
-  .newsletterControls {
-    grid-template-columns: 1fr;
-  }
-  .newsletterInput {
-    border-radius: var(--website-radius-control) var(--website-radius-control) 0 0;
-  }
-  .newsletterButton {
-    border-top: 0;
-    border-left: 1px solid var(--website-color-input);
-    border-radius: 0 0 var(--website-radius-control) var(--website-radius-control);
-  }
 }
 
 @media (width >= 48rem) {

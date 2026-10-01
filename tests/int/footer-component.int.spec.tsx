@@ -263,7 +263,8 @@ describe('FooterNavigation', () => {
     expect(css).toMatch(/\.socialIcon\s*\{[^}]*filter:\s*brightness\(0\) invert\(1\)/s)
     expect(css).toMatch(/\.contactItem\s*\{[^}]*display:\s*grid/s)
     expect(css).toMatch(/\.contactIcon\s*\{[^}]*color:\s*inherit/s)
-    expect(css).toMatch(/width < 30rem[\s\S]*\.newsletterControls\s*\{[^}]*grid-template-columns:\s*1fr/s)
+    expect(css).toMatch(/\.newsletterControls\s*\{[^}]*grid-template-columns:\s*minmax\(0, 1fr\) auto/s)
+    expect(css).not.toContain('width < 30rem')
     expect(css).toContain('@media (width >= 73.125rem)')
     expect(css).not.toMatch(/48rem[^}]*grid-template-columns:\s*repeat\(2/s)
   })
@@ -286,10 +287,10 @@ describe('FooterNavigation', () => {
       ['desktopHeading', 'caption'],
       ['accordionTrigger', 'caption'],
       ['navLink', 'caption'],
-      ['newsletterHeading', 'title'],
-      ['newsletterDescription', 'body-sm'],
-      ['newsletterInput', 'body-sm'],
-      ['newsletterButton', 'button'],
+      ['newsletterHeading', 'caption'],
+      ['newsletterDescription', 'caption'],
+      ['newsletterInput', 'caption'],
+      ['newsletterButton', 'caption'],
       ['information', 'caption'],
       ['bottomBar', 'caption'],
     ]) {
@@ -298,7 +299,8 @@ describe('FooterNavigation', () => {
     expect(css).toMatch(/\.desktopHeading\s*\{[^}]*font-weight:\s*600/s)
     expect(css).toMatch(/\.desktopHeading\s*\{[^}]*letter-spacing:\s*0\.055em/s)
     expect(css).toMatch(/\.accordionTrigger\s*\{[^}]*letter-spacing:\s*0\.055em/s)
-    expect(css).toMatch(/\.socialIcon\s*\{[^}]*width:\s*var\(--website-icon-large\)/s)
+    expect(css).toMatch(/\.newsletterHeading\s*\{[^}]*font-weight:\s*600[^}]*text-transform:\s*uppercase/s)
+    expect(css).toMatch(/\.socialIcon\s*\{[^}]*width:\s*var\(--website-icon-medium\)/s)
     expect(css).toMatch(/\.contactIcon\s*\{[^}]*width:\s*var\(--website-icon-small\)/s)
   })
 
