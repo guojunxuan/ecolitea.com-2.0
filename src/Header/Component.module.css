@@ -35,7 +35,6 @@
   border-bottom: 1px solid var(--website-glass-border);
   box-shadow: var(--website-shadow-subtle);
   backdrop-filter: blur(var(--website-glass-blur)) saturate(var(--website-glass-saturation));
-  -webkit-backdrop-filter: blur(var(--website-glass-blur)) saturate(var(--website-glass-saturation));
 }
 
 .surface[data-scrolled='true'],
@@ -48,7 +47,6 @@
 .surface[data-menu-open='true'] {
   background: var(--website-glass-surface);
   backdrop-filter: none;
-  -webkit-backdrop-filter: none;
   border-bottom-color: transparent;
   box-shadow: none;
 }

@@ -69,6 +69,19 @@ describe('frontend module visual roles', () => {
     expect(violations).toEqual([])
   })
 
+  it('leaves the backdrop-filter prefix to the CSS compiler', () => {
+    // Lightning CSS (Turbopack) collapses an authored `backdrop-filter` +
+    // `-webkit-backdrop-filter` pair into the prefixed form alone, which Chromium ignores.
+    const prefixed = moduleRoots
+      .flatMap(cssModules)
+      .flatMap((file) =>
+        declarations(file)
+          .filter((entry) => entry.prop === '-webkit-backdrop-filter')
+          .map((entry) => `${file}:${entry.line} ${entry.prop}`),
+      )
+    expect(prefixed).toEqual([])
+  })
+
   it('maps content shapes and status banners to the shared visual roles', () => {
     for (const [file, selector, role] of [
       ['src/components/Card/index.module.css', '.card', 'content'],
