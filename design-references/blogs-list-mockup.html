@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Blogs List Page — Ecolitea Design Mockup</title>
+  <style>
+    /* Inherit current system tokens */
+    :root {
+      --website-font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+      --website-font-mono: 'SF Mono', Monaco, 'Cascadia Code', 'Courier New', monospace;
+
+      --website-container-site: 76.25rem; /* 1220px */
+      --website-container-reading: 46rem; /* 736px */
+
+      --website-color-brand-black: #0a0a0a;
+      --website-color-brand-white: #ffffff;
+      --website-color-neutral-900: #262629;
+      --website-color-neutral-600: #76767f;
+      --website-color-neutral-500: #9a9aa1;
+      --website-color-neutral-100: #f7f7f8;
+      --website-color-neutral-200: #ededee;
+      --website-color-neutral-300: #e0e0e2;
+      --website-color-neutral-400: #d4d4d7;
+
+      --website-color-background: var(--website-color-brand-white);
+      --website-color-foreground: var(--website-color-neutral-900);
+      --website-color-muted-foreground: var(--website-color-neutral-600);
+      --website-color-subtle-foreground: var(--website-color-neutral-500);
+      --website-color-border: var(--website-color-neutral-300);
+      --website-color-action: var(--website-color-brand-black);
+
+      --website-space-2: 8px;
+      --website-space-3: 12px;
+      --website-space-4: 16px;
+      --website-space-6: 24px;
+      --website-space-8: 32px;
+      --website-space-12: 48px;
+      --website-space-16: 64px;
+      --website-space-20: 80px;
+
+      --website-radius-control: 8px;
+      --website-radius-content: 12px;
+
+      --website-control-default: 48px;
+      --website-control-target-min: 44px;
+
+      --website-shadow-subtle: 0 4px 16px rgb(0 0 0 / 8%);
+      --website-shadow-raised: 0 12px 40px rgb(0 0 0 / 12%);
+
+      --website-duration-standard: 240ms;
+      --website-easing-standard: cubic-bezier(0.2, 0.8, 0.2, 1);
+
+      --header-height: 3.75rem; /* 60px */
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--website-font-sans);
+      font-size: 16px;
+      line-height: 1.5;
+      color: var(--website-color-foreground);
+      background: var(--website-color-background);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    button {
+      font: inherit;
+      cursor: pointer;
+    }
+
+    img {
+      display: block;
+      max-width: 100%;
+      height: auto;
+    }
+
+    /* Header placeholder */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: var(--header-height);
+      background: var(--website-color-background);
+      border-bottom: 1px solid var(--website-color-border);
+    }
+
+    .site-header-inner {
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--website-color-muted-foreground);
+    }
+
+    /* Main container */
+    main {
+      max-width: var(--website-container-site);
+      margin: 0 auto;
+      padding: var(--website-space-16) var(--website-space-6);
+    }
+
+    /* Breadcrumb */
+    .breadcrumb {
+      margin-bottom: var(--website-space-8);
+    }
+
+    .breadcrumb ol {
+      display: flex;
+      align-items: center;
+      gap: var(--website-space-2);
+      list-style: none;
+      font-size: 13px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--website-color-muted-foreground);
+    }
+
+    .breadcrumb a:hover {
+      color: var(--website-color-foreground);
+    }
+
+    .breadcrumb-separator {
+      color: var(--website-color-subtle-foreground);
+    }
+
+    .breadcrumb [aria-current] {
+      color: var(--website-color-foreground);
+    }
+
+    /* Page header */
+    .page-header {
+      margin-bottom: var(--website-space-16);
+    }
+
+    .page-title {
+      font-size: clamp(2rem, 5vw, 3rem);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+      margin-bottom: var(--website-space-4);
+    }
+
+    .page-description {
+      font-size: 18px;
+      line-height: 1.6;
+      color: var(--website-color-muted-foreground);
+      max-width: 60ch;
+    }
+
+    /* Category tabs row */
+    .category-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--website-space-6);
+      margin-bottom: var(--website-space-12);
+      padding-bottom: var(--website-space-4);
+      border-bottom: 1px solid var(--website-color-border);
+    }
+
+    .category-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--website-space-2);
+      flex: 1;
+    }
+
+    .tab-button {
+      display: inline-flex;
+      align-items: center;
+      min-height: var(--website-control-target-min);
+      padding: 0 var(--website-space-4);
+      border: 1px solid var(--website-color-border);
+      border-radius: var(--website-radius-control);
+      background: var(--website-color-background);
+      color: var(--website-color-foreground);
+      font-size: 14px;
+      font-weight: 500;
+      transition: all var(--website-duration-standard) var(--website-easing-standard);
+    }
+
+    .tab-button:hover {
+      border-color: var(--website-color-action);
+      background: var(--website-color-action);
+      color: var(--website-color-brand-white);
+    }
+
+    .tab-button[aria-pressed="true"] {
+      border-color: var(--website-color-action);
+      background: var(--website-color-action);
+      color: var(--website-color-brand-white);
+    }
+
+    .tab-count {
+      margin-left: var(--website-space-2);
+      font-size: 11px;
+      opacity: 0.6;
+    }
+
+    .result-meta {
+      font-size: 13px;
+      color: var(--website-color-muted-foreground);
+      white-space: nowrap;
+    }
+
+    /* Post grid */
+    .post-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--website-space-8);
+      margin-bottom: var(--website-space-16);
+    }
+
+    /* Featured card (first item on page 1) */
+    .post-card.featured {
+      grid-column: span 2;
+    }
+
+    .post-card {
+      display: flex;
+      flex-direction: column;
+      border: 1px solid var(--website-color-border);
+      border-radius: var(--website-radius-content);
+      background: var(--website-color-background);
+      overflow: hidden;
+      box-shadow: var(--website-shadow-subtle);
+      transition: all var(--website-duration-standard) var(--website-easing-standard);
+    }
+
+    .post-card:hover {
+      box-shadow: var(--website-shadow-raised);
+      transform: translateY(-2px);
+      border-color: var(--website-color-neutral-400);
+    }
+
+    .card-image {
+      position: relative;
+      aspect-ratio: 16 / 9;
+      overflow: hidden;
+      background: var(--website-color-neutral-100);
+    }
+
+    .card-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 500ms var(--website-easing-standard);
+    }
+
+    .post-card:hover .card-image img {
+      transform: scale(1.05);
+    }
+
+    .card-content {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      padding: var(--website-space-6);
+    }
+
+    .featured .card-content {
+      padding: var(--website-space-8);
+    }
+
+    .card-category {
+      margin-bottom: var(--website-space-3);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--website-color-muted-foreground);
+    }
+
+    .card-category:hover {
+      color: var(--website-color-action);
+    }
+
+    .card-title {
+      margin-bottom: var(--website-space-3);
+      font-size: 20px;
+      font-weight: 600;
+      line-height: 1.3;
+      letter-spacing: -0.01em;
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 2;
+      overflow: hidden;
+    }
+
+    .featured .card-title {
+      font-size: 28px;
+      line-height: 1.2;
+      margin-bottom: var(--website-space-4);
+    }
+
+    .card-excerpt {
+      margin-bottom: var(--website-space-4);
+      font-size: 15px;
+      line-height: 1.6;
+      color: var(--website-color-muted-foreground);
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 3;
+      overflow: hidden;
+    }
+
+    .card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: auto;
+      padding-top: var(--website-space-4);
+      border-top: 1px solid var(--website-color-border);
+      font-size: 13px;
+      color: var(--website-color-subtle-foreground);
+    }
+
+    .card-arrow {
+      font-size: 18px;
+      transition: transform var(--website-duration-standard) var(--website-easing-standard);
+    }
+
+    .post-card:hover .card-arrow {
+      transform: translateX(4px);
+    }
+
+    /* Pagination */
+    .pagination {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--website-space-2);
+      margin-top: var(--website-space-20);
+      padding-top: var(--website-space-8);
+      border-top: 1px solid var(--website-color-border);
+    }
+
+    .page-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: var(--website-control-target-min);
+      height: var(--website-control-target-min);
+      padding: 0 var(--website-space-3);
+      border: 1px solid var(--website-color-border);
+      border-radius: var(--website-radius-control);
+      background: var(--website-color-background);
+      color: var(--website-color-foreground);
+      font-size: 14px;
+      font-weight: 500;
+      transition: all var(--website-duration-standard) var(--website-easing-standard);
+    }
+
+    .page-button:hover:not(:disabled) {
+      border-color: var(--website-color-action);
+      background: var(--website-color-action);
+      color: var(--website-color-brand-white);
+    }
+
+    .page-button.current {
+      border-color: var(--website-color-action);
+      background: var(--website-color-action);
+      color: var(--website-color-brand-white);
+    }
+
+    .page-button:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+      .post-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--website-space-6);
+      }
+    }
+
+    @media (max-width: 768px) {
+      main {
+        padding: var(--website-space-12) var(--website-space-4);
+      }
+
+      .page-header {
+        margin-bottom: var(--website-space-12);
+      }
+
+      .category-row {
+        flex-direction: column;
+        align-items: stretch;
+        gap: var(--website-space-4);
+      }
+
+      .result-meta {
+        display: none;
+      }
+
+      .post-grid {
+        grid-template-columns: 1fr;
+        gap: var(--website-space-6);
+      }
+
+      .post-card.featured {
+        grid-column: span 1;
+      }
+
+      .card-title {
+        font-size: 18px;
+      }
+
+      .featured .card-title {
+        font-size: 22px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header placeholder -->
+  <header class="site-header">
+    <div class="site-header-inner">Site Header Placeholder</div>
+  </header>
+
+  <main>
+    <!-- Breadcrumb (only on category pages) -->
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <ol>
+        <li><a href="/">Home</a></li>
+        <li class="breadcrumb-separator">/</li>
+        <li><a href="/blogs">Blog</a></li>
+        <li class="breadcrumb-separator">/</li>
+        <li aria-current="page">Tea Guides</li>
+      </ol>
+    </nav>
+
+    <!-- Page header -->
+    <header class="page-header">
+      <h1 class="page-title">Blog</h1>
+      <p class="page-description">
+        Discover sustainable living tips, eco-friendly product guides, and insights on creating a greener future.
+      </p>
+    </header>
+
+    <!-- Category tabs + result meta -->
+    <div class="category-row">
+      <div class="category-tabs" role="group" aria-label="Filter posts by category">
+        <button class="tab-button" aria-pressed="true">
+          All <span class="tab-count">48</span>
+        </button>
+        <button class="tab-button" aria-pressed="false">
+          Tea Guides <span class="tab-count">12</span>
+        </button>
+        <button class="tab-button" aria-pressed="false">
+          Sustainability <span class="tab-count">18</span>
+        </button>
+        <button class="tab-button" aria-pressed="false">
+          Product Reviews <span class="tab-count">8</span>
+        </button>
+        <button class="tab-button" aria-pressed="false">
+          Wellness <span class="tab-count">10</span>
+        </button>
+      </div>
+      <div class="result-meta" aria-live="polite">Showing 1–12 of 48</div>
+    </div>
+
+    <!-- Post grid -->
+    <div class="post-grid">
+      <!-- Featured card (first on page 1 only) -->
+      <article class="post-card featured">
+        <a href="/blogs/guide-to-organic-tea" class="card-image">
+          <img src="https://images.unsplash.com/photo-1564890369478-c89ca6d9cde9?w=800&h=450&fit=crop" alt="Organic tea leaves">
+        </a>
+        <div class="card-content">
+          <a href="/blogs/category/tea-guides" class="card-category">Tea Guides</a>
+          <h2 class="card-title">
+            <a href="/blogs/guide-to-organic-tea">The Complete Guide to Organic Tea: From Farm to Cup</a>
+          </h2>
+          <p class="card-excerpt">
+            Discover the journey of organic tea production, from sustainable farming practices to the perfect brewing techniques that bring out the best flavors in every cup.
+          </p>
+          <div class="card-footer">
+            <time datetime="2026-09-28">Sep 28, 2026</time>
+            <span class="card-arrow">→</span>
+          </div>
+        </div>
+      </article>
+
+      <!-- Regular cards -->
+      <article class="post-card">
+        <a href="/blogs/sustainable-packaging" class="card-image">
+          <img src="https://images.unsplash.com/photo-1611269154421-4e27233ac5c7?w=600&h=400&fit=crop" alt="Eco-friendly packaging">
+        </a>
+        <div class="card-content">
+          <a href="/blogs/category/sustainability" class="card-category">Sustainability</a>
+          <h2 class="card-title">
+            <a href="/blogs/sustainable-packaging">Rethinking Packaging: Our Journey to Zero Waste</a>
+          </h2>
+          <p class="card-excerpt">
+            How we redesigned our packaging to eliminate plastic and reduce our carbon footprint by 60%.
+          </p>
+          <div class="card-footer">
+            <time datetime="2026-09-25">Sep 25, 2026</time>
+            <span class="card-arrow">→</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="post-card">
+        <a href="/blogs/matcha-benefits" class="card-image">
+          <img src="https://images.unsplash.com/photo-1515823064-d6e0c04616a7?w=600&h=400&fit=crop" alt="Matcha tea">
+        </a>
+        <div class="card-content">
+          <a href="/blogs/category/wellness" class="card-category">Wellness</a>
+          <h2 class="card-title">
+            <a href="/blogs/matcha-benefits">5 Science-Backed Benefits of Daily Matcha</a>
+          </h2>
+          <p class="card-excerpt">
+            From boosted metabolism to improved focus, discover why matcha is more than just a trendy drink.
+          </p>
+          <div class="card-footer">
+            <time datetime="2026-09-22">Sep 22, 2026</time>
+            <span class="card-arrow">→</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="post-card">
+        <a href="/blogs/tea-storage-tips" class="card-image">
+          <img src="https://images.unsplash.com/photo-1576092768241-dec231879fc3?w=600&h=400&fit=crop" alt="Tea storage containers">
+        </a>
+        <div class="card-content">
+          <a href="/blogs/category/tea-guides" class="card-category">Tea Guides</a>
+          <h2 class="card-title">
+            <a href="/blogs/tea-storage-tips">How to Store Tea to Preserve Freshness and Flavor</a>
+          </h2>
+          <p class="card-excerpt">
+            Proper storage can extend your tea's shelf life by months. Here's what you need to know.
+          </p>
+          <div class="card-footer">
+            <time datetime="2026-09-18">Sep 18, 2026</time>
+            <span class="card-arrow">→</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="post-card">
+        <a href="/blogs/ceramic-teapot-review" class="card-image">
+          <img src="https://images.unsplash.com/photo-1594631252845-29fc4cc8cde0?w=600&h=400&fit=crop" alt="Ceramic teapot">
+        </a>
+        <div class="card-content">
+          <a href="/blogs/category/product-reviews" class="card-category">Product Reviews</a>
+          <h2 class="card-title">
+            <a href="/blogs/ceramic-teapot-review">Artisan Ceramic Teapots: A Sustainable Choice</a>
+          </h2>
+          <p class="card-excerpt">
+            We tested 8 handmade ceramic teapots to find the perfect balance of beauty and function.
+          </p>
+          <div class="card-footer">
+            <time datetime="2026-09-15">Sep 15, 2026</time>
+            <span class="card-arrow">→</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="post-card">
+        <a href="/blogs/composting-tea-leaves" class="card-image">
+          <img src="https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=600&h=400&fit=crop" alt="Composting">
+        </a>
+        <div class="card-content">
+          <a href="/blogs/category/sustainability" class="card-category">Sustainability</a>
+          <h2 class="card-title">
+            <a href="/blogs/composting-tea-leaves">Composting Used Tea Leaves: A Beginner's Guide</a>
+          </h2>
+          <p class="card-excerpt">
+            Turn your tea waste into nutrient-rich compost for your garden with these simple steps.
+          </p>
+          <div class="card-footer">
+            <time datetime="2026-09-12">Sep 12, 2026</time>
+            <span class="card-arrow">→</span>
+          </div>
+        </div>
+      </article>
+
+      <!-- More cards... (showing 6 total for mockup) -->
+    </div>
+
+    <!-- Pagination -->
+    <nav class="pagination" aria-label="Pagination">
+      <button class="page-button" disabled aria-label="Previous page">←</button>
+      <button class="page-button current" aria-label="Page 1" aria-current="page">1</button>
+      <button class="page-button" aria-label="Page 2">2</button>
+      <button class="page-button" aria-label="Page 3">3</button>
+      <button class="page-button" aria-label="Page 4">4</button>
+      <button class="page-button" aria-label="Next page">→</button>
+    </nav>
+  </main>
+</body>
+</html>

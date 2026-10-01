@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Blog Detail Page — Ecolitea Design Mockup</title>
+  <style>
+    /* Inherit current system tokens */
+    :root {
+      --website-font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+      --website-font-mono: 'SF Mono', Monaco, 'Cascadia Code', 'Courier New', monospace;
+
+      --website-container-site: 76.25rem; /* 1220px */
+      --website-container-reading: 46rem; /* 736px */
+
+      --website-color-brand-black: #0a0a0a;
+      --website-color-brand-white: #ffffff;
+      --website-color-neutral-900: #262629;
+      --website-color-neutral-600: #76767f;
+      --website-color-neutral-500: #9a9aa1;
+      --website-color-neutral-100: #f7f7f8;
+      --website-color-neutral-200: #ededee;
+      --website-color-neutral-300: #e0e0e2;
+      --website-color-neutral-400: #d4d4d7;
+
+      --website-color-background: var(--website-color-brand-white);
+      --website-color-foreground: var(--website-color-neutral-900);
+      --website-color-muted-foreground: var(--website-color-neutral-600);
+      --website-color-subtle-foreground: var(--website-color-neutral-500);
+      --website-color-border: var(--website-color-neutral-300);
+      --website-color-action: var(--website-color-brand-black);
+
+      --website-space-2: 8px;
+      --website-space-3: 12px;
+      --website-space-4: 16px;
+      --website-space-6: 24px;
+      --website-space-8: 32px;
+      --website-space-12: 48px;
+      --website-space-16: 64px;
+      --website-space-20: 80px;
+
+      --website-radius-control: 8px;
+      --website-radius-content: 12px;
+
+      --website-control-default: 48px;
+      --website-control-target-min: 44px;
+
+      --website-shadow-subtle: 0 4px 16px rgb(0 0 0 / 8%);
+      --website-shadow-raised: 0 12px 40px rgb(0 0 0 / 12%);
+
+      --website-duration-standard: 240ms;
+      --website-easing-standard: cubic-bezier(0.2, 0.8, 0.2, 1);
+
+      --header-height: 3.75rem; /* 60px */
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--website-font-sans);
+      font-size: 16px;
+      line-height: 1.5;
+      color: var(--website-color-foreground);
+      background: var(--website-color-background);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    button {
+      font: inherit;
+      cursor: pointer;
+    }
+
+    img {
+      display: block;
+      max-width: 100%;
+      height: auto;
+    }
+
+    /* Header placeholder */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: var(--header-height);
+      background: var(--website-color-background);
+      border-bottom: 1px solid var(--website-color-border);
+    }
+
+    .site-header-inner {
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--website-color-muted-foreground);
+    }
+
+    /* Article layout */
+    article {
+      max-width: var(--website-container-site);
+      margin: 0 auto;
+      padding: var(--website-space-12) var(--website-space-6);
+    }
+
+    /* Breadcrumb */
+    .breadcrumb {
+      margin-bottom: var(--website-space-8);
+    }
+
+    .breadcrumb ol {
+      display: flex;
+      align-items: center;
+      gap: var(--website-space-2);
+      list-style: none;
+      font-size: 13px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--website-color-muted-foreground);
+    }
+
+    .breadcrumb a:hover {
+      color: var(--website-color-foreground);
+    }
+
+    .breadcrumb-separator {
+      color: var(--website-color-subtle-foreground);
+    }
+
+    .breadcrumb [aria-current] {
+      color: var(--website-color-foreground);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      max-width: 200px;
+    }
+
+    /* Article header */
+    .article-header {
+      max-width: var(--website-container-reading);
+      margin: 0 auto var(--website-space-16);
+    }
+
+    .article-category {
+      display: inline-block;
+      margin-bottom: var(--website-space-4);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--website-color-muted-foreground);
+    }
+
+    .article-category:hover {
+      color: var(--website-color-action);
+    }
+
+    .article-title {
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      font-weight: 700;
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+      margin-bottom: var(--website-space-8);
+    }
+
+    .article-meta {
+      display: flex;
+      align-items: center;
+      gap: var(--website-space-6);
+      padding-bottom: var(--website-space-6);
+      margin-bottom: var(--website-space-6);
+      border-bottom: 1px solid var(--website-color-border);
+      font-size: 14px;
+      color: var(--website-color-muted-foreground);
+    }
+
+    .article-authors {
+      display: flex;
+      align-items: center;
+      gap: var(--website-space-3);
+    }
+
+    .author-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--website-color-neutral-200);
+      object-fit: cover;
+    }
+
+    .article-date {
+      display: flex;
+      align-items: center;
+      gap: var(--website-space-2);
+    }
+
+    .article-date::before {
+      content: "•";
+      color: var(--website-color-subtle-foreground);
+    }
+
+    .share-buttons {
+      display: flex;
+      gap: var(--website-space-2);
+      margin-left: auto;
+    }
+
+    .share-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: var(--website-control-target-min);
+      height: var(--website-control-target-min);
+      border: 1px solid var(--website-color-border);
+      border-radius: var(--website-radius-control);
+      background: var(--website-color-background);
+      color: var(--website-color-muted-foreground);
+      transition: all var(--website-duration-standard) var(--website-easing-standard);
+    }
+
+    .share-button:hover {
+      border-color: var(--website-color-action);
+      background: var(--website-color-action);
+      color: var(--website-color-brand-white);
+    }
+
+    /* Hero image */
+    .hero-image {
+      width: 100%;
+      max-width: var(--website-container-site);
+      margin: 0 auto var(--website-space-20);
+      border-radius: var(--website-radius-content);
+      overflow: hidden;
+    }
+
+    .hero-image img {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      object-fit: cover;
+    }
+
+    /* Article content layout */
+    .article-body {
+      display: grid;
+      grid-template-columns: 1fr min(var(--website-container-reading), 100%) 1fr;
+      gap: var(--website-space-8);
+      align-items: start;
+    }
+
+    .article-body > * {
+      grid-column: 2;
+    }
+
+    /* TOC */
+    .toc-wrapper {
+      position: sticky;
+      top: calc(var(--header-height) + var(--website-space-6));
+      grid-column: 3;
+      grid-row: 1 / 999;
+      justify-self: start;
+    }
+
+    .toc {
+      width: 240px;
+      padding: var(--website-space-6);
+      border: 1px solid var(--website-color-border);
+      border-radius: var(--website-radius-content);
+      background: var(--website-color-background);
+    }
+
+    .toc-title {
+      margin-bottom: var(--website-space-4);
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--website-color-muted-foreground);
+    }
+
+    .toc-list {
+      list-style: none;
+    }
+
+    .toc-list a {
+      display: block;
+      padding: var(--website-space-2) 0;
+      font-size: 14px;
+      line-height: 1.4;
+      color: var(--website-color-muted-foreground);
+      transition: color var(--website-duration-standard);
+    }
+
+    .toc-list a:hover {
+      color: var(--website-color-action);
+    }
+
+    .toc-list a.active {
+      color: var(--website-color-action);
+      font-weight: 500;
+    }
+
+    .toc-list .toc-h3 {
+      padding-left: var(--website-space-4);
+      font-size: 13px;
+    }
+
+    /* Prose content */
+    .prose {
+      max-width: 100%;
+    }
+
+    .prose h2 {
+      font-size: 32px;
+      font-weight: 700;
+      line-height: 1.2;
+      letter-spacing: -0.01em;
+      margin: var(--website-space-20) 0 var(--website-space-6);
+      scroll-margin-top: calc(var(--header-height) + var(--website-space-6));
+    }
+
+    .prose h3 {
+      font-size: 24px;
+      font-weight: 600;
+      line-height: 1.3;
+      margin: var(--website-space-16) 0 var(--website-space-4);
+      scroll-margin-top: calc(var(--header-height) + var(--website-space-6));
+    }
+
+    .prose p {
+      margin-bottom: var(--website-space-6);
+      font-size: 18px;
+      line-height: 1.7;
+    }
+
+    .prose ul, .prose ol {
+      margin-bottom: var(--website-space-6);
+      padding-left: var(--website-space-6);
+    }
+
+    .prose li {
+      margin-bottom: var(--website-space-3);
+      font-size: 18px;
+      line-height: 1.7;
+    }
+
+    .prose blockquote {
+      margin: var(--website-space-12) 0;
+      padding-left: var(--website-space-6);
+      border-left: 3px solid var(--website-color-action);
+      font-size: 20px;
+      line-height: 1.6;
+      font-style: italic;
+      color: var(--website-color-muted-foreground);
+    }
+
+    .prose code {
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: var(--website-color-neutral-100);
+      font-family: var(--website-font-mono);
+      font-size: 0.9em;
+    }
+
+    .prose a {
+      color: var(--website-color-action);
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    .prose a:hover {
+      text-decoration-thickness: 2px;
+    }
+
+    /* Media block */
+    .media-block {
+      margin: var(--website-space-16) 0;
+    }
+
+    .media-block.wide {
+      grid-column: 1 / -1;
+      max-width: 900px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .media-block img {
+      width: 100%;
+      border-radius: var(--website-radius-content);
+    }
+
+    .media-caption {
+      margin-top: var(--website-space-3);
+      font-size: 14px;
+      line-height: 1.5;
+      color: var(--website-color-muted-foreground);
+      text-align: center;
+    }
+
+    /* Key takeaways block */
+    .key-takeaways {
+      margin: var(--website-space-16) 0;
+      padding: var(--website-space-8);
+      border: 1px solid var(--website-color-border);
+      border-radius: var(--website-radius-content);
+      background: var(--website-color-neutral-100);
+    }
+
+    .key-takeaways-title {
+      display: flex;
+      align-items: center;
+      gap: var(--website-space-3);
+      margin-bottom: var(--website-space-4);
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--website-color-foreground);
+    }
+
+    .key-takeaways-title::before {
+      content: "✓";
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: var(--website-color-action);
+      color: var(--website-color-brand-white);
+      font-size: 14px;
+    }
+
+    .key-takeaways ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    .key-takeaways li {
+      margin-bottom: var(--website-space-3);
+      padding-left: var(--website-space-8);
+      position: relative;
+      font-size: 16px;
+      line-height: 1.6;
+    }
+
+    .key-takeaways li::before {
+      content: "•";
+      position: absolute;
+      left: var(--website-space-4);
+      color: var(--website-color-action);
+      font-weight: 700;
+    }
+
+    /* CTA block */
+    .cta-block {
+      grid-column: 1 / -1;
+      max-width: 900px;
+      margin: var(--website-space-20) auto;
+      padding: var(--website-space-12);
+      border: 1px solid var(--website-color-border);
+      border-radius: var(--website-radius-content);
+      background: var(--website-color-background);
+      box-shadow: var(--website-shadow-subtle);
+    }
+
+    .cta-content {
+      max-width: 600px;
+    }
+
+    .cta-heading {
+      font-size: 28px;
+      font-weight: 700;
+      line-height: 1.2;
+      margin-bottom: var(--website-space-4);
+    }
+
+    .cta-description {
+      font-size: 16px;
+      line-height: 1.6;
+      color: var(--website-color-muted-foreground);
+      margin-bottom: var(--website-space-6);
+    }
+
+    .cta-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--website-space-3);
+    }
+
+    .cta-button {
+      display: inline-flex;
+      align-items: center;
+      min-height: var(--website-control-default);
+      padding: 0 var(--website-space-6);
+      border: 1px solid var(--website-color-action);
+      border-radius: var(--website-radius-control);
+      font-size: 15px;
+      font-weight: 500;
+      transition: all var(--website-duration-standard) var(--website-easing-standard);
+    }
+
+    .cta-button.primary {
+      background: var(--website-color-action);
+      color: var(--website-color-brand-white);
+    }
+
+    .cta-button.primary:hover {
+      background: var(--website-color-brand-white);
+      color: var(--website-color-action);
+    }
+
+    .cta-button.secondary {
+      background: var(--website-color-brand-white);
+      color: var(--website-color-action);
+    }
+
+    .cta-button.secondary:hover {
+      background: var(--website-color-action);
+      color: var(--website-color-brand-white);
+    }
+
+    /* Related posts */
+    .related-posts {
+      grid-column: 1 / -1;
+      max-width: var(--website-container-site);
+      margin: var(--website-space-30) auto 0;
+      padding-top: var(--website-space-20);
+      border-top: 1px solid var(--website-color-border);
+    }
+
+    .related-title {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: var(--website-space-12);
+    }
+
+    .related-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--website-space-8);
+    }
+
+    .related-card {
+      display: flex;
+      flex-direction: column;
+      border: 1px solid var(--website-color-border);
+      border-radius: var(--website-radius-content);
+      overflow: hidden;
+      transition: all var(--website-duration-standard) var(--website-easing-standard);
+    }
+
+    .related-card:hover {
+      box-shadow: var(--website-shadow-raised);
+      transform: translateY(-2px);
+    }
+
+    .related-card-image {
+      aspect-ratio: 16 / 9;
+      background: var(--website-color-neutral-100);
+      overflow: hidden;
+    }
+
+    .related-card-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 500ms var(--website-easing-standard);
+    }
+
+    .related-card:hover .related-card-image img {
+      transform: scale(1.05);
+    }
+
+    .related-card-content {
+      padding: var(--website-space-6);
+    }
+
+    .related-card-category {
+      margin-bottom: var(--website-space-2);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--website-color-muted-foreground);
+    }
+
+    .related-card-title {
+      font-size: 18px;
+      font-weight: 600;
+      line-height: 1.3;
+      margin-bottom: var(--website-space-3);
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 2;
+      overflow: hidden;
+    }
+
+    .related-card-excerpt {
+      font-size: 14px;
+      line-height: 1.5;
+      color: var(--website-color-muted-foreground);
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 2;
+      overflow: hidden;
+    }
+
+    /* Responsive */
+    @media (max-width: 1200px) {
+      .toc-wrapper {
+        display: none;
+      }
+
+      .article-body {
+        grid-template-columns: 1fr;
+      }
+
+      .article-body > * {
+        grid-column: 1;
+      }
+
+      .cta-block {
+        grid-column: 1;
+      }
+
+      .media-block.wide {
+        grid-column: 1;
+      }
+
+      .related-posts {
+        grid-column: 1;
+      }
+    }
+
+    @media (max-width: 768px) {
+      article {
+        padding: var(--website-space-8) var(--website-space-4);
+      }
+
+      .article-title {
+        font-size: 32px;
+      }
+
+      .article-meta {
+        flex-wrap: wrap;
+      }
+
+      .share-buttons {
+        width: 100%;
+        margin-left: 0;
+        margin-top: var(--website-space-3);
+      }
+
+      .prose h2 {
+        font-size: 26px;
+      }
+
+      .prose h3 {
+        font-size: 20px;
+      }
+
+      .prose p, .prose li {
+        font-size: 16px;
+      }
+
+      .related-grid {
+        grid-template-columns: 1fr;
+        gap: var(--website-space-6);
+      }
+
+      .cta-block {
+        padding: var(--website-space-8);
+      }
+
+      .cta-heading {
+        font-size: 22px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header placeholder -->
+  <header class="site-header">
+    <div class="site-header-inner">Site Header Placeholder</div>
+  </header>
+
+  <article>
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <ol>
+        <li><a href="/">Home</a></li>
+        <li class="breadcrumb-separator">/</li>
+        <li><a href="/blogs">Blog</a></li>
+        <li class="breadcrumb-separator">/</li>
+        <li><a href="/blogs/category/tea-guides">Tea Guides</a></li>
+        <li class="breadcrumb-separator">/</li>
+        <li aria-current="page">The Complete Guide to Organic Tea</li>
+      </ol>
+    </nav>
+
+    <!-- Article header -->
+    <header class="article-header">
+      <a href="/blogs/category/tea-guides" class="article-category">Tea Guides</a>
+      <h1 class="article-title">The Complete Guide to Organic Tea: From Farm to Cup</h1>
+
+      <div class="article-meta">
+        <div class="article-authors">
+          <img src="https://i.pravatar.cc/64?img=1" alt="Sarah Chen" class="author-avatar">
+          <span>Sarah Chen, Emma Liu</span>
+        </div>
+        <time datetime="2026-09-28" class="article-date">September 28, 2026</time>
+
+        <div class="share-buttons">
+          <button class="share-button" aria-label="Copy link" title="Copy link">🔗</button>
+          <button class="share-button" aria-label="Share on Twitter" title="Twitter">𝕏</button>
+          <button class="share-button" aria-label="Share on Facebook" title="Facebook">f</button>
+          <button class="share-button" aria-label="Share on LinkedIn" title="LinkedIn">in</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Hero image -->
+    <div class="hero-image">
+      <img src="https://images.unsplash.com/photo-1564890369478-c89ca6d9cde9?w=1200&h=675&fit=crop" alt="Organic tea plantation">
+    </div>
+
+    <!-- Article body with TOC -->
+    <div class="article-body">
+      <!-- TOC (desktop only) -->
+      <aside class="toc-wrapper">
+        <nav class="toc" aria-label="Table of contents">
+          <h2 class="toc-title">On this page</h2>
+          <ul class="toc-list">
+            <li><a href="#what-is-organic-tea" class="active">What is organic tea?</a></li>
+            <li><a href="#farming-practices">Sustainable farming practices</a></li>
+            <li class="toc-h3"><a href="#soil-health">Soil health</a></li>
+            <li class="toc-h3"><a href="#pest-management">Pest management</a></li>
+            <li><a href="#harvesting">Harvesting and processing</a></li>
+            <li><a href="#brewing-tips">Brewing the perfect cup</a></li>
+            <li><a href="#health-benefits">Health benefits</a></li>
+          </ul>
+        </nav>
+      </aside>
+
+      <!-- Prose content -->
+      <div class="prose">
+        <p>Organic tea represents more than just a beverage choice—it's a commitment to environmental stewardship, sustainable agriculture, and exceptional quality. In this comprehensive guide, we'll explore the entire journey of organic tea, from the careful cultivation methods used on small family farms to the moment you pour your perfect cup.</p>
+
+        <h2 id="what-is-organic-tea">What is organic tea?</h2>
+        <p>Organic tea is grown without synthetic pesticides, herbicides, or chemical fertilizers. Instead, organic tea farmers rely on natural composting, biological pest control, and traditional agricultural wisdom passed down through generations.</p>
+
+        <p>The certification process is rigorous. Tea estates must demonstrate three years of chemical-free farming before they can earn organic certification. During this transition period, farmers rebuild soil health and establish natural pest management systems.</p>
+      </div>
+
+      <!-- Key takeaways block -->
+      <aside class="key-takeaways">
+        <div class="key-takeaways-title">At a Glance</div>
+        <ul>
+          <li>Organic tea is grown without synthetic chemicals or pesticides</li>
+          <li>Certification requires 3+ years of chemical-free farming</li>
+          <li>Better for the environment and farm workers' health</li>
+          <li>Often results in more complex, nuanced flavors</li>
+        </ul>
+      </aside>
+
+      <!-- More prose -->
+      <div class="prose">
+        <h2 id="farming-practices">Sustainable farming practices</h2>
+        <p>Organic tea farming is an art that balances tradition with modern understanding of ecosystem health. The best organic tea estates function as complete ecosystems, where every plant and creature plays a role in maintaining balance.</p>
+
+        <h3 id="soil-health">Soil health</h3>
+        <p>Healthy soil is the foundation of exceptional tea. Organic farmers use composted tea prunings, natural mulches, and cover crops to build rich, living soil. This approach increases water retention, prevents erosion, and creates the complex mineral profile that gives organic tea its distinctive character.</p>
+
+        <blockquote>
+          "The tea plant doesn't just grow in the soil—it becomes an expression of the soil's character. When we nurture the earth, the tea nurtures us in return." — Master Tea Grower, Yunnan Province
+        </blockquote>
+
+        <h3 id="pest-management">Pest management</h3>
+        <p>Rather than eliminating all insects, organic tea farms work to maintain beneficial predator populations. Ladybugs control aphids, parasitic wasps manage caterpillars, and birds help keep overall pest numbers in check.</p>
+      </div>
+
+      <!-- Media block (regular width) -->
+      <figure class="media-block">
+        <img src="https://images.unsplash.com/photo-1545278023-f449c38d4ce3?w=800&h=600&fit=crop" alt="Tea farmer harvesting leaves">
+        <figcaption class="media-caption">Hand-picking tea leaves at dawn ensures only the finest leaves make it into your cup</figcaption>
+      </figure>
+
+      <!-- More prose -->
+      <div class="prose">
+        <h2 id="harvesting">Harvesting and processing</h2>
+        <p>The harvest season, known as flush, occurs multiple times per year. Spring flush produces the most prized leaves—tender, aromatic, and full of the vital energy accumulated during winter dormancy.</p>
+
+        <p>Skilled pickers select only the newest leaves and buds, a practice called "two leaves and a bud." This selective harvesting ensures quality while allowing the plant to continue producing throughout the season.</p>
+      </div>
+
+      <!-- Media block (wide) -->
+      <figure class="media-block wide">
+        <img src="https://images.unsplash.com/photo-1558818498-28c1e002b655?w=1200&h=675&fit=crop" alt="Tea processing facility">
+        <figcaption class="media-caption">Traditional withering racks allow tea leaves to naturally oxidize and develop their characteristic flavor profile</figcaption>
+      </figure>
+
+      <!-- More prose -->
+      <div class="prose">
+        <h2 id="brewing-tips">Brewing the perfect cup</h2>
+        <p>The quality of organic tea deserves careful preparation. Here's how to bring out the best in your leaves:</p>
+
+        <ul>
+          <li><strong>Water temperature matters:</strong> Green tea at 160-180°F, oolong at 185-205°F, black tea at 200-212°F</li>
+          <li><strong>Use filtered water:</strong> Chlorine and minerals in tap water can mask delicate flavors</li>
+          <li><strong>Timing is crucial:</strong> Over-steeping creates bitterness; under-steeping lacks depth</li>
+          <li><strong>Quality over quantity:</strong> High-grade organic tea can be steeped multiple times, revealing new dimensions with each infusion</li>
+        </ul>
+
+        <h2 id="health-benefits">Health benefits</h2>
+        <p>Beyond the environmental advantages, organic tea offers compelling health benefits. Studies have shown that organic tea contains higher levels of beneficial compounds, including antioxidants called catechins.</p>
+      </div>
+
+      <!-- CTA block -->
+      <aside class="cta-block">
+        <div class="cta-content">
+          <h3 class="cta-heading">Ready to experience truly exceptional tea?</h3>
+          <p class="cta-description">Explore our curated collection of certified organic teas, sourced directly from sustainable family farms around the world.</p>
+          <div class="cta-buttons">
+            <a href="/products/tea" class="cta-button primary">Shop Organic Teas</a>
+            <a href="/pages/about" class="cta-button secondary">Learn Our Story</a>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Related posts -->
+      <aside class="related-posts">
+        <h2 class="related-title">More to read</h2>
+        <div class="related-grid">
+          <article class="related-card">
+            <a href="/blogs/tea-storage-tips" class="related-card-image">
+              <img src="https://images.unsplash.com/photo-1576092768241-dec231879fc3?w=600&h=400&fit=crop" alt="Tea storage">
+            </a>
+            <div class="related-card-content">
+              <a href="/blogs/category/tea-guides" class="related-card-category">Tea Guides</a>
+              <h3 class="related-card-title">
+                <a href="/blogs/tea-storage-tips">How to Store Tea to Preserve Freshness and Flavor</a>
+              </h3>
+              <p class="related-card-excerpt">Proper storage can extend your tea's shelf life by months. Here's what you need to know.</p>
+            </div>
+          </article>
+
+          <article class="related-card">
+            <a href="/blogs/matcha-benefits" class="related-card-image">
+              <img src="https://images.unsplash.com/photo-1515823064-d6e0c04616a7?w=600&h=400&fit=crop" alt="Matcha">
+            </a>
+            <div class="related-card-content">
+              <a href="/blogs/category/wellness" class="related-card-category">Wellness</a>
+              <h3 class="related-card-title">
+                <a href="/blogs/matcha-benefits">5 Science-Backed Benefits of Daily Matcha</a>
+              </h3>
+              <p class="related-card-excerpt">From boosted metabolism to improved focus, discover why matcha is more than just trendy.</p>
+            </div>
+          </article>
+
+          <article class="related-card">
+            <a href="/blogs/sustainable-packaging" class="related-card-image">
+              <img src="https://images.unsplash.com/photo-1611269154421-4e27233ac5c7?w=600&h=400&fit=crop" alt="Sustainable packaging">
+            </a>
+            <div class="related-card-content">
+              <a href="/blogs/category/sustainability" class="related-card-category">Sustainability</a>
+              <h3 class="related-card-title">
+                <a href="/blogs/sustainable-packaging">Rethinking Packaging: Our Journey to Zero Waste</a>
+              </h3>
+              <p class="related-card-excerpt">How we redesigned our packaging to eliminate plastic and reduce carbon footprint by 60%.</p>
+            </div>
+          </article>
+        </div>
+      </aside>
+    </div>
+  </article>
+</body>
+</html>
