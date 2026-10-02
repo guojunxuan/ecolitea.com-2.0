@@ -264,6 +264,8 @@ export interface Config {
     folders: Folder;
     pages: Page;
     posts: Post;
+    blogs: Blog;
+    'blog-categories': BlogCategory;
     media: Media;
     'brand-assets': BrandAsset;
     'social-platforms': SocialPlatform;
@@ -280,11 +282,17 @@ export interface Config {
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
   };
-  collectionsJoins: {};
+  collectionsJoins: {
+    'blog-categories': {
+      blogs: 'blogs';
+    };
+  };
   collectionsSelect: {
     folders: FoldersSelect<false> | FoldersSelect<true>;
     pages: PagesSelect<false> | PagesSelect<true>;
     posts: PostsSelect<false> | PostsSelect<true>;
+    blogs: BlogsSelect<false> | BlogsSelect<true>;
+    'blog-categories': BlogCategoriesSelect<false> | BlogCategoriesSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     'brand-assets': BrandAssetsSelect<false> | BrandAssetsSelect<true>;
     'social-platforms': SocialPlatformsSelect<false> | SocialPlatformsSelect<true>;
@@ -839,6 +847,57 @@ export interface BannerBlock_257B75EB {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "blogs".
+ */
+export interface Blog {
+  id: string;
+  title: string;
+  heroImage: string | Media;
+  excerpt: string;
+  content: (ProseBlock | MediaBlock | KeyTakeawaysBlock | CallToActionBlock | BannerBlock_257B75EB)[];
+  meta?: {
+    title?: string | null;
+    /**
+     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
+     */
+    image?: (string | null) | Media;
+    description?: string | null;
+  };
+  slug: string;
+  category: string | BlogCategory;
+  publishedAt?: string | null;
+  authors?: (string | User)[] | null;
+  populatedAuthors?:
+    | {
+        id?: string | null;
+        name?: string | null;
+      }[]
+    | null;
+  relatedBlogs?: (string | Blog)[] | null;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "blog-categories".
+ */
+export interface BlogCategory {
+  id: string;
+  _order?: string | null;
+  title: string;
+  slug: string;
+  description?: string | null;
+  blogs?: {
+    docs?: (string | Blog)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "brand-assets".
  */
 export interface BrandAsset {
@@ -1146,6 +1205,14 @@ export interface PayloadLockedDocument {
         value: string | Post;
       } | null)
     | ({
+        relationTo: 'blogs';
+        value: string | Blog;
+      } | null)
+    | ({
+        relationTo: 'blog-categories';
+        value: string | BlogCategory;
+      } | null)
+    | ({
         relationTo: 'media';
         value: string | Media;
       } | null)
@@ -1311,6 +1378,50 @@ export interface PostsSelect<T extends boolean = true> {
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "blogs_select".
+ */
+export interface BlogsSelect<T extends boolean = true> {
+  title?: T;
+  heroImage?: T;
+  excerpt?: T;
+  content?: T | {};
+  meta?:
+    | T
+    | {
+        title?: T;
+        image?: T;
+        description?: T;
+      };
+  slug?: T;
+  category?: T;
+  publishedAt?: T;
+  authors?: T;
+  populatedAuthors?:
+    | T
+    | {
+        id?: T;
+        name?: T;
+      };
+  relatedBlogs?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "blog-categories_select".
+ */
+export interface BlogCategoriesSelect<T extends boolean = true> {
+  _order?: T;
+  title?: T;
+  slug?: T;
+  description?: T;
+  blogs?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -2342,6 +2453,8 @@ export interface CollectionQueryWidget {
       | 'folders'
       | 'pages'
       | 'posts'
+      | 'blogs'
+      | 'blog-categories'
       | 'media'
       | 'categories'
       | 'case-studies'
@@ -2376,6 +2489,8 @@ export interface ActivityWidget {
           | 'folders'
           | 'pages'
           | 'posts'
+          | 'blogs'
+          | 'blog-categories'
           | 'media'
           | 'categories'
           | 'case-studies'
@@ -2405,6 +2520,10 @@ export interface TaskSchedulePublish {
       | ({
           relationTo: 'posts';
           value: string | Post;
+        } | null)
+      | ({
+          relationTo: 'blogs';
+          value: string | Blog;
         } | null)
       | ({
           relationTo: 'case-studies';

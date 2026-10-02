@@ -14,6 +14,8 @@ import { KeyTakeaways } from './blocks/KeyTakeaways/config'
 import { CallToAction } from './blocks/CallToAction/config'
 import { Banner } from './blocks/Banner/config'
 
+import { Blogs } from './collections/Blogs'
+import { BlogCategories } from './collections/BlogCategories'
 import { Categories } from './collections/Categories'
 import { BrandAssets } from './collections/BrandAssets'
 import { CaseStudies } from './collections/CaseStudies'
@@ -91,6 +93,8 @@ export default buildConfig({
     },
     Pages,
     Posts,
+    Blogs,
+    BlogCategories,
     Media,
     BrandAssets,
     SocialPlatforms,

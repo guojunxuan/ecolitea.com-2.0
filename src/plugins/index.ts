@@ -79,6 +79,8 @@ export const plugins: Plugin[] = [
   seoPlugin({
     generateTitle,
     generateURL,
+    generateDescription: ({ doc, collectionConfig }) =>
+      collectionConfig?.slug === 'blogs' ? doc?.excerpt || '' : doc?.meta?.description || '',
   }),
   formBuilderPlugin({
     fields: {
