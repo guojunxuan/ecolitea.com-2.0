@@ -112,14 +112,24 @@ export async function cleanupBlogs(payload: Payload, runID: string) {
     ...media.docs.map(({ id }) => id),
   ]
   for (const collection of ['pages', 'case-studies', 'posts', 'blogs', 'redirects'] as const) {
-    for (let page = 1; ; page++) {
-      const result = await payload.find({ collection, page, limit: 100, depth: 0, draft: true })
-      for (const doc of result.docs) {
-        if (!ownedIDs.includes(doc.id) && ownedIDs.some((id) => JSON.stringify(doc).includes(id))) {
-          throw new Error(`Fixture referenced by ${collection}/${doc.id}; refusing cleanup`)
+    for (const { draft, versionLabel } of [
+      { draft: false, versionLabel: 'published version' },
+      { draft: true, versionLabel: 'latest draft' },
+    ]) {
+      for (let page = 1; ; page++) {
+        const result = await payload.find({ collection, page, limit: 100, depth: 0, draft })
+        for (const doc of result.docs) {
+          if (
+            !ownedIDs.includes(doc.id) &&
+            ownedIDs.some((id) => JSON.stringify(doc).includes(id))
+          ) {
+            throw new Error(
+              `Fixture referenced by ${collection}/${doc.id} (${versionLabel}); refusing cleanup`,
+            )
+          }
         }
+        if (!result.hasNextPage) break
       }
-      if (!result.hasNextPage) break
     }
   }
   // Refuse to remove content referenced outside this fixture.

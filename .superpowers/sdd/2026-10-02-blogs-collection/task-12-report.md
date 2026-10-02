@@ -2,6 +2,14 @@
 
 Status: DONE_WITH_CONCERNS — automated gates pass; independent local media transport defect remains documented.
 
+## Fix round 1 — published media references
+
+- Review found the fixture cleanup scanned only `draft: true`; Payload returns the latest version for that query, so a new draft could hide a media reference still present on the published Page, CaseStudy, or Post.
+- Cleanup now scans each reference-owning collection twice: the published view (`draft: false`) and the latest draft view (`draft: true`). A match in either view aborts deletion and names the collection, document, and version inspected.
+- Added a real Payload/Mongo regression: create a published Page with a media ID, save a newer draft with that field cleared, and assert `cleanupBlogs` refuses to proceed and leaves the fixture media present. RED: before the fix, cleanup resolved and deleted the media. GREEN: after the fix, the focused test passes.
+- Test data used a unique local run-scoped database such as `mongodb://127.0.0.1:27017/task12-b12b6683-551-e2e`; R2 was disabled and the test dropped that database in teardown. Blog browser E2E used `mongodb://127.0.0.1:27017/ecolitea2-task12-fixround2-e2e`, R2 disabled, and passed all 6 tests including the fixture cleanup teardown.
+- Verification for this fix: focused integration 1/1 PASS; `corepack pnpm exec tsc --noEmit --incremental false` PASS; Blog E2E 6/6 PASS. The first E2E build attempt surfaced TypeScript errors in the new test’s dynamic fixture fields; those casts were corrected before the successful rerun.
+
 ## Changes
 
 - Added run-scoped Blog prebuild fixture and six browser journeys covering category order/counts/current state, featured article, listing pagination, category breadcrumb, all five content blocks, hero/author, TOC keyboard anchors, mobile More navigation, related ordering, anonymous draft/future filtering, XML sitemap, robots, authenticated draft preview and exit.
