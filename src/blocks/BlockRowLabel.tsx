@@ -38,9 +38,7 @@ function Summary({ data }: { data?: BlockData }) {
   )
     .trim()
     .slice(0, 80)
-  return (
-    <span className="editorial-block-row-label">{summary ? `${label}: ${summary}` : label}</span>
-  )
+  return <span>{summary ? `${label}: ${summary}` : label}</span>
 }
 
 function EmbeddedLabel({ path }: { path: string }) {
