@@ -385,6 +385,7 @@ async function seedFixtures() {
           columns: [{ size: 'full', richText: contentRichText() }],
         },
         { blockType: 'mediaBlock', media: media.id },
+        { blockType: 'cta', heading: 'E2E CTA heading', description: richText([paragraph('E2E CTA description')]), links: [] },
         { blockType: 'formBlock', form: form.id, enableIntro: false },
         { blockType: 'archive', populateBy: 'collection', relationTo: 'posts', limit: 3 },
       ],
@@ -495,6 +496,8 @@ test.describe.serial('Task 6 visual matrix fixtures', () => {
         page.getByRole('heading', { name: 'E2E long CJK heading — 中文标题与跨断点换行' }),
       ).toBeVisible()
       await expect(page.locator('main')).toContainText('First list item')
+      await expect(page.getByRole('heading', { name: 'E2E CTA heading' })).toBeVisible()
+      await expect(page.getByText('E2E CTA description', { exact: true })).toBeVisible()
       await expect(page.locator('blockquote')).toContainText('A quote block')
       await expect(page.getByRole('region', { name: 'Scrollable table' })).toBeVisible()
       await expect(page.locator('main [class*="archive"] article')).toHaveCount(3)
@@ -614,14 +617,14 @@ test.describe.serial('Task 6 visual matrix fixtures', () => {
       for (const copy of Object.values(bannerCopy)) await expect(page.getByText(copy)).toBeVisible()
       const banners = page.locator('[class*="embeddedBanner"]')
       await expect(banners).toHaveCount(4)
-      const expectedBannerLabels = ['Information', 'Success', 'Warning', 'Error']
+      const expectedBannerLabels = ['info', 'success', 'warning', 'error']
       for (const [index, banner] of (await banners.all()).entries()) {
         const colors = await banner.evaluate((element) => {
           const surface = element.querySelector('[class*="surface"]')!
           return {
             background: getComputedStyle(surface).backgroundColor,
             foreground: getComputedStyle(surface).color,
-            label: surface.querySelector('span')?.textContent?.trim() ?? null,
+            label: surface.getAttribute('aria-label'),
             layout: {
               clientWidth: surface.clientWidth,
               scrollWidth: surface.scrollWidth,

@@ -24,6 +24,8 @@
 
 .list {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  overflow-wrap: anywhere;
   gap: var(--website-space-2);
   margin: var(--website-space-3) 0 0;
   padding: 0;

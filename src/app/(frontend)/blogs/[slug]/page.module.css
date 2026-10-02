@@ -45,3 +45,10 @@
     width: 100%;
   }
 }
+
+.body:not(:has(> aside)) > .content {
+  grid-column: 1 / -1;
+  width: min(100%, var(--website-container-reading));
+  justify-self: center;
+  align-self: center;
+}

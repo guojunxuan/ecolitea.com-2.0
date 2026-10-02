@@ -50,7 +50,9 @@ if (inheritedRunID) {
 // The config is evaluated before test modules, so both Payload fixtures in the
 // runner and the Next web server inherit the same dedicated database.
 process.env.DATABASE_URI = e2eDatabaseURI
-process.env.DISABLE_R2_STORAGE = 'false'
+const disableR2Storage = process.env.DISABLE_R2_STORAGE === 'true' ? 'true' : 'false'
+process.env.DISABLE_R2_STORAGE = disableR2Storage
+process.env.PREVIEW_SECRET = 'e2e-only-preview-secret'
 process.env.PLAYWRIGHT_TEST = 'true'
 process.env.PLAYWRIGHT_E2E_RUN_ID = e2eRunID
 process.env.PLAYWRIGHT_BASE_URL = e2eBaseURL
@@ -69,6 +71,7 @@ const task6ArchiveSeedCommand =
  */
 export default defineConfig({
   testDir: './tests/e2e',
+  globalTeardown: './tests/helpers/cleanupBlogsAfterTests.ts',
   /* Fail the build on CI if you accidentally left test.only in the source code. */
   forbidOnly: !!process.env.CI,
   /* Retry on CI only */
@@ -106,11 +109,12 @@ export default defineConfig({
       url: `${e2eStorageEndpoint}/health`,
     },
     {
-      command: `${task6ArchiveSeedCommand}pnpm exec next build --webpack && mkdir -p .next-e2e/standalone/.next-e2e && cp -R .next-e2e/static .next-e2e/standalone/.next-e2e/static && if [ -d public ]; then cp -R public .next-e2e/standalone/public; fi && node .next-e2e/standalone/server.js`,
+      // Next's persistent data cache must never cross run-scoped databases.
+      command: `node -e "require('node:fs').rmSync('.next-e2e/cache', { recursive: true, force: true })" && DISABLE_R2_STORAGE=true pnpm exec tsx tests/helpers/seedBlogsBeforeBuild.ts && ${task6ArchiveSeedCommand}pnpm exec next build --webpack && mkdir -p .next-e2e/standalone/.next-e2e && cp -R .next-e2e/static .next-e2e/standalone/.next-e2e/static && if [ -d public ]; then cp -R public .next-e2e/standalone/public; fi && if [ -d media ]; then cp -R media .next-e2e/standalone/media; fi && node .next-e2e/standalone/server.js`,
       env: {
         ...process.env,
         DATABASE_URI: e2eDatabaseURI,
-        DISABLE_R2_STORAGE: 'false',
+        DISABLE_R2_STORAGE: disableR2Storage,
         E2E_STORAGE_PORT: String(e2eStoragePort),
         HOSTNAME: '127.0.0.1',
         // `tsx/esm` is required for Playwright to load this config, but Next's

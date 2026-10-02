@@ -104,7 +104,8 @@ describe('Blog site integrations', () => {
     const search = plugins.find((plugin) => plugin.slug === '@payloadcms/plugin-search')!
     const config = await search({ collections: [{ slug: 'blogs', fields: [] }], globals: [] } as never)
     const blog = config.collections!.find((entry) => entry.slug === 'blogs')!
-    const sync = blog.hooks?.afterChange?.at(-1)!
+    const sync = blog.hooks?.afterChange?.at(-1)
+    if (!sync) throw new Error('Missing Blog search hook')
     const create = vi.fn()
     const req = { payload: { create, config: {}, logger: { error: vi.fn() } }, context: {} }
     const published = {
@@ -124,7 +125,8 @@ describe('Blog site integrations', () => {
   it('removes a stale Blog index row when its source has no published version', async () => {
     const search = plugins.find((plugin) => plugin.slug === '@payloadcms/plugin-search')!
     const config = await search({ collections: [{ slug: 'blogs', fields: [] }], globals: [] } as never)
-    const sync = config.collections!.find((entry) => entry.slug === 'blogs')!.hooks?.afterChange?.at(-1)!
+    const sync = config.collections!.find((entry) => entry.slug === 'blogs')!.hooks?.afterChange?.at(-1)
+    if (!sync) throw new Error('Missing Blog search hook')
     const remove = vi.fn()
     const find = vi.fn()
       .mockResolvedValueOnce({ docs: [{ id: 'search-1', priority: 0 }] })
