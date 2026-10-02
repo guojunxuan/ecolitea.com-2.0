@@ -81,6 +81,27 @@ describe('Blog cache invalidation', () => {
 })
 
 describe('Blog author projection', () => {
+  it('omits a missing author and keeps remaining authors', async () => {
+    const { populateAuthors } = await import('@/collections/Blogs/hooks/populateAuthors')
+    const findByID = vi
+      .fn()
+      .mockResolvedValueOnce(null)
+      .mockResolvedValueOnce({ id: 'u', name: 'Author' })
+    const req = { payload: { findByID } }
+    const doc = await populateAuthors({ req, doc: { authors: ['deleted', 'u'] } } as never)
+    expect(findByID).toHaveBeenCalledWith(
+      expect.objectContaining({ id: 'deleted', disableErrors: true }),
+    )
+    expect(doc.populatedAuthors).toEqual([{ id: 'u', name: 'Author' }])
+  })
+
+  it('propagates unexpected author lookup failures', async () => {
+    const { populateAuthors } = await import('@/collections/Blogs/hooks/populateAuthors')
+    const failure = new Error('Database transaction failed')
+    const req = { payload: { findByID: vi.fn().mockRejectedValue(failure) } }
+    await expect(populateAuthors({ req, doc: { authors: ['u'] } } as never)).rejects.toBe(failure)
+  })
+
   it('queries only public identity fields, propagates req, and clears stale author data', async () => {
     const { populateAuthors } = await import('@/collections/Blogs/hooks/populateAuthors')
     const findByID = vi
