@@ -10,6 +10,7 @@ import { FormBlock, type FormBlockType } from '@/blocks/Form/Component'
 import { KeyTakeawaysBlock } from '@/blocks/KeyTakeaways/Component'
 import { MediaBlock } from '@/blocks/MediaBlock/Component'
 import { ProseBlock } from '@/blocks/Prose/Component'
+import { extractTOCByBlock } from '@/utilities/blogs/extractTOC'
 import styles from './RenderBlocks.module.css'
 
 export type RenderBlocksProps = {
@@ -19,6 +20,7 @@ export type RenderBlocksProps = {
 
 export const RenderBlocks: React.FC<RenderBlocksProps> = ({ blocks, context = 'page' }) => {
   if (!blocks?.length) return null
+  const tocByBlock = context === 'article' ? extractTOCByBlock(blocks as Blog['content']) : []
 
   return (
     <Fragment>
@@ -58,7 +60,13 @@ export const RenderBlocks: React.FC<RenderBlocksProps> = ({ blocks, context = 'p
             content = <MediaBlock {...block} context={context} disableInnerContainer />
             break
           case 'prose':
-            content = <ProseBlock {...block} context={context} />
+            content = (
+              <ProseBlock
+                {...block}
+                context={context}
+                headingIds={tocByBlock[index]?.map((item) => item.id)}
+              />
+            )
             break
           default:
             return null
