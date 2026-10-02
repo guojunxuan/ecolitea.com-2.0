@@ -46,7 +46,7 @@ const getCategories = unstable_cache(
 )
 
 const getCategoryCounts = unstable_cache(
-  async (): Promise<Map<string, number>> => {
+  async (): Promise<[string, number][]> => {
     const payload = await getPayload({ config: configPromise })
     const counts = new Map<string, number>()
     let page = 1
@@ -71,7 +71,7 @@ const getCategoryCounts = unstable_cache(
       hasNextPage = result.hasNextPage
       page += 1
     }
-    return counts
+    return [...counts]
   },
   ['blog-category-counts'],
   { tags: ['blogs-list', 'blog-categories'], revalidate: 600 },
@@ -81,6 +81,8 @@ async function resolveCategory(slug?: string): Promise<Category | undefined> {
   if (!slug) return undefined
   const category = (await getCategories()).find((item) => item.slug === slug)
   if (!category) notFound()
+  const counts = new Map(await getCategoryCounts())
+  if (!counts.get(category.id)) notFound()
   return category
 }
 
@@ -93,12 +95,13 @@ export function parsePageNumber(value: string): number {
 
 export async function renderBlogListing({ page, categorySlug }: ListingArgs) {
   const category = await resolveCategory(categorySlug)
-  const [categories, counts, listing] = await Promise.all([
+  const [categories, countEntries, listing] = await Promise.all([
     getCategories(),
     getCategoryCounts(),
     getBlogListing(page, category?.id),
   ])
   if (page > 1 && (page > listing.totalPages || listing.docs.length === 0)) notFound()
+  const counts = new Map(countEntries)
 
   const tabs: BlogCategoryTab[] = categories.map((item) => ({
     id: item.id,
@@ -109,7 +112,7 @@ export async function renderBlogListing({ page, categorySlug }: ListingArgs) {
   const routeBase = category ? `/blogs/category/${category.slug}` : '/blogs'
 
   return (
-    <main className={styles.page}>
+    <div className={styles.page}>
       <header className={styles.header}>
         {category && <nav aria-label="Breadcrumb" className={styles.breadcrumb}>
           <Link href="/blogs">Blogs</Link><span aria-hidden="true"> / </span><span>{category.title}</span>
@@ -125,9 +128,9 @@ export async function renderBlogListing({ page, categorySlug }: ListingArgs) {
       </div>
       <CollectionArchive posts={listing.docs} relationTo="blogs" featuredFirst={!category && page === 1} />
       {listing.totalPages > 1 && <div className={styles.pagination}>
-        <Pagination page={listing.page ?? page} totalPages={listing.totalPages} routeBase={routeBase} />
+        <Pagination page={listing.page ?? page} totalPages={listing.totalPages} routeBase={routeBase} firstPageHref={routeBase} />
       </div>}
-    </main>
+    </div>
   )
 }
 
@@ -145,5 +148,7 @@ export async function blogListingMetadata({ page, categorySlug }: ListingArgs): 
 }
 
 export async function getCategoryStaticParams() {
-  return (await getCategories()).map(({ slug }) => ({ categorySlug: slug }))
+  const [categories, countEntries] = await Promise.all([getCategories(), getCategoryCounts()])
+  const counts = new Map(countEntries)
+  return categories.filter(({ id }) => (counts.get(id) ?? 0) > 0).map(({ slug }) => ({ categorySlug: slug }))
 }

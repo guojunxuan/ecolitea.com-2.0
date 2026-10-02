@@ -19,11 +19,13 @@ export const Pagination: React.FC<{
   page: number
   totalPages: number
   routeBase?: string
+  firstPageHref?: string
 }> = (props) => {
   const router = useRouter()
 
-  const { className, page, totalPages, routeBase = '/posts' } = props
-  const pageHref = (pageNumber: number) => `${routeBase.replace(/\/$/, '')}/page/${pageNumber}`
+  const { className, page, totalPages, routeBase = '/posts', firstPageHref } = props
+  const pageHref = (pageNumber: number) =>
+    pageNumber === 1 && firstPageHref ? firstPageHref : `${routeBase.replace(/\/$/, '')}/page/${pageNumber}`
   const hasNextPage = page < totalPages
   const hasPrevPage = page > 1
 

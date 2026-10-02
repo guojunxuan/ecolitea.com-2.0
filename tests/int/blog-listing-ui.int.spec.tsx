@@ -124,6 +124,24 @@ describe('blog listing components', () => {
     expect(push).toHaveBeenLastCalledWith('/posts/page/2')
   })
 
+  it('navigates from blog page two to each canonical first page without changing Posts', () => {
+    const { rerender } = render(
+      <Pagination page={2} totalPages={3} routeBase="/blogs" firstPageHref="/blogs" />,
+    )
+    fireEvent.click(screen.getByRole('button', { name: 'Go to previous page' }))
+    expect(push).toHaveBeenLastCalledWith('/blogs')
+    fireEvent.click(screen.getByRole('button', { name: '1' }))
+    expect(push).toHaveBeenLastCalledWith('/blogs')
+
+    rerender(<Pagination page={2} totalPages={3} routeBase="/blogs/category/tea" firstPageHref="/blogs/category/tea" />)
+    fireEvent.click(screen.getByRole('button', { name: 'Go to previous page' }))
+    expect(push).toHaveBeenLastCalledWith('/blogs/category/tea')
+
+    rerender(<Pagination page={2} totalPages={3} />)
+    fireEvent.click(screen.getByRole('button', { name: 'Go to previous page' }))
+    expect(push).toHaveBeenLastCalledWith('/posts/page/1')
+  })
+
   it('labels blog result counts', () => {
     render(<PageRange collection="blogs" currentPage={1} limit={12} totalDocs={20} />)
     expect(screen.getByText('Showing 1 - 12 of 20 Blogs')).toBeTruthy()
