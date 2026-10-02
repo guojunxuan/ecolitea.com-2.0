@@ -57,9 +57,9 @@ export default async function BlogPage({ params }: Args) {
     <PayloadRedirects disableNotFound url={url} />
     {draft && <LivePreviewListener />}
     <BlogHero blog={blog} />
-    <div className={styles.body}>
-      <div className={styles.content}><RenderBlocks blocks={blog.content} context="article" /></div>
-      <TableOfContents items={toc} />
+    <div className={styles.body} data-slot="blog-article-body">
+      <div className={styles.content} data-slot="blog-article-content"><RenderBlocks blocks={blog.content} context="article" /></div>
+      {toc.length > 0 && <TableOfContents items={toc} />}
     </div>
     <RelatedBlogs blogs={related} />
   </article>

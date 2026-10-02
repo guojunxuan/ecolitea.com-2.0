@@ -16,7 +16,7 @@
   min-width: 0;
 }
 
-.body > :last-child {
+.body > aside {
   grid-column: 3;
   grid-row: 1;
 }
@@ -30,7 +30,7 @@
     grid-column: 1;
   }
 
-  .body > :last-child {
+  .body > aside {
     grid-column: 2;
   }
 }

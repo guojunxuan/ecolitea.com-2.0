@@ -78,9 +78,21 @@ describe('blog detail', () => {
     const prose = { blockType: 'prose', content: { root: { children: [{ type: 'heading', tag: 'h2', children: [{ type: 'text', text: 'Growing tea' }] }] } } }
     mockGetBlogBySlug.mockResolvedValue({ ...blog, content: [prose] })
     mockGetRelatedBlogs.mockResolvedValue([])
-    render(await BlogPage(args))
+    const { container } = render(await BlogPage(args))
+    const body = container.querySelector('[data-slot="blog-article-body"]')
+    expect(Array.from(body?.children ?? [], (child) => child.tagName)).toEqual(['DIV', 'ASIDE'])
+    expect(body?.firstElementChild?.getAttribute('data-slot')).toBe('blog-article-content')
     expect(screen.getAllByRole('navigation', { name: 'Table of contents' })[0].textContent).toContain('Growing tea')
     expect(screen.queryByRole('region', { name: 'More to read' })).not.toBeTruthy()
+  })
+
+  it('keeps heading-free articles in the reading column without an empty TOC grid item', async () => {
+    mockGetRelatedBlogs.mockResolvedValue([])
+    const { container } = render(await BlogPage(args))
+    const body = container.querySelector('[data-slot="blog-article-body"]')
+    expect(body).not.toBeNull()
+    expect(Array.from(body?.children ?? [], (child) => child.getAttribute('data-slot'))).toEqual(['blog-article-content'])
+    expect(screen.queryByRole('navigation', { name: 'Table of contents' })).toBeNull()
   })
 
   it('reads draft content only in draft mode and enables the preview listener', async () => {
@@ -126,9 +138,10 @@ describe('article layout contract', () => {
     const medium = css.split('@media (width <= 80rem)')[1]?.split('@media (width < 64rem)')[0]
     expect(medium).toMatch(/\.body\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*var\(--website-container-reading\)\)\s+minmax\(12rem,\s*1fr\);/s)
     expect(medium).toMatch(/\.content\s*\{[^}]*grid-column:\s*1;/s)
-    expect(medium).toMatch(/\.body > :last-child\s*\{[^}]*grid-column:\s*2;/s)
+    expect(medium).toMatch(/\.body > aside\s*\{[^}]*grid-column:\s*2;/s)
     expect(css).toMatch(/\.content\s*\{[^}]*grid-column:\s*2;/s)
-    expect(css).toMatch(/\.body > :last-child\s*\{[^}]*grid-column:\s*3;/s)
+    expect(css).toMatch(/\.body > aside\s*\{[^}]*grid-column:\s*3;/s)
+    expect(css).not.toContain(':last-child')
     expect(css).toMatch(/@media \(width < 64rem\)[\s\S]*?\.body\s*\{[^}]*display:\s*flex;[^}]*flex-direction:\s*column-reverse;/s)
   })
 })
