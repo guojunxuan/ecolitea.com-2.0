@@ -86,11 +86,29 @@ describe('Blog sitemap', () => {
       'https://blog.example.test/blogs/green-tea',
       'https://blog.example.test/blogs/life-notes',
     ])
-    expect(entries.every(({ lastmod }) => lastmod && !Number.isNaN(Date.parse(lastmod)))).toBe(true)
+    expect(entries.slice(0, 3).every(({ lastmod }) => lastmod === undefined)).toBe(true)
+    expect(entries.slice(3).every(({ lastmod }) => lastmod && !Number.isNaN(Date.parse(lastmod)))).toBe(true)
     expect(entries.find(({ loc }) => loc?.endsWith('/green-tea'))?.lastmod).toBe('2026-09-10T00:00:00.000Z')
     expect(find.mock.calls.filter(([args]) => args.collection === 'blogs').map(([args]) => args.page)).toEqual([1, 2])
     expect(find.mock.calls.filter(([args]) => args.collection === 'blog-categories').map(([args]) => args.page)).toEqual([1, 2])
+    expect(find.mock.calls.filter(([args]) => args.collection === 'blog-categories').every(([args]) => args.sort === '_order')).toBe(true)
     expect(unstableCache).toHaveBeenCalledWith(expect.any(Function), ['blogs-sitemap'], expect.objectContaining({ tags: ['blogs-sitemap'] }))
+  })
+
+  it('updates article lastmod without reporting stale category or index dates', async () => {
+    let updatedAt = '2026-09-10T00:00:00.000Z'
+    find.mockImplementation(async ({ collection }: { collection: string }) => ({
+      docs: collection === 'blog-categories'
+        ? [{ id: 'tea', slug: 'tea-guides', updatedAt: '2026-09-05T00:00:00.000Z' }]
+        : [{ slug: 'green-tea', category: 'tea', publishedAt: '2026-09-01T00:00:00.000Z', updatedAt }],
+      hasNextPage: false,
+    }))
+    const { GET } = await import('@/app/(frontend)/(sitemaps)/blogs-sitemap.xml/route')
+    const first = sitemapEntries(await (await GET()).text())
+    updatedAt = '2026-09-20T00:00:00.000Z'
+    const second = sitemapEntries(await (await GET()).text())
+    expect(first.map(({ lastmod }) => lastmod)).toEqual([undefined, undefined, '2026-09-10T00:00:00.000Z'])
+    expect(second.map(({ lastmod }) => lastmod)).toEqual([undefined, undefined, '2026-09-20T00:00:00.000Z'])
   })
 
   it('escapes XML special characters in the site URL and slugs', async () => {

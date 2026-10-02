@@ -25,7 +25,7 @@ const getBlogsSitemap = unstable_cache(
     const now = new Date()
     const fallback = now.toISOString()
 
-    const categories = [] as { id: string; slug: string; updatedAt: string }[]
+    const categories = [] as { id: string; slug: string }[]
     let page = 1
     let hasNextPage = true
     while (hasNextPage) {
@@ -36,7 +36,7 @@ const getBlogsSitemap = unstable_cache(
         page,
         overrideAccess: false,
         sort: '_order',
-        select: { slug: true, updatedAt: true },
+        select: { slug: true },
       })
       categories.push(...result.docs)
       hasNextPage = result.hasNextPage
@@ -66,12 +66,11 @@ const getBlogsSitemap = unstable_cache(
       typeof category === 'object' && category !== null ? category.id : category,
     ))
     return [
-      { loc: escapeXml(`${siteURL}/blogs`), lastmod: fallback },
+      { loc: escapeXml(`${siteURL}/blogs`) },
       ...categories
         .filter(({ id, slug }) => Boolean(slug) && categoryIDs.has(id))
-        .map(({ slug, updatedAt }) => ({
+        .map(({ slug }) => ({
           loc: escapeXml(`${siteURL}/blogs/category/${slug}`),
-          lastmod: validLastmod(updatedAt, fallback),
         })),
       ...blogs
         .filter(({ slug }) => Boolean(slug))
