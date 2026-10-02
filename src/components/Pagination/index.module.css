@@ -1,3 +1,5 @@
 .pagination {
-  margin-block: var(--website-space-12);
+  margin-block: var(--website-space-20);
+  padding-top: var(--website-space-8);
+  border-top: 1px solid var(--website-color-border);
 }
