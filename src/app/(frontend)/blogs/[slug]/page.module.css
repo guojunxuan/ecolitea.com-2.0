@@ -23,7 +23,7 @@
 
 @media (width <= 80rem) {
   .body {
-    grid-template-columns: minmax(0, 1fr) minmax(0, var(--website-container-reading));
+    grid-template-columns: minmax(0, var(--website-container-reading)) minmax(12rem, 1fr);
   }
 
   .content {

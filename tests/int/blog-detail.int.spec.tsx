@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs'
 import { cleanup, render, screen, within } from '@testing-library/react'
 import React from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -116,5 +117,18 @@ describe('article components', () => {
     const { container } = render(<><BlogHero blog={blog} /><RelatedBlogs blogs={[...related, { ...blog, id: 'extra', slug: 'extra' }]} /></>)
     expect(container.querySelector('[aria-label="Sarah Chen"]')?.textContent).toBe('SC')
     expect(within(screen.getByRole('region', { name: 'More to read' })).getAllByRole('article')).toHaveLength(3)
+  })
+})
+
+describe('article layout contract', () => {
+  it('keeps the reading column wider than the TOC at the intermediate desktop breakpoint', () => {
+    const css = readFileSync('src/app/(frontend)/blogs/[slug]/page.module.css', 'utf8')
+    const medium = css.split('@media (width <= 80rem)')[1]?.split('@media (width < 64rem)')[0]
+    expect(medium).toMatch(/\.body\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*var\(--website-container-reading\)\)\s+minmax\(12rem,\s*1fr\);/s)
+    expect(medium).toMatch(/\.content\s*\{[^}]*grid-column:\s*1;/s)
+    expect(medium).toMatch(/\.body > :last-child\s*\{[^}]*grid-column:\s*2;/s)
+    expect(css).toMatch(/\.content\s*\{[^}]*grid-column:\s*2;/s)
+    expect(css).toMatch(/\.body > :last-child\s*\{[^}]*grid-column:\s*3;/s)
+    expect(css).toMatch(/@media \(width < 64rem\)[\s\S]*?\.body\s*\{[^}]*display:\s*flex;[^}]*flex-direction:\s*column-reverse;/s)
   })
 })
