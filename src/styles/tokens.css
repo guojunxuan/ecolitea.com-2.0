@@ -181,7 +181,7 @@
   --website-status-error-background: #3d1c1c;
   --website-status-error-foreground: #fee2e2;
   --website-status-error-border: #7f3636;
-  --website-status-error-inline-foreground: var(--website-status-error-border);
+  --website-status-error-inline-foreground: var(--website-status-error-foreground);
 }
 
 @media (width >= 48rem) {

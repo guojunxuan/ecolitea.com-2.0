@@ -24,7 +24,7 @@ export const CallToAction: Block = {
         { label: 'Default', value: 'default' },
         { label: 'Inverse', value: 'inverse' },
       ],
-      defaultValue: 'default',
+      admin: { isClearable: true, placeholder: 'Inherit surrounding theme' },
     },
   ],
 }

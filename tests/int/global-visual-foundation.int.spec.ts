@@ -268,7 +268,31 @@ describe('global visual foundation', () => {
     expect(inlineError("[data-website-theme='default']")).toBe(
       'var(--website-status-error-foreground)',
     )
-    expect(inlineError("[data-website-theme='inverse']")).toBe('var(--website-status-error-border)')
+    expect(inlineError("[data-website-theme='inverse']")).toBe(
+      'var(--website-status-error-foreground)',
+    )
+
+    const declaration = (selector: string, property: string) =>
+      rules.declarations.find((entry) => entry.header === selector && entry.prop === property)
+        ?.value
+    const resolveColor = (value: string, selector: string): string => {
+      const token = value.match(/^var\((--[^)]+)\)$/)?.[1]
+      return token
+        ? resolveColor(declaration(selector, token) ?? declaration(':root', token)!, selector)
+        : value
+    }
+    const luminance = (hex: string) => {
+      const channels = hex.match(/[\da-f]{2}/gi)!.map((channel) => parseInt(channel, 16) / 255)
+      const linear = channels.map((channel) =>
+        channel <= 0.04045 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4,
+      )
+      return linear[0] * 0.2126 + linear[1] * 0.7152 + linear[2] * 0.0722
+    }
+    const inverse = "[data-website-theme='inverse']"
+    const foreground = luminance(resolveColor(inlineError(inverse)!, inverse))
+    const background = luminance(resolveColor(declaration(inverse, '--website-color-background')!, inverse))
+    const contrast = (Math.max(foreground, background) + 0.05) / (Math.min(foreground, background) + 0.05)
+    expect(contrast).toBeGreaterThanOrEqual(4.5)
 
     const errorRules = auditCss(read('src/blocks/Form/Error/index.module.css'))
     expect(

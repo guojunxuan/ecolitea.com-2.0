@@ -101,13 +101,17 @@ describe('editorial block schema', () => {
     const cta = config.blocks!.find((entry) => entry.slug === 'cta')!
     expect(field(cta, 'links')).toMatchObject({ type: 'array', maxRows: 2 })
     expect(field(cta, 'richText')).toBeUndefined()
-    expect(field(cta, 'theme')).toMatchObject({
-      defaultValue: 'default',
+    const theme = field(cta, 'theme')
+    expect(theme).toMatchObject({
+      type: 'select',
+      admin: { isClearable: true, placeholder: 'Inherit surrounding theme' },
       options: [
         { label: 'Default', value: 'default' },
         { label: 'Inverse', value: 'inverse' },
       ],
     })
+    expect(theme).not.toHaveProperty('defaultValue')
+    expect(theme).not.toHaveProperty('required', true)
     const mediaBlock = config.blocks!.find((entry) => entry.slug === 'mediaBlock')!
     expect(field(mediaBlock, 'caption')).toMatchObject({ type: 'richText' })
     expect(field(mediaBlock, 'width')).toMatchObject({
