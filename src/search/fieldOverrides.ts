@@ -10,6 +10,11 @@ export const searchFields: Field[] = [
     },
   },
   {
+    name: 'blogStatus',
+    type: 'text',
+    admin: { readOnly: true },
+  },
+  {
     name: 'excerpt',
     type: 'textarea',
     admin: { readOnly: true },

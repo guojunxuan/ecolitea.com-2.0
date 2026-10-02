@@ -9,6 +9,7 @@ import { GenerateDescription, GenerateTitle, GenerateURL } from '@payloadcms/plu
 import { FixedToolbarFeature, HeadingFeature, lexicalEditor } from '@payloadcms/richtext-lexical'
 import { searchFields } from '@/search/fieldOverrides'
 import { beforeSyncWithSearch } from '@/search/beforeSync'
+import { publicSearchVisibility, skipInvisibleBlogSync } from '@/search/visibility'
 
 import { Blog, CaseStudy, Page, Post } from '@/payload-types'
 import { getServerSideURL } from '@/utilities/getURL'
@@ -122,8 +123,10 @@ export const plugins: Plugin[] = [
   }),
   searchPlugin({
     collections: ['posts', 'blogs'],
+    skipSync: skipInvisibleBlogSync,
     beforeSync: beforeSyncWithSearch,
     searchOverrides: {
+      access: { read: () => publicSearchVisibility(new Date()) },
       fields: ({ defaultFields }) => {
         return [...defaultFields, ...searchFields]
       },

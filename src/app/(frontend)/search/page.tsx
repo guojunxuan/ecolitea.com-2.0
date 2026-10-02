@@ -7,6 +7,7 @@ import React from 'react'
 import { Search } from '@/search/Component'
 import { CardBlogData, CardPostData } from '@/components/Card'
 import { normalizeSearchQuery } from '@/search/query'
+import { publicSearchVisibility } from '@/search/visibility'
 
 import styles from '../pages.module.css'
 
@@ -19,6 +20,7 @@ export default async function Page({ searchParams: searchParamsPromise }: Args) 
   const { q } = await searchParamsPromise
   const query = normalizeSearchQuery(q)
   const payload = await getPayload({ config: configPromise })
+  const publicWhere = publicSearchVisibility(new Date())
 
   const results = await payload.find({
     collection: 'search',
@@ -37,34 +39,23 @@ export default async function Page({ searchParams: searchParamsPromise }: Args) 
     },
     // pagination: false reduces overhead if you don't need totalDocs
     pagination: false,
-    ...(query
+    overrideAccess: false,
+    where: query
       ? {
-          where: {
-            or: [
-              {
-                title: {
-                  like: query,
-                },
-              },
-              {
-                'meta.description': {
-                  like: query,
-                },
-              },
-              {
-                'meta.title': {
-                  like: query,
-                },
-              },
-              {
-                slug: {
-                  like: query,
-                },
-              },
-            ],
-          },
+          and: [
+            publicWhere,
+            {
+              or: [
+                { title: { like: query } },
+                { 'meta.description': { like: query } },
+                { 'meta.title': { like: query } },
+                { excerpt: { like: query } },
+                { slug: { like: query } },
+              ],
+            },
+          ],
         }
-      : {}),
+      : publicWhere,
   })
 
   const blogResults = results.docs.filter((result) => result.doc.relationTo === 'blogs') as unknown as CardBlogData[]

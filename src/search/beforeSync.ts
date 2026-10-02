@@ -22,6 +22,7 @@ export const beforeSyncWithSearch: BeforeSync = async ({ req, originalDoc, searc
     return {
       ...searchDoc,
       slug,
+      blogStatus: originalDoc._status,
       excerpt: originalDoc.excerpt,
       heroImage: originalDoc.heroImage?.id || originalDoc.heroImage,
       publishedAt: originalDoc.publishedAt,

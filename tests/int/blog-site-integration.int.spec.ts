@@ -64,6 +64,54 @@ describe('Blog site integrations', () => {
     const destination = redirectCollection.fields.find((field) => 'name' in field && field.name === 'to')!
     expect(JSON.stringify(destination)).toContain('blogs')
     expect(searchConfig.collections!.find((entry) => entry.slug === 'blogs')?.hooks?.afterChange?.length).toBeGreaterThan(0)
+    const searchCollection = searchConfig.collections!.find((entry) => entry.slug === 'search')!
+    const read = searchCollection.access?.read as (args: unknown) => unknown
+    const publicWhere = read({ req: {} })
+    expect(publicWhere).toMatchObject({ or: expect.arrayContaining([
+      { 'doc.relationTo': { equals: 'posts' } },
+      { and: expect.arrayContaining([
+        { 'doc.relationTo': { equals: 'blogs' } },
+        { blogStatus: { equals: 'published' } },
+        { publishedAt: { less_than_equal: expect.any(String) } },
+      ]) },
+    ]) })
+  })
+
+  it.each([
+    ['future', '2999-01-01T00:00:00.000Z'],
+    ['missing', null],
+  ])('skips and removes a %s Blog from the search index', async (_name, publishedAt) => {
+    const search = plugins.find((plugin) => plugin.slug === '@payloadcms/plugin-search') as never as {
+      options: { skipSync: (args: unknown) => Promise<boolean> }
+    }
+    const remove = vi.fn().mockResolvedValue({ docs: [] })
+    const skip = await search.options.skipSync({
+      collectionSlug: 'blogs',
+      doc: { id: 'blog-1', _status: 'published', publishedAt },
+      req: { payload: { delete: remove } },
+    })
+    expect(skip).toBe(true)
+    expect(remove).toHaveBeenCalledWith(expect.objectContaining({
+      collection: 'search',
+      where: { and: [
+        { 'doc.relationTo': { equals: 'blogs' } },
+        { 'doc.value': { equals: 'blog-1' } },
+      ] },
+    }))
+  })
+
+  it('keeps a published Blog with an elapsed publication date in the search index', async () => {
+    const search = plugins.find((plugin) => plugin.slug === '@payloadcms/plugin-search') as never as {
+      options: { skipSync: (args: unknown) => Promise<boolean> }
+    }
+    const remove = vi.fn()
+    const skip = await search.options.skipSync({
+      collectionSlug: 'blogs',
+      doc: { id: 'blog-2', _status: 'published', publishedAt: '2020-01-01T00:00:00.000Z' },
+      req: { payload: { delete: remove } },
+    })
+    expect(skip).toBe(false)
+    expect(remove).not.toHaveBeenCalled()
   })
 
   it('indexes a Blog title, excerpt, and category without copying private fields', async () => {
@@ -71,14 +119,14 @@ describe('Blog site integrations', () => {
     const result = await beforeSyncWithSearch({
       req: { payload: { findByID } },
       originalDoc: {
-        id: 'blog-1', slug: 'green-tea', title: 'Green Tea', excerpt: 'A guide',
+        id: 'blog-1', slug: 'green-tea', title: 'Green Tea', excerpt: 'A guide', _status: 'published',
         category: 'cat-1', authors: ['private-author'], content: [{ blockType: 'prose' }],
       },
       searchDoc: { title: 'Green Tea', doc: { relationTo: 'blogs', value: 'blog-1' } },
     } as never)
 
     expect(result).toMatchObject({
-      title: 'Green Tea', slug: 'green-tea', excerpt: 'A guide',
+      title: 'Green Tea', slug: 'green-tea', excerpt: 'A guide', blogStatus: 'published',
       category: { relationTo: 'blog-categories', categoryID: 'cat-1', title: 'Brewing' },
       meta: { title: 'Green Tea', description: 'A guide' },
     })
@@ -107,6 +155,6 @@ describe('Blog site integrations', () => {
 
   it('declares the Blog fields needed by search results', () => {
     expect(searchFields.map((field) => 'name' in field ? field.name : null))
-      .toEqual(expect.arrayContaining(['excerpt', 'category', 'heroImage', 'publishedAt']))
+      .toEqual(expect.arrayContaining(['blogStatus', 'excerpt', 'category', 'heroImage', 'publishedAt']))
   })
 })
