@@ -129,6 +129,22 @@
   --website-color-disabled-surface: var(--website-color-neutral-100);
   --website-color-disabled-foreground: var(--website-color-neutral-500);
   --website-color-disabled-border: var(--website-color-neutral-300);
+  --website-status-info-accent: #2563eb;
+  --website-status-info-background: #eff6ff;
+  --website-status-info-foreground: #1e3a8a;
+  --website-status-info-border: #bfdbfe;
+  --website-status-success-accent: #16845b;
+  --website-status-success-background: #ecfdf5;
+  --website-status-success-foreground: #14532d;
+  --website-status-success-border: #a7f3d0;
+  --website-status-warning-accent: #c36a00;
+  --website-status-warning-background: #fff8e6;
+  --website-status-warning-foreground: #713f12;
+  --website-status-warning-border: #fde68a;
+  --website-status-error-accent: #d92d20;
+  --website-status-error-background: #fef3f2;
+  --website-status-error-foreground: #7f1d1d;
+  --website-status-error-border: #fecaca;
   --website-status-error-inline-foreground: var(--website-status-error-foreground);
 }
 
@@ -149,6 +165,22 @@
   --website-color-disabled-surface: rgb(255 255 255 / 8%);
   --website-color-disabled-foreground: rgb(255 255 255 / 48%);
   --website-color-disabled-border: rgb(255 255 255 / 18%);
+  --website-status-info-accent: #60a5fa;
+  --website-status-info-background: #102b4b;
+  --website-status-info-foreground: #dbeafe;
+  --website-status-info-border: #24517f;
+  --website-status-success-accent: #34d399;
+  --website-status-success-background: #0d3026;
+  --website-status-success-foreground: #d1fae5;
+  --website-status-success-border: #276749;
+  --website-status-warning-accent: #fbbf24;
+  --website-status-warning-background: #3b290c;
+  --website-status-warning-foreground: #fef3c7;
+  --website-status-warning-border: #78531b;
+  --website-status-error-accent: #f87171;
+  --website-status-error-background: #3d1c1c;
+  --website-status-error-foreground: #fee2e2;
+  --website-status-error-border: #7f3636;
   --website-status-error-inline-foreground: var(--website-status-error-border);
 }
 

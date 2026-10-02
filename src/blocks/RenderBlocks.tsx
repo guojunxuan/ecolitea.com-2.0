@@ -1,52 +1,79 @@
 import React, { Fragment } from 'react'
 
-import type { Page } from '@/payload-types'
+import type { Blog, CaseStudy, Page } from '@/payload-types'
 
 import { ArchiveBlock } from '@/blocks/ArchiveBlock/Component'
+import { BannerBlock } from '@/blocks/Banner/Component'
 import { CallToActionBlock } from '@/blocks/CallToAction/Component'
 import { ContentBlock } from '@/blocks/Content/Component'
-import { FormBlock } from '@/blocks/Form/Component'
+import { FormBlock, type FormBlockType } from '@/blocks/Form/Component'
+import { KeyTakeawaysBlock } from '@/blocks/KeyTakeaways/Component'
 import { MediaBlock } from '@/blocks/MediaBlock/Component'
+import { ProseBlock } from '@/blocks/Prose/Component'
 import styles from './RenderBlocks.module.css'
 
-const blockComponents = {
-  archive: ArchiveBlock,
-  content: ContentBlock,
-  cta: CallToActionBlock,
-  formBlock: FormBlock,
-  mediaBlock: MediaBlock,
+export type RenderBlocksProps = {
+  blocks: Page['layout'] | CaseStudy['layout'] | Blog['content']
+  context?: 'page' | 'article'
 }
 
-export const RenderBlocks: React.FC<{
-  blocks: Page['layout'][0][]
-}> = (props) => {
-  const { blocks } = props
+export const RenderBlocks: React.FC<RenderBlocksProps> = ({ blocks, context = 'page' }) => {
+  if (!blocks?.length) return null
 
-  const hasBlocks = blocks && Array.isArray(blocks) && blocks.length > 0
+  return (
+    <Fragment>
+      {blocks.map((block, index) => {
+        let content: React.ReactNode
 
-  if (hasBlocks) {
-    return (
-      <Fragment>
-        {blocks.map((block, index) => {
-          const { blockType } = block
+        switch (block.blockType) {
+          case 'archive':
+            content = <ArchiveBlock {...block} id={block.id ?? undefined} />
+            break
+          case 'banner':
+            content = <BannerBlock {...block} />
+            break
+          case 'content':
+            content = <ContentBlock {...block} />
+            break
+          case 'cta':
+            content = <CallToActionBlock {...block} />
+            break
+          case 'formBlock':
+            if (typeof block.form !== 'object' || !block.form) return null
+            content = (
+              <FormBlock
+                {...block}
+                id={block.id ?? undefined}
+                blockName={block.blockName ?? undefined}
+                form={block.form as FormBlockType['form']}
+                enableIntro={block.enableIntro ?? false}
+                introContent={block.introContent ?? undefined}
+              />
+            )
+            break
+          case 'keyTakeaways':
+            content = <KeyTakeawaysBlock {...block} />
+            break
+          case 'mediaBlock':
+            content = <MediaBlock {...block} context={context} disableInnerContainer />
+            break
+          case 'prose':
+            content = <ProseBlock {...block} context={context} />
+            break
+          default:
+            return null
+        }
 
-          if (blockType && blockType in blockComponents) {
-            const Block = blockComponents[blockType]
-
-            if (Block) {
-              return (
-                <div className={styles.section} key={index}>
-                  {/* @ts-expect-error there may be some mismatch between the expected types here */}
-                  <Block {...block} disableInnerContainer />
-                </div>
-              )
-            }
-          }
-          return null
-        })}
-      </Fragment>
-    )
-  }
-
-  return null
+        return (
+          <div
+            className={styles.section}
+            data-block-context={context}
+            key={block.id || `${block.blockType}-${index}`}
+          >
+            {content}
+          </div>
+        )
+      })}
+    </Fragment>
+  )
 }

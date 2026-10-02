@@ -18,6 +18,7 @@ type Props = MediaBlockProps & {
   imgClassName?: string
   staticImage?: StaticImageData
   disableInnerContainer?: boolean
+  context?: 'page' | 'article'
 }
 
 export const MediaBlock: React.FC<Props> = (props) => {
@@ -31,6 +32,7 @@ export const MediaBlock: React.FC<Props> = (props) => {
     media,
     staticImage,
     disableInnerContainer,
+    context = 'page',
   } = props
 
   const caption = blockCaption ?? (media && typeof media === 'object' ? media.caption : undefined)
@@ -40,6 +42,7 @@ export const MediaBlock: React.FC<Props> = (props) => {
       data-width={width || 'default'}
       className={cn(
         styles.figure,
+        context === 'article' && styles.article,
         width === 'wide' && styles.wide,
         {
           [styles.container]: enableGutter,

@@ -11,9 +11,12 @@ export const CallToActionBlock = ({
   description,
   media,
   links,
-  theme = 'default',
+  theme,
 }: Props) => (
-  <div className={styles.container} data-website-theme={theme || 'default'}>
+  <div
+    className={styles.container}
+    data-website-theme={theme === 'inverse' || theme === 'default' ? theme : undefined}
+  >
     <div className={cn(styles.panel, media && styles.withMedia)}>
       {media && (
         <Media className={styles.media} resource={media} presentation={MEDIA_PRESENTATION.body} />
