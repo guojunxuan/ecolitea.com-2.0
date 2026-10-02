@@ -1,0 +1,38 @@
+.page {
+  padding-block: var(--website-section-spacious);
+}
+
+.header,
+.tabs,
+.range,
+.pagination {
+  width: min(100% - (2 * var(--website-gutter)), var(--website-container-site));
+  margin-inline: auto;
+}
+
+.header {
+  margin-bottom: var(--website-section-standard);
+}
+
+.title {
+  composes: website-type-heading-1 from global;
+  margin: 0;
+}
+
+.breadcrumb {
+  margin-bottom: var(--website-space-8);
+}
+
+.description {
+  max-width: 42rem;
+  margin-block: var(--website-space-4) 0;
+}
+
+.tabs,
+.range {
+  margin-bottom: var(--website-space-8);
+}
+
+.pagination {
+  margin-top: var(--website-section-standard);
+}

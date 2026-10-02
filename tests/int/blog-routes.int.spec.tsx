@@ -1,0 +1,146 @@
+import { renderToStaticMarkup } from 'react-dom/server'
+import React from 'react'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+
+const { find, getBlogListing, notFound, unstableCache } = vi.hoisted(() => ({
+  find: vi.fn(),
+  getBlogListing: vi.fn(),
+  notFound: vi.fn(() => { throw new Error('NEXT_NOT_FOUND') }),
+  unstableCache: vi.fn((fn: () => unknown) => fn),
+}))
+
+vi.mock('payload', () => ({ getPayload: vi.fn(async () => ({ find })) }))
+vi.mock('@payload-config', () => ({ default: Promise.resolve({}) }))
+vi.mock('next/navigation', () => ({ notFound, useRouter: () => ({ push: vi.fn() }) }))
+vi.mock('next/cache', () => ({ unstable_cache: unstableCache }))
+vi.mock('@/utilities/blogs/getBlogListing', () => ({ getBlogListing }))
+vi.mock('@/components/Pagination', () => ({
+  Pagination: ({ routeBase }: { routeBase: string }) => <span data-route-base={routeBase} />,
+}))
+
+import BlogsPage, { generateMetadata as blogsMetadata } from '@/app/(frontend)/blogs/page'
+import BlogPage, { generateMetadata as pageMetadata } from '@/app/(frontend)/blogs/page/[pageNumber]/page'
+import CategoryPage, { generateMetadata as categoryMetadata, generateStaticParams } from '@/app/(frontend)/blogs/category/[categorySlug]/page'
+import CategoryPaged, { generateMetadata as categoryPagedMetadata } from '@/app/(frontend)/blogs/category/[categorySlug]/page/[pageNumber]/page'
+
+const categories = [
+  { id: 'tea', title: 'Tea Guides', slug: 'tea-guides', description: 'Tea category description' },
+  { id: 'life', title: 'Lifestyle', slug: 'lifestyle', description: 'Life category description' },
+  { id: 'empty', title: 'Empty', slug: 'empty' },
+]
+const blog = (index: number, category = 'tea') => ({
+  id: `blog-${index}`, slug: `blog-${index}`, title: `Blog ${index}`, excerpt: 'Excerpt',
+  category, heroImage: 'media', publishedAt: '2026-09-01T00:00:00.000Z',
+})
+
+beforeEach(() => {
+  vi.useRealTimers()
+  find.mockReset()
+  getBlogListing.mockReset()
+  notFound.mockClear()
+  find.mockImplementation(async ({ collection, where, page }: { collection: string; where?: { slug?: { equals: string } }; page?: number }) => {
+    if (collection === 'blog-categories' && where?.slug) return { docs: categories.filter(({ slug }) => slug === where.slug?.equals) }
+    if (collection === 'blog-categories') return { docs: categories, hasNextPage: false }
+    if (collection === 'blogs') return { docs: (page === 2 ? [blog(13), blog(14, 'life')] : Array.from({ length: 12 }, (_, index) => blog(index + 1))), hasNextPage: page === 1 }
+    throw new Error(`Unexpected collection ${collection}`)
+  })
+  getBlogListing.mockImplementation(async (page: number, categoryId?: string) => ({
+    docs: Array.from({ length: page === 1 ? 12 : 1 }, (_, index) => blog(page === 1 ? index + 1 : 13)),
+    page, totalDocs: categoryId ? 13 : 25, totalPages: categoryId ? 2 : 3,
+  }))
+})
+
+describe('blog listing routes', () => {
+  it('renders first page with counts from all visible blogs, ordered nonempty tabs, 12 cards and featured item', async () => {
+    const html = renderToStaticMarkup(await BlogsPage())
+    expect(html).toContain('<h1')
+    expect(html).toContain('Blogs')
+    expect(html).toContain('Showing 1 - 12 of 25 Blogs')
+    expect((html.match(/data-slot="archive-item"/g) || [])).toHaveLength(12)
+    expect((html.match(/data-featured="true"/g) || [])).toHaveLength(1)
+    expect(html).toContain('data-route-base="/blogs"')
+    expect(html.indexOf('Tea Guides')).toBeLessThan(html.indexOf('Lifestyle'))
+    expect(html).not.toContain('>Empty <')
+    expect(html).toContain('Tea Guides <span')
+    expect(html).toContain('13</span>')
+    expect(find.mock.calls.filter(([args]) => args.collection === 'blogs')).toHaveLength(2)
+    expect(unstableCache).toHaveBeenCalledWith(expect.any(Function), expect.any(Array), expect.objectContaining({ tags: expect.arrayContaining(['blogs-list', 'blog-categories']) }))
+  })
+
+  it('renders later unfiltered pages without a featured card', async () => {
+    const html = renderToStaticMarkup(await BlogPage({ params: Promise.resolve({ pageNumber: '2' }) }))
+    expect(html).not.toContain('data-featured="true"')
+    expect(html).toContain('Showing 13 - 24 of 25 Blogs')
+    expect(getBlogListing).toHaveBeenCalledWith(2, undefined)
+  })
+
+  it('counts visible blogs across Payload result pages', async () => {
+    find.mockImplementation(async ({ collection, page }: { collection: string; page?: number }) => {
+      if (collection === 'blog-categories') return { docs: categories, hasNextPage: false }
+      if (collection === 'blogs') return {
+        docs: page === 1 ? Array.from({ length: 100 }, (_, index) => blog(index + 1)) : [blog(101)],
+        hasNextPage: page === 1,
+      }
+      throw new Error(`Unexpected collection ${collection}`)
+    })
+    const html = renderToStaticMarkup(await BlogsPage())
+    expect(html).toContain('Tea Guides <span')
+    expect(html).toContain('101</span>')
+    expect(find.mock.calls.filter(([args]) => args.collection === 'blogs').map(([args]) => args.page)).toEqual([1, 2])
+  })
+
+  it('renders category breadcrumb, description, active tab and category pagination base', async () => {
+    const html = renderToStaticMarkup(await CategoryPage({ params: Promise.resolve({ categorySlug: 'tea-guides' }) }))
+    expect(html).toContain('Tea Guides')
+    expect(html).toContain('Tea category description')
+    expect(html).toContain('href="/blogs"')
+    expect(html).toContain('aria-current="page"')
+    expect(html).toContain('data-route-base="/blogs/category/tea-guides"')
+    expect(html).not.toContain('data-featured="true"')
+    expect(getBlogListing).toHaveBeenCalledWith(1, 'tea')
+  })
+
+  it('renders a later category page through the same listing flow', async () => {
+    const html = renderToStaticMarkup(await CategoryPaged({ params: Promise.resolve({ categorySlug: 'tea-guides', pageNumber: '2' }) }))
+    expect(html).toContain('data-route-base="/blogs/category/tea-guides"')
+    expect(getBlogListing).toHaveBeenCalledWith(2, 'tea')
+  })
+
+  it.each(['0', '-1', '1', '2.5', '2e1', '02', 'abc', 'Infinity'])('rejects noncanonical page %s', async (pageNumber) => {
+    await expect(BlogPage({ params: Promise.resolve({ pageNumber }) })).rejects.toThrow('NEXT_NOT_FOUND')
+    expect(getBlogListing).not.toHaveBeenCalled()
+  })
+
+  it('rejects out-of-range pages and unknown categories', async () => {
+    await expect(BlogPage({ params: Promise.resolve({ pageNumber: '4' }) })).rejects.toThrow('NEXT_NOT_FOUND')
+    await expect(CategoryPage({ params: Promise.resolve({ categorySlug: 'missing' }) })).rejects.toThrow('NEXT_NOT_FOUND')
+    await expect(CategoryPaged({ params: Promise.resolve({ categorySlug: 'missing', pageNumber: '2' }) })).rejects.toThrow('NEXT_NOT_FOUND')
+    await expect(CategoryPaged({ params: Promise.resolve({ categorySlug: 'tea-guides', pageNumber: '3' }) })).rejects.toThrow('NEXT_NOT_FOUND')
+  })
+
+  it('uses distinct metadata and canonical paths for all four routes', async () => {
+    const all = await blogsMetadata()
+    const later = await pageMetadata({ params: Promise.resolve({ pageNumber: '2' }) })
+    const category = await categoryMetadata({ params: Promise.resolve({ categorySlug: 'tea-guides' }) })
+    const categoryLater = await categoryPagedMetadata({ params: Promise.resolve({ categorySlug: 'tea-guides', pageNumber: '2' }) })
+    expect([all, later, category, categoryLater].map(({ title }) => title)).toEqual([
+      'Blogs', 'Blogs — Page 2', 'Tea Guides Blogs', 'Tea Guides Blogs — Page 2',
+    ])
+    expect([all, later, category, categoryLater].map(({ alternates }) => alternates?.canonical)).toEqual([
+      '/blogs', '/blogs/page/2', '/blogs/category/tea-guides', '/blogs/category/tea-guides/page/2',
+    ])
+    expect(category.description).toContain('Tea category description')
+    expect(all.description).toBeTruthy()
+    expect(later.description).not.toBe(all.description)
+  })
+
+  it('prerenders existing categories while allowing new categories at request time', async () => {
+    expect(await generateStaticParams()).toEqual([
+      { categorySlug: 'tea-guides' }, { categorySlug: 'lifestyle' }, { categorySlug: 'empty' },
+    ])
+    categories.push({ id: 'new', title: 'New', slug: 'new', description: 'New category description' })
+    const html = renderToStaticMarkup(await CategoryPage({ params: Promise.resolve({ categorySlug: 'new' }) }))
+    expect(html).toContain('New category description')
+    categories.pop()
+  })
+})
