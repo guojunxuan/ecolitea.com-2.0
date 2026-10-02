@@ -15,6 +15,23 @@ const flatten = (fields: Field[]): Field[] =>
   ])
 
 describe('Blog collection configuration', () => {
+  it('evaluates the anonymous publication cutoff for each request', async () => {
+    const { Blogs } = await import('@/collections/Blogs')
+    vi.useFakeTimers({ toFake: ['Date'] })
+    try {
+      for (const now of ['2026-10-01T00:00:00.000Z', '2026-10-02T00:00:00.000Z']) {
+        vi.setSystemTime(new Date(now))
+        expect(await Blogs.access!.read!({ req: { user: null } } as never)).toEqual({
+          _status: { equals: 'published' },
+          publishedAt: { exists: true, less_than_equal: now },
+        })
+      }
+      expect(await Blogs.access!.read!({ req: { user: { id: 'author' } } } as never)).toBe(true)
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
   it('registers ordered categories, the category join, listing projections, and version settings', async () => {
     const config = await (await import('@/payload.config')).default
     const blogs = config.collections.find(({ slug }) => slug === 'blogs')
@@ -90,7 +107,24 @@ describe('Blogs through the isolated Payload Local API', () => {
       typescript: { autoGenerate: false },
       editor: defaultLexical,
       collections: [
-        Blogs,
+        {
+          ...Blogs,
+          fields: Blogs.fields.map((field) =>
+            field.type === 'date' && field.name === 'publishedAt'
+              ? {
+                  ...field,
+                  hooks: {
+                    ...field.hooks,
+                    beforeChange: [
+                      ...(field.hooks?.beforeChange || []),
+                      // Model a legacy undated published row through Payload, without direct DB writes.
+                      ({ value, context }) => (context.testUndatedBlog ? null : value),
+                    ],
+                  },
+                }
+              : field,
+          ),
+        },
         BlogCategories,
         Users,
         ...(['pages', 'posts', 'case-studies', 'categories', 'forms'] as const).map((slug) => ({
@@ -233,6 +267,49 @@ describe('Blogs through the isolated Payload Local API', () => {
     })
     expect(publicDoc.populatedAuthors).toEqual([{ id: user.id, name: 'Test Author' }])
     expect(JSON.stringify(publicDoc)).not.toContain('blog-author@example.test')
+  })
+
+  it('enforces anonymous publication dates through Payload find and findByID access', async () => {
+    const published = await createBlog({ publishedAt: '2020-01-01T00:00:00.000Z' })
+    const future = await createBlog({ publishedAt: '2099-01-01T00:00:00.000Z' })
+    const draft = await createBlog({ _status: 'draft' })
+    const undated = await payload.update({
+      collection: 'blogs',
+      id: published.id,
+      context: { ...context, testUndatedBlog: true },
+      data: { publishedAt: null },
+    })
+    expect(undated.publishedAt).toBeNull()
+    const visible = await createBlog({ publishedAt: '2020-01-01T00:00:00.000Z' })
+    const ids = [future.id, draft.id, undated.id, visible.id]
+    const anonymous = await payload.find({
+      collection: 'blogs',
+      overrideAccess: false,
+      where: { id: { in: ids } },
+      depth: 0,
+    })
+    expect(anonymous.docs.map(({ id }) => id)).toEqual([visible.id])
+    for (const id of [future.id, draft.id, undated.id]) {
+      await expect(
+        payload.findByID({ collection: 'blogs', id, overrideAccess: false }),
+      ).rejects.toThrow()
+    }
+    const authenticated = await payload.find({
+      collection: 'blogs',
+      overrideAccess: false,
+      user: user as never,
+      where: { id: { in: ids } },
+      depth: 0,
+    })
+    expect(authenticated.docs.map(({ id }) => id).sort()).toEqual(ids.sort())
+    await expect(
+      payload.findByID({
+        collection: 'blogs',
+        id: future.id,
+        overrideAccess: false,
+        user: user as never,
+      }),
+    ).resolves.toMatchObject({ id: future.id })
   })
 
   it('limits related blogs to three and rejects self selection', async () => {

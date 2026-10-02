@@ -7,7 +7,7 @@ import {
   PreviewField,
 } from '@payloadcms/plugin-seo/fields'
 import { authenticated } from '@/access/authenticated'
-import { authenticatedOrPublished } from '@/access/authenticatedOrPublished'
+import { authenticatedOrPublishedBlog } from '@/access/authenticatedOrPublishedBlog'
 import { generatePreviewPath } from '@/utilities/generatePreviewPath'
 import { populateAuthors } from './hooks/populateAuthors'
 import { revalidateBlog, revalidateDelete } from './hooks/revalidateBlog'
@@ -26,7 +26,7 @@ export const Blogs: CollectionConfig = {
   },
   access: {
     create: authenticated,
-    read: authenticatedOrPublished,
+    read: authenticatedOrPublishedBlog,
     update: authenticated,
     delete: authenticated,
   },
