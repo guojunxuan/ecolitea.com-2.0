@@ -5,7 +5,7 @@ import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 import React from 'react'
 import { Search } from '@/search/Component'
-import { CardPostData } from '@/components/Card'
+import { CardBlogData, CardPostData } from '@/components/Card'
 import { normalizeSearchQuery } from '@/search/query'
 
 import styles from '../pages.module.css'
@@ -20,15 +20,20 @@ export default async function Page({ searchParams: searchParamsPromise }: Args) 
   const query = normalizeSearchQuery(q)
   const payload = await getPayload({ config: configPromise })
 
-  const posts = await payload.find({
+  const results = await payload.find({
     collection: 'search',
     depth: 1,
     limit: 12,
     select: {
       title: true,
       slug: true,
+      doc: true,
       categories: true,
       meta: true,
+      excerpt: true,
+      category: true,
+      heroImage: true,
+      publishedAt: true,
     },
     // pagination: false reduces overhead if you don't need totalDocs
     pagination: false,
@@ -62,6 +67,9 @@ export default async function Page({ searchParams: searchParamsPromise }: Args) 
       : {}),
   })
 
+  const blogResults = results.docs.filter((result) => result.doc.relationTo === 'blogs') as unknown as CardBlogData[]
+  const postResults = results.docs.filter((result) => result.doc.relationTo === 'posts') as CardPostData[]
+
   return (
     <div className={styles.pageSection}>
       <div className={styles.pageHeaderCentered}>
@@ -72,8 +80,11 @@ export default async function Page({ searchParams: searchParamsPromise }: Args) 
         </div>
       </div>
 
-      {posts.totalDocs > 0 ? (
-        <CollectionArchive posts={posts.docs as CardPostData[]} />
+      {blogResults.length || postResults.length ? (
+        <>
+          {blogResults.length > 0 && <CollectionArchive posts={blogResults} relationTo="blogs" />}
+          {postResults.length > 0 && <CollectionArchive posts={postResults} />}
+        </>
       ) : (
         <div className={styles.pageMessage}>No results found.</div>
       )}

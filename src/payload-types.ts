@@ -27,6 +27,14 @@ export type HeaderNavItem =
               value: string | Post;
             } | null)
           | ({
+              relationTo: 'blogs';
+              value: string | Blog;
+            } | null)
+          | ({
+              relationTo: 'blog-categories';
+              value: string | BlogCategory;
+            } | null)
+          | ({
               relationTo: 'case-studies';
               value: string | CaseStudy;
             } | null)
@@ -61,6 +69,14 @@ export type NavigationColumns =
             | ({
                 relationTo: 'posts';
                 value: string | Post;
+              } | null)
+            | ({
+                relationTo: 'blogs';
+                value: string | Blog;
+              } | null)
+            | ({
+                relationTo: 'blog-categories';
+                value: string | BlogCategory;
               } | null)
             | ({
                 relationTo: 'case-studies';
@@ -1004,6 +1020,10 @@ export interface Redirect {
       | ({
           relationTo: 'posts';
           value: string | Post;
+        } | null)
+      | ({
+          relationTo: 'blogs';
+          value: string | Blog;
         } | null);
     url?: string | null;
   };
@@ -1037,11 +1057,25 @@ export interface Search {
   id: string;
   title?: string | null;
   priority?: number | null;
-  doc: {
-    relationTo: 'posts';
-    value: string | Post;
-  };
+  doc:
+    | {
+        relationTo: 'posts';
+        value: string | Post;
+      }
+    | {
+        relationTo: 'blogs';
+        value: string | Blog;
+      };
   slug?: string | null;
+  excerpt?: string | null;
+  heroImage?: (string | null) | Media;
+  publishedAt?: string | null;
+  category?: {
+    relationTo?: string | null;
+    categoryID?: string | null;
+    title?: string | null;
+    slug?: string | null;
+  };
   meta?: {
     title?: string | null;
     description?: string | null;
@@ -1729,6 +1763,17 @@ export interface SearchSelect<T extends boolean = true> {
   priority?: T;
   doc?: T;
   slug?: T;
+  excerpt?: T;
+  heroImage?: T;
+  publishedAt?: T;
+  category?:
+    | T
+    | {
+        relationTo?: T;
+        categoryID?: T;
+        title?: T;
+        slug?: T;
+      };
   meta?:
     | T
     | {
@@ -1848,6 +1893,14 @@ export interface Header {
           value: string | Post;
         } | null)
       | ({
+          relationTo: 'blogs';
+          value: string | Blog;
+        } | null)
+      | ({
+          relationTo: 'blog-categories';
+          value: string | BlogCategory;
+        } | null)
+      | ({
           relationTo: 'case-studies';
           value: string | CaseStudy;
         } | null)
@@ -1880,6 +1933,14 @@ export interface HeaderCategoryTabsBlock {
           value: string | Post;
         } | null)
       | ({
+          relationTo: 'blogs';
+          value: string | Blog;
+        } | null)
+      | ({
+          relationTo: 'blog-categories';
+          value: string | BlogCategory;
+        } | null)
+      | ({
           relationTo: 'case-studies';
           value: string | CaseStudy;
         } | null)
@@ -1906,6 +1967,14 @@ export interface HeaderCategoryTabsBlock {
             value: string | Post;
           } | null)
         | ({
+            relationTo: 'blogs';
+            value: string | Blog;
+          } | null)
+        | ({
+            relationTo: 'blog-categories';
+            value: string | BlogCategory;
+          } | null)
+        | ({
             relationTo: 'case-studies';
             value: string | CaseStudy;
           } | null)
@@ -1930,6 +1999,14 @@ export interface HeaderCategoryTabsBlock {
           | ({
               relationTo: 'posts';
               value: string | Post;
+            } | null)
+          | ({
+              relationTo: 'blogs';
+              value: string | Blog;
+            } | null)
+          | ({
+              relationTo: 'blog-categories';
+              value: string | BlogCategory;
             } | null)
           | ({
               relationTo: 'case-studies';
@@ -1970,6 +2047,14 @@ export interface HeaderCardGroupBlock {
           value: string | Post;
         } | null)
       | ({
+          relationTo: 'blogs';
+          value: string | Blog;
+        } | null)
+      | ({
+          relationTo: 'blog-categories';
+          value: string | BlogCategory;
+        } | null)
+      | ({
           relationTo: 'case-studies';
           value: string | CaseStudy;
         } | null)
@@ -1994,6 +2079,14 @@ export interface HeaderCardGroupBlock {
         | ({
             relationTo: 'posts';
             value: string | Post;
+          } | null)
+        | ({
+            relationTo: 'blogs';
+            value: string | Blog;
+          } | null)
+        | ({
+            relationTo: 'blog-categories';
+            value: string | BlogCategory;
           } | null)
         | ({
             relationTo: 'case-studies';
@@ -2032,6 +2125,14 @@ export interface HeaderLinkGroupBlock {
             value: string | Post;
           } | null)
         | ({
+            relationTo: 'blogs';
+            value: string | Blog;
+          } | null)
+        | ({
+            relationTo: 'blog-categories';
+            value: string | BlogCategory;
+          } | null)
+        | ({
             relationTo: 'case-studies';
             value: string | CaseStudy;
           } | null)
@@ -2067,6 +2168,14 @@ export interface HeaderRichCardBlock {
       | ({
           relationTo: 'posts';
           value: string | Post;
+        } | null)
+      | ({
+          relationTo: 'blogs';
+          value: string | Blog;
+        } | null)
+      | ({
+          relationTo: 'blog-categories';
+          value: string | BlogCategory;
         } | null)
       | ({
           relationTo: 'case-studies';

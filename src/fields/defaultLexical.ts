@@ -23,7 +23,7 @@ import {
 
 export const articleLinkFeature = () =>
   LinkFeature({
-    enabledCollections: ['pages', 'posts', 'blogs', 'case-studies'],
+    enabledCollections: ['pages', 'posts', 'blogs', 'blog-categories', 'case-studies'],
     fields: ({ defaultFields }) => {
       const defaultFieldsWithoutUrl = defaultFields.filter((field) => {
         if ('name' in field && field.name === 'url') return false

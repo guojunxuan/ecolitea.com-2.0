@@ -1,9 +1,12 @@
 import type React from 'react'
-import type { Page, Post } from '@/payload-types'
+import type { Blog, Page, Post } from '@/payload-types'
 
 import { getCachedDocument } from '@/utilities/getDocument'
 import { getCachedRedirects } from '@/utilities/getRedirects'
-import { notFound, redirect } from 'next/navigation'
+import { getContentPath } from '@/utilities/getContentPath'
+import configPromise from '@payload-config'
+import { getPayload } from 'payload'
+import { notFound, permanentRedirect, redirect } from 'next/navigation'
 
 interface Props {
   disableNotFound?: boolean
@@ -21,25 +24,31 @@ export const PayloadRedirects: React.FC<Props> = async ({ disableNotFound, url }
       redirect(redirectItem.to.url)
     }
 
-    let redirectUrl: string
+    const reference = redirectItem.to?.reference
+    if (reference) {
+      const collection = reference.relationTo
+      let document = typeof reference.value === 'object' ? reference.value : null
 
-    if (typeof redirectItem.to?.reference?.value === 'string') {
-      const collection = redirectItem.to?.reference?.relationTo
-      const id = redirectItem.to?.reference?.value
+      if (typeof reference.value === 'string') {
+        if (collection === 'blogs') {
+          const payload = await getPayload({ config: configPromise })
+          document = await payload.findByID({
+            collection: 'blogs',
+            id: reference.value,
+            depth: 0,
+            disableErrors: true,
+          })
+        } else {
+          document = (await getCachedDocument(collection, reference.value)()) as Page | Post
+        }
+      }
 
-      const document = (await getCachedDocument(collection, id)()) as Page | Post
-      redirectUrl = `${redirectItem.to?.reference?.relationTo !== 'pages' ? `/${redirectItem.to?.reference?.relationTo}` : ''}/${
-        document?.slug
-      }`
-    } else {
-      redirectUrl = `${redirectItem.to?.reference?.relationTo !== 'pages' ? `/${redirectItem.to?.reference?.relationTo}` : ''}/${
-        typeof redirectItem.to?.reference?.value === 'object'
-          ? redirectItem.to?.reference?.value?.slug
-          : ''
-      }`
+      const redirectUrl = getContentPath(collection, (document as Blog | Page | Post | null)?.slug || '')
+      if (redirectUrl) {
+        if (collection === 'blogs') permanentRedirect(redirectUrl)
+        redirect(redirectUrl)
+      }
     }
-
-    if (redirectUrl) redirect(redirectUrl)
   }
 
   if (disableNotFound) return null

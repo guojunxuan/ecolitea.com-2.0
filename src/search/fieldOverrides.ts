@@ -10,6 +10,33 @@ export const searchFields: Field[] = [
     },
   },
   {
+    name: 'excerpt',
+    type: 'textarea',
+    admin: { readOnly: true },
+  },
+  {
+    name: 'heroImage',
+    type: 'upload',
+    relationTo: 'media',
+    admin: { readOnly: true },
+  },
+  {
+    name: 'publishedAt',
+    type: 'date',
+    admin: { readOnly: true },
+  },
+  {
+    name: 'category',
+    type: 'group',
+    admin: { readOnly: true },
+    fields: [
+      { name: 'relationTo', type: 'text' },
+      { name: 'categoryID', type: 'text' },
+      { name: 'title', type: 'text' },
+      { name: 'slug', type: 'text' },
+    ],
+  },
+  {
     name: 'meta',
     label: 'Meta',
     type: 'group',

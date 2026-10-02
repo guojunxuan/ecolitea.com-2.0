@@ -22,6 +22,8 @@ import { BannerBlock } from '@/blocks/Banner/Component'
 import { CallToActionBlock } from '@/blocks/CallToAction/Component'
 import { cn } from '@/utilities/ui'
 import { getHeadingText, slugifyHeadingText } from '@/utilities/blogs/extractTOC'
+import { getContentPath } from '@/utilities/getContentPath'
+import type { CollectionSlug } from 'payload'
 
 import styles from './index.module.css'
 
@@ -38,7 +40,7 @@ const internalDocToHref = ({ linkNode }: { linkNode: SerializedLinkNode }) => {
     throw new Error('Expected value to be an object')
   }
   const slug = value.slug
-  return relationTo === 'posts' ? `/posts/${slug}` : `/${slug}`
+  return typeof slug === 'string' ? getContentPath(relationTo as CollectionSlug, slug) || '#' : '#'
 }
 
 const jsxConverters =

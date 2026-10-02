@@ -3,26 +3,39 @@ import { nestedDocsPlugin } from '@payloadcms/plugin-nested-docs'
 import { redirectsPlugin } from '@payloadcms/plugin-redirects'
 import { seoPlugin } from '@payloadcms/plugin-seo'
 import { searchPlugin } from '@payloadcms/plugin-search'
-import { Plugin } from 'payload'
+import type { CollectionSlug, Plugin } from 'payload'
 import { revalidateRedirects } from '@/hooks/revalidateRedirects'
-import { GenerateTitle, GenerateURL } from '@payloadcms/plugin-seo/types'
+import { GenerateDescription, GenerateTitle, GenerateURL } from '@payloadcms/plugin-seo/types'
 import { FixedToolbarFeature, HeadingFeature, lexicalEditor } from '@payloadcms/richtext-lexical'
 import { searchFields } from '@/search/fieldOverrides'
 import { beforeSyncWithSearch } from '@/search/beforeSync'
 
-import { Page, Post } from '@/payload-types'
+import { Blog, CaseStudy, Page, Post } from '@/payload-types'
 import { getServerSideURL } from '@/utilities/getURL'
+import { getContentPath } from '@/utilities/getContentPath'
 import { s3Storage, type S3StorageOptions } from '@payloadcms/storage-s3'
 import { serverEnv } from '@/utilities/env'
 
-const generateTitle: GenerateTitle<Post | Page> = ({ doc }) => {
+type SEOContent = Blog | CaseStudy | Page | Post
+
+export const generateTitle: GenerateTitle<SEOContent> = ({ collectionConfig, doc }) => {
+  if (collectionConfig?.slug === 'blogs') {
+    return doc?.title ? `${doc.title} | Ecolitea` : 'Ecolitea'
+  }
   return doc?.title ? `${doc.title} | Payload Website Template` : 'Payload Website Template'
 }
 
-const generateURL: GenerateURL<Post | Page> = ({ doc }) => {
-  const url = getServerSideURL()
+export const generateDescription: GenerateDescription<SEOContent> = ({ collectionConfig, doc }) => {
+  if (collectionConfig?.slug === 'blogs') return (doc as Blog)?.excerpt || ''
+  return doc?.meta?.description || ''
+}
 
-  return doc?.slug ? `${url}/${doc.slug}` : url
+export const generateURL: GenerateURL<SEOContent> = ({ collectionConfig, doc }) => {
+  const url = getServerSideURL()
+  const path = collectionConfig?.slug && doc?.slug
+    ? getContentPath(collectionConfig.slug as CollectionSlug, doc.slug)
+    : null
+  return path ? `${url}${path}` : url
 }
 
 export const generateR2FileURL = ({ filename, prefix }: { filename: string; prefix?: string }) =>
@@ -51,7 +64,7 @@ export const plugins: Plugin[] = [
     },
   }).init as unknown as Plugin,
   redirectsPlugin({
-    collections: ['pages', 'posts'],
+    collections: ['pages', 'posts', 'blogs'],
     overrides: {
       // @ts-expect-error - This is a valid override, mapped fields don't resolve to the same type
       fields: ({ defaultFields }) => {
@@ -79,8 +92,7 @@ export const plugins: Plugin[] = [
   seoPlugin({
     generateTitle,
     generateURL,
-    generateDescription: ({ doc, collectionConfig }) =>
-      collectionConfig?.slug === 'blogs' ? doc?.excerpt || '' : doc?.meta?.description || '',
+    generateDescription,
   }),
   formBuilderPlugin({
     fields: {
@@ -109,7 +121,7 @@ export const plugins: Plugin[] = [
     },
   }),
   searchPlugin({
-    collections: ['posts'],
+    collections: ['posts', 'blogs'],
     beforeSync: beforeSyncWithSearch,
     searchOverrides: {
       fields: ({ defaultFields }) => {

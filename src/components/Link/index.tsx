@@ -3,7 +3,8 @@ import { cn } from '@/utilities/ui'
 import Link from 'next/link'
 import React from 'react'
 
-import type { CaseStudy, Category, Page, Post } from '@/payload-types'
+import type { Blog, BlogCategory, CaseStudy, Category, Page, Post } from '@/payload-types'
+import { getContentPath } from '@/utilities/getContentPath'
 
 type LinkRelation =
   | {
@@ -21,6 +22,14 @@ type LinkRelation =
   | {
       relationTo: 'categories'
       value: Category | string | number
+    }
+  | {
+      relationTo: 'blogs'
+      value: Blog | string | number
+    }
+  | {
+      relationTo: 'blog-categories'
+      value: BlogCategory | string | number
     }
 
 export type CMSLinkType = {
@@ -45,16 +54,8 @@ export const resolveLinkHref = ({ reference, type, url }: ResolvableLink): strin
 
   if (!slug) return null
 
-  switch (reference.relationTo) {
-    case 'pages':
-      return `/${slug}`
-    case 'posts':
-      return `/posts/${slug}`
-    case 'case-studies':
-      return `/case-studies/${slug}`
-    case 'categories':
-      return `/posts?category=${encodeURIComponent(slug)}`
-  }
+  if (reference.relationTo === 'categories') return `/posts?category=${encodeURIComponent(slug)}`
+  return getContentPath(reference.relationTo, slug)
 }
 
 export const CMSLink: React.FC<CMSLinkType> = (props) => {

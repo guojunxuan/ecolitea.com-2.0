@@ -3,7 +3,7 @@ import React from 'react'
 import { afterEach, describe, expect, it } from 'vitest'
 
 import { CMSLink, resolveLinkHref, type CMSLinkType } from '@/components/Link'
-import type { CaseStudy, Category, Page, Post } from '@/payload-types'
+import type { Blog, BlogCategory, CaseStudy, Category, Page, Post } from '@/payload-types'
 
 const documentWithSlug = <T,>(slug: string): T => ({ slug }) as T
 
@@ -41,6 +41,25 @@ describe('resolveLinkHref', () => {
         },
       },
       expectedHref: '/case-studies/example-case',
+    },
+    {
+      relationTo: 'blogs',
+      link: {
+        type: 'reference',
+        reference: { relationTo: 'blogs', value: documentWithSlug<Blog>('tea-notes') },
+      },
+      expectedHref: '/blogs/tea-notes',
+    },
+    {
+      relationTo: 'blog-categories',
+      link: {
+        type: 'reference',
+        reference: {
+          relationTo: 'blog-categories',
+          value: documentWithSlug<BlogCategory>('brewing'),
+        },
+      },
+      expectedHref: '/blogs/category/brewing',
     },
     {
       relationTo: 'categories',

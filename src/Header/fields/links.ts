@@ -3,7 +3,7 @@ import type { CollectionSlug, GroupField } from 'payload'
 import { link } from '@/fields/link'
 import { trimText, validateNavigationURL, validateNonBlankText } from '@/fields/linkValidation'
 
-export const headerLinkTargets: CollectionSlug[] = ['pages', 'posts', 'case-studies', 'categories']
+export const headerLinkTargets: CollectionSlug[] = ['pages', 'posts', 'blogs', 'blog-categories', 'case-studies', 'categories']
 
 const headerURLOverrides = {
   hooks: { beforeChange: [trimText] },

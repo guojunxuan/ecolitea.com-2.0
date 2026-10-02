@@ -27,7 +27,7 @@ export const Footer: GlobalConfig = {
         hooks: { beforeChange: [trimText] },
         validate: validateNonBlankText,
       },
-      relationTo: ['pages', 'posts', 'case-studies', 'categories'],
+      relationTo: ['pages', 'posts', 'blogs', 'blog-categories', 'case-studies', 'categories'],
       overrides: {
         maxRows: 4,
         validate: validateFooterColumnLabels,
