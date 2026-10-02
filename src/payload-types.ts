@@ -1067,7 +1067,6 @@ export interface Search {
         value: string | Blog;
       };
   slug?: string | null;
-  blogStatus?: string | null;
   excerpt?: string | null;
   heroImage?: (string | null) | Media;
   publishedAt?: string | null;
@@ -1764,7 +1763,6 @@ export interface SearchSelect<T extends boolean = true> {
   priority?: T;
   doc?: T;
   slug?: T;
-  blogStatus?: T;
   excerpt?: T;
   heroImage?: T;
   publishedAt?: T;

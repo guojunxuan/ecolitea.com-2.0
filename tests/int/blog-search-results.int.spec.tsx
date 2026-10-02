@@ -46,7 +46,6 @@ describe('site search results', () => {
         ]) }),
         expect.objectContaining({ or: expect.arrayContaining([
           expect.objectContaining({ and: expect.arrayContaining([
-            { blogStatus: { equals: 'published' } },
             expect.objectContaining({ publishedAt: expect.objectContaining({ less_than_equal: expect.any(String) }) }),
           ]) }),
         ]) }),
@@ -60,7 +59,6 @@ describe('site search results', () => {
     expect(find).toHaveBeenCalledWith(expect.objectContaining({
       where: expect.objectContaining({ or: expect.arrayContaining([
         expect.objectContaining({ and: expect.arrayContaining([
-          { blogStatus: { equals: 'published' } },
           expect.objectContaining({ publishedAt: expect.objectContaining({ less_than_equal: expect.any(String) }) }),
         ]) }),
       ]) }),
