@@ -77,7 +77,7 @@ describe('blog listing components', () => {
     expect(container.querySelector('[data-featured]')).toBeNull()
   })
 
-  it('renders populated category links and a mobile More control', () => {
+  it('keeps the selected category visible on mobile and opens More to navigate the rest', () => {
     render(
       <BlogCategoryTabs
         categories={[
@@ -86,7 +86,7 @@ describe('blog listing components', () => {
           { id: 'news', title: 'News', slug: 'news', count: 1 },
           { id: 'empty', title: 'Empty', slug: 'empty', count: 0 },
         ]}
-        currentCategory="tea-guides"
+        currentCategory="news"
       />,
     )
     const navigation = screen.getByRole('navigation', { name: 'Blog categories' })
@@ -94,12 +94,20 @@ describe('blog listing components', () => {
     expect(within(navigation).getAllByRole('link', { name: /Tea Guides/ })[0]?.getAttribute('href')).toBe(
       '/blogs/category/tea-guides',
     )
-    expect(within(navigation).getAllByRole('link', { name: /Tea Guides/ })[0]?.getAttribute('aria-current')).toBe(
+    expect(within(navigation).getAllByRole('link', { name: /News/ })[0]?.getAttribute('aria-current')).toBe(
       'page',
     )
     expect(within(navigation).queryByText('Empty')).toBeNull()
+    const mobileTabs = navigation.querySelector('[data-slot="blog-mobile-tabs"]')
+    expect(mobileTabs).not.toBeNull()
+    expect(mobileTabs?.querySelector(':scope > a[aria-current="page"]')?.textContent).toContain('News')
+    const more = mobileTabs?.querySelector('details')
+    expect(more?.open).toBe(false)
     fireEvent.click(within(navigation).getByText('More categories'))
-    expect(within(navigation).getAllByRole('link', { name: /News/ }).length).toBeGreaterThan(1)
+    expect(more?.open).toBe(true)
+    expect(within(more!).getByRole('link', { name: /Lifestyle/ }).getAttribute('href')).toBe(
+      '/blogs/category/lifestyle',
+    )
   })
 
   it('uses the requested pagination base while preserving posts by default', () => {

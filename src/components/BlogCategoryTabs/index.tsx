@@ -20,6 +20,15 @@ export const BlogCategoryTabs: React.FC<{
     { id: 'all', title: 'All', slug: null, count: total },
     ...populatedCategories,
   ]
+  const firstMobileLinks = links.slice(0, 3)
+  const selectedCategory = populatedCategories.find((category) => category.slug === currentCategory)
+  const mobileLinks =
+    selectedCategory && !firstMobileLinks.some((category) => category.slug === currentCategory)
+      ? [...firstMobileLinks.slice(0, 2), selectedCategory]
+      : firstMobileLinks
+  const moreLinks = links.filter(
+    (category) => !mobileLinks.some((visibleCategory) => visibleCategory.slug === category.slug),
+  )
 
   return (
     <nav aria-label="Blog categories" className={styles.navigation}>
@@ -38,8 +47,8 @@ export const BlogCategoryTabs: React.FC<{
           )
         })}
       </div>
-      <div className={styles.mobileTabs}>
-        {links.slice(0, 3).map((category) => (
+      <div className={styles.mobileTabs} data-slot="blog-mobile-tabs">
+        {mobileLinks.map((category) => (
           <Link
             aria-current={category.slug === (currentCategory || null) ? 'page' : undefined}
             className={styles.tab}
@@ -49,11 +58,11 @@ export const BlogCategoryTabs: React.FC<{
             {category.title} <span className={styles.count}>{category.count}</span>
           </Link>
         ))}
-        {links.length > 3 && (
+        {moreLinks.length > 0 && (
           <details className={styles.more}>
             <summary>More categories</summary>
             <div className={styles.moreLinks}>
-              {links.slice(3).map((category) => (
+              {moreLinks.map((category) => (
                 <Link
                   aria-current={category.slug === currentCategory ? 'page' : undefined}
                   className={styles.tab}
