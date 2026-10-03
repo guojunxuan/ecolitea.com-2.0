@@ -95,7 +95,7 @@ describe('public blog queries', () => {
     )
     expect(find.mock.calls[1][0].where.and).toContainEqual({ id: { equals: 'b1' } })
     expect(unstableCache).toHaveBeenCalledWith(expect.any(Function), ['blog-detail', 'b1'], {
-      tags: ['blog-b1'],
+      tags: ['blog-b1', 'blog-categories'],
       revalidate: 600,
     })
   })

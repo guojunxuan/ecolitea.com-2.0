@@ -1,10 +1,14 @@
 // @vitest-environment node
 import { mongooseAdapter, type MongooseAdapter } from '@payloadcms/db-mongodb'
+import React from 'react'
+import { renderToStaticMarkup } from 'react-dom/server'
+import RichText from '@/components/RichText'
 import { randomUUID } from 'node:crypto'
 import { buildConfig, getPayload, type Payload, type Field } from 'payload'
 import { defaultLexical } from '@/fields/defaultLexical'
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
 
+vi.mock('@payloadcms/ui/icons/Copy', () => ({ CopyIcon: () => null }))
 vi.mock('next/cache', () => ({ revalidatePath: vi.fn(), revalidateTag: vi.fn() }))
 
 const flatten = (fields: Field[]): Field[] =>
@@ -103,7 +107,10 @@ describe('Blogs through the isolated Payload Local API', () => {
       `Blogs schema target: ${url}; DISABLE_R2_STORAGE=${process.env.DISABLE_R2_STORAGE}; no storage plugins, local uploads disabled`,
     )
     expect(process.env.DISABLE_R2_STORAGE).toBe('true')
+    const { plugins } = await import('@/plugins')
+    const search = plugins.find((plugin) => plugin.slug === '@payloadcms/plugin-search')!
     const config = await buildConfig({
+      plugins: [search],
       typescript: { autoGenerate: false },
       editor: defaultLexical,
       collections: [
@@ -311,6 +318,114 @@ describe('Blogs through the isolated Payload Local API', () => {
       }),
     ).resolves.toMatchObject({ id: future.id })
   })
+
+  it('refreshes search category presentation after a real category rename and deletion', async () => {
+    const { resolveBlogSearchResults } = await import('@/search/resolveBlogSearchResults')
+    const category = await payload.create({
+      collection: 'blog-categories',
+      context,
+      data: { title: 'Old category', slug: 'old-category' },
+    })
+    const blog = await createBlog({ category: category.id })
+    const indexed = await payload.find({
+      collection: 'search',
+      overrideAccess: false,
+      where: { 'doc.value': { equals: blog.id } },
+    })
+    expect(indexed.docs).toHaveLength(1)
+    expect(indexed.docs[0].category).toMatchObject({
+      categoryID: category.id,
+      slug: 'old-category',
+    })
+    await payload.update({
+      collection: 'blog-categories',
+      id: category.id,
+      context,
+      data: { title: 'New category', slug: 'new-category' },
+    })
+    expect((await resolveBlogSearchResults(payload, indexed.docs))[0].category).toMatchObject({
+      title: 'New category',
+      slug: 'new-category',
+    })
+    await payload.delete({ collection: 'blog-categories', id: category.id, context })
+    expect((await resolveBlogSearchResults(payload, indexed.docs))[0].category).toBe('')
+  })
+
+  it.each(['draft', 'future', 'deleted'])(
+    'renders an anonymous parent with a %s internal Blog link',
+    async (status) => {
+      const target = await createBlog({
+        _status: status === 'draft' ? 'draft' : 'published',
+        publishedAt: status === 'future' ? '2999-01-01T00:00:00.000Z' : '2020-01-01T00:00:00.000Z',
+      })
+      const parent = await createBlog({
+        content: [
+          {
+            blockType: 'prose',
+            content: {
+              root: {
+                type: 'root',
+                version: 1,
+                direction: null,
+                format: '',
+                indent: 0,
+                children: [
+                  {
+                    type: 'paragraph',
+                    version: 1,
+                    direction: null,
+                    format: '',
+                    indent: 0,
+                    children: [
+                      {
+                        type: 'link',
+                        version: 3,
+                        direction: null,
+                        format: '',
+                        indent: 0,
+                        fields: {
+                          linkType: 'internal',
+                          doc: { relationTo: 'blogs', value: target.id },
+                        },
+                        children: [
+                          {
+                            type: 'text',
+                            version: 1,
+                            text: 'Related story',
+                            format: 0,
+                            detail: 0,
+                            mode: 'normal',
+                            style: '',
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                ],
+              },
+            },
+          },
+        ],
+      })
+      if (status === 'deleted')
+        await payload.delete({ collection: 'blogs', id: target.id, context })
+      const anonymous = await payload.findByID({
+        collection: 'blogs',
+        id: parent.id,
+        depth: 2,
+        overrideAccess: false,
+      })
+      const prose = anonymous.content[0]
+      if (prose.blockType !== 'prose') throw new Error('Expected prose')
+      const paragraph = prose.content.root.children[0] as {
+        children: { fields: { doc: { value: unknown } } }[]
+      }
+      expect(paragraph.children[0].fields.doc.value).toBe(target.id)
+      expect(
+        renderToStaticMarkup(React.createElement(RichText, { data: prose.content })),
+      ).toContain('href="#"')
+    },
+  )
 
   it('limits related blogs to three and rejects self selection', async () => {
     const related = await Promise.all(Array.from({ length: 4 }, () => createBlog()))

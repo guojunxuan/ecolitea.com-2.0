@@ -53,16 +53,20 @@ export default async function BlogPage({ params }: Args) {
   const related = await getRelatedBlogs(blog, payload)
   const toc = extractTOC(blog.content)
 
-  return <article className={styles.article}>
-    <PayloadRedirects disableNotFound url={url} />
-    {draft && <LivePreviewListener />}
-    <BlogHero blog={blog} />
-    <div className={styles.body} data-slot="blog-article-body">
-      <div className={styles.content} data-slot="blog-article-content"><RenderBlocks blocks={blog.content} context="article" /></div>
-      {toc.length > 0 && <TableOfContents items={toc} />}
-    </div>
-    <RelatedBlogs blogs={related} />
-  </article>
+  return (
+    <article className={styles.article}>
+      <PayloadRedirects disableNotFound url={url} />
+      {draft && <LivePreviewListener />}
+      <BlogHero blog={blog} />
+      <div className={styles.body} data-slot="blog-article-body">
+        <div className={styles.content} data-slot="blog-article-content">
+          <RenderBlocks blocks={blog.content} context="article" />
+        </div>
+        {toc.length > 0 && <TableOfContents items={toc} />}
+      </div>
+      <RelatedBlogs blogs={related} />
+    </article>
+  )
 }
 
 export async function generateMetadata({ params }: Args): Promise<Metadata> {
@@ -78,7 +82,12 @@ export async function generateMetadata({ params }: Args): Promise<Metadata> {
     title: blog.meta?.title ?? blog.title,
     description: blog.meta?.description ?? blog.excerpt,
     alternates: { canonical },
-    openGraph: { ...generated.openGraph, title: blog.meta?.title ?? blog.title, url: canonical },
+    openGraph: {
+      ...generated.openGraph,
+      title: blog.meta?.title ?? blog.title,
+      description: blog.meta?.description ?? blog.excerpt,
+      url: canonical,
+    },
     ...(draft ? { robots: { index: false, follow: false } } : {}),
   }
 }

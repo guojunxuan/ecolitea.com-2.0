@@ -38,7 +38,7 @@ export const RenderBlocks: React.FC<RenderBlocksProps> = ({ blocks, context = 'p
             content = <ContentBlock {...block} />
             break
           case 'cta':
-            content = <CallToActionBlock {...block} />
+            content = <CallToActionBlock {...block} context={context} />
             break
           case 'formBlock':
             if (typeof block.form !== 'object' || !block.form) return null
@@ -57,7 +57,14 @@ export const RenderBlocks: React.FC<RenderBlocksProps> = ({ blocks, context = 'p
             content = <KeyTakeawaysBlock {...block} />
             break
           case 'mediaBlock':
-            content = <MediaBlock {...block} context={context} disableInnerContainer />
+            content = (
+              <MediaBlock
+                {...block}
+                context={context}
+                enableGutter={context !== 'article'}
+                disableInnerContainer
+              />
+            )
             break
           case 'prose':
             content = (

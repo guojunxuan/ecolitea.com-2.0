@@ -53,7 +53,7 @@ export async function getBlogBySlug(slug: string, draft: boolean): Promise<Blog 
       return docs[0] ?? null
     },
     ['blog-detail', id],
-    { tags: [`blog-${id}`], revalidate: 600 },
+    { tags: [`blog-${id}`, 'blog-categories'], revalidate: 600 },
   )
   return cached()
 }

@@ -50,7 +50,7 @@
 @media (width >= 64rem) {
   .wrapper {
     position: sticky;
-    top: var(--website-space-8);
+    top: var(--website-anchor-offset);
     align-self: start;
   }
 

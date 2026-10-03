@@ -35,10 +35,9 @@ type NodeTypes = WithDefaultNodes<
 >
 
 const internalDocToHref = ({ linkNode }: { linkNode: SerializedLinkNode }) => {
-  const { value, relationTo } = linkNode.fields.doc!
-  if (typeof value !== 'object') {
-    throw new Error('Expected value to be an object')
-  }
+  const { value, relationTo } = linkNode.fields.doc ?? {}
+  // Payload preserves IDs when a relationship is unavailable to this reader.
+  if (!value || typeof value !== 'object') return '#'
   const slug = value.slug
   return typeof slug === 'string' ? getContentPath(relationTo as CollectionSlug, slug) || '#' : '#'
 }

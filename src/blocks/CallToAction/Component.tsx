@@ -12,9 +12,10 @@ export const CallToActionBlock = ({
   media,
   links,
   theme,
-}: Props) => (
+  context = 'page',
+}: Props & { context?: 'page' | 'article' }) => (
   <div
-    className={styles.container}
+    className={cn(styles.container, context === 'article' && styles.article)}
     data-website-theme={theme === 'inverse' || theme === 'default' ? theme : undefined}
   >
     <div className={cn(styles.panel, media && styles.withMedia)}>

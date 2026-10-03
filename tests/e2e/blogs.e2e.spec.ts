@@ -122,6 +122,38 @@ test.describe('Blog publishing journeys', () => {
       }
       const toc = page.locator('nav[aria-label="Table of contents"]:visible')
       const anchor = toc.getByRole('link', { name: 'Start with the leaf' })
+      if (width >= 1024) {
+        const geometry = await page
+          .locator('[data-slot="blog-article-content"]')
+          .evaluate((content) => {
+            const prose = content.querySelector('.payload-richtext')!.getBoundingClientRect()
+            const media = content.querySelector('figure')!.getBoundingClientRect()
+            const cta = [...content.querySelectorAll('h2')]
+              .find((heading) => heading.textContent === 'Find your next cup')!
+              .parentElement!.parentElement!.getBoundingClientRect()
+            return { prose: prose.width, media: media.width, cta: cta.width }
+          })
+        expect.soft(geometry.media, JSON.stringify(geometry)).toBeGreaterThan(geometry.prose + 30)
+        expect.soft(geometry.cta, JSON.stringify(geometry)).toBeGreaterThan(geometry.prose + 30)
+        await page
+          .locator('#start-with-the-leaf')
+          .evaluate((heading) =>
+            window.scrollTo(0, heading.getBoundingClientRect().top + window.scrollY + 300),
+          )
+        await expect
+          .poll(() =>
+            anchor.evaluate((link) => {
+              const rect = link.getBoundingClientRect()
+              const headerHeight =
+                parseFloat(
+                  getComputedStyle(document.documentElement).getPropertyValue('--header-height'),
+                ) * parseFloat(getComputedStyle(document.documentElement).fontSize)
+              return rect.top >= headerHeight
+            }),
+          )
+          .toBe(true)
+        await anchor.click({ trial: true })
+      }
       await anchor.focus()
       await expect(anchor).toBeFocused()
       await page.keyboard.press('Enter')

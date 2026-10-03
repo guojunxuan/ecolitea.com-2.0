@@ -5,9 +5,10 @@ import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 import React from 'react'
 import { Search } from '@/search/Component'
-import { CardBlogData, CardPostData } from '@/components/Card'
+import { CardPostData } from '@/components/Card'
 import { normalizeSearchQuery } from '@/search/query'
 import { publicSearchVisibility } from '@/search/visibility'
+import { resolveBlogSearchResults } from '@/search/resolveBlogSearchResults'
 
 import styles from '../pages.module.css'
 
@@ -58,8 +59,10 @@ export default async function Page({ searchParams: searchParamsPromise }: Args) 
       : publicWhere,
   })
 
-  const blogResults = results.docs.filter((result) => result.doc.relationTo === 'blogs') as unknown as CardBlogData[]
-  const postResults = results.docs.filter((result) => result.doc.relationTo === 'posts') as CardPostData[]
+  const blogResults = await resolveBlogSearchResults(payload, results.docs)
+  const postResults = results.docs.filter(
+    (result) => result.doc.relationTo === 'posts',
+  ) as CardPostData[]
 
   return (
     <div className={styles.pageSection}>

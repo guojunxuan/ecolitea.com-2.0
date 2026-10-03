@@ -36,12 +36,26 @@ export const revalidateBlog: CollectionAfterChangeHook<Blog> = async ({
 }) => {
   if (req.context.disableRevalidate) return doc
   const published = [previousDoc, doc].filter((item): item is Blog => item?._status === 'published')
-  if (published.length) await invalidateBlog(published, req)
+  if (published.length) {
+    await invalidateBlog(published, req)
+    if (
+      previousDoc &&
+      (previousDoc.slug !== doc.slug ||
+        previousDoc._status !== doc._status ||
+        previousDoc.publishedAt !== doc.publishedAt)
+    ) {
+      // Cached redirect responses depend on the shared redirects data tag.
+      // Block on fresh data so the next 308 cannot retain the old destination.
+      revalidateTag('redirects', { expire: 0 })
+    }
+  }
   return doc
 }
 
 export const revalidateDelete: CollectionAfterDeleteHook<Blog> = async ({ doc, req }) => {
-  if (!req.context.disableRevalidate && doc._status === 'published')
+  if (!req.context.disableRevalidate && doc._status === 'published') {
     await invalidateBlog([doc], req)
+    revalidateTag('redirects', { expire: 0 })
+  }
   return doc
 }

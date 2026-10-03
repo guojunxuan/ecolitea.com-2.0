@@ -33,6 +33,7 @@ describe('Blog cache invalidation', () => {
       'blog-category-old',
     ])
       expect(revalidateTag).toHaveBeenCalledWith(tag, 'max')
+    expect(revalidateTag).toHaveBeenCalledWith('redirects', { expire: 0 })
   })
   it('invalidates unpublish and delete, while skipping draft-only writes and disabled hooks', async () => {
     const { revalidateBlog, revalidateDelete } =
@@ -54,13 +55,31 @@ describe('Blog cache invalidation', () => {
       previousDoc: { id: 'b', slug: 'old', category: 'old', _status: 'published' },
     } as never)
     expect(revalidatePath).toHaveBeenCalledWith('/blogs/old')
+    expect(revalidateTag).toHaveBeenCalledWith('redirects', { expire: 0 })
     vi.clearAllMocks()
     await revalidateDelete({
       req,
       doc: { id: 'b', slug: 'deleted', category: 'old', _status: 'published' },
     } as never)
+    expect(revalidateTag).toHaveBeenCalledWith('redirects', { expire: 0 })
     expect(revalidatePath).toHaveBeenCalledWith('/blogs/deleted')
     expect(revalidateTag).toHaveBeenCalledWith('blogs-list', 'max')
+  })
+  it('does not expire redirects for ordinary published content edits', async () => {
+    const { revalidateBlog } = await import('@/collections/Blogs/hooks/revalidateBlog')
+    const doc = {
+      id: 'b',
+      slug: 'same',
+      category: 'cat',
+      _status: 'published',
+      publishedAt: '2025-01-01T00:00:00.000Z',
+    }
+    await revalidateBlog({
+      req,
+      previousDoc: { ...doc, title: 'Old' },
+      doc: { ...doc, title: 'New' },
+    } as never)
+    expect(revalidateTag).not.toHaveBeenCalledWith('redirects', expect.anything())
   })
   it('invalidates category tabs, old/new paths, list caches, and sitemap on updates/order/delete', async () => {
     const { BlogCategories } = await import('@/collections/BlogCategories')
