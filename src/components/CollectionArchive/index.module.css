@@ -34,10 +34,10 @@
   animation-delay: 80ms;
 }
 .blogGrid > .blogItem:nth-child(3) {
-  animation-delay: 160ms;
+  animation-delay: var(--website-duration-fast);
 }
 .blogGrid > .blogItem:nth-child(4) {
-  animation-delay: 240ms;
+  animation-delay: var(--website-duration-standard);
 }
 .blogGrid > .blogItem:nth-child(5) {
   animation-delay: 320ms;
@@ -125,5 +125,19 @@
 
   .blogItem[data-featured='true'] [data-slot='content-card-title'] {
     font-size: 1.375rem;
+  }
+}
+
+.embedded {
+  width: 100%;
+}
+
+.embedded .blogGrid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+@media (width < 48rem) {
+  .embedded .blogGrid {
+    grid-template-columns: minmax(0, 1fr);
   }
 }

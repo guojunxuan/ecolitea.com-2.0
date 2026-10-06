@@ -24,6 +24,7 @@ export const MobileDrawer = ({ items }: { items: TOCItem[] }) => {
   }
 
   useEffect(() => {
+    if (typeof window.matchMedia !== 'function') return
     const desktop = window.matchMedia('(min-width: 64rem)')
     const onDesktop = () => {
       if (desktop.matches) dialogRef.current?.close()

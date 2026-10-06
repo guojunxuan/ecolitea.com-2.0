@@ -142,6 +142,13 @@ describe('blog listing components', () => {
     expect(push).toHaveBeenLastCalledWith('/posts/page/1')
   })
 
+  it('renders canonical blog pagination links for navigation without JavaScript', () => {
+    render(<Pagination linkMode page={2} totalPages={3} routeBase="/blogs" firstPageHref="/blogs" />)
+    expect(screen.getByRole('link', { name: 'Go to previous page' }).getAttribute('href')).toBe('/blogs')
+    expect(screen.getByRole('link', { name: '3' }).getAttribute('href')).toBe('/blogs/page/3')
+    expect(screen.getByRole('link', { name: '2' }).getAttribute('aria-current')).toBe('page')
+  })
+
   it('labels blog result counts', () => {
     render(<PageRange collection="blogs" currentPage={1} limit={12} totalDocs={20} />)
     expect(screen.getByText('Showing 1 - 12 of 20 Blogs')).toBeTruthy()

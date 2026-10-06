@@ -3,7 +3,10 @@ import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/re
 import { afterEach, expect, it, vi } from 'vitest'
 import { BlogExplorer } from '@/components/BlogExplorer'
 import type { BlogListItem } from '@/utilities/blogs/getBlogListing'
-vi.mock('next/navigation', () => ({ useRouter: () => ({ push: vi.fn() }) }))
+const navigation = vi.hoisted(() => ({ push: vi.fn() }))
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({ push: navigation.push }),
+}))
 vi.mock('@/components/Media', () => ({ Media: () => null }))
 const blog = (id: string): BlogListItem => ({
   id,
@@ -23,6 +26,7 @@ const props = {
 }
 afterEach(() => {
   cleanup()
+  navigation.push.mockReset()
   vi.unstubAllGlobals()
 })
 it('renders initial cards then appends unique cards and updates loaded range', async () => {
@@ -128,4 +132,79 @@ it('refreshes same-ID content and cancels pending work from the old server snaps
   expect(screen.queryByRole('link', { name: 'Blog one' })).toBeNull()
   expect(screen.getByRole('button', { name: 'Load more' })).toBeTruthy()
   await waitFor(() => expect(fetcher.mock.calls[0][1].signal.aborted).toBe(true))
+})
+
+it('renders server-filtered results and keeps filters on load more', async () => {
+  vi.stubGlobal('matchMedia', () => ({
+    matches: true,
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+  }))
+  const fetcher = vi.fn().mockResolvedValueOnce({
+    ok: true,
+    json: async () => ({ docs: [blog('next')], page: 2, totalDocs: 2, hasNextPage: false }),
+  })
+  vi.stubGlobal('fetch', fetcher)
+  render(
+    <BlogExplorer
+      {...props}
+      initialBlogs={[blog('filtered')]}
+      initialQuery="author=a&author=b&dateRange=30d&sort=oldest"
+      categories={[{ id: 'tea', slug: 'tea-guides', title: 'Tea', count: 2 }]}
+      authors={[
+        { id: 'a', name: 'Author A' },
+        { id: 'b', name: 'Author B' },
+      ]}
+      routeBase="/blogs/category/tea-guides"
+    />,
+  )
+  expect(screen.getByRole('link', { name: 'Blog filtered' })).toBeTruthy()
+  expect(screen.queryByRole('link', { name: 'Blog one' })).toBeNull()
+  expect(screen.queryByRole('button', { name: 'Go to next page' })).toBeNull()
+  expect(fetcher).not.toHaveBeenCalled()
+  fireEvent.click(screen.getByRole('button', { name: 'Load more' }))
+  await screen.findByRole('link', { name: 'Blog next' })
+  expect(fetcher.mock.calls[0][0]).toContain(
+    'page=2&category=tea&author=a&author=b&dateRange=30d&sort=oldest',
+  )
+  fireEvent.click(screen.getByRole('button', { name: 'Reset all' }))
+  expect(navigation.push).toHaveBeenLastCalledWith('/blogs')
+})
+
+it('aborts an earlier page request when a new server filter snapshot arrives', async () => {
+  vi.stubGlobal('matchMedia', () => ({
+    matches: true,
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+  }))
+  let resolveOld: (response: unknown) => void = () => {}
+  const fetcher = vi.fn().mockImplementationOnce(
+    () =>
+      new Promise((resolve) => {
+        resolveOld = resolve
+      }),
+  )
+  vi.stubGlobal('fetch', fetcher)
+  const categories = [{ id: 'tea', slug: 'tea', title: 'Tea', count: 2 }]
+  const { rerender } = render(
+    <BlogExplorer {...props} initialQuery="sort=oldest" categories={categories} />,
+  )
+  fireEvent.click(screen.getByRole('button', { name: 'Load more' }))
+  await waitFor(() => expect(fetcher).toHaveBeenCalledTimes(1))
+  const oldSignal = fetcher.mock.calls[0][1].signal as AbortSignal
+  rerender(
+    <BlogExplorer
+      {...props}
+      initialBlogs={[blog('new-filter')]}
+      initialQuery="sort=title-desc"
+      categories={categories}
+    />,
+  )
+  expect(screen.getByRole('link', { name: 'Blog new-filter' })).toBeTruthy()
+  expect(oldSignal.aborted).toBe(true)
+  resolveOld({
+    ok: true,
+    json: async () => ({ docs: [blog('stale')], page: 1, totalDocs: 1, hasNextPage: false }),
+  })
+  await waitFor(() => expect(screen.queryByRole('link', { name: 'Blog stale' })).toBeNull())
 })

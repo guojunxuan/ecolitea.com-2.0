@@ -54,7 +54,7 @@
 }
 
 .dialog::backdrop {
-  background: rgb(0 0 0 / 50%);
+  background: rgb(0 0 0 / var(--website-scrim-standard));
   opacity: 0;
   transition:
     opacity var(--website-duration-standard) var(--website-easing-standard),

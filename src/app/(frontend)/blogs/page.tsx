@@ -1,11 +1,12 @@
 import type { Metadata } from 'next'
-import { blogListingMetadata, renderBlogListing } from './listing'
+import { blogListingMetadata, renderBlogListing, type BlogSearchParams } from './listing'
 
-export const dynamic = 'force-static'
-export const revalidate = 600
+export const dynamic = 'force-dynamic'
 
-export default function Page() {
-  return renderBlogListing({ page: 1 })
+export default async function Page({
+  searchParams,
+}: { searchParams?: Promise<BlogSearchParams> }) {
+  return renderBlogListing({ page: 1, searchParams: await searchParams })
 }
 
 export function generateMetadata(): Promise<Metadata> {

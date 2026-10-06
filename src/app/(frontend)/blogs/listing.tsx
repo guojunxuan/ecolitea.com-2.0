@@ -8,14 +8,21 @@ import configPromise from '@payload-config'
 
 import { BlogCategoryTabs, type BlogCategoryTab } from '@/components/BlogCategoryTabs'
 import { BlogExplorer } from '@/components/BlogExplorer'
-import { Pagination } from '@/components/Pagination'
+import { getPublicBlogAuthors } from '@/utilities/blogs/getPublicBlogAuthors'
 import { getBlogListing } from '@/utilities/blogs/getBlogListing'
+import {
+  getPublicBlogResults,
+  parsePublicBlogFilters,
+  InvalidPublicBlogFilters,
+} from '@/utilities/blogs/getPublicBlogResults'
+import { hasBlogQueryFilters, readBlogFilterQuery } from '@/utilities/blogs/filterURL'
 import { publicBlogVisibility } from '@/utilities/blogs/publicVisibility'
 import type { BlogCategory } from '@/payload-types'
 
 import styles from './listing.module.css'
 
-type ListingArgs = { page: number; categorySlug?: string }
+export type BlogSearchParams = Record<string, string | string[] | undefined>
+type ListingArgs = { page: number; categorySlug?: string; searchParams?: BlogSearchParams }
 type Category = Pick<BlogCategory, 'id' | 'title' | 'slug' | 'description'>
 
 const getCategories = unstable_cache(
@@ -62,9 +69,10 @@ const getCategoryCounts = unstable_cache(
         where: publicBlogVisibility(new Date()),
       })
       for (const blog of result.docs) {
-        const id = typeof blog.category === 'object' && blog.category !== null
-          ? blog.category.id
-          : blog.category
+        const id =
+          typeof blog.category === 'object' && blog.category !== null
+            ? blog.category.id
+            : blog.category
         if (id) counts.set(id, (counts.get(id) ?? 0) + 1)
       }
       hasNextPage = result.hasNextPage
@@ -92,12 +100,32 @@ export function parsePageNumber(value: string): number {
   return page
 }
 
-export async function renderBlogListing({ page, categorySlug }: ListingArgs) {
+export async function renderBlogListing({ page, categorySlug, searchParams }: ListingArgs) {
   const category = await resolveCategory(categorySlug)
-  const [categories, countEntries, listing] = await Promise.all([
+  const query = new URLSearchParams()
+  for (const key of ['author', 'dateRange', 'dateFrom', 'dateTo', 'sort']) {
+    const value = searchParams?.[key]
+    if (Array.isArray(value)) value.forEach((item) => query.append(key, item))
+    else if (value !== undefined) query.set(key, value)
+  }
+  const filtered = hasBlogQueryFilters(readBlogFilterQuery(query.toString()))
+  let publicFilters
+  if (filtered) {
+    const request = new URLSearchParams(query)
+    request.set('page', String(page))
+    if (category) request.set('category', category.id)
+    try {
+      publicFilters = parsePublicBlogFilters(request)
+    } catch (error) {
+      if (error instanceof InvalidPublicBlogFilters) notFound()
+      throw error
+    }
+  }
+  const [categories, countEntries, listing, authors] = await Promise.all([
     getCategories(),
     getCategoryCounts(),
-    getBlogListing(page, category?.id),
+    publicFilters ? getPublicBlogResults(publicFilters) : getBlogListing(page, category?.id),
+    getPublicBlogAuthors(),
   ])
   if (page > 1 && (page > listing.totalPages || listing.docs.length === 0)) notFound()
   const counts = new Map(countEntries)
@@ -113,9 +141,13 @@ export async function renderBlogListing({ page, categorySlug }: ListingArgs) {
   return (
     <div className={styles.page}>
       <header className={styles.header}>
-        {category && <nav aria-label="Breadcrumb" className={styles.breadcrumb}>
-          <Link href="/blogs">Blogs</Link><span aria-hidden="true"> / </span><span>{category.title}</span>
-        </nav>}
+        {category && (
+          <nav aria-label="Breadcrumb" className={styles.breadcrumb}>
+            <Link href="/blogs">Blogs</Link>
+            <span aria-hidden="true"> / </span>
+            <span>{category.title}</span>
+          </nav>
+        )}
         <h1 className={styles.title}>{category ? `${category.title} Blogs` : 'Blogs'}</h1>
         {category?.description && <p className={styles.description}>{category.description}</p>}
       </header>
@@ -127,12 +159,13 @@ export async function renderBlogListing({ page, categorySlug }: ListingArgs) {
         initialPage={listing.page ?? page}
         totalPages={listing.totalPages}
         totalDocs={listing.totalDocs}
+        initialQuery={query.toString()}
+        categories={tabs}
+        authors={authors}
+        routeBase={routeBase}
         categoryId={category?.id}
-        featuredFirst={!category && page === 1}
+        featuredFirst={!category && page === 1 && !filtered}
       />
-      {listing.totalPages > 1 && <div className={styles.pagination}>
-        <Pagination page={listing.page ?? page} totalPages={listing.totalPages} routeBase={routeBase} firstPageHref={routeBase} />
-      </div>}
     </div>
   )
 }
@@ -141,9 +174,11 @@ export async function blogListingMetadata({ page, categorySlug }: ListingArgs): 
   const category = await resolveCategory(categorySlug)
   const baseTitle = category ? `${category.title} Blogs` : 'Blogs'
   const title = page === 1 ? baseTitle : `${baseTitle} — Page ${page}`
-  const baseDescription = category?.description || (category
-    ? `Explore ${category.title.toLowerCase()} articles and guides.`
-    : 'Explore our latest blog articles, insights, and guides.')
+  const baseDescription =
+    category?.description ||
+    (category
+      ? `Explore ${category.title.toLowerCase()} articles and guides.`
+      : 'Explore our latest blog articles, insights, and guides.')
   const description = page === 1 ? baseDescription : `${baseDescription} Page ${page}.`
   const basePath = category ? `/blogs/category/${category.slug}` : '/blogs'
   const canonical = page === 1 ? basePath : `${basePath}/page/${page}`
@@ -153,5 +188,7 @@ export async function blogListingMetadata({ page, categorySlug }: ListingArgs): 
 export async function getCategoryStaticParams() {
   const [categories, countEntries] = await Promise.all([getCategories(), getCategoryCounts()])
   const counts = new Map(countEntries)
-  return categories.filter(({ id }) => (counts.get(id) ?? 0) > 0).map(({ slug }) => ({ categorySlug: slug }))
+  return categories
+    .filter(({ id }) => (counts.get(id) ?? 0) > 0)
+    .map(({ slug }) => ({ categorySlug: slug }))
 }

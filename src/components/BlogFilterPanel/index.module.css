@@ -104,7 +104,7 @@
   color: var(--website-color-foreground);
 }
 .dialog::backdrop {
-  background: rgb(0 0 0 / 45%);
+  background: rgb(0 0 0 / var(--website-scrim-standard));
 }
 .drawer {
   padding: var(--website-space-6);
@@ -128,7 +128,7 @@
 }
 @media (prefers-reduced-motion: no-preference) {
   .dialog[open] .drawer {
-    animation: enter 160ms ease-out;
+    animation: enter var(--website-duration-fast) var(--website-easing-standard);
   }
 }
 @keyframes enter {
