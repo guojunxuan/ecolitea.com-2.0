@@ -127,7 +127,9 @@ test.describe('Blog publishing journeys', () => {
       await page.keyboard.press('Tab')
     }
     await expect(category).toBeFocused()
-    const focusOutline = await category.evaluate((element) => getComputedStyle(element).outlineStyle)
+    const focusOutline = await category.evaluate(
+      (element) => getComputedStyle(element).outlineStyle,
+    )
     expect(focusOutline).not.toBe('none')
 
     await category.hover()
@@ -135,7 +137,9 @@ test.describe('Blog publishing journeys', () => {
     await expect(category).toHaveCSS('color', 'rgb(255, 255, 255)')
 
     const inverseCategory = page.locator('[data-slot="content-card-category"]').nth(1)
-    await inverseCategory.evaluate((element) => element.setAttribute('data-website-theme', 'inverse'))
+    await inverseCategory.evaluate((element) =>
+      element.setAttribute('data-website-theme', 'inverse'),
+    )
     await expect(inverseCategory).toHaveCSS('background-color', 'rgba(255, 255, 255, 0.12)')
     await expect(inverseCategory).toHaveCSS('color', 'rgba(255, 255, 255, 0.85)')
     await page.getByRole('button', { name: 'Go to next page' }).click()
@@ -181,6 +185,13 @@ test.describe('Blog publishing journeys', () => {
         expect(parseFloat(pill.paddingBlock)).toBeGreaterThan(0)
         expect(parseFloat(pill.paddingInline)).toBeGreaterThan(0)
       }
+      await archive.evaluateAll(async (items) => {
+        await Promise.all(
+          items
+            .slice(0, 2)
+            .flatMap((item) => item.getAnimations().map((animation) => animation.finished)),
+        )
+      })
       const featured = await archive.first().boundingBox()
       const regular = await archive.nth(1).boundingBox()
       expect(featured).not.toBeNull()
@@ -235,11 +246,47 @@ test.describe('Blog publishing journeys', () => {
         '/blogs',
       )
       if (width < 1024) {
-        await page.locator('summary', { hasText: 'On this page' }).focus()
+        const trigger = page.getByRole('button', { name: 'Open table of contents' })
+        await trigger.focus()
         await page.keyboard.press('Enter')
+        const drawer = page.getByRole('dialog', { name: 'Table of contents' })
+        await expect(drawer).toBeVisible()
+        if (width === 390) {
+          await page.emulateMedia({ reducedMotion: 'no-preference' })
+          expect(
+            await drawer.evaluate((dialog) =>
+              getComputedStyle(dialog)
+                .transitionDuration.split(',')
+                .some((duration) => parseFloat(duration) > 0),
+            ),
+          ).toBe(true)
+          await page.emulateMedia({ reducedMotion: 'reduce' })
+          expect(
+            await drawer.evaluate((dialog) => getComputedStyle(dialog).transitionDuration),
+          ).toBe('0s')
+          expect(
+            await drawer.evaluate(
+              (dialog) => getComputedStyle(dialog, '::backdrop').transitionDuration,
+            ),
+          ).toBe('0s')
+          await page.emulateMedia({ reducedMotion: 'no-preference' })
+        }
+        await expect(drawer.getByRole('button', { name: 'Close table of contents' })).toBeFocused()
+        await expect(trigger).toHaveAttribute('aria-expanded', 'true')
+        await expect.poll(() => page.evaluate(() => document.body.style.overflow)).toBe('hidden')
+        await page.keyboard.press('Escape')
+        await expect(drawer).not.toBeVisible()
+        await expect(trigger).toBeFocused()
+        await expect(trigger).toHaveAttribute('aria-expanded', 'false')
+        await expect
+          .poll(() => page.evaluate(() => document.body.style.overflow))
+          .not.toBe('hidden')
+        await trigger.click()
+        await expect(drawer).toBeVisible()
       }
       const toc = page.locator('nav[aria-label="Table of contents"]:visible')
       const anchor = toc.getByRole('link', { name: 'Start with the leaf' })
+      await expect(toc.getByRole('link', { name: fixture.longHeading })).toBeVisible()
       if (width >= 1024) {
         const geometry = await page
           .locator('[data-slot="blog-article-content"]')
@@ -277,7 +324,12 @@ test.describe('Blog publishing journeys', () => {
       await page.keyboard.press('Enter')
       await expect(page).toHaveURL(/#start-with-the-leaf$/)
       await expect(page.locator('#start-with-the-leaf')).toBeInViewport()
-      await expect(toc.getByRole('link', { name: fixture.longHeading })).toBeVisible()
+      if (width < 1024) {
+        await expect(page.getByRole('dialog', { name: 'Table of contents' })).not.toBeVisible()
+        await expect
+          .poll(() => page.evaluate(() => document.body.style.overflow))
+          .not.toBe('hidden')
+      }
       console.info(
         `Article ${width}px geometry: ${JSON.stringify(
           await page.evaluate(() => ({
@@ -305,6 +357,7 @@ test.describe('Blog publishing journeys', () => {
       await page.goto(`${baseURL}/blogs/${fixture.prefix}-1`)
       await expect(page.getByRole('heading', { name: 'Tea journal 01', exact: true })).toBeVisible()
       await expect(page.getByRole('navigation', { name: 'Table of contents' })).toHaveCount(0)
+      await expect(page.getByRole('button', { name: 'Open table of contents' })).toHaveCount(0)
       const readingColumn = await page.locator('[data-slot="blog-article-content"]').boundingBox()
       expect(readingColumn).not.toBeNull()
       expect(Math.abs(readingColumn!.x + readingColumn!.width / 2 - width / 2)).toBeLessThan(2)

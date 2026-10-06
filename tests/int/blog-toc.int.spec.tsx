@@ -1,6 +1,6 @@
-import { cleanup, render, screen } from '@testing-library/react'
+import { cleanup, fireEvent, render, screen } from '@testing-library/react'
 import React from 'react'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { Blog } from '@/payload-types'
 
 vi.mock('@/components/Media', () => ({ Media: () => null }))
@@ -34,6 +34,27 @@ const prose = (...children: object[]) =>
   }) as Blog['content'][number]
 
 afterEach(cleanup)
+
+beforeEach(() => {
+  vi.stubGlobal('matchMedia', () => ({
+    matches: false,
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+  }))
+  Object.defineProperty(HTMLDialogElement.prototype, 'showModal', {
+    configurable: true,
+    value: function (this: HTMLDialogElement) {
+      this.open = true
+    },
+  })
+  Object.defineProperty(HTMLDialogElement.prototype, 'close', {
+    configurable: true,
+    value: function (this: HTMLDialogElement) {
+      this.open = false
+      this.dispatchEvent(new Event('close'))
+    },
+  })
+})
 
 describe('blog table of contents', () => {
   const blocks = [
@@ -77,13 +98,13 @@ describe('blog table of contents', () => {
         <RenderBlocks blocks={blocks} context="article" />
       </>,
     )
-    const anchoredHeadings = Array.from(container.querySelectorAll('h2[id], h3[id]'), (node) => ({
+    const anchoredHeadings = Array.from(container.querySelectorAll('.payload-richtext h2[id], .payload-richtext h3[id]'), (node) => ({
       id: node.id,
       text: node.textContent?.trim(),
     }))
     expect(anchoredHeadings).toEqual(items.map(({ id, text }) => ({ id, text })))
     const navs = screen.getAllByRole('navigation', { name: 'Table of contents' })
-    expect(navs).toHaveLength(2)
+    expect(navs).toHaveLength(1)
     for (const nav of navs) {
       expect(Array.from(nav.querySelectorAll('a'), (link) => link.getAttribute('href'))).toEqual(
         items.map((item) => `#${item.id}`),
@@ -92,6 +113,52 @@ describe('blog table of contents', () => {
     expect(screen.getByRole('heading', { name: 'Excluded', level: 4 }).id).toBe('')
     expect(screen.getByRole('heading', { name: 'Nested', level: 2 }).id).toBe('')
     expect(screen.getByRole('heading', { name: '!!!', level: 2 }).id).toBe('')
+  })
+
+  it('opens a named mobile drawer, closes with Escape, and restores focus and scroll', () => {
+    render(<TableOfContents items={[{ id: 'foo', text: 'Foo', level: 2 }]} />)
+    const trigger = screen.getByRole('button', { name: 'Open table of contents' })
+    trigger.focus()
+    fireEvent.click(trigger)
+    const dialog = screen.getByRole('dialog', { name: 'Table of contents' })
+    expect(trigger.getAttribute('aria-expanded')).toBe('true')
+    expect(document.body.style.overflow).toBe('hidden')
+    expect(screen.getByRole('button', { name: 'Close table of contents' })).toBe(document.activeElement)
+    fireEvent(dialog, new Event('cancel', { cancelable: true }))
+    expect(dialog.hasAttribute('open')).toBe(false)
+    expect(trigger.getAttribute('aria-expanded')).toBe('false')
+    expect(document.body.style.overflow).toBe('')
+    expect(trigger).toBe(document.activeElement)
+  })
+
+  it('closes on backdrop or link selection and restores an existing overflow style', () => {
+    document.body.style.overflow = 'auto'
+    const { container } = render(<TableOfContents items={[{ id: 'foo', text: 'Foo', level: 2 }]} />)
+    const trigger = screen.getByRole('button', { name: 'Open table of contents' })
+    fireEvent.click(trigger)
+    const dialog = screen.getByRole('dialog', { name: 'Table of contents' })
+    fireEvent.click(dialog)
+    expect(dialog.hasAttribute('open')).toBe(false)
+    expect(document.body.style.overflow).toBe('auto')
+    fireEvent.click(trigger)
+    fireEvent.click(screen.getByRole('dialog').querySelector('a[href="#foo"]')!)
+    expect(dialog.hasAttribute('open')).toBe(false)
+    expect(container.querySelector('#table-of-contents')).not.toBeNull()
+    expect(document.body.style.overflow).toBe('auto')
+    document.body.style.overflow = ''
+  })
+
+  it('closes from its close button and unlocks scroll when unmounted while open', () => {
+    const { unmount } = render(<TableOfContents items={[{ id: 'foo', text: 'Foo', level: 2 }]} />)
+    const trigger = screen.getByRole('button', { name: 'Open table of contents' })
+    fireEvent.click(trigger)
+    fireEvent.click(screen.getByRole('button', { name: 'Close table of contents' }))
+    expect(trigger).toBe(document.activeElement)
+    expect(document.body.style.overflow).toBe('')
+    fireEvent.click(trigger)
+    expect(document.body.style.overflow).toBe('hidden')
+    unmount()
+    expect(document.body.style.overflow).toBe('')
   })
 
   it('leaves page-context headings unchanged and hides an empty TOC', () => {

@@ -12,9 +12,111 @@
   padding-block: var(--website-space-3);
 }
 
-.mobile summary {
+.mobileTrigger {
+  min-height: var(--website-control-target-min);
+  padding: var(--website-space-2) var(--website-space-3);
+  border: 1px solid var(--website-color-border);
+  border-radius: var(--website-radius-content);
+  background: var(--website-color-surface);
+  color: inherit;
   cursor: pointer;
   font-weight: 600;
+}
+
+.mobileTrigger:focus-visible,
+.closeButton:focus-visible {
+  outline: 2px solid var(--website-color-focus);
+  outline-offset: 2px;
+}
+
+.dialog {
+  position: fixed;
+  inset: 0 0 0 auto;
+  width: min(85vw, 24rem);
+  height: 100dvh;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: var(--website-color-surface);
+  color: var(--website-color-foreground);
+  box-shadow: var(--website-shadow-overlay);
+  transform: translateX(100%);
+  transition:
+    transform var(--website-duration-standard) var(--website-easing-standard),
+    display var(--website-duration-standard) allow-discrete,
+    overlay var(--website-duration-standard) allow-discrete;
+}
+
+.dialog[open] {
+  transform: translateX(0);
+}
+
+.dialog::backdrop {
+  background: rgb(0 0 0 / 50%);
+  opacity: 0;
+  transition:
+    opacity var(--website-duration-standard) var(--website-easing-standard),
+    display var(--website-duration-standard) allow-discrete,
+    overlay var(--website-duration-standard) allow-discrete;
+}
+
+.dialog[open]::backdrop {
+  opacity: 1;
+}
+
+/* Native dialogs enter the top layer without a previous rendered style. */
+@starting-style {
+  .dialog[open] {
+    transform: translateX(100%);
+  }
+
+  .dialog[open]::backdrop {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dialog,
+  .dialog::backdrop {
+    transition: none;
+  }
+}
+
+.drawer {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.drawerHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--website-space-3);
+  padding: var(--website-space-4);
+  border-bottom: 1px solid var(--website-color-border);
+}
+
+.drawerHeader h2 {
+  margin: 0;
+  font-size: 1.125rem;
+}
+
+.closeButton {
+  min-width: var(--website-control-target-min);
+  min-height: var(--website-control-target-min);
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font-size: 1.75rem;
+}
+
+.drawerNav {
+  overflow-y: auto;
+  padding: var(--website-space-4);
 }
 
 .label {

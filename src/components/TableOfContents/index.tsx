@@ -1,4 +1,5 @@
 import type { TOCItem } from '@/utilities/blogs/extractTOC'
+import { MobileDrawer } from './MobileDrawer'
 import styles from './index.module.css'
 
 const Links = ({ items }: { items: TOCItem[] }) => (
@@ -20,12 +21,7 @@ export const TableOfContents = ({ items }: { items: TOCItem[] }) => {
         <p className={styles.label}>On this page</p>
         <Links items={items} />
       </nav>
-      <details className={styles.mobile}>
-        <summary>On this page</summary>
-        <nav aria-label="Table of contents">
-          <Links items={items} />
-        </nav>
-      </details>
+      <MobileDrawer items={items} />
     </aside>
   )
 }
