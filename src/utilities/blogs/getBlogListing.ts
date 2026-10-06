@@ -24,7 +24,7 @@ export async function getBlogListing(
         limit: 12,
         page,
         overrideAccess: false,
-        sort: '-publishedAt',
+        sort: ['-publishedAt', 'id'],
         select: {
           title: true,
           slug: true,

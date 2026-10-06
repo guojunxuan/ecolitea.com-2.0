@@ -1,0 +1,29 @@
+.range,
+.controls {
+  width: min(100% - (2 * var(--website-gutter)), var(--website-container-site));
+  margin-inline: auto;
+}
+
+.range {
+  margin-bottom: var(--website-space-8);
+}
+
+.controls {
+  margin-top: var(--website-space-8);
+  text-align: center;
+}
+
+.controls button {
+  padding: var(--website-space-3) var(--website-space-6);
+  border: 1px solid currentColor;
+  border-radius: var(--website-radius-control, 0.25rem);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.controls button:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}

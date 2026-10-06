@@ -7,8 +7,7 @@ import { getPayload } from 'payload'
 import configPromise from '@payload-config'
 
 import { BlogCategoryTabs, type BlogCategoryTab } from '@/components/BlogCategoryTabs'
-import { CollectionArchive } from '@/components/CollectionArchive'
-import { PageRange } from '@/components/PageRange'
+import { BlogExplorer } from '@/components/BlogExplorer'
 import { Pagination } from '@/components/Pagination'
 import { getBlogListing } from '@/utilities/blogs/getBlogListing'
 import { publicBlogVisibility } from '@/utilities/blogs/publicVisibility'
@@ -123,10 +122,14 @@ export async function renderBlogListing({ page, categorySlug }: ListingArgs) {
       <div className={styles.tabs}>
         <BlogCategoryTabs categories={tabs} currentCategory={category?.slug} />
       </div>
-      <div className={styles.range}>
-        <PageRange collection="blogs" currentPage={listing.page} limit={12} totalDocs={listing.totalDocs} />
-      </div>
-      <CollectionArchive posts={listing.docs} relationTo="blogs" featuredFirst={!category && page === 1} />
+      <BlogExplorer
+        initialBlogs={listing.docs}
+        initialPage={listing.page ?? page}
+        totalPages={listing.totalPages}
+        totalDocs={listing.totalDocs}
+        categoryId={category?.id}
+        featuredFirst={!category && page === 1}
+      />
       {listing.totalPages > 1 && <div className={styles.pagination}>
         <Pagination page={listing.page ?? page} totalPages={listing.totalPages} routeBase={routeBase} firstPageHref={routeBase} />
       </div>}

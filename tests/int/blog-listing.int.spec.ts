@@ -38,7 +38,7 @@ describe('public blog queries', () => {
       limit: 12,
       page: 2,
       overrideAccess: false,
-      sort: '-publishedAt',
+      sort: ['-publishedAt', 'id'],
       select: {
         title: true,
         slug: true,

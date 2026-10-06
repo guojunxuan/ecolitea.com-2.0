@@ -19,6 +19,39 @@ test.describe('Blog publishing journeys', () => {
     )
   })
 
+  test('progressive listing appends the second page on scroll', async ({ page }) => {
+    await page.goto(`${baseURL}/blogs`)
+    const cards = page.locator('[data-slot="archive-item"]')
+    await expect(cards).toHaveCount(12)
+    const response = page.waitForResponse((response) =>
+      response.url().includes('/api/public-blog-list?page=2'),
+    )
+    await page.getByRole('button', { name: 'Load more', exact: true }).scrollIntoViewIfNeeded()
+    expect((await response).ok()).toBe(true)
+    await expect(cards).toHaveCount(14)
+    await expect(page.getByText("You've reached the end.")).toBeVisible()
+    await expect(page.getByText('Showing 1 - 14 of 14 Blogs')).toBeVisible()
+    await expect(page).toHaveURL(`${baseURL}/blogs`)
+  })
+
+  test('progressive listing retains cards on error and retries', async ({ page }) => {
+    await page.route('**/api/public-blog-list?*', (route) =>
+      route.fulfill({
+        status: 500,
+        contentType: 'application/json',
+        body: JSON.stringify({ error: 'Server error' }),
+      }),
+    )
+    await page.goto(`${baseURL}/blogs`)
+    await page.getByRole('button', { name: 'Load more', exact: true }).scrollIntoViewIfNeeded()
+    await expect(page.getByText('Failed to load more blogs.')).toBeVisible()
+    await expect(page.locator('[data-slot="archive-item"]')).toHaveCount(12)
+    await page.unroute('**/api/public-blog-list?*')
+    await page.getByRole('button', { name: 'Try again' }).click()
+    await expect(page.locator('[data-slot="archive-item"]')).toHaveCount(14)
+    await expect(page.getByText("You've reached the end.")).toBeVisible()
+  })
+
   test('skip links move keyboard focus to main content and an available TOC', async ({ page }) => {
     await page.goto(`${baseURL}/blogs`)
     await page.keyboard.press('Tab')

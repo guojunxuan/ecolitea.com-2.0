@@ -29,6 +29,7 @@ export const PageRange: React.FC<{
   }
   currentPage?: number
   limit?: number
+  loadedCount?: number
   totalDocs?: number
 }> = (props) => {
   const {
@@ -37,13 +38,15 @@ export const PageRange: React.FC<{
     collectionLabels: collectionLabelsFromProps,
     currentPage,
     limit,
+    loadedCount,
     totalDocs,
   } = props
 
   let indexStart = (currentPage ? currentPage - 1 : 1) * (limit || 1) + 1
   if (totalDocs && indexStart > totalDocs) indexStart = 0
 
-  let indexEnd = (currentPage || 1) * (limit || 1)
+  let indexEnd =
+    loadedCount === undefined ? (currentPage || 1) * (limit || 1) : indexStart + loadedCount - 1
   if (totalDocs && indexEnd > totalDocs) indexEnd = totalDocs
 
   const { plural, singular } =

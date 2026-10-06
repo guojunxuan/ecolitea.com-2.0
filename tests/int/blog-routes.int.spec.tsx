@@ -72,7 +72,7 @@ describe('blog listing routes', () => {
   it('renders later unfiltered pages without a featured card', async () => {
     const html = renderToStaticMarkup(await BlogPage({ params: Promise.resolve({ pageNumber: '2' }) }))
     expect(html).not.toContain('data-featured="true"')
-    expect(html).toContain('Showing 13 - 24 of 25 Blogs')
+    expect(html).toContain('Showing 13 - 13 of 25 Blogs')
     expect(getBlogListing).toHaveBeenCalledWith(2, undefined)
   })
 
