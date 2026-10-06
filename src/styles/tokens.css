@@ -37,6 +37,10 @@
   --website-color-code-surface: var(--website-color-brand-black);
   --website-color-code-foreground: var(--website-color-brand-white);
   --website-color-code-border: rgb(255 255 255 / 18%);
+  --website-color-category-background: var(--website-color-neutral-100);
+  --website-color-category-foreground: var(--website-color-neutral-900);
+  --website-color-category-hover-background: var(--website-color-brand-black);
+  --website-color-category-hover-foreground: var(--website-color-brand-white);
 
   --website-status-info-accent: #2563eb;
   --website-status-info-background: #eff6ff;
@@ -129,6 +133,10 @@
   --website-color-disabled-surface: var(--website-color-neutral-100);
   --website-color-disabled-foreground: var(--website-color-neutral-500);
   --website-color-disabled-border: var(--website-color-neutral-300);
+  --website-color-category-background: var(--website-color-neutral-100);
+  --website-color-category-foreground: var(--website-color-neutral-900);
+  --website-color-category-hover-background: var(--website-color-brand-black);
+  --website-color-category-hover-foreground: var(--website-color-brand-white);
   --website-status-info-accent: #2563eb;
   --website-status-info-background: #eff6ff;
   --website-status-info-foreground: #1e3a8a;
@@ -165,6 +173,10 @@
   --website-color-disabled-surface: rgb(255 255 255 / 8%);
   --website-color-disabled-foreground: rgb(255 255 255 / 48%);
   --website-color-disabled-border: rgb(255 255 255 / 18%);
+  --website-color-category-background: rgb(255 255 255 / 12%);
+  --website-color-category-foreground: rgb(255 255 255 / 85%);
+  --website-color-category-hover-background: var(--website-color-brand-white);
+  --website-color-category-hover-foreground: var(--website-color-brand-black);
   --website-status-info-accent: #60a5fa;
   --website-status-info-background: #102b4b;
   --website-status-info-foreground: #dbeafe;

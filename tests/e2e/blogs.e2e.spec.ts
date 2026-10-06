@@ -34,6 +34,35 @@ test.describe('Blog publishing journeys', () => {
       'The art of brewing thoughtful tea',
     )
     await expect(page.locator('[data-slot="archive-item"]')).toHaveCount(12)
+    const category = page.locator('[data-slot="content-card-category"]').first()
+    const pillStyles = await category.evaluate((element) => {
+      const styles = getComputedStyle(element)
+      return {
+        backgroundColor: styles.backgroundColor,
+        color: styles.color,
+        paddingInline: styles.paddingInline,
+      }
+    })
+    expect(pillStyles.backgroundColor).not.toBe('rgba(0, 0, 0, 0)')
+    expect(parseFloat(pillStyles.paddingInline)).toBeGreaterThan(0)
+    expect(pillStyles.color).toBe('rgb(38, 38, 41)')
+
+    for (let tab = 0; tab < 30; tab += 1) {
+      if (await category.evaluate((element) => element === document.activeElement)) break
+      await page.keyboard.press('Tab')
+    }
+    await expect(category).toBeFocused()
+    const focusOutline = await category.evaluate((element) => getComputedStyle(element).outlineStyle)
+    expect(focusOutline).not.toBe('none')
+
+    await category.hover()
+    await expect(category).toHaveCSS('background-color', 'rgb(10, 10, 10)')
+    await expect(category).toHaveCSS('color', 'rgb(255, 255, 255)')
+
+    const inverseCategory = page.locator('[data-slot="content-card-category"]').nth(1)
+    await inverseCategory.evaluate((element) => element.setAttribute('data-website-theme', 'inverse'))
+    await expect(inverseCategory).toHaveCSS('background-color', 'rgba(255, 255, 255, 0.12)')
+    await expect(inverseCategory).toHaveCSS('color', 'rgba(255, 255, 255, 0.85)')
     await page.getByRole('button', { name: 'Go to next page' }).click()
     await expect(page).toHaveURL(`${baseURL}/blogs/page/2`)
     await expect(page.locator('[data-slot="archive-item"]')).toHaveCount(2)
@@ -57,12 +86,26 @@ test.describe('Blog publishing journeys', () => {
       await page.goto(`${baseURL}/blogs`)
       await expect(page.getByRole('heading', { name: 'Blogs', exact: true })).toBeVisible()
       const archive = page.locator('[data-slot="archive-item"]')
+      const category = page.locator('[data-slot="content-card-category"]').first()
       const columns = await archive
         .first()
         .evaluate(
           (item) => getComputedStyle(item.parentElement!).gridTemplateColumns.split(' ').length,
         )
       expect(columns).toBe(width >= 1024 ? 3 : width >= 768 ? 2 : 1)
+      if (width === 1440 || width === 390) {
+        const pill = await category.evaluate((element) => {
+          const styles = getComputedStyle(element)
+          return {
+            backgroundColor: styles.backgroundColor,
+            paddingBlock: styles.paddingBlock,
+            paddingInline: styles.paddingInline,
+          }
+        })
+        expect(pill.backgroundColor).not.toBe('rgba(0, 0, 0, 0)')
+        expect(parseFloat(pill.paddingBlock)).toBeGreaterThan(0)
+        expect(parseFloat(pill.paddingInline)).toBeGreaterThan(0)
+      }
       const featured = await archive.first().boundingBox()
       const regular = await archive.nth(1).boundingBox()
       expect(featured).not.toBeNull()
