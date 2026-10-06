@@ -19,6 +19,39 @@ test.describe('Blog publishing journeys', () => {
     )
   })
 
+  test('skip links move keyboard focus to main content and an available TOC', async ({ page }) => {
+    await page.goto(`${baseURL}/blogs`)
+    await page.keyboard.press('Tab')
+    await expect(page.getByRole('link', { name: 'Skip to content' })).toBeFocused()
+    await page.keyboard.press('Enter')
+    await expect(page.locator('main#main-content')).toBeFocused()
+    await expect(page).toHaveURL(/#main-content$/)
+
+    await page.goto(`${baseURL}/blogs/${fixture.slug}`)
+    const main = page.locator('main#main-content')
+    const contentLink = page.getByRole('link', { name: 'Skip to content' })
+    await page.keyboard.press('Tab')
+    await expect(contentLink).toBeFocused()
+    await expect(contentLink).toBeVisible()
+    await page.keyboard.press('Enter')
+    await expect(main).toBeFocused()
+    await expect(page).toHaveURL(/#main-content$/)
+    await expect(page.locator('#main-content')).toHaveCount(1)
+
+    const tocLink = page.getByRole('link', { name: 'Skip to table of contents' })
+    await page.keyboard.press('Tab')
+    await expect(tocLink).toBeFocused()
+    await expect(tocLink).toBeVisible()
+    await page.keyboard.press('Enter')
+    await expect(page.locator('#table-of-contents')).toBeFocused()
+    await expect(page).toHaveURL(/#table-of-contents$/)
+    await expect(page.locator('#table-of-contents')).toHaveCount(1)
+
+    await page.goto(`${baseURL}/blogs/${fixture.prefix}-1`)
+    await expect(page.getByRole('link', { name: 'Skip to table of contents' })).toHaveCount(0)
+    await expect(page.locator('#table-of-contents')).toHaveCount(0)
+  })
+
   test('listing order, featured card, pagination, and category breadcrumbs', async ({ page }) => {
     await page.goto(`${baseURL}/blogs`)
     await expect(page.getByRole('heading', { name: 'Blogs', exact: true })).toBeVisible()

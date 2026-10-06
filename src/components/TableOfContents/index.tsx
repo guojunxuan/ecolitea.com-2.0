@@ -15,7 +15,7 @@ export const TableOfContents = ({ items }: { items: TOCItem[] }) => {
   if (!items.length) return null
 
   return (
-    <aside className={styles.wrapper}>
+    <aside className={styles.wrapper} id="table-of-contents" tabIndex={-1}>
       <nav aria-label="Table of contents" className={styles.desktop}>
         <p className={styles.label}>On this page</p>
         <Links items={items} />

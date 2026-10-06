@@ -6,6 +6,7 @@ import { GeistSans } from 'geist/font/sans'
 import React from 'react'
 
 import { resolveFavicon } from '@/components/Logo/resolveFavicon'
+import { SkipLink } from '@/components/SkipLink'
 import { Footer } from '@/Footer/Component'
 import { Header } from '@/Header/Component'
 import { Providers } from '@/providers'
@@ -25,8 +26,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html className={cn(GeistSans.variable, GeistMono.variable)} lang="en">
       <body>
         <Providers>
+          <SkipLink href="#main-content">Skip to content</SkipLink>
           <Header />
-          <main id="main-content">{children}</main>
+          <main id="main-content" tabIndex={-1}>{children}</main>
           <Footer />
         </Providers>
       </body>

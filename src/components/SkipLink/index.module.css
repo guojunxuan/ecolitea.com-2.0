@@ -1,0 +1,23 @@
+.skipLink {
+  position: fixed;
+  inset-block-start: var(--website-space-2);
+  inset-inline-start: var(--website-space-2);
+  z-index: var(--website-z-toast);
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.skipLink:focus {
+  width: auto;
+  height: auto;
+  padding: var(--website-space-3) var(--website-space-4);
+  clip-path: none;
+  background: var(--website-color-brand-black);
+  color: var(--website-color-brand-white);
+  outline: 2px solid var(--website-color-brand-white);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px var(--website-color-brand-black);
+}

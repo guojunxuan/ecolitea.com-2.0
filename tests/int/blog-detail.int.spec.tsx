@@ -147,6 +147,9 @@ describe('blog detail', () => {
     expect(
       screen.getAllByRole('navigation', { name: 'Table of contents' })[0].textContent,
     ).toContain('Growing tea')
+    expect(screen.getByRole('link', { name: 'Skip to table of contents' }).getAttribute('href')).toBe('#table-of-contents')
+    expect(container.querySelectorAll('#table-of-contents')).toHaveLength(1)
+    expect(container.querySelector('#table-of-contents')?.getAttribute('tabindex')).toBe('-1')
     expect(screen.queryByRole('region', { name: 'More to read' })).not.toBeTruthy()
   })
 
@@ -159,6 +162,7 @@ describe('blog detail', () => {
       'blog-article-content',
     ])
     expect(screen.queryByRole('navigation', { name: 'Table of contents' })).toBeNull()
+    expect(screen.queryByRole('link', { name: 'Skip to table of contents' })).toBeNull()
   })
 
   it('reads draft content only in draft mode and enables the preview listener', async () => {

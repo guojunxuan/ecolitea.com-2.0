@@ -7,6 +7,7 @@ import { RelatedBlogs } from '@/blocks/RelatedBlogs/Component'
 import { LivePreviewListener } from '@/components/LivePreviewListener'
 import { PayloadRedirects } from '@/components/PayloadRedirects'
 import { TableOfContents } from '@/components/TableOfContents'
+import { SkipLink } from '@/components/SkipLink'
 import { BlogHero } from '@/heros/BlogHero'
 import { getBlogBySlug } from '@/utilities/blogs/getBlogBySlug'
 import { getRelatedBlogs } from '@/utilities/blogs/getRelatedBlogs'
@@ -55,6 +56,7 @@ export default async function BlogPage({ params }: Args) {
 
   return (
     <article className={styles.article}>
+      {toc.length > 0 && <SkipLink href="#table-of-contents">Skip to table of contents</SkipLink>}
       <PayloadRedirects disableNotFound url={url} />
       {draft && <LivePreviewListener />}
       <BlogHero blog={blog} />

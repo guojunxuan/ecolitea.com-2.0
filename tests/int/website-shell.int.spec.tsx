@@ -52,10 +52,12 @@ describe('public website shell', () => {
     const source = readSource('src/app/(frontend)/layout.tsx')
 
     const headerIndex = source.indexOf('<Header />')
-    const mainIndex = source.indexOf('<main id="main-content">{children}</main>')
+    const skipIndex = source.indexOf('<SkipLink href="#main-content">Skip to content</SkipLink>')
+    const mainIndex = source.indexOf('<main id="main-content" tabIndex={-1}>{children}</main>')
     const footerIndex = source.indexOf('<Footer />')
 
-    expect(headerIndex).toBeGreaterThan(-1)
+    expect(skipIndex).toBeGreaterThan(-1)
+    expect(headerIndex).toBeGreaterThan(skipIndex)
     expect(mainIndex).toBeGreaterThan(headerIndex)
     expect(footerIndex).toBeGreaterThan(mainIndex)
     expect(source).not.toContain('AdminBar')
