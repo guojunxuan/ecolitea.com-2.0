@@ -52,6 +52,48 @@ test.describe('Blog publishing journeys', () => {
     await expect(page.locator('#table-of-contents')).toHaveCount(0)
   })
 
+  test('blog archive cards animate with bounded stagger and respect reduced motion', async ({
+    page,
+  }) => {
+    await page.goto(`${baseURL}/blogs`)
+    const cards = page.locator('[data-slot="archive-item"]')
+    await expect(cards).toHaveCount(12)
+
+    const motion = await cards.evaluateAll((items) =>
+      items.map((item) => {
+        const style = getComputedStyle(item)
+        return {
+          name: style.animationName,
+          duration: style.animationDuration,
+          delay: style.animationDelay,
+        }
+      }),
+    )
+    expect(motion[0].name).not.toBe('none')
+    expect(motion.every(({ name }) => name === motion[0].name)).toBe(true)
+    expect(motion[0]).toMatchObject({ duration: '0.4s', delay: '0s' })
+    expect(motion[1].delay).toBe('0.08s')
+    expect(motion[11].delay).toBe('0.88s')
+
+    await page.getByRole('button', { name: 'Go to next page' }).click()
+    const paginatedCards = page.locator('[data-slot="archive-item"]')
+    await expect(paginatedCards).toHaveCount(2)
+    const paginatedMotion = await paginatedCards.evaluateAll((items) =>
+      items.map((item) => getComputedStyle(item).animationName),
+    )
+    expect(paginatedMotion[0]).not.toBe('none')
+    expect(paginatedMotion[1]).toBe(paginatedMotion[0])
+
+    await page.emulateMedia({ reducedMotion: 'reduce' })
+    await expect
+      .poll(() =>
+        paginatedCards.evaluateAll((items) =>
+          items.map((item) => getComputedStyle(item).animationName),
+        ),
+      )
+      .toEqual(['none', 'none'])
+  })
+
   test('listing order, featured card, pagination, and category breadcrumbs', async ({ page }) => {
     await page.goto(`${baseURL}/blogs`)
     await expect(page.getByRole('heading', { name: 'Blogs', exact: true })).toBeVisible()
