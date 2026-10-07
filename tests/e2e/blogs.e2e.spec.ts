@@ -26,7 +26,8 @@ test.describe('Blog publishing journeys', () => {
     const response = page.waitForResponse((response) =>
       response.url().includes('/api/public-blog-list?page=2'),
     )
-    await page.getByRole('button', { name: 'Load more', exact: true }).scrollIntoViewIfNeeded()
+    await expect(page.getByRole('button', { name: 'Load more', exact: true })).toHaveCount(0)
+    await page.getByRole('status').scrollIntoViewIfNeeded()
     expect((await response).ok()).toBe(true)
     await expect(cards).toHaveCount(14)
     await expect(page.getByText("You've reached the end.")).toBeVisible()
@@ -43,7 +44,8 @@ test.describe('Blog publishing journeys', () => {
       }),
     )
     await page.goto(`${baseURL}/blogs`)
-    await page.getByRole('button', { name: 'Load more', exact: true }).scrollIntoViewIfNeeded()
+    await expect(page.getByRole('button', { name: 'Load more', exact: true })).toHaveCount(0)
+    await page.getByRole('status').scrollIntoViewIfNeeded()
     await expect(page.getByText('Failed to load more blogs.')).toBeVisible()
     await expect(page.locator('[data-slot="archive-item"]')).toHaveCount(12)
     await page.unroute('**/api/public-blog-list?*')
@@ -108,7 +110,7 @@ test.describe('Blog publishing journeys', () => {
     expect(motion[1].delay).toBe('0.08s')
     expect(motion[11].delay).toBe('0.88s')
 
-    await page.getByRole('link', { name: 'Go to next page' }).click()
+    await page.goto(`${baseURL}/blogs/page/2`)
     const paginatedCards = page.locator('[data-slot="archive-item"]')
     await expect(paginatedCards).toHaveCount(2)
     const paginatedMotion = await paginatedCards.evaluateAll((items) =>
@@ -127,7 +129,7 @@ test.describe('Blog publishing journeys', () => {
       .toEqual(['none', 'none'])
   })
 
-  test('listing order, featured card, pagination, and category breadcrumbs', async ({ page }) => {
+  test('listing order, featured card, static page route, and category breadcrumbs', async ({ page }) => {
     await page.goto(`${baseURL}/blogs`)
     await expect(page.getByRole('heading', { name: 'Blogs', exact: true })).toBeVisible()
     const nav = page.getByRole('navigation', { name: 'Blog categories' })
@@ -173,11 +175,13 @@ test.describe('Blog publishing journeys', () => {
     )
     await expect(inverseCategory).toHaveCSS('background-color', 'rgba(255, 255, 255, 0.12)')
     await expect(inverseCategory).toHaveCSS('color', 'rgba(255, 255, 255, 0.85)')
-    await page.getByRole('link', { name: 'Go to next page' }).click()
+    await expect(page.getByRole('link', { name: 'Go to next page' })).toHaveCount(0)
+    const secondPage = await page.goto(`${baseURL}/blogs/page/2`)
+    expect(secondPage?.status()).toBe(200)
     await expect(page).toHaveURL(`${baseURL}/blogs/page/2`)
     expect(await page.locator('[data-slot="archive-item"]').count()).toBeGreaterThanOrEqual(2)
     await expect(page.locator('[data-featured="true"]')).toHaveCount(0)
-    await page.getByRole('link', { name: 'Go to previous page' }).click()
+    await page.goto(`${baseURL}/blogs`)
     await expect(page).toHaveURL(`${baseURL}/blogs`)
     await nav.getByRole('link', { name: 'Sourcing 1' }).click()
     await expect(page.getByRole('heading', { name: 'Sourcing Blogs' })).toBeVisible()

@@ -5,7 +5,6 @@ import { CollectionArchive } from '@/components/CollectionArchive'
 import { PageRange } from '@/components/PageRange'
 import type { BlogListItem } from '@/utilities/blogs/getBlogListing'
 import styles from './index.module.css'
-import { Pagination } from '@/components/Pagination'
 
 type Props = {
   initialBlogs: BlogListItem[]
@@ -14,7 +13,6 @@ type Props = {
   totalDocs: number
   categoryId?: string
   featuredFirst?: boolean
-  routeBase?: string
 }
 
 /** A new server snapshot owns a new request lifetime and initial card list. */
@@ -42,7 +40,6 @@ function Explorer({
   totalDocs,
   categoryId,
   featuredFirst,
-  routeBase,
 }: Props) {
   const [blogs, setBlogs] = useState(initialBlogs)
   const [page, setPage] = useState(initialPage)
@@ -148,21 +145,12 @@ function Explorer({
                   ? "You've reached the end."
                   : ''}
         </p>
-        {hasMore && (
-          <button type="button" disabled={status === 'loading'} onClick={() => void loadMore()}>
-            {status === 'error' ? 'Try again' : status === 'loading' ? 'Loading…' : 'Load more'}
+        {status === 'error' && hasMore && (
+          <button type="button" onClick={() => void loadMore()}>
+            Try again
           </button>
         )}
       </div>
-      {routeBase && totalPages > 1 && (
-        <Pagination
-          linkMode
-          page={initialPage}
-          totalPages={totalPages}
-          routeBase={routeBase}
-          firstPageHref={routeBase}
-        />
-      )}
     </>
   )
 }

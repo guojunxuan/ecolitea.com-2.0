@@ -8,6 +8,7 @@ import configPromise from '@payload-config'
 
 import { BlogCategoryTabs, type BlogCategoryTab } from '@/components/BlogCategoryTabs'
 import { BlogExplorer } from '@/components/BlogExplorer'
+import { Pagination } from '@/components/Pagination'
 import { getBlogListing } from '@/utilities/blogs/getBlogListing'
 import { publicBlogVisibility } from '@/utilities/blogs/publicVisibility'
 import type { BlogCategory } from '@/payload-types'
@@ -131,10 +132,20 @@ export async function renderBlogListing({ page, categorySlug }: ListingArgs) {
         initialPage={listing.page ?? page}
         totalPages={listing.totalPages}
         totalDocs={listing.totalDocs}
-        routeBase={routeBase}
         categoryId={category?.id}
         featuredFirst={!category && page === 1}
       />
+      {listing.totalPages > 1 && (
+        <noscript>
+          <Pagination
+            linkMode
+            page={listing.page ?? page}
+            totalPages={listing.totalPages}
+            routeBase={routeBase}
+            firstPageHref={routeBase}
+          />
+        </noscript>
+      )}
     </div>
   )
 }
