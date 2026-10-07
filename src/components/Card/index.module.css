@@ -134,19 +134,13 @@
     text-decoration: none;
     text-transform: uppercase;
     transition: background-color var(--website-duration-standard) var(--website-easing-standard),
-      color var(--website-duration-standard) var(--website-easing-standard),
-      transform var(--website-duration-fast) var(--website-easing-standard);
+      color var(--website-duration-standard) var(--website-easing-standard);
   }
 
   .blogCategory:hover,
   .blogCategory:focus-visible {
     background-color: var(--website-color-category-hover-background);
     color: var(--website-color-category-hover-foreground);
-    transform: translateY(-1px);
-  }
-
-  .blogCategory:active {
-    transform: translateY(0);
   }
 
   .blogCategory:focus-visible {

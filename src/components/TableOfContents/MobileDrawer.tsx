@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useId, useRef, useState } from 'react'
+import { List, X } from 'lucide-react'
 import type { TOCItem } from '@/utilities/blogs/extractTOC'
 import styles from './index.module.css'
 
@@ -63,7 +64,7 @@ export const MobileDrawer = ({ items }: { items: TOCItem[] }) => {
         aria-expanded={open}
         onClick={openDrawer}
       >
-        <span aria-hidden="true">☰</span> On this page
+        <List aria-hidden="true" size={16} /> On this page
       </button>
       <dialog
         ref={dialogRef}
@@ -88,7 +89,7 @@ export const MobileDrawer = ({ items }: { items: TOCItem[] }) => {
               aria-label="Close table of contents"
               onClick={closeDrawer}
             >
-              ×
+              <X aria-hidden="true" size={20} />
             </button>
           </div>
           <nav aria-label="Table of contents" className={styles.drawerNav}>

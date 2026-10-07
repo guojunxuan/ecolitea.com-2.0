@@ -108,7 +108,15 @@ test.describe('Blog publishing journeys', () => {
     expect(motion.every(({ name }) => name === motion[0].name)).toBe(true)
     expect(motion[0]).toMatchObject({ duration: '0.4s', delay: '0s' })
     expect(motion[1].delay).toBe('0.08s')
-    expect(motion[11].delay).toBe('0.88s')
+    expect(motion[11].delay).toBe('0.4s')
+
+    await page.getByRole('status').scrollIntoViewIfNeeded()
+    await expect(cards).toHaveCount(14)
+    const appendedDelays = await cards.evaluateAll((items) =>
+      items.map((item) => getComputedStyle(item).animationDelay),
+    )
+    expect(appendedDelays[12]).toBe('0s')
+    expect(appendedDelays.every((delay) => Number.parseFloat(delay) <= 0.4)).toBe(true)
 
     await page.goto(`${baseURL}/blogs/page/2`)
     const paginatedCards = page.locator('[data-slot="archive-item"]')
