@@ -4,17 +4,16 @@ import { Card, type CardBlogData, type CardPostData } from '@/components/Card'
 
 import styles from './index.module.css'
 
-export type Props = { embedded?: boolean } & (
+export type Props =
   | { posts: CardPostData[]; relationTo?: 'posts'; featuredFirst?: false }
   | { posts: CardBlogData[]; relationTo: 'blogs'; featuredFirst?: boolean }
-)
 
 export const CollectionArchive: React.FC<Props> = (props) => {
   const { posts } = props
   const isBlog = props.relationTo === 'blogs'
 
   return (
-    <div className={`${styles.archive} ${props.embedded ? styles.embedded : ''}`}>
+    <div className={styles.archive}>
       <div>
         <div className={isBlog ? styles.blogGrid : styles.grid}>
           {posts?.map((result, index) => {

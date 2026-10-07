@@ -27,29 +27,3 @@
   opacity: 0.6;
   cursor: wait;
 }
-
-.layout {
-  width: min(100% - (2 * var(--website-gutter)), var(--website-container-site));
-  margin-inline: auto;
-  display: grid;
-  grid-template-columns: 16rem minmax(0, 1fr);
-  gap: var(--website-space-8);
-  align-items: start;
-}
-
-.results {
-  min-width: 0;
-}
-.results .range,
-.results .controls {
-  width: 100%;
-}
-
-@media (width < 64rem) {
-  .layout {
-    display: block;
-  }
-  .results {
-    margin-top: var(--website-space-6);
-  }
-}

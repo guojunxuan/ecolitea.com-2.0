@@ -5,19 +5,7 @@ import { CollectionArchive } from '@/components/CollectionArchive'
 import { PageRange } from '@/components/PageRange'
 import type { BlogListItem } from '@/utilities/blogs/getBlogListing'
 import styles from './index.module.css'
-import { useRouter } from 'next/navigation'
-import {
-  BlogFilterPanel,
-  type BlogFilterState,
-  type BlogFilterPanelProps,
-} from '@/components/BlogFilterPanel'
 import { Pagination } from '@/components/Pagination'
-import {
-  blogFilterHref,
-  blogFilterRequest,
-  readBlogFilterQuery,
-  hasBlogQueryFilters,
-} from '@/utilities/blogs/filterURL'
 
 type Props = {
   initialBlogs: BlogListItem[]
@@ -26,16 +14,11 @@ type Props = {
   totalDocs: number
   categoryId?: string
   featuredFirst?: boolean
-  categories?: BlogFilterPanelProps['categories']
-  authors?: BlogFilterPanelProps['authors']
   routeBase?: string
-  initialQuery?: string
 }
 
 /** A new server snapshot owns a new request lifetime and initial card list. */
 export function BlogExplorer(props: Props) {
-  const query = props.initialQuery ?? ''
-  const filters = readBlogFilterQuery(query, props.categoryId)
   const [snapshot, setSnapshot] = useState({ blogs: props.initialBlogs, revision: 0 })
   // A refreshed RSC snapshot can edit the same IDs without changing pagination.
   // Reset the child before committing, so old cards and requests never own it.
@@ -43,14 +26,13 @@ export function BlogExplorer(props: Props) {
     setSnapshot({ blogs: props.initialBlogs, revision: snapshot.revision + 1 })
   }
   const snapshotKey = JSON.stringify([
-    query,
     snapshot.revision,
     props.categoryId ?? null,
     props.initialPage,
     props.totalDocs,
     props.initialBlogs.map(({ id }) => id),
   ])
-  return <Explorer key={snapshotKey} {...props} filters={filters} />
+  return <Explorer key={snapshotKey} {...props} />
 }
 
 function Explorer({
@@ -58,14 +40,10 @@ function Explorer({
   initialPage,
   totalPages,
   totalDocs,
+  categoryId,
   featuredFirst,
-  categories,
-  authors,
   routeBase,
-  filters,
-}: Props & { filters: BlogFilterState }) {
-  const router = useRouter()
-  const filtered = hasBlogQueryFilters(filters)
+}: Props) {
   const [blogs, setBlogs] = useState(initialBlogs)
   const [page, setPage] = useState(initialPage)
   const [total, setTotal] = useState(totalDocs)
@@ -88,7 +66,10 @@ function Explorer({
     const controller = new AbortController()
     request.current = controller
     setStatus('loading')
-    const params = blogFilterRequest(filters, page + 1)
+    const params = new URLSearchParams({
+      page: String(page + 1),
+      ...(categoryId ? { category: categoryId } : {}),
+    })
     try {
       const response = await fetch(`/api/public-blog-list?${params}`, { signal: controller.signal })
       if (!response.ok) throw new Error('Blog list request failed')
@@ -121,7 +102,7 @@ function Explorer({
     } finally {
       if (request.current === controller) request.current = null
     }
-  }, [filters, hasMore, page])
+  }, [categoryId, hasMore, page])
 
   useEffect(() => {
     if (
@@ -142,66 +123,46 @@ function Explorer({
   }, [hasMore, loadMore, status])
 
   return (
-    <div className={categories ? styles.layout : undefined}>
-      {categories && (
-        <BlogFilterPanel
-          categories={categories.filter((item) => item.count > 0)}
-          authors={authors ?? []}
-          value={filters}
-          onApply={(value) => router.push(blogFilterHref(value, categories))}
-          onReset={() => router.push('/blogs')}
+    <>
+      {page > 0 && (
+        <PageRange
+          className={styles.range}
+          collection="blogs"
+          currentPage={initialPage}
+          limit={12}
+          totalDocs={total}
+          loadedCount={blogs.length}
         />
       )}
-      <div className={categories ? styles.results : undefined}>
-        {page > 0 && (
-          <PageRange
-            className={styles.range}
-            collection="blogs"
-            currentPage={initialPage}
-            limit={12}
-            totalDocs={total}
-            loadedCount={blogs.length}
-          />
-        )}
-        <CollectionArchive
-          posts={blogs}
-          relationTo="blogs"
-          featuredFirst={featuredFirst && !filtered}
-          embedded={Boolean(categories)}
-        />
-        <div className={styles.controls}>
-          <div ref={sentinel} aria-hidden="true" />
-          <p role="status" aria-live="polite" aria-atomic="true">
-            {status === 'loading'
-              ? page === 0
-                ? 'Loading blogs…'
-                : 'Loading more blogs…'
-              : status === 'error'
-                ? page === 0
-                  ? 'Failed to load blogs.'
-                  : 'Failed to load more blogs.'
-                : blogs.length === 0
-                  ? 'No blogs found.'
-                  : !hasMore
-                    ? "You've reached the end."
-                    : ''}
-          </p>
-          {hasMore && (
-            <button type="button" disabled={status === 'loading'} onClick={() => void loadMore()}>
-              {status === 'error' ? 'Try again' : status === 'loading' ? 'Loading…' : 'Load more'}
-            </button>
-          )}
-        </div>
-        {!filtered && routeBase && totalPages > 1 && (
-          <Pagination
-            linkMode
-            page={initialPage}
-            totalPages={totalPages}
-            routeBase={routeBase}
-            firstPageHref={routeBase}
-          />
+      <CollectionArchive posts={blogs} relationTo="blogs" featuredFirst={featuredFirst} />
+      <div className={styles.controls}>
+        <div ref={sentinel} aria-hidden="true" />
+        <p role="status" aria-live="polite" aria-atomic="true">
+          {status === 'loading'
+            ? 'Loading more blogs…'
+            : status === 'error'
+              ? 'Failed to load more blogs.'
+              : blogs.length === 0
+                ? 'No blogs found.'
+                : !hasMore
+                  ? "You've reached the end."
+                  : ''}
+        </p>
+        {hasMore && (
+          <button type="button" disabled={status === 'loading'} onClick={() => void loadMore()}>
+            {status === 'error' ? 'Try again' : status === 'loading' ? 'Loading…' : 'Load more'}
+          </button>
         )}
       </div>
-    </div>
+      {routeBase && totalPages > 1 && (
+        <Pagination
+          linkMode
+          page={initialPage}
+          totalPages={totalPages}
+          routeBase={routeBase}
+          firstPageHref={routeBase}
+        />
+      )}
+    </>
   )
 }

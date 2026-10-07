@@ -2,10 +2,9 @@ import { renderToStaticMarkup } from 'react-dom/server'
 import React from 'react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-const { find, getBlogListing, getPublicBlogResults, notFound, unstableCache } = vi.hoisted(() => ({
+const { find, getBlogListing, notFound, unstableCache } = vi.hoisted(() => ({
   find: vi.fn(),
   getBlogListing: vi.fn(),
-  getPublicBlogResults: vi.fn(),
   notFound: vi.fn(() => {
     throw new Error('NEXT_NOT_FOUND')
   }),
@@ -17,10 +16,6 @@ vi.mock('@payload-config', () => ({ default: Promise.resolve({}) }))
 vi.mock('next/navigation', () => ({ notFound, useRouter: () => ({ push: vi.fn() }) }))
 vi.mock('next/cache', () => ({ unstable_cache: unstableCache }))
 vi.mock('@/utilities/blogs/getBlogListing', () => ({ getBlogListing }))
-vi.mock('@/utilities/blogs/getPublicBlogResults', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('@/utilities/blogs/getPublicBlogResults')>()),
-  getPublicBlogResults,
-}))
 vi.mock('@/components/Pagination', () => ({
   Pagination: ({ routeBase, firstPageHref }: { routeBase: string; firstPageHref?: string }) => (
     <span data-route-base={routeBase} data-first-page-href={firstPageHref} />
@@ -58,7 +53,6 @@ beforeEach(() => {
   vi.useRealTimers()
   find.mockReset()
   getBlogListing.mockReset()
-  getPublicBlogResults.mockReset()
   notFound.mockClear()
   find.mockImplementation(
     async ({
@@ -96,27 +90,23 @@ beforeEach(() => {
     totalDocs: categoryId ? 13 : 25,
     totalPages: categoryId ? 2 : 3,
   }))
-  getPublicBlogResults.mockResolvedValue({
-    docs: [blog(99)],
-    page: 1,
-    totalDocs: 1,
-    totalPages: 1,
-  })
 })
 
 describe('blog listing routes', () => {
-  it('server-renders filtered results on a direct query URL', async () => {
-    const html = renderToStaticMarkup(
-      await BlogsPage({ searchParams: Promise.resolve({ sort: 'oldest' }) }),
-    )
-    expect(html).toContain('Blog 99')
-    expect(html).not.toContain('Blog 1</')
-    expect(getPublicBlogResults).toHaveBeenCalledWith(
-      expect.objectContaining({ sort: 'oldest', page: 1, authorIds: [] }),
-    )
+  it('keeps all four listing routes static with ten-minute revalidation', async () => {
+    const routes = await Promise.all([
+      import('@/app/(frontend)/blogs/page'),
+      import('@/app/(frontend)/blogs/page/[pageNumber]/page'),
+      import('@/app/(frontend)/blogs/category/[categorySlug]/page'),
+      import('@/app/(frontend)/blogs/category/[categorySlug]/page/[pageNumber]/page'),
+    ])
+    for (const route of routes) {
+      expect(route.dynamic).toBe('force-static')
+      expect(route.revalidate).toBe(600)
+    }
   })
   it('renders first page with counts from all visible blogs, ordered nonempty tabs, 12 cards and featured item', async () => {
-    const html = renderToStaticMarkup(await BlogsPage({}))
+    const html = renderToStaticMarkup(await BlogsPage())
     expect(html).toContain('<h1')
     expect(html).toContain('Blogs')
     expect(html).toContain('Showing 1 - 12 of 25 Blogs')
@@ -158,7 +148,7 @@ describe('blog listing routes', () => {
         }
       throw new Error(`Unexpected collection ${collection}`)
     })
-    const html = renderToStaticMarkup(await BlogsPage({}))
+    const html = renderToStaticMarkup(await BlogsPage())
     expect(html).toContain('Tea Guides <span')
     expect(html).toContain('101</span>')
     expect(

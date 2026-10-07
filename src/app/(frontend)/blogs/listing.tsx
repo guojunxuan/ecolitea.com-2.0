@@ -8,21 +8,13 @@ import configPromise from '@payload-config'
 
 import { BlogCategoryTabs, type BlogCategoryTab } from '@/components/BlogCategoryTabs'
 import { BlogExplorer } from '@/components/BlogExplorer'
-import { getPublicBlogAuthors } from '@/utilities/blogs/getPublicBlogAuthors'
 import { getBlogListing } from '@/utilities/blogs/getBlogListing'
-import {
-  getPublicBlogResults,
-  parsePublicBlogFilters,
-  InvalidPublicBlogFilters,
-} from '@/utilities/blogs/getPublicBlogResults'
-import { hasBlogQueryFilters, readBlogFilterQuery } from '@/utilities/blogs/filterURL'
 import { publicBlogVisibility } from '@/utilities/blogs/publicVisibility'
 import type { BlogCategory } from '@/payload-types'
 
 import styles from './listing.module.css'
 
-export type BlogSearchParams = Record<string, string | string[] | undefined>
-type ListingArgs = { page: number; categorySlug?: string; searchParams?: BlogSearchParams }
+type ListingArgs = { page: number; categorySlug?: string }
 type Category = Pick<BlogCategory, 'id' | 'title' | 'slug' | 'description'>
 
 const getCategories = unstable_cache(
@@ -100,32 +92,12 @@ export function parsePageNumber(value: string): number {
   return page
 }
 
-export async function renderBlogListing({ page, categorySlug, searchParams }: ListingArgs) {
+export async function renderBlogListing({ page, categorySlug }: ListingArgs) {
   const category = await resolveCategory(categorySlug)
-  const query = new URLSearchParams()
-  for (const key of ['author', 'dateRange', 'dateFrom', 'dateTo', 'sort']) {
-    const value = searchParams?.[key]
-    if (Array.isArray(value)) value.forEach((item) => query.append(key, item))
-    else if (value !== undefined) query.set(key, value)
-  }
-  const filtered = hasBlogQueryFilters(readBlogFilterQuery(query.toString()))
-  let publicFilters
-  if (filtered) {
-    const request = new URLSearchParams(query)
-    request.set('page', String(page))
-    if (category) request.set('category', category.id)
-    try {
-      publicFilters = parsePublicBlogFilters(request)
-    } catch (error) {
-      if (error instanceof InvalidPublicBlogFilters) notFound()
-      throw error
-    }
-  }
-  const [categories, countEntries, listing, authors] = await Promise.all([
+  const [categories, countEntries, listing] = await Promise.all([
     getCategories(),
     getCategoryCounts(),
-    publicFilters ? getPublicBlogResults(publicFilters) : getBlogListing(page, category?.id),
-    getPublicBlogAuthors(),
+    getBlogListing(page, category?.id),
   ])
   if (page > 1 && (page > listing.totalPages || listing.docs.length === 0)) notFound()
   const counts = new Map(countEntries)
@@ -159,12 +131,9 @@ export async function renderBlogListing({ page, categorySlug, searchParams }: Li
         initialPage={listing.page ?? page}
         totalPages={listing.totalPages}
         totalDocs={listing.totalDocs}
-        initialQuery={query.toString()}
-        categories={tabs}
-        authors={authors}
         routeBase={routeBase}
         categoryId={category?.id}
-        featuredFirst={!category && page === 1 && !filtered}
+        featuredFirst={!category && page === 1}
       />
     </div>
   )
