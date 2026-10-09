@@ -1,0 +1,124 @@
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import type { GroupField, PayloadRequest, TextField, UploadField } from 'payload'
+import { validations } from 'payload'
+
+import { anyone } from '@/access/anyone'
+import { authenticated } from '@/access/authenticated'
+import { MEDIA_UPLOAD_POLICY } from '@/collections/mediaUploadPolicy'
+import { Settings } from '@/Settings/config'
+import { settingsTabs } from '@/Settings/fields'
+import { blogTab } from '@/Settings/fields/blog'
+import { trimText, validateEnabledHeading } from '@/Settings/fields/validation'
+import { revalidateSettings } from '@/Settings/hooks/revalidateSettings'
+import { revalidateTag } from 'next/cache'
+
+vi.mock('next/cache', () => ({ revalidateTag: vi.fn() }))
+
+const listing = blogTab.fields[0] as GroupField
+const hero = listing.fields[0] as GroupField
+
+const validateHeading = (value: string, enabled: boolean) =>
+  validateEnabledHeading(value, {
+    siblingData: { enabled },
+    req: { payload: { config: {} }, t: () => 'Native validation error' },
+  } as never)
+
+describe('Settings Global', () => {
+  beforeEach(() => vi.clearAllMocks())
+
+  it('defines the public, authenticated-update unversioned global', () => {
+    expect(Settings).toMatchObject({
+      slug: 'settings',
+      label: 'Settings',
+      typescript: { interface: 'Settings' },
+      access: { read: anyone, update: authenticated },
+      versions: false,
+      fields: [settingsTabs],
+      hooks: { afterChange: [revalidateSettings] },
+    })
+  })
+
+  it('organizes native fields under Blog, Listing page, and Hero', () => {
+    expect(settingsTabs).toEqual({ type: 'tabs', tabs: [blogTab] })
+    expect(blogTab).toMatchObject({ name: 'blog', label: 'Blog' })
+    expect(listing).toMatchObject({ name: 'listing', label: 'Listing page', type: 'group' })
+    expect(hero).toMatchObject({ name: 'hero', label: 'Hero', type: 'group' })
+    expect(hero.fields.map((field) => 'name' in field && field.name)).toEqual([
+      'enabled',
+      'heading',
+      'description',
+      'image',
+      'headerTheme',
+    ])
+    expect(hero.fields[0]).toMatchObject({ type: 'checkbox', defaultValue: false })
+    expect(hero.fields[1]).toMatchObject({
+      type: 'text',
+      hooks: { beforeValidate: [trimText] },
+      validate: validateEnabledHeading,
+    })
+    expect(hero.fields[2]).toMatchObject({
+      type: 'textarea',
+      hooks: { beforeValidate: [trimText] },
+    })
+    expect(hero.fields[3]).toMatchObject({ type: 'upload', relationTo: 'media' })
+    expect((hero.fields[3] as UploadField).filterOptions).toEqual({
+      mimeType: { in: [...MEDIA_UPLOAD_POLICY.image.mimeTypes] },
+    })
+    expect(hero.fields[4]).toMatchObject({
+      type: 'select',
+      required: true,
+      defaultValue: 'light',
+      options: [
+        { label: 'Light', value: 'light' },
+        { label: 'Dark', value: 'dark' },
+      ],
+      admin: {
+        description:
+          'Use Dark for dark images (white text and header), Light for bright images or no image.',
+      },
+    })
+    expect((hero.fields[1] as TextField).required).toBeFalsy()
+    expect((hero.fields[2] as TextField).required).toBeFalsy()
+    expect((hero.fields[3] as UploadField).required).toBeFalsy()
+    for (const field of hero.fields.slice(1)) {
+      const condition = field.admin?.condition
+      expect(condition?.({}, { enabled: true }, {} as never)).toBe(true)
+      expect(condition?.({}, { enabled: false }, {} as never)).toBe(false)
+      expect(condition?.({}, {}, {} as never)).toBe(false)
+    }
+  })
+
+  it.each([
+    ['  ', true, 'Heading is required when the Hero is enabled.'],
+    [' Content ', true, true],
+    ['', false, true],
+    [' Saved heading ', false, true],
+  ] as const)('validates heading %j when enabled=%s', (value, enabled, expected) => {
+    expect(validateHeading(value, enabled)).toBe(expected)
+  })
+
+  it('preserves native text validation errors', () => {
+    const native = vi.spyOn(validations, 'text').mockReturnValueOnce('Native error')
+    expect(validateHeading('content', true)).toBe('Native error')
+    native.mockRestore()
+  })
+
+  it('trims strings and preserves nonstring values', () => {
+    expect(trimText({ value: ' text ' } as never)).toBe('text')
+    expect(trimText({ value: null } as never)).toBeNull()
+  })
+
+  it.each([false, true])(
+    'revalidates unless disabled=%s and returns the document',
+    (disableRevalidate) => {
+      const doc = { blog: { listing: { hero: { enabled: false, heading: 'Saved' } } } }
+      const result = revalidateSettings({
+        doc,
+        req: { context: { disableRevalidate } } as unknown as PayloadRequest,
+      } as never)
+      expect(result).toBe(doc)
+      if (disableRevalidate) expect(revalidateTag).not.toHaveBeenCalled()
+      else expect(revalidateTag).toHaveBeenCalledExactlyOnceWith('global_settings', 'max')
+    },
+  )
+})

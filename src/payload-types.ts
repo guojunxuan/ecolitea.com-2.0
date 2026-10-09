@@ -333,12 +333,14 @@ export interface Config {
     header: Header;
     footer: Footer;
     'site-settings': SiteSettings;
+    settings: Settings;
     'payload-jobs-stats': PayloadJobsStat;
   };
   globalsSelect: {
     header: HeaderSelect<false> | HeaderSelect<true>;
     footer: FooterSelect<false> | FooterSelect<true>;
     'site-settings': SiteSettingsSelect<false> | SiteSettingsSelect<true>;
+    settings: SettingsSelect<false> | SettingsSelect<true>;
     'payload-jobs-stats': PayloadJobsStatsSelect<false> | PayloadJobsStatsSelect<true>;
   };
   locale: null;
@@ -2253,6 +2255,29 @@ export interface SiteSettings {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "settings".
+ */
+export interface Settings {
+  id: string;
+  blog?: {
+    listing?: {
+      hero?: {
+        enabled?: boolean | null;
+        heading?: string | null;
+        description?: string | null;
+        image?: (string | null) | Media;
+        /**
+         * Use Dark for dark images (white text and header), Light for bright images or no image.
+         */
+        headerTheme?: ('light' | 'dark') | null;
+      };
+    };
+  };
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-jobs-stats".
  */
 export interface PayloadJobsStat {
@@ -2530,6 +2555,32 @@ export interface SiteSettingsContactCustomFieldSelect<T extends boolean = true> 
   label?: T;
   value?: T;
   id?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "settings_select".
+ */
+export interface SettingsSelect<T extends boolean = true> {
+  blog?:
+    | T
+    | {
+        listing?:
+          | T
+          | {
+              hero?:
+                | T
+                | {
+                    enabled?: T;
+                    heading?: T;
+                    description?: T;
+                    image?: T;
+                    headerTheme?: T;
+                  };
+            };
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
