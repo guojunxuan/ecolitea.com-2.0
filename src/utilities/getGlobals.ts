@@ -32,3 +32,5 @@ export const getCachedHeader = async () => getCachedGlobal('header', 1)()
 export const getCachedFooter = async () => getCachedGlobal('footer', 1)()
 
 export const getCachedSiteSettings = async () => getCachedGlobal('site-settings', 2)()
+
+export const getCachedSettings = async () => getCachedGlobal('settings', 1)()
