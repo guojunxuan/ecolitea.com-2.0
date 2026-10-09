@@ -122,3 +122,68 @@ describe('Settings Global', () => {
     },
   )
 })
+
+// Run the Global hook itself: this boundary must protect API writes even when
+// Payload skips hidden field validation because the Hero is disabled.
+describe('Settings Hero image write integrity', () => {
+  it.each([true, false])('rejects video relationships when enabled=%s', async (enabled) => {
+    const findByID = vi.fn().mockResolvedValue({ id: 'video-id', mimeType: 'video/mp4' })
+    const hook = Settings.hooks?.beforeChange?.[0]
+    expect(hook).toBeTypeOf('function')
+    await expect(
+      hook!({
+        data: { blog: { listing: { hero: { enabled, image: 'video-id' } } } },
+        req: { payload: { findByID } },
+      } as never),
+    ).rejects.toMatchObject({
+      status: 400,
+      data: {
+        errors: [
+          { path: 'blog.listing.hero.image', message: 'Hero image must be an image from Media.' },
+        ],
+      },
+    })
+  })
+
+  it('preserves a valid inactive image and checks stored Media metadata', async () => {
+    const findByID = vi.fn().mockResolvedValue({ id: 'image-id', mimeType: 'image/png' })
+    const data = {
+      blog: {
+        listing: { hero: { enabled: false, image: { id: 'image-id', mimeType: 'video/mp4' } } },
+      },
+    }
+    const hook = Settings.hooks?.beforeChange?.[0]
+    expect(hook).toBeTypeOf('function')
+    await expect(hook!({ data, req: { payload: { findByID } } } as never)).resolves.toBe(data)
+    expect(findByID).toHaveBeenCalledWith(
+      expect.objectContaining({ collection: 'media', id: 'image-id', depth: 0 }),
+    )
+  })
+
+  it('validates a retained relationship on a partial update without removing data', async () => {
+    const findByID = vi.fn().mockResolvedValue({ id: 'image-id', mimeType: 'image/jpeg' })
+    const data = { blog: { listing: { hero: { enabled: false } } } }
+    const originalDoc = { blog: { listing: { hero: { image: 'image-id' } } } }
+    const hook = Settings.hooks?.beforeChange?.[0]
+    expect(hook).toBeTypeOf('function')
+    await expect(
+      hook!({ data, originalDoc, req: { payload: { findByID } } } as never),
+    ).resolves.toBe(data)
+    expect(findByID).toHaveBeenCalledOnce()
+  })
+
+  it('allows an explicitly cleared optional image', async () => {
+    const findByID = vi.fn()
+    const data = { blog: { listing: { hero: { image: null } } } }
+    const hook = Settings.hooks?.beforeChange?.[0]
+    expect(hook).toBeTypeOf('function')
+    await expect(
+      hook!({
+        data,
+        originalDoc: { blog: { listing: { hero: { image: 'old' } } } },
+        req: { payload: { findByID } },
+      } as never),
+    ).resolves.toBe(data)
+    expect(findByID).not.toHaveBeenCalled()
+  })
+})
