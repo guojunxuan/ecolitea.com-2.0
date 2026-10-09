@@ -2,9 +2,10 @@ import { renderToStaticMarkup } from 'react-dom/server'
 import React from 'react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-const { find, getBlogListing, notFound, unstableCache } = vi.hoisted(() => ({
+const { find, getBlogListing, getBlogListingHero, notFound, unstableCache } = vi.hoisted(() => ({
   find: vi.fn(),
   getBlogListing: vi.fn(),
+  getBlogListingHero: vi.fn(),
   notFound: vi.fn(() => {
     throw new Error('NEXT_NOT_FOUND')
   }),
@@ -16,6 +17,8 @@ vi.mock('@payload-config', () => ({ default: Promise.resolve({}) }))
 vi.mock('next/navigation', () => ({ notFound, useRouter: () => ({ push: vi.fn() }) }))
 vi.mock('next/cache', () => ({ unstable_cache: unstableCache }))
 vi.mock('@/utilities/blogs/getBlogListing', () => ({ getBlogListing }))
+vi.mock('@/utilities/blogs/getBlogListingHero', () => ({ getBlogListingHero }))
+vi.mock('@/heros/HeaderThemeSync', () => ({ HeaderThemeSync: () => null }))
 vi.mock('@/components/Pagination', () => ({
   Pagination: ({ routeBase, firstPageHref }: { routeBase: string; firstPageHref?: string }) => (
     <span data-route-base={routeBase} data-first-page-href={firstPageHref} />
@@ -53,6 +56,7 @@ beforeEach(() => {
   vi.useRealTimers()
   find.mockReset()
   getBlogListing.mockReset()
+  getBlogListingHero.mockReset().mockResolvedValue(null)
   notFound.mockClear()
   find.mockImplementation(
     async ({
@@ -137,6 +141,41 @@ describe('blog listing routes', () => {
     expect(getBlogListing).toHaveBeenCalledWith(2, undefined)
   })
 
+  it.each([1, 2])('renders the managed Hero on unfiltered page %s', async (page) => {
+    getBlogListingHero.mockResolvedValue({
+      heading: 'Stories from our tea community',
+      description: 'Discover tea stories and ideas.',
+      headerTheme: 'light',
+    })
+    const html = renderToStaticMarkup(
+      page === 1
+        ? await BlogsPage()
+        : await BlogPage({ params: Promise.resolve({ pageNumber: '2' }) }),
+    )
+    expect(html.match(/<h1[^>]*>Stories from our tea community<\/h1>/g) || []).toHaveLength(1)
+    expect(html.match(/<h1\b/g) || []).toHaveLength(1)
+    expect(html).not.toMatch(/<h1[^>]*>Blogs<\/h1>/)
+    expect(html).toContain('Discover tea stories and ideas.')
+    expect(html).toContain('Tea Guides <span')
+    expect(html.match(/data-slot="archive-item"/g) || []).toHaveLength(page === 1 ? 12 : 1)
+    expect(html.indexOf('data-hero="blog-listing"')).toBeLessThan(html.indexOf('Tea Guides <span'))
+    expect(getBlogListingHero).toHaveBeenCalledTimes(1)
+  })
+
+  it.each([1, 2])(
+    'keeps the default heading when the Hero adapter returns null on page %s',
+    async (page) => {
+      const html = renderToStaticMarkup(
+        page === 1
+          ? await BlogsPage()
+          : await BlogPage({ params: Promise.resolve({ pageNumber: '2' }) }),
+      )
+      expect(html).toMatch(/<h1[^>]*>Blogs<\/h1>/)
+      expect(html).not.toContain('data-hero="blog-listing"')
+      expect(getBlogListingHero).toHaveBeenCalledTimes(1)
+    },
+  )
+
   it('counts visible blogs across Payload result pages', async () => {
     find.mockImplementation(async ({ collection, page }: { collection: string; page?: number }) => {
       if (collection === 'blog-categories') return { docs: categories, hasNextPage: false }
@@ -170,6 +209,9 @@ describe('blog listing routes', () => {
     expect(html).toContain('data-first-page-href="/blogs/category/tea-guides"')
     expect(html).not.toContain('data-featured="true"')
     expect(getBlogListing).toHaveBeenCalledWith(1, 'tea')
+    expect(html).toContain('aria-label="Breadcrumb"')
+    expect(html).toMatch(/<h1[^>]*>Tea Guides Blogs<\/h1>/)
+    expect(getBlogListingHero).not.toHaveBeenCalled()
   })
 
   it('renders a later category page through the same listing flow', async () => {
@@ -180,6 +222,9 @@ describe('blog listing routes', () => {
     )
     expect(html).toContain('data-route-base="/blogs/category/tea-guides"')
     expect(getBlogListing).toHaveBeenCalledWith(2, 'tea')
+    expect(html).toContain('aria-label="Breadcrumb"')
+    expect(html).toMatch(/<h1[^>]*>Tea Guides Blogs<\/h1>/)
+    expect(getBlogListingHero).not.toHaveBeenCalled()
   })
 
   it.each(['0', '-1', '1', '2.5', '2e1', '02', 'abc', 'Infinity'])(

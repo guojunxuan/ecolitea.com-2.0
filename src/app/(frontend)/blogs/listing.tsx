@@ -8,8 +8,10 @@ import configPromise from '@payload-config'
 
 import { BlogCategoryTabs, type BlogCategoryTab } from '@/components/BlogCategoryTabs'
 import { BlogExplorer } from '@/components/BlogExplorer'
+import { BlogListingHero } from '@/heros/BlogListingHero'
 import { Pagination } from '@/components/Pagination'
 import { getBlogListing } from '@/utilities/blogs/getBlogListing'
+import { getBlogListingHero } from '@/utilities/blogs/getBlogListingHero'
 import { publicBlogVisibility } from '@/utilities/blogs/publicVisibility'
 import type { BlogCategory } from '@/payload-types'
 
@@ -95,10 +97,11 @@ export function parsePageNumber(value: string): number {
 
 export async function renderBlogListing({ page, categorySlug }: ListingArgs) {
   const category = await resolveCategory(categorySlug)
-  const [categories, countEntries, listing] = await Promise.all([
+  const [categories, countEntries, listing, hero] = await Promise.all([
     getCategories(),
     getCategoryCounts(),
     getBlogListing(page, category?.id),
+    categorySlug ? null : getBlogListingHero(),
   ])
   if (page > 1 && (page > listing.totalPages || listing.docs.length === 0)) notFound()
   const counts = new Map(countEntries)
@@ -112,18 +115,22 @@ export async function renderBlogListing({ page, categorySlug }: ListingArgs) {
   const routeBase = category ? `/blogs/category/${category.slug}` : '/blogs'
 
   return (
-    <div className={styles.page}>
-      <header className={styles.header}>
-        {category && (
-          <nav aria-label="Breadcrumb" className={styles.breadcrumb}>
-            <Link href="/blogs">Blogs</Link>
-            <span aria-hidden="true"> / </span>
-            <span>{category.title}</span>
-          </nav>
-        )}
-        <h1 className={styles.title}>{category ? `${category.title} Blogs` : 'Blogs'}</h1>
-        {category?.description && <p className={styles.description}>{category.description}</p>}
-      </header>
+    <div className={[styles.page, hero && styles.hasHero].filter(Boolean).join(' ')}>
+      {hero ? (
+        <BlogListingHero {...hero} />
+      ) : (
+        <header className={styles.header}>
+          {category && (
+            <nav aria-label="Breadcrumb" className={styles.breadcrumb}>
+              <Link href="/blogs">Blogs</Link>
+              <span aria-hidden="true"> / </span>
+              <span>{category.title}</span>
+            </nav>
+          )}
+          <h1 className={styles.title}>{category ? `${category.title} Blogs` : 'Blogs'}</h1>
+          {category?.description && <p className={styles.description}>{category.description}</p>}
+        </header>
+      )}
       <div className={styles.tabs}>
         <BlogCategoryTabs categories={tabs} currentCategory={category?.slug} />
       </div>

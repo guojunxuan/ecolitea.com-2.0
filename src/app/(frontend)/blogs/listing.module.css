@@ -2,6 +2,14 @@
   padding-block: var(--website-section-spacious);
 }
 
+.hasHero {
+  padding-top: 0;
+}
+
+.hasHero .tabs {
+  margin-top: var(--website-section-standard);
+}
+
 .header,
 .tabs,
 .range,
