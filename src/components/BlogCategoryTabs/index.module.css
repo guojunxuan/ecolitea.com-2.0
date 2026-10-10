@@ -8,25 +8,23 @@
   flex-wrap: wrap;
   align-items: flex-start;
   justify-content: flex-end;
-  gap: var(--website-space-2) var(--website-space-6);
-  margin-right: calc(-1 * var(--website-space-3));
+  gap: var(--website-space-2) var(--website-space-3);
+  margin-right: calc(-1 * var(--website-space-2));
 }
 
 .tab {
+  composes: website-type-body-md from global;
   position: relative;
   display: inline-flex;
   align-items: center;
   min-height: var(--website-control-target-min);
-  padding: var(--website-space-4) var(--website-space-3);
+  padding: var(--website-space-4) var(--website-space-2);
   color: var(--website-color-foreground);
-  font-size: 1rem;
-  font-weight: 400;
-  line-height: 1.5;
   text-decoration: none;
   white-space: nowrap;
   cursor: pointer;
   opacity: 0.7;
-  transition: opacity var(--website-duration-fast) ease;
+  transition: opacity var(--website-duration-fast) var(--website-easing-standard);
 }
 
 .tab:hover,
@@ -64,14 +62,14 @@
   border-radius: var(--website-radius-pill);
   pointer-events: none;
   opacity: 0;
-  transition: opacity var(--website-duration-fast) ease;
+  transition: opacity var(--website-duration-fast) var(--website-easing-standard);
 }
 
 .indicator[data-moving='true'] {
   transition:
-    transform var(--website-duration-fast) ease,
-    width var(--website-duration-fast) ease,
-    opacity var(--website-duration-fast) ease;
+    transform var(--website-duration-fast) var(--website-easing-standard),
+    width var(--website-duration-fast) var(--website-easing-standard),
+    opacity var(--website-duration-fast) var(--website-easing-standard);
 }
 
 .indicator[data-visible='true'] {
@@ -84,6 +82,7 @@
 }
 
 .mobileTrigger {
+  composes: website-type-title from global;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -91,8 +90,6 @@
   padding-block: var(--website-space-4);
   border-bottom: 1px solid var(--website-color-border);
   color: var(--website-color-foreground);
-  font-size: 1.25rem;
-  font-weight: 600;
   list-style: none;
   cursor: pointer;
 }
@@ -104,7 +101,7 @@
 .chevron {
   flex-shrink: 0;
   color: var(--website-color-subtle-foreground);
-  transition: transform var(--website-duration-fast) ease;
+  transition: transform var(--website-duration-fast) var(--website-easing-standard);
 }
 
 .mobileMenu[open] .chevron {
@@ -115,7 +112,7 @@
   position: absolute;
   top: 100%;
   inset-inline: 0;
-  z-index: 10;
+  z-index: var(--website-z-raised);
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -129,14 +126,12 @@
 }
 
 .mobileLink {
+  composes: website-type-title from global;
   display: block;
   max-width: 100%;
   min-height: var(--website-control-target-min);
   padding-block: var(--website-space-2);
   color: var(--website-color-foreground);
-  font-size: 1.25rem;
-  font-weight: 600;
-  line-height: 1.5;
   text-decoration: none;
   overflow-wrap: anywhere;
 }
