@@ -26,7 +26,10 @@ export const blogTab: Tab = {
         {
           type: 'collapsible',
           label: 'Hero',
-          admin: { initCollapsed: false },
+          admin: {
+            initCollapsed: false,
+            style: { marginTop: 0, marginBottom: 'var(--spacer-2-5)' },
+          },
           fields: [
             {
               name: 'hero',
@@ -77,7 +80,10 @@ export const blogTab: Tab = {
         {
           type: 'collapsible',
           label: 'SEO',
-          admin: { initCollapsed: true },
+          admin: {
+            initCollapsed: true,
+            style: { marginTop: 0, marginBottom: 0 },
+          },
           fields: [
             {
               name: 'seo',
