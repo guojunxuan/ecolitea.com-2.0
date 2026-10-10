@@ -2,10 +2,11 @@ import { renderToStaticMarkup } from 'react-dom/server'
 import React from 'react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-const { find, getBlogListing, getBlogListingHero, notFound, unstableCache } = vi.hoisted(() => ({
+const { find, getBlogListing, getBlogListingHero, getBlogListingSEO, notFound, unstableCache } = vi.hoisted(() => ({
   find: vi.fn(),
   getBlogListing: vi.fn(),
   getBlogListingHero: vi.fn(),
+  getBlogListingSEO: vi.fn(),
   notFound: vi.fn(() => {
     throw new Error('NEXT_NOT_FOUND')
   }),
@@ -18,6 +19,7 @@ vi.mock('next/navigation', () => ({ notFound, useRouter: () => ({ push: vi.fn() 
 vi.mock('next/cache', () => ({ unstable_cache: unstableCache }))
 vi.mock('@/utilities/blogs/getBlogListing', () => ({ getBlogListing }))
 vi.mock('@/utilities/blogs/getBlogListingHero', () => ({ getBlogListingHero }))
+vi.mock('@/utilities/blogs/getBlogListingSEO', () => ({ getBlogListingSEO }))
 vi.mock('@/heros/HeaderThemeSync', () => ({ HeaderThemeSync: () => null }))
 vi.mock('@/components/Pagination', () => ({
   Pagination: ({ routeBase, firstPageHref }: { routeBase: string; firstPageHref?: string }) => (
@@ -57,6 +59,7 @@ beforeEach(() => {
   find.mockReset()
   getBlogListing.mockReset()
   getBlogListingHero.mockReset().mockResolvedValue(null)
+  getBlogListingSEO.mockReset().mockResolvedValue({})
   notFound.mockClear()
   find.mockImplementation(
     async ({
@@ -287,6 +290,49 @@ describe('blog listing routes', () => {
     expect(category.description).toContain('Tea category description')
     expect(all.description).toBeTruthy()
     expect(later.description).not.toBe(all.description)
+  })
+
+  it('uses Settings SEO for unfiltered listings while preserving page-specific canonical URLs', async () => {
+    getBlogListingSEO.mockResolvedValue({
+      title: 'Tea stories',
+      description: 'Fresh notes from the tea world.',
+      imageURL: 'https://media.example.invalid/blog-share.png',
+    })
+    const first = await blogsMetadata()
+    const second = await pageMetadata({ params: Promise.resolve({ pageNumber: '2' }) })
+    expect(first).toMatchObject({
+      title: 'Tea stories',
+      description: 'Fresh notes from the tea world.',
+      alternates: { canonical: '/blogs' },
+      openGraph: {
+        title: 'Tea stories',
+        description: 'Fresh notes from the tea world.',
+        url: '/blogs',
+        images: [{ url: 'https://media.example.invalid/blog-share.png' }],
+      },
+      twitter: {
+        title: 'Tea stories',
+        description: 'Fresh notes from the tea world.',
+        images: ['https://media.example.invalid/blog-share.png'],
+      },
+    })
+    expect(second).toMatchObject({
+      title: 'Tea stories — Page 2',
+      description: 'Fresh notes from the tea world. Page 2.',
+      alternates: { canonical: '/blogs/page/2' },
+      openGraph: { title: 'Tea stories — Page 2', url: '/blogs/page/2' },
+      twitter: { title: 'Tea stories — Page 2' },
+    })
+    expect(getBlogListingSEO).toHaveBeenCalledTimes(2)
+    expect(getBlogListingHero).not.toHaveBeenCalled()
+  })
+
+  it('keeps category metadata independent from Settings SEO', async () => {
+    getBlogListingSEO.mockResolvedValue({ title: 'Settings title' })
+    const category = await categoryMetadata({ params: Promise.resolve({ categorySlug: 'tea-guides' }) })
+    expect(category.title).toBe('Tea Guides Blogs')
+    expect(category.description).toBe('Tea category description')
+    expect(getBlogListingSEO).not.toHaveBeenCalled()
   })
 
   it('prerenders only populated categories while allowing new populated categories at request time', async () => {

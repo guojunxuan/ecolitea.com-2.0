@@ -12,6 +12,8 @@ import { BlogListingHero } from '@/heros/BlogListingHero'
 import { Pagination } from '@/components/Pagination'
 import { getBlogListing } from '@/utilities/blogs/getBlogListing'
 import { getBlogListingHero } from '@/utilities/blogs/getBlogListingHero'
+import { getBlogListingSEO } from '@/utilities/blogs/getBlogListingSEO'
+import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
 import { publicBlogVisibility } from '@/utilities/blogs/publicVisibility'
 import type { BlogCategory } from '@/payload-types'
 
@@ -159,17 +161,37 @@ export async function renderBlogListing({ page, categorySlug }: ListingArgs) {
 
 export async function blogListingMetadata({ page, categorySlug }: ListingArgs): Promise<Metadata> {
   const category = await resolveCategory(categorySlug)
-  const baseTitle = category ? `${category.title} Blogs` : 'Blogs'
+  const seo = categorySlug ? null : await getBlogListingSEO()
+  const baseTitle = category ? `${category.title} Blogs` : seo?.title || 'Blogs'
   const title = page === 1 ? baseTitle : `${baseTitle} — Page ${page}`
   const baseDescription =
-    category?.description ||
+    (categorySlug ? category?.description : seo?.description) ||
     (category
       ? `Explore ${category.title.toLowerCase()} articles and guides.`
       : 'Explore our latest blog articles, insights, and guides.')
   const description = page === 1 ? baseDescription : `${baseDescription} Page ${page}.`
   const basePath = category ? `/blogs/category/${category.slug}` : '/blogs'
   const canonical = page === 1 ? basePath : `${basePath}/page/${page}`
-  return { title, description, alternates: { canonical } }
+  if (categorySlug) return { title, description, alternates: { canonical } }
+
+  const openGraph = mergeOpenGraph({
+    title,
+    description,
+    url: canonical,
+    images: seo?.imageURL ? [{ url: seo.imageURL }] : undefined,
+  })
+  return {
+    title,
+    description,
+    alternates: { canonical },
+    openGraph,
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: seo?.imageURL ? [seo.imageURL] : openGraph?.images,
+    },
+  }
 }
 
 export async function getCategoryStaticParams() {
