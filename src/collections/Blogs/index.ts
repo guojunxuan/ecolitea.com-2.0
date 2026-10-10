@@ -73,7 +73,7 @@ export const Blogs: CollectionConfig = {
               imagePath: 'meta.image',
             }),
             MetaTitleField({ hasGenerateFn: true }),
-            MetaImageField({ relationTo: 'media' }),
+            MetaImageField({ relationTo: 'media', hasGenerateFn: true }),
             MetaDescriptionField({ hasGenerateFn: true }),
             PreviewField({
               hasGenerateFn: true,

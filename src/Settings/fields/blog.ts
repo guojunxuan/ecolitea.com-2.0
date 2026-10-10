@@ -106,6 +106,7 @@ export const blogTab: Tab = {
                 }),
                 MetaImageField({
                   relationTo: 'media',
+                  hasGenerateFn: true,
                   overrides: {
                     filterOptions: { mimeType: { in: [...MEDIA_UPLOAD_POLICY.image.mimeTypes] } },
                   },

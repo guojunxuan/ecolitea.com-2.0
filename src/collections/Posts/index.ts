@@ -148,6 +148,7 @@ export const Posts: CollectionConfig = {
             }),
             MetaImageField({
               relationTo: 'media',
+              hasGenerateFn: true,
             }),
 
             MetaDescriptionField({}),
