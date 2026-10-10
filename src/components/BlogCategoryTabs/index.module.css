@@ -1,65 +1,151 @@
 .navigation {
   margin-bottom: var(--website-space-12);
-  padding-bottom: var(--website-space-4);
-  border-bottom: 1px solid var(--website-color-border);
 }
 
-.tabs,
-.mobileTabs,
-.moreLinks {
+.tabs {
+  position: relative;
   display: flex;
   flex-wrap: wrap;
-  gap: var(--website-space-2);
+  align-items: flex-start;
+  justify-content: flex-end;
+  gap: var(--website-space-2) var(--website-space-6);
+  margin-right: calc(-1 * var(--website-space-3));
 }
 
-.mobileTabs {
-  display: none;
-}
-
-.tab,
-.more summary {
+.tab {
+  position: relative;
   display: inline-flex;
   align-items: center;
   min-height: var(--website-control-target-min);
-  padding: 0 var(--website-space-4);
-  border: 1px solid var(--website-color-border);
-  border-radius: var(--website-radius-control);
+  padding: var(--website-space-4) var(--website-space-3);
   color: var(--website-color-foreground);
-  font-size: 0.875rem;
-  font-weight: 500;
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.5;
   text-decoration: none;
+  white-space: nowrap;
   cursor: pointer;
-  transition: background-color var(--website-duration-standard) var(--website-easing-standard),
-    border-color var(--website-duration-standard) var(--website-easing-standard),
-    color var(--website-duration-standard) var(--website-easing-standard);
+  opacity: 0.7;
+  transition: opacity var(--website-duration-fast) ease;
 }
 
 .tab:hover,
 .tab:focus-visible,
-.tab[aria-current='page'],
-.more summary:hover,
-.more summary:focus-visible {
-  border-color: var(--website-color-action);
-  background: var(--website-color-action);
-  color: var(--website-color-brand-white);
+.tab[aria-current='page'] {
+  opacity: 1;
 }
 
-.count {
-  margin-left: var(--website-space-2);
-  font-size: 0.6875rem;
-  opacity: 0.65;
+.tab[aria-current='page'] {
+  font-weight: 600;
 }
 
-.more summary {
-  list-style: none;
+.tab:focus-visible,
+.mobileTrigger:focus-visible,
+.mobileLink:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+  border-radius: 2px;
 }
 
-.more summary::-webkit-details-marker {
+.tab[aria-current='page']::after {
+  content: '';
+  position: absolute;
+  inset: auto 0 0;
+  height: 2px;
+  background: currentColor;
+}
+
+.indicator {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 2px;
+  background: var(--website-color-foreground);
+  border-radius: var(--website-radius-pill);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity var(--website-duration-fast) ease;
+}
+
+.indicator[data-moving='true'] {
+  transition:
+    transform var(--website-duration-fast) ease,
+    width var(--website-duration-fast) ease,
+    opacity var(--website-duration-fast) ease;
+}
+
+.indicator[data-visible='true'] {
+  opacity: 1;
+}
+
+.mobileMenu {
+  position: relative;
   display: none;
 }
 
-.moreLinks {
-  margin-top: var(--website-space-2);
+.mobileTrigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: var(--website-control-target-min);
+  padding-block: var(--website-space-4);
+  border-bottom: 1px solid var(--website-color-border);
+  color: var(--website-color-foreground);
+  font-size: 1.25rem;
+  font-weight: 600;
+  list-style: none;
+  cursor: pointer;
+}
+
+.mobileTrigger::-webkit-details-marker {
+  display: none;
+}
+
+.chevron {
+  flex-shrink: 0;
+  color: var(--website-color-subtle-foreground);
+  transition: transform var(--website-duration-fast) ease;
+}
+
+.mobileMenu[open] .chevron {
+  transform: rotate(180deg);
+}
+
+.mobilePanel {
+  position: absolute;
+  top: 100%;
+  inset-inline: 0;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--website-space-2);
+  max-height: min(70vh, 36rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: var(--website-space-6);
+  background: var(--website-color-surface);
+  box-shadow: var(--website-shadow-subtle);
+}
+
+.mobileLink {
+  display: block;
+  max-width: 100%;
+  min-height: var(--website-control-target-min);
+  padding-block: var(--website-space-2);
+  color: var(--website-color-foreground);
+  font-size: 1.25rem;
+  font-weight: 600;
+  line-height: 1.5;
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+
+.mobileLink[aria-current='page'],
+.mobileLink:hover {
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.4em;
 }
 
 @media (width < 48rem) {
@@ -67,7 +153,16 @@
     display: none;
   }
 
-  .mobileTabs {
-    display: flex;
+  .mobileMenu {
+    display: block;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .indicator,
+  .indicator[data-moving='true'],
+  .tab,
+  .chevron {
+    transition: none;
   }
 }

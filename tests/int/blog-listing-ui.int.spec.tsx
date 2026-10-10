@@ -77,7 +77,7 @@ describe('blog listing components', () => {
     expect(container.querySelector('[data-featured]')).toBeNull()
   })
 
-  it('keeps the selected category visible on mobile and opens More to navigate the rest', () => {
+  it('keeps all populated categories accessible in the mobile dropdown', () => {
     render(
       <BlogCategoryTabs
         categories={[
@@ -98,14 +98,12 @@ describe('blog listing components', () => {
       'page',
     )
     expect(within(navigation).queryByText('Empty')).toBeNull()
-    const mobileTabs = navigation.querySelector('[data-slot="blog-mobile-tabs"]')
-    expect(mobileTabs).not.toBeNull()
-    expect(mobileTabs?.querySelector(':scope > a[aria-current="page"]')?.textContent).toContain('News')
-    const more = mobileTabs?.querySelector('details')
-    expect(more?.open).toBe(false)
-    fireEvent.click(within(navigation).getByText('More categories'))
-    expect(more?.open).toBe(true)
-    expect(within(more!).getByRole('link', { name: /Lifestyle/ }).getAttribute('href')).toBe(
+    const menu = navigation.querySelector<HTMLDetailsElement>('[data-slot="blog-mobile-menu"]')!
+    expect(menu.open).toBe(false)
+    fireEvent.click(within(menu).getByText('Blog'))
+    expect(menu.open).toBe(true)
+    expect(menu.querySelector('a[aria-current="page"]')?.textContent).toBe('News')
+    expect(within(menu).getByRole('link', { name: 'Lifestyle' }).getAttribute('href')).toBe(
       '/blogs/category/lifestyle',
     )
   })

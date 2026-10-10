@@ -141,11 +141,11 @@ test.describe('Blog publishing journeys', () => {
     await page.goto(`${baseURL}/blogs`)
     await expect(page.getByRole('heading', { name: 'Blogs', exact: true })).toBeVisible()
     const nav = page.getByRole('navigation', { name: 'Blog categories' })
-    await expect(nav.getByRole('link', { name: /^All \d+$/ })).toBeVisible()
-    await expect(nav.getByRole('link', { name: 'Brewing 12' })).toBeVisible()
-    await expect(nav.getByRole('link', { name: 'Sourcing 1' })).toBeVisible()
-    await expect(nav.getByRole('link', { name: 'Culture 1' })).toBeVisible()
-    await expect(nav.locator('a[aria-current="page"]:visible')).toHaveText(/^All \d+$/)
+    await expect(nav.getByRole('link', { name: 'All', exact: true })).toBeVisible()
+    await expect(nav.getByRole('link', { name: 'Brewing', exact: true })).toBeVisible()
+    await expect(nav.getByRole('link', { name: 'Sourcing', exact: true })).toBeVisible()
+    await expect(nav.getByRole('link', { name: 'Culture', exact: true }).first()).toBeVisible()
+    await expect(nav.locator('a[aria-current="page"]:visible')).toHaveText('All')
     await expect(page.locator('[data-featured="true"]')).toContainText(
       'The art of brewing thoughtful tea',
     )
@@ -191,12 +191,12 @@ test.describe('Blog publishing journeys', () => {
     await expect(page.locator('[data-featured="true"]')).toHaveCount(0)
     await page.goto(`${baseURL}/blogs`)
     await expect(page).toHaveURL(`${baseURL}/blogs`)
-    await nav.getByRole('link', { name: 'Sourcing 1' }).click()
+    await nav.getByRole('link', { name: 'Sourcing', exact: true }).click()
     await expect(page.getByRole('heading', { name: 'Sourcing Blogs' })).toBeVisible()
     await expect(page.getByRole('navigation', { name: 'Breadcrumb' })).toContainText(
       'Blogs / Sourcing',
     )
-    await expect(nav.locator('a[aria-current="page"]:visible')).toHaveText('Sourcing 1')
+    await expect(nav.locator('a[aria-current="page"]:visible')).toHaveText('Sourcing')
     await expect(page.locator('[data-slot="archive-item"]')).toHaveCount(1)
   })
 
@@ -244,18 +244,20 @@ test.describe('Blog publishing journeys', () => {
         expect(featured!.width).toBeGreaterThan(regular!.width * 1.9)
       }
       if (width === 390) {
-        const more = page.locator('summary', { hasText: 'More categories' })
-        await more.focus()
-        await expect(more).toBeFocused()
+        const menu = page.locator('[data-slot="blog-mobile-menu"]')
+        const trigger = menu.locator('summary')
+        await trigger.focus()
+        await expect(trigger).toBeFocused()
         await page.keyboard.press('Enter')
-        await expect(page.getByRole('link', { name: 'Culture 1' }).last()).toBeVisible()
-        await page.keyboard.press('Tab')
-        await expect(page.getByRole('link', { name: 'Culture 1' }).last()).toBeFocused()
-        await page.keyboard.press('Enter')
+        const culture = menu.getByRole('link', { name: 'Culture', exact: true })
+        await expect(culture).toBeVisible()
+        await culture.focus()
+        await expect(culture).toBeFocused()
+        await culture.press('Enter')
         await expect(page.getByRole('heading', { name: 'Culture Blogs' })).toBeVisible()
-        await expect(
-          page.locator('[data-slot="blog-mobile-tabs"] a[aria-current="page"]'),
-        ).toHaveText('Culture 1')
+        await expect(menu).not.toHaveAttribute('open')
+        await trigger.click()
+        await expect(menu.locator('a[aria-current="page"]')).toHaveText('Culture')
         await page.goto(`${baseURL}/blogs`)
       }
       await expect
