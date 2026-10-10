@@ -421,6 +421,11 @@
     z-index: var(--website-z-overlay);
   }
 
+  /* The fixed menu layers must not add a flex item or gap to the header row. */
+  .megaMenuShell {
+    display: contents;
+  }
+
   .megaMenuShell[data-phase='closing'] .pageOverlay {
     opacity: 0;
   }
