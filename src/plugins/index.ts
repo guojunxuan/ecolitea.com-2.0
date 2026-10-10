@@ -11,7 +11,7 @@ import { searchFields } from '@/search/fieldOverrides'
 import { beforeSyncWithSearch } from '@/search/beforeSync'
 import { publicSearchVisibility } from '@/search/visibility'
 
-import { Blog, CaseStudy, Page, Post } from '@/payload-types'
+import { Blog, CaseStudy, Page, Post, Settings } from '@/payload-types'
 import { getServerSideURL } from '@/utilities/getURL'
 import { getContentPath } from '@/utilities/getContentPath'
 import { s3Storage, type S3StorageOptions } from '@payloadcms/storage-s3'
@@ -19,22 +19,28 @@ import { serverEnv } from '@/utilities/env'
 
 type SEOContent = Blog | CaseStudy | Page | Post
 
-export const generateTitle: GenerateTitle<SEOContent> = ({ collectionConfig, doc }) => {
+export const generateTitle: GenerateTitle<SEOContent | Settings> = ({ collectionConfig, globalConfig, doc }) => {
+  if (globalConfig?.slug === 'settings') return 'Blogs'
+  const content = doc as SEOContent
   if (collectionConfig?.slug === 'blogs') {
-    return doc?.title ? `${doc.title} | Ecolitea` : 'Ecolitea'
+    return content?.title ? `${content.title} | Ecolitea` : 'Ecolitea'
   }
-  return doc?.title ? `${doc.title} | Payload Website Template` : 'Payload Website Template'
+  return content?.title ? `${content.title} | Payload Website Template` : 'Payload Website Template'
 }
 
-export const generateDescription: GenerateDescription<SEOContent> = ({ collectionConfig, doc }) => {
-  if (collectionConfig?.slug === 'blogs') return (doc as Blog)?.excerpt || ''
-  return doc?.meta?.description || ''
+export const generateDescription: GenerateDescription<SEOContent | Settings> = ({ collectionConfig, globalConfig, doc }) => {
+  if (globalConfig?.slug === 'settings') return 'Explore our latest blog articles, insights, and guides.'
+  const content = doc as SEOContent
+  if (collectionConfig?.slug === 'blogs') return (content as Blog)?.excerpt || ''
+  return content?.meta?.description || ''
 }
 
-export const generateURL: GenerateURL<SEOContent> = ({ collectionConfig, doc }) => {
+export const generateURL: GenerateURL<SEOContent | Settings> = ({ collectionConfig, globalConfig, doc }) => {
   const url = getServerSideURL()
-  const path = collectionConfig?.slug && doc?.slug
-    ? getContentPath(collectionConfig.slug as CollectionSlug, doc.slug)
+  if (globalConfig?.slug === 'settings') return new URL('/blogs', url).toString()
+  const content = doc as SEOContent
+  const path = collectionConfig?.slug && content?.slug
+    ? getContentPath(collectionConfig.slug as CollectionSlug, content.slug)
     : null
   return path ? `${url}${path}` : url
 }

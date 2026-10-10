@@ -2271,6 +2271,14 @@ export interface Settings {
          */
         headerTheme?: ('light' | 'dark') | null;
       };
+      seo?: {
+        title?: string | null;
+        description?: string | null;
+        /**
+         * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
+         */
+        image?: (string | null) | Media;
+      };
     };
   };
   updatedAt?: string | null;
@@ -2575,6 +2583,13 @@ export interface SettingsSelect<T extends boolean = true> {
                     description?: T;
                     image?: T;
                     headerTheme?: T;
+                  };
+              seo?:
+                | T
+                | {
+                    title?: T;
+                    description?: T;
+                    image?: T;
                   };
             };
       };

@@ -11,11 +11,14 @@ import { blogTab } from '@/Settings/fields/blog'
 import { trimText, validateEnabledHeading } from '@/Settings/fields/validation'
 import { revalidateSettings } from '@/Settings/hooks/revalidateSettings'
 import { revalidateTag } from 'next/cache'
+import { generateDescription, generateTitle, generateURL } from '@/plugins'
+import { getServerSideURL } from '@/utilities/getURL'
 
 vi.mock('next/cache', () => ({ revalidateTag: vi.fn() }))
 
 const listing = blogTab.fields[0] as GroupField
 const hero = listing.fields[0] as GroupField
+const seo = listing.fields[1] as GroupField
 
 const validateHeading = (value: string, enabled: boolean) =>
   validateEnabledHeading(value, {
@@ -88,6 +91,50 @@ describe('Settings Global', () => {
     }
   })
 
+  it('places reusable SEO plugin fields beside Hero with nested paths', () => {
+    expect(listing.fields.map((field) => 'name' in field && field.name)).toEqual(['hero', 'seo'])
+    expect(seo).toMatchObject({ name: 'seo', label: 'SEO', type: 'group' })
+    expect(seo.fields.map((field) => 'name' in field && field.name)).toEqual([
+      'overview',
+      'title',
+      'description',
+      'image',
+      'preview',
+    ])
+    expect(seo.fields[0]).toMatchObject({
+      admin: { components: { Field: { clientProps: {
+        titlePath: 'blog.listing.seo.title',
+        descriptionPath: 'blog.listing.seo.description',
+        imagePath: 'blog.listing.seo.image',
+      } } } },
+    })
+    expect(seo.fields[1]).toMatchObject({ hooks: { beforeValidate: [trimText] } })
+    expect(seo.fields[2]).toMatchObject({ hooks: { beforeValidate: [trimText] } })
+    expect(seo.fields[3]).toMatchObject({ type: 'upload', relationTo: 'media' })
+    expect((seo.fields[3] as UploadField).filterOptions).toEqual({
+      mimeType: { in: [...MEDIA_UPLOAD_POLICY.image.mimeTypes] },
+    })
+    expect(seo.fields[4]).toMatchObject({
+      admin: { components: { Field: { clientProps: {
+        titlePath: 'blog.listing.seo.title',
+        descriptionPath: 'blog.listing.seo.description',
+        hasGenerateURLFn: true,
+      } } } },
+    })
+  })
+
+  it('generates listing defaults for Settings without changing article generators', () => {
+    const settings = { globalConfig: { slug: 'settings' }, doc: {} } as never
+    expect(generateTitle(settings)).toBe('Blogs')
+    expect(generateDescription(settings)).toBe('Explore our latest blog articles, insights, and guides.')
+    expect(generateURL(settings)).toBe(`${getServerSideURL()}/blogs`)
+    const article = { collectionConfig: { slug: 'blogs' }, doc: { title: 'Tea', excerpt: 'Leaves' } } as never
+    expect(generateTitle(article)).toBe('Tea | Ecolitea')
+    expect(generateDescription(article)).toBe('Leaves')
+    expect(generateURL({ collectionConfig: { slug: 'blogs' }, doc: { slug: 'tea' } } as never))
+      .toBe(`${getServerSideURL()}/blogs/tea`)
+  })
+
   it.each([
     ['  ', true, 'Heading is required when the Hero is enabled.'],
     [' Content ', true, true],
@@ -121,6 +168,34 @@ describe('Settings Global', () => {
       else expect(revalidateTag).toHaveBeenCalledExactlyOnceWith('global_settings', 'max')
     },
   )
+})
+
+describe('Settings SEO image write integrity', () => {
+  it('rejects a video relationship on an explicit write', async () => {
+    const findByID = vi.fn().mockResolvedValue({ mimeType: 'video/mp4' })
+    const hook = Settings.hooks?.beforeChange?.[1]
+    expect(hook).toBeTypeOf('function')
+    await expect(hook!({ data: { blog: { listing: { seo: { image: 'video-id' } } } }, req: { payload: { findByID } } } as never))
+      .rejects.toMatchObject({ status: 400, data: { errors: [{ path: 'blog.listing.seo.image' }] } })
+  })
+
+  it('validates retained images on partial updates and preserves other data', async () => {
+    const findByID = vi.fn().mockResolvedValue({ mimeType: 'image/png' })
+    const data = { blog: { listing: { hero: { enabled: false } } } }
+    const hook = Settings.hooks?.beforeChange?.[1]
+    await expect(hook!({ data, originalDoc: { blog: { listing: { seo: { image: 'image-id' } } } }, req: { payload: { findByID } } } as never))
+      .resolves.toBe(data)
+    expect(findByID).toHaveBeenCalledWith(expect.objectContaining({ collection: 'media', id: 'image-id', depth: 0 }))
+  })
+
+  it('allows clearing an optional image', async () => {
+    const findByID = vi.fn()
+    const data = { blog: { listing: { seo: { image: null } } } }
+    const hook = Settings.hooks?.beforeChange?.[1]
+    await expect(hook!({ data, originalDoc: { blog: { listing: { seo: { image: 'old' } } } }, req: { payload: { findByID } } } as never))
+      .resolves.toBe(data)
+    expect(findByID).not.toHaveBeenCalled()
+  })
 })
 
 // Run the Global hook itself: this boundary must protect API writes even when
