@@ -10,11 +10,11 @@ import { settingsTabs } from '@/Settings/fields'
 import { blogTab } from '@/Settings/fields/blog'
 import { trimText, validateEnabledHeading } from '@/Settings/fields/validation'
 import { revalidateSettings } from '@/Settings/hooks/revalidateSettings'
-import { revalidateTag } from 'next/cache'
+import { revalidatePath, revalidateTag } from 'next/cache'
 import { generateDescription, generateTitle, generateURL } from '@/plugins'
 import { getServerSideURL } from '@/utilities/getURL'
 
-vi.mock('next/cache', () => ({ revalidateTag: vi.fn() }))
+vi.mock('next/cache', () => ({ revalidatePath: vi.fn(), revalidateTag: vi.fn() }))
 
 const listing = blogTab.fields[0] as GroupField
 const hero = listing.fields[0] as GroupField
@@ -164,8 +164,14 @@ describe('Settings Global', () => {
         req: { context: { disableRevalidate } } as unknown as PayloadRequest,
       } as never)
       expect(result).toBe(doc)
-      if (disableRevalidate) expect(revalidateTag).not.toHaveBeenCalled()
-      else expect(revalidateTag).toHaveBeenCalledExactlyOnceWith('global_settings', 'max')
+      if (disableRevalidate) {
+        expect(revalidateTag).not.toHaveBeenCalled()
+        expect(revalidatePath).not.toHaveBeenCalled()
+      } else {
+        expect(revalidateTag).toHaveBeenCalledExactlyOnceWith('global_settings', 'max')
+        expect(revalidatePath).toHaveBeenCalledWith('/blogs')
+        expect(revalidatePath).toHaveBeenCalledWith('/blogs/page/[pageNumber]', 'page')
+      }
     },
   )
 })

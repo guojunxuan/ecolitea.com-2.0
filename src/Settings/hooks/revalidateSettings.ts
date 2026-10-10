@@ -1,10 +1,12 @@
 import type { GlobalAfterChangeHook } from 'payload'
 
-import { revalidateTag } from 'next/cache'
+import { revalidatePath, revalidateTag } from 'next/cache'
 
 export const revalidateSettings: GlobalAfterChangeHook = ({ doc, req: { context } }) => {
   if (!context.disableRevalidate) {
     revalidateTag('global_settings', 'max')
+    revalidatePath('/blogs')
+    revalidatePath('/blogs/page/[pageNumber]', 'page')
   }
 
   return doc
