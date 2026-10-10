@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import type { GroupField, PayloadRequest, TextField, UploadField } from 'payload'
+import type { CollapsibleField, GroupField, PayloadRequest, TextField, UploadField } from 'payload'
 import { validations } from 'payload'
 
 import { anyone } from '@/access/anyone'
@@ -17,8 +17,10 @@ import { getServerSideURL } from '@/utilities/getURL'
 vi.mock('next/cache', () => ({ revalidatePath: vi.fn(), revalidateTag: vi.fn() }))
 
 const listing = blogTab.fields[0] as GroupField
-const hero = listing.fields[0] as GroupField
-const seo = listing.fields[1] as GroupField
+const heroSection = listing.fields[0] as CollapsibleField
+const seoSection = listing.fields[1] as CollapsibleField
+const hero = heroSection.fields[0] as GroupField
+const seo = seoSection.fields[0] as GroupField
 
 const validateHeading = (value: string, enabled: boolean) =>
   validateEnabledHeading(value, {
@@ -41,11 +43,13 @@ describe('Settings Global', () => {
     })
   })
 
-  it('organizes native fields under Blog, Listing page, and Hero', () => {
+  it('organizes Hero and SEO as collapsible Blog sections', () => {
     expect(settingsTabs).toEqual({ type: 'tabs', tabs: [blogTab] })
     expect(blogTab).toMatchObject({ name: 'blog', label: 'Blog' })
-    expect(listing).toMatchObject({ name: 'listing', label: 'Listing page', type: 'group' })
-    expect(hero).toMatchObject({ name: 'hero', label: 'Hero', type: 'group' })
+    expect(listing).toMatchObject({ name: 'listing', label: false, type: 'group', admin: { hideGutter: true } })
+    expect(heroSection).toMatchObject({ type: 'collapsible', label: 'Hero', admin: { initCollapsed: false } })
+    expect(seoSection).toMatchObject({ type: 'collapsible', label: 'SEO', admin: { initCollapsed: true } })
+    expect(hero).toMatchObject({ name: 'hero', label: false, type: 'group' })
     expect(hero.fields.map((field) => 'name' in field && field.name)).toEqual([
       'enabled',
       'heading',
@@ -92,8 +96,9 @@ describe('Settings Global', () => {
   })
 
   it('places reusable SEO plugin fields beside Hero with nested paths', () => {
-    expect(listing.fields.map((field) => 'name' in field && field.name)).toEqual(['hero', 'seo'])
-    expect(seo).toMatchObject({ name: 'seo', label: 'SEO', type: 'group' })
+    expect(heroSection.fields.map((field) => 'name' in field && field.name)).toEqual(['hero'])
+    expect(seoSection.fields.map((field) => 'name' in field && field.name)).toEqual(['seo'])
+    expect(seo).toMatchObject({ name: 'seo', label: false, type: 'group' })
     expect(seo.fields.map((field) => 'name' in field && field.name)).toEqual([
       'overview',
       'title',

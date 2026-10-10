@@ -19,85 +19,98 @@ export const blogTab: Tab = {
   fields: [
     {
       name: 'listing',
-      label: 'Listing page',
+      label: false,
       type: 'group',
+      admin: { hideGutter: true },
       fields: [
         {
-          name: 'hero',
+          type: 'collapsible',
           label: 'Hero',
-          type: 'group',
+          admin: { initCollapsed: false },
           fields: [
             {
-              name: 'enabled',
-              type: 'checkbox',
-              defaultValue: false,
-            },
-            {
-              name: 'heading',
-              type: 'text',
-              hooks: { beforeValidate: [trimText] },
-              validate: validateEnabledHeading,
-              admin: { condition: whenEnabled },
-            },
-            {
-              name: 'description',
-              type: 'textarea',
-              hooks: { beforeValidate: [trimText] },
-              admin: { condition: whenEnabled },
-            },
-            {
-              name: 'image',
-              type: 'upload',
-              relationTo: 'media',
-              filterOptions: { mimeType: { in: [...MEDIA_UPLOAD_POLICY.image.mimeTypes] } },
-              admin: { condition: whenEnabled },
-            },
-            {
-              name: 'headerTheme',
-              type: 'select',
-              required: true,
-              defaultValue: 'light',
-              options: [
-                { label: 'Light', value: 'light' },
-                { label: 'Dark', value: 'dark' },
+              name: 'hero',
+              label: false,
+              type: 'group',
+              admin: { hideGutter: true },
+              fields: [
+                { name: 'enabled', type: 'checkbox', defaultValue: false },
+                {
+                  name: 'heading',
+                  type: 'text',
+                  hooks: { beforeValidate: [trimText] },
+                  validate: validateEnabledHeading,
+                  admin: { condition: whenEnabled },
+                },
+                {
+                  name: 'description',
+                  type: 'textarea',
+                  hooks: { beforeValidate: [trimText] },
+                  admin: { condition: whenEnabled },
+                },
+                {
+                  name: 'image',
+                  type: 'upload',
+                  relationTo: 'media',
+                  filterOptions: { mimeType: { in: [...MEDIA_UPLOAD_POLICY.image.mimeTypes] } },
+                  admin: { condition: whenEnabled },
+                },
+                {
+                  name: 'headerTheme',
+                  type: 'select',
+                  required: true,
+                  defaultValue: 'light',
+                  options: [
+                    { label: 'Light', value: 'light' },
+                    { label: 'Dark', value: 'dark' },
+                  ],
+                  admin: {
+                    condition: whenEnabled,
+                    description:
+                      'Use Dark for dark images (white text and header), Light for bright images or no image.',
+                  },
+                },
               ],
-              admin: {
-                condition: whenEnabled,
-                description:
-                  'Use Dark for dark images (white text and header), Light for bright images or no image.',
-              },
             },
           ],
         },
         {
-          name: 'seo',
+          type: 'collapsible',
           label: 'SEO',
-          type: 'group',
+          admin: { initCollapsed: true },
           fields: [
-            OverviewField({
-              titlePath: 'blog.listing.seo.title',
-              descriptionPath: 'blog.listing.seo.description',
-              imagePath: 'blog.listing.seo.image',
-            }),
-            MetaTitleField({
-              hasGenerateFn: true,
-              overrides: { hooks: { beforeValidate: [trimText] } },
-            }),
-            MetaDescriptionField({
-              hasGenerateFn: true,
-              overrides: { hooks: { beforeValidate: [trimText] } },
-            }),
-            MetaImageField({
-              relationTo: 'media',
-              overrides: {
-                filterOptions: { mimeType: { in: [...MEDIA_UPLOAD_POLICY.image.mimeTypes] } },
-              },
-            }),
-            PreviewField({
-              hasGenerateFn: true,
-              titlePath: 'blog.listing.seo.title',
-              descriptionPath: 'blog.listing.seo.description',
-            }),
+            {
+              name: 'seo',
+              label: false,
+              type: 'group',
+              admin: { hideGutter: true },
+              fields: [
+                OverviewField({
+                  titlePath: 'blog.listing.seo.title',
+                  descriptionPath: 'blog.listing.seo.description',
+                  imagePath: 'blog.listing.seo.image',
+                }),
+                MetaTitleField({
+                  hasGenerateFn: true,
+                  overrides: { hooks: { beforeValidate: [trimText] } },
+                }),
+                MetaDescriptionField({
+                  hasGenerateFn: true,
+                  overrides: { hooks: { beforeValidate: [trimText] } },
+                }),
+                MetaImageField({
+                  relationTo: 'media',
+                  overrides: {
+                    filterOptions: { mimeType: { in: [...MEDIA_UPLOAD_POLICY.image.mimeTypes] } },
+                  },
+                }),
+                PreviewField({
+                  hasGenerateFn: true,
+                  titlePath: 'blog.listing.seo.title',
+                  descriptionPath: 'blog.listing.seo.description',
+                }),
+              ],
+            },
           ],
         },
       ],
