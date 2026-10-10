@@ -97,6 +97,7 @@ export const DesktopNav: React.FC<DesktopNavProps> = ({
     clearCloseTimer()
     clearExitTimer()
     clearContentTimer()
+    updateIndicator(null)
     setOpenID(null)
     setContentPhase('visible')
     if (reducedMotion()) {
@@ -110,7 +111,7 @@ export const DesktopNav: React.FC<DesktopNavProps> = ({
       setMenuPhase('open')
       // Matches the --website-duration-fast close transition on .megaMenu and .pageOverlay.
     }, 160)
-  }, [clearCloseTimer, clearContentTimer, clearExitTimer, clearOpenTimer])
+  }, [clearCloseTimer, clearContentTimer, clearExitTimer, clearOpenTimer, updateIndicator])
 
   const scheduleClose = useCallback(() => {
     clearOpenTimer()
@@ -118,7 +119,6 @@ export const DesktopNav: React.FC<DesktopNavProps> = ({
     closeTimerRef.current = setTimeout(() => {
       const focused = document.activeElement
       if (focused instanceof Node && rootRef.current?.contains(focused)) return
-      setIndicator((current) => ({ ...current, visible: false }))
       close()
     }, 200)
   }, [clearCloseTimer, clearOpenTimer, close, rootRef])

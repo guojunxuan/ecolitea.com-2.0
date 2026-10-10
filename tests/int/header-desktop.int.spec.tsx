@@ -587,6 +587,28 @@ describe('DesktopNav', () => {
     expect(indicator.style.width).toBe('80px')
   })
 
+  it('keeps the indicator hidden after pointer exit and subsequent header remeasurement', () => {
+    vi.useFakeTimers()
+    try {
+      const { container } = render(<DesktopNav {...navigation} />)
+      const root = container.querySelector('[data-desktop-nav-root="true"]') as HTMLElement
+      const item = container.querySelector('[data-nav-item-id="platform"]') as HTMLElement
+      const indicator = container.querySelector('[data-navigation-indicator="true"]') as HTMLElement
+      fireEvent.pointerEnter(item)
+      act(() => vi.advanceTimersByTime(200))
+      expect(indicator.getAttribute('data-visible')).toBe('true')
+      fireEvent.pointerLeave(root, { relatedTarget: document.body })
+      act(() => vi.advanceTimersByTime(200))
+      expect(indicator.getAttribute('data-visible')).toBe('false')
+      act(() => ResizeObserverMock.instances.forEach((observer) => observer.emit()))
+      expect(indicator.getAttribute('data-visible')).toBe('false')
+      fireEvent.scroll(screen.getByRole('navigation', { name: 'Primary' }))
+      expect(indicator.getAttribute('data-visible')).toBe('false')
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
   it('renders one overlay and one scrolling region, and overlay activation closes it', () => {
     const { container } = render(<DesktopNav {...navigation} />)
     expect(screen.queryByRole('button', { name: 'Close navigation menu' })).toBeNull()

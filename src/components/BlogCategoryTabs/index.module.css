@@ -141,13 +141,6 @@
   overflow-wrap: anywhere;
 }
 
-.mobileLink[aria-current='page'],
-.mobileLink:hover {
-  text-decoration: underline;
-  text-decoration-thickness: 2px;
-  text-underline-offset: 0.4em;
-}
-
 @media (width < 48rem) {
   .tabs {
     display: none;
