@@ -112,19 +112,19 @@ describe('blog listing routes', () => {
       expect(route.revalidate).toBe(600)
     }
   })
-  it('renders first page with counts from all visible blogs, ordered nonempty tabs, 12 cards and featured item', async () => {
+  it('renders ordered populated category links and 12 uniform cards on page one', async () => {
     const html = renderToStaticMarkup(await BlogsPage())
     expect(html).toContain('<h1')
     expect(html).toContain('Blogs')
-    expect(html).toContain('Showing 1 - 12 of 25 Blogs')
+    expect(html).not.toContain('Showing ')
     expect(html.match(/data-slot="archive-item"/g) || []).toHaveLength(12)
-    expect(html.match(/data-featured="true"/g) || []).toHaveLength(1)
+    expect(html).not.toContain('data-featured')
     expect(html).toContain('data-route-base="/blogs"')
     expect(html).toContain('data-first-page-href="/blogs"')
     expect(html.indexOf('Tea Guides')).toBeLessThan(html.indexOf('Lifestyle'))
     expect(html).not.toContain('>Empty <')
-    expect(html).toContain('Tea Guides <span')
-    expect(html).toContain('13</span>')
+    expect(html).toContain('href="/blogs/category/tea-guides"')
+    expect(html).toContain('href="/blogs/category/lifestyle"')
     expect(
       find.mock.calls.filter(([args]) => args.collection === 'blogs' && args.select?.category),
     ).toHaveLength(2)
@@ -140,7 +140,7 @@ describe('blog listing routes', () => {
       await BlogPage({ params: Promise.resolve({ pageNumber: '2' }) }),
     )
     expect(html).not.toContain('data-featured="true"')
-    expect(html).toContain('Showing 13 - 13 of 25 Blogs')
+    expect(html).not.toContain('Showing ')
     expect(getBlogListing).toHaveBeenCalledWith(2, undefined)
   })
 
@@ -159,9 +159,11 @@ describe('blog listing routes', () => {
     expect(html.match(/<h1\b/g) || []).toHaveLength(1)
     expect(html).not.toMatch(/<h1[^>]*>Blogs<\/h1>/)
     expect(html).toContain('Discover tea stories and ideas.')
-    expect(html).toContain('Tea Guides <span')
+    expect(html).toContain('aria-label="Blog categories"')
     expect(html.match(/data-slot="archive-item"/g) || []).toHaveLength(page === 1 ? 12 : 1)
-    expect(html.indexOf('data-hero="blog-listing"')).toBeLessThan(html.indexOf('Tea Guides <span'))
+    expect(html.indexOf('data-hero="blog-listing"')).toBeLessThan(
+      html.indexOf('aria-label="Blog categories"'),
+    )
     expect(getBlogListingHero).toHaveBeenCalledTimes(1)
   })
 
@@ -179,20 +181,23 @@ describe('blog listing routes', () => {
     },
   )
 
-  it('counts visible blogs across Payload result pages', async () => {
+  it('includes categories with visible blogs across Payload result pages', async () => {
     find.mockImplementation(async ({ collection, page }: { collection: string; page?: number }) => {
       if (collection === 'blog-categories') return { docs: categories, hasNextPage: false }
       if (collection === 'blogs')
         return {
           docs:
-            page === 1 ? Array.from({ length: 100 }, (_, index) => blog(index + 1)) : [blog(101)],
+            page === 1
+              ? Array.from({ length: 100 }, (_, index) => blog(index + 1))
+              : [blog(101, 'life')],
           hasNextPage: page === 1,
         }
       throw new Error(`Unexpected collection ${collection}`)
     })
     const html = renderToStaticMarkup(await BlogsPage())
-    expect(html).toContain('Tea Guides <span')
-    expect(html).toContain('101</span>')
+    expect(html).toContain('href="/blogs/category/tea-guides"')
+    expect(html).toContain('href="/blogs/category/lifestyle"')
+    expect(html).not.toContain('href="/blogs/category/empty"')
     expect(
       find.mock.calls
         .filter(([args]) => args.collection === 'blogs' && args.select?.category)
