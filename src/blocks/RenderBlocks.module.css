@@ -1,7 +1,3 @@
 .section {
   padding-block: var(--website-section-standard);
 }
-
-.section[data-block-context='article'] {
-  padding-block: var(--website-space-8);
-}

@@ -158,7 +158,7 @@ describe('Media collection upload behavior', () => {
     expect(mockedParseMP4Metadata).not.toHaveBeenCalled()
   })
 
-  it('rejects SVG uploads because brand-assets owns SVG resources', async () => {
+  it('rejects SVG uploads because site-assets owns SVG resources', async () => {
     expect(MEDIA_UPLOAD_POLICY.image.mimeTypes).not.toContain('image/svg+xml')
 
     await expect(

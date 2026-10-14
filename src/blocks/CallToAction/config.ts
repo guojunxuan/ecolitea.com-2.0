@@ -5,17 +5,29 @@ import { linkGroup } from '@/fields/linkGroup'
 export const CallToAction: Block = {
   slug: 'cta',
   interfaceName: 'CallToActionBlock',
-  labels: { singular: 'Call to Action', plural: 'Calls to Action' },
+  labels: { singular: 'Action Card', plural: 'Action Cards' },
   admin: {
     group: 'Conversion',
     disableBlockName: true,
     images: { icon: '/block-previews/cta.svg', thumbnail: '/block-previews/cta.svg' },
-    components: { Label: '@/blocks/BlockRowLabel#BlockRowLabel' },
+    components: {
+      Block: '@/blocks/ArticleBlockEditor#ArticleBlockEditor',
+      Label: { path: '@/blocks/BlockRowLabel#BlockRowLabel', clientProps: { blockType: 'cta' } },
+    },
   },
   fields: [
-    { name: 'heading', type: 'text', required: true },
+    {
+      name: 'heading',
+      type: 'text',
+      label: 'Card Title',
+      required: true,
+      admin: {
+        description:
+          'Guide readers to a product, contact page, or download with a title, description, and links.',
+      },
+    },
     { name: 'description', type: 'richText', editor: compactLexical },
-    { name: 'media', type: 'upload', relationTo: 'media' },
+    { name: 'media', label: 'Card Media', type: 'upload', relationTo: 'media' },
     linkGroup({ appearances: ['default', 'outline'], overrides: { maxRows: 2 } }),
     {
       name: 'theme',

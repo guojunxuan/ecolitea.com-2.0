@@ -3,9 +3,10 @@ import {
   type CollectionConfig,
   type FieldHook,
   type TextFieldValidation,
-  type UploadFieldValidation,
   validations,
 } from 'payload'
+
+import { validateSvgSiteAsset } from './SiteAssets'
 
 import { anyone } from '@/access/anyone'
 import { authenticated } from '@/access/authenticated'
@@ -13,9 +14,6 @@ import { authenticated } from '@/access/authenticated'
 export const socialPlatformsSlug = 'social-platforms' as const
 
 const svgMimeType = 'image/svg+xml'
-const invalidIconMessage = 'Social platform icons must be SVG files.'
-const missingIconMessage = 'An SVG icon is required.'
-const unavailableIconMessage = 'Select an existing SVG brand asset.'
 
 export const validateSocialPlatformName: TextFieldValidation = async (value, options) => {
   const defaultResult = validations.text(value, options)
@@ -46,28 +44,6 @@ export const preventSocialPlatformRename: FieldHook = ({ operation, originalDoc,
   }
 
   return value
-}
-
-export const validateSocialPlatformIcon: UploadFieldValidation = async (value, { req }) => {
-  if (!value) return missingIconMessage
-
-  if (typeof value === 'object' && 'mimeType' in value) {
-    return value.mimeType === svgMimeType || invalidIconMessage
-  }
-
-  const id = typeof value === 'object' && 'id' in value ? value.id : value
-  let asset
-  try {
-    asset = await req.payload.findByID({
-      collection: 'brand-assets',
-      id: String(id),
-      req,
-    })
-  } catch {
-    return unavailableIconMessage
-  }
-
-  return asset.mimeType === svgMimeType || invalidIconMessage
 }
 
 export const SocialPlatforms: CollectionConfig = {
@@ -103,10 +79,10 @@ export const SocialPlatforms: CollectionConfig = {
     {
       name: 'icon',
       type: 'upload',
-      relationTo: 'brand-assets',
+      relationTo: 'site-assets',
       required: true,
       filterOptions: { mimeType: { equals: svgMimeType } },
-      validate: validateSocialPlatformIcon,
+      validate: validateSvgSiteAsset,
       admin: {
         description: 'Upload an SVG icon designed for use on dark backgrounds.',
       },

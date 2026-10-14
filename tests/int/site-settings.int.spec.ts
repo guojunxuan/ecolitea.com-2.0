@@ -6,8 +6,8 @@ import { authenticated } from '@/access/authenticated'
 import {
   SocialPlatforms,
   preventSocialPlatformRename,
-  validateSocialPlatformIcon,
 } from '@/collections/SocialPlatforms'
+import { validateSvgSiteAsset } from '@/collections/SiteAssets'
 import { SiteSettings } from '@/SiteSettings/config'
 import { siteSettingsTabs, validateAbsoluteHttpURL } from '@/SiteSettings/fields'
 import { brandingTab } from '@/SiteSettings/fields/branding'
@@ -61,10 +61,10 @@ describe('Site Settings Global', () => {
       expect.objectContaining({
         name: 'icon',
         type: 'upload',
-        relationTo: 'brand-assets',
+        relationTo: 'site-assets',
         required: true,
         filterOptions: { mimeType: { equals: 'image/svg+xml' } },
-        validate: validateSocialPlatformIcon,
+        validate: validateSvgSiteAsset,
         admin: {
           description: 'Upload an SVG icon designed for use on dark backgrounds.',
         },
@@ -77,24 +77,24 @@ describe('Site Settings Global', () => {
     const req = { payload: { findByID } } as unknown as PayloadRequest
 
     findByID.mockResolvedValueOnce({ mimeType: 'image/svg+xml' })
-    await expect(validateSocialPlatformIcon('asset-id', { req } as never)).resolves.toBe(true)
+    await expect(validateSvgSiteAsset('asset-id', { req } as never)).resolves.toBe(true)
 
     findByID.mockResolvedValueOnce({ mimeType: 'image/png' })
-    await expect(validateSocialPlatformIcon('asset-id', { req } as never)).resolves.toBe(
-      'Social platform icons must be SVG files.',
+    await expect(validateSvgSiteAsset('asset-id', { req } as never)).resolves.toBe(
+      'Icons must be SVG files.',
     )
     expect(findByID).toHaveBeenCalledWith({
-      collection: 'brand-assets',
+      collection: 'site-assets',
       id: 'asset-id',
       req,
     })
 
-    await expect(validateSocialPlatformIcon(null, { req } as never)).resolves.toBe(
+    await expect(validateSvgSiteAsset(null, { req } as never)).resolves.toBe(
       'An SVG icon is required.',
     )
     findByID.mockRejectedValueOnce(new Error('not found'))
-    await expect(validateSocialPlatformIcon('missing', { req } as never)).resolves.toBe(
-      'Select an existing SVG brand asset.',
+    await expect(validateSvgSiteAsset('missing', { req } as never)).resolves.toBe(
+      'Select an existing SVG site asset.',
     )
   })
 
@@ -264,14 +264,14 @@ describe('Site Settings Global', () => {
     expect(logo).toMatchObject({
       name: 'logo',
       type: 'upload',
-      relationTo: 'brand-assets',
+      relationTo: 'site-assets',
       required: true,
       filterOptions: { mimeType: { equals: 'image/svg+xml' } },
     })
     expect(favicon).toMatchObject({
       name: 'favicon',
       type: 'upload',
-      relationTo: 'brand-assets',
+      relationTo: 'site-assets',
       filterOptions: {
         mimeType: {
           in: ['image/svg+xml', 'image/png', 'image/x-icon', 'image/vnd.microsoft.icon'],

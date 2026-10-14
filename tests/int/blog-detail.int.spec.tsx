@@ -29,6 +29,9 @@ vi.mock('@payload-config', () => ({ default: {} }))
 vi.mock('@/utilities/blogs/getBlogBySlug', () => ({ getBlogBySlug: mockGetBlogBySlug }))
 vi.mock('@/utilities/blogs/getRelatedBlogs', () => ({ getRelatedBlogs: mockGetRelatedBlogs }))
 vi.mock('@/utilities/generateMeta', () => ({ generateMeta: mockGenerateMeta }))
+vi.mock('@/utilities/getGlobals', () => ({
+  getCachedSettings: async () => ({ blog: { article: { share: { copyLink: true } } } }),
+}))
 vi.mock('@/components/PayloadRedirects', () => ({
   PayloadRedirects: ({ url, disableNotFound }: { url: string; disableNotFound?: boolean }) => {
     if (!disableNotFound) throw new Error('NEXT_NOT_FOUND')
@@ -43,11 +46,19 @@ vi.mock('@/components/Media', () => ({
     <span role="img" aria-label={resource.alt} data-presentation={JSON.stringify(presentation)} />
   ),
 }))
-vi.mock('@/blocks/RenderBlocks', () => ({
-  RenderBlocks: ({ blocks, context }: { blocks: Blog['content']; context: string }) => (
-    <div data-testid="blocks" data-context={context}>
-      {blocks.map((block) => (
-        <span key={block.blockType}>{block.blockType}</span>
+vi.mock('@/components/RichText', () => ({
+  default: ({
+    data,
+    context,
+    headingIds,
+  }: {
+    data: Blog['content']
+    context: string
+    headingIds?: string[]
+  }) => (
+    <div data-testid="rich-text" data-context={context} data-heading-ids={headingIds?.join(',')}>
+      {data.root.children.map((node, index) => (
+        <span key={index}>{node.type === 'block' ? node.fields.blockType : node.type}</span>
       ))}
     </div>
   ),
@@ -69,10 +80,20 @@ const blog = {
   category: { id: 'cat-1', title: 'Tea Guides', slug: 'tea-guides' },
   populatedAuthors: [{ id: 'author-1', name: 'Sarah Chen' }],
   publishedAt: '2026-09-28T00:00:00.000Z',
-  content: ['prose', 'mediaBlock', 'keyTakeaways', 'cta', 'banner'].map((blockType) => ({
-    blockType,
-    content: { root: { children: [] } },
-  })),
+  content: {
+    root: {
+      type: 'root',
+      version: 1,
+      direction: null,
+      format: '',
+      indent: 0,
+      children: ['mediaBlock', 'keyTakeaways', 'cta', 'banner'].map((blockType, index) => ({
+        type: 'block',
+        version: 2,
+        fields: { id: String(index), blockType },
+      })),
+    },
+  },
   updatedAt: '2026-09-28T00:00:00.000Z',
   createdAt: '2026-09-28T00:00:00.000Z',
   _status: 'published',
@@ -105,13 +126,11 @@ describe('blog detail', () => {
     expect(
       container.querySelector('header + div [role=img]')?.getAttribute('data-presentation'),
     ).toContain('scale-down')
-    expect(screen.getByRole('link', { name: 'Share on X' }).getAttribute('href')).toContain(
-      'organic-tea-guide',
-    )
-    expect(screen.getByRole('link', { name: 'Share on Facebook' })).toBeTruthy()
-    expect(screen.getByRole('link', { name: 'Share on LinkedIn' })).toBeTruthy()
-    expect(screen.getByTestId('blocks').getAttribute('data-context')).toBe('article')
-    for (const type of ['prose', 'mediaBlock', 'keyTakeaways', 'cta', 'banner'])
+    expect(screen.getAllByRole('button', { name: 'Copy link' })).toHaveLength(2)
+    expect(container.querySelector('header > p')?.textContent).toBe(blog.excerpt)
+    expect(container.querySelector('time')?.textContent).toBe('September 28, 2026')
+    expect(screen.getByTestId('rich-text').getAttribute('data-context')).toBe('article')
+    for (const type of ['mediaBlock', 'keyTakeaways', 'cta', 'banner'])
       expect(screen.getByText(type)).toBeTruthy()
     expect(screen.getByRole('heading', { name: 'More to read' })).toBeTruthy()
     const cards = within(screen.getByRole('region', { name: 'More to read' })).getAllByRole(
@@ -127,27 +146,31 @@ describe('blog detail', () => {
     expect(mockGetRelatedBlogs).toHaveBeenCalledWith(blog, expect.anything())
   })
 
-  it('shows a TOC matching prose headings and hides empty related cards', async () => {
-    const prose = {
-      blockType: 'prose',
-      content: {
-        root: {
-          children: [
-            { type: 'heading', tag: 'h2', children: [{ type: 'text', text: 'Growing tea' }] },
-          ],
-        },
+  it('shows a TOC matching rich text headings and hides empty related cards', async () => {
+    const content = {
+      root: {
+        type: 'root',
+        version: 1,
+        direction: null,
+        format: '',
+        indent: 0,
+        children: [
+          { type: 'heading', tag: 'h2', children: [{ type: 'text', text: 'Growing tea' }] },
+        ],
       },
     }
-    mockGetBlogBySlug.mockResolvedValue({ ...blog, content: [prose] })
+    mockGetBlogBySlug.mockResolvedValue({ ...blog, content })
     mockGetRelatedBlogs.mockResolvedValue([])
     const { container } = render(await BlogPage(args))
     const body = container.querySelector('[data-slot="blog-article-body"]')
-    expect(Array.from(body?.children ?? [], (child) => child.tagName)).toEqual(['DIV', 'ASIDE'])
-    expect(body?.firstElementChild?.getAttribute('data-slot')).toBe('blog-article-content')
+    expect(Array.from(body?.children ?? [], (child) => child.tagName)).toEqual(['ASIDE', 'DIV'])
+    expect(body?.querySelector('[data-slot="blog-article-content"]')).toBeTruthy()
     expect(
       screen.getAllByRole('navigation', { name: 'Table of contents' })[0].textContent,
     ).toContain('Growing tea')
-    expect(screen.getByRole('link', { name: 'Skip to table of contents' }).getAttribute('href')).toBe('#table-of-contents')
+    expect(
+      screen.getByRole('link', { name: 'Skip to table of contents' }).getAttribute('href'),
+    ).toBe('#table-of-contents')
     expect(container.querySelectorAll('#table-of-contents')).toHaveLength(1)
     expect(container.querySelector('#table-of-contents')?.getAttribute('tabindex')).toBe('-1')
     expect(screen.queryByRole('region', { name: 'More to read' })).not.toBeTruthy()
@@ -159,6 +182,7 @@ describe('blog detail', () => {
     const body = container.querySelector('[data-slot="blog-article-body"]')
     expect(body).not.toBeNull()
     expect(Array.from(body?.children ?? [], (child) => child.getAttribute('data-slot'))).toEqual([
+      'blog-article-tools',
       'blog-article-content',
     ])
     expect(screen.queryByRole('navigation', { name: 'Table of contents' })).toBeNull()
@@ -212,14 +236,16 @@ describe('blog detail', () => {
 })
 
 describe('article components', () => {
-  it('renders author initial fallback and no more than three related cards', () => {
+  it('renders the byline and no more than three related cards', () => {
     const { container } = render(
       <>
         <BlogHero blog={blog} />
         <RelatedBlogs blogs={[...related, { ...blog, id: 'extra', slug: 'extra' }]} />
       </>,
     )
-    expect(container.querySelector('[aria-label="Sarah Chen"]')?.textContent).toBe('SC')
+    expect(container.querySelector('header strong')?.textContent).toBe('Sarah Chen')
+    expect(container.querySelector('header')?.textContent).toContain('By Sarah Chen')
+    expect(container.querySelector('header a')).toBeNull()
     expect(
       within(screen.getByRole('region', { name: 'More to read' })).getAllByRole('article'),
     ).toHaveLength(3)
@@ -227,19 +253,25 @@ describe('article components', () => {
 })
 
 describe('article layout contract', () => {
-  it('keeps the reading column wider than the TOC at the intermediate desktop breakpoint', () => {
+  it('uses a left-aligned main column and keeps the mobile sticky bar within the body', () => {
     const css = readFileSync('src/app/(frontend)/blogs/[slug]/page.module.css', 'utf8')
-    const medium = css.split('@media (width <= 80rem)')[1]?.split('@media (width < 64rem)')[0]
-    expect(medium).toMatch(
-      /\.body\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*56\.25rem\)\s+minmax\(12rem,\s*1fr\);/s,
-    )
-    expect(medium).toMatch(/\.content\s*\{[^}]*grid-column:\s*1;/s)
-    expect(medium).toMatch(/\.body > aside\s*\{[^}]*grid-column:\s*2;/s)
-    expect(css).toMatch(/\.content\s*\{[^}]*grid-column:\s*2;/s)
-    expect(css).toMatch(/\.body > aside\s*\{[^}]*grid-column:\s*3;/s)
-    expect(css).not.toContain(':last-child')
-    expect(css).toMatch(
-      /@media \(width < 64rem\)[\s\S]*?\.body\s*\{[^}]*display:\s*flex;[^}]*flex-direction:\s*column-reverse;/s,
-    )
+    expect(css).toContain('minmax(0, 1fr) 17.5rem')
+    expect(css).toContain('clamp(3rem, 6vw, 6rem)')
+    expect(css).not.toContain('justify-self: center')
+    expect(css).not.toContain('column-reverse')
+    expect(css).toContain('calc(var(--header-height) + 2.5rem)')
+    expect(css).toContain('calc(var(--header-height) + 3.5rem)')
   })
+})
+
+it('keeps a long category accessible while allowing its breadcrumb to shrink', () => {
+  const title = 'Product materials and manufacturing practices for long-lasting everyday equipment'
+  render(<BlogHero blog={{ ...blog, category: { ...(blog.category as object), title } } as Blog} />)
+  const link = screen.getByRole('link', { name: title })
+  expect(link.textContent).toBe(title)
+  expect(link.parentElement?.className).toContain('categoryCrumb')
+  const css = readFileSync('src/heros/BlogHero/index.module.css', 'utf8')
+  expect(css).toMatch(
+    /\.breadcrumb \.categoryCrumb\s*\{[^}]*min-width:\s*0;[^}]*flex-shrink:\s*1;[^}]*overflow:\s*hidden;[^}]*text-overflow:\s*ellipsis;/s,
+  )
 })

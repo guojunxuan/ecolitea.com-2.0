@@ -175,7 +175,13 @@ describe('Settings Global', () => {
       } else {
         expect(revalidateTag).toHaveBeenCalledExactlyOnceWith('global_settings', 'max')
         expect(revalidatePath).toHaveBeenCalledWith('/blogs')
+        expect(revalidatePath).toHaveBeenCalledWith('/blogs/[slug]', 'page')
         expect(revalidatePath).toHaveBeenCalledWith('/blogs/page/[pageNumber]', 'page')
+        expect(revalidatePath).toHaveBeenCalledWith('/blogs/category/[categorySlug]', 'page')
+        expect(revalidatePath).toHaveBeenCalledWith(
+          '/blogs/category/[categorySlug]/page/[pageNumber]',
+          'page',
+        )
       }
     },
   )

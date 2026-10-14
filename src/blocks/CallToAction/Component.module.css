@@ -12,6 +12,8 @@
 
   .article {
     width: 100%;
+    max-width: none;
+    margin-inline: 0;
   }
 
   .panel {

@@ -9,6 +9,7 @@ import type { MediaBlock as MediaBlockProps } from '@/payload-types'
 import { Media } from '../../components/Media'
 import { MEDIA_PRESENTATION } from '../../components/Media/config'
 import styles from './Component.module.css'
+import { resolveMediaAspectRatio } from './aspectRatio'
 
 type Props = MediaBlockProps & {
   breakout?: boolean
@@ -25,6 +26,7 @@ export const MediaBlock: React.FC<Props> = (props) => {
   const {
     caption: blockCaption,
     width = 'default',
+    aspectRatio,
     captionClassName,
     className,
     enableGutter = true,
@@ -37,12 +39,27 @@ export const MediaBlock: React.FC<Props> = (props) => {
 
   const caption = blockCaption ?? (media && typeof media === 'object' ? media.caption : undefined)
 
+  const ratio = resolveMediaAspectRatio(aspectRatio)
+  const presentation = ratio
+    ? {
+        ...MEDIA_PRESENTATION.body,
+        image: { ...MEDIA_PRESENTATION.body.image, aspectRatio: ratio, fit: 'cover' as const },
+      }
+    : MEDIA_PRESENTATION.body
+
   return (
     <figure
       data-width={width || 'default'}
+      data-aspect-ratio={aspectRatio || 'original'}
+      style={
+        ratio
+          ? ({ '--media-aspect-ratio': `${ratio.width} / ${ratio.height}` } as React.CSSProperties)
+          : undefined
+      }
       className={cn(
         styles.figure,
         context === 'article' && styles.article,
+        context === 'article' && Boolean(aspectRatio) && styles.fullWidth,
         width === 'wide' && styles.wide,
         {
           [styles.container]: enableGutter,
@@ -52,8 +69,10 @@ export const MediaBlock: React.FC<Props> = (props) => {
     >
       {(media || staticImage) && (
         <Media
+          className={ratio ? styles.crop : undefined}
+          videoClassName={styles.image}
           imgClassName={cn(styles.image, imgClassName)}
-          presentation={MEDIA_PRESENTATION.body}
+          presentation={presentation}
           resource={media}
           src={staticImage}
         />

@@ -1,5 +1,5 @@
 import { HeaderClient } from './Component.client'
-import { resolveBrandAsset } from '@/components/Logo/resolveBrandAsset'
+import { resolveSiteAsset } from '@/components/Logo/resolveSiteAsset'
 import { getCachedHeader, getCachedSiteSettings } from '@/utilities/getGlobals'
 import React from 'react'
 import { adaptHeaderNavigation } from './Nav/adaptNavigation'
@@ -13,7 +13,7 @@ export async function Header() {
 
   return (
     <HeaderClient
-      logo={resolveBrandAsset(siteSettings.logo)}
+      logo={resolveSiteAsset(siteSettings.logo)}
       menuCta={navigation.menuCta}
       navItems={navigation.navItems}
       siteName={siteSettings.siteName}

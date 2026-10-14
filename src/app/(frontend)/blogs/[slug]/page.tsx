@@ -2,10 +2,14 @@ import type { Metadata } from 'next'
 import { draftMode } from 'next/headers'
 import { getPayload } from 'payload'
 import configPromise from '@payload-config'
-import { RenderBlocks } from '@/blocks/RenderBlocks'
 import { RelatedBlogs } from '@/blocks/RelatedBlogs/Component'
 import { LivePreviewListener } from '@/components/LivePreviewListener'
 import { PayloadRedirects } from '@/components/PayloadRedirects'
+import RichText from '@/components/RichText'
+import { ArticleShare } from '@/components/ArticleShare'
+import { adaptArticleShare } from '@/utilities/blogs/articleShare'
+import { getCachedSettings } from '@/utilities/getGlobals'
+import { getServerSideURL } from '@/utilities/getURL'
 import { TableOfContents } from '@/components/TableOfContents'
 import { SkipLink } from '@/components/SkipLink'
 import { BlogHero } from '@/heros/BlogHero'
@@ -53,6 +57,12 @@ export default async function BlogPage({ params }: Args) {
   const payload = await getPayload({ config: configPromise })
   const related = await getRelatedBlogs(blog, payload)
   const toc = extractTOC(blog.content)
+  const canonicalURL = new URL(
+    `/blogs/${encodeURIComponent(blog.slug)}`,
+    getServerSideURL(),
+  ).toString()
+  const share = adaptArticleShare(await getCachedSettings(), canonicalURL, blog.title)
+  const hasShare = share.links.length > 0 || share.copyLink
 
   return (
     <article className={styles.article}>
@@ -61,10 +71,24 @@ export default async function BlogPage({ params }: Args) {
       {draft && <LivePreviewListener />}
       <BlogHero blog={blog} />
       <div className={styles.body} data-slot="blog-article-body">
-        <div className={styles.content} data-slot="blog-article-content">
-          <RenderBlocks blocks={blog.content} context="article" />
-        </div>
-        {toc.length > 0 && <TableOfContents items={toc} />}
+        <TableOfContents
+          items={toc}
+          sidebar={hasShare ? <ArticleShare model={share} url={canonicalURL} /> : undefined}
+        >
+          <div className={styles.content} data-slot="blog-article-content">
+            <RichText
+              context="article"
+              data={blog.content}
+              enableGutter={false}
+              headingIds={toc.map((item) => item.id)}
+            />
+            {hasShare && (
+              <div className={styles.mobileShare}>
+                <ArticleShare model={share} url={canonicalURL} title="Share this article" />
+              </div>
+            )}
+          </div>
+        </TableOfContents>
       </div>
       <RelatedBlogs blogs={related} />
     </article>

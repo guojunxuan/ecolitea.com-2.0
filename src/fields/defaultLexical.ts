@@ -51,24 +51,24 @@ export const articleLinkFeature = () =>
     },
   })
 
-export const defaultLexical = lexicalEditor({
-  features: [
-    ParagraphFeature(),
-    HeadingFeature({ enabledHeadingSizes: ['h2', 'h3', 'h4'] }),
-    BlockquoteFeature(),
-    HorizontalRuleFeature(),
-    TableFeature(),
-    UnderlineFeature(),
-    BoldFeature(),
-    ItalicFeature(),
-    StrikethroughFeature(),
-    InlineCodeFeature(),
-    SuperscriptFeature(),
-    SubscriptFeature(),
-    OrderedListFeature(),
-    UnorderedListFeature(),
-    articleLinkFeature(),
-    FixedToolbarFeature(),
-    InlineToolbarFeature(),
-  ],
-})
+export const defaultLexicalFeatures = () => [
+  ParagraphFeature(),
+  HeadingFeature({ enabledHeadingSizes: ['h2', 'h3', 'h4'] }),
+  BlockquoteFeature(),
+  HorizontalRuleFeature(),
+  TableFeature(),
+  UnderlineFeature(),
+  BoldFeature(),
+  ItalicFeature(),
+  StrikethroughFeature(),
+  InlineCodeFeature(),
+  SuperscriptFeature(),
+  SubscriptFeature(),
+  OrderedListFeature(),
+  UnorderedListFeature(),
+  articleLinkFeature(),
+  FixedToolbarFeature(),
+  InlineToolbarFeature(),
+]
+
+export const defaultLexical = lexicalEditor({ features: defaultLexicalFeatures() })

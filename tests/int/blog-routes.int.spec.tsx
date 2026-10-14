@@ -219,7 +219,43 @@ describe('blog listing routes', () => {
     expect(getBlogListing).toHaveBeenCalledWith(1, 'tea')
     expect(html).toContain('aria-label="Breadcrumb"')
     expect(html).toMatch(/<h1[^>]*>Tea Guides Blogs<\/h1>/)
-    expect(getBlogListingHero).not.toHaveBeenCalled()
+    expect(html).not.toContain('data-hero="blog-listing"')
+    expect(getBlogListingHero).toHaveBeenCalledTimes(1)
+  })
+
+  it.each([
+    ['Tea Guides', 'tea-guides', 'Tea category description'],
+    ['Lifestyle', 'lifestyle', null],
+  ])('reuses the managed Hero image with %s category copy', async (title, slug, description) => {
+    const defaultFind = find.getMockImplementation()!
+    find.mockImplementation(async (args: { collection: string }) =>
+      args.collection === 'blog-categories'
+        ? {
+            docs: categories.map((category) =>
+              category.slug === 'lifestyle' ? { ...category, description: undefined } : category,
+            ),
+            hasNextPage: false,
+          }
+        : defaultFind(args),
+    )
+    getBlogListingHero.mockResolvedValue({
+      heading: 'Stories from our tea community',
+      description: 'Discover tea stories and ideas.',
+      headerTheme: 'dark',
+    })
+    const html = renderToStaticMarkup(
+      await CategoryPage({ params: Promise.resolve({ categorySlug: slug }) }),
+    )
+    expect(html.match(/<h1\b/g) || []).toHaveLength(1)
+    expect(html).toMatch(new RegExp(`<h1[^>]*>${title} Blogs</h1>`))
+    expect(html).not.toContain('Stories from our tea community')
+    expect(html).not.toContain('Discover tea stories and ideas.')
+    if (description) expect(html).toContain(description)
+    expect(html).toContain('data-website-theme="inverse"')
+    expect(html.indexOf('data-hero="blog-listing"')).toBeLessThan(
+      html.indexOf('aria-label="Breadcrumb"'),
+    )
+    expect(html.indexOf('aria-label="Breadcrumb"')).toBeLessThan(html.indexOf('<h1'))
   })
 
   it('renders a later category page through the same listing flow', async () => {
@@ -232,7 +268,7 @@ describe('blog listing routes', () => {
     expect(getBlogListing).toHaveBeenCalledWith(2, 'tea')
     expect(html).toContain('aria-label="Breadcrumb"')
     expect(html).toMatch(/<h1[^>]*>Tea Guides Blogs<\/h1>/)
-    expect(getBlogListingHero).not.toHaveBeenCalled()
+    expect(getBlogListingHero).toHaveBeenCalledTimes(1)
   })
 
   it.each(['0', '-1', '1', '2.5', '2e1', '02', 'abc', 'Infinity'])(

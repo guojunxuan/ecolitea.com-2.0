@@ -117,7 +117,7 @@ describe('development Media cleanup safety', () => {
     ])
   })
 
-  it('refuses an origin mismatch before querying and never touches brand-assets', async () => {
+  it('refuses an origin mismatch before querying and never touches site-assets', async () => {
     const payload = fakePayload({ collections: { media: [] } })
 
     await expect(
@@ -145,7 +145,7 @@ describe('development Media cleanup safety', () => {
     })
 
     expect(report.mode).toBe('dry-run')
-    expect(payload.find.mock.calls.map(([call]) => call.collection)).not.toContain('brand-assets')
+    expect(payload.find.mock.calls.map(([call]) => call.collection)).not.toContain('site-assets')
     expect(payload.delete).not.toHaveBeenCalled()
   })
 

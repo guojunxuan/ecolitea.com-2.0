@@ -58,6 +58,9 @@ describe('Blog collection configuration', () => {
       maxPerDoc: 50,
     })
     const fields = flatten(blogs!.fields)
+    const content = fields.find((field) => 'name' in field && field.name === 'content')
+    expect(content).toMatchObject({ type: 'richText', required: true })
+    expect(content).not.toHaveProperty('blocks')
     const projectedAuthors = fields.find(
       (field) => 'name' in field && field.name === 'populatedAuthors',
     )!
@@ -89,7 +92,37 @@ describe('Blogs through the isolated Payload Local API', () => {
         category: categoryID,
         heroImage: mediaID,
         excerpt: 'Test excerpt',
-        content: [{ blockType: 'cta', heading: 'Test heading' }],
+        content: {
+          root: {
+            type: 'root',
+            version: 1,
+            direction: null,
+            format: '',
+            indent: 0,
+            children: [
+              {
+                type: 'paragraph',
+                version: 1,
+                direction: null,
+                format: '',
+                indent: 0,
+                textFormat: 0,
+                textStyle: '',
+                children: [
+                  {
+                    type: 'text',
+                    version: 1,
+                    text: 'Test content',
+                    format: 0,
+                    detail: 0,
+                    mode: 'normal',
+                    style: '',
+                  },
+                ],
+              },
+            ],
+          },
+        },
         _status: 'published',
         ...data,
       } as never,
@@ -220,7 +253,12 @@ describe('Blogs through the isolated Payload Local API', () => {
 
   it('rejects empty content, long excerpts, and reserved slugs', async () => {
     for (const [field, value] of [
-      ['content', []],
+      [
+        'content',
+        {
+          root: { type: 'root', version: 1, direction: null, format: '', indent: 0, children: [] },
+        },
+      ],
       ['excerpt', 'a'.repeat(161)],
       ['slug', 'category'],
       ['slug', 'page'],
@@ -234,9 +272,10 @@ describe('Blogs through the isolated Payload Local API', () => {
   it('defaults the author, projects public author fields, and dates first publication only', async () => {
     const draft = await createBlog({ _status: 'draft' })
     expect(draft.publishedAt).toBeFalsy()
-    expect(draft.content).toEqual([
-      expect.objectContaining({ blockType: 'cta', heading: 'Test heading' }),
-    ])
+    expect(draft.content.root.children[0]).toMatchObject({
+      type: 'paragraph',
+      children: [expect.objectContaining({ text: 'Test content' })],
+    })
     await expect(
       payload.findByID({ collection: 'blogs', id: draft.id, overrideAccess: false }),
     ).rejects.toThrow()
@@ -359,53 +398,48 @@ describe('Blogs through the isolated Payload Local API', () => {
         publishedAt: status === 'future' ? '2999-01-01T00:00:00.000Z' : '2020-01-01T00:00:00.000Z',
       })
       const parent = await createBlog({
-        content: [
-          {
-            blockType: 'prose',
-            content: {
-              root: {
-                type: 'root',
+        content: {
+          root: {
+            type: 'root',
+            version: 1,
+            direction: null,
+            format: '',
+            indent: 0,
+            children: [
+              {
+                type: 'paragraph',
                 version: 1,
                 direction: null,
                 format: '',
                 indent: 0,
                 children: [
                   {
-                    type: 'paragraph',
-                    version: 1,
+                    type: 'link',
+                    version: 3,
                     direction: null,
                     format: '',
                     indent: 0,
+                    fields: {
+                      linkType: 'internal',
+                      doc: { relationTo: 'blogs', value: target.id },
+                    },
                     children: [
                       {
-                        type: 'link',
-                        version: 3,
-                        direction: null,
-                        format: '',
-                        indent: 0,
-                        fields: {
-                          linkType: 'internal',
-                          doc: { relationTo: 'blogs', value: target.id },
-                        },
-                        children: [
-                          {
-                            type: 'text',
-                            version: 1,
-                            text: 'Related story',
-                            format: 0,
-                            detail: 0,
-                            mode: 'normal',
-                            style: '',
-                          },
-                        ],
+                        type: 'text',
+                        version: 1,
+                        text: 'Related story',
+                        format: 0,
+                        detail: 0,
+                        mode: 'normal',
+                        style: '',
                       },
                     ],
                   },
                 ],
               },
-            },
+            ],
           },
-        ],
+        },
       })
       if (status === 'deleted')
         await payload.delete({ collection: 'blogs', id: target.id, context })
@@ -415,14 +449,12 @@ describe('Blogs through the isolated Payload Local API', () => {
         depth: 2,
         overrideAccess: false,
       })
-      const prose = anonymous.content[0]
-      if (prose.blockType !== 'prose') throw new Error('Expected prose')
-      const paragraph = prose.content.root.children[0] as {
+      const paragraph = anonymous.content.root.children[0] as {
         children: { fields: { doc: { value: unknown } } }[]
       }
       expect(paragraph.children[0].fields.doc.value).toBe(target.id)
       expect(
-        renderToStaticMarkup(React.createElement(RichText, { data: prose.content })),
+        renderToStaticMarkup(React.createElement(RichText, { data: anonymous.content })),
       ).toContain('href="#"')
     },
   )

@@ -36,12 +36,10 @@ export const Card: React.FC<CardProps> = (props) => {
     const href = `/blogs/${slug}`
 
     return (
-      <article className={cn(styles.card, styles.blogCard, className)} data-slot="content-card" ref={cardRef}>
+      <article className={cn(styles.card, styles.blogCard, className)} data-slot="content-card">
         <div className={styles.blogMedia} data-slot="content-card-media">
           {typeof heroImage === 'object' && heroImage !== null ? (
-            <Link aria-label={`Read ${title}`} className={styles.mediaLink} href={href}>
-              <Media presentation={MEDIA_PRESENTATION.card} resource={heroImage} size="(max-width: 48rem) 100vw, 50vw" />
-            </Link>
+            <Media presentation={MEDIA_PRESENTATION.card} resource={heroImage} size="(max-width: 48rem) 100vw, (max-width: 64rem) 50vw, 33vw" />
           ) : (
             <div className={styles.mediaPlaceholder}>No image</div>
           )}
@@ -53,19 +51,17 @@ export const Card: React.FC<CardProps> = (props) => {
             </Link>
           )}
           <h3 className={styles.blogHeading} data-slot="content-card-title">
-            <Link className={styles.link} data-slot="content-card-link" href={href} ref={linkRef}>
+            {/* The title link stretches over the card so every card area uses native link behavior. */}
+            <Link className={styles.blogLink} data-slot="content-card-link" href={href}>
               {titleFromProps || title}
             </Link>
           </h3>
           {excerpt && <p className={styles.blogExcerpt} data-slot="content-card-description">{excerpt.replace(/\s/g, ' ')}</p>}
-          <div className={styles.blogFooter}>
-            {publishedDate && (
-              <time dateTime={publishedDate.toISOString().slice(0, 10)}>
-                {publishedDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' })}
-              </time>
-            )}
-            <span aria-hidden="true" className={styles.blogArrow}>→</span>
-          </div>
+          {publishedDate && (
+            <time className={styles.blogDate} dateTime={publishedDate.toISOString().slice(0, 10)}>
+              {publishedDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' })}
+            </time>
+          )}
         </div>
       </article>
     )

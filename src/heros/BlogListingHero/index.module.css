@@ -29,18 +29,11 @@
 .scrim {
   position: absolute;
   inset: 0;
+  /* The theme background token makes one Scrim fit both light and inverse Heroes. */
   background: linear-gradient(
     to top,
-    rgb(255 255 255 / var(--website-scrim-strong)),
-    rgb(255 255 255 / var(--website-scrim-subtle))
-  );
-}
-
-.root[data-website-theme='inverse'] .scrim {
-  background: linear-gradient(
-    to top,
-    rgb(0 0 0 / var(--website-scrim-strong)),
-    rgb(0 0 0 / var(--website-scrim-subtle))
+    color-mix(in srgb, var(--website-color-background) var(--website-scrim-strong), transparent),
+    color-mix(in srgb, var(--website-color-background) var(--website-scrim-subtle), transparent)
   );
 }
 
@@ -54,7 +47,7 @@
 }
 
 .heading {
-  composes: website-type-display-1 from global;
+  composes: website-type-heading-1 from global;
   margin: 0;
 }
 

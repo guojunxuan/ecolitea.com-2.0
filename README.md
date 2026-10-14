@@ -56,7 +56,7 @@ Cloudflare Transformation paths before exercising public media rendering.
   endpoint.
 - A validated MP4 at most 60 seconds long uses `/cdn-cgi/media/` at render time. A longer video, or
   one with missing duration metadata, keeps its original URL.
-- Documents use their direct original CDN URL. Brand Assets (logos, social icons, and favicons) also
+- Documents use their direct original CDN URL. Site Assets (logos, social icons, and favicons) also
   remain on their original URLs.
 
 Media uploads accept raster images at `1:1`, `4:3`, `3:2`, `16:9`, `9:16`, or `4:5` (within 1%).
@@ -74,6 +74,33 @@ corepack pnpm lint                # Run ESLint
 corepack pnpm build               # Create a production build
 corepack pnpm start               # Start a completed production build
 ```
+
+## Payload migrations
+
+Migration files live in `src/migrations`; production migrations are run manually. The Site Assets
+migration renames `brand-assets` to `site-assets`, updates document locks and preference keys,
+and reports the untouched `_brand-assets_versions` collection. File URLs and storage objects do
+not change. Existing destination collections abort the migration, including empty collections.
+
+Run the migration before serving the new code, with application writes paused. Verify and report
+the database host/name and storage environment before running commands. For the local development
+database (`127.0.0.1:27017/ecolitea2`):
+
+```bash
+DATABASE_URI=mongodb://127.0.0.1:27017/ecolitea2 corepack pnpm payload migrate:status
+DATABASE_URI=mongodb://127.0.0.1:27017/ecolitea2 corepack pnpm payload migrate
+```
+
+Verify Site Assets, Logo, Favicon and Footer icons after migration. To roll back the latest batch,
+coordinate the old application code with `corepack pnpm payload migrate:down` against the same
+explicit database URI. Collection renames and reference updates run outside a MongoDB transaction;
+keep writes paused until verification completes. If execution fails after the rename, inspect the
+collection and reference state before retrying or rolling back.
+
+Production execution requires separate user approval and a database backup. Use the approved
+production environment configuration; never run the development URI against production, and never
+move or delete remote storage files during this migration. CLI migration initialization suppresses
+automatic creation and indexing of Site Assets so the collision check sees the existing database.
 
 ## Styling ownership
 
@@ -126,6 +153,16 @@ never contact production R2. Docker image builds and production runtime do not s
 R2 remains enabled there.
 
 The CI and release workflows are manually triggered with `workflow_dispatch`.
+
+For read-only Blog Template A checks against the existing development server on port 3001,
+use the sample article `small-details-better-everyday-products` and run:
+
+```bash
+BLOG_DETAIL_EXISTING_SERVER=true DISABLE_R2_STORAGE=true corepack pnpm exec playwright test --config=playwright.blog-detail.config.ts
+```
+
+This focused configuration launches no server, runs no database fixtures or teardown, and
+replaces external browser resources with local test files. It checks 1440, 1152, 768 and 390px.
 
 ## Production architecture
 

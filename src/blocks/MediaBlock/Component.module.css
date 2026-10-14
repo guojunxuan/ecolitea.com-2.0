@@ -8,11 +8,13 @@
   }
 
   .article {
+    margin-inline: 0;
     max-width: var(--website-container-reading);
   }
 
-  .article.wide {
-    max-width: 56.25rem;
+  .article.wide,
+  .article.fullWidth {
+    max-width: none;
   }
 
   .container {
@@ -31,6 +33,26 @@
   .image {
     border: 1px solid var(--website-color-border);
     border-radius: var(--website-radius-content);
+  }
+
+  .crop {
+    aspect-ratio: var(--media-aspect-ratio);
+    overflow: hidden;
+    border-radius: var(--website-radius-content);
+  }
+
+  .crop picture {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .crop img,
+  .crop video {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
   }
 
   .caption {

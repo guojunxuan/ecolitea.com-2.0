@@ -140,7 +140,7 @@ export const validateMediaUpload: CollectionBeforeValidateHook = async ({ data, 
     if (!(MEDIA_UPLOAD_POLICY.image.mimeTypes as readonly string[]).includes(mimeType)) {
       return rejectUpload(
         mimeType === 'image/svg+xml'
-          ? 'SVG files belong in Brand Assets, not Media.'
+          ? 'SVG files belong in Site Assets, not Media.'
           : 'Image file type is not supported.',
       )
     }

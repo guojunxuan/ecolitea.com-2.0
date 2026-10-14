@@ -100,7 +100,7 @@ are compatible with the installed versions.
 
 ## Payload media and infrastructure adapters
 
-- The Media and Brand Assets collections own upload rules and stored metadata.
+- The Media and Site Assets collections own upload rules and stored metadata.
   Persist original file URLs; generate derived delivery URLs at render time.
 - Keep storage operations behind the Payload storage adapter and delivery logic
   behind the shared media renderer. Business components declare presentation

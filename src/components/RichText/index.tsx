@@ -16,10 +16,12 @@ import { CodeBlock, CodeBlockProps } from '@/blocks/Code/Component'
 import type {
   BannerBlock as BannerBlockProps,
   CallToActionBlock as CTABlockProps,
+  KeyTakeawaysBlock as KeyTakeawaysBlockProps,
   MediaBlock as MediaBlockProps,
 } from '@/payload-types'
 import { BannerBlock } from '@/blocks/Banner/Component'
 import { CallToActionBlock } from '@/blocks/CallToAction/Component'
+import { KeyTakeawaysBlock } from '@/blocks/KeyTakeaways/Component'
 import { cn } from '@/utilities/ui'
 import { getHeadingText, slugifyHeadingText } from '@/utilities/blogs/extractTOC'
 import { getContentPath } from '@/utilities/getContentPath'
@@ -31,8 +33,39 @@ type NodeTypes = WithDefaultNodes<
   | SerializedBlockNode<BannerBlockProps>
   | SerializedBlockNode<CTABlockProps>
   | SerializedBlockNode<CodeBlockProps>
+  | SerializedBlockNode<KeyTakeawaysBlockProps>
   | SerializedBlockNode<MediaBlockProps>
 >
+
+type RichTextContext = 'page' | 'article'
+
+// Article Blocks own their width; the wrapper only marks the prose boundary and spacing.
+const ArticleBlock = ({ children }: { children: React.ReactNode }) => (
+  <div className={cn('payload-richtext__embedded', styles.articleBlock)}>{children}</div>
+)
+
+const articleBlockConverters: ReturnType<JSXConvertersFunction<NodeTypes>>['blocks'] = {
+  banner: ({ node }) => (
+    <ArticleBlock>
+      <BannerBlock {...node.fields} />
+    </ArticleBlock>
+  ),
+  cta: ({ node }) => (
+    <ArticleBlock>
+      <CallToActionBlock {...node.fields} context="article" />
+    </ArticleBlock>
+  ),
+  keyTakeaways: ({ node }) => (
+    <ArticleBlock>
+      <KeyTakeawaysBlock {...node.fields} />
+    </ArticleBlock>
+  ),
+  mediaBlock: ({ node }) => (
+    <ArticleBlock>
+      <MediaBlock {...node.fields} context="article" enableGutter={false} disableInnerContainer />
+    </ArticleBlock>
+  ),
+}
 
 const internalDocToHref = ({ linkNode }: { linkNode: SerializedLinkNode }) => {
   const { value, relationTo } = linkNode.fields.doc ?? {}
@@ -43,7 +76,7 @@ const internalDocToHref = ({ linkNode }: { linkNode: SerializedLinkNode }) => {
 }
 
 const jsxConverters =
-  (headingIds?: readonly string[]): JSXConvertersFunction<NodeTypes> =>
+  (context: RichTextContext, headingIds?: readonly string[]): JSXConvertersFunction<NodeTypes> =>
   ({ defaultConverters }) => {
     let headingIndex = 0
     return {
@@ -102,11 +135,13 @@ const jsxConverters =
             <CallToActionBlock {...node.fields} />
           </div>
         ),
+        ...(context === 'article' ? articleBlockConverters : {}),
       },
     }
   }
 
 type Props = {
+  context?: RichTextContext
   data: SerializedEditorState
   enableGutter?: boolean
   enableProse?: boolean
@@ -114,10 +149,17 @@ type Props = {
 } & React.HTMLAttributes<HTMLDivElement>
 
 export default function RichText(props: Props) {
-  const { className, enableProse = true, enableGutter = true, headingIds, ...rest } = props
+  const {
+    className,
+    context = 'page',
+    enableProse = true,
+    enableGutter = true,
+    headingIds,
+    ...rest
+  } = props
   return (
     <ConvertRichText
-      converters={jsxConverters(headingIds)}
+      converters={jsxConverters(context, headingIds)}
       className={cn(
         'payload-richtext',
         styles.root,
@@ -127,6 +169,7 @@ export default function RichText(props: Props) {
           [styles.content]: enableProse,
           [styles.plain]: !enableProse,
           [styles.withGutter]: enableGutter,
+          [styles.article]: context === 'article',
         },
         className,
       )}

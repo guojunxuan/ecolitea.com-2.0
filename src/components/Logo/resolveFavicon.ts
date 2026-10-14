@@ -1,4 +1,4 @@
-import type { BrandAsset } from '@/payload-types'
+import type { SiteAsset } from '@/payload-types'
 import { getMediaUrl } from '@/utilities/getMediaUrl'
 
 export type FaviconPresentation = {
@@ -7,7 +7,7 @@ export type FaviconPresentation = {
 }
 
 export const resolveFavicon = (
-  asset: string | BrandAsset | null | undefined,
+  asset: string | SiteAsset | null | undefined,
 ): FaviconPresentation | null => {
   if (!asset || typeof asset !== 'object' || !asset.url) return null
 

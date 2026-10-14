@@ -152,7 +152,8 @@ describe('Blog site integrations', () => {
       req: { payload: { findByID } },
       originalDoc: {
         id: 'blog-1', slug: 'green-tea', title: 'Green Tea', excerpt: 'A guide', _status: 'published',
-        category: 'cat-1', authors: ['private-author'], content: [{ blockType: 'prose' }],
+        category: 'cat-1', authors: ['private-author'],
+        content: { root: { type: 'root', version: 1, direction: null, format: '', indent: 0, children: [] } },
       },
       searchDoc: { title: 'Green Tea', doc: { relationTo: 'blogs', value: 'blog-1' } },
     } as never)

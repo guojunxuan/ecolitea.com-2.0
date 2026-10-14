@@ -3,7 +3,7 @@ import { cleanup, render, screen } from '@testing-library/react'
 import React from 'react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { Block, Field } from 'payload'
-import type { ProseBlock as ProseProps, KeyTakeawaysBlock as TakeawaysProps } from '@/payload-types'
+import type { KeyTakeawaysBlock as TakeawaysProps } from '@/payload-types'
 
 vi.mock('@/components/Media', () => ({
   Media: ({ presentation }: { presentation: unknown }) => (
@@ -17,12 +17,11 @@ import { MediaBlock } from '@/blocks/MediaBlock/Component'
 import { CallToActionBlock } from '@/blocks/CallToAction/Component'
 import RichText from '@/components/RichText'
 
-const components = import.meta.glob('/src/blocks/{Prose,KeyTakeaways}/Component.tsx', {
+const components = import.meta.glob('/src/blocks/KeyTakeaways/Component.tsx', {
   eager: true,
 }) as Record<
   string,
   {
-    ProseBlock: React.ComponentType<ProseProps>
     KeyTakeawaysBlock: React.ComponentType<TakeawaysProps>
   }
 >
@@ -49,18 +48,10 @@ const media = { id: 'tea', caption: richText('Media caption') } as never
 const field = (block: Block, name: string) =>
   block.fields.find((entry) => 'name' in entry && entry.name === name)
 const metadata = [
-  ['prose', 'ProseBlock', 'Prose', 'Prose', 'Content', 'prose'],
   ['mediaBlock', 'MediaBlock', 'Media', 'Media', 'Media', 'media'],
-  [
-    'keyTakeaways',
-    'KeyTakeawaysBlock',
-    'Key Takeaways',
-    'Key Takeaways',
-    'Content',
-    'key-takeaways',
-  ],
-  ['cta', 'CallToActionBlock', 'Call to Action', 'Calls to Action', 'Conversion', 'cta'],
-  ['banner', 'BannerBlock', 'Banner', 'Banners', 'Content', 'banner'],
+  ['keyTakeaways', 'KeyTakeawaysBlock', 'Key Points', 'Key Points', 'Content', 'key-takeaways'],
+  ['cta', 'CallToActionBlock', 'Action Card', 'Action Cards', 'Conversion', 'cta'],
+  ['banner', 'BannerBlock', 'Notice', 'Notices', 'Content', 'banner'],
 ]
 
 afterEach(cleanup)
@@ -73,7 +64,6 @@ describe('editorial block schema', () => {
       'content',
       'formBlock',
       'code',
-      'prose',
       'mediaBlock',
       'keyTakeaways',
       'cta',
@@ -91,7 +81,13 @@ describe('editorial block schema', () => {
             icon: `/block-previews/${image}.svg`,
             thumbnail: `/block-previews/${image}.svg`,
           },
-          components: { Label: '@/blocks/BlockRowLabel#BlockRowLabel' },
+          components: {
+            Block: '@/blocks/ArticleBlockEditor#ArticleBlockEditor',
+            Label: {
+              path: '@/blocks/BlockRowLabel#BlockRowLabel',
+              clientProps: { blockType: slug },
+            },
+          },
         },
       })
       expect(existsSync(`public/block-previews/${image}.svg`)).toBe(true)
@@ -114,7 +110,16 @@ describe('editorial block schema', () => {
     expect(theme).not.toHaveProperty('required', true)
     const mediaBlock = config.blocks!.find((entry) => entry.slug === 'mediaBlock')!
     expect(field(mediaBlock, 'caption')).toMatchObject({ type: 'richText' })
+    expect(field(mediaBlock, 'aspectRatio')).toMatchObject({
+      type: 'select',
+      defaultValue: 'original',
+      options: ['original', '1:1', '4:3', '3:2', '16:9', '2:1'].map((value) => ({
+        label: value === 'original' ? 'Original' : value,
+        value,
+      })),
+    })
     expect(field(mediaBlock, 'width')).toMatchObject({
+      admin: { hidden: true },
       defaultValue: 'default',
       options: [
         { label: 'Default', value: 'default' },
@@ -126,7 +131,7 @@ describe('editorial block schema', () => {
         config.blocks!.find((entry) => entry.slug === 'keyTakeaways')!,
         'label',
       ),
-    ).toMatchObject({ defaultValue: 'At a Glance' })
+    ).not.toHaveProperty('defaultValue')
   }, 15000)
 
   it('retains collection layout allowlists using root block slugs', async () => {
@@ -150,19 +155,16 @@ describe('editorial block schema', () => {
 })
 
 describe('editorial block rendering', () => {
-  it('renders prose and takeaways as readable content and an aside', () => {
-    const Prose = components['/src/blocks/Prose/Component.tsx']?.ProseBlock
+  it('renders takeaways as a readable aside', () => {
     const Takeaways = components['/src/blocks/KeyTakeaways/Component.tsx']?.KeyTakeawaysBlock
-    expect(Prose).toBeDefined()
     expect(Takeaways).toBeDefined()
     render(
       <>
-        <Prose blockType="prose" content={richText('Article text')} />
-        <Takeaways blockType="keyTakeaways" content={richText('Remember this')} />
+        <Takeaways id="takeaways" blockType="keyTakeaways" content={richText('Remember this')} />
       </>,
     )
-    expect(screen.getByText('Article text')).toBeTruthy()
-    expect(screen.getByRole('complementary').textContent).toContain('At a Glance')
+    expect(screen.queryByRole('heading')).toBeNull()
+    expect(screen.getByRole('complementary', { name: 'Key Points' })).toBeTruthy()
     expect(screen.getByRole('complementary').textContent).toContain('Remember this')
   })
 
@@ -207,6 +209,42 @@ describe('editorial block rendering', () => {
     expect(screen.getByText('Media caption')).toBeTruthy()
     rerender(<MediaBlock blockType="mediaBlock" media="unpopulated" />)
     expect(container.querySelector('figcaption')).toBeNull()
+  })
+
+  it.each(['1:1', '4:3', '3:2', '16:9', '2:1'] as const)(
+    'passes the %s crop ratio through the shared media renderer',
+    (aspectRatio) => {
+      const { container } = render(
+        <MediaBlock
+          blockType="mediaBlock"
+          media={media}
+          aspectRatio={aspectRatio}
+          caption={richText('Outside crop')}
+        />,
+      )
+      const [width, height] = aspectRatio.split(':').map(Number)
+      expect(
+        JSON.parse(screen.getByTestId('media').getAttribute('data-presentation')!),
+      ).toMatchObject({
+        image: { aspectRatio: { width, height }, fit: 'cover' },
+      })
+      expect(
+        container.querySelector('figure')?.style.getPropertyValue('--media-aspect-ratio'),
+      ).toBe(`${width} / ${height}`)
+      expect(screen.getByText('Outside crop').closest('figcaption')).toBeTruthy()
+    },
+  )
+
+  it('keeps original proportions without a crop frame for Original', () => {
+    const { container } = render(
+      <MediaBlock blockType="mediaBlock" media={media} aspectRatio="original" />,
+    )
+    expect(JSON.parse(screen.getByTestId('media').getAttribute('data-presentation')!)).toEqual({
+      image: { fit: 'scale-down', quality: 85 },
+    })
+    expect(container.querySelector('figure')?.style.getPropertyValue('--media-aspect-ratio')).toBe(
+      '',
+    )
   })
 
   it('renders CTA text and image variants, themes and shared links', () => {
@@ -275,7 +313,7 @@ describe('editorial block rendering', () => {
     expect(container.querySelector('pre')?.textContent).toContain('const tea = true')
   })
 
-  it.each(['Prose', 'MediaBlock', 'KeyTakeaways', 'CallToAction', 'Banner'])(
+  it.each(['MediaBlock', 'KeyTakeaways', 'CallToAction', 'Banner'])(
     'uses semantic colors in %s',
     (name) => {
       const path = `src/blocks/${name}/Component.module.css`

@@ -7,7 +7,7 @@ const asset = (name: string) => ({
   alt: `${name} alt`,
   createdAt: '2026-09-01T00:00:00.000Z',
   updatedAt: '2026-09-01T01:02:03.000Z',
-  url: `/api/brand-assets/file/${name}.svg`,
+  url: `/api/site-assets/file/${name}.svg`,
   width: 120,
   height: 30,
 })
@@ -274,7 +274,7 @@ describe('adaptFooter', () => {
         icon: {
           alt: 'linkedin alt',
           height: 30,
-          src: '/api/brand-assets/file/linkedin.svg?2026-09-01T01%3A02%3A03.000Z',
+          src: '/api/site-assets/file/linkedin.svg?2026-09-01T01%3A02%3A03.000Z',
           width: 120,
         },
       },

@@ -12,11 +12,10 @@ type BlockData = {
 }
 
 const labels: Record<string, string> = {
-  prose: 'Prose',
   mediaBlock: 'Media',
-  keyTakeaways: 'Key Takeaways',
-  cta: 'Call to Action',
-  banner: 'Banner',
+  keyTakeaways: 'Key Points',
+  cta: 'Action Card',
+  banner: 'Notice',
 }
 
 function textFromNode(value: unknown): string {
@@ -28,8 +27,8 @@ function textFromNode(value: unknown): string {
   return ''
 }
 
-function Summary({ data }: { data?: BlockData }) {
-  const label = labels[data?.blockType || ''] || 'Block'
+function Summary({ data, blockType }: { data?: BlockData; blockType?: string }) {
+  const label = labels[blockType || data?.blockType || ''] || 'Block'
   const summary = (
     data?.heading ||
     data?.title ||
@@ -41,15 +40,15 @@ function Summary({ data }: { data?: BlockData }) {
   return <span>{summary ? `${label}: ${summary}` : label}</span>
 }
 
-function EmbeddedLabel({ path }: { path: string }) {
+function EmbeddedLabel({ path, blockType }: { path: string; blockType?: string }) {
   const { getSiblingData } = useWatchForm()
-  return <Summary data={getSiblingData(path)} />
+  return <Summary data={getSiblingData(path)} blockType={blockType} />
 }
 
 // Collection blocks supply row context; Lexical labels supply the UI field path.
-export function BlockRowLabel({ path }: { path?: string }) {
+export function BlockRowLabel({ path, blockType }: { path?: string; blockType?: string }) {
   const row = useRowLabel<BlockData>()
-  if (row.path) return <Summary data={row.data} />
-  if (path) return <EmbeddedLabel path={path} />
-  return <Summary data={row.data} />
+  if (row.path) return <Summary data={row.data} blockType={blockType} />
+  if (path) return <EmbeddedLabel path={path} blockType={blockType} />
+  return <Summary data={row.data} blockType={blockType} />
 }

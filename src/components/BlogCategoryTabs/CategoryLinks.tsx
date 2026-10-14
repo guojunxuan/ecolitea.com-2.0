@@ -4,6 +4,7 @@ import Link from 'next/link'
 import React, { useCallback, useLayoutEffect, useRef, useState } from 'react'
 
 import styles from './index.module.css'
+import { rememberNavigationOffset, useRestoreNavigationOffset } from './keepNavigationInPlace'
 
 export type CategoryLink = { id: string; title: string; slug: string | null }
 
@@ -28,6 +29,7 @@ export function CategoryLinks({
   })
   const activeID = links.find((link) => link.slug === (currentCategory || null))?.id ?? 'all'
   const linksKey = links.map(({ id, title }) => `${id}:${title}`).join('|')
+  useRestoreNavigationOffset(rowRef, currentCategory)
 
   const moveIndicator = useCallback(
     (id: string | null) => {
@@ -94,6 +96,8 @@ export function CategoryLinks({
           className={styles.tab}
           href={category.slug ? `/blogs/category/${category.slug}` : '/blogs'}
           key={category.id}
+          scroll={false}
+          onClick={rememberNavigationOffset}
           ref={(node) => {
             linkRefs.current[category.id] = node
           }}

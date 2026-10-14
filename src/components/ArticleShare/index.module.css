@@ -1,0 +1,55 @@
+.share {
+  margin-top: var(--website-space-4);
+}
+
+.label {
+  margin: 0 0 0.875rem;
+  color: var(--website-color-muted-foreground);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.links {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  margin-left: -0.625rem;
+}
+
+.control {
+  display: inline-grid;
+  place-items: center;
+  width: 40px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--website-color-foreground);
+  cursor: pointer;
+  opacity: 0.68;
+}
+
+.control:hover,
+.control:focus-visible {
+  opacity: 1;
+}
+
+.control:focus-visible {
+  outline: 2px solid var(--website-color-focus);
+  outline-offset: 2px;
+}
+
+.control img {
+  object-fit: contain;
+}
+
+.status {
+  position: absolute;
+  top: 100%;
+  left: 0.625rem;
+  color: var(--website-color-muted-foreground);
+  font-size: 0.75rem;
+}

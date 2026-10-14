@@ -19,39 +19,25 @@ test.describe('Blog publishing journeys', () => {
     )
   })
 
-  test('progressive listing appends the second page on scroll', async ({ page }) => {
+  test('page-number navigation links to static listing pages', async ({ page }) => {
     await page.goto(`${baseURL}/blogs`)
     const cards = page.locator('[data-slot="archive-item"]')
     await expect(cards).toHaveCount(12)
-    const response = page.waitForResponse((response) =>
-      response.url().includes('/api/public-blog-list?page=2'),
-    )
-    await expect(page.getByRole('button', { name: 'Load more', exact: true })).toHaveCount(0)
-    await page.getByRole('status').scrollIntoViewIfNeeded()
-    expect((await response).ok()).toBe(true)
-    await expect(cards).toHaveCount(14)
-    await expect(page.getByText("You've reached the end.")).toBeVisible()
-    await expect(page.getByText('Showing 1 - 14 of 14 Blogs')).toBeVisible()
-    await expect(page).toHaveURL(`${baseURL}/blogs`)
-  })
+    await expect(page.getByText(/^Showing /)).toHaveCount(0)
+    await expect(page.getByText("You've reached the end.")).toHaveCount(0)
+    const pagination = page.getByRole('navigation', { name: 'pagination' })
+    await expect(pagination.locator('a[aria-current="page"]')).toHaveText('1')
+    await expect(pagination.getByRole('link', { name: 'Go to previous page' })).toHaveCount(0)
 
-  test('progressive listing retains cards on error and retries', async ({ page }) => {
-    await page.route('**/api/public-blog-list?*', (route) =>
-      route.fulfill({
-        status: 500,
-        contentType: 'application/json',
-        body: JSON.stringify({ error: 'Server error' }),
-      }),
-    )
-    await page.goto(`${baseURL}/blogs`)
-    await expect(page.getByRole('button', { name: 'Load more', exact: true })).toHaveCount(0)
-    await page.getByRole('status').scrollIntoViewIfNeeded()
-    await expect(page.getByText('Failed to load more blogs.')).toBeVisible()
-    await expect(page.locator('[data-slot="archive-item"]')).toHaveCount(12)
-    await page.unroute('**/api/public-blog-list?*')
-    await page.getByRole('button', { name: 'Try again' }).click()
-    await expect(page.locator('[data-slot="archive-item"]')).toHaveCount(14)
-    await expect(page.getByText("You've reached the end.")).toBeVisible()
+    await pagination.getByRole('link', { name: '2', exact: true }).click()
+    await expect(page).toHaveURL(`${baseURL}/blogs/page/2`)
+    await expect(cards).toHaveCount(2)
+    await expect(pagination.locator('a[aria-current="page"]')).toHaveText('2')
+    await expect(pagination.getByRole('link', { name: 'Go to next page' })).toHaveCount(0)
+
+    await pagination.getByRole('link', { name: 'Go to previous page' }).click()
+    await expect(page).toHaveURL(`${baseURL}/blogs`)
+    await expect(cards).toHaveCount(12)
   })
 
   test('skip links move keyboard focus to main content and an available TOC', async ({ page }) => {
@@ -137,7 +123,9 @@ test.describe('Blog publishing journeys', () => {
       .toEqual(['none', 'none'])
   })
 
-  test('listing order, featured card, static page route, and category breadcrumbs', async ({ page }) => {
+  test('listing order, uniform cards, static page route, and category breadcrumbs', async ({
+    page,
+  }) => {
     await page.goto(`${baseURL}/blogs`)
     await expect(page.getByRole('heading', { name: 'Blogs', exact: true })).toBeVisible()
     const nav = page.getByRole('navigation', { name: 'Blog categories' })
@@ -146,9 +134,10 @@ test.describe('Blog publishing journeys', () => {
     await expect(nav.getByRole('link', { name: 'Sourcing', exact: true })).toBeVisible()
     await expect(nav.getByRole('link', { name: 'Culture', exact: true }).first()).toBeVisible()
     await expect(nav.locator('a[aria-current="page"]:visible')).toHaveText('All')
-    await expect(page.locator('[data-featured="true"]')).toContainText(
+    await expect(page.locator('[data-slot="archive-item"]').first()).toContainText(
       'The art of brewing thoughtful tea',
     )
+    await expect(page.locator('[data-featured]')).toHaveCount(0)
     await expect(page.locator('[data-slot="archive-item"]')).toHaveCount(12)
     const category = page.locator('[data-slot="content-card-category"]').first()
     const pillStyles = await category.evaluate((element) => {
@@ -183,12 +172,14 @@ test.describe('Blog publishing journeys', () => {
     )
     await expect(inverseCategory).toHaveCSS('background-color', 'rgba(255, 255, 255, 0.12)')
     await expect(inverseCategory).toHaveCSS('color', 'rgba(255, 255, 255, 0.85)')
-    await expect(page.getByRole('link', { name: 'Go to next page' })).toHaveCount(0)
+    await expect(page.getByRole('link', { name: 'Go to next page' })).toHaveAttribute(
+      'href',
+      '/blogs/page/2',
+    )
     const secondPage = await page.goto(`${baseURL}/blogs/page/2`)
     expect(secondPage?.status()).toBe(200)
     await expect(page).toHaveURL(`${baseURL}/blogs/page/2`)
     expect(await page.locator('[data-slot="archive-item"]').count()).toBeGreaterThanOrEqual(2)
-    await expect(page.locator('[data-featured="true"]')).toHaveCount(0)
     await page.goto(`${baseURL}/blogs`)
     await expect(page).toHaveURL(`${baseURL}/blogs`)
     await nav.getByRole('link', { name: 'Sourcing', exact: true }).click()
@@ -198,6 +189,28 @@ test.describe('Blog publishing journeys', () => {
     )
     await expect(nav.locator('a[aria-current="page"]:visible')).toHaveText('Sourcing')
     await expect(page.locator('[data-slot="archive-item"]')).toHaveCount(1)
+  })
+
+  test('blog cards open the article from any card area while category links stay separate', async ({
+    page,
+  }) => {
+    await page.goto(`${baseURL}/blogs`)
+    const card = page.locator('[data-slot="content-card"]').first()
+    const href = await card.locator('[data-slot="content-card-link"]').getAttribute('href')
+    const excerpt = card.locator('[data-slot="content-card-description"]')
+    const box = await excerpt.boundingBox()
+    expect(box).not.toBeNull()
+    await page.mouse.move(box!.x + box!.width / 2, box!.y + box!.height / 2)
+    await page.mouse.down()
+    await page.waitForTimeout(400)
+    await page.mouse.up()
+    await expect(page).toHaveURL(`${baseURL}${href}`)
+
+    await page.goto(`${baseURL}/blogs`)
+    const category = page.locator('[data-slot="content-card-category"]').first()
+    const categoryHref = await category.getAttribute('href')
+    await category.click()
+    await expect(page).toHaveURL(`${baseURL}${categoryHref}`)
   })
 
   for (const width of [1440, 1152, 768, 390]) {
@@ -214,7 +227,7 @@ test.describe('Blog publishing journeys', () => {
         .evaluate(
           (item) => getComputedStyle(item.parentElement!).gridTemplateColumns.split(' ').length,
         )
-      expect(columns).toBe(width >= 768 ? 2 : 1)
+      expect(columns).toBe(width >= 1024 ? 3 : width >= 768 ? 2 : 1)
       if (width === 1440 || width === 390) {
         const pill = await category.evaluate((element) => {
           const styles = getComputedStyle(element)
@@ -235,17 +248,16 @@ test.describe('Blog publishing journeys', () => {
             .flatMap((item) => item.getAnimations().map((animation) => animation.finished)),
         )
       })
-      const featured = await archive.first().boundingBox()
-      const regular = await archive.nth(1).boundingBox()
-      expect(featured).not.toBeNull()
-      expect(regular).not.toBeNull()
-      if (width >= 1024) {
-        expect(featured!.y).toBeLessThan(regular!.y)
-        expect(featured!.width).toBeGreaterThan(regular!.width * 1.9)
-      }
+      const first = await archive.first().boundingBox()
+      const second = await archive.nth(1).boundingBox()
+      expect(first).not.toBeNull()
+      expect(second).not.toBeNull()
+      expect(Math.abs(first!.width - second!.width)).toBeLessThan(1)
+      if (width >= 768) expect(Math.abs(first!.y - second!.y)).toBeLessThan(1)
       if (width === 390) {
         const menu = page.locator('[data-slot="blog-mobile-menu"]')
         const trigger = menu.locator('summary')
+        await expect(trigger).toHaveText('All')
         await trigger.focus()
         await expect(trigger).toBeFocused()
         await page.keyboard.press('Enter')
@@ -256,6 +268,7 @@ test.describe('Blog publishing journeys', () => {
         await culture.press('Enter')
         await expect(page.getByRole('heading', { name: 'Culture Blogs' })).toBeVisible()
         await expect(menu).not.toHaveAttribute('open')
+        await expect(trigger).toHaveText('Culture')
         await trigger.click()
         await expect(menu.locator('a[aria-current="page"]')).toHaveText('Culture')
         await page.goto(`${baseURL}/blogs`)
@@ -291,43 +304,34 @@ test.describe('Blog publishing journeys', () => {
         '/blogs',
       )
       if (width < 1024) {
-        const trigger = page.getByRole('button', { name: 'Open table of contents' })
+        const trigger = page.getByRole('button', { name: 'Table of contents' })
         await trigger.focus()
         await page.keyboard.press('Enter')
-        const drawer = page.getByRole('dialog', { name: 'Table of contents' })
-        await expect(drawer).toBeVisible()
+        // The desktop list is hidden below 64rem, so the visible TOC nav is the dropdown panel.
+        const menu = page.locator('nav[aria-label="Table of contents"]:visible')
+        await expect(menu).toBeVisible()
+        await expect(page.getByRole('dialog')).toHaveCount(0)
         if (width === 390) {
+          const chevron = trigger.locator('svg')
           await page.emulateMedia({ reducedMotion: 'no-preference' })
           expect(
-            await drawer.evaluate((dialog) =>
-              getComputedStyle(dialog)
-                .transitionDuration.split(',')
-                .some((duration) => parseFloat(duration) > 0),
-            ),
-          ).toBe(true)
+            await chevron.evaluate((icon) => parseFloat(getComputedStyle(icon).transitionDuration)),
+          ).toBeGreaterThan(0)
           await page.emulateMedia({ reducedMotion: 'reduce' })
-          expect(
-            await drawer.evaluate((dialog) => getComputedStyle(dialog).transitionDuration),
-          ).toBe('0s')
-          expect(
-            await drawer.evaluate(
-              (dialog) => getComputedStyle(dialog, '::backdrop').transitionDuration,
-            ),
-          ).toBe('0s')
+          await expect(chevron).toHaveCSS('transition-duration', '0s')
           await page.emulateMedia({ reducedMotion: 'no-preference' })
         }
-        await expect(drawer.getByRole('button', { name: 'Close table of contents' })).toBeFocused()
         await expect(trigger).toHaveAttribute('aria-expanded', 'true')
-        await expect.poll(() => page.evaluate(() => document.body.style.overflow)).toBe('hidden')
+        const barBox = await trigger.locator('..').boundingBox()
+        const menuBox = await menu.boundingBox()
+        expect(Math.abs(menuBox!.y - (barBox!.y + barBox!.height))).toBeLessThan(2)
+        expect(await page.evaluate(() => document.body.style.overflow)).not.toBe('hidden')
         await page.keyboard.press('Escape')
-        await expect(drawer).not.toBeVisible()
+        await expect(menu).toHaveCount(0)
         await expect(trigger).toBeFocused()
         await expect(trigger).toHaveAttribute('aria-expanded', 'false')
-        await expect
-          .poll(() => page.evaluate(() => document.body.style.overflow))
-          .not.toBe('hidden')
         await trigger.click()
-        await expect(drawer).toBeVisible()
+        await expect(menu).toBeVisible()
       }
       const toc = page.locator('nav[aria-label="Table of contents"]:visible')
       const anchor = toc.getByRole('link', { name: 'Start with the leaf' })
@@ -336,15 +340,29 @@ test.describe('Blog publishing journeys', () => {
         const geometry = await page
           .locator('[data-slot="blog-article-content"]')
           .evaluate((content) => {
-            const prose = content.querySelector('.payload-richtext')!.getBoundingClientRect()
+            const prose = content.querySelector('.payload-richtext > p')!.getBoundingClientRect()
             const media = content.querySelector('figure')!.getBoundingClientRect()
             const cta = [...content.querySelectorAll('h2')]
               .find((heading) => heading.textContent === 'Find your next cup')!
               .parentElement!.parentElement!.getBoundingClientRect()
-            return { prose: prose.width, media: media.width, cta: cta.width }
+            return {
+              prose: prose.width,
+              media: media.width,
+              cta: cta.width,
+              content: content.getBoundingClientRect().width,
+              left: content.getBoundingClientRect().x,
+              proseLeft: prose.x,
+              mediaLeft: media.x,
+              ctaLeft: cta.x,
+            }
           })
-        expect.soft(geometry.media, JSON.stringify(geometry)).toBeGreaterThan(geometry.prose + 30)
-        expect.soft(geometry.cta, JSON.stringify(geometry)).toBeGreaterThan(geometry.prose + 30)
+        expect(geometry.prose).toBeCloseTo(geometry.content, 0)
+        expect(geometry.media).toBeCloseTo(geometry.content, 0)
+        expect(geometry.cta).toBeCloseTo(geometry.content, 0)
+        for (const left of [geometry.proseLeft, geometry.mediaLeft, geometry.ctaLeft]) {
+          expect(Math.abs(left - geometry.left)).toBeLessThan(2)
+        }
+
         await page
           .locator('#start-with-the-leaf')
           .evaluate((heading) =>
@@ -370,10 +388,10 @@ test.describe('Blog publishing journeys', () => {
       await expect(page).toHaveURL(/#start-with-the-leaf$/)
       await expect(page.locator('#start-with-the-leaf')).toBeInViewport()
       if (width < 1024) {
-        await expect(page.getByRole('dialog', { name: 'Table of contents' })).not.toBeVisible()
-        await expect
-          .poll(() => page.evaluate(() => document.body.style.overflow))
-          .not.toBe('hidden')
+        await expect(page.getByRole('button', { name: 'Table of contents' })).toHaveAttribute(
+          'aria-expanded',
+          'false',
+        )
       }
       console.info(
         `Article ${width}px geometry: ${JSON.stringify(
@@ -402,10 +420,11 @@ test.describe('Blog publishing journeys', () => {
       await page.goto(`${baseURL}/blogs/${fixture.prefix}-1`)
       await expect(page.getByRole('heading', { name: 'Tea journal 01', exact: true })).toBeVisible()
       await expect(page.getByRole('navigation', { name: 'Table of contents' })).toHaveCount(0)
-      await expect(page.getByRole('button', { name: 'Open table of contents' })).toHaveCount(0)
+      await expect(page.getByRole('button', { name: 'Table of contents' })).toHaveCount(0)
       const readingColumn = await page.locator('[data-slot="blog-article-content"]').boundingBox()
       expect(readingColumn).not.toBeNull()
-      expect(Math.abs(readingColumn!.x + readingColumn!.width / 2 - width / 2)).toBeLessThan(2)
+      const articleColumn = await page.locator('main > article').boundingBox()
+      expect(Math.abs(readingColumn!.x - articleColumn!.x)).toBeLessThan(2)
       await expect
         .poll(() => page.evaluate(() => document.documentElement.scrollWidth <= innerWidth))
         .toBe(true)
@@ -450,4 +469,220 @@ test.describe('Blog publishing journeys', () => {
     await page.goto(`${baseURL}/next/exit-preview`)
     expect((await page.request.get(`${baseURL}/blogs/${fixture.prefix}-draft`)).status()).toBe(404)
   })
+})
+
+// This suite reads the current development article through the existing-server config.
+// It uses local reference images and blocks external requests rather than contacting R2.
+test.describe('Template A existing server', () => {
+  test.skip(!process.env.BLOG_DETAIL_EXISTING_SERVER, 'Use playwright.blog-detail.config.ts')
+
+  test.beforeEach(async ({ page }) => {
+    await page.route('**/*', async (route) => {
+      const request = route.request()
+      const url = new URL(request.url())
+      if (url.hostname === 'localhost' || url.hostname === '127.0.0.1') {
+        await route.continue()
+      } else if (request.resourceType() === 'image') {
+        if (url.pathname.endsWith('.svg')) {
+          await route.fulfill({
+            path: path.resolve('public/favicon.svg'),
+            contentType: 'image/svg+xml',
+          })
+        } else {
+          await route.fulfill({
+            path: path.resolve('public/website-template-OG.webp'),
+            contentType: 'image/webp',
+          })
+        }
+      } else {
+        await route.abort()
+      }
+    })
+  })
+
+  for (const width of [1440, 1152, 768, 390]) {
+    test(`article alignment, reading width, wide blocks and sticky tools at ${width}px`, async ({
+      page,
+    }, testInfo) => {
+      await page.setViewportSize({ width, height: width === 390 ? 844 : 1000 })
+      await page.goto(
+        `/blogs/${process.env.BLOG_DETAIL_SLUG ?? 'small-details-better-everyday-products'}`,
+      )
+      const article = page.locator('main > article')
+      const content = page.locator('[data-slot="blog-article-content"]')
+      const heading = article.locator('h1')
+      await expect(heading).toBeVisible()
+      await expect(article.locator('header time')).toHaveText(/^[A-Z][a-z]+ \d{1,2}, \d{4}$/)
+      const geometry = await article.evaluate((element) => {
+        const rect = (target: Element) => {
+          const { x, y, width, height, right } = target.getBoundingClientRect()
+          return { x, y, width, height, right }
+        }
+        const content = element.querySelector('[data-slot="blog-article-content"]')!
+        const richText = content.querySelector('.payload-richtext')!
+        const cta = [...richText.querySelectorAll('h2')]
+          .find((item) => item.textContent === 'Find ideas for your next project')!
+          .closest('.payload-richtext__embedded')!.firstElementChild!
+        return {
+          article: rect(element),
+          header: rect(document.querySelector('header [data-scrolled]')!),
+          breadcrumb: rect(element.querySelector('nav[aria-label="Breadcrumb"]')!),
+          title: rect(element.querySelector('h1')!),
+          excerpt: rect(element.querySelector('header > p')!),
+          hero: rect(element.querySelector('header + div')!),
+          content: rect(content),
+          prose: rect(richText.querySelector(':scope > p')!),
+          media: rect(richText.querySelector('figure')!),
+          cta: rect(cta),
+        }
+      })
+      console.info(`Template A ${width}px: ${JSON.stringify(geometry)}`)
+      expect(geometry.breadcrumb.y - geometry.header.y - geometry.header.height).toBeCloseTo(
+        width >= 1024 ? 56 : 40,
+        0,
+      )
+      for (const key of [
+        'breadcrumb',
+        'title',
+        'excerpt',
+        'hero',
+        'content',
+        'prose',
+        'media',
+        'cta',
+      ] as const) {
+        expect(Math.abs(geometry[key].x - geometry.article.x), key).toBeLessThan(2)
+      }
+      expect(geometry.article.width).toBeLessThanOrEqual(1220)
+      expect(geometry.title.width).toBeCloseTo(geometry.article.width, 0)
+      expect(geometry.excerpt.width).toBeCloseTo(geometry.article.width, 0)
+      expect(geometry.hero.width).toBeCloseTo(geometry.article.width, 0)
+      expect(geometry.prose.width).toBeCloseTo(geometry.content.width, 0)
+      expect(geometry.media.width).toBeCloseTo(geometry.content.width, 0)
+      expect(geometry.cta.width).toBeCloseTo(geometry.content.width, 0)
+
+      const ratio = width >= 768 ? 2 / 1 : 16 / 9
+      expect(geometry.hero.width / geometry.hero.height).toBeCloseTo(ratio, 1)
+      const trigger = page.getByRole('button', { name: 'Table of contents' })
+      if (width < 1024) {
+        await expect(trigger).toBeVisible()
+        await expect(trigger).toContainText('On this page')
+        await expect(trigger).toContainText('Designed around real routines')
+        await content.locator('h2[id]').first().evaluate((heading) => {
+          heading.scrollIntoView({ behavior: 'instant', block: 'start' })
+        })
+        const barGeometry = await trigger.evaluate((button) => {
+          const bar = button.parentElement!
+          const box = bar.getBoundingClientRect()
+          return {
+            x: box.x,
+            right: box.right,
+            top: box.top,
+            height: box.height,
+            header:
+              parseFloat(
+                getComputedStyle(document.documentElement).getPropertyValue('--header-height'),
+              ) * 16,
+          }
+        })
+        expect(Math.abs(barGeometry.x)).toBeLessThan(2)
+        expect(Math.abs(barGeometry.right - width)).toBeLessThan(2)
+        expect(barGeometry.height).toBeGreaterThanOrEqual(48)
+        expect(Math.abs(barGeometry.top - barGeometry.header)).toBeLessThan(2)
+        await trigger.focus()
+        await trigger.press('Enter')
+        const menu = page.locator('nav[aria-label="Table of contents"]:visible')
+        await expect(menu).toBeVisible()
+        const menuBox = await menu.boundingBox()
+        expect(Math.abs(menuBox!.x)).toBeLessThan(2)
+        expect(Math.abs(menuBox!.width - width)).toBeLessThan(2)
+        expect(Math.abs(menuBox!.y - (barGeometry.top + barGeometry.height))).toBeLessThan(2)
+        await page.keyboard.press('Escape')
+        await expect(menu).toHaveCount(0)
+        await expect(trigger).toBeFocused()
+        await trigger.click()
+        await menu.getByRole('link', { name: 'Materials that feel right' }).click()
+        await expect(menu).toHaveCount(0)
+        await expect(page).toHaveURL(/#materials-that-feel-right$/)
+        const currentHeading = await content.locator('h2[id], h3[id]').evaluateAll((headings) => {
+          const passed = headings.filter(
+            (heading) => heading.getBoundingClientRect().top <= innerHeight * 0.3,
+          )
+          return (passed.at(-1) ?? headings[0])?.textContent ?? ''
+        })
+        await expect(trigger).toContainText(currentHeading)
+        await trigger.click()
+        await expect(menu).toBeVisible()
+        await content.locator('p').last().dispatchEvent('pointerdown')
+        await expect(menu).toHaveCount(0)
+      } else {
+        await expect(trigger).not.toBeVisible()
+        const toc = page.locator('nav[aria-label="Table of contents"]:visible')
+        const tocBox = await toc.boundingBox()
+        expect(tocBox!.width).toBeCloseTo(280, 0)
+        expect(tocBox!.x + tocBox!.width).toBeCloseTo(geometry.article.right, 0)
+        expect(tocBox!.y).toBeCloseTo(geometry.content.y, 0)
+        const firstSection = content.locator('h2[id]').first()
+        await firstSection.evaluate((heading) =>
+          window.scrollTo(
+            0,
+            heading.getBoundingClientRect().top + scrollY - innerHeight * 0.3 + 20,
+          ),
+        )
+        await expect(toc.locator('a[aria-current="location"]')).toHaveText(
+          (await firstSection.textContent()) ?? '',
+        )
+        const lastSection = content.locator('h2[id]').last()
+        await lastSection.evaluate((heading) =>
+          window.scrollTo(
+            0,
+            heading.getBoundingClientRect().top + scrollY - innerHeight * 0.3 + 20,
+          ),
+        )
+        await expect(toc.locator('a[aria-current="location"]')).toHaveText(
+          (await lastSection.textContent()) ?? '',
+        )
+        await expect
+          .poll(() =>
+            toc.evaluate((nav) => {
+              const top = nav.getBoundingClientRect().top
+              const offset =
+                parseFloat(
+                  getComputedStyle(document.documentElement).getPropertyValue('--header-height'),
+                ) *
+                  16 +
+                24
+              return Math.abs(top - offset) < 2
+            }),
+          )
+          .toBe(true)
+      }
+      await expect
+        .poll(() => page.evaluate(() => document.documentElement.scrollWidth <= innerWidth))
+        .toBe(true)
+      if (width === 390) {
+        const longCategory = await page
+          .locator('nav[aria-label="Breadcrumb"] a[href^="/blogs/category/"]')
+          .evaluate((link) => {
+            const text = link.textContent
+            link.textContent =
+              'A considerably longer unrestricted category title with an unbroken identifier ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+            const result = { viewport: innerWidth, document: document.documentElement.scrollWidth }
+            link.textContent = text
+            return result
+          })
+        expect(longCategory.document).toBeLessThanOrEqual(longCategory.viewport)
+      }
+      const skipTOC = page.getByRole('link', { name: 'Skip to table of contents' })
+      await skipTOC.focus()
+      await skipTOC.press('Enter')
+      await expect(page.locator('#table-of-contents')).toBeFocused()
+      await expect(page.locator('#table-of-contents')).toBeVisible()
+      await page.evaluate(() => window.scrollTo(0, 0))
+      await page.screenshot({
+        path: testInfo.outputPath(`template-a-${width}.png`),
+        fullPage: true,
+      })
+    })
+  }
 })

@@ -16,7 +16,8 @@ import { BannerBlock } from '@/blocks/Banner/Component'
 import { FormBlock, type FormBlockType } from '@/blocks/Form/Component'
 import { Width } from '@/blocks/Form/Width'
 import { CodeBlock } from '@/blocks/Code/Component'
-import type { Blog, Page } from '@/payload-types'
+import type { Page } from '@/payload-types'
+import RichText from '@/components/RichText'
 
 // The glob lets missing migration modules fail assertions rather than module resolution.
 const modules = import.meta.glob('/src/blocks/**/*.module.css', {
@@ -101,59 +102,86 @@ describe('Block CSS module contracts', () => {
     const { container, rerender } = render(<RenderBlocks blocks={first} />)
     const originalNodes = [...container.children]
     expect(originalNodes).toHaveLength(2)
-    expect(originalNodes.map((node) => node.getAttribute('data-block-context'))).toEqual([
-      'page',
-      'page',
-    ])
+    expect(
+      originalNodes.every((node) => node.classList.contains(style('RenderBlocks', 'section'))),
+    ).toBe(true)
     rerender(<RenderBlocks blocks={[first[1], first[0]]} />)
     expect(container.children[0]).toBe(originalNodes[1])
     expect(container.children[1]).toBe(originalNodes[0])
   })
 
-  it('renders every typed article block in one article wrapper', () => {
-    const blocks: Blog['content'] = [
-      { id: 'prose', blockType: 'prose', content: richText('Article prose') },
-      { id: 'media', blockType: 'mediaBlock', media: 'missing', width: 'wide' },
-      { id: 'takeaways', blockType: 'keyTakeaways', content: richText('Summary') },
-      { id: 'banner', blockType: 'banner', style: 'info', content: richText('Notice') },
-      { id: 'cta', blockType: 'cta', heading: 'Explore more', theme: 'inverse' },
-    ]
-    const { container } = render(<RenderBlocks blocks={blocks} context="article" />)
-    expect(container.children).toHaveLength(blocks.length)
-    for (const wrapper of container.children) {
-      expect(wrapper.classList).toContain(style('RenderBlocks', 'section'))
-      expect(wrapper.getAttribute('data-block-context')).toBe('article')
-      expect(wrapper.children).toHaveLength(1)
-    }
-    expect(screen.getByText('Article prose')).toBeTruthy()
+  it('renders article blocks inside rich-text embedded containers with article widths', () => {
+    const block = (id: string, fields: Record<string, unknown>) => ({
+      type: 'block',
+      version: 2,
+      format: '',
+      fields: { id, ...fields },
+    })
+    const content = {
+      root: {
+        type: 'root',
+        version: 1,
+        direction: null,
+        format: '',
+        indent: 0,
+        children: [
+          block('media', { blockType: 'mediaBlock', media: 'missing', width: 'wide' }),
+          block('takeaways', { blockType: 'keyTakeaways', content: richText('Summary') }),
+          block('banner', { blockType: 'banner', style: 'info', content: richText('Notice') }),
+          block('cta', { blockType: 'cta', heading: 'Explore more', theme: 'inverse' }),
+        ],
+      },
+    } as never
+    const { container } = render(<RichText data={content} context="article" />)
+    expect(container.querySelectorAll('.payload-richtext__embedded')).toHaveLength(4)
     expect(screen.getByText('Summary')).toBeTruthy()
     expect(screen.getByText('Notice')).toBeTruthy()
     expect(screen.getByText('Explore more')).toBeTruthy()
-    expect(readFileSync('src/blocks/RenderBlocks.module.css', 'utf8')).toMatch(
-      /\.section\[data-block-context='article'\]\s*\{[^}]*padding-block:\s*var\(--website-space-8\)/,
-    )
     expect(container.querySelector('figure')?.classList).toContain(
       style('MediaBlock/Component', 'article'),
     )
-    expect(screen.getByText('Article prose').closest(`.${style('Prose/Component', 'article')}`)).toBeTruthy()
-    const proseCSS = readFileSync('src/blocks/Prose/Component.module.css', 'utf8')
-    const mediaCSS = readFileSync('src/blocks/MediaBlock/Component.module.css', 'utf8')
-    expect(proseCSS).toMatch(/\.article\s*\{[^}]*max-width:\s*var\(--website-container-reading\)/)
-    expect(mediaCSS).toMatch(/\.article\.wide\s*\{[^}]*max-width:\s*56\.25rem/)
+    expect(readFileSync('src/components/RichText/index.module.css', 'utf8')).toMatch(
+      /\.article > :global\(\.payload-richtext__embedded\) > \*\s*\{[^}]*margin-block:\s*0/s,
+    )
+    expect(readFileSync('src/blocks/MediaBlock/Component.module.css', 'utf8')).toMatch(
+      /\.article\.wide\s*\{[^}]*max-width:\s*none/,
+    )
+    expect(readFileSync('src/blocks/RenderBlocks.module.css', 'utf8')).not.toContain(
+      "data-block-context='article'",
+    )
   })
 
   it('lets CTA inherit a parent theme unless its theme is explicitly selected', () => {
-    const blocks: Blog['content'] = [
-      { id: 'inherited', blockType: 'cta', heading: 'Inherited' },
-      { id: 'inverse', blockType: 'cta', heading: 'Inverse', theme: 'inverse' },
-      { id: 'default', blockType: 'cta', heading: 'Default', theme: 'default' },
-    ]
+    const content = {
+      root: {
+        type: 'root',
+        version: 1,
+        direction: null,
+        format: '',
+        indent: 0,
+        children: [
+          ...(['inherited', 'inverse', 'default'] as const).map((id) => ({
+            type: 'block',
+            version: 2,
+            format: '',
+            fields: {
+              id,
+              blockType: 'cta',
+              heading: id,
+              ...(id === 'inherited' ? {} : { theme: id }),
+            },
+          })),
+        ],
+      },
+    } as never
     const { container } = render(
       <div data-website-theme="inverse">
-        <RenderBlocks blocks={blocks} context="article" />
+        <RichText data={content} context="article" />
       </div>,
     )
-    const panels = [...container.querySelectorAll(`.${style('CallToAction/Component', 'container')}`)]
+    const panels = [
+      ...container.querySelectorAll(`.${style('CallToAction/Component', 'container')}`),
+    ]
     expect(panels.map((panel) => panel.getAttribute('data-website-theme'))).toEqual([
       null,
       'inverse',

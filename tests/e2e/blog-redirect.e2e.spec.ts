@@ -5,7 +5,7 @@ import sharp from 'sharp'
 import config from '../../src/payload.config.js'
 import { assertRunScopedE2EDatabaseURI } from '../helpers/e2eDatabase'
 import { getE2EBaseURL } from '../helpers/e2eBaseURL'
-import { blogFixture } from '../helpers/blogFixtures'
+import { blogFixture, richText } from '../helpers/blogFixtures'
 
 const runID = process.env.PLAYWRIGHT_E2E_RUN_ID!
 const slug = `e2e-blog-redirect-${runID}`
@@ -53,42 +53,7 @@ test.describe.serial('Blog reference redirect', () => {
         excerpt: 'A redirect fixture',
         heroImage: media.id,
         category: category.id,
-        content: [
-          {
-            blockType: 'prose',
-            content: {
-              root: {
-                type: 'root',
-                version: 1,
-                direction: null,
-                format: '',
-                indent: 0,
-                children: [
-                  {
-                    type: 'paragraph',
-                    version: 1,
-                    direction: null,
-                    format: '',
-                    indent: 0,
-                    textFormat: 0,
-                    textStyle: '',
-                    children: [
-                      {
-                        type: 'text',
-                        version: 1,
-                        text: 'Fixture',
-                        format: 0,
-                        detail: 0,
-                        mode: 'normal',
-                        style: '',
-                      },
-                    ],
-                  },
-                ],
-              },
-            },
-          },
-        ],
+        content: richText('Fixture'),
         _status: 'published',
       },
       context: { disableRevalidate: true },

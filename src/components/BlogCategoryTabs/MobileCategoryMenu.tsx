@@ -5,6 +5,7 @@ import React, { useEffect, useId, useRef } from 'react'
 
 import type { CategoryLink } from './CategoryLinks'
 import styles from './index.module.css'
+import { rememberNavigationOffset, useRestoreNavigationOffset } from './keepNavigationInPlace'
 
 export function MobileCategoryMenu({
   links,
@@ -16,6 +17,9 @@ export function MobileCategoryMenu({
   const detailsRef = useRef<HTMLDetailsElement>(null)
   const summaryRef = useRef<HTMLElement>(null)
   const panelID = useId()
+  useRestoreNavigationOffset(detailsRef, currentCategory)
+  const currentSlug = currentCategory || null
+  const currentTitle = links.find(({ slug }) => slug === currentSlug)?.title ?? links[0]?.title
 
   useEffect(() => {
     const closeOutside = (event: PointerEvent) => {
@@ -44,7 +48,7 @@ export function MobileCategoryMenu({
       }}
     >
       <summary className={styles.mobileTrigger} ref={summaryRef} aria-controls={panelID}>
-        Blog
+        {currentTitle}
         <svg
           className={styles.chevron}
           width="20"
@@ -59,11 +63,13 @@ export function MobileCategoryMenu({
       <div className={styles.mobilePanel} id={panelID}>
         {links.map((category) => (
           <Link
-            aria-current={category.slug === (currentCategory || null) ? 'page' : undefined}
+            aria-current={category.slug === currentSlug ? 'page' : undefined}
             className={styles.mobileLink}
             href={category.slug ? `/blogs/category/${category.slug}` : '/blogs'}
             key={category.id}
-            onClick={() => {
+            scroll={false}
+            onClick={(event) => {
+              rememberNavigationOffset(event)
               if (detailsRef.current) detailsRef.current.open = false
             }}
           >

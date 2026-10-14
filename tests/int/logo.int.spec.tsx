@@ -22,18 +22,18 @@ import { Header } from '@/Header/Component'
 import headerStyles from '@/Header/Component.module.css'
 import { Logo } from '@/components/Logo/Logo'
 import logoStyles from '@/components/Logo/Logo.module.css'
-import { resolveBrandAsset } from '@/components/Logo/resolveBrandAsset'
+import { resolveSiteAsset } from '@/components/Logo/resolveSiteAsset'
 import { resolveFavicon } from '@/components/Logo/resolveFavicon'
 import type { LogoImage } from '@/components/Logo/types'
-import type { BrandAsset, Footer as FooterData, Header as HeaderData } from '@/payload-types'
+import type { SiteAsset, Footer as FooterData, Header as HeaderData } from '@/payload-types'
 import { buildSiteMetadata } from '@/utilities/buildSiteMetadata'
 
-const brandAsset = (overrides: Partial<BrandAsset> = {}): BrandAsset => ({
+const siteAsset = (overrides: Partial<SiteAsset> = {}): SiteAsset => ({
   id: 'brand-asset-id',
   alt: 'Ecolitea',
   createdAt: '2026-09-01T00:00:00.000Z',
   updatedAt: '2026-09-01T01:02:03.000Z',
-  url: '/api/brand-assets/file/ecolitea.svg',
+  url: '/api/site-assets/file/ecolitea.svg',
   width: 1302,
   height: 296,
   ...overrides,
@@ -73,18 +73,18 @@ afterEach(() => {
   getCachedSiteSettingsMock.mockReset()
 })
 
-describe('resolveBrandAsset', () => {
+describe('resolveSiteAsset', () => {
   it('returns null for an unexpanded relationship ID', () => {
-    expect(resolveBrandAsset('brand-asset-id')).toBeNull()
+    expect(resolveSiteAsset('brand-asset-id')).toBeNull()
   })
 
   it('returns null when a populated asset has no URL', () => {
-    expect(resolveBrandAsset(brandAsset({ url: null }))).toBeNull()
+    expect(resolveSiteAsset(siteAsset({ url: null }))).toBeNull()
   })
 
   it('resolves a populated asset into cache-tagged presentation data', () => {
-    expect(resolveBrandAsset(brandAsset())).toEqual({
-      src: '/api/brand-assets/file/ecolitea.svg?2026-09-01T01%3A02%3A03.000Z',
+    expect(resolveSiteAsset(siteAsset())).toEqual({
+      src: '/api/site-assets/file/ecolitea.svg?2026-09-01T01%3A02%3A03.000Z',
       alt: 'Ecolitea',
       width: 1302,
       height: 296,
@@ -93,8 +93,8 @@ describe('resolveBrandAsset', () => {
 
   it('preserves the configured remote URL for an R2-backed brand asset', () => {
     expect(
-      resolveBrandAsset(
-        brandAsset({
+      resolveSiteAsset(
+        siteAsset({
           filename: 'white logo.svg',
           url: 'https://media.ecolitea.com/white logo.svg',
         }),
@@ -105,21 +105,21 @@ describe('resolveBrandAsset', () => {
   })
 
   it('uses stable intrinsic dimensions when metadata is missing or non-positive', () => {
-    expect(resolveBrandAsset(brandAsset({ width: 0, height: -1 }))).toMatchObject({
+    expect(resolveSiteAsset(siteAsset({ width: 0, height: -1 }))).toMatchObject({
       width: 1302,
       height: 296,
     })
   })
 
   it('derives height from valid width when height metadata is missing', () => {
-    expect(resolveBrandAsset(brandAsset({ width: 1000, height: null }))).toMatchObject({
+    expect(resolveSiteAsset(siteAsset({ width: 1000, height: null }))).toMatchObject({
       width: 1000,
       height: 227,
     })
   })
 
   it('derives width from valid height when width metadata is missing', () => {
-    expect(resolveBrandAsset(brandAsset({ width: null, height: 200 }))).toMatchObject({
+    expect(resolveSiteAsset(siteAsset({ width: null, height: 200 }))).toMatchObject({
       width: 880,
       height: 200,
     })
@@ -130,13 +130,13 @@ describe('resolveFavicon', () => {
   it('resolves a populated PNG asset with its MIME type and cache-tagged URL', () => {
     expect(
       resolveFavicon(
-        brandAsset({
+        siteAsset({
           mimeType: 'image/png',
-          url: '/api/brand-assets/file/favicon.png',
+          url: '/api/site-assets/file/favicon.png',
         }),
       ),
     ).toEqual({
-      url: '/api/brand-assets/file/favicon.png?2026-09-01T01%3A02%3A03.000Z',
+      url: '/api/site-assets/file/favicon.png?2026-09-01T01%3A02%3A03.000Z',
       type: 'image/png',
     })
   })
@@ -144,21 +144,21 @@ describe('resolveFavicon', () => {
   it('returns null for a missing or unexpanded relationship', () => {
     expect(resolveFavicon(undefined)).toBeNull()
     expect(resolveFavicon('brand-asset-id')).toBeNull()
-    expect(resolveFavicon(brandAsset({ url: null }))).toBeNull()
+    expect(resolveFavicon(siteAsset({ url: null }))).toBeNull()
   })
 })
 
 describe('buildSiteMetadata', () => {
   it('uses a configured favicon and preserves the existing root metadata', () => {
     const metadata = buildSiteMetadata({
-      url: '/api/brand-assets/file/favicon.png?cache-tag',
+      url: '/api/site-assets/file/favicon.png?cache-tag',
       type: 'image/png',
     })
 
     expect(metadata.icons).toEqual({
       icon: [
         {
-          url: '/api/brand-assets/file/favicon.png?cache-tag',
+          url: '/api/site-assets/file/favicon.png?cache-tag',
           type: 'image/png',
         },
       ],
@@ -212,14 +212,14 @@ describe('Logo', () => {
 })
 
 describe('branding integration', () => {
-  const primaryAsset = brandAsset({
+  const primaryAsset = siteAsset({
     alt: 'Primary brand',
-    url: '/api/brand-assets/file/primary.svg',
+    url: '/api/site-assets/file/primary.svg',
   })
   const useGlobalFixtures = ({
     logo = primaryAsset,
   }: {
-    logo?: BrandAsset | string | null
+    logo?: SiteAsset | string | null
   } = {}) => {
     const siteSettings = {
       id: 'site-settings',
@@ -239,7 +239,7 @@ describe('branding integration', () => {
 
     expect(header.props).toMatchObject({
       logo: {
-        src: '/api/brand-assets/file/primary.svg?2026-09-01T01%3A02%3A03.000Z',
+        src: '/api/site-assets/file/primary.svg?2026-09-01T01%3A02%3A03.000Z',
         alt: 'Primary brand',
         width: 1302,
         height: 296,
@@ -255,7 +255,7 @@ describe('branding integration', () => {
     const logo = findElementByType(footer, Logo)
 
     expect(logo?.props.image).toEqual({
-      src: '/api/brand-assets/file/primary.svg?2026-09-01T01%3A02%3A03.000Z',
+      src: '/api/site-assets/file/primary.svg?2026-09-01T01%3A02%3A03.000Z',
       alt: 'Primary brand',
       width: 1302,
       height: 296,
@@ -304,7 +304,7 @@ describe('branding integration', () => {
     const logo = findElementByType(footer, Logo)
 
     expect(logo?.props.image).toMatchObject({
-      src: '/api/brand-assets/file/primary.svg?2026-09-01T01%3A02%3A03.000Z',
+      src: '/api/site-assets/file/primary.svg?2026-09-01T01%3A02%3A03.000Z',
       alt: 'Primary brand',
     })
   })

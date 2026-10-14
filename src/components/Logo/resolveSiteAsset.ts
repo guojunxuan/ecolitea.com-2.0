@@ -1,4 +1,4 @@
-import type { BrandAsset } from '@/payload-types'
+import type { SiteAsset } from '@/payload-types'
 import { getMediaUrl } from '@/utilities/getMediaUrl'
 
 import type { LogoImage } from './types'
@@ -23,8 +23,8 @@ const resolveDimensions = (width: number | null | undefined, height: number | nu
   return { width: DEFAULT_WIDTH, height: DEFAULT_HEIGHT }
 }
 
-export const resolveBrandAsset = (
-  asset: string | BrandAsset | null | undefined,
+export const resolveSiteAsset = (
+  asset: string | SiteAsset | null | undefined,
 ): LogoImage | null => {
   if (!asset || typeof asset !== 'object' || !asset.url) return null
 

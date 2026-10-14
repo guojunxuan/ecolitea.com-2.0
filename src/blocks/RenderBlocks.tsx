@@ -1,26 +1,20 @@
 import React, { Fragment } from 'react'
 
-import type { Blog, CaseStudy, Page } from '@/payload-types'
+import type { CaseStudy, Page } from '@/payload-types'
 
 import { ArchiveBlock } from '@/blocks/ArchiveBlock/Component'
-import { BannerBlock } from '@/blocks/Banner/Component'
 import { CallToActionBlock } from '@/blocks/CallToAction/Component'
 import { ContentBlock } from '@/blocks/Content/Component'
 import { FormBlock, type FormBlockType } from '@/blocks/Form/Component'
-import { KeyTakeawaysBlock } from '@/blocks/KeyTakeaways/Component'
 import { MediaBlock } from '@/blocks/MediaBlock/Component'
-import { ProseBlock } from '@/blocks/Prose/Component'
-import { extractTOCByBlock } from '@/utilities/blogs/extractTOC'
 import styles from './RenderBlocks.module.css'
 
 export type RenderBlocksProps = {
-  blocks: Page['layout'] | CaseStudy['layout'] | Blog['content']
-  context?: 'page' | 'article'
+  blocks: Page['layout'] | CaseStudy['layout']
 }
 
-export const RenderBlocks: React.FC<RenderBlocksProps> = ({ blocks, context = 'page' }) => {
+export const RenderBlocks: React.FC<RenderBlocksProps> = ({ blocks }) => {
   if (!blocks?.length) return null
-  const tocByBlock = context === 'article' ? extractTOCByBlock(blocks as Blog['content']) : []
 
   return (
     <Fragment>
@@ -31,14 +25,11 @@ export const RenderBlocks: React.FC<RenderBlocksProps> = ({ blocks, context = 'p
           case 'archive':
             content = <ArchiveBlock {...block} id={block.id ?? undefined} />
             break
-          case 'banner':
-            content = <BannerBlock {...block} />
-            break
           case 'content':
             content = <ContentBlock {...block} />
             break
           case 'cta':
-            content = <CallToActionBlock {...block} context={context} />
+            content = <CallToActionBlock {...block} />
             break
           case 'formBlock':
             if (typeof block.form !== 'object' || !block.form) return null
@@ -53,38 +44,15 @@ export const RenderBlocks: React.FC<RenderBlocksProps> = ({ blocks, context = 'p
               />
             )
             break
-          case 'keyTakeaways':
-            content = <KeyTakeawaysBlock {...block} />
-            break
           case 'mediaBlock':
-            content = (
-              <MediaBlock
-                {...block}
-                context={context}
-                enableGutter={context !== 'article'}
-                disableInnerContainer
-              />
-            )
-            break
-          case 'prose':
-            content = (
-              <ProseBlock
-                {...block}
-                context={context}
-                headingIds={tocByBlock[index]?.map((item) => item.id)}
-              />
-            )
+            content = <MediaBlock {...block} disableInnerContainer />
             break
           default:
             return null
         }
 
         return (
-          <div
-            className={styles.section}
-            data-block-context={context}
-            key={block.id || `${block.blockType}-${index}`}
-          >
+          <div className={styles.section} key={block.id || `${block.blockType}-${index}`}>
             {content}
           </div>
         )

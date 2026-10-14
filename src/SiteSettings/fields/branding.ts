@@ -9,7 +9,7 @@ export const brandingTab: Tab = {
     {
       name: 'logo',
       type: 'upload',
-      relationTo: 'brand-assets',
+      relationTo: 'site-assets',
       required: true,
       filterOptions: {
         mimeType: {
@@ -23,7 +23,7 @@ export const brandingTab: Tab = {
     {
       name: 'favicon',
       type: 'upload',
-      relationTo: 'brand-assets',
+      relationTo: 'site-assets',
       filterOptions: {
         mimeType: {
           in: ['image/svg+xml', 'image/png', 'image/x-icon', 'image/vnd.microsoft.icon'],

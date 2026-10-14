@@ -6,11 +6,17 @@ import type { BlogListingHeroModel } from '@/utilities/blogs/getBlogListingHero'
 
 import styles from './index.module.css'
 
-export const BlogListingHero: React.FC<BlogListingHeroModel> = ({
+type Props = BlogListingHeroModel & {
+  /** Route navigation rendered above the heading, such as a category breadcrumb. */
+  breadcrumb?: React.ReactNode
+}
+
+export const BlogListingHero: React.FC<Props> = ({
   heading,
   description,
   image,
   headerTheme,
+  breadcrumb,
 }) => (
   <section
     className={styles.root}
@@ -32,6 +38,7 @@ export const BlogListingHero: React.FC<BlogListingHeroModel> = ({
       </div>
     )}
     <div className={styles.content}>
+      {breadcrumb}
       <h1 className={styles.heading}>{heading}</h1>
       {description && <p className={styles.description}>{description}</p>}
     </div>

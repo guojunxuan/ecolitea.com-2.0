@@ -27,6 +27,7 @@ import { MetaDescriptionComponent as MetaDescriptionComponent_a8a977ebc872c5d5ea
 import { PreviewComponent as PreviewComponent_a8a977ebc872c5d5ea7ee689724c0860 } from '@payloadcms/plugin-seo/client'
 import { BlocksFeatureClient as BlocksFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { BlockRowLabel as BlockRowLabel_54fe0f316d4b99315c1513bdd1306683 } from '@/blocks/BlockRowLabel'
+import { ArticleBlockEditor as ArticleBlockEditor_4971c3244241ba6cff288a3222e75719 } from '@/blocks/ArticleBlockEditor'
 import { SocialPlatformNameField as SocialPlatformNameField_57cfda3ee93492850d81f1adf8296638 } from '@/SiteSettings/components/SocialPlatformNameField'
 import { LinkToDoc as LinkToDoc_aead06e4cbf6b2620c5c51c9ab283634 } from '@payloadcms/plugin-search/client'
 import { ReindexButton as ReindexButton_aead06e4cbf6b2620c5c51c9ab283634 } from '@payloadcms/plugin-search/client'
@@ -36,6 +37,7 @@ import { ColumnRowLabel as ColumnRowLabel_1f6ff6ff633e3695d348f4f3c58f1466 } fro
 import { SocialPlatformCreateActions as SocialPlatformCreateActions_f4925e2e9e913922ba2611b049e67e78 } from '@/SiteSettings/components/SocialPlatformCreateActions'
 import { SocialLinksArrayField as SocialLinksArrayField_ea1af3bc4c821b42c92f79172947f6c9 } from '@/SiteSettings/components/SocialLinksArrayField'
 import { SocialLinkRowLabel as SocialLinkRowLabel_68735dc78968c7c1609d0002eef58140 } from '@/SiteSettings/components/SocialLinkRowLabel'
+import { ArticleShareURLField as ArticleShareURLField_1245b93634f2f81e3750ee57bc6e3eed } from '@/Settings/components/ArticleShareURLField'
 import { default as default_8a7ab0eb7ab5c511aba12e68480bfe5e } from '@/components/BeforeLogin'
 import { FolderIcon as FolderIcon_3817bf644402e67bfe6577f60ef982de } from '@payloadcms/ui'
 import { HierarchySidebarTabServer as HierarchySidebarTabServer_ab83ff7e88da8d3530831f296ec4756a } from '@payloadcms/ui/rsc'
@@ -77,6 +79,7 @@ export const importMap = {
   "@payloadcms/plugin-seo/client#PreviewComponent": PreviewComponent_a8a977ebc872c5d5ea7ee689724c0860,
   "@payloadcms/richtext-lexical/client#BlocksFeatureClient": BlocksFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@/blocks/BlockRowLabel#BlockRowLabel": BlockRowLabel_54fe0f316d4b99315c1513bdd1306683,
+  "@/blocks/ArticleBlockEditor#ArticleBlockEditor": ArticleBlockEditor_4971c3244241ba6cff288a3222e75719,
   "@/SiteSettings/components/SocialPlatformNameField#SocialPlatformNameField": SocialPlatformNameField_57cfda3ee93492850d81f1adf8296638,
   "@payloadcms/plugin-search/client#LinkToDoc": LinkToDoc_aead06e4cbf6b2620c5c51c9ab283634,
   "@payloadcms/plugin-search/client#ReindexButton": ReindexButton_aead06e4cbf6b2620c5c51c9ab283634,
@@ -86,6 +89,7 @@ export const importMap = {
   "@/SiteSettings/components/SocialPlatformCreateActions#SocialPlatformCreateActions": SocialPlatformCreateActions_f4925e2e9e913922ba2611b049e67e78,
   "@/SiteSettings/components/SocialLinksArrayField#SocialLinksArrayField": SocialLinksArrayField_ea1af3bc4c821b42c92f79172947f6c9,
   "@/SiteSettings/components/SocialLinkRowLabel#SocialLinkRowLabel": SocialLinkRowLabel_68735dc78968c7c1609d0002eef58140,
+  "@/Settings/components/ArticleShareURLField#ArticleShareURLField": ArticleShareURLField_1245b93634f2f81e3750ee57bc6e3eed,
   "@/components/BeforeLogin#default": default_8a7ab0eb7ab5c511aba12e68480bfe5e,
   "@payloadcms/ui#FolderIcon": FolderIcon_3817bf644402e67bfe6577f60ef982de,
   "@payloadcms/ui/rsc#HierarchySidebarTabServer": HierarchySidebarTabServer_ab83ff7e88da8d3530831f296ec4756a,

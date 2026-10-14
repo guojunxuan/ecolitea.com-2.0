@@ -7,7 +7,7 @@ import { buildConfig, getPayload, type File, type GlobalConfig, type Payload } f
 import sharp from 'sharp'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 
-import { BrandAssets } from '@/collections/BrandAssets'
+import { SiteAssets } from '@/collections/SiteAssets'
 import { SocialPlatforms } from '@/collections/SocialPlatforms'
 import { socialTab } from '@/SiteSettings/fields/social'
 
@@ -39,9 +39,10 @@ describe('Social Platform database contracts', () => {
   beforeAll(async () => {
     uploadDirectory = await mkdtemp(path.join(tmpdir(), 'social-platform-assets-'))
     const databaseName = `ecolitea2-social-platform-${randomUUID()}`
+    console.info(`Social platform test target: 127.0.0.1:27017/${databaseName}; storage: local ${uploadDirectory}`)
     const config = await buildConfig({
       collections: [
-        { ...BrandAssets, upload: { ...(typeof BrandAssets.upload === 'object' ? BrandAssets.upload : {}), staticDir: uploadDirectory } },
+        { ...SiteAssets, upload: { ...(typeof SiteAssets.upload === 'object' ? SiteAssets.upload : {}), staticDir: uploadDirectory } },
         SocialPlatforms,
       ],
       db: mongooseAdapter({ connectOptions: { serverSelectionTimeoutMS: 3_000 }, url: `mongodb://127.0.0.1:27017/${databaseName}` }),
@@ -56,14 +57,14 @@ describe('Social Platform database contracts', () => {
     })
     payload = await getPayload({ config, key: databaseName })
     const asset = await withTempUpload(upload('icon.svg'), (file) =>
-      payload.create({ collection: 'brand-assets', data: { alt: 'Icon' }, file }),
+      payload.create({ collection: 'site-assets', data: { alt: 'Icon' }, file }),
     )
     svgID = String(asset.id)
     const secondSVG = await withTempUpload(upload('icon-alternate.svg'), (file) =>
-      payload.create({ collection: 'brand-assets', data: { alt: 'Alternate Icon' }, file }),
+      payload.create({ collection: 'site-assets', data: { alt: 'Alternate Icon' }, file }),
     )
     secondSVGID = String(secondSVG.id)
-    const png = await (payload.db as MongooseAdapter).collections['brand-assets'].create({
+    const png = await (payload.db as MongooseAdapter).collections['site-assets'].create({
       alt: 'PNG Icon',
       filename: 'icon.png',
       filesize: 68,
@@ -74,7 +75,9 @@ describe('Social Platform database contracts', () => {
 
   afterAll(async () => {
     if (payload) {
-      await (payload.db as MongooseAdapter).connection.dropDatabase()
+      const connection = (payload.db as MongooseAdapter).connection
+      console.info(`Social platform test cleanup: ${connection.host}:${connection.port}/${connection.name}; storage: local ${uploadDirectory}`)
+      await connection.dropDatabase()
       await payload.destroy()
     }
     if (uploadDirectory) await rm(uploadDirectory, { force: true, recursive: true })
@@ -106,7 +109,7 @@ describe('Social Platform database contracts', () => {
     await expect(payload.update({ collection: 'social-platforms', id: platform.id, data: { icon: pngID } })).rejects.toThrow('The following field is invalid: Icon')
     await expect(payload.update({ collection: 'social-platforms', id: platform.id, data: { icon: null as never } })).rejects.toThrow('The following field is invalid: Icon')
     await expect(payload.update({ collection: 'social-platforms', id: platform.id, data: { icon: secondSVGID } })).resolves.toMatchObject({ platform: 'Immutable' })
-    await expect(payload.findByID({ collection: 'brand-assets', id: svgID })).resolves.toMatchObject({ id: svgID })
+    await expect(payload.findByID({ collection: 'site-assets', id: svgID })).resolves.toMatchObject({ id: svgID })
   })
 
   it('rejects a repeated Platform relationship through the Local API', async () => {
@@ -136,12 +139,12 @@ describe('Social Platform database contracts', () => {
       })
   })
 
-  it('does not cascade-delete a Brand Asset with its Platform', async () => {
+  it('does not cascade-delete a Site Asset with its Platform', async () => {
     const platform = await payload.create({
       collection: 'social-platforms',
       data: { icon: svgID, platform: 'Disposable Platform' },
     })
     await payload.delete({ collection: 'social-platforms', id: platform.id })
-    await expect(payload.findByID({ collection: 'brand-assets', id: svgID })).resolves.toMatchObject({ id: svgID })
+    await expect(payload.findByID({ collection: 'site-assets', id: svgID })).resolves.toMatchObject({ id: svgID })
   })
 })

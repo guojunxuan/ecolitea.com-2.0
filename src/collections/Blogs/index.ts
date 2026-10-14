@@ -6,8 +6,10 @@ import {
   OverviewField,
   PreviewField,
 } from '@payloadcms/plugin-seo/fields'
+import { BlocksFeature, lexicalEditor } from '@payloadcms/richtext-lexical'
 import { authenticated } from '@/access/authenticated'
 import { authenticatedOrPublishedBlog } from '@/access/authenticatedOrPublishedBlog'
+import { defaultLexicalFeatures } from '@/fields/defaultLexical'
 import { generatePreviewPath } from '@/utilities/generatePreviewPath'
 import { populateAuthors } from './hooks/populateAuthors'
 import { revalidateBlog, revalidateDelete } from './hooks/revalidateBlog'
@@ -56,9 +58,14 @@ export const Blogs: CollectionConfig = {
             { name: 'excerpt', type: 'textarea', required: true, maxLength: 160 },
             {
               name: 'content',
-              type: 'blocks',
-              blocks: ['prose', 'mediaBlock', 'keyTakeaways', 'cta', 'banner'],
-              minRows: 1,
+              type: 'richText',
+              editor: lexicalEditor({
+                admin: { hideGutter: false, hideDraggableBlockElement: true },
+                features: [
+                  ...defaultLexicalFeatures(),
+                  BlocksFeature({ blocks: ['mediaBlock', 'keyTakeaways', 'cta', 'banner'] }),
+                ],
+              }),
               required: true,
             },
           ],

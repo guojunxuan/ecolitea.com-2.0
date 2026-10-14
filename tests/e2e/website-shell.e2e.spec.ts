@@ -84,7 +84,7 @@ async function deleteFixtures() {
     ...disableRevalidate,
   })
   await payload.delete({
-    collection: 'brand-assets',
+    collection: 'site-assets',
     where: { alt: { equals: 'E2E website shell logo' } },
     ...disableRevalidate,
   })
@@ -124,7 +124,7 @@ async function seedFixtures() {
     '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 40"><rect width="180" height="40" rx="8" fill="#111"/><text x="18" y="27" fill="white" font-family="Arial" font-size="18">E2E Company</text></svg>',
   )
   const logo = await payload.create({
-    collection: 'brand-assets',
+    collection: 'site-assets',
     data: { alt: 'E2E website shell logo' },
     file: {
       data: logoSVG,
@@ -134,9 +134,9 @@ async function seedFixtures() {
     },
     ...disableRevalidate,
   })
-  const originalBrandAssetURL = `${E2E_MEDIA_ORIGIN}/e2e-website-shell-logo.svg`
-  if (logo.url !== originalBrandAssetURL) {
-    throw new Error('E2E storage must return the controlled Brand Asset original URL.')
+  const originalSiteAssetURL = `${E2E_MEDIA_ORIGIN}/e2e-website-shell-logo.svg`
+  if (logo.url !== originalSiteAssetURL) {
+    throw new Error('E2E storage must return the controlled Site Asset original URL.')
   }
   const social = await payload.create({
     collection: 'social-platforms',
@@ -144,11 +144,11 @@ async function seedFixtures() {
     ...disableRevalidate,
   })
   const persistedLogo = await payload.findByID({
-    collection: 'brand-assets',
+    collection: 'site-assets',
     id: logo.id,
   })
-  if (persistedLogo.url !== originalBrandAssetURL) {
-    throw new Error('E2E storage must persist the controlled Brand Asset original URL.')
+  if (persistedLogo.url !== originalSiteAssetURL) {
+    throw new Error('E2E storage must persist the controlled Site Asset original URL.')
   }
   const routePage = bySlug[slugs.route]!
   const directPage = bySlug[slugs.direct]!

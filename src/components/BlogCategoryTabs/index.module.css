@@ -1,5 +1,6 @@
 .navigation {
   margin-bottom: var(--website-space-12);
+  scroll-margin-block-start: var(--website-anchor-offset);
 }
 
 .tabs {
@@ -87,8 +88,9 @@
   align-items: center;
   justify-content: space-between;
   min-height: var(--website-control-target-min);
-  padding-block: var(--website-space-4);
+  padding: var(--website-space-4) var(--website-gutter);
   border-bottom: 1px solid var(--website-color-border);
+  background: var(--website-color-muted-surface);
   color: var(--website-color-foreground);
   list-style: none;
   cursor: pointer;
@@ -120,7 +122,7 @@
   max-height: min(70vh, 36rem);
   overflow-y: auto;
   overscroll-behavior: contain;
-  padding: var(--website-space-6);
+  padding: var(--website-space-6) var(--website-gutter);
   background: var(--website-color-surface);
   box-shadow: var(--website-shadow-subtle);
 }
@@ -141,8 +143,10 @@
     display: none;
   }
 
+  /* The mobile menu is a full-bleed band inside the gutter-constrained listing column. */
   .mobileMenu {
     display: block;
+    margin-inline: calc(-1 * var(--website-gutter));
   }
 }
 

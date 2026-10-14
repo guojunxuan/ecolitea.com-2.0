@@ -22,33 +22,27 @@ export const slugifyHeadingText = (text: string): string =>
     .replace(/[^\p{L}\p{N}]+/gu, '-')
     .replace(/^-+|-+$/gu, '')
 
-export const extractTOCByBlock = (blocks: Blog['content']): TOCItem[][] => {
+export const extractTOC = (content: Blog['content'] | null | undefined): TOCItem[] => {
   const counts = new Map<string, number>()
   const used = new Set<string>()
+  const items: TOCItem[] = []
 
-  return blocks.map((block) => {
-    if (block.blockType !== 'prose') return []
-    const items: TOCItem[] = []
+  for (const node of content?.root?.children ?? []) {
+    if (node.type !== 'heading' || (node.tag !== 'h2' && node.tag !== 'h3')) continue
+    const text = getHeadingText(node)
+    const base = slugifyHeadingText(text)
+    if (!base) continue
 
-    for (const node of block.content.root.children) {
-      if (node.type !== 'heading' || (node.tag !== 'h2' && node.tag !== 'h3')) continue
-      const text = getHeadingText(node)
-      const base = slugifyHeadingText(text)
-      if (!base) continue
-
-      let count = (counts.get(base) ?? 0) + 1
-      let id = count === 1 ? base : `${base}-${count}`
-      while (used.has(id)) {
-        count += 1
-        id = `${base}-${count}`
-      }
-      counts.set(base, count)
-      used.add(id)
-      items.push({ id, text, level: node.tag === 'h2' ? 2 : 3 })
+    let count = (counts.get(base) ?? 0) + 1
+    let id = count === 1 ? base : `${base}-${count}`
+    while (used.has(id)) {
+      count += 1
+      id = `${base}-${count}`
     }
+    counts.set(base, count)
+    used.add(id)
+    items.push({ id, text, level: node.tag === 'h2' ? 2 : 3 })
+  }
 
-    return items
-  })
+  return items
 }
-
-export const extractTOC = (blocks: Blog['content']): TOCItem[] => extractTOCByBlock(blocks).flat()

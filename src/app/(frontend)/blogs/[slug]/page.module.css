@@ -1,54 +1,69 @@
+:global(html):has(.article) {
+  scroll-behavior: smooth;
+}
+
 .article {
+  --blog-mobile-toc-border-width: 1px;
+  --blog-mobile-toc-height: calc(
+    var(--website-control-default) + var(--blog-mobile-toc-border-width) +
+      var(--blog-mobile-toc-border-width)
+  );
+
   width: min(100% - (2 * var(--website-gutter)), var(--website-container-site));
   margin-inline: auto;
-  padding-block: var(--website-space-12) var(--website-space-20);
+  padding-block: calc(var(--header-height) + 2.5rem) var(--website-space-20);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :global(html):has(.article) {
+    scroll-behavior: auto;
+  }
 }
 
 .body {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 56.25rem) minmax(0, 1fr);
-  gap: var(--website-space-8);
-  align-items: start;
+  margin-top: 2.5rem;
 }
 
 .content {
-  grid-column: 2;
   min-width: 0;
 }
 
-.body > aside {
-  grid-column: 3;
-  grid-row: 1;
+@media (width < 64rem) {
+  .content :global(h2[id]),
+  .content :global(h3[id]) {
+    scroll-margin-block-start: calc(
+      var(--header-height) + var(--blog-mobile-toc-height) + var(--website-space-4)
+    );
+  }
 }
 
-@media (width <= 80rem) {
+.mobileShare {
+  margin-top: var(--website-space-12);
+}
+
+@media (width >= 64rem) {
+  .article {
+    padding-top: calc(var(--header-height) + 3.5rem);
+  }
+
   .body {
-    grid-template-columns: minmax(0, 56.25rem) minmax(12rem, 1fr);
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 17.5rem;
+    column-gap: clamp(3rem, 6vw, 6rem);
+    align-items: start;
+    margin-top: var(--website-space-16);
+  }
+
+  .body:not(:has(> aside)) {
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .content {
     grid-column: 1;
+    grid-row: 1;
   }
 
-  .body > aside {
-    grid-column: 2;
+  .mobileShare {
+    display: none;
   }
-}
-
-@media (width < 64rem) {
-  .body {
-    display: flex;
-    flex-direction: column-reverse;
-  }
-
-  .body > * {
-    width: 100%;
-  }
-}
-
-.body:not(:has(> aside)) > .content {
-  grid-column: 1 / -1;
-  width: min(100%, 56.25rem);
-  justify-self: center;
-  align-self: center;
 }

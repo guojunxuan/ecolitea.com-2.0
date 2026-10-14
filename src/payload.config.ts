@@ -8,7 +8,6 @@ import { Archive } from './blocks/ArchiveBlock/config'
 import { Content } from './blocks/Content/config'
 import { FormBlock } from './blocks/Form/config'
 import { Code } from './blocks/Code/config'
-import { Prose } from './blocks/Prose/config'
 import { MediaBlock } from './blocks/MediaBlock/config'
 import { KeyTakeaways } from './blocks/KeyTakeaways/config'
 import { CallToAction } from './blocks/CallToAction/config'
@@ -17,7 +16,7 @@ import { Banner } from './blocks/Banner/config'
 import { Blogs } from './collections/Blogs'
 import { BlogCategories } from './collections/BlogCategories'
 import { Categories } from './collections/Categories'
-import { BrandAssets } from './collections/BrandAssets'
+import { SiteAssets } from './collections/SiteAssets'
 import { CaseStudies } from './collections/CaseStudies'
 import { Media } from './collections/Media'
 import { Pages } from './collections/Pages'
@@ -37,7 +36,7 @@ const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 
 export default buildConfig({
-  blocks: [Archive, Content, FormBlock, Code, Prose, MediaBlock, KeyTakeaways, CallToAction, Banner],
+  blocks: [Archive, Content, FormBlock, Code, MediaBlock, KeyTakeaways, CallToAction, Banner],
   admin: {
     components: {
       // The `BeforeLogin` component renders a message that you see while logging into your admin panel.
@@ -75,6 +74,14 @@ export default buildConfig({
   editor: defaultLexical,
   db: mongooseAdapter({
     url: serverEnv.DATABASE_URI,
+    afterCreateConnection: (adapter) => {
+      // Payload sets this flag before initializing CLI migrations, after loading this config.
+      // Prevent Mongoose from creating the rename destination before migration preflight.
+      if (process.env.PAYLOAD_MIGRATING === 'true') {
+        adapter.collectionsSchemaOptions ??= {}
+        adapter.collectionsSchemaOptions['site-assets'] = { autoCreate: false, autoIndex: false }
+      }
+    },
   }),
   collections: [
     {
@@ -97,7 +104,7 @@ export default buildConfig({
     Blogs,
     BlogCategories,
     Media,
-    BrandAssets,
+    SiteAssets,
     SocialPlatforms,
     Categories,
     CaseStudies,

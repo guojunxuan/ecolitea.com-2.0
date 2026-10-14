@@ -59,9 +59,7 @@ try {
           excerpt: 'Thoughtful tea stories, field notes, and practical brewing guides.',
           heroImage: media.id,
           category: categories[index < 11 ? 0 : index === 11 ? 1 : 2].id,
-          content: [
-            { blockType: 'prose', content: richText('A short tea story without headings.') },
-          ],
+          content: richText('A short tea story without headings.'),
           publishedAt: new Date(Date.UTC(2025, 0, index + 1)).toISOString(),
           _status: 'published',
         },
@@ -81,52 +79,58 @@ try {
       relatedBlogs: [blogs[4].id, blogs[1].id, blogs[9].id],
       _status: 'published',
       publishedAt: '2025-06-01T12:00:00.000Z',
-      content: [
-        {
-          blockType: 'prose',
-          content: richText(
-            'Choose fresh leaves and clean water for a balanced cup.',
-            'Start with the leaf',
-          ),
-        },
-        {
-          blockType: 'keyTakeaways',
-          label: 'At a Glance',
-          content: richText('Water temperature changes flavor.'),
-        },
-        {
-          blockType: 'mediaBlock',
-          media: media.id,
-          caption: richText('Leaves ready for brewing'),
-          width: 'wide',
-        },
-        {
-          blockType: 'prose',
-          content: richText('Give the leaves room to unfurl.', fixture.longHeading),
-        },
-        {
-          blockType: 'banner',
-          style: 'info',
-          title: 'Brewing note',
-          content: richText('Taste before adding more time.'),
-        },
-        {
-          blockType: 'cta',
-          heading: 'Find your next cup',
-          description: richText('Discover the full tea collection.'),
-          media: media.id,
-          links: [
-            {
-              link: {
-                type: 'custom',
-                url: '/blogs',
-                label: 'Explore tea stories',
-                appearance: 'default',
+      content: (() => {
+        const opening = richText(
+          'Choose fresh leaves and clean water for a balanced cup.',
+          'Start with the leaf',
+        ) as { root: { children: unknown[] } }
+        const closing = richText('Give the leaves room to unfurl.', fixture.longHeading) as {
+          root: { children: unknown[] }
+        }
+        const block = (id: string, fields: Record<string, unknown>) => ({
+          type: 'block',
+          version: 2,
+          format: '',
+          fields: { id, ...fields },
+        })
+        opening.root.children.push(
+          block('takeaways', {
+            blockType: 'keyTakeaways',
+            label: 'At a Glance',
+            content: richText('Water temperature changes flavor.'),
+          }),
+          block('media', {
+            blockType: 'mediaBlock',
+            media: media.id,
+            caption: richText('Leaves ready for brewing'),
+            width: 'wide',
+          }),
+          ...closing.root.children,
+          block('banner', {
+            blockType: 'banner',
+            style: 'info',
+            title: 'Brewing note',
+            content: richText('Taste before adding more time.'),
+          }),
+          block('cta', {
+            blockType: 'cta',
+            heading: 'Find your next cup',
+            description: richText('Discover the full tea collection.'),
+            media: media.id,
+            links: [
+              {
+                link: {
+                  type: 'custom',
+                  url: '/blogs',
+                  label: 'Explore tea stories',
+                  appearance: 'default',
+                },
               },
-            },
-          ],
-        },
-      ],
+            ],
+          }),
+        )
+        return opening as never
+      })(),
     },
     ...fixtureContext,
   })
@@ -139,7 +143,7 @@ try {
         excerpt: 'Not public yet',
         heroImage: media.id,
         category: categories[0].id,
-        content: [{ blockType: 'prose', content: richText('Unpublished editorial copy.') }],
+        content: richText('Unpublished editorial copy.'),
         _status: status === 'draft' ? 'draft' : 'published',
         publishedAt: status === 'future' ? '2999-01-01T00:00:00.000Z' : undefined,
       },

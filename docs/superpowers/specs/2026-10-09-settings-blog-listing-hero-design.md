@@ -161,7 +161,8 @@ type BlogListingHeroModel = {
 | --- | --- |
 | `/blogs`、`/blogs/page/N`，有 Hero | 顶部渲染 `<BlogListingHero />`，**不再渲染**默认 `<h1>Blogs</h1>` |
 | `/blogs`、`/blogs/page/N`，无 Hero | 保持当前默认标题区不变 |
-| `/blogs/category/[slug]` 及分页 | 不读取 Hero，页面不变 |
+| `/blogs/category/[slug]` 及分页，有 Hero | 复用 Hero 的图片与 `headerTheme`，标题为 `{分类名} Blogs`，描述为分类描述（为空则不显示），面包屑位于标题上方（2026-10-12 修订） |
+| `/blogs/category/[slug]` 及分页，无 Hero | 保持默认分类标题区（面包屑、标题、描述） |
 
 - 分类 tabs 与列表始终渲染在 Hero 之后。
 - 有 Hero 时列表容器顶部间距相应调整（`.page` / `.list` 的 padding），避免 Hero 与 tabs 之间出现双倍留白。
@@ -173,6 +174,7 @@ type BlogListingHeroModel = {
 - `src/utilities/getGlobals.ts` 新增 `getCachedSettings = () => getCachedGlobal('settings', 1)()`，与其他 `getCached*` 一致，集中拥有 slug、depth、缓存 key 与 tag。
 - `src/Settings/hooks/revalidateSettings.ts`（`GlobalAfterChangeHook`）：`revalidateTag('global_settings', 'max')`，并遵循 `context.disableRevalidate`，参考 `revalidateSiteSettings`。
 - `/blogs` 为 `force-static` + `revalidate = 600`，tag 失效后静态页随访问重新生成。
+- `revalidateSettings` 同时失效 `/blogs/page/[pageNumber]`、`/blogs/category/[categorySlug]` 与 `/blogs/category/[categorySlug]/page/[pageNumber]`，分类页随 Hero 更新。
 
 ---
 

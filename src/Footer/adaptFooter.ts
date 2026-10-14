@@ -1,5 +1,5 @@
 import { resolveLinkHref, type CMSLinkType } from '@/components/Link'
-import { resolveBrandAsset } from '@/components/Logo/resolveBrandAsset'
+import { resolveSiteAsset } from '@/components/Logo/resolveSiteAsset'
 import type { Footer, SiteSettings } from '@/payload-types'
 
 import type {
@@ -71,7 +71,7 @@ const adaptSocialLinks = (value: unknown): SocialLinkData[] => {
     if (!isRecord(row) || !isRecord(row.platform)) return []
     const platform = text(row.platform.platform)
     const url = text(row.url)
-    const icon = resolveBrandAsset(row.platform.icon as never)
+    const icon = resolveSiteAsset(row.platform.icon as never)
     if (!platform || !url || !icon) return []
 
     return [
@@ -114,7 +114,7 @@ export const adaptFooter = (footer: Footer, siteSettings: SiteSettings): FooterD
   ].filter((link): link is FooterLinkData => link !== null)
 
   return {
-    logo: resolveBrandAsset(siteSettings.logo),
+    logo: resolveSiteAsset(siteSettings.logo),
     siteDescription: text(siteSettings.siteDescription),
     socialLinks: adaptSocialLinks(siteSettings.socialLinks),
     columns: adaptColumns(footer.columns),

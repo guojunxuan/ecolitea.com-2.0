@@ -16,6 +16,18 @@
   composes: website-type-eyebrow from global;
 }
 
+.blogHeading {
+  composes: website-type-title from global;
+}
+
+.blogExcerpt {
+  composes: website-type-body-md from global;
+}
+
+.blogDate {
+  composes: website-type-caption from global;
+}
+
 @layer components {
   .card {
     overflow: hidden;
@@ -63,6 +75,7 @@
   }
 
   .blogCard {
+    position: relative;
     display: flex;
     flex-direction: column;
     box-shadow: var(--website-shadow-subtle);
@@ -85,13 +98,7 @@
     background: var(--website-color-neutral-100);
   }
 
-  .mediaLink {
-    display: block;
-    width: 100%;
-    height: 100%;
-  }
-
-  .mediaLink > div,
+  .blogMedia > div,
   .blogMedia picture {
     display: block;
     width: 100%;
@@ -124,6 +131,8 @@
   }
 
   .blogCategory {
+    position: relative;
+    z-index: 1;
     align-self: flex-start;
     display: inline-flex;
     margin-bottom: var(--website-space-3);
@@ -149,36 +158,46 @@
   }
 
   .blogHeading {
+    display: -webkit-box;
     margin: 0 0 var(--website-space-3);
-    font-size: 1.25rem;
-    font-weight: 600;
-    line-height: 1.3;
-    letter-spacing: -0.01em;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
   }
 
-  .blogHeading a:focus-visible,
-  .mediaLink:focus-visible {
-    outline: 2px solid var(--website-color-action);
+  .blogLink {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .blogLink::after {
+    position: absolute;
+    inset: 0;
+    border-radius: var(--website-radius-content);
+    content: '';
+  }
+
+  .blogLink:focus-visible {
+    outline: none;
+  }
+
+  .blogLink:focus-visible::after {
+    outline: 2px solid var(--website-color-focus);
     outline-offset: -2px;
   }
 
   .blogExcerpt {
-    margin: 0 0 var(--website-space-4);
+    display: -webkit-box;
+    margin: 0;
+    overflow: hidden;
     color: var(--website-color-muted-foreground);
-    line-height: 1.6;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
   }
 
-  .blogFooter {
-    display: flex;
-    justify-content: space-between;
+  .blogDate {
     margin-top: auto;
     padding-top: var(--website-space-4);
-    border-top: 1px solid var(--website-color-border);
     color: var(--website-color-subtle-foreground);
-    font-size: 0.8125rem;
-  }
-
-  .blogArrow {
-    font-size: 1.125rem;
   }
 }

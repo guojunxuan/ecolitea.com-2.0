@@ -5,7 +5,7 @@ import React from 'react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import type { HeaderNavigationData } from '@/Header/Nav/types'
-import type { BrandAsset, Header as HeaderData, SiteSettings } from '@/payload-types'
+import type { SiteAsset, Header as HeaderData, SiteSettings } from '@/payload-types'
 
 const getCachedHeaderMock = vi.hoisted(() => vi.fn())
 const getCachedSiteSettingsMock = vi.hoisted(() => vi.fn())
@@ -25,13 +25,13 @@ import { Header } from '@/Header/Component'
 
 const headerData: HeaderData = { id: 'header', navItems: [] }
 const navigation: HeaderNavigationData = { menuCta: null, navItems: [] }
-const logoAsset: BrandAsset = {
+const logoAsset: SiteAsset = {
   alt: 'Ecolitea mark',
   createdAt: '2026-09-01T00:00:00.000Z',
   height: 296,
   id: 'logo',
   updatedAt: '2026-09-01T01:02:03.000Z',
-  url: '/api/brand-assets/file/ecolitea.svg',
+  url: '/api/site-assets/file/ecolitea.svg',
   width: 1302,
 }
 const siteSettings: SiteSettings = {
@@ -93,7 +93,7 @@ describe('Header server boundary', () => {
       logo: {
         alt: 'Ecolitea mark',
         height: 296,
-        src: '/api/brand-assets/file/ecolitea.svg?2026-09-01T01%3A02%3A03.000Z',
+        src: '/api/site-assets/file/ecolitea.svg?2026-09-01T01%3A02%3A03.000Z',
         width: 1302,
       },
       menuCta: null,

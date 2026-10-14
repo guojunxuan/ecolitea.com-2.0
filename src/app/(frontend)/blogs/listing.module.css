@@ -10,9 +10,16 @@
   margin-top: var(--website-section-standard);
 }
 
+/* Below the tab breakpoint the category band attaches to the Hero as its sub-navigation. */
+@media (width < 48rem) {
+  .hasHero .tabs {
+    margin-top: 0;
+  }
+}
+
 .header,
 .tabs,
-.range,
+.empty,
 .pagination {
   width: min(100% - (2 * var(--website-gutter)), var(--website-container-site));
   margin-inline: auto;
@@ -36,11 +43,10 @@
   margin-block: var(--website-space-4) 0;
 }
 
-.tabs,
-.range {
+.tabs {
   margin-bottom: var(--website-space-8);
 }
 
-.pagination {
-  margin-top: var(--website-section-standard);
+.empty {
+  text-align: center;
 }

@@ -107,7 +107,7 @@ const r2CollectionOptions = {
 
 export const r2StorageCollections = {
   media: r2CollectionOptions,
-  'brand-assets': r2CollectionOptions,
+  'site-assets': r2CollectionOptions,
 } satisfies S3StorageOptions['collections']
 
 export const plugins: Plugin[] = [

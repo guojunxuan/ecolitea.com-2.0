@@ -4,7 +4,7 @@ import { compactLexical } from '@/fields/compactLexical'
 export const KeyTakeaways: Block = {
   slug: 'keyTakeaways',
   interfaceName: 'KeyTakeawaysBlock',
-  labels: { singular: 'Key Takeaways', plural: 'Key Takeaways' },
+  labels: { singular: 'Key Points', plural: 'Key Points' },
   admin: {
     group: 'Content',
     disableBlockName: true,
@@ -12,10 +12,27 @@ export const KeyTakeaways: Block = {
       icon: '/block-previews/key-takeaways.svg',
       thumbnail: '/block-previews/key-takeaways.svg',
     },
-    components: { Label: '@/blocks/BlockRowLabel#BlockRowLabel' },
+    components: {
+      Block: '@/blocks/ArticleBlockEditor#ArticleBlockEditor',
+      Label: {
+        path: '@/blocks/BlockRowLabel#BlockRowLabel',
+        clientProps: { blockType: 'keyTakeaways' },
+      },
+    },
   },
   fields: [
-    { name: 'label', type: 'text', defaultValue: 'At a Glance' },
-    { name: 'content', type: 'richText', editor: compactLexical, required: true },
+    {
+      name: 'label',
+      type: 'text',
+      label: 'Block Title',
+      admin: { description: 'Highlight the article’s summary, conclusions, or key points.' },
+    },
+    {
+      name: 'content',
+      label: 'Key Points',
+      type: 'richText',
+      editor: compactLexical,
+      required: true,
+    },
   ],
 }

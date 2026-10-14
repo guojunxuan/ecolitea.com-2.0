@@ -7,7 +7,7 @@ import { getPayload } from 'payload'
 import configPromise from '@payload-config'
 
 import { BlogCategoryTabs, type BlogCategoryTab } from '@/components/BlogCategoryTabs'
-import { BlogExplorer } from '@/components/BlogExplorer'
+import { CollectionArchive } from '@/components/CollectionArchive'
 import { BlogListingHero } from '@/heros/BlogListingHero'
 import { Pagination } from '@/components/Pagination'
 import { getBlogListing } from '@/utilities/blogs/getBlogListing'
@@ -99,11 +99,11 @@ export function parsePageNumber(value: string): number {
 
 export async function renderBlogListing({ page, categorySlug }: ListingArgs) {
   const category = await resolveCategory(categorySlug)
-  const [categories, countEntries, listing, hero] = await Promise.all([
+  const [categories, countEntries, listing, listingHero] = await Promise.all([
     getCategories(),
     getCategoryCounts(),
     getBlogListing(page, category?.id),
-    categorySlug ? null : getBlogListingHero(),
+    getBlogListingHero(),
   ])
   if (page > 1 && (page > listing.totalPages || listing.docs.length === 0)) notFound()
   const counts = new Map(countEntries)
@@ -115,45 +115,45 @@ export async function renderBlogListing({ page, categorySlug }: ListingArgs) {
     count: counts.get(item.id) ?? 0,
   }))
   const routeBase = category ? `/blogs/category/${category.slug}` : '/blogs'
+  const heading = category ? `${category.title} Blogs` : 'Blogs'
+  // Category routes keep the shared Hero image and theme but present their own copy.
+  const hero =
+    listingHero && category
+      ? { ...listingHero, heading, description: category.description?.trim() || null }
+      : listingHero
+  const breadcrumb = category && (
+    <nav aria-label="Breadcrumb" className={styles.breadcrumb}>
+      <Link href="/blogs">Blogs</Link>
+      <span aria-hidden="true"> / </span>
+      <span>{category.title}</span>
+    </nav>
+  )
 
   return (
     <div className={[styles.page, hero && styles.hasHero].filter(Boolean).join(' ')}>
       {hero ? (
-        <BlogListingHero {...hero} />
+        <BlogListingHero {...hero} breadcrumb={breadcrumb} />
       ) : (
         <header className={styles.header}>
-          {category && (
-            <nav aria-label="Breadcrumb" className={styles.breadcrumb}>
-              <Link href="/blogs">Blogs</Link>
-              <span aria-hidden="true"> / </span>
-              <span>{category.title}</span>
-            </nav>
-          )}
-          <h1 className={styles.title}>{category ? `${category.title} Blogs` : 'Blogs'}</h1>
+          {breadcrumb}
+          <h1 className={styles.title}>{heading}</h1>
           {category?.description && <p className={styles.description}>{category.description}</p>}
         </header>
       )}
       <div className={styles.tabs}>
         <BlogCategoryTabs categories={tabs} currentCategory={category?.slug} />
       </div>
-      <BlogExplorer
-        initialBlogs={listing.docs}
-        initialPage={listing.page ?? page}
-        totalPages={listing.totalPages}
-        totalDocs={listing.totalDocs}
-        categoryId={category?.id}
-        featuredFirst={!category && page === 1}
-      />
+      <CollectionArchive posts={listing.docs} relationTo="blogs" />
+      {listing.docs.length === 0 && <p className={styles.empty}>No blogs found.</p>}
       {listing.totalPages > 1 && (
-        <noscript>
-          <Pagination
-            linkMode
-            page={listing.page ?? page}
-            totalPages={listing.totalPages}
-            routeBase={routeBase}
-            firstPageHref={routeBase}
-          />
-        </noscript>
+        <Pagination
+          className={styles.pagination}
+          linkMode
+          page={listing.page ?? page}
+          totalPages={listing.totalPages}
+          routeBase={routeBase}
+          firstPageHref={routeBase}
+        />
       )}
     </div>
   )

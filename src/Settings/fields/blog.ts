@@ -9,6 +9,8 @@ import {
 
 import { MEDIA_UPLOAD_POLICY } from '@/collections/mediaUploadPolicy'
 
+import { articleFields } from './article'
+
 import { trimText, validateEnabledHeading } from './validation'
 
 const whenEnabled: Condition = (_, siblingData) => siblingData?.enabled === true
@@ -122,5 +124,6 @@ export const blogTab: Tab = {
         },
       ],
     },
+    articleFields,
   ],
 }

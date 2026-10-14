@@ -76,6 +76,16 @@
     font-feature-settings: 'lnum', 'locl';
   }
 
+  .website-type-excerpt {
+    font-family: var(--website-font-sans);
+    font-size: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
+    line-height: 1.6;
+    font-weight: 400;
+    font-style: italic;
+    letter-spacing: 0;
+    font-feature-settings: 'lnum', 'locl';
+  }
+
   .website-type-body-sm {
     font-family: var(--website-font-sans);
     font-size: 15px;

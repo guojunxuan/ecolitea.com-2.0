@@ -5,7 +5,6 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { BlogCategoryTabs } from '@/components/BlogCategoryTabs'
 import { Card } from '@/components/Card'
 import { CollectionArchive } from '@/components/CollectionArchive'
-import { PageRange } from '@/components/PageRange'
 import { Pagination } from '@/components/Pagination'
 import type { Blog, Post } from '@/payload-types'
 
@@ -54,6 +53,9 @@ describe('blog listing components', () => {
     expect(screen.getByRole('link', { name: 'Organic Tea' }).getAttribute('href')).toBe(
       '/blogs/organic-tea',
     )
+    expect(
+      screen.getAllByRole('link').filter((link) => link.getAttribute('href') === '/blogs/organic-tea'),
+    ).toHaveLength(1)
     expect(screen.getByTestId('card-media').textContent).toBe('Tea leaves')
     expect(screen.getByText('A better cup of tea.')).toBeTruthy()
     expect(screen.getByRole('link', { name: 'Tea Guides' }).getAttribute('href')).toBe(
@@ -64,21 +66,15 @@ describe('blog listing components', () => {
     )
   })
 
-  it('features only the first blog card when the caller requests it', () => {
+  it('renders every blog card as a uniform grid item', () => {
     const blogs = [blog, { ...blog, id: 'blog-2', slug: 'second-blog', title: 'Second Blog' }]
-    const { container, rerender } = render(
-      <CollectionArchive posts={blogs} relationTo="blogs" featuredFirst />,
-    )
-    const items = container.querySelectorAll('[data-slot="archive-item"]')
-    expect(items[0]?.getAttribute('data-featured')).toBe('true')
-    expect(items[1]?.getAttribute('data-featured')).toBeNull()
-
-    rerender(<CollectionArchive posts={blogs} relationTo="blogs" />)
+    const { container } = render(<CollectionArchive posts={blogs} relationTo="blogs" />)
+    expect(container.querySelectorAll('[data-slot="archive-item"]')).toHaveLength(2)
     expect(container.querySelector('[data-featured]')).toBeNull()
   })
 
   it('keeps all populated categories accessible in the mobile dropdown', () => {
-    render(
+    const { rerender } = render(
       <BlogCategoryTabs
         categories={[
           { id: 'tea', title: 'Tea Guides', slug: 'tea-guides', count: 3 },
@@ -100,12 +96,20 @@ describe('blog listing components', () => {
     expect(within(navigation).queryByText('Empty')).toBeNull()
     const menu = navigation.querySelector<HTMLDetailsElement>('[data-slot="blog-mobile-menu"]')!
     expect(menu.open).toBe(false)
-    fireEvent.click(within(menu).getByText('Blog'))
+    const trigger = menu.querySelector('summary')!
+    expect(trigger.textContent).toBe('News')
+    fireEvent.click(trigger)
     expect(menu.open).toBe(true)
     expect(menu.querySelector('a[aria-current="page"]')?.textContent).toBe('News')
     expect(within(menu).getByRole('link', { name: 'Lifestyle' }).getAttribute('href')).toBe(
       '/blogs/category/lifestyle',
     )
+
+    rerender(
+      <BlogCategoryTabs categories={[{ id: 'tea', title: 'Tea Guides', slug: 'tea-guides', count: 3 }]} />,
+    )
+    expect(menu.querySelector('summary')?.textContent).toBe('All')
+    expect(menu.querySelector('a[aria-current="page"]')?.textContent).toBe('All')
   })
 
   it('uses the requested pagination base while preserving posts by default', () => {
@@ -147,8 +151,20 @@ describe('blog listing components', () => {
     expect(screen.getByRole('link', { name: '2' }).getAttribute('aria-current')).toBe('page')
   })
 
-  it('labels blog result counts', () => {
-    render(<PageRange collection="blogs" currentPage={1} limit={12} totalDocs={20} />)
-    expect(screen.getByText('Showing 1 - 12 of 20 Blogs')).toBeTruthy()
+  it('keeps the first and last blog pages reachable around the current page', () => {
+    render(<Pagination linkMode page={5} totalPages={10} routeBase="/blogs" firstPageHref="/blogs" />)
+    const pages = screen
+      .getAllByRole('link')
+      .filter((link) => !link.getAttribute('aria-label'))
+      .map((link) => [link.textContent, link.getAttribute('href')])
+    expect(pages).toEqual([
+      ['1', '/blogs'],
+      ['4', '/blogs/page/4'],
+      ['5', '/blogs/page/5'],
+      ['6', '/blogs/page/6'],
+      ['10', '/blogs/page/10'],
+    ])
+    expect(screen.getAllByText('More pages')).toHaveLength(2)
   })
+
 })

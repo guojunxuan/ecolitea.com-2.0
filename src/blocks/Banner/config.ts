@@ -4,16 +4,24 @@ import { compactLexical } from '@/fields/compactLexical'
 export const Banner: Block = {
   slug: 'banner',
   interfaceName: 'BannerBlock',
-  labels: { singular: 'Banner', plural: 'Banners' },
+  labels: { singular: 'Notice', plural: 'Notices' },
   admin: {
     group: 'Content',
     disableBlockName: true,
     images: { icon: '/block-previews/banner.svg', thumbnail: '/block-previews/banner.svg' },
-    components: { Label: '@/blocks/BlockRowLabel#BlockRowLabel' },
+    components: {
+      Block: '@/blocks/ArticleBlockEditor#ArticleBlockEditor',
+      Label: { path: '@/blocks/BlockRowLabel#BlockRowLabel', clientProps: { blockType: 'banner' } },
+    },
   },
   fields: [
     {
       name: 'style',
+      label: 'Notice Type',
+      admin: {
+        description:
+          'Highlight a helpful note, warning, error, or success message within the article.',
+      },
       type: 'select',
       options: [
         { label: 'Info', value: 'info' },
@@ -24,7 +32,13 @@ export const Banner: Block = {
       defaultValue: 'info',
       required: true,
     },
-    { name: 'title', type: 'text' },
-    { name: 'content', type: 'richText', editor: compactLexical, required: true },
+    { name: 'title', label: 'Notice Title', type: 'text' },
+    {
+      name: 'content',
+      label: 'Notice Content',
+      type: 'richText',
+      editor: compactLexical,
+      required: true,
+    },
   ],
 }

@@ -223,24 +223,44 @@ export type LexicalNodes_67D0DA17 =
   | SerializedQuoteNode<LexicalNodes_67D0DA17>;
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "LexicalNodes_14D6BFA5".
+ * via the `definition` "LexicalNodes_EF9C53C2".
  */
-export type LexicalNodes_14D6BFA5 =
+export type LexicalNodes_EF9C53C2 =
   | SerializedTextNode
   | SerializedTabNode
   | SerializedLineBreakNode
-  | SerializedParagraphNode<LexicalNodes_14D6BFA5>
+  | SerializedParagraphNode<LexicalNodes_EF9C53C2>
   | SerializedHorizontalRuleNode
-  | SerializedBlockNode<BannerBlock | CodeBlock | MediaBlock_D42D978F>
-  | SerializedHeadingNode<LexicalNodes_14D6BFA5, 'h1' | 'h2' | 'h3' | 'h4'>
-  | SerializedAutoLinkNode<LexicalNodes_14D6BFA5, LexicalLinkFields>
-  | SerializedLinkNode<LexicalNodes_14D6BFA5, LexicalLinkFields>
-  | SerializedListNode<LexicalNodes_14D6BFA5>
-  | SerializedListItemNode<LexicalNodes_14D6BFA5>
-  | SerializedTableNode<LexicalNodes_14D6BFA5>
-  | SerializedTableCellNode<LexicalNodes_14D6BFA5>
-  | SerializedTableRowNode<LexicalNodes_14D6BFA5>
-  | SerializedQuoteNode<LexicalNodes_14D6BFA5>;
+  | SerializedBlockNode<BannerBlock | CodeBlock | MediaBlock_51964C65>
+  | SerializedHeadingNode<LexicalNodes_EF9C53C2, 'h1' | 'h2' | 'h3' | 'h4'>
+  | SerializedAutoLinkNode<LexicalNodes_EF9C53C2, LexicalLinkFields>
+  | SerializedLinkNode<LexicalNodes_EF9C53C2, LexicalLinkFields>
+  | SerializedListNode<LexicalNodes_EF9C53C2>
+  | SerializedListItemNode<LexicalNodes_EF9C53C2>
+  | SerializedTableNode<LexicalNodes_EF9C53C2>
+  | SerializedTableCellNode<LexicalNodes_EF9C53C2>
+  | SerializedTableRowNode<LexicalNodes_EF9C53C2>
+  | SerializedQuoteNode<LexicalNodes_EF9C53C2>;
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "LexicalNodes_CDE4A8D8".
+ */
+export type LexicalNodes_CDE4A8D8 =
+  | SerializedTextNode
+  | SerializedTabNode
+  | SerializedLineBreakNode
+  | SerializedParagraphNode<LexicalNodes_CDE4A8D8>
+  | SerializedBlockNode<MediaBlock_51964C65 | KeyTakeawaysBlock | CallToActionBlock_337B961F | BannerBlock>
+  | SerializedAutoLinkNode<LexicalNodes_CDE4A8D8, LexicalLinkFields>
+  | SerializedLinkNode<LexicalNodes_CDE4A8D8, LexicalLinkFields>
+  | SerializedListNode<LexicalNodes_CDE4A8D8>
+  | SerializedListItemNode<LexicalNodes_CDE4A8D8>
+  | SerializedTableNode<LexicalNodes_CDE4A8D8>
+  | SerializedTableCellNode<LexicalNodes_CDE4A8D8>
+  | SerializedTableRowNode<LexicalNodes_CDE4A8D8>
+  | SerializedHorizontalRuleNode
+  | SerializedQuoteNode<LexicalNodes_CDE4A8D8>
+  | SerializedHeadingNode<LexicalNodes_CDE4A8D8, 'h2' | 'h3' | 'h4'>;
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "LexicalNodes_46081D0A".
@@ -270,11 +290,10 @@ export interface Config {
     content: ContentBlock;
     formBlock: FormBlock;
     code: CodeBlock_86A1A6C3;
-    prose: ProseBlock;
     mediaBlock: MediaBlock;
-    keyTakeaways: KeyTakeawaysBlock;
+    keyTakeaways: KeyTakeawaysBlock_F21FD0F8;
     cta: CallToActionBlock;
-    banner: BannerBlock_257B75EB;
+    banner: BannerBlock_53835CC4;
   };
   collections: {
     folders: Folder;
@@ -283,7 +302,7 @@ export interface Config {
     blogs: Blog;
     'blog-categories': BlogCategory;
     media: Media;
-    'brand-assets': BrandAsset;
+    'site-assets': SiteAsset;
     'social-platforms': SocialPlatform;
     categories: Category;
     'case-studies': CaseStudy;
@@ -310,7 +329,7 @@ export interface Config {
     blogs: BlogsSelect<false> | BlogsSelect<true>;
     'blog-categories': BlogCategoriesSelect<false> | BlogCategoriesSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
-    'brand-assets': BrandAssetsSelect<false> | BrandAssetsSelect<true>;
+    'site-assets': SiteAssetsSelect<false> | SiteAssetsSelect<true>;
     'social-platforms': SocialPlatformsSelect<false> | SocialPlatformsSelect<true>;
     categories: CategoriesSelect<false> | CategoriesSelect<true>;
     'case-studies': CaseStudiesSelect<false> | CaseStudiesSelect<true>;
@@ -427,7 +446,7 @@ export interface Post {
   id: string;
   title: string;
   heroImage?: (string | null) | Media;
-  content: LexicalRichText<LexicalNodes_14D6BFA5>;
+  content: LexicalRichText<LexicalNodes_EF9C53C2>;
   relatedPosts?: (string | Post)[] | null;
   categories?: (string | Category)[] | null;
   meta?: {
@@ -603,6 +622,9 @@ export interface Page {
  * via the `definition` "CallToActionBlock".
  */
 export interface CallToActionBlock {
+  /**
+   * Guide readers to a product, contact page, or download with a title, description, and links.
+   */
   heading: string;
   description?: LexicalRichText<LexicalNodes_47D10C91> | null;
   media?: (string | null) | Media;
@@ -642,6 +664,10 @@ export interface CallToActionBlock {
 export interface MediaBlock {
   media: string | Media;
   caption?: LexicalRichText<LexicalNodes_47D10C91> | null;
+  /**
+   * Original keeps the media proportions. Other ratios crop the image or video to fill the frame.
+   */
+  aspectRatio?: ('original' | '1:1' | '4:3' | '3:2' | '16:9' | '2:1') | null;
   width?: ('default' | 'wide') | null;
   id?: string | null;
   blockName?: string | null;
@@ -829,20 +855,15 @@ export interface CodeBlock_86A1A6C3 {
   blockType: 'code';
 }
 /**
+ * Multiple blocks resolve to the `KeyTakeawaysBlock` interface with different fields, so a content hash is appended to keep the generated types stable and unambiguous. Set a unique `interfaceName` on the block to choose the name yourself. See https://payloadcms.com/docs/typescript/generating-types#block-interface-name-collisions
+ *
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "ProseBlock".
+ * via the `definition` "KeyTakeawaysBlock_F21FD0F8".
  */
-export interface ProseBlock {
-  content: LexicalRichText<LexicalNodes_46081D0A>;
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'prose';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "KeyTakeawaysBlock".
- */
-export interface KeyTakeawaysBlock {
+export interface KeyTakeawaysBlock_F21FD0F8 {
+  /**
+   * Highlight the article’s summary, conclusions, or key points.
+   */
   label?: string | null;
   content: LexicalRichText<LexicalNodes_47D10C91>;
   id?: string | null;
@@ -853,9 +874,12 @@ export interface KeyTakeawaysBlock {
  * Multiple blocks resolve to the `BannerBlock` interface with different fields, so a content hash is appended to keep the generated types stable and unambiguous. Set a unique `interfaceName` on the block to choose the name yourself. See https://payloadcms.com/docs/typescript/generating-types#block-interface-name-collisions
  *
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "BannerBlock_257B75EB".
+ * via the `definition` "BannerBlock_53835CC4".
  */
-export interface BannerBlock_257B75EB {
+export interface BannerBlock_53835CC4 {
+  /**
+   * Highlight a helpful note, warning, error, or success message within the article.
+   */
   style: 'info' | 'warning' | 'error' | 'success';
   title?: string | null;
   content: LexicalRichText<LexicalNodes_47D10C91>;
@@ -872,7 +896,7 @@ export interface Blog {
   title: string;
   heroImage: string | Media;
   excerpt: string;
-  content: (ProseBlock | MediaBlock | KeyTakeawaysBlock | CallToActionBlock | BannerBlock_257B75EB)[];
+  content: LexicalRichText<LexicalNodes_CDE4A8D8>;
   meta?: {
     title?: string | null;
     /**
@@ -916,9 +940,9 @@ export interface BlogCategory {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "brand-assets".
+ * via the `definition` "site-assets".
  */
-export interface BrandAsset {
+export interface SiteAsset {
   id: string;
   alt: string;
   updatedAt: string;
@@ -946,7 +970,7 @@ export interface SocialPlatform {
   /**
    * Upload an SVG icon designed for use on dark backgrounds.
    */
-  icon: string | BrandAsset;
+  icon: string | SiteAsset;
   updatedAt: string;
   createdAt: string;
 }
@@ -1253,8 +1277,8 @@ export interface PayloadLockedDocument {
         value: string | Media;
       } | null)
     | ({
-        relationTo: 'brand-assets';
-        value: string | BrandAsset;
+        relationTo: 'site-assets';
+        value: string | SiteAsset;
       } | null)
     | ({
         relationTo: 'social-platforms';
@@ -1423,7 +1447,7 @@ export interface BlogsSelect<T extends boolean = true> {
   title?: T;
   heroImage?: T;
   excerpt?: T;
-  content?: T | {};
+  content?: T;
   meta?:
     | T
     | {
@@ -1480,9 +1504,9 @@ export interface MediaSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "brand-assets_select".
+ * via the `definition` "site-assets_select".
  */
-export interface BrandAssetsSelect<T extends boolean = true> {
+export interface SiteAssetsSelect<T extends boolean = true> {
   alt?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -2220,11 +2244,11 @@ export interface SiteSettings {
   /**
    * Upload a horizontal SVG logo with a tight viewBox.
    */
-  logo: string | BrandAsset;
+  logo: string | SiteAsset;
   /**
    * Use a square SVG, PNG, or ICO image suitable for a browser icon.
    */
-  favicon?: (string | null) | BrandAsset;
+  favicon?: (string | null) | SiteAsset;
   salesEmail: string;
   /**
    * Include the international dialing code.
@@ -2278,6 +2302,22 @@ export interface Settings {
          * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
          */
         image?: (string | null) | Media;
+      };
+    };
+    article?: {
+      share?: {
+        platforms?:
+          | {
+              name: string;
+              icon: string | SiteAsset;
+              /**
+               * Use {url} for the article address and {title} for its title. Adjust the starter URL for the platform.
+               */
+              shareURL: string;
+              id?: string | null;
+            }[]
+          | null;
+        copyLink?: boolean | null;
       };
     };
   };
@@ -2592,6 +2632,23 @@ export interface SettingsSelect<T extends boolean = true> {
                     image?: T;
                   };
             };
+        article?:
+          | T
+          | {
+              share?:
+                | T
+                | {
+                    platforms?:
+                      | T
+                      | {
+                          name?: T;
+                          icon?: T;
+                          shareURL?: T;
+                          id?: T;
+                        };
+                    copyLink?: T;
+                  };
+            };
       };
   updatedAt?: T;
   createdAt?: T;
@@ -2716,6 +2773,9 @@ export interface TaskSchedulePublish {
 export interface BannerBlock {
   id: string;
   blockType: 'banner';
+  /**
+   * Highlight a helpful note, warning, error, or success message within the article.
+   */
   style: 'info' | 'warning' | 'error' | 'success';
   title?: string | null;
   content: LexicalRichText<LexicalNodes_47D10C91>;
@@ -2736,14 +2796,74 @@ export interface CodeBlock {
  * Multiple blocks resolve to the `MediaBlock` interface with different fields, so a content hash is appended to keep the generated types stable and unambiguous. Set a unique `interfaceName` on the block to choose the name yourself. See https://payloadcms.com/docs/typescript/generating-types#block-interface-name-collisions
  *
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "MediaBlock_D42D978F".
+ * via the `definition` "MediaBlock_51964C65".
  */
-export interface MediaBlock_D42D978F {
+export interface MediaBlock_51964C65 {
   id: string;
   blockType: 'mediaBlock';
   media: string | Media;
   caption?: LexicalRichText<LexicalNodes_47D10C91> | null;
+  /**
+   * Original keeps the media proportions. Other ratios crop the image or video to fill the frame.
+   */
+  aspectRatio?: ('original' | '1:1' | '4:3' | '3:2' | '16:9' | '2:1') | null;
   width?: ('default' | 'wide') | null;
+  blockName?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "KeyTakeawaysBlock".
+ */
+export interface KeyTakeawaysBlock {
+  id: string;
+  blockType: 'keyTakeaways';
+  /**
+   * Highlight the article’s summary, conclusions, or key points.
+   */
+  label?: string | null;
+  content: LexicalRichText<LexicalNodes_47D10C91>;
+  blockName?: string | null;
+}
+/**
+ * Multiple blocks resolve to the `CallToActionBlock` interface with different fields, so a content hash is appended to keep the generated types stable and unambiguous. Set a unique `interfaceName` on the block to choose the name yourself. See https://payloadcms.com/docs/typescript/generating-types#block-interface-name-collisions
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CallToActionBlock_337B961F".
+ */
+export interface CallToActionBlock_337B961F {
+  id: string;
+  blockType: 'cta';
+  /**
+   * Guide readers to a product, contact page, or download with a title, description, and links.
+   */
+  heading: string;
+  description?: LexicalRichText<LexicalNodes_47D10C91> | null;
+  media?: (string | null) | Media;
+  links?:
+    | {
+        link: {
+          type?: ('reference' | 'custom') | null;
+          newTab?: boolean | null;
+          reference?:
+            | ({
+                relationTo: 'pages';
+                value: string | Page;
+              } | null)
+            | ({
+                relationTo: 'posts';
+                value: string | Post;
+              } | null);
+          url?: string | null;
+          label: string;
+          /**
+           * Choose how the link should be rendered.
+           */
+          appearance?: ('default' | 'outline') | null;
+        };
+        id?: string | null;
+      }[]
+    | null;
+  theme?: ('default' | 'inverse') | null;
   blockName?: string | null;
 }
 /**

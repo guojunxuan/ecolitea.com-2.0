@@ -11,6 +11,7 @@ import {
 import { cn } from '@/utilities/ui'
 import { buttonVariants } from '@/components/ui/button'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import React from 'react'
 
@@ -49,7 +50,7 @@ export const Pagination: React.FC<{
     ariaLabel?: string,
     active = false,
   ) => (
-    <a
+    <Link
       href={pageHref(pageNumber)}
       aria-label={ariaLabel}
       aria-current={active ? 'page' : undefined}
@@ -59,32 +60,70 @@ export const Pagination: React.FC<{
       })}
     >
       {label}
-    </a>
+    </Link>
   )
+
+  if (linkMode) {
+    // Always expose the first and last pages so crawlers and readers can jump to either end.
+    const pages = [...new Set([1, page - 1, page, page + 1, totalPages])]
+      .filter((pageNumber) => pageNumber >= 1 && pageNumber <= totalPages)
+      .sort((a, b) => a - b)
+
+    return (
+      <div className={cn(styles.pagination, className)}>
+        <PaginationComponent>
+          <PaginationContent>
+            {hasPrevPage && (
+              <PaginationItem>
+                {linkedPage(
+                  page - 1,
+                  <>
+                    <ChevronLeft size={16} /> Previous
+                  </>,
+                  'Go to previous page',
+                )}
+              </PaginationItem>
+            )}
+            {pages.map((pageNumber, index) => (
+              <React.Fragment key={pageNumber}>
+                {index > 0 && pageNumber - pages[index - 1]! > 1 && (
+                  <PaginationItem>
+                    <PaginationEllipsis />
+                  </PaginationItem>
+                )}
+                <PaginationItem>
+                  {linkedPage(pageNumber, pageNumber, undefined, pageNumber === page)}
+                </PaginationItem>
+              </React.Fragment>
+            ))}
+            {hasNextPage && (
+              <PaginationItem>
+                {linkedPage(
+                  page + 1,
+                  <>
+                    Next <ChevronRight size={16} />
+                  </>,
+                  'Go to next page',
+                )}
+              </PaginationItem>
+            )}
+          </PaginationContent>
+        </PaginationComponent>
+      </div>
+    )
+  }
 
   return (
     <div className={cn(styles.pagination, className)}>
       <PaginationComponent>
         <PaginationContent>
           <PaginationItem>
-            {linkMode ? (
-              hasPrevPage ? (
-                linkedPage(
-                  page - 1,
-                  <>
-                    <ChevronLeft size={16} /> Previous
-                  </>,
-                  'Go to previous page',
-                )
-              ) : null
-            ) : (
-              <PaginationPrevious
-                disabled={!hasPrevPage}
-                onClick={() => {
-                  router.push(pageHref(page - 1))
-                }}
-              />
-            )}
+            <PaginationPrevious
+              disabled={!hasPrevPage}
+              onClick={() => {
+                router.push(pageHref(page - 1))
+              }}
+            />
           </PaginationItem>
 
           {hasExtraPrevPages && (
@@ -95,48 +134,36 @@ export const Pagination: React.FC<{
 
           {hasPrevPage && (
             <PaginationItem>
-              {linkMode ? (
-                linkedPage(page - 1, page - 1)
-              ) : (
-                <PaginationLink
-                  onClick={() => {
-                    router.push(pageHref(page - 1))
-                  }}
-                >
-                  {page - 1}
-                </PaginationLink>
-              )}
+              <PaginationLink
+                onClick={() => {
+                  router.push(pageHref(page - 1))
+                }}
+              >
+                {page - 1}
+              </PaginationLink>
             </PaginationItem>
           )}
 
           <PaginationItem>
-            {linkMode ? (
-              linkedPage(page, page, undefined, true)
-            ) : (
-              <PaginationLink
-                isActive
-                onClick={() => {
-                  router.push(pageHref(page))
-                }}
-              >
-                {page}
-              </PaginationLink>
-            )}
+            <PaginationLink
+              isActive
+              onClick={() => {
+                router.push(pageHref(page))
+              }}
+            >
+              {page}
+            </PaginationLink>
           </PaginationItem>
 
           {hasNextPage && (
             <PaginationItem>
-              {linkMode ? (
-                linkedPage(page + 1, page + 1)
-              ) : (
-                <PaginationLink
-                  onClick={() => {
-                    router.push(pageHref(page + 1))
-                  }}
-                >
-                  {page + 1}
-                </PaginationLink>
-              )}
+              <PaginationLink
+                onClick={() => {
+                  router.push(pageHref(page + 1))
+                }}
+              >
+                {page + 1}
+              </PaginationLink>
             </PaginationItem>
           )}
 
@@ -147,24 +174,12 @@ export const Pagination: React.FC<{
           )}
 
           <PaginationItem>
-            {linkMode ? (
-              hasNextPage ? (
-                linkedPage(
-                  page + 1,
-                  <>
-                    Next <ChevronRight size={16} />
-                  </>,
-                  'Go to next page',
-                )
-              ) : null
-            ) : (
-              <PaginationNext
-                disabled={!hasNextPage}
-                onClick={() => {
-                  router.push(pageHref(page + 1))
-                }}
-              />
-            )}
+            <PaginationNext
+              disabled={!hasNextPage}
+              onClick={() => {
+                router.push(pageHref(page + 1))
+              }}
+            />
           </PaginationItem>
         </PaginationContent>
       </PaginationComponent>
