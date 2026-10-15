@@ -5,6 +5,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 
 import { Header } from '@/Header/config'
 import { normalizeHeader } from '@/Header/hooks/normalizeHeader'
+import { createIsolatedTestDatabaseURI } from '../helpers/isolatedDatabase'
 
 const relatedCollection = (
   slug: 'pages' | 'posts' | 'case-studies' | 'categories' | 'blogs' | 'blog-categories',
@@ -30,7 +31,7 @@ describe('Header conditional validation through the Payload Local API', () => {
       ],
       db: mongooseAdapter({
         connectOptions: { serverSelectionTimeoutMS: 3_000 },
-        url: `mongodb://127.0.0.1:27017/${databaseName}`,
+        url: createIsolatedTestDatabaseURI(databaseName),
       }),
       globals: [
         {

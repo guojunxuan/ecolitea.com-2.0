@@ -23,7 +23,7 @@
   display: inline-grid;
   place-items: center;
   width: 40px;
-  height: 44px;
+  height: var(--website-control-target-min);
   padding: 0;
   border: 0;
   background: none;

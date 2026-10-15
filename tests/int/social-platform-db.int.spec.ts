@@ -10,6 +10,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { SiteAssets } from '@/collections/SiteAssets'
 import { SocialPlatforms } from '@/collections/SocialPlatforms'
 import { socialTab } from '@/SiteSettings/fields/social'
+import { createIsolatedTestDatabaseURI } from '../helpers/isolatedDatabase'
 
 const upload = (name: string, mimetype = 'image/svg+xml'): File => {
   const data = mimetype === 'image/svg+xml'
@@ -39,13 +40,14 @@ describe('Social Platform database contracts', () => {
   beforeAll(async () => {
     uploadDirectory = await mkdtemp(path.join(tmpdir(), 'social-platform-assets-'))
     const databaseName = `ecolitea2-social-platform-${randomUUID()}`
-    console.info(`Social platform test target: 127.0.0.1:27017/${databaseName}; storage: local ${uploadDirectory}`)
+    const databaseURI = createIsolatedTestDatabaseURI(databaseName)
+    console.info(`Social platform test target: ${databaseURI}; storage: local ${uploadDirectory}`)
     const config = await buildConfig({
       collections: [
         { ...SiteAssets, upload: { ...(typeof SiteAssets.upload === 'object' ? SiteAssets.upload : {}), staticDir: uploadDirectory } },
         SocialPlatforms,
       ],
-      db: mongooseAdapter({ connectOptions: { serverSelectionTimeoutMS: 3_000 }, url: `mongodb://127.0.0.1:27017/${databaseName}` }),
+      db: mongooseAdapter({ connectOptions: { serverSelectionTimeoutMS: 3_000 }, url: databaseURI }),
       globals: [
         {
           slug: 'site-settings',

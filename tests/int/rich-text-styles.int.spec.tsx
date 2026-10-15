@@ -303,7 +303,7 @@ describe('RichText style modes', () => {
       }
     }
 
-    expect(rootLevelRules).toHaveLength(7)
+    expect(rootLevelRules).toHaveLength(9)
   })
 
   it('preserves distinct gutter widths for content and plain modes', () => {
@@ -353,7 +353,7 @@ describe('RichText style modes', () => {
       expect(source, slot).toContain(`styles.${slot}`)
     }
 
-    expect(source).not.toMatch(
+    expect(source.replace(/\/\/[^\n]*|\/\*[\s\S]*?\*\//g, '')).not.toMatch(
       /(?:prose|md:prose-md|max-w-none|mx-auto|col-start-|col-span-|mb-4|max-w-\[48rem\])/,
     )
   })

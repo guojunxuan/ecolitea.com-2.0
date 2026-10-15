@@ -91,7 +91,8 @@ describe('Blog category text navigation', () => {
   it('opens a mobile dropdown containing all categories and closes on Escape or outside press', () => {
     const { container } = render(<BlogCategoryTabs categories={categories} />)
     const menu = container.querySelector<HTMLDetailsElement>('[data-slot="blog-mobile-menu"]')!
-    const summary = within(menu).getByText('Blog')
+    const summary = menu.querySelector('summary')!
+    expect(summary.textContent).toContain('All')
     expect(menu.open).toBe(false)
     fireEvent.click(summary)
     expect(menu.open).toBe(true)

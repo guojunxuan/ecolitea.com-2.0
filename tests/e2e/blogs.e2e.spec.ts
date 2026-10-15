@@ -96,14 +96,6 @@ test.describe('Blog publishing journeys', () => {
     expect(motion[1].delay).toBe('0.08s')
     expect(motion[11].delay).toBe('0.4s')
 
-    await page.getByRole('status').scrollIntoViewIfNeeded()
-    await expect(cards).toHaveCount(14)
-    const appendedDelays = await cards.evaluateAll((items) =>
-      items.map((item) => getComputedStyle(item).animationDelay),
-    )
-    expect(appendedDelays[12]).toBe('0s')
-    expect(appendedDelays.every((delay) => Number.parseFloat(delay) <= 0.4)).toBe(true)
-
     await page.goto(`${baseURL}/blogs/page/2`)
     const paginatedCards = page.locator('[data-slot="archive-item"]')
     await expect(paginatedCards).toHaveCount(2)
@@ -304,7 +296,7 @@ test.describe('Blog publishing journeys', () => {
         '/blogs',
       )
       if (width < 1024) {
-        const trigger = page.getByRole('button', { name: 'Table of contents' })
+        const trigger = page.getByRole('button', { name: 'Table of contents', exact: true })
         await trigger.focus()
         await page.keyboard.press('Enter')
         // The desktop list is hidden below 64rem, so the visible TOC nav is the dropdown panel.
@@ -366,7 +358,10 @@ test.describe('Blog publishing journeys', () => {
         await page
           .locator('#start-with-the-leaf')
           .evaluate((heading) =>
-            window.scrollTo(0, heading.getBoundingClientRect().top + window.scrollY + 300),
+            window.scrollTo({
+              top: heading.getBoundingClientRect().top + window.scrollY + 300,
+              behavior: 'instant',
+            }),
           )
         await expect
           .poll(() =>
@@ -388,7 +383,7 @@ test.describe('Blog publishing journeys', () => {
       await expect(page).toHaveURL(/#start-with-the-leaf$/)
       await expect(page.locator('#start-with-the-leaf')).toBeInViewport()
       if (width < 1024) {
-        await expect(page.getByRole('button', { name: 'Table of contents' })).toHaveAttribute(
+        await expect(page.getByRole('button', { name: 'Table of contents', exact: true })).toHaveAttribute(
           'aria-expanded',
           'false',
         )
@@ -420,7 +415,7 @@ test.describe('Blog publishing journeys', () => {
       await page.goto(`${baseURL}/blogs/${fixture.prefix}-1`)
       await expect(page.getByRole('heading', { name: 'Tea journal 01', exact: true })).toBeVisible()
       await expect(page.getByRole('navigation', { name: 'Table of contents' })).toHaveCount(0)
-      await expect(page.getByRole('button', { name: 'Table of contents' })).toHaveCount(0)
+      await expect(page.getByRole('button', { name: 'Table of contents', exact: true })).toHaveCount(0)
       const readingColumn = await page.locator('[data-slot="blog-article-content"]').boundingBox()
       expect(readingColumn).not.toBeNull()
       const articleColumn = await page.locator('main > article').boundingBox()

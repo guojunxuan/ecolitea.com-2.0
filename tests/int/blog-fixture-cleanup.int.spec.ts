@@ -4,12 +4,13 @@ import { randomUUID } from 'node:crypto'
 import { buildConfig, getPayload, type Payload } from 'payload'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { cleanupBlogs } from '../helpers/blogFixtures'
+import { createIsolatedTestDatabaseURI } from '../helpers/isolatedDatabase'
 
 describe('Blog fixture cleanup reference safety', () => {
   let payload: Payload
   const runID = randomUUID().slice(0, 12)
   const databaseName = `task12-${runID}-e2e`
-  const uri = `mongodb://127.0.0.1:27017/${databaseName}`
+  const uri = createIsolatedTestDatabaseURI(databaseName)
   const previousDatabaseURI = process.env.DATABASE_URI
   const previousDisableR2 = process.env.DISABLE_R2_STORAGE
   let pageID: string

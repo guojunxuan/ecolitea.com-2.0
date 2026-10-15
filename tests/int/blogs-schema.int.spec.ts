@@ -7,6 +7,7 @@ import { randomUUID } from 'node:crypto'
 import { buildConfig, getPayload, type Payload, type Field } from 'payload'
 import { defaultLexical } from '@/fields/defaultLexical'
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
+import { createIsolatedTestDatabaseURI } from '../helpers/isolatedDatabase'
 
 vi.mock('@payloadcms/ui/icons/Copy', () => ({ CopyIcon: () => null }))
 vi.mock('next/cache', () => ({ revalidatePath: vi.fn(), revalidateTag: vi.fn() }))
@@ -135,7 +136,7 @@ describe('Blogs through the isolated Payload Local API', () => {
     const { BlogCategories } = await import('@/collections/BlogCategories')
     const { Users } = await import('@/collections/Users')
     const databaseName = `ecolitea2-blogs-schema-${randomUUID()}`
-    const url = `mongodb://127.0.0.1:27017/${databaseName}`
+    const url = createIsolatedTestDatabaseURI(databaseName)
     console.info(
       `Blogs schema target: ${url}; DISABLE_R2_STORAGE=${process.env.DISABLE_R2_STORAGE}; no storage plugins, local uploads disabled`,
     )

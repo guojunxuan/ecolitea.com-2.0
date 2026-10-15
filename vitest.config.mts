@@ -6,8 +6,10 @@ export default defineConfig({
   plugins: [tsconfigPaths(), react()],
   test: {
     environment: 'jsdom',
-    // Limit jsdom contention so Form interaction tests retain the default 5s timeout.
-    maxWorkers: 2,
+    // Payload and module mocks share process state across integration suites.
+    // Keep file execution serial so globals and hooks cannot affect other suites.
+    maxWorkers: 1,
+    fileParallelism: false,
     setupFiles: ['./vitest.setup.ts'],
     include: ['tests/int/**/*.int.spec.{ts,tsx}'],
   },

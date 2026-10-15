@@ -12,7 +12,8 @@ const renameAssets = async ({ payload }: MigrateUpArgs, source: string, destinat
     throw new Error(`Destination collection ${destination} already exists. Refusing to merge assets.`)
   }
   if (!collections.some(({ name }) => name === source)) {
-    throw new Error(`Source collection ${source} does not exist. No data was changed.`)
+    payload.logger.info({ msg: `Source collection ${source} does not exist; no assets to rename.` })
+    return
   }
   const legacyExists = collections.some(({ name }) => name === '_brand-assets_versions')
   const legacyCount = legacyExists ? await db.collection('_brand-assets_versions').countDocuments() : 0

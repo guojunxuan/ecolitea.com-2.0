@@ -144,7 +144,7 @@ describe('Block CSS module contracts', () => {
       /\.article > :global\(\.payload-richtext__embedded\) > \*\s*\{[^}]*margin-block:\s*0/s,
     )
     expect(readFileSync('src/blocks/MediaBlock/Component.module.css', 'utf8')).toMatch(
-      /\.article\.wide\s*\{[^}]*max-width:\s*none/,
+      /\.article\.wide\s*,\s*\.article\.fullWidth\s*\{[^}]*max-width:\s*none/,
     )
     expect(readFileSync('src/blocks/RenderBlocks.module.css', 'utf8')).not.toContain(
       "data-block-context='article'",

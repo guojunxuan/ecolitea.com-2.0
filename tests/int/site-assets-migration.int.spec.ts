@@ -6,17 +6,19 @@ import { buildConfig, getPayload, type Payload } from 'payload'
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
 
 import { up, down } from '@/migrations/20261013_site_assets'
+import { createIsolatedTestDatabaseURI } from '../helpers/isolatedDatabase'
 
 describe('Site Assets database migration', () => {
   let payload: Payload
   let adapter: MongooseAdapter
   const databaseName = `ecolitea2-assets-${randomUUID()}`
+  const databaseURI = createIsolatedTestDatabaseURI(databaseName)
 
   beforeAll(async () => {
-    console.info(`Migration test target: 127.0.0.1:27017/${databaseName}; storage: disabled, no uploads`)
+    console.info(`Migration test target: ${databaseURI}; storage: disabled, no uploads`)
     payload = await getPayload({ key: databaseName, config: buildConfig({
       collections: [],
-      db: mongooseAdapter({ url: `mongodb://127.0.0.1:27017/${databaseName}`, connectOptions: { serverSelectionTimeoutMS: 3000 } }),
+      db: mongooseAdapter({ url: databaseURI, connectOptions: { serverSelectionTimeoutMS: 3000 } }),
       secret: 'isolated-site-assets-migration-test-secret',
     }) })
     adapter = payload.db as MongooseAdapter
@@ -24,7 +26,7 @@ describe('Site Assets database migration', () => {
 
   afterAll(async () => {
     if (payload) {
-      console.info(`Migration test cleanup: 127.0.0.1:27017/${databaseName}; storage: disabled`)
+      console.info(`Migration test cleanup: ${databaseURI}; storage: disabled`)
       await adapter.connection.dropDatabase()
       await payload.destroy()
     }
@@ -67,12 +69,12 @@ describe('Site Assets database migration', () => {
       timeout: 30000,
       env: {
         ...process.env,
-        DATABASE_URI: `mongodb://127.0.0.1:27017/${databaseName}`,
+        DATABASE_URI: databaseURI,
         DISABLE_R2_STORAGE: 'true',
         NODE_ENV: 'test',
       },
     })
-    console.info(`Payload CLI migration test target: 127.0.0.1:27017/${databaseName}; storage: disabled`)
+    console.info(`Payload CLI migration test target: ${databaseURI}; storage: disabled`)
     const result = await run('migrate')
     expect(result.stdout).toContain('Migrated:')
     expect(await db.listCollections({ name: 'brand-assets' }).toArray()).toHaveLength(0)

@@ -518,7 +518,7 @@
 }
 
 /* Blog article spacing; embedded Blocks retain their own typography. */
-@scope ([data-slot='blog-article-content'] > .payload-richtext) to (.payload-richtext__embedded) {
+@scope ([data-slot='blog-article-content'] > .payload-richtext.payload-richtext--content) to (.payload-richtext__embedded) {
   p { margin-block: 12px; }
   h2 { margin-block: 32px 12px; }
   h3 { margin-block: 24px 8px; }
