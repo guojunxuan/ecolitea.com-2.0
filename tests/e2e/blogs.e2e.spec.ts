@@ -443,20 +443,20 @@ test.describe('Blog publishing journeys', () => {
       expect((await listing.json()).docs).toEqual([])
     }
     const sitemap = await request.get(`${baseURL}/blogs-sitemap.xml`)
-    expect(sitemap.status()).toBe(200)
+    expect(sitemap.status(), '/blogs-sitemap.xml response status').toBe(200)
     const xml = await sitemap.text()
     expect(xml).toContain(`/blogs/${fixture.slug}`)
     expect(xml).not.toContain(`${fixture.prefix}-draft`)
     expect(xml).not.toContain(`${fixture.prefix}-future`)
     const robots = await request.get(`${baseURL}/robots.txt`)
-    expect(robots.status()).toBe(200)
+    expect(robots.status(), '/robots.txt response status').toBe(200)
     expect(await robots.text()).toContain('Sitemap:')
     const preview = `${baseURL}/next/preview?path=/blogs/${fixture.prefix}-draft&previewSecret=${process.env.PREVIEW_SECRET}`
     expect((await request.get(preview)).status()).toBe(403)
     const login = await page.request.post(`${baseURL}/api/users/login`, {
       data: { email: fixture.email, password: fixture.password },
     })
-    expect(login.status()).toBe(200)
+    expect(login.status(), '/api/users/login response status').toBe(200)
     await page.goto(preview)
     await expect(page).toHaveURL(`${baseURL}/blogs/${fixture.prefix}-draft`)
     await expect(page.getByRole('heading', { name: 'draft private tea story' })).toBeVisible()

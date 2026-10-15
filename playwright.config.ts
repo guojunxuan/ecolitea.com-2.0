@@ -110,7 +110,7 @@ export default defineConfig({
     },
     {
       // Next's persistent data cache must never cross run-scoped databases.
-      command: `node -e "require('node:fs').rmSync('.next-e2e/cache', { recursive: true, force: true })" && DISABLE_R2_STORAGE=true pnpm exec tsx tests/helpers/seedBlogsBeforeBuild.ts && ${task6ArchiveSeedCommand}pnpm exec next build --webpack && mkdir -p .next-e2e/standalone/.next-e2e && cp -R .next-e2e/static .next-e2e/standalone/.next-e2e/static && if [ -d public ]; then cp -R public .next-e2e/standalone/public; fi && if [ -d media ]; then cp -R media .next-e2e/standalone/media; fi && node .next-e2e/standalone/server.js`,
+      command: `node -e "require('node:fs').rmSync('.next-e2e/cache', { recursive: true, force: true })" && DISABLE_R2_STORAGE=true pnpm exec tsx tests/helpers/seedBlogsBeforeBuild.ts && ${task6ArchiveSeedCommand}pnpm exec next build --webpack && pnpm exec next-sitemap --config next-sitemap.config.cjs && mkdir -p .next-e2e/standalone/.next-e2e && cp -R .next-e2e/static .next-e2e/standalone/.next-e2e/static && if [ -d public ]; then cp -R public .next-e2e/standalone/public; fi && if [ -d media ]; then cp -R media .next-e2e/standalone/media; fi && node .next-e2e/standalone/server.js`,
       env: {
         ...process.env,
         DATABASE_URI: e2eDatabaseURI,

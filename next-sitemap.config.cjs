@@ -6,6 +6,7 @@ const SITE_URL =
 /** @type {import('next-sitemap').IConfig} */
 module.exports = {
   siteUrl: SITE_URL,
+  sourceDir: process.env.PLAYWRIGHT_TEST === 'true' ? '.next-e2e' : '.next',
   generateRobotsTxt: true,
   exclude: ['/posts-sitemap.xml', '/pages-sitemap.xml', '/blogs-sitemap.xml', '/*', '/posts/*'],
   robotsTxtOptions: {
