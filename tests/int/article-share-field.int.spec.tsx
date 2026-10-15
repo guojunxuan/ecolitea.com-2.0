@@ -5,7 +5,7 @@ import type { TextFieldClientProps } from 'payload'
 import { ArticleShareURLField } from '@/Settings/components/ArticleShareURLField'
 
 const state = vi.hoisted(() => ({
-  path: 'blog.article.share.platforms.0.shareURL',
+  path: 'blog.share.platforms.0.shareURL',
   name: 'LinkedIn',
   value: '',
   setValue: vi.fn(),
@@ -38,7 +38,7 @@ vi.mock('@payloadcms/ui', () => {
       selector([
         {
           [`${state.path.slice(0, state.path.lastIndexOf('.'))}.name`]: { value: state.name },
-          'blog.article.share.platforms': {
+          'blog.share.platforms': {
             rows: Array.from({ length: 2 }, (_, index) => ({
               id: Number(state.path.split('.').at(-2)) === index ? state.rowID : 'other-row',
             })),
@@ -58,7 +58,7 @@ vi.mock('@payloadcms/ui', () => {
   }
 })
 const props = {
-  path: 'blog.article.share.platforms.0.shareURL',
+  path: 'blog.share.platforms.0.shareURL',
   field: { name: 'shareURL', type: 'text', label: 'Share URL', required: true },
 } satisfies TextFieldClientProps
 const starter = 'https://www.linkedin.com/share?url={url}&title={title}'
@@ -128,7 +128,7 @@ describe('ArticleShareURLField', () => {
     rerender(<ArticleShareURLField {...props} />)
     expect(state.setValue).not.toHaveBeenCalled()
     // Payload retains the row component identity while its form path changes.
-    state.path = 'blog.article.share.platforms.1.shareURL'
+    state.path = 'blog.share.platforms.1.shareURL'
     rerender(<ArticleShareURLField {...props} />)
     state.name = 'Twitter'
     rerender(<ArticleShareURLField {...props} />)
@@ -142,7 +142,7 @@ describe('ArticleShareURLField', () => {
     state.setValue.mockClear()
     rerender(<ArticleShareURLField {...props} />)
     unmount()
-    state.path = 'blog.article.share.platforms.1.shareURL'
+    state.path = 'blog.share.platforms.1.shareURL'
     const moved = render(<ArticleShareURLField {...props} path={state.path} />)
     state.name = 'Twitter'
     moved.rerender(<ArticleShareURLField {...props} path={state.path} />)

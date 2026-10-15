@@ -11,7 +11,7 @@ export type BlogListingHeroModel = {
 
 export const getBlogListingHero = async (): Promise<BlogListingHeroModel | null> => {
   const settings: Settings | null = await getCachedSettings()
-  const hero = settings?.blog?.listing?.hero
+  const hero = settings?.blog?.hero
 
   if (hero?.enabled !== true) return null
 

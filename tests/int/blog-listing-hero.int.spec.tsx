@@ -24,19 +24,19 @@ describe('getBlogListingHero', () => {
   })
 
   it('returns null when the blog listing hero is missing', async () => {
-    getCachedSettingsMock.mockResolvedValue({ id: 'settings', blog: { listing: {} } })
+    getCachedSettingsMock.mockResolvedValue({ id: 'settings', blog: {} })
 
     await expect(getBlogListingHero()).resolves.toBeNull()
   })
 
   it('returns null when disabled or the heading is blank', async () => {
     getCachedSettingsMock.mockResolvedValueOnce({
-      blog: { listing: { hero: { enabled: false, heading: 'Heading' } } },
+      blog: { hero: { enabled: false, heading: 'Heading' } },
     })
     await expect(getBlogListingHero()).resolves.toBeNull()
 
     getCachedSettingsMock.mockResolvedValueOnce({
-      blog: { listing: { hero: { enabled: true, heading: '  \n ' } } },
+      blog: { hero: { enabled: true, heading: '  \n ' } },
     })
     await expect(getBlogListingHero()).resolves.toBeNull()
   })
@@ -44,9 +44,7 @@ describe('getBlogListingHero', () => {
   it('trims heading and optional description and normalizes empty description', async () => {
     getCachedSettingsMock.mockResolvedValue({
       blog: {
-        listing: {
-          hero: { enabled: true, heading: '  Stories  ', description: '  From the journal  ' },
-        },
+        hero: { enabled: true, heading: '  Stories  ', description: '  From the journal  ' },
       },
     })
 
@@ -57,7 +55,7 @@ describe('getBlogListingHero', () => {
     })
 
     getCachedSettingsMock.mockResolvedValue({
-      blog: { listing: { hero: { enabled: true, heading: 'Stories', description: '  ' } } },
+      blog: { hero: { enabled: true, heading: 'Stories', description: '  ' } },
     })
 
     await expect(getBlogListingHero()).resolves.toEqual({
@@ -69,7 +67,7 @@ describe('getBlogListingHero', () => {
 
   it.each(['light', 'dark'] as const)('preserves %s theme', async (headerTheme) => {
     getCachedSettingsMock.mockResolvedValue({
-      blog: { listing: { hero: { enabled: true, heading: 'Stories', headerTheme } } },
+      blog: { hero: { enabled: true, heading: 'Stories', headerTheme } },
     })
 
     await expect(getBlogListingHero()).resolves.toMatchObject({ heading: 'Stories', headerTheme })
@@ -79,20 +77,20 @@ describe('getBlogListingHero', () => {
     const media = { id: 'media-1', url: '/media/hero.jpg', filename: 'hero.jpg' }
     getCachedSettingsMock.mockResolvedValue({
       blog: {
-        listing: { hero: { enabled: true, heading: 'Stories', image: media, headerTheme: 'dark' } },
+        hero: { enabled: true, heading: 'Stories', image: media, headerTheme: 'dark' },
       },
     })
     await expect(getBlogListingHero()).resolves.toMatchObject({ image: media })
 
     getCachedSettingsMock.mockResolvedValue({
-      blog: { listing: { hero: { enabled: true, heading: 'Stories', image: 'media-1' } } },
+      blog: { hero: { enabled: true, heading: 'Stories', image: 'media-1' } },
     })
     await expect(getBlogListingHero()).resolves.toMatchObject({ image: 'media-1' })
   })
 
   it('normalizes an unknown theme to light', async () => {
     getCachedSettingsMock.mockResolvedValue({
-      blog: { listing: { hero: { enabled: true, heading: 'Stories', headerTheme: 'sepia' } } },
+      blog: { hero: { enabled: true, heading: 'Stories', headerTheme: 'sepia' } },
     })
 
     await expect(getBlogListingHero()).resolves.toMatchObject({ headerTheme: 'light' })

@@ -20,14 +20,12 @@ function resolveImageURL(url: string): string | undefined {
 
 export async function getBlogListingSEO(): Promise<BlogListingSEOModel> {
   const settings = await getCachedSettings()
-  const seo = settings?.blog?.listing?.seo
+  const seo = settings?.blog?.seo
   const title = seo?.title?.trim()
   const description = seo?.description?.trim()
   const image = seo?.image
   const imageURL =
-    image && typeof image === 'object' && image.url
-      ? resolveImageURL(image.url)
-      : undefined
+    image && typeof image === 'object' && image.url ? resolveImageURL(image.url) : undefined
 
   return {
     ...(title ? { title } : {}),

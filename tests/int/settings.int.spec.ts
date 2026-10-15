@@ -16,9 +16,8 @@ import { getServerSideURL } from '@/utilities/getURL'
 
 vi.mock('next/cache', () => ({ revalidatePath: vi.fn(), revalidateTag: vi.fn() }))
 
-const listing = blogTab.fields[0] as GroupField
-const heroSection = listing.fields[0] as CollapsibleField
-const seoSection = listing.fields[1] as CollapsibleField
+const heroSection = blogTab.fields[0] as CollapsibleField
+const seoSection = blogTab.fields[1] as CollapsibleField
 const hero = heroSection.fields[0] as GroupField
 const seo = seoSection.fields[0] as GroupField
 
@@ -46,9 +45,16 @@ describe('Settings Global', () => {
   it('organizes Hero and SEO as collapsible Blog sections', () => {
     expect(settingsTabs).toEqual({ type: 'tabs', tabs: [blogTab] })
     expect(blogTab).toMatchObject({ name: 'blog', label: 'Blog' })
-    expect(listing).toMatchObject({ name: 'listing', label: false, type: 'group', admin: { hideGutter: true } })
-    expect(heroSection).toMatchObject({ type: 'collapsible', label: 'Hero', admin: { initCollapsed: false } })
-    expect(seoSection).toMatchObject({ type: 'collapsible', label: 'SEO', admin: { initCollapsed: true } })
+    expect(heroSection).toMatchObject({
+      type: 'collapsible',
+      label: 'Listing Hero',
+      admin: { initCollapsed: false },
+    })
+    expect(seoSection).toMatchObject({
+      type: 'collapsible',
+      label: 'Listing SEO',
+      admin: { initCollapsed: true },
+    })
     expect(hero).toMatchObject({ name: 'hero', label: false, type: 'group' })
     expect(hero.fields.map((field) => 'name' in field && field.name)).toEqual([
       'enabled',
@@ -107,11 +113,17 @@ describe('Settings Global', () => {
       'preview',
     ])
     expect(seo.fields[0]).toMatchObject({
-      admin: { components: { Field: { clientProps: {
-        titlePath: 'blog.listing.seo.title',
-        descriptionPath: 'blog.listing.seo.description',
-        imagePath: 'blog.listing.seo.image',
-      } } } },
+      admin: {
+        components: {
+          Field: {
+            clientProps: {
+              titlePath: 'blog.seo.title',
+              descriptionPath: 'blog.seo.description',
+              imagePath: 'blog.seo.image',
+            },
+          },
+        },
+      },
     })
     expect(seo.fields[1]).toMatchObject({ hooks: { beforeValidate: [trimText] } })
     expect(seo.fields[2]).toMatchObject({ hooks: { beforeValidate: [trimText] } })
@@ -120,24 +132,36 @@ describe('Settings Global', () => {
       mimeType: { in: [...MEDIA_UPLOAD_POLICY.image.mimeTypes] },
     })
     expect(seo.fields[4]).toMatchObject({
-      admin: { components: { Field: { clientProps: {
-        titlePath: 'blog.listing.seo.title',
-        descriptionPath: 'blog.listing.seo.description',
-        hasGenerateURLFn: true,
-      } } } },
+      admin: {
+        components: {
+          Field: {
+            clientProps: {
+              titlePath: 'blog.seo.title',
+              descriptionPath: 'blog.seo.description',
+              hasGenerateURLFn: true,
+            },
+          },
+        },
+      },
     })
   })
 
   it('generates listing defaults for Settings without changing article generators', () => {
     const settings = { globalConfig: { slug: 'settings' }, doc: {} } as never
     expect(generateTitle(settings)).toBe('Blogs')
-    expect(generateDescription(settings)).toBe('Explore our latest blog articles, insights, and guides.')
+    expect(generateDescription(settings)).toBe(
+      'Explore our latest blog articles, insights, and guides.',
+    )
     expect(generateURL(settings)).toBe(`${getServerSideURL()}/blogs`)
-    const article = { collectionConfig: { slug: 'blogs' }, doc: { title: 'Tea', excerpt: 'Leaves' } } as never
+    const article = {
+      collectionConfig: { slug: 'blogs' },
+      doc: { title: 'Tea', excerpt: 'Leaves' },
+    } as never
     expect(generateTitle(article)).toBe('Tea | Ecolitea')
     expect(generateDescription(article)).toBe('Leaves')
-    expect(generateURL({ collectionConfig: { slug: 'blogs' }, doc: { slug: 'tea' } } as never))
-      .toBe(`${getServerSideURL()}/blogs/tea`)
+    expect(
+      generateURL({ collectionConfig: { slug: 'blogs' }, doc: { slug: 'tea' } } as never),
+    ).toBe(`${getServerSideURL()}/blogs/tea`)
   })
 
   it.each([
@@ -163,7 +187,7 @@ describe('Settings Global', () => {
   it.each([false, true])(
     'revalidates unless disabled=%s and returns the document',
     (disableRevalidate) => {
-      const doc = { blog: { listing: { hero: { enabled: false, heading: 'Saved' } } } }
+      const doc = { blog: { hero: { enabled: false, heading: 'Saved' } } }
       const result = revalidateSettings({
         doc,
         req: { context: { disableRevalidate } } as unknown as PayloadRequest,
@@ -192,25 +216,41 @@ describe('Settings SEO image write integrity', () => {
     const findByID = vi.fn().mockResolvedValue({ mimeType: 'video/mp4' })
     const hook = Settings.hooks?.beforeChange?.[1]
     expect(hook).toBeTypeOf('function')
-    await expect(hook!({ data: { blog: { listing: { seo: { image: 'video-id' } } } }, req: { payload: { findByID } } } as never))
-      .rejects.toMatchObject({ status: 400, data: { errors: [{ path: 'blog.listing.seo.image' }] } })
+    await expect(
+      hook!({
+        data: { blog: { seo: { image: 'video-id' } } },
+        req: { payload: { findByID } },
+      } as never),
+    ).rejects.toMatchObject({ status: 400, data: { errors: [{ path: 'blog.seo.image' }] } })
   })
 
   it('validates retained images on partial updates and preserves other data', async () => {
     const findByID = vi.fn().mockResolvedValue({ mimeType: 'image/png' })
-    const data = { blog: { listing: { hero: { enabled: false } } } }
+    const data = { blog: { hero: { enabled: false } } }
     const hook = Settings.hooks?.beforeChange?.[1]
-    await expect(hook!({ data, originalDoc: { blog: { listing: { seo: { image: 'image-id' } } } }, req: { payload: { findByID } } } as never))
-      .resolves.toBe(data)
-    expect(findByID).toHaveBeenCalledWith(expect.objectContaining({ collection: 'media', id: 'image-id', depth: 0 }))
+    await expect(
+      hook!({
+        data,
+        originalDoc: { blog: { seo: { image: 'image-id' } } },
+        req: { payload: { findByID } },
+      } as never),
+    ).resolves.toBe(data)
+    expect(findByID).toHaveBeenCalledWith(
+      expect.objectContaining({ collection: 'media', id: 'image-id', depth: 0 }),
+    )
   })
 
   it('allows clearing an optional image', async () => {
     const findByID = vi.fn()
-    const data = { blog: { listing: { seo: { image: null } } } }
+    const data = { blog: { seo: { image: null } } }
     const hook = Settings.hooks?.beforeChange?.[1]
-    await expect(hook!({ data, originalDoc: { blog: { listing: { seo: { image: 'old' } } } }, req: { payload: { findByID } } } as never))
-      .resolves.toBe(data)
+    await expect(
+      hook!({
+        data,
+        originalDoc: { blog: { seo: { image: 'old' } } },
+        req: { payload: { findByID } },
+      } as never),
+    ).resolves.toBe(data)
     expect(findByID).not.toHaveBeenCalled()
   })
 })
@@ -224,15 +264,13 @@ describe('Settings Hero image write integrity', () => {
     expect(hook).toBeTypeOf('function')
     await expect(
       hook!({
-        data: { blog: { listing: { hero: { enabled, image: 'video-id' } } } },
+        data: { blog: { hero: { enabled, image: 'video-id' } } },
         req: { payload: { findByID } },
       } as never),
     ).rejects.toMatchObject({
       status: 400,
       data: {
-        errors: [
-          { path: 'blog.listing.hero.image', message: 'Hero image must be an image from Media.' },
-        ],
+        errors: [{ path: 'blog.hero.image', message: 'Hero image must be an image from Media.' }],
       },
     })
   })
@@ -241,7 +279,7 @@ describe('Settings Hero image write integrity', () => {
     const findByID = vi.fn().mockResolvedValue({ id: 'image-id', mimeType: 'image/png' })
     const data = {
       blog: {
-        listing: { hero: { enabled: false, image: { id: 'image-id', mimeType: 'video/mp4' } } },
+        hero: { enabled: false, image: { id: 'image-id', mimeType: 'video/mp4' } },
       },
     }
     const hook = Settings.hooks?.beforeChange?.[0]
@@ -254,8 +292,8 @@ describe('Settings Hero image write integrity', () => {
 
   it('validates a retained relationship on a partial update without removing data', async () => {
     const findByID = vi.fn().mockResolvedValue({ id: 'image-id', mimeType: 'image/jpeg' })
-    const data = { blog: { listing: { hero: { enabled: false } } } }
-    const originalDoc = { blog: { listing: { hero: { image: 'image-id' } } } }
+    const data = { blog: { hero: { enabled: false } } }
+    const originalDoc = { blog: { hero: { image: 'image-id' } } }
     const hook = Settings.hooks?.beforeChange?.[0]
     expect(hook).toBeTypeOf('function')
     await expect(
@@ -266,13 +304,13 @@ describe('Settings Hero image write integrity', () => {
 
   it('allows an explicitly cleared optional image', async () => {
     const findByID = vi.fn()
-    const data = { blog: { listing: { hero: { image: null } } } }
+    const data = { blog: { hero: { image: null } } }
     const hook = Settings.hooks?.beforeChange?.[0]
     expect(hook).toBeTypeOf('function')
     await expect(
       hook!({
         data,
-        originalDoc: { blog: { listing: { hero: { image: 'old' } } } },
+        originalDoc: { blog: { hero: { image: 'old' } } },
         req: { payload: { findByID } },
       } as never),
     ).resolves.toBe(data)

@@ -82,6 +82,11 @@ migration renames `brand-assets` to `site-assets`, updates document locks and pr
 and reports the untouched `_brand-assets_versions` collection. File URLs and storage objects do
 not change. Existing destination collections abort the migration, including empty collections.
 
+The Blog settings migration moves `blog.listing.hero`, `blog.listing.seo`, and
+`blog.article.share` to `blog.hero`, `blog.seo`, and `blog.share` in the Settings Global. It
+preserves the existing field values, refuses to overwrite an occupied destination, and does not
+touch storage. Apply this migration before serving code that reads the new field paths.
+
 Run the migration before serving the new code, with application writes paused. Verify and report
 the database host/name and storage environment before running commands. For the local development
 database (`127.0.0.1:27017/ecolitea2`):

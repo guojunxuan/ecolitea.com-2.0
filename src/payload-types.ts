@@ -2284,41 +2284,37 @@ export interface SiteSettings {
 export interface Settings {
   id: string;
   blog?: {
-    listing?: {
-      hero?: {
-        enabled?: boolean | null;
-        heading?: string | null;
-        description?: string | null;
-        image?: (string | null) | Media;
-        /**
-         * Use Dark for dark images (white text and header), Light for bright images or no image.
-         */
-        headerTheme?: ('light' | 'dark') | null;
-      };
-      seo?: {
-        title?: string | null;
-        description?: string | null;
-        /**
-         * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
-         */
-        image?: (string | null) | Media;
-      };
+    hero?: {
+      enabled?: boolean | null;
+      heading?: string | null;
+      description?: string | null;
+      image?: (string | null) | Media;
+      /**
+       * Use Dark for dark images (white text and header), Light for bright images or no image.
+       */
+      headerTheme?: ('light' | 'dark') | null;
     };
-    article?: {
-      share?: {
-        platforms?:
-          | {
-              name: string;
-              icon: string | SiteAsset;
-              /**
-               * Use {url} for the article address and {title} for its title. Adjust the starter URL for the platform.
-               */
-              shareURL: string;
-              id?: string | null;
-            }[]
-          | null;
-        copyLink?: boolean | null;
-      };
+    seo?: {
+      title?: string | null;
+      description?: string | null;
+      /**
+       * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
+       */
+      image?: (string | null) | Media;
+    };
+    share?: {
+      platforms?:
+        | {
+            name: string;
+            icon: string | SiteAsset;
+            /**
+             * Use {url} for the article address and {title} for its title. Adjust the starter URL for the platform.
+             */
+            shareURL: string;
+            id?: string | null;
+          }[]
+        | null;
+      copyLink?: boolean | null;
     };
   };
   updatedAt?: string | null;
@@ -2612,42 +2608,34 @@ export interface SettingsSelect<T extends boolean = true> {
   blog?:
     | T
     | {
-        listing?:
+        hero?:
           | T
           | {
-              hero?:
-                | T
-                | {
-                    enabled?: T;
-                    heading?: T;
-                    description?: T;
-                    image?: T;
-                    headerTheme?: T;
-                  };
-              seo?:
-                | T
-                | {
-                    title?: T;
-                    description?: T;
-                    image?: T;
-                  };
+              enabled?: T;
+              heading?: T;
+              description?: T;
+              image?: T;
+              headerTheme?: T;
             };
-        article?:
+        seo?:
           | T
           | {
-              share?:
+              title?: T;
+              description?: T;
+              image?: T;
+            };
+        share?:
+          | T
+          | {
+              platforms?:
                 | T
                 | {
-                    platforms?:
-                      | T
-                      | {
-                          name?: T;
-                          icon?: T;
-                          shareURL?: T;
-                          id?: T;
-                        };
-                    copyLink?: T;
+                    name?: T;
+                    icon?: T;
+                    shareURL?: T;
+                    id?: T;
                   };
+              copyLink?: T;
             };
       };
   updatedAt?: T;

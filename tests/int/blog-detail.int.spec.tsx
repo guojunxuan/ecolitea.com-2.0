@@ -30,7 +30,7 @@ vi.mock('@/utilities/blogs/getBlogBySlug', () => ({ getBlogBySlug: mockGetBlogBy
 vi.mock('@/utilities/blogs/getRelatedBlogs', () => ({ getRelatedBlogs: mockGetRelatedBlogs }))
 vi.mock('@/utilities/generateMeta', () => ({ generateMeta: mockGenerateMeta }))
 vi.mock('@/utilities/getGlobals', () => ({
-  getCachedSettings: async () => ({ blog: { article: { share: { copyLink: true } } } }),
+  getCachedSettings: async () => ({ blog: { share: { copyLink: true } } }),
 }))
 vi.mock('@/components/PayloadRedirects', () => ({
   PayloadRedirects: ({ url, disableNotFound }: { url: string; disableNotFound?: boolean }) => {

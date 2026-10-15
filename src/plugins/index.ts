@@ -5,7 +5,12 @@ import { seoPlugin } from '@payloadcms/plugin-seo'
 import { searchPlugin } from '@payloadcms/plugin-search'
 import type { CollectionSlug, Plugin } from 'payload'
 import { revalidateRedirects } from '@/hooks/revalidateRedirects'
-import { GenerateDescription, GenerateImage, GenerateTitle, GenerateURL } from '@payloadcms/plugin-seo/types'
+import {
+  GenerateDescription,
+  GenerateImage,
+  GenerateTitle,
+  GenerateURL,
+} from '@payloadcms/plugin-seo/types'
 import { FixedToolbarFeature, HeadingFeature, lexicalEditor } from '@payloadcms/richtext-lexical'
 import { searchFields } from '@/search/fieldOverrides'
 import { beforeSyncWithSearch } from '@/search/beforeSync'
@@ -20,7 +25,11 @@ import { serverEnv } from '@/utilities/env'
 
 type SEOContent = Blog | CaseStudy | Page | Post
 
-export const generateTitle: GenerateTitle<SEOContent | Settings> = ({ collectionConfig, globalConfig, doc }) => {
+export const generateTitle: GenerateTitle<SEOContent | Settings> = ({
+  collectionConfig,
+  globalConfig,
+  doc,
+}) => {
   if (globalConfig?.slug === 'settings') return 'Blogs'
   const content = doc as SEOContent
   if (collectionConfig?.slug === 'blogs') {
@@ -29,20 +38,30 @@ export const generateTitle: GenerateTitle<SEOContent | Settings> = ({ collection
   return content?.title ? `${content.title} | Payload Website Template` : 'Payload Website Template'
 }
 
-export const generateDescription: GenerateDescription<SEOContent | Settings> = ({ collectionConfig, globalConfig, doc }) => {
-  if (globalConfig?.slug === 'settings') return 'Explore our latest blog articles, insights, and guides.'
+export const generateDescription: GenerateDescription<SEOContent | Settings> = ({
+  collectionConfig,
+  globalConfig,
+  doc,
+}) => {
+  if (globalConfig?.slug === 'settings')
+    return 'Explore our latest blog articles, insights, and guides.'
   const content = doc as SEOContent
   if (collectionConfig?.slug === 'blogs') return (content as Blog)?.excerpt || ''
   return content?.meta?.description || ''
 }
 
-export const generateURL: GenerateURL<SEOContent | Settings> = ({ collectionConfig, globalConfig, doc }) => {
+export const generateURL: GenerateURL<SEOContent | Settings> = ({
+  collectionConfig,
+  globalConfig,
+  doc,
+}) => {
   const url = getServerSideURL()
   if (globalConfig?.slug === 'settings') return new URL('/blogs', url).toString()
   const content = doc as SEOContent
-  const path = collectionConfig?.slug && content?.slug
-    ? getContentPath(collectionConfig.slug as CollectionSlug, content.slug)
-    : null
+  const path =
+    collectionConfig?.slug && content?.slug
+      ? getContentPath(collectionConfig.slug as CollectionSlug, content.slug)
+      : null
   return path ? `${url}${path}` : url
 }
 
@@ -56,14 +75,19 @@ const mediaID = (value: unknown): string | number | undefined => {
   return undefined
 }
 
-export const generateImage: GenerateImage<SEOContent | Settings> = async ({ collectionConfig, globalConfig, doc, req }) => {
+export const generateImage: GenerateImage<SEOContent | Settings> = async ({
+  collectionConfig,
+  globalConfig,
+  doc,
+  req,
+}) => {
   let source: unknown
   let current: unknown
 
   if (globalConfig?.slug === 'settings') {
-    const listing = (doc as Settings)?.blog?.listing
-    source = listing?.hero?.image
-    current = listing?.seo?.image
+    const blog = (doc as Settings)?.blog
+    source = blog?.hero?.image
+    current = blog?.seo?.image
   } else {
     const content = doc as SEOContent
     current = content?.meta?.image
@@ -86,8 +110,15 @@ export const generateImage: GenerateImage<SEOContent | Settings> = async ({ coll
   if (id === undefined) return fallback
 
   try {
-    const media = await req.payload.findByID({ collection: 'media', id: String(id), depth: 0, overrideAccess: false, req })
-    return media?.mimeType && MEDIA_UPLOAD_POLICY.image.mimeTypes.some((type) => type === media.mimeType)
+    const media = await req.payload.findByID({
+      collection: 'media',
+      id: String(id),
+      depth: 0,
+      overrideAccess: false,
+      req,
+    })
+    return media?.mimeType &&
+      MEDIA_UPLOAD_POLICY.image.mimeTypes.some((type) => type === media.mimeType)
       ? id
       : fallback
   } catch (error) {
@@ -116,7 +147,10 @@ export const plugins: Plugin[] = [
     collections: r2StorageCollections,
     bucket: serverEnv.R2_BUCKET,
     config: {
-      credentials: { accessKeyId: serverEnv.R2_ACCESS_KEY_ID, secretAccessKey: serverEnv.R2_SECRET_ACCESS_KEY },
+      credentials: {
+        accessKeyId: serverEnv.R2_ACCESS_KEY_ID,
+        secretAccessKey: serverEnv.R2_SECRET_ACCESS_KEY,
+      },
       endpoint: serverEnv.R2_ENDPOINT,
       forcePathStyle: true,
       region: 'auto',

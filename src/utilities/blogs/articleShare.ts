@@ -13,7 +13,7 @@ export const adaptArticleShare = (
   articleURL: string,
   title: string,
 ): ArticleShareModel => {
-  const share = settings?.blog?.article?.share
+  const share = settings?.blog?.share
   const links: ArticleShareModel['links'] = []
   for (const platform of share?.platforms ?? []) {
     const icon = resolveSiteAsset(platform.icon)

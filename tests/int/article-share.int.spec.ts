@@ -9,7 +9,7 @@ import type { ArrayField, CollapsibleField, GroupField, UploadField } from 'payl
 
 const icon = { id: 'icon', alt: 'Share', url: '/icon.svg', updatedAt: '', createdAt: '' }
 const settings = (platforms: unknown[], copyLink?: boolean) =>
-  ({ blog: { article: { share: { platforms, copyLink } } } }) as never
+  ({ blog: { share: { platforms, copyLink } } }) as never
 
 describe('article share adapter', () => {
   it('encodes every placeholder and preserves template text and order', () => {
@@ -87,8 +87,7 @@ describe('article share configuration', () => {
     ).toBe(true)
   })
   it('rejects a non SVG article icon through its configured validator', async () => {
-    const article = blogTab.fields[1] as GroupField
-    const section = article.fields[0] as CollapsibleField
+    const section = blogTab.fields[2] as CollapsibleField
     const share = section.fields[0] as GroupField
     const platforms = share.fields[0] as ArrayField
     const upload = platforms.fields[1] as UploadField
@@ -97,10 +96,8 @@ describe('article share configuration', () => {
     )
   })
   it('uses required native fields, the shared SVG constraint, and empty defaults', () => {
-    const article = blogTab.fields[1] as GroupField
-    expect(article).toMatchObject({ name: 'article', type: 'group' })
-    const section = article.fields[0] as CollapsibleField
-    expect(section).toMatchObject({ label: 'Share', type: 'collapsible' })
+    const section = blogTab.fields[2] as CollapsibleField
+    expect(section).toMatchObject({ label: 'Article Sharing', type: 'collapsible' })
     const share = section.fields[0] as GroupField
     expect('name' in share && share.name).toBe('share')
     const platforms = share.fields[0] as ArrayField

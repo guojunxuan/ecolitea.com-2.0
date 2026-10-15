@@ -8,9 +8,8 @@ export const validateSettingsHeroImage: GlobalBeforeChangeHook = async ({
   originalDoc,
   req,
 }) => {
-  const incomingImage = data?.blog?.listing?.hero?.image
-  const image =
-    incomingImage === undefined ? originalDoc?.blog?.listing?.hero?.image : incomingImage
+  const incomingImage = data?.blog?.hero?.image
+  const image = incomingImage === undefined ? originalDoc?.blog?.hero?.image : incomingImage
   if (image === undefined || image === null) return data
 
   const id = typeof image === 'object' ? image.id : image
@@ -26,7 +25,7 @@ export const validateSettingsHeroImage: GlobalBeforeChangeHook = async ({
       global: 'settings',
       errors: [
         {
-          path: 'blog.listing.hero.image',
+          path: 'blog.hero.image',
           message: 'Hero image must be an image from Media.',
         },
       ],
