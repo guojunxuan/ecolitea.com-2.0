@@ -202,7 +202,7 @@ describe('editorial block rendering', () => {
     expect(screen.getByText('Block caption').closest('figcaption')).toBeTruthy()
     expect(screen.queryByText('Media caption')).toBeNull()
     expect(screen.getByTestId('media').getAttribute('data-presentation')).toBe(
-      '{"image":{"fit":"scale-down","quality":85}}',
+      '{"image":{"fit":"scale-down","quality":85},"video":{"playback":"ambient"}}',
     )
     expect(container.querySelector('figure')?.getAttribute('data-width')).toBe('wide')
     rerender(<MediaBlock blockType="mediaBlock" media={media} />)
@@ -241,6 +241,7 @@ describe('editorial block rendering', () => {
     )
     expect(JSON.parse(screen.getByTestId('media').getAttribute('data-presentation')!)).toEqual({
       image: { fit: 'scale-down', quality: 85 },
+      video: { playback: 'ambient' },
     })
     expect(container.querySelector('figure')?.style.getPropertyValue('--media-aspect-ratio')).toBe(
       '',

@@ -1,4 +1,5 @@
 import type { MediaPresentation } from './types'
+import { MEDIA_UPLOAD_POLICY } from '@/collections/mediaUploadPolicy.shared'
 
 const DEFAULT_IMAGE_QUALITY = 85
 
@@ -7,11 +8,12 @@ export const MEDIA_PRESENTATION_DEFAULTS = {
     fit: 'scale-down',
     quality: DEFAULT_IMAGE_QUALITY,
   },
+  video: { playback: 'ambient' },
 } as const satisfies MediaPresentation
 
 export const MEDIA_RENDERABLE_MIME_TYPES = {
-  image: ['image/avif', 'image/gif', 'image/jpeg', 'image/png', 'image/webp'],
-  video: ['video/mp4'],
+  image: MEDIA_UPLOAD_POLICY.image.mimeTypes,
+  video: MEDIA_UPLOAD_POLICY.video.mimeTypes,
 } as const
 
 export const MEDIA_PRESENTATION = {
@@ -33,5 +35,6 @@ export const MEDIA_PRESENTATION = {
       fit: 'scale-down',
       quality: DEFAULT_IMAGE_QUALITY,
     },
+    video: { playback: 'ambient' },
   },
 } as const satisfies Record<string, MediaPresentation>

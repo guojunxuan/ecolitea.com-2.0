@@ -19,6 +19,7 @@ export type ImagePresentation = {
 }
 
 export type VideoPresentation = {
+  playback?: 'ambient' | 'player'
   width?: number
   height?: number
   fit?: MediaFit

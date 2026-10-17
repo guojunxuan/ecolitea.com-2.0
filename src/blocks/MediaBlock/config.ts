@@ -45,6 +45,16 @@ export const MediaBlock: Block = {
       },
     },
     {
+      name: 'playback',
+      label: 'Playback',
+      type: 'select',
+      options: [
+        { label: 'Ambient', value: 'ambient' },
+        { label: 'Player', value: 'player' },
+      ],
+      defaultValue: 'ambient',
+    },
+    {
       name: 'width',
       admin: { hidden: true },
       type: 'select',

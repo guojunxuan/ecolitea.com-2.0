@@ -11,6 +11,7 @@ vi.mock('next/navigation', () => ({
 
 vi.mock('@/components/Link', () => ({ CMSLink: () => null }))
 vi.mock('@/components/RichText', () => ({ default: () => null }))
+vi.mock('@/fields/compactLexical', () => ({ compactLexical: {} }))
 
 vi.mock('@/components/Media', () => ({
   Media: ({
@@ -34,6 +35,7 @@ vi.mock('@/components/Media', () => ({
 }))
 
 import { MediaBlock } from '@/blocks/MediaBlock/Component'
+import { MediaBlock as MediaBlockConfig } from '@/blocks/MediaBlock/config'
 import mediaBlockStyles from '@/blocks/MediaBlock/Component.module.css'
 import { Card } from '@/components/Card'
 import cardStyles from '@/components/Card/index.module.css'
@@ -89,7 +91,7 @@ describe('existing media consumers', () => {
     render(<MediaBlock blockType="mediaBlock" media={media as never} />)
 
     expect(getMediaBoundary().getAttribute('data-presentation')).toBe(
-      '{"image":{"fit":"scale-down","quality":85}}',
+      '{"image":{"fit":"scale-down","quality":85},"video":{"playback":"ambient"}}',
     )
     expect(getMediaBoundary().getAttribute('data-image-class')?.split(' ')).toContain(
       mediaBlockStyles.image,
@@ -129,7 +131,7 @@ describe('existing media consumers', () => {
     renderHero()
 
     expect(getMediaBoundary().getAttribute('data-presentation')).toBe(
-      '{"image":{"fit":"scale-down","quality":85}}',
+      '{"image":{"fit":"scale-down","quality":85},"video":{"playback":"ambient"}}',
     )
   })
 
@@ -138,7 +140,7 @@ describe('existing media consumers', () => {
 
     expect(getMediaBoundary().getAttribute('data-fill')).toBe('true')
     expect(getMediaBoundary().getAttribute('data-presentation')).toBe(
-      '{"image":{"fit":"scale-down","quality":85}}',
+      '{"image":{"fit":"scale-down","quality":85},"video":{"playback":"ambient"}}',
     )
     expect(readSource('src/heros/HighImpact/index.tsx')).toContain('imgClassName={styles.image}')
     expect(readSource('src/heros/HighImpact/index.module.css')).toMatch(
@@ -154,5 +156,34 @@ describe('existing media consumers', () => {
     expect(readSource('src/heros/PostHero/index.module.css')).toMatch(
       /\.image\s*{[^}]*object-fit:\s*cover;/s,
     )
+  })
+})
+
+describe('video playback consumers', () => {
+  it('declares the native Playback selector with Ambient as its default', () => {
+    expect(
+      MediaBlockConfig.fields.find((field) => 'name' in field && field.name === 'playback'),
+    ).toMatchObject({
+      type: 'select',
+      defaultValue: 'ambient',
+      options: [
+        { label: 'Ambient', value: 'ambient' },
+        { label: 'Player', value: 'player' },
+      ],
+    })
+  })
+  it('passes player playback alongside a Media Block crop', () => {
+    render(
+      <MediaBlock
+        blockType="mediaBlock"
+        media={media as never}
+        playback="player"
+        aspectRatio="16:9"
+      />,
+    )
+    expect(JSON.parse(getMediaBoundary().getAttribute('data-presentation')!)).toMatchObject({
+      image: { aspectRatio: { width: 16, height: 9 } },
+      video: { playback: 'player' },
+    })
   })
 })

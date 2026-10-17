@@ -10,6 +10,7 @@ vi.mock('next/image', () => ({
     className,
     'data-media-kind': mediaKind,
     height,
+    fill,
     loader,
     quality,
     sizes,
@@ -20,6 +21,7 @@ vi.mock('next/image', () => ({
     className?: string
     'data-media-kind'?: string
     height?: number
+    fill?: boolean
     loader?: (args: { quality?: number; src: string; width: number }) => string
     quality?: number
     sizes?: string
@@ -38,6 +40,7 @@ vi.mock('next/image', () => ({
         alt={alt}
         className={className}
         data-has-loader={loader ? 'true' : 'false'}
+        data-fill={fill ? 'true' : 'false'}
         data-media-kind={mediaKind}
         data-sizes={sizes}
         height={height}
@@ -60,7 +63,11 @@ const media = (overrides: Partial<MediaResource>): MediaResource => ({
   ...overrides,
 })
 
-afterEach(cleanup)
+afterEach(() => {
+  cleanup()
+  vi.unstubAllEnvs()
+  vi.restoreAllMocks()
+})
 
 describe('Media renderer', () => {
   it('renders Payload raster images through the Cloudflare loader with requested presentation', () => {
@@ -189,46 +196,101 @@ describe('Media renderer', () => {
     },
   )
 
-  it('renders documents as a semantic link to the original URL', () => {
-    render(
+  it.each(['application/pdf', 'application/octet-stream', 'image/svg+xml', 'audio/mpeg'])(
+    'does not render downloads for unsupported MIME type %s with a URL',
+    (mimeType) => {
+      const { container } = render(
+        <Media resource={media({ mimeType, url: 'https://assets.example.com/file.pdf' })} />,
+      )
+      expect(container.querySelector('img, video, a')).toBeNull()
+    },
+  )
+
+  it.each(['Custom tea description', ''])('respects explicit alt %j over resource alt', (alt) => {
+    const { container } = render(
       <Media
+        alt={alt}
         resource={media({
-          alt: 'Tea specification',
-          filename: 'tea-spec.pdf',
-          mimeType: 'application/pdf',
-          url: 'https://assets.example.com/docs/tea-spec.pdf',
+          alt: 'Resource tea',
+          mimeType: 'image/jpeg',
+          url: '/api/media/file/tea.jpg',
+          width: 1200,
+          height: 800,
         })}
       />,
     )
+    expect(container.querySelector('img')?.getAttribute('alt')).toBe(alt)
+  })
 
-    const link = screen.getByRole('link', { name: 'Tea specification' })
-    expect(link.getAttribute('href')).toBe(
-      'https://assets.example.com/docs/tea-spec.pdf?2026-09-12T01%3A02%3A03.000Z',
+  it('renders a dimensionless image with explicit fill', () => {
+    const { container } = render(
+      <Media fill resource={media({ mimeType: 'image/jpeg', url: '/tea.jpg' })} />,
     )
-    expect(link.getAttribute('href')).not.toContain('/cdn-cgi/')
+    expect(container.querySelector('img')?.getAttribute('data-fill')).toBe('true')
+  })
+
+  it('uses a ratio frame with fill when image dimensions are missing', () => {
+    const { container } = render(
+      <Media
+        presentation={MEDIA_PRESENTATION.card}
+        resource={media({ mimeType: 'image/jpeg', url: '/tea.jpg' })}
+      />,
+    )
+    const image = container.querySelector('img')
+    expect(image?.getAttribute('data-fill')).toBe('true')
+    expect(image?.parentElement?.style.aspectRatio).toBe('4 / 3')
+    expect(image?.parentElement?.style.position).toBe('relative')
+  })
+
+  it.each(['development', 'production'] as const)(
+    'renders an empty placeholder without dimensions or a frame in %s',
+    (environment) => {
+      vi.stubEnv('NODE_ENV', environment)
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      const { container } = render(
+        <Media resource={media({ mimeType: 'image/jpeg', url: '/tea.jpg' })} />,
+      )
+      expect(container.querySelector('img')).toBeNull()
+      expect(container.querySelector('picture')?.childElementCount).toBe(0)
+      expect(warn).toHaveBeenCalledTimes(environment === 'development' ? 1 : 0)
+    },
+  )
+
+  it.each([undefined, 'ambient', 'player'] as const)('applies %s video playback', (playback) => {
+    const { container } = render(
+      <Media
+        presentation={{ video: { playback, width: 640 } }}
+        resource={media({
+          mimeType: 'video/mp4',
+          url: 'https://assets.example.com/tea.mp4',
+          durationSeconds: 60,
+        })}
+      />,
+    )
+    const video = container.querySelector('video')!
+    const isAmbient = playback !== 'player'
+    expect(video.autoplay).toBe(isAmbient)
+    expect(video.muted).toBe(isAmbient)
+    expect(video.loop).toBe(isAmbient)
+    expect(video.controls).toBe(!isAmbient)
+    expect(video.playsInline).toBe(true)
+    expect(video.querySelector('source')?.getAttribute('type')).toBe('video/mp4')
+    expect(video.getAttribute('poster')).toContain('/cdn-cgi/media/mode=frame,time=1s,width=640/')
   })
 
   it.each([
-    'application/octet-stream',
-    'application/vnd.ms-powerpoint',
-    'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-  ])('keeps other uploaded file type %s accessible at its original URL', (mimeType) => {
-    render(
-      <Media
-        resource={media({
-          filename: 'download.bin',
-          mimeType,
-          url: 'https://assets.example.com/files/download.bin',
-        })}
-      />,
+    ['/api/media/file/tea.mp4', 30],
+    ['https://assets.example.com/tea.mp4', 60.001],
+    ['https://assets.example.com/tea.mp4', undefined],
+    ['https://assets.example.com/tea.mp4', 0],
+    ['https://assets.example.com/tea.mp4', Number.NaN],
+  ])('does not transform or generate a poster for %s (%s seconds)', (url, durationSeconds) => {
+    const { container } = render(
+      <Media resource={media({ mimeType: 'video/mp4', url, durationSeconds })} />,
     )
-
-    const link = screen.getByRole('link', { name: 'download.bin' })
-    expect(link.getAttribute('href')).toBe(
-      'https://assets.example.com/files/download.bin?2026-09-12T01%3A02%3A03.000Z',
-    )
-    expect(link.getAttribute('href')).not.toContain('/cdn-cgi/')
+    const video = container.querySelector('video')!
+    expect(video.getAttribute('poster')).toBeNull()
+    expect(video.querySelector('source')?.getAttribute('src')).not.toContain('/cdn-cgi/')
   })
 
   it.each(['image/svg+xml', 'audio/mpeg', 'application/octet-stream'])(

@@ -1,11 +1,16 @@
 'use client'
 
 import { cn } from '@/utilities/ui'
-import React, { useEffect, useRef } from 'react'
+import React from 'react'
 
 import type { Props as MediaProps } from '../types'
 
-import { buildCloudflareVideoURL } from '../cloudflare'
+import {
+  buildCloudflareVideoPosterURL,
+  buildCloudflareVideoURL,
+  isCloudflareVideoEligible,
+} from '../cloudflare'
+import { MEDIA_PRESENTATION_DEFAULTS } from '../config'
 import { getMediaUrl } from '@/utilities/getMediaUrl'
 
 import styles from './index.module.css'
@@ -13,46 +18,35 @@ import styles from './index.module.css'
 export const VideoMedia: React.FC<MediaProps> = (props) => {
   const { onClick, presentation, resource, videoClassName } = props
 
-  const videoRef = useRef<HTMLVideoElement>(null)
-  // const [showFallback] = useState<boolean>()
-
-  useEffect(() => {
-    const { current: video } = videoRef
-    if (video) {
-      video.addEventListener('suspend', () => {
-        // setShowFallback(true);
-        // console.warn('Video was suspended, rendering fallback image.')
-      })
-    }
-  }, [])
-
   if (resource && typeof resource === 'object') {
     const { durationSeconds, updatedAt, url } = resource
     if (!url) return null
 
     const source = getMediaUrl(url, updatedAt)
-    const canTransform =
-      typeof durationSeconds === 'number' &&
-      Number.isFinite(durationSeconds) &&
-      durationSeconds > 0 &&
-      durationSeconds <= 60
+    const videoPresentation = presentation?.video
+    const isAmbient =
+      (videoPresentation?.playback ?? MEDIA_PRESENTATION_DEFAULTS.video.playback) === 'ambient'
+    const canTransform = isCloudflareVideoEligible({ source, durationSeconds })
     const renderedSource = canTransform
-      ? buildCloudflareVideoURL({ presentation: presentation?.video, source })
+      ? buildCloudflareVideoURL({ presentation: videoPresentation, source })
       : source
+    const poster = canTransform
+      ? buildCloudflareVideoPosterURL({ presentation: videoPresentation, source })
+      : undefined
 
     return (
       <video
-        autoPlay
+        autoPlay={isAmbient}
         className={cn(styles.video, videoClassName)}
-        controls={false}
+        controls={!isAmbient}
         data-media-kind="video"
-        loop
-        muted
+        loop={isAmbient}
+        muted={isAmbient}
         onClick={onClick}
         playsInline
-        ref={videoRef}
+        poster={poster}
       >
-        <source src={renderedSource} />
+        <source src={renderedSource} type="video/mp4" />
       </video>
     )
   }

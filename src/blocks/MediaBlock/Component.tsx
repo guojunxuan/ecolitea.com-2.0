@@ -27,6 +27,7 @@ export const MediaBlock: React.FC<Props> = (props) => {
     caption: blockCaption,
     width = 'default',
     aspectRatio,
+    playback,
     captionClassName,
     className,
     enableGutter = true,
@@ -40,12 +41,13 @@ export const MediaBlock: React.FC<Props> = (props) => {
   const caption = blockCaption ?? (media && typeof media === 'object' ? media.caption : undefined)
 
   const ratio = resolveMediaAspectRatio(aspectRatio)
-  const presentation = ratio
-    ? {
-        ...MEDIA_PRESENTATION.body,
-        image: { ...MEDIA_PRESENTATION.body.image, aspectRatio: ratio, fit: 'cover' as const },
-      }
-    : MEDIA_PRESENTATION.body
+  const presentation = {
+    ...MEDIA_PRESENTATION.body,
+    ...(ratio && {
+      image: { ...MEDIA_PRESENTATION.body.image, aspectRatio: ratio, fit: 'cover' as const },
+    }),
+    video: { playback: playback ?? 'ambient' },
+  }
 
   return (
     <figure

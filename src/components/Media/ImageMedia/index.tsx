@@ -42,9 +42,9 @@ export const ImageMedia: React.FC<MediaProps> = (props) => {
   if (!src && resource && typeof resource === 'object') {
     const { alt: altFromResource, height: fullHeight, url, width: fullWidth } = resource
 
-    width = fullWidth!
-    height = fullHeight!
-    alt = altFromResource || ''
+    width = fullWidth ?? undefined
+    height = fullHeight ?? undefined
+    alt = altFromProps ?? altFromResource ?? ''
 
     const cacheTag = resource.updatedAt
 
@@ -61,6 +61,24 @@ export const ImageMedia: React.FC<MediaProps> = (props) => {
     Number.isFinite(ratio.height) &&
     ratio.width > 0 &&
     ratio.height > 0
+
+  const hasDimensions =
+    typeof src !== 'string' ||
+    (typeof width === 'number' &&
+      Number.isFinite(width) &&
+      width > 0 &&
+      typeof height === 'number' &&
+      Number.isFinite(height) &&
+      height > 0)
+  const useRatioFrame = !fill && !hasDimensions && hasValidRatio
+  const imageFill = fill || useRatioFrame
+
+  if (!imageFill && !hasDimensions) {
+    if (process.env.NODE_ENV === 'development') {
+      console.warn('ImageMedia requires image dimensions, fill, or a valid aspect ratio.', src)
+    }
+    return <picture className={cn(pictureClassName)} />
+  }
 
   if (!fill && width && hasValidRatio) {
     height = Math.round((width * ratio.height) / ratio.width)
@@ -97,13 +115,24 @@ export const ImageMedia: React.FC<MediaProps> = (props) => {
         .join(', ')
 
   return (
-    <picture className={cn(pictureClassName)}>
+    <picture
+      className={cn(pictureClassName)}
+      style={
+        useRatioFrame
+          ? {
+              display: 'block',
+              position: 'relative',
+              aspectRatio: `${ratio.width} / ${ratio.height}`,
+            }
+          : undefined
+      }
+    >
       <NextImage
-        alt={alt || ''}
+        alt={alt ?? ''}
         className={cn(styles.image, imgClassName)}
         data-media-kind="image"
-        fill={fill}
-        height={!fill ? height : undefined}
+        fill={imageFill}
+        height={!imageFill ? height : undefined}
         loader={loader}
         placeholder="blur"
         blurDataURL={placeholderBlur}
@@ -111,7 +140,7 @@ export const ImageMedia: React.FC<MediaProps> = (props) => {
         loading={loading}
         sizes={sizes}
         src={src}
-        width={!fill ? width : undefined}
+        width={!imageFill ? width : undefined}
       />
     </picture>
   )

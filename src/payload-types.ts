@@ -223,44 +223,44 @@ export type LexicalNodes_67D0DA17 =
   | SerializedQuoteNode<LexicalNodes_67D0DA17>;
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "LexicalNodes_AC6B6C84".
+ * via the `definition` "LexicalNodes_C2DAD006".
  */
-export type LexicalNodes_AC6B6C84 =
+export type LexicalNodes_C2DAD006 =
   | SerializedTextNode
   | SerializedTabNode
   | SerializedLineBreakNode
-  | SerializedParagraphNode<LexicalNodes_AC6B6C84>
+  | SerializedParagraphNode<LexicalNodes_C2DAD006>
   | SerializedHorizontalRuleNode
-  | SerializedBlockNode<BannerBlock | CodeBlock | MediaBlock_80738E71>
-  | SerializedHeadingNode<LexicalNodes_AC6B6C84, 'h1' | 'h2' | 'h3' | 'h4'>
-  | SerializedAutoLinkNode<LexicalNodes_AC6B6C84, LexicalLinkFields>
-  | SerializedLinkNode<LexicalNodes_AC6B6C84, LexicalLinkFields>
-  | SerializedListNode<LexicalNodes_AC6B6C84>
-  | SerializedListItemNode<LexicalNodes_AC6B6C84>
-  | SerializedTableNode<LexicalNodes_AC6B6C84>
-  | SerializedTableCellNode<LexicalNodes_AC6B6C84>
-  | SerializedTableRowNode<LexicalNodes_AC6B6C84>
-  | SerializedQuoteNode<LexicalNodes_AC6B6C84>;
+  | SerializedBlockNode<BannerBlock | CodeBlock | MediaBlock_39A55B9F>
+  | SerializedHeadingNode<LexicalNodes_C2DAD006, 'h1' | 'h2' | 'h3' | 'h4'>
+  | SerializedAutoLinkNode<LexicalNodes_C2DAD006, LexicalLinkFields>
+  | SerializedLinkNode<LexicalNodes_C2DAD006, LexicalLinkFields>
+  | SerializedListNode<LexicalNodes_C2DAD006>
+  | SerializedListItemNode<LexicalNodes_C2DAD006>
+  | SerializedTableNode<LexicalNodes_C2DAD006>
+  | SerializedTableCellNode<LexicalNodes_C2DAD006>
+  | SerializedTableRowNode<LexicalNodes_C2DAD006>
+  | SerializedQuoteNode<LexicalNodes_C2DAD006>;
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "LexicalNodes_47B51DD2".
+ * via the `definition` "LexicalNodes_E63C6938".
  */
-export type LexicalNodes_47B51DD2 =
+export type LexicalNodes_E63C6938 =
   | SerializedTextNode
   | SerializedTabNode
   | SerializedLineBreakNode
-  | SerializedParagraphNode<LexicalNodes_47B51DD2>
-  | SerializedBlockNode<MediaBlock_80738E71 | KeyTakeawaysBlock | CallToActionBlock_337B961F | BannerBlock>
-  | SerializedAutoLinkNode<LexicalNodes_47B51DD2, LexicalLinkFields>
-  | SerializedLinkNode<LexicalNodes_47B51DD2, LexicalLinkFields>
-  | SerializedListNode<LexicalNodes_47B51DD2>
-  | SerializedListItemNode<LexicalNodes_47B51DD2>
-  | SerializedTableNode<LexicalNodes_47B51DD2>
-  | SerializedTableCellNode<LexicalNodes_47B51DD2>
-  | SerializedTableRowNode<LexicalNodes_47B51DD2>
+  | SerializedParagraphNode<LexicalNodes_E63C6938>
+  | SerializedBlockNode<MediaBlock_39A55B9F | KeyTakeawaysBlock | CallToActionBlock_337B961F | BannerBlock>
+  | SerializedAutoLinkNode<LexicalNodes_E63C6938, LexicalLinkFields>
+  | SerializedLinkNode<LexicalNodes_E63C6938, LexicalLinkFields>
+  | SerializedListNode<LexicalNodes_E63C6938>
+  | SerializedListItemNode<LexicalNodes_E63C6938>
+  | SerializedTableNode<LexicalNodes_E63C6938>
+  | SerializedTableCellNode<LexicalNodes_E63C6938>
+  | SerializedTableRowNode<LexicalNodes_E63C6938>
   | SerializedHorizontalRuleNode
-  | SerializedQuoteNode<LexicalNodes_47B51DD2>
-  | SerializedHeadingNode<LexicalNodes_47B51DD2, 'h2' | 'h3' | 'h4'>;
+  | SerializedQuoteNode<LexicalNodes_E63C6938>
+  | SerializedHeadingNode<LexicalNodes_E63C6938, 'h2' | 'h3' | 'h4'>;
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "LexicalNodes_46081D0A".
@@ -448,7 +448,7 @@ export interface Post {
   id: string;
   title: string;
   heroImage?: (string | null) | Media;
-  content: LexicalRichText<LexicalNodes_AC6B6C84>;
+  content: LexicalRichText<LexicalNodes_C2DAD006>;
   relatedPosts?: (string | Post)[] | null;
   categories?: (string | Category)[] | null;
   meta?: {
@@ -680,6 +680,7 @@ export interface MediaBlock {
    * Original keeps the media proportions. Other ratios crop the image or video to fill the frame.
    */
   aspectRatio?: ('original' | '1:1' | '4:3' | '3:2' | '16:9' | '2:1') | null;
+  playback?: ('ambient' | 'player') | null;
   width?: ('default' | 'wide') | null;
   id?: string | null;
   blockName?: string | null;
@@ -908,7 +909,7 @@ export interface Blog {
   title: string;
   heroImage: string | Media;
   excerpt: string;
-  content: LexicalRichText<LexicalNodes_47B51DD2>;
+  content: LexicalRichText<LexicalNodes_E63C6938>;
   meta?: {
     title?: string | null;
     /**
@@ -2843,9 +2844,9 @@ export interface CodeBlock {
  * Multiple blocks resolve to the `MediaBlock` interface with different fields, so a content hash is appended to keep the generated types stable and unambiguous. Set a unique `interfaceName` on the block to choose the name yourself. See https://payloadcms.com/docs/typescript/generating-types#block-interface-name-collisions
  *
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "MediaBlock_80738E71".
+ * via the `definition` "MediaBlock_39A55B9F".
  */
-export interface MediaBlock_80738E71 {
+export interface MediaBlock_39A55B9F {
   id: string;
   blockType: 'mediaBlock';
   media: string | Media;
@@ -2857,6 +2858,7 @@ export interface MediaBlock_80738E71 {
    * Original keeps the media proportions. Other ratios crop the image or video to fill the frame.
    */
   aspectRatio?: ('original' | '1:1' | '4:3' | '3:2' | '16:9' | '2:1') | null;
+  playback?: ('ambient' | 'player') | null;
   width?: ('default' | 'wide') | null;
   blockName?: string | null;
 }

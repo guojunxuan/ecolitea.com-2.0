@@ -19,7 +19,7 @@ const CLOUDFLARE_VIDEO_DIMENSION = {
   maximum: 2000,
 } as const
 
-const CLOUDFLARE_VIDEO_MODE = 'video'
+export const CLOUDFLARE_VIDEO_MAX_DURATION_SECONDS = 60
 
 const IMAGE_QUALITY = {
   minimum: 1,
@@ -122,22 +122,39 @@ export const buildCloudflareImageURL = ({
   return `${sourceURL.origin}/cdn-cgi/image/${options.join(',')}${encodedPathname}${sourceURL.search}`
 }
 
-export const buildCloudflareVideoURL = ({ source, presentation }: VideoURLArgs): string => {
+export const isCloudflareVideoEligible = ({
+  source,
+  durationSeconds,
+}: {
+  source: string
+  durationSeconds?: number | null
+}): boolean =>
+  Boolean(parseTransformSource(source)) &&
+  typeof durationSeconds === 'number' &&
+  Number.isFinite(durationSeconds) &&
+  durationSeconds > 0 &&
+  durationSeconds <= CLOUDFLARE_VIDEO_MAX_DURATION_SECONDS
+
+const buildCloudflareVideoTransformURL = (
+  { source, presentation }: VideoURLArgs,
+  mode: 'video' | 'frame',
+): string | undefined => {
   const sourceURL = parseTransformSource(source)
-  if (!sourceURL) return source
+  if (!sourceURL) return undefined
 
   const { width, height } = presentation ?? {}
   if (
     (width !== undefined && !isFinitePositive(width)) ||
     (height !== undefined && !isFinitePositive(height))
   ) {
-    return source
+    return undefined
   }
 
   const fit = normalizeFit(presentation?.fit)
-  if (presentation?.fit !== undefined && !fit) return source
+  if (presentation?.fit !== undefined && !fit) return undefined
 
-  const options = [`mode=${CLOUDFLARE_VIDEO_MODE}`]
+  const options = [`mode=${mode}`]
+  if (mode === 'frame') options.push('time=1s')
   if (width !== undefined) {
     options.push(
       `width=${clampInteger(
@@ -160,3 +177,9 @@ export const buildCloudflareVideoURL = ({ source, presentation }: VideoURLArgs):
 
   return `${sourceURL.origin}/cdn-cgi/media/${options.join(',')}/${encodeURIComponent(sourceURL.href)}`
 }
+
+export const buildCloudflareVideoURL = (args: VideoURLArgs): string =>
+  buildCloudflareVideoTransformURL(args, 'video') ?? args.source
+
+export const buildCloudflareVideoPosterURL = (args: VideoURLArgs): string | undefined =>
+  buildCloudflareVideoTransformURL(args, 'frame')

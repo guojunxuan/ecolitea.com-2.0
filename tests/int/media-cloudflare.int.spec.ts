@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest'
 
-import { buildCloudflareImageURL, buildCloudflareVideoURL } from '@/components/Media/cloudflare'
+import {
+  buildCloudflareImageURL,
+  buildCloudflareVideoURL,
+  buildCloudflareVideoPosterURL,
+} from '@/components/Media/cloudflare'
 import { MEDIA_PRESENTATION } from '@/components/Media/config'
 import type {
   ImagePresentation,
@@ -24,6 +28,7 @@ describe('Media presentation configuration', () => {
     })
     expect(MEDIA_PRESENTATION.hero).toEqual({
       image: { fit: 'scale-down', quality: 85 },
+      video: { playback: 'ambient' },
     })
 
     const image: ImagePresentation = MEDIA_PRESENTATION.card.image
@@ -167,5 +172,33 @@ describe('Cloudflare image focal point', () => {
     expect(
       buildCloudflareImageURL({ source: original, width: 640, focalPoint: { x: NaN, y: 20 } }),
     ).not.toContain('gravity=')
+  })
+})
+
+describe('Cloudflare video frame adapter', () => {
+  it('builds a frame at one second with shared dimension and fit normalization', () => {
+    expect(
+      buildCloudflareVideoPosterURL({
+        source: original,
+        presentation: { width: 1280, height: 720, fit: 'cover' },
+      }),
+    ).toBe(
+      'https://media-dev.ecolitea.com/cdn-cgi/media/mode=frame,time=1s,width=1280,height=720,fit=cover/https%3A%2F%2Fmedia-dev.ecolitea.com%2Fphotos%2Fcard%2520image.jpg%3Fversion%3D7',
+    )
+    expect(
+      buildCloudflareVideoPosterURL({ source: original, presentation: { width: 1, height: 5000 } }),
+    ).toContain('/mode=frame,time=1s,width=10,height=2000/')
+  })
+  it('supports an absent presentation', () => {
+    expect(buildCloudflareVideoPosterURL({ source: original })).toContain('/mode=frame,time=1s/')
+  })
+  it.each([
+    ['/api/media/file/tea.mp4', undefined],
+    ['data:video/mp4;base64,AAAA', undefined],
+    ['https://assets.example.com/cdn-cgi/media/mode=video/tea.mp4', undefined],
+    [original, { width: Number.NaN }],
+    [original, { height: Number.POSITIVE_INFINITY }],
+  ])('omits the poster for an ineligible source or presentation %s %j', (source, presentation) => {
+    expect(buildCloudflareVideoPosterURL({ source, presentation })).toBeUndefined()
   })
 })
