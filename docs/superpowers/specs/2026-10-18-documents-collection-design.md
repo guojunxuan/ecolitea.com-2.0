@@ -25,14 +25,12 @@ src/collections/Documents/
 ├── hooks/
 │   └── preventReferencedDelete.ts  # beforeDelete 删除保护
 ├── endpoints/
-│   ├── download.ts                 # GET /api/documents/:id/download
+│   ├── file.ts                     # GET /api/documents/:id/file（同源后台文件接口）
 │   └── references.ts               # GET /api/documents/:id/references
 └── admin/
     ├── TitlePrefill.tsx            # 选择文件时预填 title
-    ├── FileActions.tsx             # Download / Open original
     ├── UsedInPanel.tsx             # Used in 面板
-    ├── FilesizeCell.tsx            # 列表大小列
-    └── index.module.css            # 以项目 class 作用域隐藏自带按钮
+    └── FilesizeCell.tsx            # 列表大小列
 ```
 
 外部接入点（仅此几处）：
@@ -62,7 +60,7 @@ Collection 设置：
 - `access`：`read: anyone`；`create`、`update`、`delete: authenticated`。
 - `versions: false`；`disableDuplicate: true`。
 - `upload.mimeTypes`：见 §4；无 `imageSizes`，`crop: false`，`focalPoint: false`。
-- `upload.adminThumbnail`：返回 `null`（显示默认文件图标）。
+- `upload.adminThumbnail`：返回同源地址 `<serverURL>/api/documents/:id/file`（见 §6）。
 - `admin.useAsTitle: 'title'`；`admin.defaultColumns`：`title`、`filename`、`mimeType`、`filesize`、`_h_folders`、`updatedAt`；`admin.listSearchableFields: ['title', 'filename']`。
 - `admin.description`：由 `uploadPolicy.ts` 生成的规则说明。
 
@@ -118,11 +116,19 @@ Collection 设置：
 
 **详情页**：PDF 使用 Payload 自带的页内预览；Office 显示图标与文件信息。
 
-**下载与打开原文件**：
+**下载与打开原文件：同源后台文件接口**
 
-- `GET /api/documents/:id/download`：仅登录用户；`findByID` 取 `doc.url`；要求 `doc.url` 以 `R2_PUBLIC_URL` 开头（防 SSRF）；`fetch` 后以流转发，响应头 `Content-Disposition: attachment; filename*=UTF-8''<filename>`、`Content-Type` 取 `doc.mimeType`、`Cache-Control: private, no-store`。上游非 200 时返回 502 并说明原因。
-- `FileActions` 通过 `upload.admin.components.controls` 挂载：**Download**（指向上述接口）、**Open original**（新标签打开 `doc.url`）。
-- `index.module.css` 以项目 class 作用域隐藏 Payload 自带的“新标签打开”与“下载”按钮（依赖 Payload DOM，由 E2E 断言兜底）。
+不使用自定义按钮，也不隐藏 Payload 自带按钮（避免依赖 Payload 私有 DOM）。自带的“新标签打开”与“下载”按钮链接取 `thumbnailURL ?? url`，`thumbnailURL` 由公开配置 `upload.adminThumbnail` 生成；链接同源时浏览器才会遵循 `download` 属性。
+
+- `GET /api/documents/:id/file`：
+  - 仅登录用户，未登录返回 401。
+  - `findByID` 取 `url`、`filename`、`mimeType`（`depth: 0`）。
+  - 请求头 `Sec-Fetch-Dest: image`（列表与选择弹窗的缩略图）：返回 404，Payload 缩略图组件加载失败后显示默认文件图标。
+  - 其他值或缺失（下载、新标签打开、老浏览器）：`fetch(doc.url)` 后以流转发，`Content-Type` 取 `mimeType`，`Content-Disposition: inline; filename*=UTF-8''<filename>`，`Cache-Control: private, no-store`。同源链接上的 `download` 属性使浏览器直接保存；新标签页内 PDF 直接显示。上游非 200 时返回 502。
+  - 地址来源检查（防 SSRF）：`doc.url` 必须以 `R2_PUBLIC_URL` 开头；`DISABLE_R2_STORAGE=true` 时允许本站地址。
+- 🔗“复制链接”使用 `url`（R2 公开地址），不受影响。PDF 页内预览使用原文件地址，不受影响。
+- `thumbnailURL` 为后台专用地址，前台不得使用。
+- 依赖的内部行为：自带按钮链接取自 `thumbnailURL`。若 Payload 改变此行为，仅退化为跳转到 R2，界面不出错；由定向 E2E 兜底。
 
 **列表**：`FilesizeCell` 使用 `payload/shared` 的 `formatFilesize` 显示大小。
 
@@ -148,10 +154,10 @@ Collection 设置：
 | title | 各条规则的通过与拒绝；仅改文件夹/描述时不校验 |
 | Collection 配置 | access、`versions: false`、`disableDuplicate`、默认列、搜索字段、R2 前缀与 URL 生成 |
 | 引用与删除 | 临时 fixture 引用时删除被拒；无引用时可删；版本引用不阻止删除；接口需要登录 |
-| 下载接口 | 未登录 401；非 `R2_PUBLIC_URL` 来源拒绝；成功时响应头正确（含中文文件名）；上游失败 502 |
+| 后台文件接口 | 未登录 401；`Sec-Fetch-Dest: image` 返回 404；其他请求流式返回原文件且响应头正确（含中文文件名）；非允许来源拒绝；上游失败 502 |
 | 文件夹 | 可归档；删除文件夹后文档变为未归档 |
 | 渲染器 | `Media` 组件不再渲染文档链接 |
-| 后台 E2E（定向） | 上传流程与 title 预填；自定义按钮可见、自带按钮隐藏 |
+| 后台 E2E（定向） | 上传流程与 title 预填；点击自带下载按钮触发下载事件且页面不跳转 |
 
 测试使用 `DISABLE_R2_STORAGE=true`，不访问生产服务。完成后重新生成 `payload-types.ts` 与 `importMap.js`，并运行 `tsc --noEmit` 与 `lint`。
 

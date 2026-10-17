@@ -114,14 +114,23 @@ Documents Collection 的设计在本阶段完成后单独成文。下列事项�
 
 **D10 搜索**：`listSearchableFields: ['filename', 'alt']`，`alt` 建索引。
 
-**D11 后台缩略图**：图片 `adminThumbnail` 使用 `buildCloudflareImageURL`，宽 1200、`scale-down`（详情页大预览也使用 `thumbnailURL`，因此不能用 300 宽）；视频返回 `null`，显示默认文件图标。
+**D11 + D12 后台缩略图、下载与打开原图：同源后台文件接口**
 
-**D12 下载与打开原图**：
+不使用自定义按钮，也不隐藏 Payload 自带按钮（避免依赖 Payload 私有 DOM）。Payload 自带的“新标签打开”与“下载”按钮链接取 `thumbnailURL ?? url`，`thumbnailURL` 由公开配置 `upload.adminThumbnail` 生成；链接与后台同源时浏览器才会遵循 `download` 属性。因此：
 
-- 新增 `GET /api/media/:id/download`：仅登录用户；`findByID` 取 `doc.url`；要求 `doc.url` 以 `R2_PUBLIC_URL` 开头（防 SSRF）；`fetch` 后以流转发，响应头 `Content-Disposition: attachment; filename*=UTF-8''<filename>`、`Cache-Control: private, no-store`。不新增 AWS SDK 依赖，不自行计算存储 key。
-- 通过 `upload.admin.components.controls` 增加项目自有的 **Download**（指向上述接口）与 **Open original**（新标签打开 `doc.url`）。
-- 以项目自有 class 作用域的 CSS 隐藏 Payload 自带的“新标签打开”与“下载”按钮；该 CSS 依赖 Payload DOM，由 E2E 断言兜底。
-- Cloudflare 无需配置。
+- `upload.adminThumbnail` 返回同源地址 `<serverURL>/api/media/:id/file`（所有 MIME 类型）。
+- 新增 `GET /api/media/:id/file`（Collection `endpoints`）：
+  - 仅登录用户，未登录返回 401（避免成为公开的流量中转）。
+  - `findByID` 取 `url`、`filename`、`mimeType`、`updatedAt`（`depth: 0`）。
+  - 按请求头 `Sec-Fetch-Dest` 分流：
+    - `image`（列表缩略图、选择弹窗、详情页预览）：图片返回 302 到 `buildCloudflareImageURL`（宽 1200、`scale-down`），响应头 `Cache-Control: private, max-age=300`；视频返回 404，Payload 缩略图组件加载失败后显示默认文件图标。
+    - 其他值或缺失（下载、新标签打开、老浏览器）：`fetch(doc.url)` 后以流转发原文件，`Content-Type` 取 `mimeType`，`Content-Disposition: inline; filename*=UTF-8''<filename>`，`Cache-Control: private, no-store`。同源链接上的 `download` 属性使浏览器直接保存；新标签页内直接显示。上游非 200 时返回 502。
+  - 地址来源检查（防 SSRF）：`doc.url` 必须以 `R2_PUBLIC_URL` 开头；`DISABLE_R2_STORAGE=true` 时允许本站地址（`/api/media/file/...`）。
+- 不新增 AWS SDK 依赖，不自行计算存储 key；Cloudflare 无需配置。
+- 🔗“复制链接”使用 `url`（R2 公开地址），不受影响。
+- `thumbnailURL` 从此为后台专用地址，前台不得使用（当前前台未使用）。
+- 代价：后台缩略图多一次服务器往返（一次鉴权、一次按 ID 查询、302）；下载与新标签打开经服务器流式转发（Docker 自托管 Node 部署，无 Serverless 响应限制）；不支持 `Sec-Fetch-Dest` 的老浏览器缩略图会加载原图。
+- 依赖的内部行为：自带按钮链接取自 `thumbnailURL`。若 Payload 改变此行为，仅退化为当前的跳转行为，界面不出错；由定向 E2E 断言“点击自带下载按钮触发下载事件”。
 
 **D17 caption**：保留 Media 与 MediaBlock 两个 caption，补充说明：
 - Media：`Default caption shown when this media is used in a Media block. A caption set on the block overrides it.`
@@ -172,10 +181,10 @@ Documents Collection 的设计在本阶段完成后单独成文。下列事项�
 
 | 依赖点 | 公开 API | 风险 | 兜底 |
 |---|---|---|---|
-| `upload.admin.components.controls` | 是 | 低 | 重新生成 importMap；E2E 断言按钮存在 |
+| `upload.admin.components.controls`（D6 裁剪框） | 是 | 低 | 重新生成 importMap；E2E 断言裁剪框弹出 |
 | `useUploadEdits` 与裁剪参数格式 | 是 | 中 | `tsc`；集成测试断言裁剪后尺寸 |
 | `admin.components.Cell` | 是 | 低 | 组件测试 |
-| CSS 隐藏自带按钮 | 否（DOM） | 高 | E2E 断言自带按钮不可见、项目按钮可见 |
+| `upload.adminThumbnail` + 自带按钮链接取自 `thumbnailURL`（D11 + D12） | 配置公开；按钮取值为内部行为 | 低（失效时退化为跳转） | E2E 断言点击自带下载按钮触发下载事件、缩略图可见 |
 | 存储插件 `prefix`/`url` 规则 | 是 | 中 | 集成测试断言 `generateR2FileURL` 与插件 key 一致 |
 
 `docs/` 中增加 Media 升级检查清单，列出上述依赖点与对应测试。Payload 与 `@payloadcms/*` 同步升级后只运行清单内的定向测试。
@@ -184,10 +193,10 @@ Documents Collection 的设计在本阶段完成后单独成文。下列事项�
 
 ## 4. 实施顺序
 
-1. **配置与校验**：D2、D19、D4、D5、D7、D8（含 D18 的校验时机）、D20、D9、D10、D11、D17、E2E 默认值。重新生成 `payload-types.ts` 与 `importMap.js`。
+1. **配置与校验**：D2、D19、D4、D5、D7、D8（含 D18 的校验时机）、D20、D9、D10、D17、E2E 默认值。重新生成 `payload-types.ts` 与 `importMap.js`。
 2. **引用与删除**：D13、D14、D18 测试、清理脚本改用 D13。
 3. **裁剪与焦点**：D6，含 Cloudflare `gravity`。
-4. **下载与打开原图**：D12。
+4. **后台文件接口**：D11 + D12。
 5. **前台渲染**：D15、D16。
 6. **R2 迁移**：D3（含 D1、D2 的数据清理），按环境逐一执行，先 dry-run。
 
