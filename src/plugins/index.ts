@@ -22,6 +22,7 @@ import { getContentPath } from '@/utilities/getContentPath'
 import { MEDIA_UPLOAD_POLICY } from '@/collections/mediaUploadPolicy'
 import { s3Storage, type S3StorageOptions } from '@payloadcms/storage-s3'
 import { serverEnv } from '@/utilities/env'
+import { getFileKey } from '@payloadcms/plugin-cloud-storage/utilities'
 
 type SEOContent = Blog | CaseStudy | Page | Post
 
@@ -128,22 +129,36 @@ export const generateImage: GenerateImage<SEOContent | Settings> = async ({
   }
 }
 
-export const generateR2FileURL = ({ filename, prefix }: { filename: string; prefix?: string }) =>
-  `${serverEnv.R2_PUBLIC_URL}/${prefix ? `${prefix}/` : ''}${filename}`
+export const generateR2FileURL = ({
+  filename,
+  prefix,
+  collectionPrefix,
+}: {
+  filename: string
+  prefix?: string
+  collectionPrefix?: string
+}) => {
+  const { fileKey } = getFileKey({ filename, docPrefix: prefix, collectionPrefix })
+  return `${serverEnv.R2_PUBLIC_URL}/${fileKey.split('/').map(encodeURIComponent).join('/')}`
+}
 
-const r2CollectionOptions = {
-  disablePayloadAccessControl: true,
-  generateFileURL: generateR2FileURL,
-} as const
+const r2CollectionOptions = (collectionPrefix: string) => ({
+  prefix: collectionPrefix,
+  disablePayloadAccessControl: true as const,
+  generateFileURL: ({ filename, prefix }: { filename: string; prefix?: string }) =>
+    generateR2FileURL({ filename, prefix, collectionPrefix }),
+})
 
 export const r2StorageCollections = {
-  media: r2CollectionOptions,
-  'site-assets': r2CollectionOptions,
+  media: r2CollectionOptions('media'),
+  'site-assets': r2CollectionOptions('site-assets'),
+  documents: r2CollectionOptions('documents'),
 } satisfies S3StorageOptions['collections']
 
 export const plugins: Plugin[] = [
   s3Storage({
     enabled: process.env.DISABLE_R2_STORAGE !== 'true',
+    alwaysInsertFields: true,
     collections: r2StorageCollections,
     bucket: serverEnv.R2_BUCKET,
     config: {

@@ -487,6 +487,7 @@ export interface Media {
    * Default caption shown when this media is used in a Media block. A caption set on the block overrides it.
    */
   caption?: LexicalRichText<LexicalNodes_46081D0A> | null;
+  prefix?: string | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -962,6 +963,7 @@ export interface Document {
   title: string;
   description?: string | null;
   _h_folders?: (string | null) | Folder;
+  prefix?: string | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -979,6 +981,7 @@ export interface Document {
 export interface SiteAsset {
   id: string;
   alt: string;
+  prefix?: string | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -1530,6 +1533,7 @@ export interface MediaSelect<T extends boolean = true> {
   durationSeconds?: T;
   _h_folders?: T;
   caption?: T;
+  prefix?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;
@@ -1550,6 +1554,7 @@ export interface DocumentsSelect<T extends boolean = true> {
   title?: T;
   description?: T;
   _h_folders?: T;
+  prefix?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;
@@ -1566,6 +1571,7 @@ export interface DocumentsSelect<T extends boolean = true> {
  */
 export interface SiteAssetsSelect<T extends boolean = true> {
   alt?: T;
+  prefix?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;
