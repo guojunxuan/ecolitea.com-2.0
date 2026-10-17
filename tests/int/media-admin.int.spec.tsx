@@ -38,6 +38,19 @@ describe('Media Admin fields', () => {
     render(<AltPrefill path="alt" field={{ name: 'alt', type: 'text' }} />)
     expect(setValue).not.toHaveBeenCalled()
   })
+  it('leaves a cleared alt empty until a new file is selected', () => {
+    file = new File(['x'], 'first.image.jpg')
+    const view = render(<AltPrefill path="alt" field={{ name: 'alt', type: 'text' }} />)
+    view.rerender(<AltPrefill path="alt" field={{ name: 'alt', type: 'text' }} />)
+    setValue.mockClear()
+    alt = ''
+    view.rerender(<AltPrefill path="alt" field={{ name: 'alt', type: 'text' }} />)
+    expect(setValue).not.toHaveBeenCalled()
+    expect(alt).toBe('')
+    file = new File(['x'], 'second.image.jpg')
+    view.rerender(<AltPrefill path="alt" field={{ name: 'alt', type: 'text' }} />)
+    expect(setValue).toHaveBeenCalledWith('second.image')
+  })
   it('prefills separate batch forms independently', () => {
     for (const name of ['first.image.png', '第二张图像.webp']) {
       alt = ''

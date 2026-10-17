@@ -13,6 +13,7 @@ import {
   MEDIA_UPLOAD_POLICY,
   mediaUploadDescription,
   validateMediaUpload,
+  validateMediaMimeType,
 } from './mediaUploadPolicy'
 import { validateMediaAlt } from './mediaAlt'
 
@@ -75,6 +76,7 @@ export const Media: CollectionConfig = {
     },
   ],
   hooks: {
+    beforeOperation: [validateMediaMimeType],
     beforeValidate: [validateMediaUpload, validateMediaAlt],
   },
   upload: {

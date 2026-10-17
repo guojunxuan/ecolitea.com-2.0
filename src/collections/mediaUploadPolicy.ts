@@ -1,6 +1,11 @@
 import { stat } from 'node:fs/promises'
 
-import { APIError, type CollectionBeforeValidateHook, type Where } from 'payload'
+import {
+  APIError,
+  type CollectionBeforeValidateHook,
+  type CollectionBeforeOperationHook,
+  type Where,
+} from 'payload'
 
 import { parseMP4Metadata } from './parseMP4Metadata'
 
@@ -166,11 +171,7 @@ const withoutSourceMetadata = <T extends Record<string, unknown> | undefined>(da
   return safeData
 }
 
-export const validateMediaUpload: CollectionBeforeValidateHook = async ({ data, req }) => {
-  const file = req.file
-  if (!file) return withoutSourceMetadata(data)
-
-  const mimeType = file.mimetype || data?.mimeType
+const assertSupportedMediaMimeType = (mimeType?: string): void => {
   if (
     ![...MEDIA_UPLOAD_POLICY.image.mimeTypes, ...MEDIA_UPLOAD_POLICY.video.mimeTypes].includes(
       mimeType as never,
@@ -180,6 +181,23 @@ export const validateMediaUpload: CollectionBeforeValidateHook = async ({ data, 
       `Unsupported file type: ${mimeType || 'unknown'}. Media accepts images (${imageTypeNames}) and video (${videoTypeNames}).`,
     )
   }
+}
+
+// Local and HTTP upload requests already carry req.file here. Run before
+// native file generation so rejected types receive the Media error contract;
+// native content/extension checks still run for accepted declared MIME types.
+export const validateMediaMimeType: CollectionBeforeOperationHook = ({ operation, req }) => {
+  if ((operation === 'create' || operation === 'update') && req.file) {
+    assertSupportedMediaMimeType(req.file.mimetype)
+  }
+}
+
+export const validateMediaUpload: CollectionBeforeValidateHook = async ({ data, req }) => {
+  const file = req.file
+  if (!file) return withoutSourceMetadata(data)
+
+  const mimeType = file.mimetype || data?.mimeType
+  assertSupportedMediaMimeType(mimeType)
   if (mimeType?.startsWith('image/')) {
     const result = validateImageDimensions(data?.width, data?.height)
     if (result !== true) rejectUpload(result)

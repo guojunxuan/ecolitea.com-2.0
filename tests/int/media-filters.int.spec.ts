@@ -92,6 +92,12 @@ describe('Media reference constraints through Local API', () => {
       config: buildConfig({
         secret: 'isolated-media-filters-secret-at-least-32-characters',
         typescript: { autoGenerate: false },
+        email: () => ({
+          name: 'test',
+          defaultFromAddress: 'test@example.invalid',
+          defaultFromName: 'Test',
+          sendEmail: async () => undefined,
+        }),
         db: mongooseAdapter({ url, connectOptions: { serverSelectionTimeoutMS: 3000 } }),
         collections: [
           {
@@ -189,4 +195,78 @@ describe('Media reference constraints through Local API', () => {
       payload.create({ collection: 'pages', data: { [`consumer${index}`]: videoID } as never }),
     ).resolves.toHaveProperty(`consumer${index}`)
   })
+})
+
+describe('Media upload errors through the real Local API pipeline', () => {
+  let payload: Payload
+  let mediaID: string
+  beforeAll(async () => {
+    const databaseName = `ecolitea2-media-uploads-${randomUUID()}`
+    const url = createIsolatedTestDatabaseURI(databaseName)
+    console.info(
+      `Media upload error target: ${url}; no storage plugins, local upload storage disabled`,
+    )
+    if (!Media.upload || typeof Media.upload !== 'object') throw new Error('Media upload missing')
+    payload = await getPayload({
+      key: databaseName,
+      config: buildConfig({
+        secret: 'isolated-media-uploads-secret-at-least-32-characters',
+        typescript: { autoGenerate: false },
+        email: () => ({
+          name: 'test',
+          defaultFromAddress: 'test@example.invalid',
+          defaultFromName: 'Test',
+          sendEmail: async () => undefined,
+        }),
+        db: mongooseAdapter({ url, connectOptions: { serverSelectionTimeoutMS: 3000 } }),
+        collections: [
+          {
+            ...Media,
+            upload: { ...Media.upload, disableLocalStorage: true, filesRequiredOnCreate: false },
+            fields: Media.fields.filter(
+              (field) =>
+                'name' in field &&
+                ['alt', 'width', 'filesize', 'durationSeconds'].includes(field.name),
+            ),
+          },
+        ],
+      }),
+    })
+    mediaID = String(
+      (await payload.create({ collection: 'media', data: { alt: 'Existing source image' } })).id,
+    )
+  }, 15000)
+  afterAll(async () => {
+    if (payload) {
+      await (payload.db as MongooseAdapter).connection.dropDatabase()
+      await payload.destroy()
+    }
+  })
+  it.each(
+    [
+      ['application/pdf', 'document.pdf', '%PDF-1.7\n1 0 obj\n<<>>\nendobj'],
+      [
+        'image/svg+xml',
+        'icon.svg',
+        '<svg xmlns="http://www.w3.org/2000/svg"><rect width="1" height="1"/></svg>',
+      ],
+      ['application/octet-stream', 'payload.bin', 'unsupported binary data'],
+    ].flatMap((file) => ['create', 'update'].map((operation) => [operation, ...file])),
+  )(
+    'returns the D4 message on %s for actual %s uploads',
+    async (operation, mimetype, name, bytes) => {
+      const file = { mimetype, name, data: Buffer.from(bytes), size: Buffer.byteLength(bytes) }
+      const message = `Unsupported file type: ${mimetype}. Media accepts images (JPEG, PNG, WebP, AVIF, GIF) and video (MP4).`
+      const result =
+        operation === 'create'
+          ? payload.create({ collection: 'media', data: { alt: 'Rejected source file' }, file })
+          : payload.update({
+              collection: 'media',
+              id: mediaID,
+              data: { alt: 'Rejected replacement file' },
+              file,
+            })
+      await expect(result).rejects.toThrow(message)
+    },
+  )
 })
