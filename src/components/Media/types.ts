@@ -8,6 +8,8 @@ export type AspectRatio = {
   height: number
 }
 
+export type FocalPoint = { x: number; y: number }
+
 export type MediaFit = 'cover' | 'contain' | 'scale-down'
 
 export type ImagePresentation = {

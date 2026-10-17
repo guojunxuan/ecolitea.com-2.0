@@ -88,6 +88,26 @@ describe('Media renderer', () => {
     )
   })
 
+  it('passes stored focal coordinates including zero to Cloudflare', () => {
+    render(
+      <Media
+        presentation={MEDIA_PRESENTATION.card}
+        resource={media({
+          alt: 'Focused tea',
+          mimeType: 'image/jpeg',
+          url: 'https://assets.example.com/tea.jpg',
+          width: 1200,
+          height: 800,
+          focalX: 0,
+          focalY: 100,
+        })}
+      />,
+    )
+    expect(screen.getByRole('img', { name: 'Focused tea' }).getAttribute('src')).toContain(
+      'gravity=0x1',
+    )
+  })
+
   it('reserves the delivered crop ratio for a non-fill Payload image', () => {
     render(
       <Media

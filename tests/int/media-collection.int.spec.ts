@@ -24,7 +24,7 @@ describe('Media collection upload behavior', () => {
     vi.clearAllMocks()
   })
 
-  it('stores only originals and uses the original URL in Payload Admin', () => {
+  it('stores only originals and uses authenticated same-origin file links in Payload Admin', () => {
     expect(Media.upload).toBeTypeOf('object')
     const upload = Media.upload
     if (!upload || typeof upload === 'boolean') throw new Error('Media upload config is missing.')
@@ -33,13 +33,17 @@ describe('Media collection upload behavior', () => {
     expect(upload).not.toHaveProperty('resizeOptions')
     expect(upload).not.toHaveProperty('formatOptions')
     expect(upload.crop).toBe(false)
-    expect(upload.focalPoint).toBe(false)
+    expect(upload.focalPoint).toBe(true)
     expect(upload.adminThumbnail).toBeTypeOf('function')
     expect(
-      (upload.adminThumbnail as (args: { doc: { url?: string | null } }) => string | undefined)({
-        doc: { url: 'https://media.example.invalid/original.jpg' },
+      (
+        upload.adminThumbnail as (args: {
+          doc: { id: string; url?: string | null }
+        }) => string | undefined
+      )({
+        doc: { id: '123', url: 'https://media.example.invalid/original.jpg' },
       }),
-    ).toBe('https://media.example.invalid/original.jpg')
+    ).toBe('http://localhost:3000/api/media/123/file')
   })
 
   it('registers server-side upload validation', () => {

@@ -17,6 +17,8 @@ import {
 } from './mediaUploadPolicy'
 import { validateMediaAlt } from './mediaAlt'
 import { preventReferencedDelete } from './mediaHooks/preventReferencedDelete'
+import { mediaFileEndpoint } from './mediaEndpoints/file'
+import { serverEnv } from '../utilities/env'
 import { mediaReferencesEndpoint } from './mediaEndpoints/references'
 
 export const Media: CollectionConfig = {
@@ -35,8 +37,17 @@ export const Media: CollectionConfig = {
     read: anyone,
     update: authenticated,
   },
-  endpoints: [mediaReferencesEndpoint],
+  endpoints: [mediaReferencesEndpoint, mediaFileEndpoint],
   fields: [
+    // The upload controls slot unmounts after file selection; this public UI
+    // field keeps the crop dialog available through selected and existing files.
+    {
+      name: 'imageCrop',
+      type: 'ui',
+      admin: {
+        components: { Field: '@/collections/mediaAdmin/ImageCropControls#ImageCropControls' },
+      },
+    },
     {
       name: 'usedIn',
       type: 'ui',
@@ -93,9 +104,13 @@ export const Media: CollectionConfig = {
     beforeValidate: [validateMediaUpload, validateMediaAlt],
   },
   upload: {
+    admin: {
+      components: { controls: ['@/collections/mediaAdmin/ImageCropControls#ImageCropControls'] },
+    },
     mimeTypes: [...MEDIA_UPLOAD_POLICY.image.mimeTypes, ...MEDIA_UPLOAD_POLICY.video.mimeTypes],
-    adminThumbnail: ({ doc }) => (typeof doc.url === 'string' ? doc.url : null),
+    adminThumbnail: ({ doc }) =>
+      `${serverEnv.NEXT_PUBLIC_SERVER_URL}/api/media/${encodeURIComponent(String(doc.id))}/file`,
     crop: false,
-    focalPoint: false,
+    focalPoint: true,
   },
 }

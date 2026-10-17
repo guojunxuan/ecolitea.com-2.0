@@ -1,11 +1,12 @@
 import { MEDIA_PRESENTATION_DEFAULTS } from './config'
-import type { ImagePresentation, MediaFit, VideoPresentation } from './types'
+import type { FocalPoint, ImagePresentation, MediaFit, VideoPresentation } from './types'
 
 type ImageURLArgs = {
   source: string
   width: number
   quality?: number
   presentation?: ImagePresentation
+  focalPoint?: FocalPoint
 }
 
 type VideoURLArgs = {
@@ -72,6 +73,7 @@ export const buildCloudflareImageURL = ({
   width,
   quality,
   presentation,
+  focalPoint,
 }: ImageURLArgs): string => {
   const sourceURL = parseTransformSource(source)
   const encodedPathname = sourceURL && encodePathname(sourceURL.pathname)
@@ -107,6 +109,15 @@ export const buildCloudflareImageURL = ({
     `quality=${clampInteger(requestedQuality, IMAGE_QUALITY.minimum, IMAGE_QUALITY.maximum)}`,
     'format=auto',
   )
+
+  if (
+    focalPoint &&
+    [focalPoint.x, focalPoint.y].every(
+      (value) => Number.isFinite(value) && value >= 0 && value <= 100,
+    )
+  ) {
+    options.push(`gravity=${focalPoint.x / 100}x${focalPoint.y / 100}`)
+  }
 
   return `${sourceURL.origin}/cdn-cgi/image/${options.join(',')}${encodedPathname}${sourceURL.search}`
 }

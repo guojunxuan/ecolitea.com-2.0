@@ -75,6 +75,12 @@ export const ImageMedia: React.FC<MediaProps> = (props) => {
         }: Parameters<NonNullable<React.ComponentProps<typeof NextImage>['loader']>>[0]) =>
           buildCloudflareImageURL({
             presentation: imagePresentation,
+            focalPoint:
+              resource &&
+              typeof resource === 'object' &&
+              (resource.focalX != null || resource.focalY != null)
+                ? { x: resource.focalX ?? 50, y: resource.focalY ?? 50 }
+                : undefined,
             quality,
             source,
             width: requestedWidth,

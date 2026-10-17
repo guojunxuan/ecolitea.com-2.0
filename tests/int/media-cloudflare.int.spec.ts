@@ -151,3 +151,21 @@ describe('Cloudflare video delivery adapter', () => {
     ).toBe(source)
   })
 })
+
+describe('Cloudflare image focal point', () => {
+  it.each([
+    [0, 100, '0x1'],
+    [100, 0, '1x0'],
+    [25, 75, '0.25x0.75'],
+  ])('converts %s/%s percent to coordinates', (x, y, coordinates) => {
+    expect(
+      buildCloudflareImageURL({ source: original, width: 640, focalPoint: { x, y } }),
+    ).toContain(`gravity=${coordinates}`)
+  })
+  it('defaults absent or invalid focus to center', () => {
+    expect(buildCloudflareImageURL({ source: original, width: 640 })).not.toContain('gravity=')
+    expect(
+      buildCloudflareImageURL({ source: original, width: 640, focalPoint: { x: NaN, y: 20 } }),
+    ).not.toContain('gravity=')
+  })
+})

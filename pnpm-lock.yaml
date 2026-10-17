@@ -104,6 +104,9 @@ importers:
       react-hook-form:
         specifier: 7.71.1
         version: 7.71.1(react@19.2.6)
+      react-image-crop:
+        specifier: ^10.1.8
+        version: 10.1.8(react@19.2.6)
       sharp:
         specifier: 0.34.2
         version: 0.34.2

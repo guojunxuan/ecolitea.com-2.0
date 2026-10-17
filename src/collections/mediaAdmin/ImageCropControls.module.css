@@ -1,0 +1,29 @@
+.controls {
+  margin-block: 1rem;
+}
+.loader {
+  display: none;
+}
+.dialog {
+  max-width: min(90vw, 60rem);
+  max-height: 90vh;
+  overflow: auto;
+  padding: 1.5rem;
+  color: var(--theme-text);
+  background: var(--theme-elevation-0);
+  border: 1px solid var(--theme-elevation-200);
+}
+.dialog::backdrop {
+  background: rgb(0 0 0 / 60%);
+}
+.image {
+  display: block;
+  max-width: 100%;
+  max-height: 60vh;
+}
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1rem;
+}
