@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
+import type { Payload } from 'payload'
 
 import {
   buildMediaInventory,
@@ -6,6 +7,7 @@ import {
   normalizeHTTPOrigin,
   parseCleanupArguments,
   runMediaCleanup,
+  type CleanupPayload,
 } from '../../scripts/cleanup-development-media'
 
 describe('development Media cleanup safety', () => {
@@ -76,7 +78,7 @@ describe('development Media cleanup safety', () => {
       },
     })
 
-    const references = await findMediaReferences(payload, [
+    const references = await findMediaReferences(payload as unknown as Payload, [
       'm1',
       'm2',
       'm3',
@@ -86,7 +88,7 @@ describe('development Media cleanup safety', () => {
       'm7',
     ])
 
-    expect(references.map(({ source }) => source)).toEqual([
+    expect(references.map(({ ownerSlug, kind }) => `${ownerSlug}:${kind}`)).toEqual([
       'case-studies:current',
       'case-studies:version',
       'pages:current',
@@ -95,7 +97,7 @@ describe('development Media cleanup safety', () => {
       'posts:version',
       'search:current',
     ])
-    expect(references.flatMap(({ mediaIDs }) => mediaIDs)).toEqual([
+    expect(references.map(({ mediaID }) => mediaID)).toEqual([
       'm1',
       'm4',
       'm2',
@@ -109,15 +111,41 @@ describe('development Media cleanup safety', () => {
       'pages',
       'posts',
       'search',
+      'blogs',
+      'site-assets',
     ])
     expect(payload.findVersions.mock.calls.map(([call]) => call.collection)).toEqual([
       'case-studies',
       'pages',
       'posts',
+      'blogs',
     ])
   })
 
-  it('refuses an origin mismatch before querying and never touches site-assets', async () => {
+  it('blocks cleanup for Blogs, Header, Settings and historical Global references', async () => {
+    for (const source of [
+      { collections: { blogs: [{ id: 'blog', heroImage: 'm1' }] } },
+      { globals: { header: { navItems: [{ image: 'm1' }] } } },
+      { globals: { settings: { blog: { hero: { image: 'm1' } } } } },
+      { globalVersions: { header: [{ id: 'old', version: { image: 'm1' } }] } },
+    ]) {
+      const payload = fakePayload({
+        ...source,
+        collections: { ...source.collections, media: [mediaDocument('m1', 'one.jpg')] },
+      })
+      await expect(
+        runMediaCleanup({
+          configuredOrigin: 'https://media-dev.example.com',
+          expectedOrigin: 'https://media-dev.example.com',
+          execute: true,
+          payload,
+        }),
+      ).rejects.toThrow(/references remain/i)
+      expect(payload.delete).not.toHaveBeenCalled()
+    }
+  })
+
+  it('refuses an origin mismatch before querying and never queries on an origin mismatch', async () => {
     const payload = fakePayload({ collections: { media: [] } })
 
     await expect(
@@ -145,7 +173,8 @@ describe('development Media cleanup safety', () => {
     })
 
     expect(report.mode).toBe('dry-run')
-    expect(payload.find.mock.calls.map(([call]) => call.collection)).not.toContain('site-assets')
+    expect(report.inventory).toHaveLength(1)
+    expect(payload.find.mock.calls.map(([call]) => call.collection)).toContain('site-assets')
     expect(payload.delete).not.toHaveBeenCalled()
   })
 
@@ -168,7 +197,7 @@ describe('development Media cleanup safety', () => {
       report: {
         inventory: expect.arrayContaining([expect.objectContaining({ id: 'm2' })]),
         references: expect.arrayContaining([
-          expect.objectContaining({ documentID: 'page-1', mediaIDs: ['m2'] }),
+          expect.objectContaining({ documentID: 'page-1', mediaID: 'm2' }),
         ]),
       },
     })
@@ -196,7 +225,7 @@ describe('development Media cleanup safety', () => {
       context: { disableRevalidate: true },
       where: { id: { in: ['m1', 'm2'] } },
     })
-    expect(payload.findVersions).toHaveBeenCalledTimes(3)
+    expect(payload.findVersions).toHaveBeenCalledTimes(4)
   })
 
   it('does not delete when inspection fails and treats an empty inventory as success', async () => {
@@ -285,11 +314,46 @@ describe('development Media cleanup safety', () => {
 type FakeData = {
   collections?: Record<string, unknown[]>
   versions?: Record<string, unknown[]>
+  globals?: Record<string, unknown>
+  globalVersions?: Record<string, unknown[]>
 }
 
-function fakePayload({ collections = {}, versions = {} }: FakeData) {
-  const page = (docs: unknown[]) => ({ docs, hasNextPage: false, nextPage: null })
-  return {
+function fakePayload({
+  collections = {},
+  versions = {},
+  globals = {},
+  globalVersions = {},
+}: FakeData) {
+  const page = (docs: unknown[]) => ({
+    docs,
+    hasNextPage: false,
+    nextPage: null,
+    totalDocs: docs.length,
+    totalPages: 1,
+    page: 1,
+  })
+  const payload = {
+    config: {
+      routes: { admin: '/admin' },
+      collections: [
+        'media',
+        'case-studies',
+        'pages',
+        'posts',
+        'search',
+        'blogs',
+        'site-assets',
+      ].map((slug) => ({
+        slug,
+        admin: {},
+        versions: ['case-studies', 'pages', 'posts', 'blogs'].includes(slug),
+      })),
+      globals: ['header', 'settings'].map((slug) => ({ slug, versions: slug === 'header' })),
+    },
+    findGlobal: vi.fn(async ({ slug }: { slug: string }) => globals[slug] ?? {}),
+    findGlobalVersions: vi.fn(async ({ slug }: { slug: string }) =>
+      page(globalVersions[slug] ?? []),
+    ),
     delete: vi.fn(async () => ({ docs: [], errors: [] })),
     find: vi.fn(async ({ collection }: { collection: string }) =>
       page(collections[collection] ?? []),
@@ -298,6 +362,7 @@ function fakePayload({ collections = {}, versions = {} }: FakeData) {
       page(versions[collection] ?? []),
     ),
   }
+  return payload as typeof payload & CleanupPayload
 }
 
 function mediaDocument(id: string, filename: string) {

@@ -16,6 +16,8 @@ import {
   validateMediaMimeType,
 } from './mediaUploadPolicy'
 import { validateMediaAlt } from './mediaAlt'
+import { preventReferencedDelete } from './mediaHooks/preventReferencedDelete'
+import { mediaReferencesEndpoint } from './mediaEndpoints/references'
 
 export const Media: CollectionConfig = {
   slug: 'media',
@@ -33,7 +35,17 @@ export const Media: CollectionConfig = {
     read: anyone,
     update: authenticated,
   },
+  endpoints: [mediaReferencesEndpoint],
   fields: [
+    {
+      name: 'usedIn',
+      type: 'ui',
+      label: 'Used in',
+      admin: {
+        position: 'sidebar',
+        components: { Field: '@/collections/mediaAdmin/UsedInPanel#UsedInPanel' },
+      },
+    },
     // Payload merges overrides for native upload fields by name, retaining its
     // read-only/hidden defaults without creating duplicate persisted fields.
     {
@@ -76,6 +88,7 @@ export const Media: CollectionConfig = {
     },
   ],
   hooks: {
+    beforeDelete: [preventReferencedDelete],
     beforeOperation: [validateMediaMimeType],
     beforeValidate: [validateMediaUpload, validateMediaAlt],
   },

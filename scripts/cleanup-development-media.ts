@@ -1,4 +1,7 @@
 import { pathToFileURL } from 'node:url'
+import type { Payload } from 'payload'
+import { findMediaReferences, type MediaReference } from '../src/collections/mediaReferences'
+export { findMediaReferences } from '../src/collections/mediaReferences'
 
 type DocumentLike = Record<string, unknown>
 
@@ -8,44 +11,16 @@ type PageResult = {
   nextPage?: null | number
 }
 
-export type CleanupPayload = {
-  delete: (args: {
-    collection: 'media'
-    context: { disableRevalidate: true }
-    where: { id: { in: string[] } }
-  }) => Promise<unknown>
-  find: (args: {
-    collection: string
-    depth: number
-    limit: number
-    overrideAccess: boolean
-    page: number
-    showHiddenFields: boolean
-    sort: string
-  }) => Promise<PageResult>
-  findVersions: (args: {
-    collection: string
-    depth: number
-    limit: number
-    overrideAccess: boolean
-    page: number
-    showHiddenFields: boolean
-    sort: string
-  }) => Promise<PageResult>
-}
+export type CleanupPayload = Pick<
+  Payload,
+  'config' | 'delete' | 'find' | 'findVersions' | 'findGlobal' | 'findGlobalVersions'
+>
 
 export type MediaInventoryItem = {
   filename: string
   id: string
   legacySizeFilenames: string[]
   url: string
-}
-
-export type MediaReference = {
-  documentID: string
-  mediaIDs: string[]
-  paths: string[]
-  source: `${ReferenceCollection}:${'current' | 'version'}`
 }
 
 export type CleanupReport = {
@@ -67,10 +42,6 @@ export class MediaCleanupBlockedError extends Error {
   }
 }
 
-type ReferenceCollection = (typeof CURRENT_REFERENCE_COLLECTIONS)[number]
-
-const CURRENT_REFERENCE_COLLECTIONS = ['case-studies', 'pages', 'posts', 'search'] as const
-const VERSIONED_REFERENCE_COLLECTIONS = ['case-studies', 'pages', 'posts'] as const
 const PAGE_LIMIT = 100
 
 export function parseCleanupArguments(argv: string[]): {
@@ -177,31 +148,6 @@ export function buildMediaInventory(
     .sort((left, right) => left.id.localeCompare(right.id))
 }
 
-export async function findMediaReferences(
-  payload: Pick<CleanupPayload, 'find' | 'findVersions'>,
-  mediaIDs: string[],
-): Promise<MediaReference[]> {
-  if (mediaIDs.length === 0) return []
-
-  const targetIDs = new Set(mediaIDs)
-  const references: MediaReference[] = []
-
-  for (const collection of CURRENT_REFERENCE_COLLECTIONS) {
-    const documents = await findAll((page) => payload.find(queryArguments(collection, page)))
-    references.push(...findReferencesInDocuments(documents, collection, 'current', targetIDs))
-  }
-
-  for (const collection of VERSIONED_REFERENCE_COLLECTIONS) {
-    const versions = await findAll((page) => payload.findVersions(queryArguments(collection, page)))
-    references.push(...findReferencesInDocuments(versions, collection, 'version', targetIDs))
-  }
-
-  return references.sort(
-    (left, right) =>
-      left.source.localeCompare(right.source) || left.documentID.localeCompare(right.documentID),
-  )
-}
-
 export async function runMediaCleanup({
   configuredOrigin,
   execute = false,
@@ -225,7 +171,7 @@ export async function runMediaCleanup({
   const mediaDocuments = await findAll((page) => payload.find(queryArguments('media', page)))
   const inventory = buildMediaInventory(mediaDocuments, normalizedConfiguredOrigin)
   const references = await findMediaReferences(
-    payload,
+    payload as Payload,
     inventory.map(({ id }) => id),
   )
   const report: CleanupReport = {
@@ -250,7 +196,7 @@ export async function runMediaCleanup({
   return report
 }
 
-function queryArguments(collection: string, page: number) {
+function queryArguments(collection: 'media', page: number) {
   return {
     collection,
     depth: 0,
@@ -277,67 +223,6 @@ async function findAll(fetchPage: (page: number) => Promise<PageResult>): Promis
   }
 }
 
-function findReferencesInDocuments(
-  documents: unknown[],
-  collection: ReferenceCollection,
-  kind: 'current' | 'version',
-  targetIDs: Set<string>,
-): MediaReference[] {
-  return documents.flatMap((document, index) => {
-    if (!isDocumentLike(document)) {
-      throw new Error(
-        `Incomplete reference inspection: ${collection}:${kind} result ${index} is invalid.`,
-      )
-    }
-    if (document.id === undefined) {
-      throw new Error(
-        `Incomplete reference inspection: ${collection}:${kind} result ${index} has no ID.`,
-      )
-    }
-    if (kind === 'version' && !isDocumentLike(document.version)) {
-      throw new Error(
-        `Incomplete reference inspection: ${collection}:version result ${String(document.id)} has no version data.`,
-      )
-    }
-
-    const paths = findTargetPaths(kind === 'version' ? document.version : document, targetIDs)
-    if (paths.length === 0) return []
-
-    return [
-      {
-        documentID: String(document.id),
-        mediaIDs: [...new Set(paths.map(({ id }) => id))].sort(),
-        paths: paths.map(({ path }) => path).sort(),
-        source: `${collection}:${kind}` as const,
-      },
-    ]
-  })
-}
-
-function findTargetPaths(
-  value: unknown,
-  targetIDs: Set<string>,
-  path = '$',
-  seen = new Set<object>(),
-): Array<{ id: string; path: string }> {
-  if (typeof value === 'string' || typeof value === 'number') {
-    const id = String(value)
-    return targetIDs.has(id) ? [{ id, path }] : []
-  }
-  if (!value || typeof value !== 'object' || seen.has(value)) return []
-  seen.add(value)
-
-  if (Array.isArray(value)) {
-    return value.flatMap((entry, index) =>
-      findTargetPaths(entry, targetIDs, `${path}[${index}]`, seen),
-    )
-  }
-
-  return Object.entries(value).flatMap(([key, entry]) =>
-    findTargetPaths(entry, targetIDs, `${path}.${key}`, seen),
-  )
-}
-
 function getLegacySizeFilenames(value: unknown): string[] {
   if (!isDocumentLike(value)) return []
   return Object.values(value)
@@ -361,6 +246,10 @@ async function main() {
     import('payload'),
     import('../src/payload.config'),
   ])
+  const target = new URL(process.env.DATABASE_URI ?? '')
+  process.stderr.write(
+    `Media cleanup target: database=${target.host}${target.pathname}; storage=${process.env.DISABLE_R2_STORAGE === 'true' ? 'local (R2 disabled)' : `R2 bucket=${process.env.R2_BUCKET ?? 'unconfigured'}`}; public origin=${normalizeHTTPOrigin(configuredOrigin)}; mode=${execute ? 'execute' : 'dry-run'}\n`,
+  )
   const payload = await getPayload({ config })
 
   try {

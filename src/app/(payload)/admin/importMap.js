@@ -28,6 +28,7 @@ import { PreviewComponent as PreviewComponent_a8a977ebc872c5d5ea7ee689724c0860 }
 import { BlocksFeatureClient as BlocksFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { BlockRowLabel as BlockRowLabel_54fe0f316d4b99315c1513bdd1306683 } from '@/blocks/BlockRowLabel'
 import { ArticleBlockEditor as ArticleBlockEditor_4971c3244241ba6cff288a3222e75719 } from '@/blocks/ArticleBlockEditor'
+import { UsedInPanel as UsedInPanel_465fcf04887261c29f77ab01f3d2132c } from '@/collections/mediaAdmin/UsedInPanel'
 import { AltPrefill as AltPrefill_0723c172e948fbb481376dc84e2f708c } from '@/collections/mediaAdmin/AltPrefill'
 import { FilesizeCell as FilesizeCell_e4d477bf4c10c20dfb3e3841bcb8bbde } from '@/collections/mediaAdmin/FilesizeCell'
 import { DimensionsCell as DimensionsCell_ed787a5a6cfc7824657cb740abc829c2 } from '@/collections/mediaAdmin/DimensionsCell'
@@ -83,6 +84,7 @@ export const importMap = {
   "@payloadcms/richtext-lexical/client#BlocksFeatureClient": BlocksFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@/blocks/BlockRowLabel#BlockRowLabel": BlockRowLabel_54fe0f316d4b99315c1513bdd1306683,
   "@/blocks/ArticleBlockEditor#ArticleBlockEditor": ArticleBlockEditor_4971c3244241ba6cff288a3222e75719,
+  "@/collections/mediaAdmin/UsedInPanel#UsedInPanel": UsedInPanel_465fcf04887261c29f77ab01f3d2132c,
   "@/collections/mediaAdmin/AltPrefill#AltPrefill": AltPrefill_0723c172e948fbb481376dc84e2f708c,
   "@/collections/mediaAdmin/FilesizeCell#FilesizeCell": FilesizeCell_e4d477bf4c10c20dfb3e3841bcb8bbde,
   "@/collections/mediaAdmin/DimensionsCell#DimensionsCell": DimensionsCell_ed787a5a6cfc7824657cb740abc829c2,
