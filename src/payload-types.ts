@@ -302,6 +302,7 @@ export interface Config {
     blogs: Blog;
     'blog-categories': BlogCategory;
     media: Media;
+    documents: Document;
     'site-assets': SiteAsset;
     'social-platforms': SocialPlatform;
     categories: Category;
@@ -329,6 +330,7 @@ export interface Config {
     blogs: BlogsSelect<false> | BlogsSelect<true>;
     'blog-categories': BlogCategoriesSelect<false> | BlogCategoriesSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
+    documents: DocumentsSelect<false> | DocumentsSelect<true>;
     'site-assets': SiteAssetsSelect<false> | SiteAssetsSelect<true>;
     'social-platforms': SocialPlatformsSelect<false> | SocialPlatformsSelect<true>;
     categories: CategoriesSelect<false> | CategoriesSelect<true>;
@@ -947,6 +949,27 @@ export interface BlogCategory {
   createdAt: string;
 }
 /**
+ * Documents: PDF (.pdf), Word (.docx), Excel (.xlsx), PowerPoint (.pptx); maximum 10 MB. Legacy Office formats and documents with macros are not allowed.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "documents".
+ */
+export interface Document {
+  id: string;
+  title: string;
+  description?: string | null;
+  _h_folders?: (string | null) | Folder;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "site-assets".
  */
@@ -1285,6 +1308,10 @@ export interface PayloadLockedDocument {
         value: string | Media;
       } | null)
     | ({
+        relationTo: 'documents';
+        value: string | Document;
+      } | null)
+    | ({
         relationTo: 'site-assets';
         value: string | SiteAsset;
       } | null)
@@ -1500,6 +1527,24 @@ export interface MediaSelect<T extends boolean = true> {
   durationSeconds?: T;
   _h_folders?: T;
   caption?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  url?: T;
+  thumbnailURL?: T;
+  filename?: T;
+  mimeType?: T;
+  filesize?: T;
+  width?: T;
+  height?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "documents_select".
+ */
+export interface DocumentsSelect<T extends boolean = true> {
+  title?: T;
+  description?: T;
+  _h_folders?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;
@@ -2684,6 +2729,7 @@ export interface CollectionQueryWidget {
       | 'blogs'
       | 'blog-categories'
       | 'media'
+      | 'documents'
       | 'categories'
       | 'case-studies'
       | 'users'
@@ -2720,6 +2766,7 @@ export interface ActivityWidget {
           | 'blogs'
           | 'blog-categories'
           | 'media'
+          | 'documents'
           | 'categories'
           | 'case-studies'
           | 'users'

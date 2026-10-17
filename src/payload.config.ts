@@ -19,6 +19,7 @@ import { Categories } from './collections/Categories'
 import { SiteAssets } from './collections/SiteAssets'
 import { CaseStudies } from './collections/CaseStudies'
 import { Media } from './collections/Media'
+import { Documents } from './collections/Documents'
 import { Pages } from './collections/Pages'
 import { Posts } from './collections/Posts'
 import { SocialPlatforms } from './collections/SocialPlatforms'
@@ -104,6 +105,7 @@ export default buildConfig({
     Blogs,
     BlogCategories,
     Media,
+    Documents,
     SiteAssets,
     SocialPlatforms,
     Categories,

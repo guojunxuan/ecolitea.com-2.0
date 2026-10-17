@@ -32,6 +32,8 @@ import { UsedInPanel as UsedInPanel_465fcf04887261c29f77ab01f3d2132c } from '@/c
 import { AltPrefill as AltPrefill_0723c172e948fbb481376dc84e2f708c } from '@/collections/mediaAdmin/AltPrefill'
 import { FilesizeCell as FilesizeCell_e4d477bf4c10c20dfb3e3841bcb8bbde } from '@/collections/mediaAdmin/FilesizeCell'
 import { DimensionsCell as DimensionsCell_ed787a5a6cfc7824657cb740abc829c2 } from '@/collections/mediaAdmin/DimensionsCell'
+import { TitlePrefill as TitlePrefill_f95324218d1a9f56a6faf266850561af } from '@/collections/Documents/admin/TitlePrefill'
+import { FilesizeCell as FilesizeCell_597c400895e53c1ba930cc53925f77c6 } from '@/collections/Documents/admin/FilesizeCell'
 import { SocialPlatformNameField as SocialPlatformNameField_57cfda3ee93492850d81f1adf8296638 } from '@/SiteSettings/components/SocialPlatformNameField'
 import { LinkToDoc as LinkToDoc_aead06e4cbf6b2620c5c51c9ab283634 } from '@payloadcms/plugin-search/client'
 import { ReindexButton as ReindexButton_aead06e4cbf6b2620c5c51c9ab283634 } from '@payloadcms/plugin-search/client'
@@ -88,6 +90,8 @@ export const importMap = {
   "@/collections/mediaAdmin/AltPrefill#AltPrefill": AltPrefill_0723c172e948fbb481376dc84e2f708c,
   "@/collections/mediaAdmin/FilesizeCell#FilesizeCell": FilesizeCell_e4d477bf4c10c20dfb3e3841bcb8bbde,
   "@/collections/mediaAdmin/DimensionsCell#DimensionsCell": DimensionsCell_ed787a5a6cfc7824657cb740abc829c2,
+  "@/collections/Documents/admin/TitlePrefill#TitlePrefill": TitlePrefill_f95324218d1a9f56a6faf266850561af,
+  "@/collections/Documents/admin/FilesizeCell#FilesizeCell": FilesizeCell_597c400895e53c1ba930cc53925f77c6,
   "@/SiteSettings/components/SocialPlatformNameField#SocialPlatformNameField": SocialPlatformNameField_57cfda3ee93492850d81f1adf8296638,
   "@payloadcms/plugin-search/client#LinkToDoc": LinkToDoc_aead06e4cbf6b2620c5c51c9ab283634,
   "@payloadcms/plugin-search/client#ReindexButton": ReindexButton_aead06e4cbf6b2620c5c51c9ab283634,
