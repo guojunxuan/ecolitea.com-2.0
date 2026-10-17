@@ -50,7 +50,7 @@ if (inheritedRunID) {
 // The config is evaluated before test modules, so both Payload fixtures in the
 // runner and the Next web server inherit the same dedicated database.
 process.env.DATABASE_URI = e2eDatabaseURI
-const disableR2Storage = process.env.DISABLE_R2_STORAGE === 'true' ? 'true' : 'false'
+const disableR2Storage = process.env.DISABLE_R2_STORAGE === 'false' ? 'false' : 'true'
 process.env.DISABLE_R2_STORAGE = disableR2Storage
 process.env.PREVIEW_SECRET = 'e2e-only-preview-secret'
 process.env.PLAYWRIGHT_TEST = 'true'

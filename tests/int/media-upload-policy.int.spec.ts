@@ -1,20 +1,34 @@
+import { createFile } from 'mp4box'
+import { mkdtemp, writeFile, rm } from 'node:fs/promises'
+import { tmpdir } from 'node:os'
+import path from 'node:path'
 import { describe, expect, it } from 'vitest'
 import {
   MEDIA_UPLOAD_POLICY,
   validateImageDimensions,
   validateVideoMetadata,
+  validateVideoDimensions,
 } from '@/collections/mediaUploadPolicy'
-import {
-  parseMP4Metadata,
-  parseMP4MetadataWithFactory,
-} from '@/collections/parseMP4Metadata'
+import { parseMP4Metadata, parseMP4MetadataWithFactory } from '@/collections/parseMP4Metadata'
 
 type FakeMP4Info = {
   duration: number
   timescale: number
-  videoTracks: Array<{ codec: string }>
+  videoTracks: Array<{
+    codec: string
+    video?: { width: number; height: number }
+    matrix?: ArrayLike<number>
+  }>
   audioTracks: Array<{ codec: string }>
 }
+
+const atom = (type: string, payload = Buffer.alloc(0)) => {
+  const head = Buffer.alloc(8)
+  head.writeUInt32BE(payload.length + 8)
+  head.write(type, 4)
+  return Buffer.concat([head, payload])
+}
+const validInput = atom('moov')
 
 const createFakeFile = (info: FakeMP4Info) => {
   let file: {
@@ -63,6 +77,8 @@ describe('Media image upload policy', () => {
 
   it('keeps video upload policy values configured for downstream validation', () => {
     expect(MEDIA_UPLOAD_POLICY.video).toEqual({
+      ratios: MEDIA_UPLOAD_POLICY.video.ratios,
+      ratioTolerance: 0.01,
       maxBytes: 100_000_000,
       maxDurationSeconds: 10 * 60,
       mimeTypes: ['video/mp4'],
@@ -77,13 +93,13 @@ describe('MP4 metadata parsing', () => {
     const fake = createFakeFile({
       duration: 90_000,
       timescale: 1_000,
-      videoTracks: [{ codec: 'AVC1.640028' }],
+      videoTracks: [{ video: { width: 1920, height: 1080 }, codec: 'AVC1.640028' }],
       audioTracks: [{ codec: 'MP4A.40.2' }],
     })
 
-    await expect(
-      parseMP4MetadataWithFactory(Buffer.from([1, 2, 3]), fake.createFile),
-    ).resolves.toEqual({
+    await expect(parseMP4MetadataWithFactory(validInput, fake.createFile)).resolves.toEqual({
+      width: 1920,
+      height: 1080,
       durationSeconds: 90,
       videoCodecs: ['avc1.640028'],
       audioCodecs: ['mp4a.40.2'],
@@ -94,11 +110,11 @@ describe('MP4 metadata parsing', () => {
     const fake = createFakeFile({
       duration: 1,
       timescale: 1,
-      videoTracks: [{ codec: 'avc1.640028' }],
+      videoTracks: [{ video: { width: 1920, height: 1080 }, codec: 'avc1.640028' }],
       audioTracks: [],
     })
-    const source = new Uint8Array([9, 1, 2, 3, 8])
-    const input = Buffer.from(source.buffer, 1, 3)
+    const source = Buffer.concat([Buffer.from([9]), validInput, Buffer.from([8])])
+    const input = source.subarray(1, -1)
     let received: (ArrayBuffer & { fileStart?: number }) | undefined
     const originalCreateFile = fake.createFile
     fake.createFile = () => {
@@ -113,13 +129,13 @@ describe('MP4 metadata parsing', () => {
 
     await parseMP4MetadataWithFactory(input, fake.createFile)
 
-    expect(Array.from(new Uint8Array(received!))).toEqual([1, 2, 3])
+    expect(Array.from(new Uint8Array(received!))).toEqual(Array.from(validInput))
     expect(received?.fileStart).toBe(0)
   })
 
   it('rejects parser callback errors', async () => {
     await expect(
-      parseMP4MetadataWithFactory(Buffer.from([1]), () => ({
+      parseMP4MetadataWithFactory(validInput, () => ({
         appendBuffer: () => undefined,
         flush: function () {
           this.onError?.('ISOFile', 'broken atom')
@@ -133,21 +149,42 @@ describe('MP4 metadata parsing', () => {
   })
 
   it.each([
-    [{ duration: 0, timescale: 1, videoTracks: [{ codec: 'avc1' }], audioTracks: [] }],
-    [{ duration: 1, timescale: 0, videoTracks: [{ codec: 'avc1' }], audioTracks: [] }],
+    [
+      {
+        duration: 0,
+        timescale: 1,
+        videoTracks: [{ video: { width: 1920, height: 1080 }, codec: 'avc1' }],
+        audioTracks: [],
+      },
+    ],
+    [
+      {
+        duration: 1,
+        timescale: 0,
+        videoTracks: [{ video: { width: 1920, height: 1080 }, codec: 'avc1' }],
+        audioTracks: [],
+      },
+    ],
     [
       {
         duration: 1,
         timescale: Number.POSITIVE_INFINITY,
-        videoTracks: [{ codec: 'avc1' }],
+        videoTracks: [{ video: { width: 1920, height: 1080 }, codec: 'avc1' }],
         audioTracks: [],
       },
     ],
-    [{ duration: Number.NaN, timescale: 1, videoTracks: [{ codec: 'avc1' }], audioTracks: [] }],
+    [
+      {
+        duration: Number.NaN,
+        timescale: 1,
+        videoTracks: [{ video: { width: 1920, height: 1080 }, codec: 'avc1' }],
+        audioTracks: [],
+      },
+    ],
     [{ duration: 1, timescale: 1, videoTracks: [], audioTracks: [] }],
   ])('rejects malformed movie metadata %#', async (info) => {
     const fake = createFakeFile(info)
-    await expect(parseMP4MetadataWithFactory(Buffer.from([1]), fake.createFile)).rejects.toThrow(
+    await expect(parseMP4MetadataWithFactory(validInput, fake.createFile)).rejects.toThrow(
       /metadata|video track/i,
     )
   })
@@ -209,5 +246,134 @@ describe('Media video upload policy', () => {
         videoCodecs: ['avc3.640028'],
       }),
     ).toBe(true)
+  })
+})
+
+describe('MP4 streaming and display dimensions', () => {
+  const info = {
+    duration: 1,
+    timescale: 1,
+    videoTracks: [{ codec: 'avc1', video: { width: 1920, height: 1080 } }],
+    audioTracks: [],
+  }
+  it.each([90, 270])('accounts for %s degree rotation', async (rotation) => {
+    const matrix =
+      rotation === 90
+        ? [0, 65536, 0, -65536, 0, 0, 0, 0, 1073741824]
+        : [0, -65536, 0, 65536, 0, 0, 0, 0, 1073741824]
+    await expect(
+      parseMP4MetadataWithFactory(
+        validInput,
+        createFakeFile({ ...info, videoTracks: [{ ...info.videoTracks[0], matrix }] }).createFile,
+      ),
+    ).resolves.toMatchObject({ width: 1080, height: 1920 })
+  })
+  it('rejects moov after mdat with the prescribed faststart guidance', async () => {
+    await expect(
+      parseMP4MetadataWithFactory(
+        Buffer.concat([atom('mdat'), validInput]),
+        createFakeFile(info).createFile,
+      ),
+    ).rejects.toThrow(
+      'Video is not optimized for web streaming (moov atom at end of file). Re-export with "Fast Start" / "Web Optimized" enabled, or run: ffmpeg -i in.mp4 -c copy -movflags +faststart out.mp4',
+    )
+  })
+  it('reads 1 MB chunks across atom boundaries and stops at moov', async () => {
+    const starts: number[] = []
+    const sizes: number[] = []
+    const fake = createFakeFile(info)
+    const input = Buffer.concat([
+      atom('free', Buffer.alloc(1024 * 1024 - 12)),
+      atom('moov', Buffer.alloc(16)),
+      atom('mdat', Buffer.alloc(2 * 1024 * 1024)),
+    ])
+    await parseMP4MetadataWithFactory(input, () => {
+      const file = fake.createFile()
+      file.appendBuffer = (chunk) => {
+        starts.push(chunk.fileStart!)
+        sizes.push(chunk.byteLength)
+      }
+      return file
+    })
+    expect(starts).toEqual([0, 1024 * 1024])
+    expect(Math.max(...sizes)).toBeLessThanOrEqual(1024 * 1024)
+  })
+  it.each([
+    Buffer.from([0, 0, 0, 4, 109, 111, 111, 118]),
+    Buffer.from([0, 0, 0, 30, 109, 111, 111, 118]),
+  ])('rejects malformed atom lengths', async (input) => {
+    await expect(
+      parseMP4MetadataWithFactory(input, createFakeFile(info).createFile),
+    ).rejects.toThrow(/MP4/)
+  })
+  it.each([
+    [16, 9],
+    [9, 16],
+    [1, 1],
+    [4, 5],
+  ])('bounds the %s:%s video ratio at 1 percent', (width, height) => {
+    expect(validateVideoDimensions(width * 1000 * 1.01, height * 1000)).toBe(true)
+    expect(validateVideoDimensions(width * 1000 * 1.011, height * 1000)).toMatch(/Accepted ratios/)
+    expect(validateVideoDimensions(width * 1000 * 0.99, height * 1000)).toBe(true)
+    expect(validateVideoDimensions(width * 1000 * 0.989, height * 1000)).toMatch(/Accepted ratios/)
+  })
+})
+
+describe('real MP4 metadata fixtures', () => {
+  const fixture = () => {
+    const file = createFile()
+    file.addTrack({ width: 1920, height: 1080, timescale: 1000, duration: 1000 })
+    return Buffer.from(file.getBuffer().buffer)
+  }
+  it('reads a generated binary MP4 with the real MP4Box parser', async () => {
+    await expect(parseMP4Metadata(fixture())).resolves.toMatchObject({
+      width: 1920,
+      height: 1080,
+      durationSeconds: 1,
+      videoCodecs: ['avc1'],
+    })
+  })
+  it.each([90, 270])('reads %s degree rotation from a binary track matrix', async (rotation) => {
+    const file = createFile()
+    file.addTrack({ width: 1920, height: 1080, duration: 1000, timescale: 1000 })
+    file.moov!.traks[0].tkhd.matrix = new Int32Array(
+      rotation === 90
+        ? [0, 65536, 0, -65536, 0, 0, 0, 0, 1073741824]
+        : [0, -65536, 0, 65536, 0, 0, 0, 0, 1073741824],
+    )
+    await expect(parseMP4Metadata(Buffer.from(file.getBuffer().buffer))).resolves.toMatchObject({
+      width: 1080,
+      height: 1920,
+    })
+  })
+  it('rejects binary MP4 files without a video track', async () => {
+    const file = createFile().init({ duration: 1000, timescale: 1000 })
+    await expect(parseMP4Metadata(Buffer.from(file.getBuffer().buffer))).rejects.toThrow(
+      /video track/,
+    )
+  })
+  it('rejects oversized extended atom lengths', async () => {
+    const header = Buffer.alloc(16)
+    header.writeUInt32BE(1)
+    header.write('moov', 4)
+    header.writeBigUInt64BE(BigInt(Number.MAX_SAFE_INTEGER) + 1n, 8)
+    await expect(parseMP4Metadata(header)).rejects.toThrow(/atom length/)
+  })
+  it('parses temporary files without loading the whole upload', async () => {
+    const directory = await mkdtemp(path.join(tmpdir(), 'media-mp4-'))
+    try {
+      const tempFilePath = path.join(directory, 'video.mp4')
+      await writeFile(
+        tempFilePath,
+        Buffer.concat([fixture(), atom('mdat', Buffer.alloc(2 * 1024 * 1024))]),
+      )
+      await expect(parseMP4Metadata({ tempFilePath })).resolves.toMatchObject({
+        width: 1920,
+        height: 1080,
+        durationSeconds: 1,
+      })
+    } finally {
+      await rm(directory, { recursive: true, force: true })
+    }
   })
 })

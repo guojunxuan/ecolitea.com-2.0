@@ -9,10 +9,23 @@ import { createFolderField } from 'payload'
 
 import { anyone } from '../access/anyone'
 import { authenticated } from '../access/authenticated'
-import { validateMediaUpload } from './mediaUploadPolicy'
+import {
+  MEDIA_UPLOAD_POLICY,
+  mediaUploadDescription,
+  validateMediaUpload,
+} from './mediaUploadPolicy'
+import { validateMediaAlt } from './mediaAlt'
 
 export const Media: CollectionConfig = {
   slug: 'media',
+  versions: false,
+  select: ({ select }) => (select?.width === true ? { ...select, height: true } : undefined),
+  disableDuplicate: true,
+  admin: {
+    description: mediaUploadDescription,
+    defaultColumns: ['filename', 'alt', 'mimeType', 'width', 'filesize', '_h_folders', 'updatedAt'],
+    listSearchableFields: ['filename', 'alt'],
+  },
   access: {
     create: authenticated,
     delete: authenticated,
@@ -20,10 +33,23 @@ export const Media: CollectionConfig = {
     update: authenticated,
   },
   fields: [
+    // Payload merges overrides for native upload fields by name, retaining its
+    // read-only/hidden defaults without creating duplicate persisted fields.
+    {
+      name: 'width',
+      type: 'number',
+      admin: { components: { Cell: '@/collections/mediaAdmin/DimensionsCell#DimensionsCell' } },
+    },
+    {
+      name: 'filesize',
+      type: 'number',
+      admin: { components: { Cell: '@/collections/mediaAdmin/FilesizeCell#FilesizeCell' } },
+    },
     {
       name: 'alt',
       type: 'text',
-      //required: true,
+      index: true,
+      admin: { components: { Field: '@/collections/mediaAdmin/AltPrefill#AltPrefill' } },
     },
     {
       name: 'durationSeconds',
@@ -37,6 +63,10 @@ export const Media: CollectionConfig = {
     {
       name: 'caption',
       type: 'richText',
+      admin: {
+        description:
+          'Default caption shown when this media is used in a Media block. A caption set on the block overrides it.',
+      },
       editor: lexicalEditor({
         features: ({ rootFeatures }) => {
           return [...rootFeatures, FixedToolbarFeature(), InlineToolbarFeature()]
@@ -45,9 +75,10 @@ export const Media: CollectionConfig = {
     },
   ],
   hooks: {
-    beforeValidate: [validateMediaUpload],
+    beforeValidate: [validateMediaUpload, validateMediaAlt],
   },
   upload: {
+    mimeTypes: [...MEDIA_UPLOAD_POLICY.image.mimeTypes, ...MEDIA_UPLOAD_POLICY.video.mimeTypes],
     adminThumbnail: ({ doc }) => (typeof doc.url === 'string' ? doc.url : null),
     crop: false,
     focalPoint: false,

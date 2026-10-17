@@ -1,3 +1,4 @@
+import { imageOnly } from '@/collections/mediaUploadPolicy'
 import type { CollectionConfig } from 'payload'
 
 import {
@@ -80,6 +81,7 @@ export const Posts: CollectionConfig = {
           fields: [
             {
               name: 'heroImage',
+              filterOptions: imageOnly,
               type: 'upload',
               relationTo: 'media',
             },
@@ -147,6 +149,7 @@ export const Posts: CollectionConfig = {
               hasGenerateFn: true,
             }),
             MetaImageField({
+              overrides: { filterOptions: imageOnly },
               relationTo: 'media',
               hasGenerateFn: true,
             }),

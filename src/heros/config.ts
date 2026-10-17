@@ -1,3 +1,4 @@
+import { imageOrVideo } from '@/collections/mediaUploadPolicy'
 import type { Field } from 'payload'
 
 import {
@@ -82,6 +83,7 @@ export const hero: Field = {
         condition: (_, { type } = {}) => ['highImpact', 'mediumImpact'].includes(type),
       },
       relationTo: 'media',
+      filterOptions: imageOrVideo,
       required: true,
     },
   ],

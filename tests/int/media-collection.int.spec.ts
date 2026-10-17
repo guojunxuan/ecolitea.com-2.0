@@ -4,6 +4,8 @@ vi.mock('@/collections/parseMP4Metadata', () => ({
   parseMP4Metadata: vi.fn(async () => ({
     audioCodecs: ['mp4a.40.2'],
     durationSeconds: 42,
+    width: 1920,
+    height: 1080,
     videoCodecs: ['avc1.640028'],
   })),
 }))
@@ -183,7 +185,7 @@ describe('Media collection upload behavior', () => {
           file: { data: Buffer.from('video'), mimetype: 'video/mp4', size: 20 },
         },
       } as never),
-    ).resolves.toEqual({ mimeType: 'video/mp4', durationSeconds: 42 })
+    ).resolves.toEqual({ mimeType: 'video/mp4', durationSeconds: 42, width: 1920, height: 1080 })
 
     expect(mockedParseMP4Metadata).toHaveBeenCalledWith(Buffer.from('video'))
   })
@@ -198,5 +200,79 @@ describe('Media collection upload behavior', () => {
         },
       } as never),
     ).resolves.toMatchObject({ durationSeconds: null })
+  })
+})
+
+describe('Media Admin policies', () => {
+  it('restricts MIME types, disables versions/duplicate and improves search and columns', () => {
+    expect(Media.versions).toBe(false)
+    expect(Media.disableDuplicate).toBe(true)
+    expect(Media.admin).toMatchObject({
+      listSearchableFields: ['filename', 'alt'],
+      defaultColumns: [
+        'filename',
+        'alt',
+        'mimeType',
+        'width',
+        'filesize',
+        '_h_folders',
+        'updatedAt',
+      ],
+    })
+    expect(Media.admin?.description).toContain('16:9')
+    expect(Media.upload).toMatchObject({
+      mimeTypes: [...MEDIA_UPLOAD_POLICY.image.mimeTypes, 'video/mp4'],
+    })
+    expect(Media.fields.find((f) => 'name' in f && f.name === 'alt')).toMatchObject({ index: true })
+  })
+  it.each(['application/pdf', 'image/svg+xml', 'application/octet-stream'])(
+    'rejects %s with the complete allowed types',
+    async (mimetype) => {
+      await expect(
+        validateMediaUpload({
+          data: {},
+          req: { file: { mimetype, data: Buffer.from('bad') } },
+        } as never),
+      ).rejects.toThrow(
+        `Unsupported file type: ${mimetype}. Media accepts images (JPEG, PNG, WebP, AVIF, GIF) and video (MP4).`,
+      )
+    },
+  )
+})
+
+describe('Media source metadata integrity', () => {
+  it('strips forged display dimensions on metadata-only writes', async () => {
+    await expect(
+      validateMediaUpload({
+        data: { width: 999, height: 999, alt: 'Tea garden' },
+        req: {},
+      } as never),
+    ).resolves.toEqual({ alt: 'Tea garden' })
+  })
+  it.each(MEDIA_UPLOAD_POLICY.image.mimeTypes)(
+    'accepts the %s whitelist entry',
+    async (mimetype) => {
+      await expect(
+        validateMediaUpload({
+          data: { width: 1000, height: 1000 },
+          req: { file: { mimetype, data: Buffer.from('image') } },
+        } as never),
+      ).resolves.toMatchObject({ width: 1000, height: 1000 })
+    },
+  )
+})
+
+describe('Media list projection', () => {
+  it('includes height when the sortable width column is selected', () => {
+    expect(Media.select).toBeTypeOf('function')
+    expect(
+      Media.select?.({ select: { width: true }, operation: 'read', req: {} } as never),
+    ).toEqual({ width: true, height: true })
+    expect(
+      Media.select?.({ select: { alt: true }, operation: 'read', req: {} } as never),
+    ).toBeUndefined()
+    expect(
+      Media.select?.({ select: { width: false }, operation: 'read', req: {} } as never),
+    ).toBeUndefined()
   })
 })

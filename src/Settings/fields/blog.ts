@@ -7,7 +7,7 @@ import {
   PreviewField,
 } from '@payloadcms/plugin-seo/fields'
 
-import { MEDIA_UPLOAD_POLICY } from '@/collections/mediaUploadPolicy'
+import { imageOnly } from '@/collections/mediaUploadPolicy'
 
 import { articleShareField } from './article'
 
@@ -51,7 +51,7 @@ export const blogTab: Tab = {
               name: 'image',
               type: 'upload',
               relationTo: 'media',
-              filterOptions: { mimeType: { in: [...MEDIA_UPLOAD_POLICY.image.mimeTypes] } },
+              filterOptions: imageOnly,
               admin: { condition: whenEnabled },
             },
             {
@@ -104,7 +104,7 @@ export const blogTab: Tab = {
               relationTo: 'media',
               hasGenerateFn: true,
               overrides: {
-                filterOptions: { mimeType: { in: [...MEDIA_UPLOAD_POLICY.image.mimeTypes] } },
+                filterOptions: imageOnly,
               },
             }),
             PreviewField({

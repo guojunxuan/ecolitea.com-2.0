@@ -223,44 +223,44 @@ export type LexicalNodes_67D0DA17 =
   | SerializedQuoteNode<LexicalNodes_67D0DA17>;
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "LexicalNodes_EF9C53C2".
+ * via the `definition` "LexicalNodes_AC6B6C84".
  */
-export type LexicalNodes_EF9C53C2 =
+export type LexicalNodes_AC6B6C84 =
   | SerializedTextNode
   | SerializedTabNode
   | SerializedLineBreakNode
-  | SerializedParagraphNode<LexicalNodes_EF9C53C2>
+  | SerializedParagraphNode<LexicalNodes_AC6B6C84>
   | SerializedHorizontalRuleNode
-  | SerializedBlockNode<BannerBlock | CodeBlock | MediaBlock_51964C65>
-  | SerializedHeadingNode<LexicalNodes_EF9C53C2, 'h1' | 'h2' | 'h3' | 'h4'>
-  | SerializedAutoLinkNode<LexicalNodes_EF9C53C2, LexicalLinkFields>
-  | SerializedLinkNode<LexicalNodes_EF9C53C2, LexicalLinkFields>
-  | SerializedListNode<LexicalNodes_EF9C53C2>
-  | SerializedListItemNode<LexicalNodes_EF9C53C2>
-  | SerializedTableNode<LexicalNodes_EF9C53C2>
-  | SerializedTableCellNode<LexicalNodes_EF9C53C2>
-  | SerializedTableRowNode<LexicalNodes_EF9C53C2>
-  | SerializedQuoteNode<LexicalNodes_EF9C53C2>;
+  | SerializedBlockNode<BannerBlock | CodeBlock | MediaBlock_80738E71>
+  | SerializedHeadingNode<LexicalNodes_AC6B6C84, 'h1' | 'h2' | 'h3' | 'h4'>
+  | SerializedAutoLinkNode<LexicalNodes_AC6B6C84, LexicalLinkFields>
+  | SerializedLinkNode<LexicalNodes_AC6B6C84, LexicalLinkFields>
+  | SerializedListNode<LexicalNodes_AC6B6C84>
+  | SerializedListItemNode<LexicalNodes_AC6B6C84>
+  | SerializedTableNode<LexicalNodes_AC6B6C84>
+  | SerializedTableCellNode<LexicalNodes_AC6B6C84>
+  | SerializedTableRowNode<LexicalNodes_AC6B6C84>
+  | SerializedQuoteNode<LexicalNodes_AC6B6C84>;
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "LexicalNodes_CDE4A8D8".
+ * via the `definition` "LexicalNodes_47B51DD2".
  */
-export type LexicalNodes_CDE4A8D8 =
+export type LexicalNodes_47B51DD2 =
   | SerializedTextNode
   | SerializedTabNode
   | SerializedLineBreakNode
-  | SerializedParagraphNode<LexicalNodes_CDE4A8D8>
-  | SerializedBlockNode<MediaBlock_51964C65 | KeyTakeawaysBlock | CallToActionBlock_337B961F | BannerBlock>
-  | SerializedAutoLinkNode<LexicalNodes_CDE4A8D8, LexicalLinkFields>
-  | SerializedLinkNode<LexicalNodes_CDE4A8D8, LexicalLinkFields>
-  | SerializedListNode<LexicalNodes_CDE4A8D8>
-  | SerializedListItemNode<LexicalNodes_CDE4A8D8>
-  | SerializedTableNode<LexicalNodes_CDE4A8D8>
-  | SerializedTableCellNode<LexicalNodes_CDE4A8D8>
-  | SerializedTableRowNode<LexicalNodes_CDE4A8D8>
+  | SerializedParagraphNode<LexicalNodes_47B51DD2>
+  | SerializedBlockNode<MediaBlock_80738E71 | KeyTakeawaysBlock | CallToActionBlock_337B961F | BannerBlock>
+  | SerializedAutoLinkNode<LexicalNodes_47B51DD2, LexicalLinkFields>
+  | SerializedLinkNode<LexicalNodes_47B51DD2, LexicalLinkFields>
+  | SerializedListNode<LexicalNodes_47B51DD2>
+  | SerializedListItemNode<LexicalNodes_47B51DD2>
+  | SerializedTableNode<LexicalNodes_47B51DD2>
+  | SerializedTableCellNode<LexicalNodes_47B51DD2>
+  | SerializedTableRowNode<LexicalNodes_47B51DD2>
   | SerializedHorizontalRuleNode
-  | SerializedQuoteNode<LexicalNodes_CDE4A8D8>
-  | SerializedHeadingNode<LexicalNodes_CDE4A8D8, 'h2' | 'h3' | 'h4'>;
+  | SerializedQuoteNode<LexicalNodes_47B51DD2>
+  | SerializedHeadingNode<LexicalNodes_47B51DD2, 'h2' | 'h3' | 'h4'>;
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "LexicalNodes_46081D0A".
@@ -446,7 +446,7 @@ export interface Post {
   id: string;
   title: string;
   heroImage?: (string | null) | Media;
-  content: LexicalRichText<LexicalNodes_EF9C53C2>;
+  content: LexicalRichText<LexicalNodes_AC6B6C84>;
   relatedPosts?: (string | Post)[] | null;
   categories?: (string | Category)[] | null;
   meta?: {
@@ -471,6 +471,8 @@ export interface Post {
   _status?: ('draft' | 'published') | null;
 }
 /**
+ * Images: JPEG, PNG, WebP, AVIF, GIF; ratios 1:1, 4:3, 3:2, 16:9, 9:16, 4:5 (1% tolerance). Video: MP4, H.264, AAC or MP3 audio; maximum 100 MB and 10 minutes; ratios 16:9, 9:16, 1:1, 4:5 (1% tolerance). Enable Fast Start / Web Optimized when exporting video.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "media".
  */
@@ -479,6 +481,9 @@ export interface Media {
   alt?: string | null;
   durationSeconds?: number | null;
   _h_folders?: (string | null) | Folder;
+  /**
+   * Default caption shown when this media is used in a Media block. A caption set on the block overrides it.
+   */
   caption?: LexicalRichText<LexicalNodes_46081D0A> | null;
   updatedAt: string;
   createdAt: string;
@@ -663,6 +668,9 @@ export interface CallToActionBlock {
  */
 export interface MediaBlock {
   media: string | Media;
+  /**
+   * Overrides the media's default caption for this block only.
+   */
   caption?: LexicalRichText<LexicalNodes_47D10C91> | null;
   /**
    * Original keeps the media proportions. Other ratios crop the image or video to fill the frame.
@@ -896,7 +904,7 @@ export interface Blog {
   title: string;
   heroImage: string | Media;
   excerpt: string;
-  content: LexicalRichText<LexicalNodes_CDE4A8D8>;
+  content: LexicalRichText<LexicalNodes_47B51DD2>;
   meta?: {
     title?: string | null;
     /**
@@ -2784,12 +2792,15 @@ export interface CodeBlock {
  * Multiple blocks resolve to the `MediaBlock` interface with different fields, so a content hash is appended to keep the generated types stable and unambiguous. Set a unique `interfaceName` on the block to choose the name yourself. See https://payloadcms.com/docs/typescript/generating-types#block-interface-name-collisions
  *
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "MediaBlock_51964C65".
+ * via the `definition` "MediaBlock_80738E71".
  */
-export interface MediaBlock_51964C65 {
+export interface MediaBlock_80738E71 {
   id: string;
   blockType: 'mediaBlock';
   media: string | Media;
+  /**
+   * Overrides the media's default caption for this block only.
+   */
   caption?: LexicalRichText<LexicalNodes_47D10C91> | null;
   /**
    * Original keeps the media proportions. Other ratios crop the image or video to fill the frame.

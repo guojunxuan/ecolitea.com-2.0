@@ -1,3 +1,4 @@
+import { imageOnly } from '@/collections/mediaUploadPolicy'
 import type { CollectionConfig } from 'payload'
 
 import { authenticated } from '../../access/authenticated'
@@ -91,6 +92,7 @@ export const Pages: CollectionConfig = {
               hasGenerateFn: true,
             }),
             MetaImageField({
+              overrides: { filterOptions: imageOnly },
               relationTo: 'media',
               hasGenerateFn: true,
             }),

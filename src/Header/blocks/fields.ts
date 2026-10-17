@@ -1,6 +1,6 @@
 import type { Field } from 'payload'
 
-import { MEDIA_UPLOAD_POLICY } from '@/collections/mediaUploadPolicy'
+import { imageOnly } from '@/collections/mediaUploadPolicy'
 import { trimText, validateNonBlankText } from '@/fields/linkValidation'
 import { labeledNavigationLink, unlabeledNavigationLink } from '@/Header/fields/links'
 import { HEADER_CARD_ITEMS_MAX, HEADER_CARD_ITEMS_MIN } from '@/Header/policy'
@@ -49,11 +49,7 @@ export const imageField = (): Field => ({
   type: 'upload',
   relationTo: 'media',
   required: true,
-  filterOptions: {
-    mimeType: {
-      in: [...MEDIA_UPLOAD_POLICY.image.mimeTypes],
-    },
-  },
+  filterOptions: imageOnly,
 })
 
 export const titleField = (): Field => ({

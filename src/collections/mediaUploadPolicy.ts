@@ -1,6 +1,6 @@
-import { readFile, stat } from 'node:fs/promises'
+import { stat } from 'node:fs/promises'
 
-import { APIError, type CollectionBeforeValidateHook } from 'payload'
+import { APIError, type CollectionBeforeValidateHook, type Where } from 'payload'
 
 import { parseMP4Metadata } from './parseMP4Metadata'
 
@@ -18,6 +18,13 @@ export const MEDIA_UPLOAD_POLICY = {
     ratioTolerance: 0.01,
   },
   video: {
+    ratios: [
+      { label: '16:9', width: 16, height: 9 },
+      { label: '9:16', width: 9, height: 16 },
+      { label: '1:1', width: 1, height: 1 },
+      { label: '4:5', width: 4, height: 5 },
+    ],
+    ratioTolerance: 0.01,
     maxBytes: 100_000_000,
     maxDurationSeconds: 10 * 60,
     mimeTypes: ['video/mp4'],
@@ -25,6 +32,44 @@ export const MEDIA_UPLOAD_POLICY = {
     audioCodecPrefixes: ['mp4a.40.', 'mp4a.69', 'mp4a.6a', 'mp4a.6b', 'mp3', '.mp3'],
   },
 } as const
+
+export const imageOnly: Where = { mimeType: { in: [...MEDIA_UPLOAD_POLICY.image.mimeTypes] } }
+export const imageOrVideo: Where = {
+  mimeType: {
+    in: [...MEDIA_UPLOAD_POLICY.image.mimeTypes, ...MEDIA_UPLOAD_POLICY.video.mimeTypes],
+  },
+}
+const imageTypeNames = MEDIA_UPLOAD_POLICY.image.mimeTypes
+  .map(
+    (mime) =>
+      ({
+        'image/jpeg': 'JPEG',
+        'image/png': 'PNG',
+        'image/webp': 'WebP',
+        'image/avif': 'AVIF',
+        'image/gif': 'GIF',
+      })[mime],
+  )
+  .join(', ')
+const videoTypeNames = MEDIA_UPLOAD_POLICY.video.mimeTypes
+  .map((mime) => ({ 'video/mp4': 'MP4' })[mime])
+  .join(', ')
+export const mediaUploadDescription = `Images: ${imageTypeNames}; ratios ${MEDIA_UPLOAD_POLICY.image.ratios.map(({ label }) => label).join(', ')} (1% tolerance). Video: ${videoTypeNames}, H.264, AAC or MP3 audio; maximum ${MEDIA_UPLOAD_POLICY.video.maxBytes / 1_000_000} MB and ${MEDIA_UPLOAD_POLICY.video.maxDurationSeconds / 60} minutes; ratios ${MEDIA_UPLOAD_POLICY.video.ratios.map(({ label }) => label).join(', ')} (1% tolerance). Enable Fast Start / Web Optimized when exporting video.`
+
+export const validateVideoDimensions = (width: number, height: number): true | string => {
+  const actual = width / height
+  return (
+    (Number.isFinite(actual) &&
+      width > 0 &&
+      height > 0 &&
+      MEDIA_UPLOAD_POLICY.video.ratios.some(
+        (ratio) =>
+          actual >= (ratio.width / ratio.height) * (1 - MEDIA_UPLOAD_POLICY.video.ratioTolerance) &&
+          actual <= (ratio.width / ratio.height) * (1 + MEDIA_UPLOAD_POLICY.video.ratioTolerance),
+      )) ||
+    `Video is ${width}×${height}. Accepted ratios: ${MEDIA_UPLOAD_POLICY.video.ratios.map(({ label }) => label).join(', ')}.`
+  )
+}
 
 export const validateImageDimensions = (
   width?: number | null,
@@ -101,16 +146,6 @@ const rejectUpload = (message: string): never => {
   throw new APIError(message, 400)
 }
 
-const readUploadedFile = async (file: {
-  data?: Buffer
-  tempFilePath?: string
-}): Promise<Buffer> => {
-  if (file.tempFilePath) return readFile(file.tempFilePath)
-  if (Buffer.isBuffer(file.data)) return file.data
-
-  return rejectUpload('Uploaded video bytes could not be read.')
-}
-
 const getObservedUploadSizes = async (
   file: { data?: Buffer; size?: number; tempFilePath?: string },
   generatedFilesize?: number | null,
@@ -124,27 +159,28 @@ const getObservedUploadSizes = async (
   return sizes
 }
 
-const withoutDurationSeconds = <T extends Record<string, unknown> | undefined>(data: T) => {
-  if (!data || !('durationSeconds' in data)) return data
+const withoutSourceMetadata = <T extends Record<string, unknown> | undefined>(data: T) => {
+  if (!data || !['durationSeconds', 'width', 'height'].some((key) => key in data)) return data
 
-  const { durationSeconds: _durationSeconds, ...safeData } = data
+  const { durationSeconds: _durationSeconds, width: _width, height: _height, ...safeData } = data
   return safeData
 }
 
 export const validateMediaUpload: CollectionBeforeValidateHook = async ({ data, req }) => {
   const file = req.file
-  if (!file) return withoutDurationSeconds(data)
+  if (!file) return withoutSourceMetadata(data)
 
   const mimeType = file.mimetype || data?.mimeType
+  if (
+    ![...MEDIA_UPLOAD_POLICY.image.mimeTypes, ...MEDIA_UPLOAD_POLICY.video.mimeTypes].includes(
+      mimeType as never,
+    )
+  ) {
+    return rejectUpload(
+      `Unsupported file type: ${mimeType || 'unknown'}. Media accepts images (${imageTypeNames}) and video (${videoTypeNames}).`,
+    )
+  }
   if (mimeType?.startsWith('image/')) {
-    if (!(MEDIA_UPLOAD_POLICY.image.mimeTypes as readonly string[]).includes(mimeType)) {
-      return rejectUpload(
-        mimeType === 'image/svg+xml'
-          ? 'SVG files belong in Site Assets, not Media.'
-          : 'Image file type is not supported.',
-      )
-    }
-
     const result = validateImageDimensions(data?.width, data?.height)
     if (result !== true) rejectUpload(result)
 
@@ -152,10 +188,6 @@ export const validateMediaUpload: CollectionBeforeValidateHook = async ({ data, 
   }
 
   if (mimeType?.startsWith('video/')) {
-    if (!MEDIA_UPLOAD_POLICY.video.mimeTypes.includes(mimeType as 'video/mp4')) {
-      return rejectUpload('Video must use the MP4 container (video/mp4).')
-    }
-
     let observedSizes: number[]
     try {
       observedSizes = await getObservedUploadSizes(file, data?.filesize)
@@ -170,7 +202,9 @@ export const validateMediaUpload: CollectionBeforeValidateHook = async ({ data, 
 
     let metadata
     try {
-      metadata = await parseMP4Metadata(await readUploadedFile(file))
+      metadata = await parseMP4Metadata(
+        file.tempFilePath ? { tempFilePath: file.tempFilePath } : file.data,
+      )
     } catch (error) {
       return rejectUpload(
         error instanceof Error ? error.message : 'MP4 metadata could not be read.',
@@ -180,7 +214,14 @@ export const validateMediaUpload: CollectionBeforeValidateHook = async ({ data, 
     const result = validateVideoMetadata(metadata)
     if (result !== true) rejectUpload(result)
 
-    return { ...data, durationSeconds: metadata.durationSeconds }
+    const dimensions = validateVideoDimensions(metadata.width, metadata.height)
+    if (dimensions !== true) rejectUpload(dimensions)
+    return {
+      ...data,
+      width: metadata.width,
+      height: metadata.height,
+      durationSeconds: metadata.durationSeconds,
+    }
   }
 
   return { ...data, durationSeconds: null }

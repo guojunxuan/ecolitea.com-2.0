@@ -1,3 +1,4 @@
+import { imageOrVideo } from '@/collections/mediaUploadPolicy'
 import type { Block } from 'payload'
 import { compactLexical } from '@/fields/compactLexical'
 import { mediaAspectRatioOptions } from './aspectRatio'
@@ -19,8 +20,19 @@ export const MediaBlock: Block = {
     },
   },
   fields: [
-    { name: 'media', type: 'upload', relationTo: 'media', required: true },
-    { name: 'caption', type: 'richText', editor: compactLexical },
+    {
+      name: 'media',
+      type: 'upload',
+      relationTo: 'media',
+      filterOptions: imageOrVideo,
+      required: true,
+    },
+    {
+      name: 'caption',
+      type: 'richText',
+      editor: compactLexical,
+      admin: { description: "Overrides the media's default caption for this block only." },
+    },
     {
       name: 'aspectRatio',
       label: 'Aspect Ratio',

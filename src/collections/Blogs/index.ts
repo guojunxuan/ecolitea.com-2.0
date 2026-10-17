@@ -1,3 +1,4 @@
+import { imageOnly } from '@/collections/mediaUploadPolicy'
 import type { CollectionConfig } from 'payload'
 import {
   MetaDescriptionField,
@@ -53,7 +54,7 @@ export const Blogs: CollectionConfig = {
               type: 'upload',
               relationTo: 'media',
               required: true,
-              filterOptions: { mimeType: { contains: 'image/' } },
+              filterOptions: imageOnly,
             },
             { name: 'excerpt', type: 'textarea', required: true, maxLength: 160 },
             {
@@ -80,7 +81,11 @@ export const Blogs: CollectionConfig = {
               imagePath: 'meta.image',
             }),
             MetaTitleField({ hasGenerateFn: true }),
-            MetaImageField({ relationTo: 'media', hasGenerateFn: true }),
+            MetaImageField({
+              relationTo: 'media',
+              hasGenerateFn: true,
+              overrides: { filterOptions: imageOnly },
+            }),
             MetaDescriptionField({ hasGenerateFn: true }),
             PreviewField({
               hasGenerateFn: true,

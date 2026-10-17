@@ -1,3 +1,4 @@
+import { imageOnly } from '@/collections/mediaUploadPolicy'
 import type { Block } from 'payload'
 import { compactLexical } from '@/fields/compactLexical'
 import { linkGroup } from '@/fields/linkGroup'
@@ -27,7 +28,13 @@ export const CallToAction: Block = {
       },
     },
     { name: 'description', type: 'richText', editor: compactLexical },
-    { name: 'media', label: 'Card Media', type: 'upload', relationTo: 'media' },
+    {
+      name: 'media',
+      label: 'Card Media',
+      type: 'upload',
+      relationTo: 'media',
+      filterOptions: imageOnly,
+    },
     linkGroup({ appearances: ['default', 'outline'], overrides: { maxRows: 2 } }),
     {
       name: 'theme',
