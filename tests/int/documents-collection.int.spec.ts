@@ -11,7 +11,7 @@ import {
   type Payload,
   type TextFieldValidation,
 } from 'payload'
-import { afterAll, beforeAll, describe, expect, it } from 'vitest'
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
 import { Documents } from '@/collections/Documents'
 import { validateDocumentUpload } from '@/collections/Documents/validateDocumentUpload'
 import { validateTitle } from '@/collections/Documents/validateTitle'
@@ -73,6 +73,14 @@ describe('Documents uploads through real Payload Local API', () => {
     expect(process.env.DISABLE_R2_STORAGE).toBe('true')
     const config = await buildConfig({
       secret: 'documents-isolated-test-secret-at-least-32-characters',
+      email: () => ({
+        name: 'documents-test-no-email',
+        defaultFromAddress: 'documents-test@example.invalid',
+        defaultFromName: 'Documents tests',
+        sendEmail: async () => {
+          throw new Error('Documents upload tests must not send email.')
+        },
+      }),
       collections: [
         {
           slug: 'folders',
@@ -181,16 +189,25 @@ describe('Documents uploads through real Payload Local API', () => {
     ],
   ] as const)('rejects %s before storage writes', async (_, makeFile, message) => {
     const before = await readdir(directory)
-    const result = expect(
-      payload.create({
-        collection: 'documents',
-        data: { title: 'Tea certification' },
-        file: makeFile(),
-      }),
-    ).rejects
-    if (message === 'Invalid PDF file.')
-      await result.toMatchObject({ data: { errors: [{ path: 'file', message }] } })
-    else await result.toThrow(message)
+    const expectedPDFLog =
+      message === 'Invalid PDF file.'
+        ? vi.spyOn(payload.logger, 'error').mockImplementation(() => undefined)
+        : undefined
+    try {
+      const result = expect(
+        payload.create({
+          collection: 'documents',
+          data: { title: 'Tea certification' },
+          file: makeFile(),
+        }),
+      ).rejects
+      if (message === 'Invalid PDF file.') {
+        await result.toMatchObject({ data: { errors: [{ path: 'file', message }] } })
+        expect(expectedPDFLog?.mock.calls).toEqual([['Invalid PDF file.']])
+      } else await result.toThrow(message)
+    } finally {
+      expectedPDFLog?.mockRestore()
+    }
     expect(await readdir(directory)).toEqual(before)
   })
   it('enforces exact 10 MB boundary through the API', async () => {

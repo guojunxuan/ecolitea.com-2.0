@@ -42,10 +42,9 @@ type ContentType = { part?: string; type: string }
 function readContentTypes(source: string, invalid: () => never): ContentType[] {
   const xml = source.replace(/^\uFEFF/, '').replace(/^<\?xml\s+[^?]*\?>/, '')
   const types: ContentType[] = []
-  const stack: string[] = []
+  const stack: { name: string; namespaces: Map<string, string> }[] = []
   const parts = new Set<string>()
   let rootName = ''
-  let rootPrefix = ''
   let closed = false
   let cursor = 0
   const decode = (value: string) =>
@@ -80,7 +79,7 @@ function readContentTypes(source: string, invalid: () => never): ContentType[] {
     }
     const closing = /^<\/([A-Za-z_][\w:.-]*)\s*>/.exec(xml.slice(cursor))
     if (closing) {
-      if (!stack.length || stack.pop() !== closing[1]) invalid()
+      if (!stack.length || stack.pop()?.name !== closing[1]) invalid()
       if (!stack.length) closed = true
       cursor += closing[0].length
       continue
@@ -106,21 +105,31 @@ function readContentTypes(source: string, invalid: () => never): ContentType[] {
     }
     const selfClosing = xml.startsWith('/>', cursor)
     cursor += selfClosing ? 2 : 1
+    const namespaces = new Map(stack.at(-1)?.namespaces)
+    for (const [attribute, namespace] of Object.entries(attributes)) {
+      if (attribute === 'xmlns') namespaces.set('', namespace)
+      else if (attribute.startsWith('xmlns:')) {
+        const prefix = attribute.slice(6)
+        if (!/^[A-Za-z_][\w.-]*$/.test(prefix) || prefix === 'xmlns' || !namespace) invalid()
+        if (prefix === 'xml' && namespace !== 'http://www.w3.org/XML/1998/namespace') invalid()
+        namespaces.set(prefix, namespace)
+      }
+    }
+    const qualifiedName = /^(?:([A-Za-z_][\w.-]*):)?([A-Za-z_][\w.-]*)$/.exec(name)
+    if (
+      !qualifiedName ||
+      namespaces.get(qualifiedName[1] ?? '') !==
+        'http://schemas.openxmlformats.org/package/2006/content-types'
+    )
+      invalid()
+    const localName = qualifiedName![2]
     if (!stack.length) {
-      if (rootName || selfClosing || !/^(?:[A-Za-z_][\w.-]*:)?Types$/.test(name)) invalid()
+      if (rootName || selfClosing || localName !== 'Types') invalid()
       rootName = name
-      rootPrefix = name.includes(':') ? name.split(':')[0] + ':' : ''
-      const namespace = rootPrefix ? `xmlns:${rootPrefix.slice(0, -1)}` : 'xmlns'
-      if (attributes[namespace] !== 'http://schemas.openxmlformats.org/package/2006/content-types')
-        invalid()
     } else {
-      if (
-        stack[0] !== rootName ||
-        ![`${rootPrefix}Override`, `${rootPrefix}Default`].includes(name)
-      )
-        invalid()
+      if (stack[0].name !== rootName || !['Override', 'Default'].includes(localName)) invalid()
       if (!attributes.ContentType) invalid()
-      if (name === `${rootPrefix}Override`) {
+      if (localName === 'Override') {
         if (!attributes.PartName || parts.has(attributes.PartName)) invalid()
         parts.add(attributes.PartName)
         types.push({ part: attributes.PartName, type: attributes.ContentType })
@@ -129,7 +138,7 @@ function readContentTypes(source: string, invalid: () => never): ContentType[] {
         types.push({ type: attributes.ContentType })
       }
     }
-    if (!selfClosing) stack.push(name)
+    if (!selfClosing) stack.push({ name, namespaces })
   }
   if (!closed || stack.length) invalid()
   return types

@@ -176,6 +176,88 @@ describe('Bounded Office archive integrity', () => {
       expect(error).toMatchObject({ status: 400 })
     }
   })
+  describe('content-types namespaces', () => {
+    const namespace = 'http://schemas.openxmlformats.org/package/2006/content-types'
+    const validateXML = (xml: string) => {
+      const entries = officeEntries('docx')
+      entries['[Content_Types].xml'] = xml
+      validateOfficeArchive(zip(entries), 'docx')
+    }
+    const xml = officeEntries('docx')['[Content_Types].xml']
+    it.each([
+      [
+        'foreign default child namespace',
+        xml.replace('<Override ', '<Override xmlns="urn:not-opc" '),
+      ],
+      ['empty default child namespace', xml.replace('<Override ', '<Override xmlns="" ')],
+      [
+        'rebound root prefix',
+        xml
+          .replace('<Types xmlns=', '<opc:Types xmlns:opc=')
+          .replace('</Types>', '</opc:Types>')
+          .replace('<Override ', '<opc:Override xmlns:opc="urn:not-opc" '),
+      ],
+      ['undeclared child prefix', xml.replace('<Override ', '<unknown:Override ')],
+      ['reserved XML prefix rebinding', xml.replace('<Types ', '<Types xmlns:xml="urn:not-xml" ')],
+      ['reserved xmlns prefix', xml.replace('<Types ', '<Types xmlns:xmlns="urn:not-opc" ')],
+      ['empty prefixed declaration', xml.replace('<Types ', '<Types xmlns:ct="" ')],
+      [
+        'malformed namespace prefix',
+        xml.replace('<Types ', `<Types xmlns:ct:other="${namespace}" `),
+      ],
+      ['malformed qualified name', xml.replace('<Override ', '<opc:other:Override ')],
+    ])('rejects %s', (_, fixture) => {
+      expect(() => validateXML(fixture)).toThrow('File is not a valid Word document.')
+    })
+    it.each([
+      [
+        'child-declared equivalent prefix',
+        xml.replace('<Override ', `<ct:Override xmlns:ct="${namespace}" `),
+      ],
+      [
+        'inherited equivalent prefix',
+        xml
+          .replace('<Types ', `<Types xmlns:ct="${namespace}" `)
+          .replace('<Override ', '<ct:Override '),
+      ],
+      [
+        'different root and child prefixes',
+        xml
+          .replace('<Types xmlns=', '<opc:Types xmlns:opc=')
+          .replace('</Types>', '</opc:Types>')
+          .replace('<Override ', `<ct:Override xmlns:ct="${namespace}" `),
+      ],
+      [
+        'default namespace under prefixed root',
+        xml
+          .replace('<Types xmlns=', '<opc:Types xmlns:opc=')
+          .replace('</Types>', '</opc:Types>')
+          .replace('<Override ', `<Override xmlns="${namespace}" `),
+      ],
+      [
+        'paired child with equivalent prefix',
+        xml
+          .replace('<Override ', `<ct:Override xmlns:ct="${namespace}" `)
+          .replace('/></Types>', '></ct:Override></Types>'),
+      ],
+      [
+        'self-closing child scope restored',
+        xml.replace(
+          '<Override ',
+          `<ct:Default xmlns="urn:foreign" xmlns:ct="${namespace}" Extension="xml" ContentType="application/xml"/><Override `,
+        ),
+      ],
+      [
+        'paired child scope restored',
+        xml.replace(
+          '<Override ',
+          `<ct:Default xmlns="urn:foreign" xmlns:ct="${namespace}" Extension="xml" ContentType="application/xml"></ct:Default><Override `,
+        ),
+      ],
+    ])('accepts %s', (_, fixture) => {
+      expect(() => validateXML(fixture)).not.toThrow()
+    })
+  })
   it.each(['word/vbaProject.bin', 'WORD/VBAPROJECT.BIN', 'vbaProject.bin'])(
     'rejects macro entry %s',
     (name) => {
