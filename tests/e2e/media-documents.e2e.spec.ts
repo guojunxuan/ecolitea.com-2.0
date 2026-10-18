@@ -187,8 +187,15 @@ test.describe('Media and Documents native Admin workflows', () => {
         'No current references.',
       )
       if (extension === 'pdf') {
-        await expect(page.locator('iframe')).toBeVisible()
-        const preview = await page.request.get(new URL(doc.url, baseURL).href)
+        const iframe = page.locator('iframe')
+        await expect(iframe).toBeVisible()
+        const source = await iframe.getAttribute('src')
+        expect(source).toBeTruthy()
+        const previewURL = new URL(source!, baseURL)
+        const documentURL = new URL(doc.url, baseURL)
+        expect(previewURL.origin).toBe(documentURL.origin)
+        expect(previewURL.pathname).toBe(documentURL.pathname)
+        const preview = await page.request.get(previewURL.href)
         expect(preview.status()).toBe(200)
         expect(preview.headers()['content-type']).toBe('application/pdf')
         expect(await preview.body()).toEqual(browserPDF())
@@ -209,7 +216,16 @@ test.describe('Media and Documents native Admin workflows', () => {
   test('prefills both batch forms independently and preserves edited text', async ({ page }) => {
     for (const collection of ['media', 'documents'] as const) {
       await page.goto(`${baseURL}/admin/collections/${collection}`)
+      const access = page.waitForResponse(
+        (response) =>
+          response.request().method() === 'POST' &&
+          new URL(response.url()).pathname === `/api/${collection}/access` &&
+          response.request().postData()?.includes('published') === true,
+      )
       await page.getByRole('button', { name: 'Bulk Upload', exact: true }).click()
+      const permissions = await access
+      expect(permissions.ok()).toBe(true)
+      expect(await permissions.json()).toMatchObject({ create: true })
       await page.waitForLoadState('networkidle')
       const extension = collection === 'media' ? 'png' : 'pdf'
       const buffer =
@@ -230,6 +246,12 @@ test.describe('Media and Documents native Admin workflows', () => {
       )
       const field = page.locator(`input[name=${collection === 'media' ? 'alt' : 'title'}]`)
       await expect(field).toHaveValue(names[0])
+      // Exercise the native row selection after permissions initialize.
+      await page.getByRole('button', { name: new RegExp(`${names[1]}[.]${extension}`) }).click()
+      await expect(field).toHaveValue(names[1])
+      await page.getByRole('button', { name: new RegExp(`${names[0]}[.]${extension}`) }).click()
+      await expect(field).toHaveValue(names[0])
+      await expect(field).toBeEnabled()
       await field.fill('A carefully edited tea resource')
       await page.getByRole('button', { name: new RegExp(`${names[1]}[.]${extension}`) }).click()
       await expect(field).toHaveValue(names[1])
@@ -247,6 +269,19 @@ test.describe('Media and Documents native Admin workflows', () => {
             ).totalDocs,
         )
         .toBe(2)
+      const saved = await payload.find({
+        collection,
+        depth: 0,
+        where: { filename: { in: names.map((name) => `${name}.${extension}`) } },
+      })
+      expect(saved.totalDocs).toBe(2)
+      for (const [index, name] of names.entries()) {
+        const record = saved.docs.find((doc) => doc.filename === `${name}.${extension}`)
+        expect(record).toBeDefined()
+        expect(
+          record && ('alt' in record ? record.alt : 'title' in record ? record.title : undefined),
+        ).toBe(index === 0 ? 'A carefully edited tea resource' : name)
+      }
       await expect(page.getByRole('dialog', { name: 'Bulk Upload', exact: true })).toHaveCount(0)
     }
   })

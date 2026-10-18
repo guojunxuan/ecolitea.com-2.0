@@ -45,6 +45,7 @@ export async function findDocumentReferences(
   if (!ids.length) return []
   const targets = new Set(ids.map(String))
   const references: DocumentReference[] = []
+  const currentLocations = new Set<string>()
   const adminRoute = payload.config.routes.admin.replace(/\/$/, '')
   const options = {
     depth: 0,
@@ -84,6 +85,17 @@ export async function findDocumentReferences(
         ? `${adminRoute}/globals/${encodeURIComponent(owner.slug)}`
         : `${adminRoute}/collections/${encodeURIComponent(owner.slug)}${ownerDocumentID ? `/${encodeURIComponent(ownerDocumentID)}` : ''}`
     for (const match of targetPaths(data, targets)) {
+      if (kind === 'current') {
+        const location = JSON.stringify([
+          ownerType,
+          owner.slug,
+          ownerDocumentID,
+          match.documentID,
+          match.path,
+        ])
+        if (currentLocations.has(location)) continue
+        currentLocations.add(location)
+      }
       references.push({
         ...match,
         kind,
@@ -114,6 +126,14 @@ export async function findDocumentReferences(
       payload.find({ ...paging, collection: collectionSlug, page, trash: true }),
     ))
       inspect(doc, owner, 'collection', 'current')
+    // A working draft lives in versions, while the stored/published document can
+    // still reference different resources. Both are current and protect deletion.
+    if (collection.versions?.drafts) {
+      for (const doc of await allPages((page) =>
+        payload.find({ ...paging, collection: collectionSlug, page, trash: true, draft: true }),
+      ))
+        inspect(doc, owner, 'collection', 'current')
+    }
     if (collection.versions) {
       for (const version of await allPages((page) =>
         payload.findVersions({ ...paging, collection: collectionSlug, page, trash: true }),
@@ -128,6 +148,14 @@ export async function findDocumentReferences(
     }
     const slug = global.slug as GlobalSlug
     inspect(await payload.findGlobal({ ...options, slug }), owner, 'global', 'current')
+    if (global.versions?.drafts) {
+      inspect(
+        await payload.findGlobal({ ...options, slug, draft: true }),
+        owner,
+        'global',
+        'current',
+      )
+    }
     if (global.versions) {
       for (const version of await allPages((page) =>
         payload.findGlobalVersions({ ...paging, slug, page }),

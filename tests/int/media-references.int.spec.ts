@@ -218,6 +218,54 @@ describe('shared Media reference scanner', () => {
       /incomplete reference inspection/i,
     )
   })
+  it('fully paginates and deduplicates stored/draft locations with all locales and trash included', async () => {
+    const payload = fakePayload()
+    payload.config.collections = [
+      { slug: 'blogs', versions: { drafts: { autosave: true } } },
+    ] as never
+    payload.config.globals = []
+    payload.find.mockImplementation(async (args) => {
+      const { page: currentPage, draft } = args as { page: number; draft?: boolean }
+      return page(
+        [{ id: `owner-${currentPage}`, image: '12', ...(draft ? { draftImage: '12' } : {}) }],
+        {
+          page: currentPage,
+          totalDocs: 2,
+          totalPages: 2,
+          hasNextPage: currentPage === 1,
+          nextPage: currentPage === 1 ? 2 : null,
+        },
+      )
+    })
+    payload.findVersions.mockResolvedValue(page([]))
+    const current = (await findMediaReferences(payload as unknown as Payload, ['12'])).filter(
+      (ref) => ref.kind === 'current',
+    )
+    expect(current).toHaveLength(4)
+    expect(payload.find).toHaveBeenCalledTimes(4)
+    expect(payload.find).toHaveBeenCalledWith(
+      expect.objectContaining({ draft: true, page: 2, locale: 'all', trash: true }),
+    )
+  })
+  it('fails closed when the latest collection or Global draft cannot be inspected', async () => {
+    const payload = fakePayload()
+    payload.config.collections = [{ slug: 'blogs', versions: { drafts: true } }] as never
+    payload.find.mockImplementation(async (args) =>
+      (args as { draft?: boolean }).draft ? page([], { totalDocs: 1 }) : page([]),
+    )
+    await expect(findMediaReferences(payload as unknown as Payload, ['12'])).rejects.toThrow(
+      /incomplete reference inspection/i,
+    )
+    payload.config.collections = []
+    payload.config.globals = [{ slug: 'header', versions: { drafts: true } }] as never
+    payload.findGlobal.mockImplementation(async (args) => {
+      if ((args as { draft?: boolean }).draft) throw new Error('Draft unavailable')
+      return {} as never
+    })
+    await expect(findMediaReferences(payload as unknown as Payload, ['12'])).rejects.toThrow(
+      'Draft unavailable',
+    )
+  })
   it('does no queries for an empty ID list', async () => {
     const payload = fakePayload()
     expect(await (await scanner())(payload as unknown as Payload, [])).toEqual([])
@@ -235,10 +283,16 @@ describe('Media protection through the real Payload API', () => {
   let payload: Payload
   let mediaID: string
   let cacheKey: string
+  let databaseURI: string
   beforeAll(async () => {
     const databaseName = `ecolitea2-media-references-${randomUUID()}`
     cacheKey = databaseName
-    const url = createIsolatedTestDatabaseURI(databaseName)
+    const url = createIsolatedTestDatabaseURI(
+      databaseName,
+      'mongodb://127.0.0.1:27017/ecolitea2-test',
+    )
+    databaseURI = url
+    expect(process.env.DISABLE_R2_STORAGE).toBe('true')
     console.info(
       `Media reference target: ${url}; DISABLE_R2_STORAGE=true; no storage plugins, local storage disabled`,
     )
@@ -286,7 +340,7 @@ describe('Media protection through the real Payload API', () => {
           },
           {
             slug: 'blogs',
-            versions: true,
+            versions: { drafts: { autosave: true } },
             access: { read: () => false },
             fields: [
               { name: 'title', type: 'text' },
@@ -297,7 +351,7 @@ describe('Media protection through the real Payload API', () => {
         globals: [
           {
             slug: 'header',
-            versions: true,
+            versions: { drafts: { autosave: true } },
             fields: [
               {
                 name: 'navItems',
@@ -316,6 +370,7 @@ describe('Media protection through the real Payload API', () => {
   }, 15000)
   afterAll(async () => {
     if (payload) {
+      console.info(`Dropping only isolated Media reference database: ${databaseURI}`)
       await (payload.db as MongooseAdapter).connection.dropDatabase()
       await payload.destroy()
     }
@@ -414,4 +469,152 @@ describe('Media protection through the real Payload API', () => {
       doc.id,
     )
   })
+
+  it.each([false, true])(
+    'protects stored and latest collection drafts (autosave=%s), then ignores superseded history',
+    async (autosave) => {
+      const asset = await payload.create({
+        collection: 'media',
+        data: { alt: 'Draft tea resource' },
+      })
+      const owner = await payload.create({
+        collection: 'blogs',
+        data: { title: 'Draft tea story', _status: 'published' } as never,
+      })
+      const update = (heroImage: string | null, draft: boolean) =>
+        payload.update({
+          collection: 'blogs',
+          id: owner.id,
+          draft,
+          autosave: draft && autosave,
+          data: { heroImage, _status: draft ? 'draft' : 'published' } as never,
+        })
+      const current = async () =>
+        (await findMediaReferences(payload, [asset.id])).filter((ref) => ref.kind === 'current')
+      await update(String(asset.id), true)
+      expect(await current()).toEqual([
+        expect.objectContaining({ ownerSlug: 'blogs', path: 'heroImage.en' }),
+      ])
+      await expect(payload.delete({ collection: 'media', id: asset.id })).rejects.toThrow(
+        /Remove these references first/,
+      )
+      const batch = await payload.delete({
+        collection: 'media',
+        where: { id: { equals: asset.id } },
+      })
+      expect(batch.docs).toHaveLength(0)
+      expect(batch.errors).toHaveLength(1)
+      const response = await handleEndpoints({
+        config: payload.config,
+        payloadInstanceCacheKey: cacheKey,
+        request: new Request(`http://localhost/api/media/${asset.id}`, {
+          method: 'DELETE',
+          headers: { 'x-test-user': 'fixture' },
+        }),
+      })
+      expect(response.status).toBe(400)
+      expect(await response.json()).toMatchObject({
+        errors: [{ message: expect.stringContaining('Remove these references first.') }],
+      })
+      await update(String(asset.id), false)
+      // Both stored and draft copies share one owner/path in the current union.
+      await update(String(asset.id), true)
+      expect(await current()).toHaveLength(1)
+      await update(null, true)
+      expect(await current()).toHaveLength(1)
+      await expect(payload.delete({ collection: 'media', id: asset.id })).rejects.toThrow(
+        /Remove these references first/,
+      )
+      await update(null, false)
+      await update(null, true)
+      expect(await current()).toEqual([])
+      expect(
+        (await findMediaReferences(payload, [asset.id])).some((ref) => ref.kind === 'version'),
+      ).toBe(true)
+      await expect(payload.delete({ collection: 'media', id: asset.id })).resolves.toHaveProperty(
+        'id',
+        asset.id,
+      )
+    },
+  )
+  it.each([false, true])(
+    'protects stored and latest Global drafts (autosave=%s), then ignores superseded history',
+    async (autosave) => {
+      const asset = await payload.create({
+        collection: 'media',
+        data: { alt: 'Global draft tea resource' },
+      })
+      await payload.updateGlobal({
+        slug: 'header',
+        data: { navItems: [], _status: 'published' } as never,
+      })
+      const update = async (image: string | null, draft: boolean) => {
+        const response = await handleEndpoints({
+          config: payload.config,
+          payloadInstanceCacheKey: cacheKey,
+          request: new Request(
+            `http://localhost/api/globals/header?draft=${draft}&autosave=${draft && autosave}`,
+            {
+              method: 'POST',
+              headers: { 'x-test-user': 'fixture', 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                navItems: image ? [{ image }] : [],
+                _status: draft ? 'draft' : 'published',
+              }),
+            },
+          ),
+        })
+        expect(response.status).toBe(200)
+      }
+      const current = async () =>
+        (await findMediaReferences(payload, [asset.id])).filter((ref) => ref.kind === 'current')
+      await update(String(asset.id), true)
+      expect(await current()).toEqual([
+        expect.objectContaining({
+          ownerType: 'global',
+          ownerSlug: 'header',
+          path: 'navItems[0].image',
+        }),
+      ])
+      await expect(payload.delete({ collection: 'media', id: asset.id })).rejects.toThrow(
+        /Remove these references first/,
+      )
+      const batch = await payload.delete({
+        collection: 'media',
+        where: { id: { equals: asset.id } },
+      })
+      expect(batch.docs).toHaveLength(0)
+      expect(batch.errors).toHaveLength(1)
+      const response = await handleEndpoints({
+        config: payload.config,
+        payloadInstanceCacheKey: cacheKey,
+        request: new Request(`http://localhost/api/media/${asset.id}`, {
+          method: 'DELETE',
+          headers: { 'x-test-user': 'fixture' },
+        }),
+      })
+      expect(response.status).toBe(400)
+      expect(await response.json()).toMatchObject({
+        errors: [{ message: expect.stringContaining('Header') }],
+      })
+      await update(String(asset.id), false)
+      await update(String(asset.id), true)
+      expect(await current()).toHaveLength(1)
+      await update(null, true)
+      expect(await current()).toHaveLength(1)
+      await expect(payload.delete({ collection: 'media', id: asset.id })).rejects.toThrow(
+        /Remove these references first/,
+      )
+      await update(null, false)
+      await update(null, true)
+      expect(await current()).toEqual([])
+      expect(
+        (await findMediaReferences(payload, [asset.id])).some((ref) => ref.kind === 'version'),
+      ).toBe(true)
+      await expect(payload.delete({ collection: 'media', id: asset.id })).resolves.toHaveProperty(
+        'id',
+        asset.id,
+      )
+    },
+  )
 })
