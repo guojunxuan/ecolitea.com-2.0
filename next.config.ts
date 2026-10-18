@@ -35,6 +35,15 @@ const nextConfig: NextConfig = {
       }),
     ],
   },
+  // Payload's file-type dependency uses dynamic Node imports. Externalize the
+  // root package so standalone tracing includes its transitive runtime modules
+  // without relying on pnpm's NODE_PATH or a project-root file-type install.
+  serverExternalPackages: ['payload'],
+  // file-type loads strtok3's filesystem entry through a non-literal import,
+  // which NFT cannot infer from its statically traced core entry.
+  outputFileTracingIncludes: {
+    '/api/*': ['./node_modules/.pnpm/strtok3@*/node_modules/strtok3/lib/**/*.js'],
+  },
   webpack: (webpackConfig) => {
     webpackConfig.resolve.extensionAlias = {
       '.cjs': ['.cts', '.cjs'],

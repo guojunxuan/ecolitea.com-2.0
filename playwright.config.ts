@@ -56,6 +56,9 @@ process.env.PREVIEW_SECRET = 'e2e-only-preview-secret'
 process.env.PLAYWRIGHT_TEST = 'true'
 process.env.PLAYWRIGHT_E2E_RUN_ID = e2eRunID
 process.env.PLAYWRIGHT_BASE_URL = e2eBaseURL
+// Native upload actions use absolute thumbnail URLs; pin them to this test
+// server before both the fixtures and Next's build read the environment.
+process.env.NEXT_PUBLIC_SERVER_URL = e2eBaseURL
 process.env.R2_ACCESS_KEY_ID = 'e2e-local-access-key'
 process.env.R2_ENDPOINT = e2eStorageEndpoint
 process.env.R2_PUBLIC_URL = e2eMediaOrigin
@@ -120,6 +123,9 @@ export default defineConfig({
         // `tsx/esm` is required for Playwright to load this config, but Next's
         // TypeScript config loader must not inherit it on Node 24.
         NODE_OPTIONS: '--no-deprecation',
+        // pnpm bin shims expose transitive dependencies through NODE_PATH.
+        // Standalone production builds must resolve solely from their trace.
+        NODE_PATH: '',
         PLAYWRIGHT_BASE_URL: e2eBaseURL,
         PLAYWRIGHT_E2E_RUN_ID: e2eRunID,
         PLAYWRIGHT_TEST: 'true',

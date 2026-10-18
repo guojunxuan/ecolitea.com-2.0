@@ -75,6 +75,16 @@ corepack pnpm build               # Create a production build
 corepack pnpm start               # Start a completed production build
 ```
 
+For Media and Documents regression checks, use the focused browser suite (MongoDB and Chromium required):
+
+```bash
+DISABLE_R2_STORAGE=true corepack pnpm test:e2e tests/e2e/media-documents.e2e.spec.ts --project=chromium
+```
+
+Playwright prints its unique test database before seeding, uses local uploads and builds a separate
+standalone application at the test origin. See the [Media upgrade checklist](docs/architecture/media-upgrade-checklist.md)
+for focused integration commands and the Payload native UI/storage contracts to recheck after upgrades.
+
 ## Payload migrations
 
 Migration files live in `src/migrations`; production migrations are run manually. The Site Assets

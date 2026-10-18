@@ -3,11 +3,13 @@ import React from 'react'
 import { formatFilesize } from 'payload/shared'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 let file: File | undefined
+let initializing = false
 let title = ''
 const setValue = vi.fn((value: string) => {
   title = value
 })
 vi.mock('@payloadcms/ui', () => ({
+  useFormInitializing: () => initializing,
   useDocumentInfo: () => ({ id: 'doc-1' }),
   useConfig: () => ({ config: { routes: { api: '/api' } } }),
   TextField: (props: { validate?: () => boolean }) => (
@@ -24,11 +26,23 @@ const field = () => <TitlePrefill path="title" field={{ name: 'title', type: 'te
 afterEach(() => {
   cleanup()
   file = undefined
+  initializing = false
   title = ''
   vi.clearAllMocks()
   vi.unstubAllGlobals()
 })
 describe('Documents Admin fields', () => {
+  it('waits for native batch Form initialization before recording the selected File', () => {
+    file = new File(['x'], 'Tea garden certificate.pdf')
+    initializing = true
+    const view = render(<TitlePrefill path="title" field={{ name: 'title', type: 'text' }} />)
+    expect(setValue).not.toHaveBeenCalled()
+    // The parent Form replaces initial state before its ready context flips.
+    title = ''
+    initializing = false
+    view.rerender(<TitlePrefill path="title" field={{ name: 'title', type: 'text' }} />)
+    expect(setValue).toHaveBeenCalledWith('Tea garden certificate')
+  })
   it('prefills basename without rewriting punctuation and keeps server validation authoritative', () => {
     file = new File(['x'], 'tea.certification.2026.pdf')
     render(field())

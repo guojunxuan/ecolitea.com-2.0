@@ -170,10 +170,11 @@ describe('independent Documents reference scanner', () => {
       /incomplete reference inspection/i,
     )
   })
-  it('ignores only Payload operational edit locks while inspecting hidden content collections', async () => {
+  it('ignores only Payload operational locks and preferences while inspecting hidden content collections', async () => {
     const payload = fakePayload()
     payload.config.collections = [
       { slug: 'payload-locked-documents', versions: false },
+      { slug: 'payload-preferences', versions: false },
       { slug: 'payload-custom-content', versions: false, admin: { hidden: true } },
     ] as never
     payload.config.globals = []
@@ -181,7 +182,9 @@ describe('independent Documents reference scanner', () => {
       page(
         collection === 'payload-locked-documents'
           ? [{ id: 'lock', document: { relationTo: 'documents', value: '12' } }]
-          : [],
+          : collection === 'payload-preferences'
+            ? [{ id: 'preference', value: { items: [{ id: '12' }] } }]
+            : [],
       ),
     )
     expect(await findDocumentReferences(payload as unknown as Payload, ['12'])).toEqual([])
@@ -428,6 +431,38 @@ describe('Documents protection through the real Payload API', () => {
       },
     })
     expect(await findDocumentReferences(payload, [doc.id])).toEqual([])
+    await expect(payload.delete({ collection: 'documents', id: doc.id })).resolves.toHaveProperty(
+      'id',
+      doc.id,
+    )
+  })
+  it('ignores native recent-document preferences while preserving content deletion protection', async () => {
+    const user = await payload.create({
+      collection: 'users',
+      data: { email: 'recent-owner@example.invalid', password: 'isolated-test-password-123' },
+    })
+    const doc = await payload.create({
+      collection: 'documents',
+      data: { title: 'Independent tea certificate' },
+    })
+    await payload.create({
+      collection: 'payload-preferences',
+      user,
+      data: {
+        user: { relationTo: 'users', value: user.id },
+        key: 'recent-documents',
+        value: { items: [{ id: doc.id, collectionSlug: 'documents' }] },
+      },
+    })
+    expect(await findDocumentReferences(payload, [doc.id])).toEqual([])
+    const blog = await payload.create({
+      collection: 'blogs',
+      data: { title: 'A real tea story', heroImage: doc.id } as never,
+    })
+    await expect(payload.delete({ collection: 'documents', id: doc.id })).rejects.toThrow(
+      /A real tea story/,
+    )
+    await payload.update({ collection: 'blogs', id: blog.id, data: { heroImage: null } as never })
     await expect(payload.delete({ collection: 'documents', id: doc.id })).resolves.toHaveProperty(
       'id',
       doc.id,

@@ -97,8 +97,13 @@ export async function findMediaReferences(
   }
 
   for (const collection of payload.config.collections) {
-    // Edit locks point at the open Media document; they are operational records, not content use.
-    if (collection.slug === 'media' || collection.slug === 'payload-locked-documents') continue
+    // Native edit locks and recent-document preferences are editor state, not content use.
+    if (
+      collection.slug === 'media' ||
+      collection.slug === 'payload-locked-documents' ||
+      collection.slug === 'payload-preferences'
+    )
+      continue
     const owner = {
       slug: collection.slug,
       titleField: collection.admin?.useAsTitle,
