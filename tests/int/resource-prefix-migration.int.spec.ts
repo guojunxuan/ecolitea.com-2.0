@@ -5,6 +5,8 @@ import {
   createInventory,
   runMigrationStage,
   parseArguments,
+  parseMigrationDatabase,
+  assertConnectedDatabase,
   type MigrationServices,
 } from '../../scripts/migrate-resource-prefixes'
 
@@ -449,5 +451,101 @@ describe('migration inventory binding and recovery guards', () => {
       }),
     ).rejects.toThrow(/verified/i)
     expect(f.services.storage.remove).not.toHaveBeenCalled()
+  })
+})
+
+describe('reviewed storage and database target guards', () => {
+  it('rejects cross-collection source/destination overlap even with identical objects', async () => {
+    const f = fixture()
+    f.docs['site-assets'].push({
+      id: 'a',
+      filename: 'photo.jpg',
+      prefix: 'media',
+      url: `${target.publicURL}/media/photo.jpg`,
+    })
+    f.objects.set('media/photo.jpg', 'same-bytes')
+    await expect(createInventory(f.services)).rejects.toThrow(/source.*destination.*overlap/i)
+    expect(f.services.storage.copy).not.toHaveBeenCalled()
+    expect(f.update).not.toHaveBeenCalled()
+    expect(f.services.storage.remove).not.toHaveBeenCalled()
+    expect(f.services.save).not.toHaveBeenCalled()
+  })
+  it.each(['copy', 'update', 'remove-originals'] as const)(
+    'rejects overlapping historical manifests before %s',
+    async (stage) => {
+      const f = fixture()
+      const manifest = await createInventory(f.services)
+      const asset = structuredClone(manifest.items[0])
+      asset.collection = 'site-assets'
+      asset.id = 'a'
+      asset.before = { prefix: 'media', url: `${target.publicURL}/media/photo.jpg` }
+      asset.after = { prefix: 'site-assets', url: `${target.publicURL}/site-assets/photo.jpg` }
+      Object.assign(asset.files[0], {
+        sourceKey: 'media/photo.jpg',
+        destinationKey: 'site-assets/photo.jpg',
+        oldURL: asset.before.url,
+        newURL: asset.after.url,
+      })
+      manifest.items.push(asset)
+      // Digest from the valid v1 report produced by the pre-guard implementation.
+      manifest.digest = '8ecd4faf46c4769cbbbf318aedca8060a29353703512e9c5fb998d085f5f8f4f'
+      f.docs['site-assets'].push({ id: 'a', filename: 'photo.jpg', ...asset.before })
+      f.objects.set('media/photo.jpg', 'same-bytes')
+      if (stage !== 'copy') {
+        f.objects.set('site-assets/photo.jpg', 'same-bytes')
+        for (const item of manifest.items) for (const file of item.files) file.copied = true
+      }
+      if (stage === 'remove-originals')
+        for (const item of manifest.items) {
+          item.updated = true
+          for (const file of item.files) file.verified = true
+          Object.assign(f.docs[item.collection][0], item.after)
+        }
+      await expect(
+        runMigrationStage(stage, manifest, f.services, { execute: true, confirm: stage }),
+      ).rejects.toThrow(/source.*destination.*overlap/i)
+      expect(f.services.storage.copy).not.toHaveBeenCalled()
+      expect(f.update).not.toHaveBeenCalled()
+      expect(f.services.storage.remove).not.toHaveBeenCalled()
+    },
+  )
+  it('permits an object whose source and destination belong only to that same file', async () => {
+    const f = fixture()
+    f.docs.media[0].prefix = 'media'
+    f.docs.media[0].url = `${target.publicURL}/media/photo.jpg`
+    f.objects.set('media/photo.jpg', 'same-bytes')
+    const manifest = await createInventory(f.services)
+    await runMigrationStage('copy', manifest, f.services, { execute: true })
+    expect(f.services.storage.copy).not.toHaveBeenCalled()
+  })
+  it.each([
+    'mongodb://localhost:27017',
+    'mongodb://localhost:27017/',
+    'mongodb://localhost:27017/?authSource=admin',
+  ])('rejects a missing explicit database before reporting target %s', (uri) => {
+    expect(() => parseMigrationDatabase(uri)).toThrow(/explicit database name/i)
+  })
+  it('decodes the approved database name and removes credentials from its report', () => {
+    const database = parseMigrationDatabase(
+      'mongodb://user:secret@localhost:27017/prefix%2Dtest?authSource=admin',
+    )
+    expect(database.name).toBe('prefix-test')
+    expect(database.target).toBe('mongodb://localhost:27017/prefix-test')
+    expect(database.target).not.toContain('secret')
+    expect(() => assertConnectedDatabase(database, 'prefix-test')).not.toThrow()
+    expect(() => assertConnectedDatabase(database, 'test')).toThrow(
+      /connected database.*does not match/i,
+    )
+    expect(() => assertConnectedDatabase(database, undefined)).toThrow(/connected database/i)
+  })
+  it.each([
+    'mongodb://localhost:27017/%2F',
+    'mongodb://localhost:27017/%20',
+    'mongodb://localhost:27017/bad%ZZ',
+    'mongodb://localhost:27017/one/two',
+  ])('rejects ambiguous or invalid encoded database paths %s', (uri) => {
+    expect(() => parseMigrationDatabase(uri)).toThrow(
+      /invalid database name|explicit database name/i,
+    )
   })
 })

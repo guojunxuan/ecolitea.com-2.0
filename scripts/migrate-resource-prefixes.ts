@@ -97,6 +97,55 @@ const inventoryDigest = (manifest: Manifest) =>
     })),
     mediaVersions: manifest.mediaVersions,
   })
+/** Reject implicit driver defaults and normalize the exact decoded database name for approval. */
+export function parseMigrationDatabase(uri: string): { name: string; target: string } {
+  const parsed = new URL(uri)
+  if (parsed.protocol !== 'mongodb:' && parsed.protocol !== 'mongodb+srv:')
+    throw new Error('Invalid database URI protocol.')
+  if (!parsed.pathname || parsed.pathname === '/')
+    throw new Error('An explicit database name is required in DATABASE_URI.')
+  let name: string
+  try {
+    name = decodeURIComponent(parsed.pathname.slice(1))
+  } catch {
+    throw new Error('Invalid database name encoding.')
+  }
+  // MongoDB forbids these database-name characters. Also reject extra/encoded path segments.
+  if (!name || /[\s/\\."$]/u.test(name) || name.includes(String.fromCharCode(0)))
+    throw new Error('Invalid database name in DATABASE_URI.')
+  return { name, target: `${parsed.protocol}//${parsed.host}/${encodeURIComponent(name)}` }
+}
+
+export function assertConnectedDatabase(
+  approved: { name: string },
+  connectedName: string | undefined,
+): void {
+  if (!connectedName || connectedName !== approved.name)
+    throw new Error('Connected database name does not match the approved explicit database name.')
+}
+
+/** Each source and destination has exactly one owner; only the same file may retain its own key. */
+function assertSafeStoragePlan(items: Item[]): void {
+  const sources = new Map<string, File>()
+  const destinations = new Map<string, File>()
+  for (const { files } of items)
+    for (const file of files) {
+      if (sources.has(file.sourceKey))
+        throw new Error(`Shared source key ${file.sourceKey}; manual reconciliation required.`)
+      if (destinations.has(file.destinationKey))
+        throw new Error(
+          `Shared destination key ${file.destinationKey}; manual reconciliation required.`,
+        )
+      sources.set(file.sourceKey, file)
+      destinations.set(file.destinationKey, file)
+    }
+  for (const [key, source] of sources) {
+    const destination = destinations.get(key)
+    if (destination && destination !== source)
+      throw new Error(`Source/destination key overlap at ${key}; manual reconciliation required.`)
+  }
+}
+
 const urlFor = (target: Target, key: string) =>
   `${target.publicURL.replace(/\/+$/, '')}/${key.split('/').map(encodeURIComponent).join('/')}`
 
@@ -216,6 +265,7 @@ export async function createInventory(services: MigrationServices): Promise<Mani
       })
     }
   }
+  assertSafeStoragePlan(items)
   const manifest: Manifest = {
     version: 1,
     target: services.target,
@@ -276,6 +326,7 @@ export async function runMigrationStage(
     targetFingerprint(manifest.target) !== targetFingerprint(services.target)
   )
     throw new Error('Manifest inventory or target mismatch.')
+  assertSafeStoragePlan(manifest.items)
   if (!stages.includes(stage) || stage === 'inventory')
     throw new Error('Create a new inventory explicitly.')
   if (!options.execute) return manifest
@@ -610,9 +661,9 @@ async function main() {
   // Load configuration only when invoked, never when test helpers are imported.
   await import('dotenv/config')
   const { serverEnv } = await import('../src/utilities/env')
-  const databaseURL = new URL(serverEnv.DATABASE_URI)
+  const approvedDatabase = parseMigrationDatabase(serverEnv.DATABASE_URI)
   const target: Target = {
-    database: `${databaseURL.protocol}//${databaseURL.host}${databaseURL.pathname}`,
+    database: approvedDatabase.target,
     bucket: serverEnv.R2_BUCKET,
     endpoint: new URL(serverEnv.R2_ENDPOINT).origin,
     publicURL: serverEnv.R2_PUBLIC_URL,
@@ -667,6 +718,12 @@ async function main() {
       const adapter = initializeDatabase(args) as Payload['db']
       if (adapter.name !== 'mongoose')
         throw new Error('Migration requires the reviewed MongoDB adapter.')
+      const afterOpenConnection = adapter.afterOpenConnection
+      adapter.afterOpenConnection = async (connectedAdapter) => {
+        // Verify the real driver-selected database before any existing connection hook can read/write.
+        assertConnectedDatabase(approvedDatabase, connectedAdapter.connection.db?.databaseName)
+        await afterOpenConnection?.(connectedAdapter)
+      }
       // Inventory must not create collections, indexes, or run production migrations.
       adapter.ensureIndexes = false
       adapter.prodMigrations = undefined
@@ -683,8 +740,10 @@ async function main() {
     },
   }
   const payload = await getPayload({ config: resolvedConfig })
-  const storage = await createInstalledS3Storage(process.env)
+  let storage: Awaited<ReturnType<typeof createInstalledS3Storage>> | undefined
   try {
+    assertConnectedDatabase(approvedDatabase, payload.db.connection.db?.databaseName)
+    storage = await createInstalledS3Storage(process.env)
     const mongo = payload.db.connection
     const mediaConfig = payload.config.collections.find((collection) => collection.slug === 'media')
     if (!mediaConfig || mediaConfig.dbName)
@@ -775,7 +834,7 @@ async function main() {
       `${JSON.stringify({ stage: options.stage, mode: options.execute ? 'execute' : 'dry-run', report: reportPath, records: manifest.items.length, inventoryDigest: manifest.digest, missingOriginals: manifest.items.filter((item) => !item.files[0].source).map((item) => `${item.collection}/${item.id}`), historicalReferences: manifest.references.filter((ref) => ref.kind === 'version').length, mediaVersions: manifest.mediaVersions.length }, null, 2)}\n`,
     )
   } finally {
-    storage.close()
+    storage?.close()
     await payload.destroy()
   }
 }
