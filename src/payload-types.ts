@@ -473,14 +473,12 @@ export interface Post {
   _status?: ('draft' | 'published') | null;
 }
 /**
- * Images: JPEG, PNG, WebP, AVIF, GIF; ratios 1:1, 4:3, 3:2, 16:9, 9:16, 4:5 (1% tolerance). Video: MP4, H.264, AAC or MP3 audio; maximum 100 MB and 10 minutes; ratios 16:9, 9:16, 1:1, 4:5 (1% tolerance). Enable Fast Start / Web Optimized when exporting video.
- *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "media".
  */
 export interface Media {
   id: string;
-  alt?: string | null;
+  alt: string;
   durationSeconds?: number | null;
   _h_folders?: (string | null) | Folder;
   /**

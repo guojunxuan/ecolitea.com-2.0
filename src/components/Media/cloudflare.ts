@@ -175,7 +175,7 @@ const buildCloudflareVideoTransformURL = (
   }
   if (fit) options.push(`fit=${fit}`)
 
-  return `${sourceURL.origin}/cdn-cgi/media/${options.join(',')}/${encodeURIComponent(sourceURL.href)}`
+  return `${sourceURL.origin}/cdn-cgi/media/${options.join(',')}/${sourceURL.href}`
 }
 
 export const buildCloudflareVideoURL = (args: VideoURLArgs): string =>

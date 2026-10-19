@@ -1,6 +1,5 @@
 import type { Endpoint, PayloadRequest } from 'payload'
 import { serverEnv } from '@/utilities/env'
-import { getServerSideURL } from '@/utilities/getURL'
 
 const headers = { 'Cache-Control': 'private, no-store' }
 const failure = (status: number, error: string) => Response.json({ error }, { status, headers })
@@ -20,7 +19,7 @@ function pathSegments(url: URL): string[] | undefined {
 function trustedSource(source: unknown, req: PayloadRequest): string | undefined {
   if (typeof source !== 'string' || !source || source.trim() !== source) return
   try {
-    const site = new URL(req.payload.config.serverURL || getServerSideURL())
+    const site = new URL(req.payload.config.serverURL || serverEnv.NEXT_PUBLIC_SERVER_URL)
     const url = new URL(source, site)
     if (!['http:', 'https:'].includes(url.protocol) || url.username || url.password || url.hash)
       return

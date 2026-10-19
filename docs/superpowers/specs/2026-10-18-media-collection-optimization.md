@@ -78,9 +78,31 @@ Documents Collection 的设计在本阶段完成后单独成文。下列事项�
 - 服务端比例校验保留为兜底（API、粘贴 URL 上传不弹框，直接拒绝）。需测试确认服务端校验读到的是裁剪后的尺寸。
 - 开启 `focalPoint`；前台裁切时将 `focalX`/`focalY` 作为 Cloudflare `gravity` 传入。已有图片焦点默认居中。
 
+**D6.1 裁剪框界面（2026-10-19 修订）**
+
+裁剪框兼作图片规则提示：Media 列表页不再展示上传规则说明，上传区域也不增加说明。界面尽量由 `@payloadcms/ui` 公开组件组成，与后台风格一致；仅裁剪区域使用 `react-image-crop`。
+
+| 部分 | 组件 | 内容 |
+|---|---|---|
+| 容器 | `DialogModal`（`size="large"`，`useModal()` 开关，项目自有 slug） | 替代原生 `<dialog>`，居中、遮罩、Esc 与焦点管理由 Payload 提供 |
+| 标题 | `DialogHeader` | 自动弹出：`Crop image to a supported ratio`；手动打开：`Crop image` |
+| 说明 | `Banner type="warning"`（仅自动弹出） | `This image is 1000 × 210 (4.76:1), which is not a supported ratio. Choose a ratio and adjust the crop.` |
+| 比例选择 | `Tabs` / `TabsList` / `TabButton`（单选分段） | 6 个比例，当前项高亮，默认最接近的比例；比例列表由 `MEDIA_UPLOAD_POLICY` 生成 |
+| 裁剪区域 | `react-image-crop`（锁定比例） | 图片最大高度 60vh |
+| 结果 | 文本（`DialogBody` 内） | `Result: 373 × 210 · 16:9`，随裁剪实时更新 |
+| 格式说明 | 次要文本 | `Images: JPEG, PNG, WebP, AVIF, GIF`，由 `MEDIA_UPLOAD_POLICY` 生成 |
+| 操作 | `DialogFooter` + `DialogCancel` + `DialogConfirm` | 自动弹出：`Choose another file`（清除已选文件，回到上传区）+ `Apply crop`；手动打开：`Cancel` + `Apply crop` |
+
+- 自动弹出时不提供“保留原图”：Esc 与关闭按钮等同 `Choose another file`。
+- 详情页入口改为 `Button`（`buttonStyle="secondary"`、`size="small"`），文案 `Crop image`。
+- 尺寸读取：挂载时若隐藏图片已 `complete && naturalWidth > 0`，直接读取尺寸；否则等待 `onLoad`。修复已有图片按钮常驻禁用。
+- 项目 CSS Module 只负责布局（间距、裁剪区域尺寸），颜色、边框、字体全部来自 Payload 组件；不引用 Payload 私有 class，不使用 Payload 3 的 `--theme-*` 变量。
+- 视频不弹裁剪框，视频规则仅通过服务端报错提示。
+- 测试：自动弹出时文案含当前尺寸与比例；切换比例更新裁剪框；`Choose another file` 清除文件；已加载完成的已有图片按钮可用；定向 E2E 断言弹窗可见、居中、使用 Payload 对话框结构。
+
 **D7 规则说明与报错**：
 
-- Media `admin.description` 展示上传规则，文案由 `MEDIA_UPLOAD_POLICY` 生成。
+- Media 列表页不展示上传规则说明（2026-10-19 修订，原 `admin.description` 已移除）；图片规则由 D6.1 裁剪框按需提示，其余规则由服务端报错说明。
 - 每条报错说明“哪里不符合”与“允许什么”。
 - 所有报错与说明使用英文，与 Payload 后台默认语言一致。
 
@@ -123,7 +145,7 @@ Documents Collection 的设计在本阶段完成后单独成文。下列事项�
   - 仅登录用户，未登录返回 401（避免成为公开的流量中转）。
   - `findByID` 取 `url`、`filename`、`mimeType`、`updatedAt`（`depth: 0`）。
   - 按请求头 `Sec-Fetch-Dest` 分流：
-    - `image`（列表缩略图、选择弹窗、详情页预览）：图片返回 302 到 `buildCloudflareImageURL`（宽 1200、`scale-down`），响应头 `Cache-Control: private, max-age=300`；视频返回 404，Payload 缩略图组件加载失败后显示默认文件图标。
+    - `image`（列表缩略图、选择弹窗、详情页预览）：图片返回 302 到 `buildCloudflareImageURL`（宽 1200、`scale-down`），响应头 `Cache-Control: private, max-age=300`；远程 MP4 视频返回 302 到 `buildCloudflareVideoPosterURL`（第 1 秒、宽 1200、`scale-down`），由 Cloudflare 按需截帧并缓存，不新增存储对象；本地存储的视频返回 404，回退到默认文件图标。
     - 其他值或缺失（下载、新标签打开、老浏览器）：`fetch(doc.url)` 后以流转发原文件，`Content-Type` 取 `mimeType`，`Content-Disposition: inline; filename*=UTF-8''<filename>`，`Cache-Control: private, no-store`。同源链接上的 `download` 属性使浏览器直接保存；新标签页内直接显示。上游非 200 时返回 502。
   - 地址来源检查（防 SSRF）：`doc.url` 必须以 `R2_PUBLIC_URL` 开头；`DISABLE_R2_STORAGE=true` 时允许本站地址（`/api/media/file/...`）。
 - 不新增 AWS SDK 依赖，不自行计算存储 key；Cloudflare 无需配置。

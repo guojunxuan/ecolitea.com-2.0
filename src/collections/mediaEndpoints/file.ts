@@ -1,6 +1,9 @@
 import type { Endpoint } from 'payload'
 
-import { buildCloudflareImageURL } from '@/components/Media/cloudflare'
+import {
+  buildCloudflareImageURL,
+  buildCloudflareVideoPosterURL,
+} from '@/components/Media/cloudflare'
 import { serverEnv } from '@/utilities/env'
 
 const privateHeaders = { 'Cache-Control': 'private, no-store' }
@@ -68,18 +71,26 @@ export const mediaFileEndpoint: Endpoint = {
     )
     if (!source) return failure(502)
     if (req.headers.get('Sec-Fetch-Dest') === 'image') {
-      if (!doc.mimeType?.startsWith('image/')) return failure(404)
+      const local = process.env.DISABLE_R2_STORAGE === 'true'
+      const preview = doc.mimeType?.startsWith('image/')
+        ? local
+          ? source.href
+          : buildCloudflareImageURL({
+              source: source.href,
+              width: 1200,
+              presentation: { fit: 'scale-down' },
+            })
+        : doc.mimeType === 'video/mp4' && !local
+          ? buildCloudflareVideoPosterURL({
+              source: source.href,
+              presentation: { width: 1200, fit: 'scale-down' },
+            })
+          : undefined
+      if (!preview) return failure(404)
       return new Response(null, {
         status: 302,
         headers: {
-          Location:
-            process.env.DISABLE_R2_STORAGE === 'true'
-              ? source.href
-              : buildCloudflareImageURL({
-                  source: source.href,
-                  width: 1200,
-                  presentation: { fit: 'scale-down' },
-                }),
+          Location: preview,
           'Cache-Control': 'private, max-age=300',
         },
       })

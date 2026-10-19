@@ -58,6 +58,7 @@ import videoStyles from '@/components/Media/VideoMedia/index.module.css'
 
 const media = (overrides: Partial<MediaResource>): MediaResource => ({
   id: 'media-id',
+  alt: 'Example media content',
   createdAt: '2026-09-12T00:00:00.000Z',
   updatedAt: '2026-09-12T01:02:03.000Z',
   ...overrides,
@@ -169,9 +170,7 @@ describe('Media renderer', () => {
         'https://assets.example.com/cdn-cgi/media/mode=video,width=1280,fit=contain/',
       )
       expect(source?.getAttribute('src')).toContain(
-        encodeURIComponent(
-          'https://assets.example.com/uploads/stored-clip.mp4?2026-09-12T01%3A02%3A03.000Z',
-        ),
+        'https://assets.example.com/uploads/stored-clip.mp4?2026-09-12T01%3A02%3A03.000Z',
       )
       expect(source?.getAttribute('src')).not.toContain('/media/wrong-filename.mp4')
     },

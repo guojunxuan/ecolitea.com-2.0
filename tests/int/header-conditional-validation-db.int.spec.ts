@@ -42,7 +42,7 @@ describe('Header conditional validation through the Payload Local API', () => {
       secret: 'header-block-validation-test-secret-at-least-32-characters',
     })
     payload = await getPayload({ config, key: databaseName })
-    const media = await payload.create({ collection: 'media', data: { mimeType: 'image/png' } })
+    const media = await payload.create({ collection: 'media', data: { mimeType: 'image/png', alt: 'Header example image' } })
     mediaID = String(media.id)
   }, 15_000)
 

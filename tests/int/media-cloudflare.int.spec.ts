@@ -112,19 +112,19 @@ describe('Cloudflare video delivery adapter', () => {
           presentation,
         }),
       ).toBe(
-        'https://media-dev.ecolitea.com/cdn-cgi/media/mode=video/https%3A%2F%2Fmedia-dev.ecolitea.com%2Fvideos%2Fclip.mp4',
+        'https://media-dev.ecolitea.com/cdn-cgi/media/mode=video/https://media-dev.ecolitea.com/videos/clip.mp4',
       )
     },
   )
 
-  it('uses deterministic options and a fully encoded absolute source URL', () => {
+  it('uses deterministic options and an absolute source URL with its path encoding preserved', () => {
     expect(
       buildCloudflareVideoURL({
         source: original,
         presentation: { width: 1280, height: 720, fit: 'cover' },
       }),
     ).toBe(
-      'https://media-dev.ecolitea.com/cdn-cgi/media/mode=video,width=1280,height=720,fit=cover/https%3A%2F%2Fmedia-dev.ecolitea.com%2Fphotos%2Fcard%2520image.jpg%3Fversion%3D7',
+      'https://media-dev.ecolitea.com/cdn-cgi/media/mode=video,width=1280,height=720,fit=cover/https://media-dev.ecolitea.com/photos/card%20image.jpg?version=7',
     )
   })
 
@@ -183,7 +183,7 @@ describe('Cloudflare video frame adapter', () => {
         presentation: { width: 1280, height: 720, fit: 'cover' },
       }),
     ).toBe(
-      'https://media-dev.ecolitea.com/cdn-cgi/media/mode=frame,time=1s,width=1280,height=720,fit=cover/https%3A%2F%2Fmedia-dev.ecolitea.com%2Fphotos%2Fcard%2520image.jpg%3Fversion%3D7',
+      'https://media-dev.ecolitea.com/cdn-cgi/media/mode=frame,time=1s,width=1280,height=720,fit=cover/https://media-dev.ecolitea.com/photos/card%20image.jpg?version=7',
     )
     expect(
       buildCloudflareVideoPosterURL({ source: original, presentation: { width: 1, height: 5000 } }),

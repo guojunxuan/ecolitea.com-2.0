@@ -31,6 +31,7 @@ import { ArticleBlockEditor as ArticleBlockEditor_4971c3244241ba6cff288a3222e757
 import { ImageCropControls as ImageCropControls_9959ec1372000a411e6c7216c9e7a00c } from '@/collections/mediaAdmin/ImageCropControls'
 import { UsedInPanel as UsedInPanel_465fcf04887261c29f77ab01f3d2132c } from '@/collections/mediaAdmin/UsedInPanel'
 import { AltPrefill as AltPrefill_0723c172e948fbb481376dc84e2f708c } from '@/collections/mediaAdmin/AltPrefill'
+import { FilenameCell as FilenameCell_3d231aca1eef2c75f54cfc956cce307a } from '@/collections/mediaAdmin/FilenameCell'
 import { FilesizeCell as FilesizeCell_e4d477bf4c10c20dfb3e3841bcb8bbde } from '@/collections/mediaAdmin/FilesizeCell'
 import { DimensionsCell as DimensionsCell_ed787a5a6cfc7824657cb740abc829c2 } from '@/collections/mediaAdmin/DimensionsCell'
 import { UsedInPanel as UsedInPanel_e1fb4acb26bb636743c0392dfef3033e } from '@/collections/Documents/admin/UsedInPanel'
@@ -91,6 +92,7 @@ export const importMap = {
   "@/collections/mediaAdmin/ImageCropControls#ImageCropControls": ImageCropControls_9959ec1372000a411e6c7216c9e7a00c,
   "@/collections/mediaAdmin/UsedInPanel#UsedInPanel": UsedInPanel_465fcf04887261c29f77ab01f3d2132c,
   "@/collections/mediaAdmin/AltPrefill#AltPrefill": AltPrefill_0723c172e948fbb481376dc84e2f708c,
+  "@/collections/mediaAdmin/FilenameCell#FilenameCell": FilenameCell_3d231aca1eef2c75f54cfc956cce307a,
   "@/collections/mediaAdmin/FilesizeCell#FilesizeCell": FilesizeCell_e4d477bf4c10c20dfb3e3841bcb8bbde,
   "@/collections/mediaAdmin/DimensionsCell#DimensionsCell": DimensionsCell_ed787a5a6cfc7824657cb740abc829c2,
   "@/collections/Documents/admin/UsedInPanel#UsedInPanel": UsedInPanel_e1fb4acb26bb636743c0392dfef3033e,

@@ -132,6 +132,7 @@ describe('BlogListingHero', () => {
     const { BlogListingHero } = await import('@/heros/BlogListingHero')
     const image = {
       id: 'hero-image',
+      alt: 'Journal hero image',
       url: '/media/hero.jpg',
       mimeType: 'image/jpeg',
       createdAt: '',

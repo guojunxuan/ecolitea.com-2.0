@@ -11,7 +11,6 @@ import { anyone } from '../access/anyone'
 import { authenticated } from '../access/authenticated'
 import {
   MEDIA_UPLOAD_POLICY,
-  mediaUploadDescription,
   validateMediaUpload,
   validateMediaMimeType,
 } from './mediaUploadPolicy'
@@ -27,7 +26,6 @@ export const Media: CollectionConfig = {
   select: ({ select }) => (select?.width === true ? { ...select, height: true } : undefined),
   disableDuplicate: true,
   admin: {
-    description: mediaUploadDescription,
     defaultColumns: ['filename', 'alt', 'mimeType', 'width', 'filesize', '_h_folders', 'updatedAt'],
     listSearchableFields: ['filename', 'alt'],
   },
@@ -60,6 +58,11 @@ export const Media: CollectionConfig = {
     // Payload merges overrides for native upload fields by name, retaining its
     // read-only/hidden defaults without creating duplicate persisted fields.
     {
+      name: 'filename',
+      type: 'text',
+      admin: { components: { Cell: '@/collections/mediaAdmin/FilenameCell#FilenameCell' } },
+    },
+    {
       name: 'width',
       type: 'number',
       admin: { components: { Cell: '@/collections/mediaAdmin/DimensionsCell#DimensionsCell' } },
@@ -72,6 +75,7 @@ export const Media: CollectionConfig = {
     {
       name: 'alt',
       type: 'text',
+      required: true,
       index: true,
       admin: { components: { Field: '@/collections/mediaAdmin/AltPrefill#AltPrefill' } },
     },

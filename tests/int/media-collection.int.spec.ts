@@ -223,11 +223,14 @@ describe('Media Admin policies', () => {
         'updatedAt',
       ],
     })
-    expect(Media.admin?.description).toContain('16:9')
+    expect(Media.admin?.description).toBeUndefined()
     expect(Media.upload).toMatchObject({
       mimeTypes: [...MEDIA_UPLOAD_POLICY.image.mimeTypes, 'video/mp4'],
     })
-    expect(Media.fields.find((f) => 'name' in f && f.name === 'alt')).toMatchObject({ index: true })
+    expect(Media.fields.find((f) => 'name' in f && f.name === 'alt')).toMatchObject({
+      index: true,
+      required: true,
+    })
   })
   it.each(['application/pdf', 'image/svg+xml', 'application/octet-stream'])(
     'rejects %s with the complete allowed types',

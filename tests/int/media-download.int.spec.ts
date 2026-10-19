@@ -76,9 +76,21 @@ describe('same-origin Media file endpoint', () => {
     expect(response.headers.get('Cache-Control')).toBe('private, max-age=300')
     expect(fetchMock).not.toHaveBeenCalled()
   })
-  it('returns 404 for video image previews', async () => {
+  it('redirects video image previews to a Cloudflare frame without fetching bytes', async () => {
     setup()
     findByID.mockResolvedValue({ ...doc, mimeType: 'video/mp4' })
+    const response = await mediaFileEndpoint.handler(request('image'))
+    expect(response.status).toBe(302)
+    expect(response.headers.get('Location')).toContain(
+      '/cdn-cgi/media/mode=frame,time=1s,width=1200,fit=scale-down/',
+    )
+    expect(response.headers.get('Cache-Control')).toBe('private, max-age=300')
+    expect(fetchMock).not.toHaveBeenCalled()
+  })
+  it('keeps local video previews on the default file icon', async () => {
+    setup()
+    vi.stubEnv('DISABLE_R2_STORAGE', 'true')
+    findByID.mockResolvedValue({ ...doc, url: '/api/media/file/clip.mp4', mimeType: 'video/mp4' })
     expect((await mediaFileEndpoint.handler(request('image'))).status).toBe(404)
     expect(fetchMock).not.toHaveBeenCalled()
   })

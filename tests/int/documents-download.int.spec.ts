@@ -2,6 +2,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { PayloadRequest } from 'payload'
 import { Documents } from '@/collections/Documents'
+import { serverEnv } from '@/utilities/env'
 
 const original = {
   id: 'doc-1',
@@ -39,6 +40,30 @@ afterEach(() => {
   vi.unstubAllEnvs()
 })
 describe('Documents same-origin original file endpoint', () => {
+  it('uses the validated server URL for native thumbnails', () => {
+    vi.stubEnv('NEXT_PUBLIC_SERVER_URL', 'https://raw.example.invalid/')
+    if (
+      typeof Documents.upload !== 'object' ||
+      typeof Documents.upload.adminThumbnail !== 'function'
+    )
+      throw new Error('Documents thumbnail function missing')
+    expect(Documents.upload.adminThumbnail({ doc: { id: 'doc 1' } })).toBe(
+      `${serverEnv.NEXT_PUBLIC_SERVER_URL}/api/documents/doc%201/file`,
+    )
+  })
+  it('falls back to the validated server URL when Payload has no serverURL', async () => {
+    vi.stubEnv('NEXT_PUBLIC_SERVER_URL', 'https://raw.example.invalid/')
+    vi.stubEnv('DISABLE_R2_STORAGE', 'true')
+    const fetch = vi.fn(async () => new Response('local'))
+    vi.stubGlobal('fetch', fetch)
+    const { req } = request({ url: '/api/documents/file/report.pdf' })
+    req.payload.config.serverURL = ''
+    expect((await endpoint().handler(req)).status).toBe(200)
+    expect(fetch).toHaveBeenCalledWith(
+      `${serverEnv.NEXT_PUBLIC_SERVER_URL}/api/documents/file/report.pdf`,
+      expect.anything(),
+    )
+  })
   it('registers a native thumbnail URL for PDF and Office without changing original preview configuration', () => {
     expect(typeof Documents.upload === 'object' && Documents.upload.adminThumbnail).toBeTypeOf(
       'function',
