@@ -76,6 +76,34 @@ test.describe('Media and Documents native Admin workflows', () => {
     return (await result.json()).doc
   }
 
+  test('invalid image cancellation clears the file for cancel, close and Escape', async ({
+    page,
+  }) => {
+    await page.goto(`${baseURL}/admin/collections/media/create`)
+    const buffer = await sharp({
+      create: { width: 1000, height: 210, channels: 3, background: '#5f805a' },
+    })
+      .png()
+      .toBuffer()
+    for (const action of ['Choose another file', 'Close', 'Escape']) {
+      await page
+        .locator('input[type=file]')
+        .setInputFiles({ name: `${prefix}-invalid.png`, mimeType: 'image/png', buffer })
+      const dialog = page
+        .getByRole('dialog')
+        .filter({
+          has: page.getByRole('heading', { name: 'Crop image to a supported ratio', exact: true }),
+        })
+      await expect(dialog).toBeVisible()
+      await expect(dialog.getByText('Result: 373 × 210 · 16:9')).toBeVisible()
+      if (action === 'Escape') await page.keyboard.press('Escape')
+      else await dialog.getByRole('button', { name: action, exact: true }).click()
+      await expect(dialog).toHaveCount(0)
+      await expect(page.getByRole('button', { name: 'Select a file', exact: true })).toBeVisible()
+    }
+    await expect(page.getByText(/Images: JPEG/)).toHaveCount(0)
+  })
+
   test('automatically crops an invalid image, saves dimensions, and retains native focus/download actions', async ({
     page,
   }) => {
@@ -90,12 +118,38 @@ test.describe('Media and Documents native Admin workflows', () => {
       .setInputFiles({ name: `${prefix}-garden.png`, mimeType: 'image/png', buffer })
     await expect(page.locator('input[name=alt]')).toHaveValue(`${prefix}-garden`)
     await page.locator('input[name=alt]').fill('Tea garden in spring')
-    const dialog = page.getByRole('dialog', { name: 'Crop image', exact: true })
+    const dialog = page
+      .getByRole('dialog')
+      .filter({
+        has: page.getByRole('heading', { name: 'Crop image to a supported ratio', exact: true }),
+      })
     await expect(dialog).toBeVisible()
-    await dialog.getByLabel('Aspect ratio').selectOption('1:1')
+    await expect(dialog.getByText(/This image is 1100 × 1000 \(1.10:1\)/)).toBeVisible()
+    await expect(dialog.getByRole('document')).toBeVisible()
+    const bounds = await dialog.getByRole('document').boundingBox()
+    const viewport = page.viewportSize()!
+    expect(Math.abs(bounds!.x + bounds!.width / 2 - viewport.width / 2)).toBeLessThan(3)
+    expect(Math.abs(bounds!.y + bounds!.height / 2 - viewport.height / 2)).toBeLessThan(3)
+    await dialog.getByRole('tab', { name: '16:9', exact: true }).click()
+    await expect(dialog.getByRole('tab', { name: '16:9', exact: true })).toHaveAttribute(
+      'aria-selected',
+      'true',
+    )
+    await dialog.getByRole('tab', { name: '1:1', exact: true }).click()
     await dialog.getByRole('button', { name: 'Apply crop' }).click()
     const doc = await save(page, 'media')
     expect(doc).toMatchObject({ width: 1000, height: 1000 })
+    await page.reload()
+    const cropButton = page.getByRole('button', { name: 'Crop image', exact: true })
+    await expect(cropButton).toBeEnabled()
+    await cropButton.click()
+    const manual = page
+      .getByRole('dialog')
+      .filter({ has: page.getByRole('heading', { name: 'Crop image', exact: true }) })
+    await expect(manual).toBeVisible()
+    await expect(manual.getByText(/This image is/)).toHaveCount(0)
+    await manual.getByRole('button', { name: 'Cancel', exact: true }).click()
+    await expect(manual).toHaveCount(0)
     await expect(page.getByRole('region', { name: 'Used in', exact: true })).toContainText(
       'No current references.',
     )

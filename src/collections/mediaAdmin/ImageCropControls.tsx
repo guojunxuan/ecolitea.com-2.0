@@ -1,11 +1,31 @@
 'use client'
 
-import { useDocumentInfo, useForm, useFormFields, useUploadEdits } from '@payloadcms/ui'
-import React, { useEffect, useRef, useState } from 'react'
+import {
+  Banner,
+  Button,
+  DialogBody,
+  DialogCancel,
+  DialogConfirm,
+  DialogFooter,
+  DialogHeader,
+  DialogModal,
+  Tabs,
+  useDocumentInfo,
+  useField,
+  useForm,
+  useFormFields,
+  useModal,
+  useUploadEdits,
+} from '@payloadcms/ui'
+import React, { useCallback, useEffect, useId, useRef, useState } from 'react'
 import ReactCrop, { type PercentCrop } from 'react-image-crop'
 import 'react-image-crop/dist/ReactCrop.css'
 
-import { MEDIA_UPLOAD_POLICY, validateImageDimensions } from '../mediaUploadPolicy.shared'
+import {
+  MEDIA_UPLOAD_POLICY,
+  validateImageDimensions,
+  imageTypeNames,
+} from '../mediaUploadPolicy.shared'
 import styles from './ImageCropControls.module.css'
 
 const ratios = MEDIA_UPLOAD_POLICY.image.ratios
@@ -23,27 +43,52 @@ const centeredCrop = (width: number, height: number, aspect: number): PercentCro
 
 export const ImageCropControls = () => {
   const file = useFormFields(([fields]) => fields.file?.value)
+  const { setValue: setFile } = useField<File | null>({ path: 'file' })
   const { data } = useDocumentInfo()
   const { updateUploadEdits } = useUploadEdits()
   const { setModified } = useForm()
+  const { openModal, closeModal, modalState } = useModal()
+  const slug = `media-image-crop-${useId()}`
+  const isOpen = Boolean(modalState[slug]?.isOpen)
   const [source, setSource] = useState('')
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 })
   const [ratioLabel, setRatioLabel] = useState<string>('1:1')
   const [crop, setCrop] = useState<PercentCrop>()
-  const [open, setOpen] = useState(false)
-  const dialogRef = useRef<HTMLDialogElement>(null)
-  const selectedFile = useRef<unknown>(undefined)
+  const [automatic, setAutomatic] = useState(false)
+  const selectedFile = useRef<unknown>(file instanceof File ? file : undefined)
+  const loadedSource = useRef('')
+  const session = useRef<{ automatic: boolean; file: unknown } | null>(null)
+  const wasOpen = useRef(false)
   const updateRef = useRef(updateUploadEdits)
   useEffect(() => {
     updateRef.current = updateUploadEdits
   }, [updateUploadEdits])
 
+  const clearSelectedFile = useCallback(() => {
+    setFile(null)
+    updateRef.current({ crop: undefined, widthInPixels: undefined, heightInPixels: undefined })
+  }, [setFile])
+
+  // Payload closes its modal for Escape as well as its public cancel controls.
+  // An automatic session may only keep the selected file after Apply crop.
   useEffect(() => {
-    if (selectedFile.current !== file) {
-      selectedFile.current = file
+    if (wasOpen.current && !isOpen) {
+      const abandoned = session.current
+      session.current = null
+      if (abandoned?.automatic && abandoned.file === file) clearSelectedFile()
+    }
+    wasOpen.current = isOpen
+  }, [isOpen, file, clearSelectedFile])
+
+  useEffect(() => {
+    const nextFile = file instanceof File ? file : undefined
+    if (selectedFile.current !== nextFile) {
+      selectedFile.current = nextFile
+      session.current = null
+      closeModal(slug)
       updateRef.current({ crop: undefined, widthInPixels: undefined, heightInPixels: undefined })
-      setOpen(false)
       setDimensions({ width: 0, height: 0 })
+      loadedSource.current = ''
     }
     if (!(file instanceof File) || !file.type.startsWith('image/')) {
       // Blob URLs are external resources owned and revoked by this effect.
@@ -54,104 +99,139 @@ export const ImageCropControls = () => {
     const url = URL.createObjectURL(file)
     setSource(url)
     return () => URL.revokeObjectURL(url)
-  }, [file])
-
-  useEffect(() => {
-    const dialog = dialogRef.current
-    if (!dialog) return
-    if (open && !dialog.open) dialog.showModal?.()
-    if (!open && dialog.open) dialog.close?.()
-  }, [open])
+  }, [file, closeModal, slug])
 
   const existingImage =
     !file && data?.mimeType?.startsWith('image/') && typeof data.url === 'string' ? data.url : ''
   const imageSource = source || existingImage
-  if (!imageSource) return null
-  const ratio = ratios.find(({ label }) => label === ratioLabel) || ratios[0]
-  const onLoad = (event: React.SyntheticEvent<HTMLImageElement>) => {
-    const width = event.currentTarget.naturalWidth
-    const height = event.currentTarget.naturalHeight
-    if (!width || !height) return
-    setDimensions({ width, height })
-    const nearest = ratios.reduce((best, candidate) =>
-      Math.abs(Math.log(width / height / (candidate.width / candidate.height))) <
-      Math.abs(Math.log(width / height / (best.width / best.height)))
-        ? candidate
-        : best,
-    )
-    setRatioLabel(nearest.label)
-    setCrop(centeredCrop(width, height, nearest.width / nearest.height))
-    if (source && validateImageDimensions(width, height) !== true) setOpen(true)
+  const readDimensions = useCallback(
+    (image: HTMLImageElement) => {
+      const width = image.naturalWidth
+      const height = image.naturalHeight
+      if (!width || !height || loadedSource.current === imageSource) return
+      loadedSource.current = imageSource
+      setDimensions({ width, height })
+      const nearest = ratios.reduce((best, candidate) =>
+        Math.abs(Math.log(width / height / (candidate.width / candidate.height))) <
+        Math.abs(Math.log(width / height / (best.width / best.height)))
+          ? candidate
+          : best,
+      )
+      setRatioLabel(nearest.label)
+      setCrop(centeredCrop(width, height, nearest.width / nearest.height))
+      if (file instanceof File && source && validateImageDimensions(width, height) !== true) {
+        session.current = { automatic: true, file }
+        setAutomatic(true)
+        openModal(slug)
+      }
+    },
+    [imageSource, file, source, openModal, slug],
+  )
+  const loaderRef = useCallback(
+    (image: HTMLImageElement | null) => {
+      if (image?.complete && image.naturalWidth > 0) readDimensions(image)
+    },
+    [readDimensions],
+  )
+
+  const cancel = () => {
+    const abandoned = session.current
+    session.current = null
+    if (abandoned?.automatic && abandoned.file === file) clearSelectedFile()
+    closeModal(slug)
   }
   const apply = () => {
     if (!crop || !dimensions.width || !dimensions.height) return
+    session.current = null
     updateUploadEdits({
       crop,
       widthInPixels: Math.round((crop.width / 100) * dimensions.width),
       heightInPixels: Math.round((crop.height / 100) * dimensions.height),
     })
     setModified(true)
-    setOpen(false)
+    closeModal(slug)
   }
+  if (!imageSource) return null
+  const ratio = ratios.find(({ label }) => label === ratioLabel) || ratios[0]
   return (
     <div className={styles.controls}>
-      {/* A separate loader reads natural dimensions without changing Payload's preview. */}
+      {/* Read the original dimensions without changing Payload's native preview. */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img alt="Crop source" className={styles.loader} onLoad={onLoad} src={imageSource} />
-      <button disabled={!dimensions.width} onClick={() => setOpen(true)} type="button">
+      <img
+        alt="Crop source"
+        className={styles.loader}
+        key={imageSource}
+        onLoad={(event) => readDimensions(event.currentTarget)}
+        ref={loaderRef}
+        src={imageSource}
+      />
+      <Button
+        buttonStyle="secondary"
+        size="medium"
+        disabled={!dimensions.width}
+        onClick={() => {
+          session.current = { automatic: false, file }
+          setAutomatic(false)
+          openModal(slug)
+        }}
+      >
         Crop image
-      </button>
-      {open && (
-        <dialog
-          aria-label="Crop image"
-          className={styles.dialog}
-          onCancel={() => setOpen(false)}
-          open={typeof HTMLDialogElement.prototype.showModal !== 'function'}
-          ref={dialogRef}
-        >
-          <h2>Crop image</h2>
-          <label>
-            Aspect ratio{' '}
-            <select
-              aria-label="Aspect ratio"
-              onChange={(event) => {
-                const selected =
-                  ratios.find(({ label }) => label === event.target.value) || ratios[0]
-                setRatioLabel(selected.label)
-                setCrop(
-                  centeredCrop(
-                    dimensions.width,
-                    dimensions.height,
-                    selected.width / selected.height,
-                  ),
-                )
-              }}
-              value={ratioLabel}
-            >
-              {ratios.map(({ label }) => (
-                <option key={label}>{label}</option>
-              ))}
-            </select>
-          </label>
-          <ReactCrop
-            aspect={ratio.width / ratio.height}
-            crop={crop}
-            keepSelection
-            onChange={(_, percent) => setCrop(percent)}
-          >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img alt="Select crop area" className={styles.image} src={imageSource} />
-          </ReactCrop>
-          <div className={styles.actions}>
-            <button onClick={() => setOpen(false)} type="button">
-              Cancel
-            </button>
-            <button onClick={apply} type="button">
-              Apply crop
-            </button>
+      </Button>
+      <DialogModal size="large" slug={slug}>
+        <DialogHeader
+          title={automatic ? 'Crop image to a supported ratio' : 'Crop image'}
+          showClose
+          onClose={cancel}
+        />
+        <DialogBody>
+          <div className={styles.body}>
+            {automatic && (
+              <Banner type="warning">
+                This image is {dimensions.width} × {dimensions.height} (
+                {(dimensions.width / dimensions.height).toFixed(2)}:1), which is not a supported
+                ratio. Choose a ratio and adjust the crop.
+              </Banner>
+            )}
+            <div aria-label="Aspect ratio">
+              <Tabs
+                value={ratioLabel}
+                tabs={ratios.map(({ label }) => ({ label, value: label }))}
+                onChange={(label) => {
+                  const selected = ratios.find((ratio) => ratio.label === label) || ratios[0]
+                  setRatioLabel(selected.label)
+                  setCrop(
+                    centeredCrop(
+                      dimensions.width,
+                      dimensions.height,
+                      selected.width / selected.height,
+                    ),
+                  )
+                }}
+              />
+            </div>
+            <div className={styles.cropArea}>
+              <ReactCrop
+                aspect={ratio.width / ratio.height}
+                crop={crop}
+                keepSelection
+                onChange={(_, percent) => setCrop(percent)}
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img alt="Select crop area" className={styles.image} src={imageSource} />
+              </ReactCrop>
+            </div>
+            <p>
+              Result: {Math.round(((crop?.width ?? 0) / 100) * dimensions.width)} ×{' '}
+              {Math.round(((crop?.height ?? 0) / 100) * dimensions.height)} · {ratioLabel}
+            </p>
+            <small>Images: {imageTypeNames}</small>
           </div>
-        </dialog>
-      )}
+        </DialogBody>
+        <DialogFooter>
+          <DialogCancel label={automatic ? 'Choose another file' : 'Cancel'} onClick={cancel} />
+          <DialogConfirm label="Apply crop" onClick={apply} />
+        </DialogFooter>
+      </DialogModal>
     </div>
   )
 }

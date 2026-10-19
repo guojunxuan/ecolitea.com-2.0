@@ -94,7 +94,7 @@ Documents Collection 的设计在本阶段完成后单独成文。下列事项�
 | 操作 | `DialogFooter` + `DialogCancel` + `DialogConfirm` | 自动弹出：`Choose another file`（清除已选文件，回到上传区）+ `Apply crop`；手动打开：`Cancel` + `Apply crop` |
 
 - 自动弹出时不提供“保留原图”：Esc 与关闭按钮等同 `Choose another file`。
-- 详情页入口改为 `Button`（`buttonStyle="secondary"`、`size="small"`），文案 `Crop image`。
+- 详情页入口改为 `Button`（`buttonStyle="secondary"`、`size="medium"`（已安装版本仅支持 `medium` / `large`）），文案 `Crop image`。
 - 尺寸读取：挂载时若隐藏图片已 `complete && naturalWidth > 0`，直接读取尺寸；否则等待 `onLoad`。修复已有图片按钮常驻禁用。
 - 项目 CSS Module 只负责布局（间距、裁剪区域尺寸），颜色、边框、字体全部来自 Payload 组件；不引用 Payload 私有 class，不使用 Payload 3 的 `--theme-*` 变量。
 - 视频不弹裁剪框，视频规则仅通过服务端报错提示。

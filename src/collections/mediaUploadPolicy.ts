@@ -9,7 +9,11 @@ import {
 
 import { parseMP4Metadata } from './parseMP4Metadata'
 
-import { MEDIA_UPLOAD_POLICY, validateImageDimensions } from './mediaUploadPolicy.shared'
+import {
+  MEDIA_UPLOAD_POLICY,
+  validateImageDimensions,
+  imageTypeNames,
+} from './mediaUploadPolicy.shared'
 export { MEDIA_UPLOAD_POLICY, validateImageDimensions } from './mediaUploadPolicy.shared'
 
 export const imageOnly: Where = { mimeType: { in: [...MEDIA_UPLOAD_POLICY.image.mimeTypes] } }
@@ -18,18 +22,6 @@ export const imageOrVideo: Where = {
     in: [...MEDIA_UPLOAD_POLICY.image.mimeTypes, ...MEDIA_UPLOAD_POLICY.video.mimeTypes],
   },
 }
-const imageTypeNames = MEDIA_UPLOAD_POLICY.image.mimeTypes
-  .map(
-    (mime) =>
-      ({
-        'image/jpeg': 'JPEG',
-        'image/png': 'PNG',
-        'image/webp': 'WebP',
-        'image/avif': 'AVIF',
-        'image/gif': 'GIF',
-      })[mime],
-  )
-  .join(', ')
 const videoTypeNames = MEDIA_UPLOAD_POLICY.video.mimeTypes
   .map((mime) => ({ 'video/mp4': 'MP4' })[mime])
   .join(', ')

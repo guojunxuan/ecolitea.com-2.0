@@ -61,3 +61,16 @@ export const validateImageDimensions = (
       .join(', ')}.`
   )
 }
+
+export const imageTypeNames = MEDIA_UPLOAD_POLICY.image.mimeTypes
+  .map(
+    (mime) =>
+      ({
+        'image/jpeg': 'JPEG',
+        'image/png': 'PNG',
+        'image/webp': 'WebP',
+        'image/avif': 'AVIF',
+        'image/gif': 'GIF',
+      })[mime],
+  )
+  .join(', ')
