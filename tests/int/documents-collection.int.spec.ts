@@ -129,6 +129,23 @@ describe('Documents uploads through real Payload Local API', () => {
     }
     if (directory) await rm(directory, { recursive: true, force: true })
   })
+  it('accepts a 300-character summary and rejects longer descriptions through native validation', async () => {
+    const doc = await payload.create({
+      collection: 'documents',
+      data: { title: 'Tea certificate with summary', description: 'a'.repeat(300) },
+      file: file(),
+    })
+    expect(doc.description).toHaveLength(300)
+    await expect(
+      payload.update({
+        collection: 'documents',
+        id: doc.id,
+        data: { description: 'a'.repeat(301) },
+      }),
+    ).rejects.toMatchObject({
+      data: { errors: expect.arrayContaining([expect.objectContaining({ path: 'description' })]) },
+    })
+  })
   it('creates valid PDF and all Office files', async () => {
     await expect(
       payload.create({
@@ -158,24 +175,24 @@ describe('Documents uploads through real Payload Local API', () => {
     [
       'declared MIME',
       () => file(validPDF, 'bad.doc', 'application/msword'),
-      'Unsupported file type: application/msword. Documents accepts PDF, Word (.docx), Excel (.xlsx) and PowerPoint (.pptx).',
+      'Unsupported file type. Use PDF, Word (.docx), Excel (.xlsx) or PowerPoint (.pptx).',
     ],
     [
       'byte limit',
       () => file(Buffer.alloc(10_000_001), 'bad.docx'),
-      'File size exceeds the maximum of 10 MB.',
+      'File is too large (10 MB). Maximum is 10 MB.',
     ],
     [
       'extension',
       () => file(validPDF, 'bad.docx'),
-      'File extension ".docx" does not match its type (.pdf).',
+      "File extension doesn't match its content. Save it again as .pdf.",
     ],
     ['native PDF structure', () => file(Buffer.from('%PDF-1.7\nmalformed')), 'Invalid PDF file.'],
     [
       'disguised ZIP',
       () =>
         file(zip({ 'readme.txt': 'not an Office document' }), 'fake.docx', officeTypes.docx.mime),
-      'File is not a valid Word document.',
+      "This Word file can't be read. Try saving it again.",
     ],
     [
       'Office macros',
@@ -185,7 +202,7 @@ describe('Documents uploads through real Payload Local API', () => {
           'macro.docx',
           officeTypes.docx.mime,
         ),
-      'Documents with macros are not allowed.',
+      "Files with macros aren't allowed.",
     ],
   ] as const)('rejects %s before storage writes', async (_, makeFile, message) => {
     const before = await readdir(directory)
@@ -231,7 +248,7 @@ describe('Documents uploads through real Payload Local API', () => {
         errors: [
           {
             path: 'title',
-            message: 'Title should describe the document, not repeat the filename.',
+            message: 'Describe the document instead of using the file name.',
           },
         ],
       },
@@ -279,7 +296,7 @@ describe('Documents uploads through real Payload Local API', () => {
         errors: [
           {
             path: 'title',
-            message: 'Title should describe the document, not repeat the filename.',
+            message: 'Describe the document instead of using the file name.',
           },
         ],
       },

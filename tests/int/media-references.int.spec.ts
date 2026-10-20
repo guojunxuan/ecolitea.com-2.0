@@ -382,7 +382,7 @@ describe('Media protection through the real Payload API', () => {
       locale: 'zh' as never,
     })
     await expect(payload.delete({ collection: 'media', id: mediaID })).rejects.toThrow(
-      /Cannot delete: this media is used in Blogs "Localized story" \(heroImage.zh\).*Remove these references first\./,
+      /Can't delete: used in Blog "Localized story".*Remove it there first\./,
     )
     const batch = await payload.delete({ collection: 'media', where: { id: { equals: mediaID } } })
     expect(batch.docs).toHaveLength(0)
@@ -397,7 +397,7 @@ describe('Media protection through the real Payload API', () => {
     })
     expect(response.status).toBe(400)
     expect(await response.json()).toMatchObject({
-      errors: [{ message: expect.stringContaining('Cannot delete: this media is used in Blogs') }],
+      errors: [{ message: expect.stringContaining("Can't delete: used in Blog") }],
     })
 
     await payload.update({
@@ -496,7 +496,7 @@ describe('Media protection through the real Payload API', () => {
         expect.objectContaining({ ownerSlug: 'blogs', path: 'heroImage.en' }),
       ])
       await expect(payload.delete({ collection: 'media', id: asset.id })).rejects.toThrow(
-        /Remove these references first/,
+        /Remove it there first/,
       )
       const batch = await payload.delete({
         collection: 'media',
@@ -514,7 +514,7 @@ describe('Media protection through the real Payload API', () => {
       })
       expect(response.status).toBe(400)
       expect(await response.json()).toMatchObject({
-        errors: [{ message: expect.stringContaining('Remove these references first.') }],
+        errors: [{ message: expect.stringContaining('Remove it there first.') }],
       })
       await update(String(asset.id), false)
       // Both stored and draft copies share one owner/path in the current union.
@@ -523,7 +523,7 @@ describe('Media protection through the real Payload API', () => {
       await update(null, true)
       expect(await current()).toHaveLength(1)
       await expect(payload.delete({ collection: 'media', id: asset.id })).rejects.toThrow(
-        /Remove these references first/,
+        /Remove it there first/,
       )
       await update(null, false)
       await update(null, true)
@@ -577,7 +577,7 @@ describe('Media protection through the real Payload API', () => {
         }),
       ])
       await expect(payload.delete({ collection: 'media', id: asset.id })).rejects.toThrow(
-        /Remove these references first/,
+        /Remove it there first/,
       )
       const batch = await payload.delete({
         collection: 'media',
@@ -603,7 +603,7 @@ describe('Media protection through the real Payload API', () => {
       await update(null, true)
       expect(await current()).toHaveLength(1)
       await expect(payload.delete({ collection: 'media', id: asset.id })).rejects.toThrow(
-        /Remove these references first/,
+        /Remove it there first/,
       )
       await update(null, false)
       await update(null, true)

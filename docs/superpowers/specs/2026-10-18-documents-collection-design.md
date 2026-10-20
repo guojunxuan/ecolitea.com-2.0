@@ -50,7 +50,7 @@ src/collections/Documents/
 | 字段 | 类型 | 说明 |
 |---|---|---|
 | `title` | text，必填，索引 | 显示名称（`useAsTitle`）。规则见 §5 |
-| `description` | textarea，选填 | 一两句简介 |
+| `description` | textarea，选填，最多 300 字符 | 一两句简介 |
 | `_h_folders` | relationship（`createFolderField`） | 文件夹 |
 | 上传字段 | Payload 自动 | `filename`、`mimeType`、`filesize`、`url`、`prefix` 等 |
 
@@ -63,6 +63,21 @@ Collection 设置：
 - `upload.adminThumbnail`：返回同源地址 `<serverURL>/api/documents/:id/file`（见 §6）。
 - `admin.useAsTitle: 'title'`；`admin.defaultColumns`：`title`、`filename`、`mimeType`、`filesize`、`_h_folders`、`updatedAt`；`admin.listSearchableFields: ['title', 'filename']`。
 - `admin.description`：由 `uploadPolicy.ts` 生成的规则说明。
+- **列表与字段的用户习惯（2026-10-20 修订）**：与 Media D9.1 同一原则，由 Documents 独立实现：
+
+| 列 | 表头 | 显示 |
+|---|---|---|
+| `title` | `Title` | 原文，第一识别列 |
+| `filename` | `File name` | 带扩展名（下载后的文件名） |
+| `mimeType` | `Type` | `PDF`、`Word`、`Excel`、`PowerPoint` |
+| `filesize` | `Size` | `formatFilesize` |
+| `_h_folders` | `Folder` | 未归档显示 `—` |
+| `updatedAt` | `updatedAt` | `Oct 18, 2026`（仅本列表的 Cell） |
+
+  - 缩略图保持 Payload 默认文件图标。
+  - 默认排序 `defaultSort: '-createdAt'`。
+  - `updatedAt` 仅在列表显示，详情编辑表单不展示该字段。
+  - 编辑页：`title` 说明 `Shown to editors when choosing this document.`；`description` 说明 `Optional short summary.`，`maxLength: 300`。
 
 ## 4. 上传策略与内容校验
 
@@ -81,20 +96,22 @@ Collection 设置：
 `validateDocumentUpload.ts`（`beforeValidate`，仅在有新文件时执行），依次检查：
 
 1. MIME 在白名单内，否则：
-   `Unsupported file type: <mime>. Documents accepts PDF, Word (.docx), Excel (.xlsx) and PowerPoint (.pptx).`
+   `Unsupported file type. Use PDF, Word (.docx), Excel (.xlsx) or PowerPoint (.pptx).`
 2. 大小不超过 10MB：
-   `File size exceeds the maximum of 10 MB.`
+   `File is too large (14 MB). Maximum is 10 MB.`
 3. 扩展名与 MIME 一致：
-   `File extension ".<ext>" does not match its type (<expected>).`
+   `File extension doesn't match its content. Save it again as .<docx|xlsx|pptx|pdf>.`
 4. PDF：沿用 Payload 自带的结构检查（文件头与 `%%EOF`/`xref`），项目不重复实现。
 5. Office：读取 ZIP 中央目录（使用 Node 内置 `zlib` 解压条目，不新增依赖），要求：
    - 存在 `[Content_Types].xml`，其主文档部件的 content type 与声明类型一致（`wordprocessingml.document.main+xml`、`spreadsheetml.sheet.main+xml`、`presentationml.presentation.main+xml`）；
    - 不存在 `vbaProject.bin`，且 content type 中不含 `macroEnabled`。
    报错：
-   `File is not a valid <Word|Excel|PowerPoint> document.`
-   `Documents with macros are not allowed. Save the file as .<docx|xlsx|pptx> without macros and upload again.`
+   `This <Word|Excel|PowerPoint> file can't be read. Try saving it again.`
+   `Files with macros aren't allowed. Save as .<docx|xlsx|pptx> without macros.`
 
 校验抛出 `APIError(400)`，校验失败的文件不会写入 R2。
+
+报错文案面向编辑者：简洁、带实际数值、不含技术术语（与 Media D7 同一原则，2026-10-20 修订）。PDF 结构检查由 Payload 执行，其报错保持 Payload 原文。
 
 ## 5. title
 
@@ -104,8 +121,8 @@ Collection 设置：
 | 规则 | 报错 |
 |---|---|
 | 去除首尾空格后非空 | `Title is required.` |
-| 长度 3–150 字符 | `Title should be 3–150 characters.` |
-| 不含文件扩展名 | `Title should describe the document, not repeat the filename.` |
+| 长度 3–150 字符 | `Use 3–150 characters.` |
+| 不含文件扩展名 | `Describe the document instead of using the file name.` |
 | 不是默认命名（`scan_001`、`Scan 2026-08-06`、`document1`、`Untitled`、`New Document`、纯数字或日期） | 同上 |
 | 不是泛指词（`document`、`file`、`pdf`、`doc`、`untitled`） | `Title is too generic. Describe the document.` |
 
@@ -136,10 +153,24 @@ Collection 设置：
 
 - `references.ts`：与 schema 无关的通用扫描——遍历除 `documents` 外的所有 Collection、其版本记录、所有 Global 及其版本记录，在文档数据中匹配 Document ID，返回引用位置（collection/global、文档 ID 与标题、字段路径）。误判方向为“不删”。
 - `preventReferencedDelete`（`beforeDelete`）：被当前内容引用时抛出错误并列出位置，批量删除与 API 删除同样生效：
-  `Cannot delete: this document is used in <Collection> "<title>" (<path>). Remove these references first.`
+  `Can't delete: used in <Collection> "<title>". Remove it there first.`（不含字段路径；位置明细见 “Used in” 面板；超过 3 处写作 `… and N more`）
   版本记录中的历史引用不阻止删除。
 - `GET /api/documents/:id/references`：仅登录用户；返回当前引用与历史版本引用数量。
-- `UsedInPanel`：详情页侧边栏 `ui` 字段，打开详情页时请求上述接口，列出引用位置并提供跳转链接，注明历史版本引用数量。
+- `UsedInPanel`：详情页侧边栏 `ui` 字段，打开详情页时请求上述接口。界面与 Media D14 的 “Used in” 面板设计相同（2026-10-20 修订），由 Documents 独立实现：
+
+参考 `output/crop-ui-mockups/used-in-panel.html`。仅用 `@payloadcms/ui` 公开组件（`FieldLabel`、`FieldDescription`、`Pill`、`Link`、`ShimmerEffect`、`Banner`），项目 CSS 只负责间距。
+
+| 状态 | 显示 |
+|---|---|
+| 未被引用 | 标题 `Used in`；说明 `Not used anywhere. It can be deleted.` |
+| 被引用 | 标题 `Used in` + 数量徽标；列表每行：类型 `Pill`（集合单数标签，Global 显示 `Global`）+ 标题链接（跳转编辑页）；说明 `Remove it from these places before deleting.` |
+| 超过 5 处 | 显示前 5 行与 `Show all N`，点击展开 |
+| 有历史版本引用 | 追加说明 `Also in N older versions — these don't block deletion.`；数量为 0 时不显示 |
+| 加载中 | `ShimmerEffect` 占位 |
+| 加载失败 | `Banner type="danger"`：`Couldn't load where this is used.` + `Try again` |
+
+- 按文档去重：同一文档多个字段引用只显示一行；不显示字段路径。
+- 面板上方与表单字段之间加分隔，标题样式与其他字段一致。
 
 当前没有任何字段引用 `documents`，删除保护与面板为后续业务接入预留，测试中以临时 fixture 覆盖。
 

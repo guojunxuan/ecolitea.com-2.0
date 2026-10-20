@@ -3,6 +3,7 @@ import type { CollectionSlug, GlobalSlug, Payload, PayloadRequest } from 'payloa
 export type MediaReference = {
   mediaID: string
   kind: 'current' | 'version'
+  versionID?: string
   ownerType: 'collection' | 'global'
   ownerSlug: string
   documentID?: string
@@ -99,6 +100,7 @@ export async function findMediaReferences(
       references.push({
         ...match,
         kind,
+        ...(kind === 'version' ? { versionID: String(value.id) } : {}),
         ownerType,
         ownerSlug: owner.slug,
         ...(documentID ? { documentID } : {}),

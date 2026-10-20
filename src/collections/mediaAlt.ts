@@ -1,4 +1,9 @@
-import { ValidationError, type CollectionBeforeValidateHook } from 'payload'
+import {
+  ValidationError,
+  validations,
+  type CollectionBeforeValidateHook,
+  type TextFieldValidation,
+} from 'payload'
 
 export const validateMediaAlt: CollectionBeforeValidateHook = ({
   data,
@@ -17,13 +22,25 @@ export const validateMediaAlt: CollectionBeforeValidateHook = ({
     /\.(?:jpe?g|png|webp|avif|gif|mp4|svg|pdf)\b/i.test(alt) ||
     /^(?:img[_ -]?\d+|dsc[_ -]?\d+|screenshot[ _-]*\d.*|截屏\s*\d.*|\d+[\d\s:./_-]*)$/i.test(alt)
   ) {
-    message = 'Alt text should describe the image, not repeat the filename.'
+    message = 'Describe the image instead of using the file name.'
   } else if (/^(?:image|photo|picture|video)\d*$/i.test(alt)) {
-    message = 'Alt text is too generic. Describe what is shown.'
+    message = "Alt text is too generic. Describe what's shown."
   } else if (Array.from(alt).length < 5 || Array.from(alt).length > 125) {
-    message = 'Alt text should be 5–125 characters.'
+    message = 'Use 5–125 characters.'
   }
   if (message)
     throw new ValidationError({ collection: 'media', errors: [{ path: 'alt', message }] })
   return { ...data, alt }
+}
+
+// Keep native required validation on edited values without blocking unrelated
+// updates to historical uploads whose alt was optional when they were saved.
+export const validateMediaAltField: TextFieldValidation = (value, options) => {
+  if (
+    options.operation === 'update' &&
+    !options.req.file &&
+    (value === undefined || value === options.previousValue)
+  )
+    return true
+  return validations.text(value, options)
 }

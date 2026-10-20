@@ -18,7 +18,6 @@ vi.mock('@payloadcms/ui', () => ({
   useField: () => ({ value: title, setValue }),
   useFormFields: (selector: (state: unknown[]) => unknown) => selector([{ file: { value: file } }]),
 }))
-import { UsedInPanel } from '@/collections/Documents/admin/UsedInPanel'
 import { Documents } from '@/collections/Documents'
 import { TitlePrefill } from '@/collections/Documents/admin/TitlePrefill'
 import { FilesizeCell } from '@/collections/Documents/admin/FilesizeCell'
@@ -99,46 +98,5 @@ describe('Documents Used in sidebar', () => {
         },
       }),
     )
-  })
-  it('shows current owner links and nonblocking historical count from the authenticated endpoint', async () => {
-    const fetch = vi.fn(async () => ({
-      ok: true,
-      json: async () => ({
-        current: [
-          {
-            documentID: 'doc-1',
-            ownerDocumentID: 'blog-1',
-            kind: 'current',
-            ownerType: 'collection',
-            ownerSlug: 'blogs',
-            title: 'Tea certification',
-            path: 'certificate',
-            editURL: '/admin/collections/blogs/blog-1',
-          },
-        ],
-        historicalCount: 3,
-      }),
-    }))
-    vi.stubGlobal('fetch', fetch)
-    render(<UsedInPanel />)
-    const link = await screen.findByRole('link', { name: /Tea certification.*certificate/ })
-    expect(link.getAttribute('href')).toBe('/admin/collections/blogs/blog-1')
-    expect(screen.getByText(/3 historical references/)).toBeTruthy()
-    expect(fetch).toHaveBeenCalledWith(
-      '/api/documents/doc-1/references',
-      expect.objectContaining({ credentials: 'same-origin', signal: expect.any(AbortSignal) }),
-    )
-  })
-  it('reports inspection errors without presenting documents as unused', async () => {
-    vi.stubGlobal(
-      'fetch',
-      vi.fn(async () => ({ ok: false })),
-    )
-    render(<UsedInPanel />)
-    expect(await screen.findByRole('alert')).toHaveProperty(
-      'textContent',
-      'Unable to load document references.',
-    )
-    expect(screen.queryByText('No current references.')).toBeNull()
   })
 })

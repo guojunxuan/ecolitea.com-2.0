@@ -39,7 +39,7 @@ export const validateImageDimensions = (
     width <= 0 ||
     height <= 0
   ) {
-    return 'Image dimensions could not be read.'
+    return "Image can't be read. Try another file."
   }
 
   const actualRatio = width / height
@@ -56,9 +56,10 @@ export const validateImageDimensions = (
 
   return (
     matched ||
-    `Image is ${width}×${height}. Accepted ratios: ${MEDIA_UPLOAD_POLICY.image.ratios
+    `Image ratio not supported (${width} × ${height}). Use ${MEDIA_UPLOAD_POLICY.image.ratios
       .map(({ label }) => label)
-      .join(', ')}.`
+      .join(', ')
+      .replace(/, ([^,]+)$/, ' or $1')}.`
   )
 }
 

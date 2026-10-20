@@ -144,14 +144,18 @@ function readContentTypes(source: string, invalid: () => never): ContentType[] {
   return types
 }
 
-export function validateOfficeArchive(bytes: Buffer, extension: keyof typeof mainParts): void {
+export function validateOfficeArchive(
+  bytes: Buffer,
+  extension: keyof typeof mainParts,
+  logError?: (error: unknown) => void,
+): void {
   const main = mainParts[extension]
   const invalid = () => {
-    throw new APIError(`File is not a valid ${main.label} document.`, 400)
+    throw new APIError(`This ${main.label} file can't be read. Try saving it again.`, 400)
   }
   const macros = () => {
     throw new APIError(
-      `Documents with macros are not allowed. Save the file as .${extension} without macros and upload again.`,
+      `Files with macros aren't allowed. Save as .${extension} without macros.`,
       400,
     )
   }
@@ -279,6 +283,7 @@ export function validateOfficeArchive(bytes: Buffer, extension: keyof typeof mai
       invalid()
   } catch (error) {
     if (error instanceof APIError) throw error
+    logError?.(error)
     invalid()
   }
 }

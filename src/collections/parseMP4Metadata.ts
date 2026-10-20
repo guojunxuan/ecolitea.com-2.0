@@ -68,7 +68,8 @@ export const parseMP4MetadataWithFactory = async (
       } else if (length === 0) length = size - end
       if (length < headerSize || length > size - end)
         throw new Error('MP4 atom length is invalid or truncated.')
-      if (type === 'mdat') throw new Error(faststartError)
+      if (type === 'mdat')
+        throw Object.assign(new Error(faststartError), { code: 'FAST_START_REQUIRED' })
       end += length
       if (type === 'moov') {
         foundMoov = true

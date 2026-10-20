@@ -24,9 +24,9 @@ export const validateTitle: CollectionBeforeValidateHook = ({
     /\.(?:pdf|docx?|xlsx?|pptx?|docm|xlsm|pptm)\b/i.test(title) ||
     /^(?:scan[ _-]*\d.*|document[ _-]*\d+|new document|\d+[\d\s:./_-]*)$/i.test(title)
   ) {
-    message = 'Title should describe the document, not repeat the filename.'
+    message = 'Describe the document instead of using the file name.'
   } else if (Array.from(title).length < 3 || Array.from(title).length > 150) {
-    message = 'Title should be 3–150 characters.'
+    message = 'Use 3–150 characters.'
   }
   if (message)
     throw new ValidationError({ collection: 'documents', errors: [{ path: 'title', message }] })

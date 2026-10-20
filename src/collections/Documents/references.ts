@@ -3,6 +3,7 @@ import type { CollectionSlug, GlobalSlug, Payload, PayloadRequest } from 'payloa
 export type DocumentReference = {
   documentID: string
   kind: 'current' | 'version'
+  versionID?: string
   ownerType: 'collection' | 'global'
   ownerSlug: string
   ownerDocumentID?: string
@@ -99,6 +100,7 @@ export async function findDocumentReferences(
       references.push({
         ...match,
         kind,
+        ...(kind === 'version' ? { versionID: String(value.id) } : {}),
         ownerType,
         ownerSlug: owner.slug,
         ...(ownerDocumentID ? { ownerDocumentID } : {}),

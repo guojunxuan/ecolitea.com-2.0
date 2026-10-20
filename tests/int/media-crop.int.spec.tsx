@@ -10,6 +10,7 @@ const update = vi.fn((next: UploadEdits) => {
   edits = { ...edits, ...next }
 })
 const modified = vi.fn()
+const setBackgroundProcessing = vi.fn()
 const clearFile = vi.fn((value: null) => {
   file = value
 })
@@ -25,8 +26,12 @@ vi.mock('@payloadcms/ui', () => ({
   useFormFields: (selector: (state: unknown[]) => unknown) => selector([{ file: { value: file } }]),
   useField: () => ({ setValue: clearFile }),
   useDocumentInfo: () => ({ data }),
-  useUploadEdits: () => ({ uploadEdits: edits, updateUploadEdits: update }),
-  useForm: () => ({ setModified: modified }),
+  useUploadEdits: () => ({
+    uploadEdits: edits,
+    getUploadEdits: () => edits,
+    updateUploadEdits: update,
+  }),
+  useForm: () => ({ setModified: modified, setBackgroundProcessing }),
   useModal: () => ({
     modalState: React.useSyncExternalStore(
       (callback) => {
@@ -136,6 +141,7 @@ describe('locked Media crop controls', () => {
     render(<ImageCropControls />)
     load(1600, 1200)
     expect(screen.queryByRole('dialog')).toBeNull()
+    expect(screen.queryByRole('button', { name: 'Crop image' })).toBeNull()
   })
   it('explains invalid dimensions, selects the nearest ratio and updates the result', () => {
     render(<ImageCropControls />)
@@ -183,36 +189,107 @@ describe('locked Media crop controls', () => {
     expect(clearFile).toHaveBeenCalledWith(null)
   })
   it.each([undefined, null])(
-    'enables cached existing images with file=%s without another load event',
+    'does not load or expose crop controls for a saved image with file=%s',
     (value) => {
       file = value
       data = { mimeType: 'image/jpeg', url: '/existing.jpg' }
-      vi.spyOn(HTMLImageElement.prototype, 'complete', 'get').mockReturnValue(true)
-      vi.spyOn(HTMLImageElement.prototype, 'naturalWidth', 'get').mockReturnValue(1600)
-      vi.spyOn(HTMLImageElement.prototype, 'naturalHeight', 'get').mockReturnValue(1200)
       render(<ImageCropControls />)
-      const button = screen.getByRole('button', { name: 'Crop image' }) as HTMLButtonElement
-      expect(button.disabled).toBe(false)
-      fireEvent.click(button)
-      expect(screen.getByRole('heading').textContent).toBe('Crop image')
-      expect(screen.queryByText(/This image is/)).toBeNull()
-      fireEvent.click(screen.getByRole('button', { name: 'Cancel' }))
-      expect(clearFile).not.toHaveBeenCalled()
+      expect(screen.queryByAltText('Crop source')).toBeNull()
+      expect(screen.queryByRole('button', { name: 'Crop image' })).toBeNull()
       expect(screen.queryByRole('dialog')).toBeNull()
     },
   )
-  it('keeps cached dimensions when an empty file field changes from undefined to null', () => {
-    file = undefined
-    data = { mimeType: 'image/jpeg', url: '/existing.jpg' }
+  it('reads cached newly selected image dimensions without waiting for load', () => {
     vi.spyOn(HTMLImageElement.prototype, 'complete', 'get').mockReturnValue(true)
-    vi.spyOn(HTMLImageElement.prototype, 'naturalWidth', 'get').mockReturnValue(1600)
-    vi.spyOn(HTMLImageElement.prototype, 'naturalHeight', 'get').mockReturnValue(1200)
+    vi.spyOn(HTMLImageElement.prototype, 'naturalWidth', 'get').mockReturnValue(1000)
+    vi.spyOn(HTMLImageElement.prototype, 'naturalHeight', 'get').mockReturnValue(210)
+    render(<ImageCropControls />)
+    expect(screen.getByRole('heading').textContent).toBe('Crop image to a supported ratio')
+    expect(screen.getByText('Result: 373 × 210 · 16:9')).toBeTruthy()
+  })
+  it('preserves an applied crop through native filename changes', async () => {
     const view = render(<ImageCropControls />)
-    file = null
+    load(1000, 210)
+    fireEvent.click(screen.getByRole('button', { name: 'Apply crop' }))
+    const applied = { ...edits }
+    file = new File([file!], 'renamed.jpg', { type: file!.type, lastModified: file!.lastModified })
     view.rerender(<ImageCropControls />)
-    expect((screen.getByRole('button', { name: 'Crop image' }) as HTMLButtonElement).disabled).toBe(
-      false,
-    )
+    await screen.findByAltText('Crop source')
+    load(1000, 210)
+    expect(edits).toEqual(applied)
+    expect(screen.queryByRole('dialog')).toBeNull()
+  })
+  it('still inspects a renamed image when its original dimensions have not loaded', async () => {
+    const view = render(<ImageCropControls />)
+    file = new File([file!], 'renamed.jpg', { type: file!.type, lastModified: file!.lastModified })
+    view.rerender(<ImageCropControls />)
+    await screen.findByAltText('Crop source')
+    load(1000, 210)
+    expect(screen.getByRole('dialog')).toBeTruthy()
+  })
+  it('preserves crop when a pending rename returns to the original filename', async () => {
+    const view = render(<ImageCropControls />)
+    load(1000, 210)
+    fireEvent.click(screen.getByRole('button', { name: 'Apply crop' }))
+    const original = file!
+    const applied = { ...edits }
+    const read = vi
+      .spyOn(FileReader.prototype, 'readAsArrayBuffer')
+      .mockImplementationOnce(() => {})
+    file = new File([original], 'renamed.jpg', {
+      type: original.type,
+      lastModified: original.lastModified,
+    })
+    view.rerender(<ImageCropControls />)
+    file = new File([original], original.name, {
+      type: original.type,
+      lastModified: original.lastModified,
+    })
+    view.rerender(<ImageCropControls />)
+    await screen.findByAltText('Crop source')
+    await act(async () => {
+      const pending = read.mock.contexts[0] as FileReader
+      Object.defineProperty(pending, 'result', { value: new TextEncoder().encode('image').buffer })
+      pending.dispatchEvent(new ProgressEvent('load'))
+    })
+    load(1000, 210)
+    expect(edits).toEqual(applied)
+    expect(screen.queryByRole('dialog')).toBeNull()
+  })
+  it('ignores a stale rename comparison after a different file is selected', async () => {
+    const view = render(<ImageCropControls />)
+    load(1000, 210)
+    fireEvent.click(screen.getByRole('button', { name: 'Apply crop' }))
+    const read = vi
+      .spyOn(FileReader.prototype, 'readAsArrayBuffer')
+      .mockImplementationOnce(() => {})
+    file = new File([file!], 'renamed.jpg', { type: file!.type, lastModified: file!.lastModified })
+    view.rerender(<ImageCropControls />)
+    expect(edits.crop).toBeUndefined()
+    file = new File(['replacement'], 'new.jpg', { type: 'image/jpeg' })
+    view.rerender(<ImageCropControls />)
+    load(1600, 1200)
+    await act(async () => {
+      const pending = read.mock.contexts[0] as FileReader
+      Object.defineProperty(pending, 'result', { value: new TextEncoder().encode('image').buffer })
+      pending.dispatchEvent(new ProgressEvent('load'))
+    })
+    expect(edits.crop).toBeUndefined()
+    expect(screen.queryByRole('dialog')).toBeNull()
+  })
+  it('resets a replacement even when its metadata matches a renamed source', async () => {
+    const view = render(<ImageCropControls />)
+    load(1000, 210)
+    fireEvent.click(screen.getByRole('button', { name: 'Apply crop' }))
+    file = new File(['other'], 'replacement.jpg', {
+      type: file!.type,
+      lastModified: file!.lastModified,
+    })
+    view.rerender(<ImageCropControls />)
+    await screen.findByAltText('Crop source')
+    load(1000, 210)
+    expect(edits.crop).toBeUndefined()
+    expect(screen.getByRole('dialog')).toBeTruthy()
   })
   it('resets prior crop on replacement and preserves focal edits', () => {
     const view = render(<ImageCropControls />)

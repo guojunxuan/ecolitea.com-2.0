@@ -11,10 +11,11 @@ import { anyone } from '../access/anyone'
 import { authenticated } from '../access/authenticated'
 import {
   MEDIA_UPLOAD_POLICY,
+  formatMediaUploadError,
   validateMediaUpload,
   validateMediaMimeType,
 } from './mediaUploadPolicy'
-import { validateMediaAlt } from './mediaAlt'
+import { validateMediaAlt, validateMediaAltField } from './mediaAlt'
 import { preventReferencedDelete } from './mediaHooks/preventReferencedDelete'
 import { mediaFileEndpoint } from './mediaEndpoints/file'
 import { serverEnv } from '../utilities/env'
@@ -23,7 +24,11 @@ import { mediaReferencesEndpoint } from './mediaEndpoints/references'
 export const Media: CollectionConfig = {
   slug: 'media',
   versions: false,
-  select: ({ select }) => (select?.width === true ? { ...select, height: true } : undefined),
+  defaultSort: '-createdAt',
+  select: ({ select }) =>
+    select?.width === true
+      ? { ...select, height: true, mimeType: true, durationSeconds: true }
+      : undefined,
   disableDuplicate: true,
   admin: {
     defaultColumns: ['filename', 'alt', 'mimeType', 'width', 'filesize', '_h_folders', 'updatedAt'],
@@ -59,25 +64,33 @@ export const Media: CollectionConfig = {
     // read-only/hidden defaults without creating duplicate persisted fields.
     {
       name: 'filename',
+      label: 'Name',
       type: 'text',
       admin: { components: { Cell: '@/collections/mediaAdmin/FilenameCell#FilenameCell' } },
     },
     {
       name: 'width',
+      label: 'Dimensions',
       type: 'number',
       admin: { components: { Cell: '@/collections/mediaAdmin/DimensionsCell#DimensionsCell' } },
     },
     {
       name: 'filesize',
+      label: 'Size',
       type: 'number',
       admin: { components: { Cell: '@/collections/mediaAdmin/FilesizeCell#FilesizeCell' } },
     },
     {
       name: 'alt',
+      validate: validateMediaAltField,
+      label: 'Alt text',
       type: 'text',
       required: true,
       index: true,
-      admin: { components: { Field: '@/collections/mediaAdmin/AltPrefill#AltPrefill' } },
+      admin: {
+        description: 'Describe the image for screen readers and search engines.',
+        components: { Field: '@/collections/mediaAdmin/AltPrefill#AltPrefill' },
+      },
     },
     {
       name: 'durationSeconds',
@@ -87,7 +100,27 @@ export const Media: CollectionConfig = {
         readOnly: true,
       },
     },
-    createFolderField({ relationTo: 'folders' }),
+    createFolderField({
+      relationTo: 'folders',
+      label: 'Folder',
+      admin: { components: { Cell: '@/collections/mediaAdmin/FolderCell#FolderCell' } },
+    }),
+    {
+      name: 'mimeType',
+      type: 'text',
+      label: 'Type',
+      admin: { components: { Cell: '@/collections/mediaAdmin/TypeCell#TypeCell' } },
+    },
+    {
+      name: 'updatedAt',
+      type: 'date',
+      label: 'updatedAt',
+      admin: {
+        condition: () => false,
+        readOnly: true,
+        components: { Cell: '@/collections/mediaAdmin/UpdatedAtCell#UpdatedAtCell' },
+      },
+    },
     {
       name: 'caption',
       type: 'richText',
@@ -103,6 +136,7 @@ export const Media: CollectionConfig = {
     },
   ],
   hooks: {
+    afterError: [formatMediaUploadError],
     beforeDelete: [preventReferencedDelete],
     beforeOperation: [validateMediaMimeType],
     beforeValidate: [validateMediaUpload, validateMediaAlt],

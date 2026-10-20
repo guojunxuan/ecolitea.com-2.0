@@ -64,15 +64,15 @@ describe('Media image upload policy', () => {
   it('uses an inclusive 1 percent relative tolerance', () => {
     expect(MEDIA_UPLOAD_POLICY.image.ratioTolerance).toBe(0.01)
     expect(validateImageDimensions(1010, 1000)).toBe(true)
-    expect(validateImageDimensions(1011, 1000)).toMatch(/Accepted ratios/)
+    expect(validateImageDimensions(1011, 1000)).toMatch(/ratio not supported/)
   })
 
   it('rejects missing, non-positive, and non-finite dimensions', () => {
-    expect(validateImageDimensions()).toMatch(/dimensions/)
-    expect(validateImageDimensions(0, 100)).toMatch(/dimensions/)
-    expect(validateImageDimensions(-1, 100)).toMatch(/dimensions/)
-    expect(validateImageDimensions(Number.NaN, 100)).toMatch(/dimensions/)
-    expect(validateImageDimensions(Number.POSITIVE_INFINITY, 100)).toMatch(/dimensions/)
+    expect(validateImageDimensions()).toMatch(/Image can't be read/)
+    expect(validateImageDimensions(0, 100)).toMatch(/Image can't be read/)
+    expect(validateImageDimensions(-1, 100)).toMatch(/Image can't be read/)
+    expect(validateImageDimensions(Number.NaN, 100)).toMatch(/Image can't be read/)
+    expect(validateImageDimensions(Number.POSITIVE_INFINITY, 100)).toMatch(/Image can't be read/)
   })
 
   it('keeps video upload policy values configured for downstream validation', () => {
@@ -218,7 +218,7 @@ describe('Media video upload policy', () => {
         audioCodecs: ['mp4a.40.2'],
         videoCodecs: ['avc1.640028'],
       }),
-    ).toMatch(/duration/i)
+    ).toMatch(/Video can't be read/)
   })
 
   it('requires H.264 video rather than accepting arbitrary MP4 codecs', () => {
@@ -231,6 +231,23 @@ describe('Media video upload policy', () => {
     ).toMatch(/H.264/)
   })
 
+  it.each([['hvc1.1.6.L93.B0', 'avc1.640028'], ['avc1.640028', 'hev1'], []])(
+    'rejects unsupported or missing video tracks: %j',
+    (...videoCodecs) => {
+      expect(validateVideoMetadata({ durationSeconds: 10, videoCodecs, audioCodecs: [] })).toBe(
+        'Video format not supported. Export as MP4 (H.264).',
+      )
+    },
+  )
+  it('accepts multiple supported H.264 tracks', () => {
+    expect(
+      validateVideoMetadata({
+        durationSeconds: 10,
+        videoCodecs: ['avc1.640028', 'avc3.640028'],
+        audioCodecs: [],
+      }),
+    ).toBe(true)
+  })
   it('rejects generic MP4 audio identifiers and accepts videos without audio', () => {
     expect(
       validateVideoMetadata({
@@ -313,9 +330,13 @@ describe('MP4 streaming and display dimensions', () => {
     [4, 5],
   ])('bounds the %s:%s video ratio at 1 percent', (width, height) => {
     expect(validateVideoDimensions(width * 1000 * 1.01, height * 1000)).toBe(true)
-    expect(validateVideoDimensions(width * 1000 * 1.011, height * 1000)).toMatch(/Accepted ratios/)
+    expect(validateVideoDimensions(width * 1000 * 1.011, height * 1000)).toMatch(
+      /ratio not supported/,
+    )
     expect(validateVideoDimensions(width * 1000 * 0.99, height * 1000)).toBe(true)
-    expect(validateVideoDimensions(width * 1000 * 0.989, height * 1000)).toMatch(/Accepted ratios/)
+    expect(validateVideoDimensions(width * 1000 * 0.989, height * 1000)).toMatch(
+      /ratio not supported/,
+    )
   })
 })
 
@@ -375,5 +396,32 @@ describe('real MP4 metadata fixtures', () => {
     } finally {
       await rm(directory, { recursive: true, force: true })
     }
+  })
+})
+
+describe('editor-facing upload policy messages', () => {
+  it('reports image dimensions and all supported ratios', () => {
+    expect(validateImageDimensions(1000, 210)).toBe(
+      'Image ratio not supported (1000 × 210). Use 1:1, 4:3, 3:2, 16:9, 9:16 or 4:5.',
+    )
+    expect(validateImageDimensions()).toBe("Image can't be read. Try another file.")
+  })
+  it('reports video dimensions and supported ratios', () => {
+    expect(validateVideoDimensions(1440, 1080)).toBe(
+      'Video ratio not supported (1440 × 1080). Use 16:9, 9:16, 1:1 or 4:5.',
+    )
+  })
+  it('formats actual duration as m:ss', () => {
+    expect(
+      validateVideoMetadata({ durationSeconds: 750, videoCodecs: ['avc1'], audioCodecs: [] }),
+    ).toBe('Video is too long (12:30). Maximum is 10 minutes.')
+  })
+  it('gives export guidance without displaying codec identifiers', () => {
+    expect(
+      validateVideoMetadata({ durationSeconds: 10, videoCodecs: ['hev1'], audioCodecs: [] }),
+    ).toBe('Video format not supported. Export as MP4 (H.264).')
+    expect(
+      validateVideoMetadata({ durationSeconds: 10, videoCodecs: ['avc1'], audioCodecs: ['opus'] }),
+    ).toBe('Audio format not supported. Export with AAC audio.')
   })
 })

@@ -478,15 +478,18 @@ export interface Post {
  */
 export interface Media {
   id: string;
+  /**
+   * Describe the image for screen readers and search engines.
+   */
   alt: string;
   durationSeconds?: number | null;
   _h_folders?: (string | null) | Folder;
+  updatedAt?: string | null;
   /**
    * Default caption shown when this media is used in a Media block. A caption set on the block overrides it.
    */
   caption?: LexicalRichText<LexicalNodes_46081D0A> | null;
   prefix?: string | null;
-  updatedAt: string;
   createdAt: string;
   url?: string | null;
   thumbnailURL?: string | null;
@@ -958,11 +961,17 @@ export interface BlogCategory {
  */
 export interface Document {
   id: string;
+  /**
+   * Shown to editors when choosing this document.
+   */
   title: string;
+  /**
+   * Optional short summary.
+   */
   description?: string | null;
   _h_folders?: (string | null) | Folder;
+  updatedAt?: string | null;
   prefix?: string | null;
-  updatedAt: string;
   createdAt: string;
   url?: string | null;
   thumbnailURL?: string | null;
@@ -1530,9 +1539,9 @@ export interface MediaSelect<T extends boolean = true> {
   alt?: T;
   durationSeconds?: T;
   _h_folders?: T;
+  updatedAt?: T;
   caption?: T;
   prefix?: T;
-  updatedAt?: T;
   createdAt?: T;
   url?: T;
   thumbnailURL?: T;
@@ -1552,8 +1561,8 @@ export interface DocumentsSelect<T extends boolean = true> {
   title?: T;
   description?: T;
   _h_folders?: T;
-  prefix?: T;
   updatedAt?: T;
+  prefix?: T;
   createdAt?: T;
   url?: T;
   thumbnailURL?: T;

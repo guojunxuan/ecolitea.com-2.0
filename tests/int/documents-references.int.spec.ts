@@ -391,7 +391,7 @@ describe('Documents protection through the real Payload API', () => {
       locale: 'zh' as never,
     })
     await expect(payload.delete({ collection: 'documents', id: documentID })).rejects.toThrow(
-      /Cannot delete: this document is used in Blogs "Localized story" \(heroImage.zh\).*Remove these references first\./,
+      /Can't delete: used in Blog "Localized story".*Remove it there first\./,
     )
     const batch = await payload.delete({
       collection: 'documents',
@@ -402,7 +402,7 @@ describe('Documents protection through the real Payload API', () => {
     const originalError = payload.logger.error.bind(payload.logger)
     const expectedError = vi.spyOn(payload.logger, 'error').mockImplementation((...args) => {
       const entry = args[0] as { err?: { message?: string } } | undefined
-      if (!entry?.err?.message?.startsWith('Cannot delete: this document is used in Blogs')) {
+      if (!entry?.err?.message?.startsWith("Can't delete: used in Blog")) {
         originalError(...args)
       }
     })
@@ -417,14 +417,12 @@ describe('Documents protection through the real Payload API', () => {
       })
       expect(response.status).toBe(400)
       expect(await response.json()).toMatchObject({
-        errors: [
-          { message: expect.stringContaining('Cannot delete: this document is used in Blogs') },
-        ],
+        errors: [{ message: expect.stringContaining("Can't delete: used in Blog") }],
       })
       expect(expectedError).toHaveBeenCalledWith(
         expect.objectContaining({
           err: expect.objectContaining({
-            message: expect.stringContaining('Cannot delete: this document is used in Blogs'),
+            message: expect.stringContaining("Can't delete: used in Blog"),
           }),
         }),
       )
@@ -549,7 +547,7 @@ describe('Documents protection through the real Payload API', () => {
         expect.objectContaining({ ownerSlug: 'blogs', path: 'heroImage.en' }),
       ])
       await expect(payload.delete({ collection: 'documents', id: asset.id })).rejects.toThrow(
-        /Remove these references first/,
+        /Remove it there first/,
       )
       const batch = await payload.delete({
         collection: 'documents',
@@ -567,7 +565,7 @@ describe('Documents protection through the real Payload API', () => {
       })
       expect(response.status).toBe(400)
       expect(await response.json()).toMatchObject({
-        errors: [{ message: expect.stringContaining('Remove these references first.') }],
+        errors: [{ message: expect.stringContaining('Remove it there first.') }],
       })
       await update(String(asset.id), false)
       // Both stored and draft copies share one owner/path in the current union.
@@ -576,7 +574,7 @@ describe('Documents protection through the real Payload API', () => {
       await update(null, true)
       expect(await current()).toHaveLength(1)
       await expect(payload.delete({ collection: 'documents', id: asset.id })).rejects.toThrow(
-        /Remove these references first/,
+        /Remove it there first/,
       )
       await update(null, false)
       await update(null, true)
@@ -629,7 +627,7 @@ describe('Documents protection through the real Payload API', () => {
         }),
       ])
       await expect(payload.delete({ collection: 'documents', id: asset.id })).rejects.toThrow(
-        /Remove these references first/,
+        /Remove it there first/,
       )
       const batch = await payload.delete({
         collection: 'documents',
@@ -655,7 +653,7 @@ describe('Documents protection through the real Payload API', () => {
       await update(null, true)
       expect(await current()).toHaveLength(1)
       await expect(payload.delete({ collection: 'documents', id: asset.id })).rejects.toThrow(
-        /Remove these references first/,
+        /Remove it there first/,
       )
       await update(null, false)
       await update(null, true)

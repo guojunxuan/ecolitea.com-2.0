@@ -15,7 +15,13 @@ export const documentReferencesEndpoint: Endpoint = {
     return Response.json(
       {
         current: references.filter(({ kind }) => kind === 'current'),
-        historicalCount: references.filter(({ kind }) => kind === 'version').length,
+        historicalCount: new Set(
+          references
+            .filter(({ kind }) => kind === 'version')
+            .map(({ ownerType, ownerSlug, versionID }) =>
+              JSON.stringify([ownerType, ownerSlug, versionID]),
+            ),
+        ).size,
       },
       { headers },
     )

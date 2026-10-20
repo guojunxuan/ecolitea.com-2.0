@@ -89,11 +89,9 @@ test.describe('Media and Documents native Admin workflows', () => {
       await page
         .locator('input[type=file]')
         .setInputFiles({ name: `${prefix}-invalid.png`, mimeType: 'image/png', buffer })
-      const dialog = page
-        .getByRole('dialog')
-        .filter({
-          has: page.getByRole('heading', { name: 'Crop image to a supported ratio', exact: true }),
-        })
+      const dialog = page.getByRole('dialog').filter({
+        has: page.getByRole('heading', { name: 'Crop image to a supported ratio', exact: true }),
+      })
       await expect(dialog).toBeVisible()
       await expect(dialog.getByText('Result: 373 × 210 · 16:9')).toBeVisible()
       if (action === 'Escape') await page.keyboard.press('Escape')
@@ -118,11 +116,9 @@ test.describe('Media and Documents native Admin workflows', () => {
       .setInputFiles({ name: `${prefix}-garden.png`, mimeType: 'image/png', buffer })
     await expect(page.locator('input[name=alt]')).toHaveValue(`${prefix}-garden`)
     await page.locator('input[name=alt]').fill('Tea garden in spring')
-    const dialog = page
-      .getByRole('dialog')
-      .filter({
-        has: page.getByRole('heading', { name: 'Crop image to a supported ratio', exact: true }),
-      })
+    const dialog = page.getByRole('dialog').filter({
+      has: page.getByRole('heading', { name: 'Crop image to a supported ratio', exact: true }),
+    })
     await expect(dialog).toBeVisible()
     await expect(dialog.getByText(/This image is 1100 × 1000 \(1.10:1\)/)).toBeVisible()
     await expect(dialog.getByRole('document')).toBeVisible()
@@ -137,21 +133,29 @@ test.describe('Media and Documents native Admin workflows', () => {
     )
     await dialog.getByRole('tab', { name: '1:1', exact: true }).click()
     await dialog.getByRole('button', { name: 'Apply crop' }).click()
+    await page.evaluate(() => {
+      const read = FileReader.prototype.readAsArrayBuffer
+      FileReader.prototype.readAsArrayBuffer = function (blob) {
+        window.setTimeout(() => read.call(this, blob), 500)
+      }
+    })
+    const filename = page.getByRole('textbox', { name: 'File Name', exact: true })
+    await filename.fill(`${prefix}-renamed-garden.png`)
+    await expect(page.getByRole('button', { name: 'Save', exact: true })).toBeDisabled()
+    await expect(filename).toBeEnabled()
+    await filename.press('Home')
+    await filename.pressSequentially('tea-')
+    await expect(dialog).toHaveCount(0)
     const doc = await save(page, 'media')
+    expect(doc.filename).toBe(`tea-${prefix}-renamed-garden.png`)
     expect(doc).toMatchObject({ width: 1000, height: 1000 })
     await page.reload()
-    const cropButton = page.getByRole('button', { name: 'Crop image', exact: true })
-    await expect(cropButton).toBeEnabled()
-    await cropButton.click()
-    const manual = page
-      .getByRole('dialog')
-      .filter({ has: page.getByRole('heading', { name: 'Crop image', exact: true }) })
-    await expect(manual).toBeVisible()
-    await expect(manual.getByText(/This image is/)).toHaveCount(0)
-    await manual.getByRole('button', { name: 'Cancel', exact: true }).click()
-    await expect(manual).toHaveCount(0)
+    await expect(page.getByRole('button', { name: 'Crop image', exact: true })).toHaveCount(0)
+    await expect(
+      page.getByRole('heading', { name: 'Crop image to a supported ratio', exact: true }),
+    ).toHaveCount(0)
     await expect(page.getByRole('region', { name: 'Used in', exact: true })).toContainText(
-      'No current references.',
+      'Not used anywhere. It can be deleted.',
     )
     await expect(page.getByRole('link', { name: 'Download', exact: true })).toHaveAttribute(
       'href',
@@ -214,7 +218,7 @@ test.describe('Media and Documents native Admin workflows', () => {
       ).toHaveAttribute('href', `/admin/collections/blogs/${blog.id}`)
       const blocked = await page.request.delete(`${baseURL}/api/media/${doc.id}`)
       expect(blocked.status()).toBe(400)
-      expect(await blocked.text()).toContain('Remove these references first.')
+      expect(await blocked.text()).toContain('Remove it there first.')
     } finally {
       await payload.update({
         collection: 'blogs',
@@ -223,6 +227,58 @@ test.describe('Media and Documents native Admin workflows', () => {
         context: { disableRevalidate: true },
       })
     }
+  })
+
+  test('supported uploads and saved images have no crop entry; native replacement crops unsupported files', async ({
+    page,
+  }) => {
+    await page.goto(`${baseURL}/admin/collections/media/create`)
+    const buffer = await sharp({
+      create: { width: 1600, height: 1200, channels: 3, background: '#5f805a' },
+    })
+      .png()
+      .toBuffer()
+    await page
+      .locator('input[type=file]')
+      .setInputFiles({ name: `${prefix}-supported.png`, mimeType: 'image/png', buffer })
+    await expect(page.getByRole('textbox', { name: 'File Name', exact: true })).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Crop image', exact: true })).toHaveCount(0)
+    await expect(page.getByRole('dialog')).toHaveCount(0)
+    await page.locator('input[name=alt]').fill('Green tea garden landscape')
+    const doc = await save(page, 'media')
+    expect(doc).toMatchObject({ width: 1600, height: 1200 })
+    await page.reload()
+    await expect(page.getByRole('button', { name: /edit image/i })).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Crop image', exact: true })).toHaveCount(0)
+    await expect(page.getByRole('dialog')).toHaveCount(0)
+    await page.getByRole('button', { name: doc.filename, exact: true }).click()
+    await page.getByRole('button', { name: 'Replace file', exact: true }).click()
+    const replacement = await sharp({
+      create: { width: 1000, height: 210, channels: 3, background: '#5f805a' },
+    })
+      .png()
+      .toBuffer()
+    await page.locator('input[type=file]').setInputFiles({
+      name: `${prefix}-replacement.png`,
+      mimeType: 'image/png',
+      buffer: replacement,
+    })
+    const dialog = page.getByRole('dialog').filter({
+      has: page.getByRole('heading', { name: 'Crop image to a supported ratio', exact: true }),
+    })
+    await expect(dialog).toBeVisible()
+    await expect(dialog.getByText('Result: 373 × 210 · 16:9')).toBeVisible()
+    await dialog.getByRole('button', { name: 'Apply crop', exact: true }).click()
+    const response = page.waitForResponse(
+      (r) =>
+        r.request().method() === 'PATCH' && new URL(r.url()).pathname === `/api/media/${doc.id}`,
+    )
+    await page.getByRole('button', { name: 'Save', exact: true }).click()
+    expect((await response).ok()).toBe(true)
+    await expect
+      .poll(async () => (await page.request.get(`${baseURL}/api/media/${doc.id}?depth=0`)).json())
+      .toMatchObject({ width: 373, height: 210 })
+    await expect(page.getByRole('button', { name: 'Crop image', exact: true })).toHaveCount(0)
   })
 
   test('uploads and previews PDF and all Office types with title prefill and native download', async ({
@@ -238,7 +294,7 @@ test.describe('Media and Documents native Admin workflows', () => {
       await expect(page.locator('input[name=title]')).toHaveValue(`${prefix}-${extension}`)
       const doc = await save(page, 'documents')
       await expect(page.getByRole('region', { name: 'Used in', exact: true })).toContainText(
-        'No current references.',
+        'Not used anywhere. It can be deleted.',
       )
       if (extension === 'pdf') {
         const iframe = page.locator('iframe')
@@ -408,6 +464,117 @@ test.describe('Media and Documents native Admin workflows', () => {
     }
   })
 
+  test('shows readable list columns and the redesigned Used in states for both resources', async ({
+    page,
+  }) => {
+    const png = await sharp({
+      create: { width: 800, height: 600, channels: 3, background: '#52775f' },
+    })
+      .png()
+      .toBuffer()
+    for (const collection of ['media', 'documents'] as const) {
+      const filename = `${prefix}-list-${collection}.${collection === 'media' ? 'png' : 'pdf'}`
+      const upload = await page.request.post(`${baseURL}/api/${collection}`, {
+        multipart: {
+          file: {
+            name: filename,
+            mimeType: collection === 'media' ? 'image/png' : 'application/pdf',
+            buffer: collection === 'media' ? png : browserPDF(),
+          },
+          _payload: JSON.stringify(
+            collection === 'media'
+              ? { alt: 'Tea garden in morning light' }
+              : { title: 'Organic tea certification' },
+          ),
+        },
+      })
+      expect(upload.ok(), await upload.text()).toBe(true)
+      const resource = (await upload.json()).doc
+      await page.goto(`${baseURL}/admin/collections/${collection}`)
+      for (const header of collection === 'media'
+        ? ['Name', 'Alt text', 'Type', 'Dimensions', 'Size', 'Folder', 'updatedAt']
+        : ['Title', 'File name', 'Type', 'Size', 'Folder', 'updatedAt']) {
+        await expect(
+          page.getByRole('columnheader').filter({ has: page.getByText(header, { exact: true }) }),
+        ).toBeVisible()
+      }
+      const row = page.getByRole('row').filter({
+        hasText:
+          collection === 'media' ? 'Tea garden in morning light' : 'Organic tea certification',
+      })
+      await expect(row).toContainText(collection === 'media' ? 'PNG' : 'PDF')
+      await expect(row).toContainText('—')
+      await expect(row).toContainText(/\b[A-Z][a-z]{2} \d{1,2}, \d{4}\b/)
+      await expect(row).toContainText(
+        collection === 'media' ? filename.replace(/\.png$/, '') : filename,
+      )
+      // The resource just uploaded is first with the collection's default sorting.
+      await expect(page.locator('tbody tr').first()).toContainText(
+        collection === 'media' ? 'Tea garden in morning light' : 'Organic tea certification',
+      )
+      await page.goto(`${baseURL}/admin/collections/${collection}/${resource.id}`)
+      await expect(page.locator('input[name=updatedAt]')).toHaveCount(0)
+      const panel = page.getByRole('region', { name: 'Used in', exact: true })
+      await expect(panel).toContainText('Not used anywhere. It can be deleted.')
+      await expect(panel).not.toContainText('older versions')
+      await expect(
+        page.getByText(
+          collection === 'media'
+            ? 'Describe the image for screen readers and search engines.'
+            : 'Shown to editors when choosing this document.',
+          { exact: true },
+        ),
+      ).toBeVisible()
+      if (collection === 'documents')
+        await expect(page.getByText('Optional short summary.', { exact: true })).toBeVisible()
+      let attempts = 0
+      await page.route(`**/api/${collection}/${resource.id}/references`, async (route) => {
+        attempts++
+        if (attempts === 1) return route.fulfill({ status: 503, json: {} })
+        const owners = Array.from({ length: 8 }, (_, index) => ({
+          ownerType: index === 7 ? 'global' : 'collection',
+          ownerSlug: index === 7 ? 'header' : 'blogs',
+          documentID: `blog-${index}`,
+          ownerDocumentID: `blog-${index}`,
+          title: index === 7 ? 'Header' : `Tea story ${index + 1}`,
+          path: 'heroImage',
+          editURL: index === 7 ? '/admin/globals/header' : `/admin/collections/blogs/blog-${index}`,
+        }))
+        await route.fulfill({
+          json: {
+            current: [...owners, { ...owners[0], path: 'layout.0.image' }],
+            historicalCount: 4,
+          },
+        })
+      })
+      await page.reload()
+      await expect(panel).toContainText("Couldn't load where this is used.")
+      await panel.getByRole('button', { name: 'Try again', exact: true }).click()
+      await expect(panel.getByRole('link')).toHaveCount(5)
+      await expect(panel).toContainText("Also in 4 older versions — these don't block deletion.")
+      await expect(panel).not.toContainText('heroImage')
+      await panel.getByRole('button', { name: 'Show all 8', exact: true }).click()
+      await expect(panel.getByRole('link')).toHaveCount(8)
+      const heading = await panel.getByText('Used in', { exact: true }).boundingBox()
+      const count = await panel.getByText('8', { exact: true }).boundingBox()
+      expect(heading).not.toBeNull()
+      expect(count).not.toBeNull()
+      expect(count!.x - (heading!.x + heading!.width)).toBeLessThan(20)
+      await panel.screenshot({ path: test.info().outputPath(`${collection}-used-in.png`) })
+      await expect(panel).toContainText('Global')
+      await expect(panel.getByRole('link', { name: 'Header', exact: true })).toHaveAttribute(
+        'href',
+        '/admin/globals/header',
+      )
+      await page.setViewportSize({ width: 390, height: 844 })
+      await expect(panel).toBeVisible()
+      const bounds = await panel.boundingBox()
+      expect(bounds).not.toBeNull()
+      expect(bounds!.x + bounds!.width).toBeLessThanOrEqual(391)
+      await page.setViewportSize({ width: 1280, height: 720 })
+    }
+  })
+
   test('rejects an unsupported video ratio in the browser without offering image crop', async ({
     page,
   }) => {
@@ -427,10 +594,12 @@ test.describe('Media and Documents native Admin workflows', () => {
     await page.getByRole('button', { name: 'Save', exact: true }).click()
     const response = await rejected
     expect(response.status()).toBe(400)
-    expect(await response.text()).toContain('Accepted ratios: 16:9, 9:16, 1:1, 4:5')
-    await expect(page.getByText(/Video is 1600×1200[.] Accepted ratios/).last()).toContainText(
-      '16:9',
-    )
+    expect(await response.text()).toContain('Use 16:9, 9:16, 1:1 or 4:5.')
+    await expect(
+      page.getByText('Video ratio not supported (1600 × 1200). Use 16:9, 9:16, 1:1 or 4:5.', {
+        exact: true,
+      }),
+    ).toBeVisible()
     await expect(page).toHaveURL(/\/media\/create/)
   })
 })

@@ -17,7 +17,7 @@ describe('Media alt integrity', () => {
   })
   it.each(['abcd', 'x'.repeat(126)])('bounds trimmed length', async (alt) => {
     await expect(run({ alt })).rejects.toMatchObject({
-      data: { errors: [{ message: 'Alt text should be 5–125 characters.' }] },
+      data: { errors: [{ message: 'Use 5–125 characters.' }] },
     })
   })
   it.each([
@@ -31,7 +31,7 @@ describe('Media alt integrity', () => {
   ])('rejects filenames: %s', async (alt) => {
     await expect(run({ alt })).rejects.toMatchObject({
       data: {
-        errors: [{ message: 'Alt text should describe the image, not repeat the filename.' }],
+        errors: [{ message: 'Describe the image instead of using the file name.' }],
       },
     })
   })
@@ -39,7 +39,7 @@ describe('Media alt integrity', () => {
     'rejects generic alt: %s',
     async (alt) => {
       await expect(run({ alt })).rejects.toMatchObject({
-        data: { errors: [{ message: 'Alt text is too generic. Describe what is shown.' }] },
+        data: { errors: [{ message: "Alt text is too generic. Describe what's shown." }] },
       })
     },
   )
@@ -71,7 +71,7 @@ describe('Media alt integrity', () => {
       run({}, { operation: 'update', originalDoc: { alt: 'IMG_1234' }, req: { file: {} } }),
     ).rejects.toMatchObject({
       data: {
-        errors: [{ message: 'Alt text should describe the image, not repeat the filename.' }],
+        errors: [{ message: 'Describe the image instead of using the file name.' }],
       },
     })
     await expect(

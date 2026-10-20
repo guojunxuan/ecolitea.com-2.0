@@ -13,6 +13,7 @@ export const Documents: CollectionConfig = {
   slug: 'documents',
   labels: { singular: 'Document', plural: 'Documents' },
   versions: false,
+  defaultSort: '-createdAt',
   disableDuplicate: true,
   admin: {
     useAsTitle: 'title',
@@ -33,19 +34,50 @@ export const Documents: CollectionConfig = {
     },
     {
       name: 'title',
+      label: 'Title',
       type: 'text',
       required: true,
       index: true,
       validate: validateTitleField,
-      admin: { components: { Field: '@/collections/Documents/admin/TitlePrefill#TitlePrefill' } },
+      admin: {
+        description: 'Shown to editors when choosing this document.',
+        components: { Field: '@/collections/Documents/admin/TitlePrefill#TitlePrefill' },
+      },
     },
-    { name: 'description', type: 'textarea' },
+    {
+      name: 'description',
+      type: 'textarea',
+      maxLength: 300,
+      admin: { description: 'Optional short summary.' },
+    },
     {
       name: 'filesize',
+      label: 'Size',
       type: 'number',
       admin: { components: { Cell: '@/collections/Documents/admin/FilesizeCell#FilesizeCell' } },
     },
-    createFolderField({ relationTo: 'folders' }),
+    createFolderField({
+      relationTo: 'folders',
+      label: 'Folder',
+      admin: { components: { Cell: '@/collections/Documents/admin/FolderCell#FolderCell' } },
+    }),
+    { name: 'filename', type: 'text', label: 'File name' },
+    {
+      name: 'mimeType',
+      type: 'text',
+      label: 'Type',
+      admin: { components: { Cell: '@/collections/Documents/admin/TypeCell#TypeCell' } },
+    },
+    {
+      name: 'updatedAt',
+      type: 'date',
+      label: 'updatedAt',
+      admin: {
+        condition: () => false,
+        readOnly: true,
+        components: { Cell: '@/collections/Documents/admin/UpdatedAtCell#UpdatedAtCell' },
+      },
+    },
   ],
   hooks: {
     beforeDelete: [preventReferencedDelete],

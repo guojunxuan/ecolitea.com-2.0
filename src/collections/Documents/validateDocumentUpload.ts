@@ -4,6 +4,7 @@ import {
   APIError,
   type CollectionBeforeOperationHook,
   type CollectionBeforeValidateHook,
+  type PayloadRequest,
 } from 'payload'
 import { DOCUMENT_UPLOAD_POLICY } from './uploadPolicy'
 import { validateOfficeArchive } from './officeArchive'
@@ -16,22 +17,33 @@ type UploadFile = {
   tempFilePath?: string
 }
 
+const sizeError = (bytes: number) =>
+  new APIError(
+    `File is too large (${Math.round(bytes / 1_000_000)} MB). Maximum is ${DOCUMENT_UPLOAD_POLICY.maxBytes / 1_000_000} MB.`,
+    400,
+  )
+
 const checkUpload = async (file: UploadFile, generatedFilesize?: unknown) => {
   const type = Object.entries(DOCUMENT_UPLOAD_POLICY.types).find(
     ([, value]) => value.mimeType === file.mimetype,
   )
   if (!type)
     throw new APIError(
-      `Unsupported file type: ${file.mimetype || 'unknown'}. Documents accepts PDF, Word (.docx), Excel (.xlsx) and PowerPoint (.pptx).`,
+      'Unsupported file type. Use PDF, Word (.docx), Excel (.xlsx) or PowerPoint (.pptx).',
       400,
     )
   const sizes = [file.size, file.data?.byteLength, generatedFilesize]
   if (file.tempFilePath) sizes.push((await stat(file.tempFilePath)).size)
-  if (sizes.some((size) => typeof size === 'number' && size > DOCUMENT_UPLOAD_POLICY.maxBytes))
-    throw new APIError('File size exceeds the maximum of 10 MB.', 400)
+  const observedSize = Math.max(
+    ...sizes.filter((size): size is number => typeof size === 'number' && !Number.isNaN(size)),
+  )
+  if (observedSize > DOCUMENT_UPLOAD_POLICY.maxBytes) throw sizeError(observedSize)
   const extension = path.extname(file.name).slice(1).toLowerCase()
   if (extension !== type[0])
-    throw new APIError(`File extension ".${extension}" does not match its type (.${type[0]}).`, 400)
+    throw new APIError(
+      `File extension doesn't match its content. Save it again as .${type[0]}.`,
+      400,
+    )
   return type[0] as keyof typeof DOCUMENT_UPLOAD_POLICY.types
 }
 
@@ -47,18 +59,35 @@ const readOfficeBytes = async (file: UploadFile): Promise<Buffer> => {
       if (!result.bytesRead) break
       length += result.bytesRead
     }
-    if (length > DOCUMENT_UPLOAD_POLICY.maxBytes)
-      throw new APIError('File size exceeds the maximum of 10 MB.', 400)
+    if (length > DOCUMENT_UPLOAD_POLICY.maxBytes) throw sizeError(length)
     return bytes.subarray(0, length)
   } finally {
     await handle.close()
   }
 }
 
-const validateNewFile = async (file: UploadFile, generatedFilesize?: unknown) => {
-  const extension = await checkUpload(file, generatedFilesize)
-  // Payload checkFileRestrictions owns PDF structure validation.
-  if (extension !== 'pdf') validateOfficeArchive(await readOfficeBytes(file), extension)
+const validateNewFile = async (
+  file: UploadFile,
+  req: PayloadRequest,
+  generatedFilesize?: unknown,
+) => {
+  const logError = (err: unknown) =>
+    req.payload?.logger?.error({ err, msg: 'Document upload could not be read.' })
+  try {
+    const extension = await checkUpload(file, generatedFilesize)
+    // Payload checkFileRestrictions owns PDF structure validation.
+    if (extension !== 'pdf') validateOfficeArchive(await readOfficeBytes(file), extension, logError)
+  } catch (error) {
+    if (error instanceof APIError) throw error
+    logError(error)
+    const type = Object.values(DOCUMENT_UPLOAD_POLICY.types).find(
+      (type) => type.mimeType === file.mimetype,
+    )
+    throw new APIError(
+      `This ${type?.label ?? 'document'} file can't be read. Try saving it again.`,
+      400,
+    )
+  }
 }
 
 // Native upload processing precedes beforeValidate. This public earlier hook
@@ -68,12 +97,12 @@ export const validateDocumentUploadEarly: CollectionBeforeOperationHook = async 
   req,
 }) => {
   if ((operation === 'create' || operation === 'update') && req.file) {
-    await validateNewFile(req.file)
+    await validateNewFile(req.file, req)
   }
 }
 
 export const validateDocumentUpload: CollectionBeforeValidateHook = async ({ data, req }) => {
   if (!req.file) return data
-  await validateNewFile(req.file, data?.filesize)
+  await validateNewFile(req.file, req, data?.filesize)
   return data
 }

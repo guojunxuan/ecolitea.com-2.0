@@ -11,7 +11,7 @@ describe('Document title integrity', () => {
     await expect(run(title)).rejects.toMatchObject(error('Title is required.'))
   })
   it.each(['ab', 'a'.repeat(151)])('bounds title length', async (title) => {
-    await expect(run(title)).rejects.toMatchObject(error('Title should be 3–150 characters.'))
+    await expect(run(title)).rejects.toMatchObject(error('Use 3–150 characters.'))
   })
   it.each([
     'scan_001',
@@ -29,7 +29,7 @@ describe('Document title integrity', () => {
     const message =
       title.toLowerCase() === 'untitled'
         ? 'Title is too generic. Describe the document.'
-        : 'Title should describe the document, not repeat the filename.'
+        : 'Describe the document instead of using the file name.'
     await expect(run(title)).rejects.toMatchObject(error(message))
   })
   it.each(['document', 'file', 'pdf', 'doc', 'untitled', ' DOC '])(
@@ -66,7 +66,7 @@ describe('Document title integrity', () => {
         originalDoc: { title: 'document1' },
         req: { file: {} },
       } as never),
-    ).rejects.toMatchObject(error('Title should describe the document, not repeat the filename.'))
+    ).rejects.toMatchObject(error('Describe the document instead of using the file name.'))
     await expect(
       run(null, { operation: 'update', originalDoc: { title: 'Tea report' } }),
     ).rejects.toMatchObject(error('Title is required.'))

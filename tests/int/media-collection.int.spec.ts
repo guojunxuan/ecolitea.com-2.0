@@ -10,6 +10,7 @@ vi.mock('@/collections/parseMP4Metadata', () => ({
   })),
 }))
 
+import { APIError, ValidationError } from 'payload'
 import { Media } from '@/collections/Media'
 import { MEDIA_UPLOAD_POLICY, validateMediaUpload } from '@/collections/mediaUploadPolicy'
 import { parseMP4Metadata } from '@/collections/parseMP4Metadata'
@@ -240,9 +241,7 @@ describe('Media Admin policies', () => {
           data: {},
           req: { file: { mimetype, data: Buffer.from('bad') } },
         } as never),
-      ).rejects.toThrow(
-        `Unsupported file type: ${mimetype}. Media accepts images (JPEG, PNG, WebP, AVIF, GIF) and video (MP4).`,
-      )
+      ).rejects.toThrow('Unsupported file type. Use JPEG, PNG, WebP, AVIF, GIF or MP4.')
     },
   )
 })
@@ -270,16 +269,85 @@ describe('Media source metadata integrity', () => {
 })
 
 describe('Media list projection', () => {
-  it('includes height when the sortable width column is selected', () => {
+  it('includes dimensions and video metadata when the sortable width column is selected', () => {
     expect(Media.select).toBeTypeOf('function')
     expect(
       Media.select?.({ select: { width: true }, operation: 'read', req: {} } as never),
-    ).toEqual({ width: true, height: true })
+    ).toEqual({ width: true, height: true, mimeType: true, durationSeconds: true })
     expect(
       Media.select?.({ select: { alt: true }, operation: 'read', req: {} } as never),
     ).toBeUndefined()
     expect(
       Media.select?.({ select: { width: false }, operation: 'read', req: {} } as never),
+    ).toBeUndefined()
+  })
+})
+
+describe('editor-facing video errors', () => {
+  const run = (file = {}) =>
+    validateMediaUpload({
+      data: {},
+      req: { file: { data: Buffer.from('video'), mimetype: 'video/mp4', size: 5, ...file } },
+    } as never)
+  it('reports actual video size in rounded MB', async () => {
+    await expect(run({ size: 148_400_000 })).rejects.toThrow(
+      'Video is too large (148 MB). Maximum is 100 MB.',
+    )
+  })
+  it('hides parser internals and logs the technical reason', async () => {
+    const error = new Error('MP4 parser error: invalid atom at /private/source.mp4')
+    mockedParseMP4Metadata.mockRejectedValueOnce(error)
+    const warn = vi.fn()
+    await expect(
+      validateMediaUpload({
+        data: {},
+        req: {
+          payload: { logger: { warn } },
+          file: { data: Buffer.from('video'), mimetype: 'video/mp4' },
+        },
+      } as never),
+    ).rejects.toThrow("Video can't be read. Try exporting it again.")
+    expect(warn).toHaveBeenCalledWith(expect.objectContaining({ err: error }), expect.any(String))
+  })
+  it('maps a recognized fast-start error to export guidance', async () => {
+    mockedParseMP4Metadata.mockRejectedValueOnce(
+      Object.assign(new Error('mdat precedes moov'), { code: 'FAST_START_REQUIRED' }),
+    )
+    await expect(run()).rejects.toThrow(
+      "Video isn't web-optimized. Export again with Fast Start on.",
+    )
+  })
+  it('does not expose filesystem read failures', async () => {
+    await expect(run({ tempFilePath: '/nonexistent-test-video-path.mp4' })).rejects.toThrow(
+      "Video can't be read. Try exporting it again.",
+    )
+  })
+})
+
+describe('Media upload error response formatting', () => {
+  const hook = () => {
+    const handler = Media.hooks?.afterError?.[0]
+    if (!handler) throw new Error('Media afterError hook is missing')
+    return handler
+  }
+  it('preserves literal ratio colons in a top-level message and keeps the error array', async () => {
+    const message = 'Video ratio not supported (1440 × 1080). Use 16:9, 9:16, 1:1 or 4:5.'
+    const error = new APIError(message, 400, { mediaUpload: true })
+    const result = { errors: [{ message }] }
+    expect(await hook()({ error, result } as never)).toEqual({ response: { ...result, message } })
+  })
+  it('leaves Payload validation and unrelated error responses alone', async () => {
+    expect(
+      await hook()({ error: new APIError('Other error', 400), result: { errors: [] } } as never),
+    ).toBeUndefined()
+    expect(
+      await hook()({
+        error: new ValidationError({
+          collection: 'media',
+          errors: [{ path: 'alt', message: 'Alt text is required.' }],
+        }),
+        result: { errors: [] },
+      } as never),
     ).toBeUndefined()
   })
 })

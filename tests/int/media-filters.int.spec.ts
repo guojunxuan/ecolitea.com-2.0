@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import type { Field } from 'payload'
+import { validations, type Field, type TextFieldValidation } from 'payload'
 import { imageOnly, imageOrVideo } from '@/collections/mediaUploadPolicy'
 import { CallToAction } from '@/blocks/CallToAction/config'
 import { MediaBlock } from '@/blocks/MediaBlock/config'
@@ -107,12 +107,29 @@ describe('Media reference constraints through Local API', () => {
               beforeValidate: [validateMediaAlt],
               beforeChange: [
                 ({ data, context }) =>
-                  context.legacyFixture ? { ...data, alt: 'IMG_1234' } : data,
+                  context.legacyFixture
+                    ? { ...data, alt: context.legacyFixture === 'empty' ? '' : 'IMG_1234' }
+                    : data,
               ],
             },
-            fields: Media.fields.filter(
-              (field) => 'name' in field && ['alt', 'width', 'filesize'].includes(field.name),
-            ),
+            fields: Media.fields
+              .filter(
+                (field) => 'name' in field && ['alt', 'width', 'filesize'].includes(field.name),
+              )
+              .map((field) =>
+                field.type === 'text' && !field.hasMany && field.name === 'alt'
+                  ? {
+                      ...field,
+                      validate: ((value, options) =>
+                        options.req.context.legacyFixture === 'empty'
+                          ? true
+                          : (field.validate ?? validations.text)(
+                              value,
+                              options,
+                            )) as TextFieldValidation,
+                    }
+                  : field,
+              ),
           },
           {
             slug: 'pages',
@@ -172,6 +189,30 @@ describe('Media reference constraints through Local API', () => {
     ).resolves.toHaveProperty('alt', 'IMG_1234')
     await expect(
       payload.update({ collection: 'media', id: legacy.id, data: { alt: 'photo' } }),
+    ).rejects.toMatchObject({ status: 400 })
+  })
+  it('preserves a historical empty alt during unrelated updates but rejects clearing or replacing it', async () => {
+    const legacy = await payload.create({
+      collection: 'media',
+      data: { alt: 'Valid initial description' },
+      context: { legacyFixture: 'empty' },
+    })
+    expect(legacy.alt).toBe('')
+    await expect(
+      payload.update({ collection: 'media', id: legacy.id, data: {} }),
+    ).resolves.toHaveProperty('alt', '')
+    await expect(
+      payload.update({ collection: 'media', id: legacy.id, data: { alt: '' } }),
+    ).resolves.toHaveProperty('alt', '')
+    await expect(
+      payload.update({
+        collection: 'media',
+        id: legacy.id,
+        data: { alt: 'Clear tea garden view' },
+      }),
+    ).resolves.toHaveProperty('alt', 'Clear tea garden view')
+    await expect(
+      payload.update({ collection: 'media', id: legacy.id, data: { alt: '' } }),
     ).rejects.toMatchObject({ status: 400 })
   })
   it.each(consumers.map((_, index) => [index]))(
@@ -256,7 +297,7 @@ describe('Media upload errors through the real Local API pipeline', () => {
     'returns the D4 message on %s for actual %s uploads',
     async (operation, mimetype, name, bytes) => {
       const file = { mimetype, name, data: Buffer.from(bytes), size: Buffer.byteLength(bytes) }
-      const message = `Unsupported file type: ${mimetype}. Media accepts images (JPEG, PNG, WebP, AVIF, GIF) and video (MP4).`
+      const message = 'Unsupported file type. Use JPEG, PNG, WebP, AVIF, GIF or MP4.'
       const result =
         operation === 'create'
           ? payload.create({ collection: 'media', data: { alt: 'Rejected source file' }, file })

@@ -53,7 +53,7 @@ Documents Collection 的设计在本阶段完成后单独成文。下列事项�
 
 - `upload.mimeTypes`：`image/jpeg`、`image/png`、`image/webp`、`image/avif`、`image/gif`、`video/mp4`。
 - 服务端白名单：其余类型一律拒绝。报错只说明类型不受支持与允许的类型，不指向 Documents：
-  `Unsupported file type: application/pdf. Media accepts images (JPEG, PNG, WebP, AVIF, GIF) and video (MP4).`
+  `Unsupported file type. Use JPEG, PNG, WebP, AVIF, GIF or MP4.`
 - 接受 Documents 上线前无处上传文档的空档。
 
 **D5 上传字段的类型过滤**：在 `mediaUploadPolicy` 旁导出共享的 `imageOnly`、`imageOrVideo`（由 `MEDIA_UPLOAD_POLICY` 生成），所有引用 Media 的字段统一使用（服务端同样执行）：
@@ -78,32 +78,63 @@ Documents Collection 的设计在本阶段完成后单独成文。下列事项�
 - 服务端比例校验保留为兜底（API、粘贴 URL 上传不弹框，直接拒绝）。需测试确认服务端校验读到的是裁剪后的尺寸。
 - 开启 `focalPoint`；前台裁切时将 `focalX`/`focalY` 作为 Cloudflare `gravity` 传入。已有图片焦点默认居中。
 
-**D6.1 裁剪框界面（2026-10-19 修订）**
+**D6.1 裁剪框界面（2026-10-20 修订）**
+
+裁剪仅用于上传时比例不符合规则的图片，不是通用裁剪功能：
+
+- 只有新选择的图片文件比例不在 6 种比例（容差 1%）内时自动弹出；比例合规的新图片不弹出、不提供裁剪入口。
+- 已保存的图片（无论比例）不提供裁剪入口；不在左栏、预览区或工具栏添加裁剪按钮。右上角 ✂ 为 Payload 原生“Edit image”，仅用于焦点设置。
+- 已保存图片需要换比例时，通过原生“Replace file”重新上传；比例不符时同样自动弹出裁剪框。
+- 裁剪框挂载方式保持不变（`upload.admin.components.controls` 与 `ui` 字段宿主，保证选中文件后组件仍在），但不渲染任何按钮，只承载对话框。
 
 裁剪框兼作图片规则提示：Media 列表页不再展示上传规则说明，上传区域也不增加说明。界面尽量由 `@payloadcms/ui` 公开组件组成，与后台风格一致；仅裁剪区域使用 `react-image-crop`。
 
 | 部分 | 组件 | 内容 |
 |---|---|---|
 | 容器 | `DialogModal`（`size="large"`，`useModal()` 开关，项目自有 slug） | 替代原生 `<dialog>`，居中、遮罩、Esc 与焦点管理由 Payload 提供 |
-| 标题 | `DialogHeader` | 自动弹出：`Crop image to a supported ratio`；手动打开：`Crop image` |
-| 说明 | `Banner type="warning"`（仅自动弹出） | `This image is 1000 × 210 (4.76:1), which is not a supported ratio. Choose a ratio and adjust the crop.` |
+| 标题 | `DialogHeader` | `Crop image to a supported ratio` |
+| 说明 | `Banner type="warning"` | `This image is 1000 × 210 (4.76:1), which is not a supported ratio. Choose a ratio and adjust the crop.` |
 | 比例选择 | `Tabs` / `TabsList` / `TabButton`（单选分段） | 6 个比例，当前项高亮，默认最接近的比例；比例列表由 `MEDIA_UPLOAD_POLICY` 生成 |
 | 裁剪区域 | `react-image-crop`（锁定比例） | 图片最大高度 60vh |
 | 结果 | 文本（`DialogBody` 内） | `Result: 373 × 210 · 16:9`，随裁剪实时更新 |
 | 格式说明 | 次要文本 | `Images: JPEG, PNG, WebP, AVIF, GIF`，由 `MEDIA_UPLOAD_POLICY` 生成 |
-| 操作 | `DialogFooter` + `DialogCancel` + `DialogConfirm` | 自动弹出：`Choose another file`（清除已选文件，回到上传区）+ `Apply crop`；手动打开：`Cancel` + `Apply crop` |
+| 操作 | `DialogFooter` + `DialogCancel` + `DialogConfirm` | `Choose another file`（清除已选文件，回到上传区）+ `Apply crop` |
 
-- 自动弹出时不提供“保留原图”：Esc 与关闭按钮等同 `Choose another file`。
-- 详情页入口改为 `Button`（`buttonStyle="secondary"`、`size="medium"`（已安装版本仅支持 `medium` / `large`）），文案 `Crop image`。
-- 尺寸读取：挂载时若隐藏图片已 `complete && naturalWidth > 0`，直接读取尺寸；否则等待 `onLoad`。修复已有图片按钮常驻禁用。
+- 不提供“保留原图”：Esc 与关闭按钮等同 `Choose another file`。
+- 修改待上传图片的文件名时，若内容未变，保留已应用的裁剪；真实替换文件则重新检查比例，不仅凭大小、类型或时间戳判断是否同一图片。
+- 应用裁剪后，Payload 的大预览在保存前仍显示原图（新选文件的预览无公开替换点）；不另做裁剪预览，弹窗中的 `Result` 行作为确认。
+- 尺寸读取：挂载时若隐藏图片已 `complete && naturalWidth > 0`，直接读取尺寸；否则等待 `onLoad`。
 - 项目 CSS Module 只负责布局（间距、裁剪区域尺寸），颜色、边框、字体全部来自 Payload 组件；不引用 Payload 私有 class，不使用 Payload 3 的 `--theme-*` 变量。
 - 视频不弹裁剪框，视频规则仅通过服务端报错提示。
-- 测试：自动弹出时文案含当前尺寸与比例；切换比例更新裁剪框；`Choose another file` 清除文件；已加载完成的已有图片按钮可用；定向 E2E 断言弹窗可见、居中、使用 Payload 对话框结构。
+- 相对 `3161344` 的变更：删除 `Crop image` 按钮与手动打开分支（`automatic=false` 状态、`Cancel` 文案、已保存图片 `existingImage` 来源）；组件只处理新选择的图片文件。
+- 测试：比例不合规的新图片自动弹出，文案含当前尺寸与比例；比例合规的新图片不弹出；已保存图片的编辑页不渲染裁剪按钮或对话框入口；切换比例更新裁剪框；`Choose another file` 与 Esc 清除文件；`Apply crop` 后保存得到裁剪后的尺寸；定向 E2E 断言弹窗可见、居中、使用 Payload 对话框结构。
 
 **D7 规则说明与报错**：
 
 - Media 列表页不展示上传规则说明（2026-10-19 修订，原 `admin.description` 已移除）；图片规则由 D6.1 裁剪框按需提示，其余规则由服务端报错说明。
 - 每条报错说明“哪里不符合”与“允许什么”。
+- **报错文案（2026-10-20 修订，取代本文其他位置的旧文案）**：面向编辑者，简洁明了——一句话说明问题（带实际数值），再说明允许什么或怎么改；不出现 MIME、codec、moov 等技术术语与命令行。技术原因写入服务器日志；ffmpeg 等处理方法写入 `docs/`，不出现在界面中。
+
+| 范围 | 情况 | 文案 |
+|---|---|---|
+| 上传 | 类型不支持 | `Unsupported file type. Use JPEG, PNG, WebP, AVIF, GIF or MP4.` |
+| 图片 | 比例不合规（服务端兜底：API、粘贴 URL） | `Image ratio not supported (1000 × 210). Use 1:1, 4:3, 3:2, 16:9, 9:16 or 4:5.` |
+| 图片 | 无法读取尺寸 | `Image can't be read. Try another file.` |
+| alt | 为空 | `Alt text is required.` |
+| alt | 文件名、扩展名、相机/截图默认命名、纯数字或日期 | `Describe the image instead of using the file name.` |
+| alt | 泛指词 | `Alt text is too generic. Describe what's shown.` |
+| alt | 长度 | `Use 5–125 characters.` |
+| 视频 | 比例不合规 | `Video ratio not supported (1440 × 1080). Use 16:9, 9:16, 1:1 or 4:5.` |
+| 视频 | 未做 Fast Start | `Video isn't web-optimized. Export again with Fast Start on.` |
+| 视频 | 视频编码 | `Video format not supported. Export as MP4 (H.264).` |
+| 视频 | 音频编码 | `Audio format not supported. Export with AAC audio.` |
+| 视频 | 超时长 | `Video is too long (12:30). Maximum is 10 minutes.` |
+| 视频 | 超大小 | `Video is too large (148 MB). Maximum is 100 MB.` |
+| 视频 | 无法解析（截断、atom 异常、无视频轨、无时长/尺寸、解析器错误） | `Video can't be read. Try exporting it again.` |
+| 删除 | 被当前内容引用 | `Can't delete: used in Blog "Title A" and Header. Remove it there first.` |
+
+- 数值由实际文件计算；时长格式 `m:ss`，大小取整到 MB；删除报错按引用的集合标签与标题列出，同一文档只列一次，超过 3 处时写作 `… and 2 more`。
+- 视频比例不合规仍直接拒绝，不提供视频裁剪。
 - 所有报错与说明使用英文，与 Payload 后台默认语言一致。
 
 **D8 alt 必填、视频比例**：
@@ -115,24 +146,42 @@ Documents Collection 的设计在本阶段完成后单独成文。下列事项�
 | 规则 | 报错 |
 |---|---|
 | 去除首尾空格后非空 | `Alt text is required.` |
-| 长度 5–125 字符 | `Alt text should be 5–125 characters.` |
-| 不含文件扩展名 | `Alt text should describe the image, not repeat the filename.` |
+| 长度 5–125 字符 | `Use 5–125 characters.` |
+| 不含文件扩展名 | `Describe the image instead of using the file name.` |
 | 不是相机/截图默认命名、纯数字或日期（`IMG_1234`、`DSC0021`、`Screenshot 2026-08-06`、`截屏2026-08-06 14.03.23`、`20260806`） | 同上 |
-| 不是泛指词（`image`、`photo`、`picture`、`video`、`image2`） | `Alt text is too generic. Describe what is shown.` |
+| 不是泛指词（`image`、`photo`、`picture`、`video`、`image2`） | `Alt text is too generic. Describe what's shown.` |
 
-- 校验时机（见 D18）：仅在新建、替换文件、或本次提交修改 alt 时校验。不限制语言。已有数据不自动修改。
+- 校验时机（见 D18）：仅在新建、替换文件、或本次提交修改 alt 时校验。不限制语言。已有数据不自动修改。历史空 alt 的无关字段更新也不能被原生必填校验阻断。
 - 视频比例：16:9、9:16、1:1、4:5，容差 1%；先按旋转矩阵换算显示宽高；不提供视频裁剪，不合规直接拒绝。
 - 视频的显示宽高写入 `width`、`height`。
 
 **D20 视频解析与 faststart**：
 
+- 有多条视频轨时，所有视频轨均须符合 H.264 限制，不能因其中一轨符合而接受其他不支持的编码。
+
 - MP4 改为分块解析（每块 1MB），读到 `moov` 即停止，不再整读与整份复制。
 - 拒绝 `moov` 位于文件末尾的视频：
-  `Video is not optimized for web streaming (moov atom at end of file). Re-export with "Fast Start" / "Web Optimized" enabled, or run: ffmpeg -i in.mp4 -c copy -movflags +faststart out.mp4`
+  `Video isn't web-optimized. Export again with Fast Start on.`
 
 ### 2.3 后台列表、预览与操作
 
 **D9 默认列**：缩略图 + 文件名、Alt、类型、尺寸、大小、文件夹、更新时间；`durationSeconds` 不在列表显示。尺寸与大小通过 `admin.components.Cell` 实现：`width` 列显示 `1356 × 910`（可按宽度排序），`filesize` 列使用 `payload/shared` 的 `formatFilesize`，与详情页格式一致。
+
+**D9.1 列表与字段的用户习惯（2026-10-20 修订）**：参照常见媒体库/网盘习惯——以名称识别、类型用简称、大小与日期简短、最新在前。只用公开配置（字段 `label`、`admin.components.Cell`、`defaultSort`），不迁移数据。
+
+| 列 | 表头 | 显示 |
+|---|---|---|
+| `filename` | `Name` | 去掉扩展名（现有 `FilenameCell`） |
+| `alt` | `Alt text` | 原文 |
+| `mimeType` | `Type` | `JPEG`、`PNG`、`WebP`、`AVIF`、`GIF`、`MP4` |
+| `width` | `Dimensions` | `1356 × 910`；视频追加时长 `1920 × 1080 · 0:45` |
+| `filesize` | `Size` | `formatFilesize` |
+| `_h_folders` | `Folder` | 未归档显示 `—`（不显示 `None` 胶囊） |
+| `updatedAt` | `updatedAt` | `Oct 18, 2026`（仅本列表的 Cell，不修改全局 `admin.dateFormat`） |
+
+- 默认排序 `defaultSort: '-createdAt'`（最新上传在前）。
+- `updatedAt` 仅在列表显示，详情编辑表单不展示该字段。
+- 编辑页：`alt` 标签 `Alt text`，说明 `Describe the image for screen readers and search engines.`；`caption` 保持现有说明。
 
 **D10 搜索**：`listSearchableFields: ['filename', 'alt']`，`alt` 建索引。
 
@@ -167,9 +216,23 @@ Documents Collection 的设计在本阶段完成后单独成文。下列事项�
 **D14 删除保护与使用位置**：
 
 - Media `beforeDelete` 调用 D13；被当前内容引用时拒绝删除并列出位置，批量删除与 API 删除同样生效：
-  `Cannot delete: this media is used in Blogs "Title A" (heroImage), Header (navItems › Insta360 X4 › image). Remove these references first.`
+  `Can't delete: used in Blog "Title A" and Header. Remove it there first.`（不含字段路径；位置明细见 “Used in” 面板）
 - 版本记录中的历史引用不阻止删除，仅在面板中注明数量。
 - 详情页侧边栏 `ui` 字段 “Used in” 面板，数据来自 `GET /api/media/:id/references`（仅登录用户，打开详情页时查询）。
+
+**“Used in” 面板界面（2026-10-20 修订）**：参考 `output/crop-ui-mockups/used-in-panel.html`。仅用 `@payloadcms/ui` 公开组件（`FieldLabel`、`FieldDescription`、`Pill`、`Link`、`ShimmerEffect`、`Banner`），项目 CSS 只负责间距。
+
+| 状态 | 显示 |
+|---|---|
+| 未被引用 | 标题 `Used in`；说明 `Not used anywhere. It can be deleted.` |
+| 被引用 | 标题 `Used in` + 数量徽标；列表每行：类型 `Pill`（集合单数标签，Global 显示 `Global`）+ 标题链接（跳转编辑页）；说明 `Remove it from these places before deleting.` |
+| 超过 5 处 | 显示前 5 行与 `Show all N`，点击展开 |
+| 有历史版本引用 | 追加说明 `Also in N older versions — these don't block deletion.`；数量为 0 时不显示 |
+| 加载中 | `ShimmerEffect` 占位 |
+| 加载失败 | `Banner type="danger"`：`Couldn't load where this is used.` + `Try again` |
+
+- 按文档去重：同一文档多个字段引用只显示一行；不显示字段路径。
+- 面板上方与表单字段之间加分隔，标题样式与其他字段一致。
 
 **D18 文件夹**：
 
