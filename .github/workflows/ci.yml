@@ -74,10 +74,8 @@ jobs:
       - name: Run integration tests
         run: corepack pnpm test:int
 
-      - name: Run end-to-end tests
-        run: corepack pnpm test:e2e
-        env:
-          DISABLE_R2_STORAGE: "false"
+      - name: Run end-to-end tests (emulated storage and native files)
+        run: corepack pnpm test:e2e:all
 
       - name: Type-check
         run: corepack pnpm exec tsc --noEmit --incremental false

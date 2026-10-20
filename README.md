@@ -68,14 +68,19 @@ longer than 10 minutes.
 ```bash
 corepack pnpm dev                 # Start the development server
 corepack pnpm test:int            # Run integration tests
-corepack pnpm test:e2e            # Run Playwright end-to-end tests
+corepack pnpm test:e2e:all        # Run both Playwright storage profiles
 corepack pnpm exec tsc --noEmit   # Type-check the project
 corepack pnpm lint                # Run ESLint
 corepack pnpm build               # Create a production build
 corepack pnpm start               # Start a completed production build
 ```
 
-For Media and Documents regression checks, use the focused browser suite (MongoDB and Chromium required):
+The full browser command runs two profiles sequentially: `test:e2e:storage` uses the local S3 emulator
+for website/storage workflows, while `test:e2e:resources` uses local files for Media and Documents
+Admin preview/download workflows. CI and release validation run both profiles, each with its own
+run-scoped database. The direct `test:e2e` command remains available for focused checks.
+
+For Media and Documents regression checks (MongoDB and Chromium required):
 
 ```bash
 DISABLE_R2_STORAGE=true corepack pnpm test:e2e tests/e2e/media-documents.e2e.spec.ts --project=chromium
@@ -163,9 +168,9 @@ Never commit `.env`, database credentials, Payload secrets, or R2 access keys.
 GitHub Actions starts a disposable MongoDB 7 service, installs locked dependencies, and runs
 integration tests, Playwright tests, type checking, and the production build.
 
-Validation jobs set `DISABLE_R2_STORAGE=true`, so test uploads use local temporary storage and
-never contact production R2. Docker image builds and production runtime do not set this flag;
-R2 remains enabled there.
+Integration tests use `DISABLE_R2_STORAGE=true`. Browser validation runs both local-file and
+S3-adapter profiles; the latter uses placeholder credentials and a loopback S3 emulator, never
+production R2. Docker image builds and production runtime keep the configured R2 adapter.
 
 The CI and release workflows are manually triggered with `workflow_dispatch`.
 

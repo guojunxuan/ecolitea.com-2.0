@@ -74,6 +74,9 @@ const task6ArchiveSeedCommand =
  */
 export default defineConfig({
   testDir: './tests/e2e',
+  // Native Admin downloads require local files. The aggregate command runs
+  // that suite separately; the storage profile exercises the S3 adapter.
+  testIgnore: disableR2Storage === 'false' ? ['**/media-documents.e2e.spec.ts'] : undefined,
   globalTeardown: './tests/helpers/cleanupBlogsAfterTests.ts',
   /* Fail the build on CI if you accidentally left test.only in the source code. */
   forbidOnly: !!process.env.CI,

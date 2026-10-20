@@ -18,9 +18,12 @@
     "payload": "cross-env NODE_OPTIONS=--no-deprecation payload",
     "reinstall": "cross-env NODE_OPTIONS=--no-deprecation rm -rf node_modules && rm pnpm-lock.yaml && pnpm --ignore-workspace install",
     "start": "cross-env NODE_OPTIONS=--no-deprecation next start",
-    "test": "pnpm run test:int && pnpm run test:e2e",
+    "test": "pnpm run test:int && pnpm run test:e2e:all",
     "test:e2e": "cross-env NODE_OPTIONS=\"--no-deprecation --import=tsx/esm\" playwright test --config=playwright.config.ts",
-    "test:int": "cross-env NODE_OPTIONS=--no-deprecation vitest run --config ./vitest.config.mts"
+    "test:int": "cross-env NODE_OPTIONS=--no-deprecation vitest run --config ./vitest.config.mts",
+    "test:e2e:all": "pnpm run test:e2e:storage && pnpm run test:e2e:resources",
+    "test:e2e:storage": "cross-env DISABLE_R2_STORAGE=false pnpm run test:e2e",
+    "test:e2e:resources": "cross-env DISABLE_R2_STORAGE=true pnpm run test:e2e tests/e2e/media-documents.e2e.spec.ts"
   },
   "dependencies": {
     "@payloadcms/admin-bar": "4.0.0-canary.29",

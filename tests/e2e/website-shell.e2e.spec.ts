@@ -134,7 +134,7 @@ async function seedFixtures() {
     },
     ...disableRevalidate,
   })
-  const originalSiteAssetURL = `${E2E_MEDIA_ORIGIN}/e2e-website-shell-logo.svg`
+  const originalSiteAssetURL = `${E2E_MEDIA_ORIGIN}/site-assets/e2e-website-shell-logo.svg`
   if (logo.url !== originalSiteAssetURL) {
     throw new Error('E2E storage must return the controlled Site Asset original URL.')
   }
@@ -570,7 +570,7 @@ async function expectFooterIdentityAndContact(page: Page) {
   await expect(logo).not.toHaveAttribute('src', /.*/)
   await expect
     .poll(() => logo.evaluate((element) => getComputedStyle(element).maskImage))
-    .toMatch(/^url\("https:\/\/media\.example\.invalid\/e2e-website-shell-logo\.svg\?/)
+    .toMatch(/^url\("https:\/\/media\.example\.invalid\/site-assets\/e2e-website-shell-logo\.svg\?/)
 
   const social = page.locator('[data-footer-content="social"]')
   await expect(social.getByRole('link', { name: 'E2E LinkedIn' })).toHaveAttribute(
@@ -581,7 +581,7 @@ async function expectFooterIdentityAndContact(page: Page) {
   await expect(socialIcon).toBeVisible()
   await expect(socialIcon).toHaveAttribute(
     'src',
-    /^https:\/\/media\.example\.invalid\/e2e-website-shell-logo\.svg\?/,
+    /^https:\/\/media\.example\.invalid\/site-assets\/e2e-website-shell-logo\.svg\?/,
   )
   await expect(socialIcon).not.toHaveAttribute('src', /\/_next\/image/)
   await expect(socialIcon).not.toHaveAttribute('src', /\/cdn-cgi\//)
@@ -589,7 +589,7 @@ async function expectFooterIdentityAndContact(page: Page) {
     .poll(() => (page as Page & { e2ePlaceholderRequests?: string[] }).e2ePlaceholderRequests ?? [])
     .toEqual(
       expect.arrayContaining([
-        expect.stringMatching(/^https:\/\/media\.example\.invalid\/e2e-website-shell-logo\.svg\?/),
+        expect.stringMatching(/^https:\/\/media\.example\.invalid\/site-assets\/e2e-website-shell-logo\.svg\?/),
       ]),
     )
 
@@ -1233,7 +1233,7 @@ test.describe.serial('Responsive website shell', () => {
     await expect(headerLogo).not.toHaveAttribute('src', /.*/)
     await expect
       .poll(() => headerLogo.evaluate((element) => getComputedStyle(element).maskImage))
-      .toMatch(/^url\("https:\/\/media\.example\.invalid\/e2e-website-shell-logo\.svg\?/)
+      .toMatch(/^url\("https:\/\/media\.example\.invalid\/site-assets\/e2e-website-shell-logo\.svg\?/)
 
     await products.hover()
     await expect(headerSurface).toHaveAttribute('data-menu-open', 'true')
