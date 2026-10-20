@@ -269,11 +269,11 @@ describe('Media source metadata integrity', () => {
 })
 
 describe('Media list projection', () => {
-  it('includes dimensions and video metadata when the sortable width column is selected', () => {
+  it('includes height when the sortable width column is selected', () => {
     expect(Media.select).toBeTypeOf('function')
     expect(
       Media.select?.({ select: { width: true }, operation: 'read', req: {} } as never),
-    ).toEqual({ width: true, height: true, mimeType: true, durationSeconds: true })
+    ).toEqual({ width: true, height: true })
     expect(
       Media.select?.({ select: { alt: true }, operation: 'read', req: {} } as never),
     ).toBeUndefined()

@@ -492,8 +492,8 @@ test.describe('Media and Documents native Admin workflows', () => {
       const resource = (await upload.json()).doc
       await page.goto(`${baseURL}/admin/collections/${collection}`)
       for (const header of collection === 'media'
-        ? ['Name', 'Alt text', 'Type', 'Dimensions', 'Size', 'Folder', 'updatedAt']
-        : ['Title', 'File name', 'Type', 'Size', 'Folder', 'updatedAt']) {
+        ? ['Name', 'Alt text', 'Type', 'Dimensions', 'Size', 'Folder', 'Updated At']
+        : ['Title', 'File name', 'Type', 'Size', 'Folder', 'Updated At']) {
         await expect(
           page.getByRole('columnheader').filter({ has: page.getByText(header, { exact: true }) }),
         ).toBeVisible()
@@ -503,8 +503,8 @@ test.describe('Media and Documents native Admin workflows', () => {
           collection === 'media' ? 'Tea garden in morning light' : 'Organic tea certification',
       })
       await expect(row).toContainText(collection === 'media' ? 'PNG' : 'PDF')
-      await expect(row).toContainText('—')
-      await expect(row).toContainText(/\b[A-Z][a-z]{2} \d{1,2}, \d{4}\b/)
+      await expect(row.getByRole('button', { name: 'None', exact: true })).toBeVisible()
+      await expect(row.getByText(/^[A-Z][a-z]{2} \d{1,2}, \d{4}$/)).toBeVisible()
       await expect(row).toContainText(
         collection === 'media' ? filename.replace(/\.png$/, '') : filename,
       )

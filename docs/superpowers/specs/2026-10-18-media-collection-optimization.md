@@ -174,10 +174,10 @@ Documents Collection 的设计在本阶段完成后单独成文。下列事项�
 | `filename` | `Name` | 去掉扩展名（现有 `FilenameCell`） |
 | `alt` | `Alt text` | 原文 |
 | `mimeType` | `Type` | `JPEG`、`PNG`、`WebP`、`AVIF`、`GIF`、`MP4` |
-| `width` | `Dimensions` | `1356 × 910`；视频追加时长 `1920 × 1080 · 0:45` |
+| `width` | `Dimensions` | 图片与视频均仅显示宽 × 高，如 `1356 × 910`；不追加视频时长 |
 | `filesize` | `Size` | `formatFilesize` |
-| `_h_folders` | `Folder` | 未归档显示 `—`（不显示 `None` 胶囊） |
-| `updatedAt` | `updatedAt` | `Oct 18, 2026`（仅本列表的 Cell，不修改全局 `admin.dateFormat`） |
+| `_h_folders` | `Folder` | 保持 Payload 原生文件夹胶囊；未归档显示 `None` |
+| `updatedAt` | `Updated At` | `Oct 18, 2026`（仅本列表的 Cell，不修改全局 `admin.dateFormat`） |
 
 - 默认排序 `defaultSort: '-createdAt'`（最新上传在前）。
 - `updatedAt` 仅在列表显示，详情编辑表单不展示该字段。

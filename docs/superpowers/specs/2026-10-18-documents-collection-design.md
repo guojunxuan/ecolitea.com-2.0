@@ -71,8 +71,8 @@ Collection 设置：
 | `filename` | `File name` | 带扩展名（下载后的文件名） |
 | `mimeType` | `Type` | `PDF`、`Word`、`Excel`、`PowerPoint` |
 | `filesize` | `Size` | `formatFilesize` |
-| `_h_folders` | `Folder` | 未归档显示 `—` |
-| `updatedAt` | `updatedAt` | `Oct 18, 2026`（仅本列表的 Cell） |
+| `_h_folders` | `Folder` | 保持 Payload 原生文件夹胶囊；未归档显示 `None` |
+| `updatedAt` | `Updated At` | `Oct 18, 2026`（仅本列表的 Cell） |
 
   - 缩略图保持 Payload 默认文件图标。
   - 默认排序 `defaultSort: '-createdAt'`。

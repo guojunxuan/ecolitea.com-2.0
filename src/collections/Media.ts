@@ -25,10 +25,7 @@ export const Media: CollectionConfig = {
   slug: 'media',
   versions: false,
   defaultSort: '-createdAt',
-  select: ({ select }) =>
-    select?.width === true
-      ? { ...select, height: true, mimeType: true, durationSeconds: true }
-      : undefined,
+  select: ({ select }) => (select?.width === true ? { ...select, height: true } : undefined),
   disableDuplicate: true,
   admin: {
     defaultColumns: ['filename', 'alt', 'mimeType', 'width', 'filesize', '_h_folders', 'updatedAt'],
@@ -103,7 +100,6 @@ export const Media: CollectionConfig = {
     createFolderField({
       relationTo: 'folders',
       label: 'Folder',
-      admin: { components: { Cell: '@/collections/mediaAdmin/FolderCell#FolderCell' } },
     }),
     {
       name: 'mimeType',
@@ -114,7 +110,7 @@ export const Media: CollectionConfig = {
     {
       name: 'updatedAt',
       type: 'date',
-      label: 'updatedAt',
+      label: 'Updated At',
       admin: {
         condition: () => false,
         readOnly: true,

@@ -59,7 +59,6 @@ export const Documents: CollectionConfig = {
     createFolderField({
       relationTo: 'folders',
       label: 'Folder',
-      admin: { components: { Cell: '@/collections/Documents/admin/FolderCell#FolderCell' } },
     }),
     { name: 'filename', type: 'text', label: 'File name' },
     {
@@ -71,7 +70,7 @@ export const Documents: CollectionConfig = {
     {
       name: 'updatedAt',
       type: 'date',
-      label: 'updatedAt',
+      label: 'Updated At',
       admin: {
         condition: () => false,
         readOnly: true,

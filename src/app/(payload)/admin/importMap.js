@@ -31,7 +31,6 @@ import { ArticleBlockEditor as ArticleBlockEditor_4971c3244241ba6cff288a3222e757
 import { ImageCropControls as ImageCropControls_9959ec1372000a411e6c7216c9e7a00c } from '@/collections/mediaAdmin/ImageCropControls'
 import { UsedInPanel as UsedInPanel_465fcf04887261c29f77ab01f3d2132c } from '@/collections/mediaAdmin/UsedInPanel'
 import { AltPrefill as AltPrefill_0723c172e948fbb481376dc84e2f708c } from '@/collections/mediaAdmin/AltPrefill'
-import { FolderCell as FolderCell_4be3115d3de16f087143785186be6187 } from '@/collections/mediaAdmin/FolderCell'
 import { UpdatedAtCell as UpdatedAtCell_15ae72ae659ab5de403d241b4bbfc565 } from '@/collections/mediaAdmin/UpdatedAtCell'
 import { FilenameCell as FilenameCell_3d231aca1eef2c75f54cfc956cce307a } from '@/collections/mediaAdmin/FilenameCell'
 import { TypeCell as TypeCell_fa4f997e085f12ecc0525014de6372d8 } from '@/collections/mediaAdmin/TypeCell'
@@ -39,7 +38,6 @@ import { FilesizeCell as FilesizeCell_e4d477bf4c10c20dfb3e3841bcb8bbde } from '@
 import { DimensionsCell as DimensionsCell_ed787a5a6cfc7824657cb740abc829c2 } from '@/collections/mediaAdmin/DimensionsCell'
 import { UsedInPanel as UsedInPanel_e1fb4acb26bb636743c0392dfef3033e } from '@/collections/Documents/admin/UsedInPanel'
 import { TitlePrefill as TitlePrefill_f95324218d1a9f56a6faf266850561af } from '@/collections/Documents/admin/TitlePrefill'
-import { FolderCell as FolderCell_7e7599984a4d6bc814918223e1480561 } from '@/collections/Documents/admin/FolderCell'
 import { UpdatedAtCell as UpdatedAtCell_30512e5cac6a4a6ee3f69505af4d712f } from '@/collections/Documents/admin/UpdatedAtCell'
 import { TypeCell as TypeCell_1644fe13ef6dfd5c471797956c6e130e } from '@/collections/Documents/admin/TypeCell'
 import { FilesizeCell as FilesizeCell_597c400895e53c1ba930cc53925f77c6 } from '@/collections/Documents/admin/FilesizeCell'
@@ -98,7 +96,6 @@ export const importMap = {
   "@/collections/mediaAdmin/ImageCropControls#ImageCropControls": ImageCropControls_9959ec1372000a411e6c7216c9e7a00c,
   "@/collections/mediaAdmin/UsedInPanel#UsedInPanel": UsedInPanel_465fcf04887261c29f77ab01f3d2132c,
   "@/collections/mediaAdmin/AltPrefill#AltPrefill": AltPrefill_0723c172e948fbb481376dc84e2f708c,
-  "@/collections/mediaAdmin/FolderCell#FolderCell": FolderCell_4be3115d3de16f087143785186be6187,
   "@/collections/mediaAdmin/UpdatedAtCell#UpdatedAtCell": UpdatedAtCell_15ae72ae659ab5de403d241b4bbfc565,
   "@/collections/mediaAdmin/FilenameCell#FilenameCell": FilenameCell_3d231aca1eef2c75f54cfc956cce307a,
   "@/collections/mediaAdmin/TypeCell#TypeCell": TypeCell_fa4f997e085f12ecc0525014de6372d8,
@@ -106,7 +103,6 @@ export const importMap = {
   "@/collections/mediaAdmin/DimensionsCell#DimensionsCell": DimensionsCell_ed787a5a6cfc7824657cb740abc829c2,
   "@/collections/Documents/admin/UsedInPanel#UsedInPanel": UsedInPanel_e1fb4acb26bb636743c0392dfef3033e,
   "@/collections/Documents/admin/TitlePrefill#TitlePrefill": TitlePrefill_f95324218d1a9f56a6faf266850561af,
-  "@/collections/Documents/admin/FolderCell#FolderCell": FolderCell_7e7599984a4d6bc814918223e1480561,
   "@/collections/Documents/admin/UpdatedAtCell#UpdatedAtCell": UpdatedAtCell_30512e5cac6a4a6ee3f69505af4d712f,
   "@/collections/Documents/admin/TypeCell#TypeCell": TypeCell_1644fe13ef6dfd5c471797956c6e130e,
   "@/collections/Documents/admin/FilesizeCell#FilesizeCell": FilesizeCell_597c400895e53c1ba930cc53925f77c6,
