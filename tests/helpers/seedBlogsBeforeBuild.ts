@@ -95,25 +95,25 @@ try {
         })
         opening.root.children.push(
           block('takeaways', {
-            blockType: 'keyTakeaways',
+            blockType: 'blogKeyTakeaways',
             label: 'At a Glance',
             content: richText('Water temperature changes flavor.'),
           }),
           block('media', {
-            blockType: 'mediaBlock',
+            blockType: 'blogMediaBlock',
             media: media.id,
             caption: richText('Leaves ready for brewing'),
             width: 'wide',
           }),
           ...closing.root.children,
           block('banner', {
-            blockType: 'banner',
+            blockType: 'blogBanner',
             style: 'info',
             title: 'Brewing note',
             content: richText('Taste before adding more time.'),
           }),
           block('cta', {
-            blockType: 'cta',
+            blockType: 'blogCta',
             heading: 'Find your next cup',
             description: richText('Discover the full tea collection.'),
             media: media.id,

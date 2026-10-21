@@ -60,7 +60,7 @@ const brightCollageSVG = Buffer.from(
 const emptyPage = (slug: string, title: string) => ({
   _status: 'published' as const,
   hero: { headerTheme: 'light' as const, type: 'none' as const },
-  layout: [{ blockType: 'content' as const, columns: [] }],
+  layout: [{ blockType: 'pageContent' as const, columns: [] }],
   slug,
   title,
 })
@@ -286,7 +286,7 @@ async function seedFixtures() {
             },
             {
               fields: {
-                blockType: 'code',
+                blockType: 'postCode',
                 code: postCodeFixture,
                 id: `e2e-code-${runID}`,
                 language: 'javascript',
@@ -316,7 +316,7 @@ async function seedFixtures() {
   })
   const productContent = [
     {
-      blockType: 'categoryTabs' as const,
+      blockType: 'headerCategoryTabs' as const,
       enableCta: true,
       cta: customLink('E2E Browse every category', '/e2e-all-categories'),
       categories: [
@@ -333,7 +333,7 @@ async function seedFixtures() {
       ],
     },
     {
-      blockType: 'cardGroup' as const,
+      blockType: 'headerCardGroup' as const,
       cta: customLink('E2E View all card group', '/e2e-card-group'),
       enableCta: true,
       enableHeading: true,
@@ -350,7 +350,7 @@ async function seedFixtures() {
       ],
     },
     {
-      blockType: 'linkGroup' as const,
+      blockType: 'headerLinkGroup' as const,
       enableHeading: true,
       heading: 'E2E Product links',
       links: [
@@ -359,7 +359,7 @@ async function seedFixtures() {
       ],
     },
     {
-      blockType: 'richCard' as const,
+      blockType: 'headerRichCard' as const,
       description: 'E2E rich card description for the compact content flow.',
       ...card('E2E Rich card', 7),
     },

@@ -381,13 +381,13 @@ async function seedFixtures() {
       },
       layout: [
         {
-          blockType: 'content',
+          blockType: 'pageContent',
           columns: [{ size: 'full', richText: contentRichText() }],
         },
-        { blockType: 'mediaBlock', media: media.id },
-        { blockType: 'cta', heading: 'E2E CTA heading', description: richText([paragraph('E2E CTA description')]), links: [] },
-        { blockType: 'formBlock', form: form.id, enableIntro: false },
-        { blockType: 'archive', populateBy: 'collection', relationTo: 'posts', limit: 3 },
+        { blockType: 'pageMediaBlock', media: media.id },
+        { blockType: 'pageCta', heading: 'E2E CTA heading', description: richText([paragraph('E2E CTA description')]), links: [] },
+        { blockType: 'pageFormBlock', form: form.id, enableIntro: false },
+        { blockType: 'pageArchive', populateBy: 'collection', relationTo: 'posts', limit: 3 },
       ],
       slug: pageSlug,
       title: `E2E Task6 Matrix ${runID}`,
@@ -398,7 +398,7 @@ async function seedFixtures() {
   console.log(`Task6 matrix banner post create: ${postHeroSlug}`)
   const bannerNodes = (['info', 'success', 'warning', 'error'] as const).map((style) => ({
     fields: {
-      blockType: 'banner',
+      blockType: 'postBanner',
       content: richText([paragraph(bannerCopy[style])]),
       id: `banner-${style}-${runID}`,
       style,
@@ -518,7 +518,7 @@ test.describe.serial('Task 6 visual matrix fixtures', () => {
       console.log(`RichText table at ${viewport.width}px: ${JSON.stringify(metrics)}`)
       expect(metrics.scrollWidth).toBeGreaterThan(metrics.clientWidth)
       await expect.poll(() => table.evaluate((element) => element.scrollLeft)).toBeGreaterThan(0)
-      const media = page.locator('[data-block-type="mediaBlock"] img, main img').last()
+      const media = page.locator('[data-block-type="pageMediaBlock"] img, main img').last()
       await expect(media).toBeVisible()
       await expect
         .poll(() => media.evaluate((image) => (image as HTMLImageElement).naturalWidth))
