@@ -122,6 +122,54 @@ production environment configuration; never run the development URI against prod
 move or delete remote storage files during this migration. CLI migration initialization suppresses
 automatic creation and indexing of Site Assets so the collision check sees the existing database.
 
+### Collection-owned block slugs (20261021)
+
+This migration prefixes Block slugs by owner. It scans exactly nine targets: Pages,
+Case Studies, Blogs and Posts main collections and all four version collections
+(including drafts, autosaves, scheduled versions and trash), plus only the Header
+Global in the Globals collection. Collection names come from the MongoDB adapter.
+Form Builder fields and other collections are outside this migration. GraphQL Block
+type names also change (for example, `FormBlock` becomes `PageFormBlock`).
+
+Both directions first scan every target, then write only changed top-level fields in
+batches of 250. Unknown or cross-owner slugs, inline Lexical Blocks, or unexpected
+Header versions abort before any document writes. Existing BSON values, document
+metadata and remote storage are preserved. Repeating either direction is idempotent;
+`down` reverses the same mapping.
+
+For this refactor, only `mongodb://127.0.0.1:27017/ecolitea2` is permitted; never
+execute it against production or a remote database. Before running commands, resolve
+and report the exact host, port, database and storage environment. Stop `next dev`
+and close Admin editing tabs (autosave can otherwise restore old slugs). Back up the
+same local database with `mongodump --uri="<explicit local URI>" --out=<local backup>`.
+Do not commit the backup.
+
+Run this read-only report before migration, review its per-target `scanned`,
+`toMigrate.documents`, `toMigrate.blocks`, `alreadyMigrated` (Block count), `unknown`
+and `headerVersions`, and obtain user confirmation before executing any migration:
+
+```bash
+DATABASE_URI=mongodb://127.0.0.1:27017/ecolitea2 DISABLE_R2_STORAGE=true corepack pnpm exec cross-env NODE_OPTIONS=--no-deprecation tsx scripts/report-collection-owned-block-slugs.ts
+```
+
+The report disables storage, startup hooks, automatic type generation and MongoDB
+collection/index creation. Importing its helpers does not initialize Payload. It
+never invokes write APIs. Unknown arguments are rejected; append `--direction=down`
+for a read-only rollback estimate. A blocked report exits with status 1.
+
+After confirmation, check `payload migrate:status` with the same explicit URI and
+`DISABLE_R2_STORAGE=true`; stop if unrelated migrations are pending. Run
+`payload migrate`, then repeat the report and require `toMigrate` to be zero and
+`unknown` empty. **Migrate before starting the new application code:** old slugs
+otherwise render as missing Blocks and appear as unknown Blocks in Admin. With
+writes still paused, clear `.next/cache` before building and restarting so raw
+MongoDB writes cannot leave cached Header/pages behind.
+
+To roll back, pause writes, back up, inspect the `--direction=down` report and run
+`payload migrate:down` for this migration against the same local URI; then return
+to the old code and clear the cache before restarting. No production execution is
+authorized as part of this task.
+
 ## Styling ownership
 
 The public website uses native CSS custom properties and CSS Modules; it does not use Tailwind.
