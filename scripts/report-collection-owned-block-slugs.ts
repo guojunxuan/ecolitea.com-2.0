@@ -34,19 +34,29 @@ export async function buildBlockSlugReport(adapter: MongooseAdapter, direction: 
 async function main() {
   const direction = parseReportArguments(process.argv.slice(2))
   const target = assertLocalDatabaseURI(process.env.DATABASE_URI)
+  // Match Payload CLI environment loading without allowing .env to supply or
+  // override the explicit database target required above. dotenv never overrides
+  // existing variables by default, and remains outside import-time helpers.
+  await import('dotenv/config')
   process.stderr.write(
     `Block slug dry-run target: ${target.host}:${target.port}/${target.databaseName}; storage: unchanged (${process.env.DISABLE_R2_STORAGE === 'true' ? 'local; R2 disabled' : 'configured storage is not accessed'})\n`,
   )
   // Do not let storage plugins initialize remote services, generate local artifacts,
   // run onInit hooks, create collections/indexes or execute adapter connect hooks.
   process.env.DISABLE_R2_STORAGE = 'true'
-  process.env.PAYLOAD_TELEMETRY_DISABLED = '1'
+  // Standalone CLI must not subscribe to Next development HMR WebSockets.
+  process.env.DISABLE_PAYLOAD_HMR = 'true'
   const [{ getPayload }, { default: configPromise }] = await Promise.all([
     import('payload'),
     import('../src/payload.config'),
   ])
   const config = await configPromise
   config.typescript.autoGenerate = false
+  // Installed Payload checks config.telemetry, not an environment flag.
+  // Disable the fire-and-forget network request so this read-only CLI exits cleanly.
+  config.telemetry = false
+  // stdout is the machine-readable JSON report; route Payload diagnostics to stderr.
+  config.logger = { options: {}, destination: process.stderr }
   const originalInit = config.db.init
   config.db.init = (args) => {
     const adapter = originalInit(args) as MongooseAdapter
