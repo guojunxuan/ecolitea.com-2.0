@@ -14,9 +14,10 @@ import {
 import { FixedToolbarFeature, HeadingFeature, lexicalEditor } from '@payloadcms/richtext-lexical'
 import { searchFields } from '@/search/fieldOverrides'
 import { beforeSyncWithSearch } from '@/search/beforeSync'
+import { publicBlogVisibility } from '@/utilities/blogs/publicVisibility'
 import { publicSearchVisibility } from '@/search/visibility'
 
-import { Blog, CaseStudy, Page, Post, Settings } from '@/payload-types'
+import { Blog, BlogCategory, CaseStudy, Page, Post, Settings } from '@/payload-types'
 import { getServerSideURL } from '@/utilities/getURL'
 import { getContentPath } from '@/utilities/getContentPath'
 import { MEDIA_UPLOAD_POLICY } from '@/collections/mediaUploadPolicy'
@@ -24,7 +25,7 @@ import { s3Storage, type S3StorageOptions } from '@payloadcms/storage-s3'
 import { serverEnv } from '@/utilities/env'
 import { getFileKey } from '@payloadcms/plugin-cloud-storage/utilities'
 
-type SEOContent = Blog | CaseStudy | Page | Post
+type SEOContent = BlogCategory | Blog | CaseStudy | Page | Post
 
 export const generateTitle: GenerateTitle<SEOContent | Settings> = ({
   collectionConfig,
@@ -33,6 +34,9 @@ export const generateTitle: GenerateTitle<SEOContent | Settings> = ({
 }) => {
   if (globalConfig?.slug === 'settings') return 'Blogs'
   const content = doc as SEOContent
+  if (collectionConfig?.slug === 'blog-categories') {
+    return content?.title ? `${content.title} Blogs | Ecolitea` : 'Ecolitea'
+  }
   if (collectionConfig?.slug === 'blogs') {
     return content?.title ? `${content.title} | Ecolitea` : 'Ecolitea'
   }
@@ -47,6 +51,13 @@ export const generateDescription: GenerateDescription<SEOContent | Settings> = (
   if (globalConfig?.slug === 'settings')
     return 'Explore our latest blog articles, insights, and guides.'
   const content = doc as SEOContent
+  if (collectionConfig?.slug === 'blog-categories') {
+    const category = content as BlogCategory
+    return (
+      category?.description ||
+      `Explore ${category?.title?.toLowerCase() || ''} articles and guides.`
+    )
+  }
   if (collectionConfig?.slug === 'blogs') return (content as Blog)?.excerpt || ''
   return content?.meta?.description || ''
 }
@@ -59,6 +70,9 @@ export const generateURL: GenerateURL<SEOContent | Settings> = ({
   const url = getServerSideURL()
   if (globalConfig?.slug === 'settings') return new URL('/blogs', url).toString()
   const content = doc as SEOContent
+  if (collectionConfig?.slug === 'blog-categories') {
+    return `${url}/blogs${content?.slug ? `/category/${content.slug}` : ''}`
+  }
   const path =
     collectionConfig?.slug && content?.slug
       ? getContentPath(collectionConfig.slug as CollectionSlug, content.slug)
@@ -93,6 +107,22 @@ export const generateImage: GenerateImage<SEOContent | Settings> = async ({
     const content = doc as SEOContent
     current = content?.meta?.image
     switch (collectionConfig?.slug) {
+      case 'blog-categories': {
+        if (!content?.id) break
+        const blogs = await req.payload.find({
+          collection: 'blogs',
+          depth: 0,
+          draft: false,
+          limit: 1,
+          sort: '-publishedAt',
+          overrideAccess: false,
+          req,
+          select: { heroImage: true },
+          where: { and: [{ category: { equals: content.id } }, publicBlogVisibility(new Date())] },
+        })
+        source = blogs.docs[0]?.heroImage
+        break
+      }
       case 'blogs':
       case 'posts':
         source = (content as Blog | Post)?.heroImage

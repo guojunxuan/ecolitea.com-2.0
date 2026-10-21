@@ -888,8 +888,16 @@ export interface BlogCategory {
   id: string;
   _order?: string | null;
   title: string;
-  slug: string;
   description?: string | null;
+  meta?: {
+    title?: string | null;
+    /**
+     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
+     */
+    image?: (string | null) | Media;
+    description?: string | null;
+  };
+  slug: string;
   blogs?: {
     docs?: (string | Blog)[];
     hasNextPage?: boolean;
@@ -1665,8 +1673,15 @@ export interface BlogsSelect<T extends boolean = true> {
 export interface BlogCategoriesSelect<T extends boolean = true> {
   _order?: T;
   title?: T;
-  slug?: T;
   description?: T;
+  meta?:
+    | T
+    | {
+        title?: T;
+        image?: T;
+        description?: T;
+      };
+  slug?: T;
   blogs?: T;
   updatedAt?: T;
   createdAt?: T;

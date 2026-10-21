@@ -2,16 +2,17 @@ import { renderToStaticMarkup } from 'react-dom/server'
 import React from 'react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-const { find, getBlogListing, getBlogListingHero, getBlogListingSEO, notFound, unstableCache } = vi.hoisted(() => ({
-  find: vi.fn(),
-  getBlogListing: vi.fn(),
-  getBlogListingHero: vi.fn(),
-  getBlogListingSEO: vi.fn(),
-  notFound: vi.fn(() => {
-    throw new Error('NEXT_NOT_FOUND')
-  }),
-  unstableCache: vi.fn((fn: () => unknown) => async () => JSON.parse(JSON.stringify(await fn()))),
-}))
+const { find, getBlogListing, getBlogListingHero, getBlogListingSEO, notFound, unstableCache } =
+  vi.hoisted(() => ({
+    find: vi.fn(),
+    getBlogListing: vi.fn(),
+    getBlogListingHero: vi.fn(),
+    getBlogListingSEO: vi.fn(),
+    notFound: vi.fn(() => {
+      throw new Error('NEXT_NOT_FOUND')
+    }),
+    unstableCache: vi.fn((fn: () => unknown) => async () => JSON.parse(JSON.stringify(await fn()))),
+  }))
 
 vi.mock('payload', () => ({ getPayload: vi.fn(async () => ({ find })) }))
 vi.mock('@payload-config', () => ({ default: Promise.resolve({}) }))
@@ -370,10 +371,97 @@ describe('blog listing routes', () => {
 
   it('keeps category metadata independent from Settings SEO', async () => {
     getBlogListingSEO.mockResolvedValue({ title: 'Settings title' })
-    const category = await categoryMetadata({ params: Promise.resolve({ categorySlug: 'tea-guides' }) })
+    const category = await categoryMetadata({
+      params: Promise.resolve({ categorySlug: 'tea-guides' }),
+    })
     expect(category.title).toBe('Tea Guides Blogs')
     expect(category.description).toBe('Tea category description')
-    expect(getBlogListingSEO).not.toHaveBeenCalled()
+    expect(getBlogListingSEO).toHaveBeenCalledTimes(1)
+  })
+
+  it.each([
+    [
+      {
+        title: 'Green Journal',
+        description: 'Tea guidance',
+        image: { url: 'https://media.example.invalid/category.jpg' },
+      },
+      'Green Journal',
+      'Tea guidance',
+      'https://media.example.invalid/category.jpg',
+    ],
+    [
+      undefined,
+      'Tea Guides Blogs',
+      'Tea category description',
+      'https://media.example.invalid/listing.jpg',
+    ],
+    [
+      { title: '', description: '' },
+      'Tea Guides Blogs',
+      'Tea category description',
+      'https://media.example.invalid/listing.jpg',
+    ],
+  ])(
+    'outputs category SEO and image fallbacks without Twitter (%j)',
+    async (meta, title, description, imageURL) => {
+      const defaultFind = find.getMockImplementation()!
+      find.mockImplementation(async (args: { collection: string }) =>
+        args.collection === 'blog-categories'
+          ? { docs: [{ ...categories[0], meta }], hasNextPage: false }
+          : defaultFind(args),
+      )
+      getBlogListingSEO.mockResolvedValue({
+        title: 'Ignored',
+        description: 'Ignored',
+        imageURL: 'https://media.example.invalid/listing.jpg',
+      })
+      for (const page of [1, 2]) {
+        const result = await (
+          await import('@/app/(frontend)/blogs/listing')
+        ).blogListingMetadata({ page, categorySlug: 'tea-guides' })
+        const expectedTitle = page === 1 ? title : `${title} — Page 2`
+        const expectedDescription = page === 1 ? description : `${description} Page 2.`
+        expect(result).toMatchObject({
+          title: expectedTitle,
+          description: expectedDescription,
+          alternates: { canonical: `/blogs/category/tea-guides${page === 1 ? '' : '/page/2'}` },
+          openGraph: {
+            title: expectedTitle,
+            description: expectedDescription,
+            images: [{ url: imageURL }],
+          },
+        })
+        expect(result).not.toHaveProperty('twitter')
+      }
+      expect(find).toHaveBeenCalledWith(
+        expect.objectContaining({
+          collection: 'blog-categories',
+          depth: 1,
+          select: { title: true, slug: true, description: true, meta: true },
+        }),
+      )
+    },
+  )
+
+  it('uses category copy and site default image when SEO and descriptions are absent', async () => {
+    const defaultFind = find.getMockImplementation()!
+    find.mockImplementation(async (args: { collection: string }) =>
+      args.collection === 'blog-categories'
+        ? {
+            docs: [{ ...categories[0], description: null, meta: { image: 'unpopulated' } }],
+            hasNextPage: false,
+          }
+        : defaultFind(args),
+    )
+    const result = await categoryMetadata({
+      params: Promise.resolve({ categorySlug: 'tea-guides' }),
+    })
+    expect(result.description).toBe('Explore tea guides articles and guides.')
+    expect(result.openGraph).toMatchObject({
+      images: [{ url: expect.stringContaining('/website-template-OG.webp') }],
+    })
+    expect(result).not.toHaveProperty('twitter')
   })
 
   it('prerenders only populated categories while allowing new populated categories at request time', async () => {

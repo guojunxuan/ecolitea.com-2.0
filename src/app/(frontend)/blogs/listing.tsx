@@ -13,6 +13,8 @@ import { Pagination } from '@/components/Pagination'
 import { getBlogListing } from '@/utilities/blogs/getBlogListing'
 import { getBlogListingHero } from '@/utilities/blogs/getBlogListingHero'
 import { getBlogListingSEO } from '@/utilities/blogs/getBlogListingSEO'
+import { getMediaUrl } from '@/utilities/getMediaUrl'
+import { getServerSideURL } from '@/utilities/getURL'
 import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
 import { publicBlogVisibility } from '@/utilities/blogs/publicVisibility'
 import type { BlogCategory } from '@/payload-types'
@@ -20,7 +22,7 @@ import type { BlogCategory } from '@/payload-types'
 import styles from './listing.module.css'
 
 type ListingArgs = { page: number; categorySlug?: string }
-type Category = Pick<BlogCategory, 'id' | 'title' | 'slug' | 'description'>
+type Category = Pick<BlogCategory, 'id' | 'title' | 'slug' | 'description' | 'meta'>
 
 const getCategories = unstable_cache(
   async (): Promise<Category[]> => {
@@ -31,12 +33,12 @@ const getCategories = unstable_cache(
     while (hasNextPage) {
       const result = await payload.find({
         collection: 'blog-categories',
-        depth: 0,
+        depth: 1,
         limit: 100,
         page,
         overrideAccess: false,
         sort: '_order',
-        select: { title: true, slug: true, description: true },
+        select: { title: true, slug: true, description: true, meta: true },
       })
       categories.push(...result.docs)
       hasNextPage = result.hasNextPage
@@ -161,25 +163,32 @@ export async function renderBlogListing({ page, categorySlug }: ListingArgs) {
 
 export async function blogListingMetadata({ page, categorySlug }: ListingArgs): Promise<Metadata> {
   const category = await resolveCategory(categorySlug)
-  const seo = categorySlug ? null : await getBlogListingSEO()
-  const baseTitle = category ? `${category.title} Blogs` : seo?.title || 'Blogs'
+  const seo = await getBlogListingSEO()
+  const baseTitle = category
+    ? category.meta?.title || `${category.title} Blogs`
+    : seo?.title || 'Blogs'
   const title = page === 1 ? baseTitle : `${baseTitle} — Page ${page}`
   const baseDescription =
-    (categorySlug ? category?.description : seo?.description) ||
+    (categorySlug ? category?.meta?.description || category?.description : seo?.description) ||
     (category
       ? `Explore ${category.title.toLowerCase()} articles and guides.`
       : 'Explore our latest blog articles, insights, and guides.')
   const description = page === 1 ? baseDescription : `${baseDescription} Page ${page}.`
   const basePath = category ? `/blogs/category/${category.slug}` : '/blogs'
   const canonical = page === 1 ? basePath : `${basePath}/page/${page}`
-  if (categorySlug) return { title, description, alternates: { canonical } }
+  const categoryImage = category?.meta?.image
+  const imageURL =
+    categoryImage && typeof categoryImage === 'object' && categoryImage.url
+      ? getMediaUrl(categoryImage.url, undefined, getServerSideURL())
+      : seo?.imageURL
 
   const openGraph = mergeOpenGraph({
     title,
     description,
     url: canonical,
-    images: seo?.imageURL ? [{ url: seo.imageURL }] : undefined,
+    images: imageURL ? [{ url: imageURL }] : undefined,
   })
+  if (categorySlug) return { title, description, alternates: { canonical }, openGraph }
   return {
     title,
     description,

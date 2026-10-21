@@ -1,3 +1,11 @@
+import {
+  MetaDescriptionField,
+  MetaImageField,
+  MetaTitleField,
+  OverviewField,
+  PreviewField,
+} from '@payloadcms/plugin-seo/fields'
+import { imageOnly } from '@/collections/mediaUploadPolicy'
 import type {
   CollectionConfig,
   CollectionAfterChangeHook,
@@ -36,9 +44,42 @@ export const BlogCategories: CollectionConfig = {
   orderable: true,
   access: { read: anyone, create: authenticated, update: authenticated, delete: authenticated },
   fields: [
-    { name: 'title', type: 'text', required: true },
+    {
+      type: 'tabs',
+      tabs: [
+        {
+          label: 'Content',
+          fields: [
+            { name: 'title', type: 'text', required: true },
+            { name: 'description', type: 'textarea' },
+          ],
+        },
+        {
+          name: 'meta',
+          label: 'SEO',
+          fields: [
+            OverviewField({
+              titlePath: 'meta.title',
+              descriptionPath: 'meta.description',
+              imagePath: 'meta.image',
+            }),
+            MetaTitleField({ hasGenerateFn: true }),
+            MetaImageField({
+              relationTo: 'media',
+              hasGenerateFn: true,
+              overrides: { filterOptions: imageOnly },
+            }),
+            MetaDescriptionField({ hasGenerateFn: true }),
+            PreviewField({
+              hasGenerateFn: true,
+              titlePath: 'meta.title',
+              descriptionPath: 'meta.description',
+            }),
+          ],
+        },
+      ],
+    },
     { name: 'slug', type: 'slug', useAsSlug: 'title', admin: { position: 'sidebar' } },
-    { name: 'description', type: 'textarea' },
     { name: 'blogs', type: 'join', collection: 'blogs', on: 'category' },
   ],
   hooks: { afterChange: [afterChange], afterDelete: [afterDelete] },
