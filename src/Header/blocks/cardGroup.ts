@@ -11,9 +11,10 @@ import {
 } from './fields'
 
 export const CardGroup: Block = {
-  slug: 'cardGroup',
+  slug: 'headerCardGroup',
   interfaceName: 'HeaderCardGroupBlock',
   labels: { singular: 'Card Group', plural: 'Card Groups' },
+  admin: { group: 'Header' },
   fields: [
     enableHeadingField(),
     headingField(),

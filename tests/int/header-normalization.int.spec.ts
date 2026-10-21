@@ -14,7 +14,7 @@ describe('normalizeHeader', () => {
           link: { type: 'custom', url: '  /products  ' },
           content: [
             {
-              blockType: 'categoryTabs',
+              blockType: 'headerCategoryTabs',
               enableCta: true,
               cta: { type: 'custom', label: '  All products  ', url: '  /products/all  ' },
               categories: [
@@ -33,7 +33,7 @@ describe('normalizeHeader', () => {
               ],
             },
             {
-              blockType: 'cardGroup',
+              blockType: 'headerCardGroup',
               enableHeading: true,
               heading: '  Featured  ',
               enableCta: true,
@@ -47,13 +47,13 @@ describe('normalizeHeader', () => {
               ],
             },
             {
-              blockType: 'linkGroup',
+              blockType: 'headerLinkGroup',
               enableHeading: true,
               heading: '  Learn  ',
               links: [{ link: { type: 'custom', label: '  Brewing guide  ', url: '  /guide  ' } }],
             },
             {
-              blockType: 'richCard',
+              blockType: 'headerRichCard',
               image: 'media-3',
               title: '  Our growers  ',
               description: '  Meet the farms  ',
@@ -110,7 +110,7 @@ describe('normalizeHeader', () => {
           link: { type: 'custom', url: '  /about  ' },
           content: [
             {
-              blockType: 'cardGroup',
+              blockType: 'headerCardGroup',
               enableHeading: false,
               heading: '  Stored heading  ',
               enableCta: false,

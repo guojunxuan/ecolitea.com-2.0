@@ -185,7 +185,7 @@ describe('public website shell', () => {
 
   it('keeps inverse ownership on dark content and local foreground adaptation on the Header', () => {
     expect(readSource('src/heros/PostHero/index.tsx')).toContain('data-website-theme="inverse"')
-    expect(readSource('src/blocks/Code/Component.client.tsx')).toContain(
+    expect(readSource('src/collections/Posts/blocks/Code/Component.client.tsx')).toContain(
       'data-website-theme="inverse"',
     )
     const header = readSource('src/Header/Component.client.tsx')
@@ -212,7 +212,7 @@ describe('public website shell', () => {
 
   it('uses semantic inverse surfaces for Footer and Code without changing Prism scope', () => {
     const footer = readSource('src/Footer/index.module.css')
-    const code = readSource('src/blocks/Code/Component.module.css')
+    const code = readSource('src/collections/Posts/blocks/Code/Component.module.css')
     expect(footer).toContain('var(--website-color-muted-foreground)')
     expect(footer).toContain('var(--website-color-border)')
     expect(footer).toContain('var(--website-color-disabled-foreground)')
@@ -222,7 +222,7 @@ describe('public website shell', () => {
     expect(code).toContain('background-color: var(--website-color-background)')
     expect(code).toContain('color: var(--website-color-foreground)')
     expect(code).toContain('composes: website-type-code from global;')
-    expect(readSource('src/blocks/Code/Component.client.tsx')).toContain('themes.vsDark')
+    expect(readSource('src/collections/Posts/blocks/Code/Component.client.tsx')).toContain('themes.vsDark')
   })
 
   it('keeps image overlay coverage local to Heroes and visual navigation cards', () => {

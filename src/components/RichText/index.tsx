@@ -1,70 +1,26 @@
-import { MediaBlock } from '@/blocks/MediaBlock/Component'
-import {
-  SerializedBlockNode,
-  SerializedLinkNode,
-  WithDefaultNodes,
-} from '@payloadcms/richtext-lexical'
+import { SerializedLinkNode } from '@payloadcms/richtext-lexical'
 import type { SerializedEditorState } from '@payloadcms/richtext-lexical/lexical'
 import {
   JSXConvertersFunction,
   LinkJSXConverter,
   RichText as ConvertRichText,
 } from '@payloadcms/richtext-lexical/react'
-
-import { CodeBlock, CodeBlockProps } from '@/blocks/Code/Component'
-
-import type {
-  BannerBlock as BannerBlockProps,
-  CallToActionBlock as CTABlockProps,
-  KeyTakeawaysBlock as KeyTakeawaysBlockProps,
-  MediaBlock as MediaBlockProps,
-} from '@/payload-types'
-import { BannerBlock } from '@/blocks/Banner/Component'
-import { CallToActionBlock } from '@/blocks/CallToAction/Component'
-import { KeyTakeawaysBlock } from '@/blocks/KeyTakeaways/Component'
 import { cn } from '@/utilities/ui'
 import { getHeadingText, slugifyHeadingText } from '@/utilities/blogs/extractTOC'
 import { getContentPath } from '@/utilities/getContentPath'
 import type { CollectionSlug } from 'payload'
-
 import styles from './index.module.css'
 
-type NodeTypes = WithDefaultNodes<
-  | SerializedBlockNode<BannerBlockProps>
-  | SerializedBlockNode<CTABlockProps>
-  | SerializedBlockNode<CodeBlockProps>
-  | SerializedBlockNode<KeyTakeawaysBlockProps>
-  | SerializedBlockNode<MediaBlockProps>
->
-
 type RichTextContext = 'page' | 'article'
-
-// Article Blocks own their width; the wrapper only marks the prose boundary and spacing.
-const ArticleBlock = ({ children }: { children: React.ReactNode }) => (
-  <div className={cn('payload-richtext__embedded', styles.articleBlock)}>{children}</div>
-)
-
-const articleBlockConverters: ReturnType<JSXConvertersFunction<NodeTypes>>['blocks'] = {
-  banner: ({ node }) => (
-    <ArticleBlock>
-      <BannerBlock {...node.fields} />
-    </ArticleBlock>
-  ),
-  cta: ({ node }) => (
-    <ArticleBlock>
-      <CallToActionBlock {...node.fields} context="article" />
-    </ArticleBlock>
-  ),
-  keyTakeaways: ({ node }) => (
-    <ArticleBlock>
-      <KeyTakeawaysBlock {...node.fields} />
-    </ArticleBlock>
-  ),
-  mediaBlock: ({ node }) => (
-    <ArticleBlock>
-      <MediaBlock {...node.fields} context="article" enableGutter={false} disableInnerContainer />
-    </ArticleBlock>
-  ),
+export type RichTextBlockConverters = NonNullable<ReturnType<JSXConvertersFunction>['blocks']>
+export const richTextEmbedClassNames = {
+  marker: 'payload-richtext__embedded',
+  banner: styles.embeddedBanner,
+  media: styles.embeddedMedia,
+  mediaImage: styles.mediaImage,
+  mediaCaption: styles.mediaCaption,
+  code: styles.embeddedCode,
+  articleBlock: styles.articleBlock,
 }
 
 const internalDocToHref = ({ linkNode }: { linkNode: SerializedLinkNode }) => {
@@ -76,7 +32,7 @@ const internalDocToHref = ({ linkNode }: { linkNode: SerializedLinkNode }) => {
 }
 
 const jsxConverters =
-  (context: RichTextContext, headingIds?: readonly string[]): JSXConvertersFunction<NodeTypes> =>
+  (blocks: RichTextBlockConverters, headingIds?: readonly string[]): JSXConvertersFunction =>
   ({ defaultConverters }) => {
     let headingIndex = 0
     return {
@@ -93,7 +49,7 @@ const jsxConverters =
               const id = eligible ? headingIds[headingIndex++] : undefined
               return <Tag id={id}>{nodesToJSX({ nodes: node.children })}</Tag>
             },
-          } satisfies ReturnType<JSXConvertersFunction<NodeTypes>>)
+          } satisfies ReturnType<JSXConvertersFunction>)
         : {}),
       table: ({ node, nodesToJSX }) => (
         <div
@@ -107,40 +63,12 @@ const jsxConverters =
           </table>
         </div>
       ),
-      blocks: {
-        banner: ({ node }) => (
-          <BannerBlock
-            className={cn('payload-richtext__embedded', styles.embeddedBanner)}
-            {...node.fields}
-          />
-        ),
-        mediaBlock: ({ node }) => (
-          <MediaBlock
-            className={cn('payload-richtext__embedded', styles.embeddedMedia)}
-            imgClassName={styles.mediaImage}
-            {...node.fields}
-            captionClassName={styles.mediaCaption}
-            enableGutter={false}
-            disableInnerContainer={true}
-          />
-        ),
-        code: ({ node }) => (
-          <CodeBlock
-            className={cn('payload-richtext__embedded', styles.embeddedCode)}
-            {...node.fields}
-          />
-        ),
-        cta: ({ node }) => (
-          <div className={cn('payload-richtext__embedded', styles.embeddedCTA)}>
-            <CallToActionBlock {...node.fields} />
-          </div>
-        ),
-        ...(context === 'article' ? articleBlockConverters : {}),
-      },
+      blocks,
     }
   }
 
 type Props = {
+  blocks?: RichTextBlockConverters
   context?: RichTextContext
   data: SerializedEditorState
   enableGutter?: boolean
@@ -151,6 +79,7 @@ type Props = {
 export default function RichText(props: Props) {
   const {
     className,
+    blocks = {},
     context = 'page',
     enableProse = true,
     enableGutter = true,
@@ -159,7 +88,7 @@ export default function RichText(props: Props) {
   } = props
   return (
     <ConvertRichText
-      converters={jsxConverters(context, headingIds)}
+      converters={jsxConverters(blocks, headingIds)}
       className={cn(
         'payload-richtext',
         styles.root,

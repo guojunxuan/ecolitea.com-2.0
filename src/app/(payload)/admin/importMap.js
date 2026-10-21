@@ -20,13 +20,13 @@ import { TableFeatureClient as TableFeatureClient_e70f5e05f09f93e00b997edb1ef0c8
 import { HorizontalRuleFeatureClient as HorizontalRuleFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { BlockquoteFeatureClient as BlockquoteFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { ParagraphFeatureClient as ParagraphFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
+import { BlockRowLabel as BlockRowLabel_54fe0f316d4b99315c1513bdd1306683 } from '@/blocks/BlockRowLabel'
 import { OverviewComponent as OverviewComponent_a8a977ebc872c5d5ea7ee689724c0860 } from '@payloadcms/plugin-seo/client'
 import { MetaTitleComponent as MetaTitleComponent_a8a977ebc872c5d5ea7ee689724c0860 } from '@payloadcms/plugin-seo/client'
 import { MetaImageComponent as MetaImageComponent_a8a977ebc872c5d5ea7ee689724c0860 } from '@payloadcms/plugin-seo/client'
 import { MetaDescriptionComponent as MetaDescriptionComponent_a8a977ebc872c5d5ea7ee689724c0860 } from '@payloadcms/plugin-seo/client'
 import { PreviewComponent as PreviewComponent_a8a977ebc872c5d5ea7ee689724c0860 } from '@payloadcms/plugin-seo/client'
 import { BlocksFeatureClient as BlocksFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
-import { BlockRowLabel as BlockRowLabel_54fe0f316d4b99315c1513bdd1306683 } from '@/blocks/BlockRowLabel'
 import { ArticleBlockEditor as ArticleBlockEditor_4971c3244241ba6cff288a3222e75719 } from '@/blocks/ArticleBlockEditor'
 import { ImageCropControls as ImageCropControls_9959ec1372000a411e6c7216c9e7a00c } from '@/collections/mediaAdmin/ImageCropControls'
 import { UsedInPanel as UsedInPanel_465fcf04887261c29f77ab01f3d2132c } from '@/collections/mediaAdmin/UsedInPanel'
@@ -85,13 +85,13 @@ export const importMap = {
   "@payloadcms/richtext-lexical/client#HorizontalRuleFeatureClient": HorizontalRuleFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/richtext-lexical/client#BlockquoteFeatureClient": BlockquoteFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/richtext-lexical/client#ParagraphFeatureClient": ParagraphFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
+  "@/blocks/BlockRowLabel#BlockRowLabel": BlockRowLabel_54fe0f316d4b99315c1513bdd1306683,
   "@payloadcms/plugin-seo/client#OverviewComponent": OverviewComponent_a8a977ebc872c5d5ea7ee689724c0860,
   "@payloadcms/plugin-seo/client#MetaTitleComponent": MetaTitleComponent_a8a977ebc872c5d5ea7ee689724c0860,
   "@payloadcms/plugin-seo/client#MetaImageComponent": MetaImageComponent_a8a977ebc872c5d5ea7ee689724c0860,
   "@payloadcms/plugin-seo/client#MetaDescriptionComponent": MetaDescriptionComponent_a8a977ebc872c5d5ea7ee689724c0860,
   "@payloadcms/plugin-seo/client#PreviewComponent": PreviewComponent_a8a977ebc872c5d5ea7ee689724c0860,
   "@payloadcms/richtext-lexical/client#BlocksFeatureClient": BlocksFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
-  "@/blocks/BlockRowLabel#BlockRowLabel": BlockRowLabel_54fe0f316d4b99315c1513bdd1306683,
   "@/blocks/ArticleBlockEditor#ArticleBlockEditor": ArticleBlockEditor_4971c3244241ba6cff288a3222e75719,
   "@/collections/mediaAdmin/ImageCropControls#ImageCropControls": ImageCropControls_9959ec1372000a411e6c7216c9e7a00c,
   "@/collections/mediaAdmin/UsedInPanel#UsedInPanel": UsedInPanel_465fcf04887261c29f77ab01f3d2132c,

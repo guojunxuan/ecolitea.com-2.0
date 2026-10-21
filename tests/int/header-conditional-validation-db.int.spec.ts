@@ -60,7 +60,7 @@ describe('Header conditional validation through the Payload Local API', () => {
         navigationType: 'dropdown' as const,
         content: [
           {
-            blockType: 'cardGroup' as const,
+            blockType: 'headerCardGroup' as const,
             enableHeading: false,
             heading: '',
             enableCta,

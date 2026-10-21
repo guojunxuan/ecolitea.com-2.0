@@ -7,10 +7,11 @@ const readSource = (relativePath: string) =>
   fs.readFileSync(path.join(process.cwd(), relativePath), 'utf8')
 
 const shellFacingFiles = [
-  'src/blocks/RenderBlocks.tsx',
-  'src/blocks/Content/Component.tsx',
-  'src/blocks/ArchiveBlock/Component.tsx',
-  'src/blocks/Form/Component.tsx',
+  'src/collections/Pages/blocks/RenderPageBlocks.tsx',
+  'src/collections/CaseStudies/blocks/RenderCaseStudyBlocks.tsx',
+  'src/collections/Pages/blocks/Content/Component.tsx',
+  'src/collections/Pages/blocks/Archive/Component.tsx',
+  'src/collections/Pages/blocks/Form/Component.tsx',
   'src/components/CollectionArchive/index.tsx',
   'src/heros/LowImpact/index.tsx',
   'src/heros/MediumImpact/index.tsx',
@@ -49,21 +50,23 @@ describe('website layout primitives', () => {
   })
 
   it('uses the shared section rhythm at the Block owner instead of duplicate my-16 margins', () => {
-    const renderBlocks = readSource('src/blocks/RenderBlocks.tsx')
-    const renderBlockStyles = readSource('src/blocks/RenderBlocks.module.css')
+    const renderBlocks = readSource('src/collections/Pages/blocks/RenderPageBlocks.tsx')
+    const renderBlockStyles = readSource('src/collections/Pages/blocks/RenderPageBlocks.module.css')
     const sources = shellFacingFiles.map(readSource)
 
+    expect(readSource('src/collections/CaseStudies/blocks/RenderCaseStudyBlocks.tsx')).toContain('className={styles.section}')
+    expect(readSource('src/collections/CaseStudies/blocks/RenderCaseStudyBlocks.module.css')).toBe(renderBlockStyles)
     expect(renderBlocks).toContain('className={styles.section}')
     expect(renderBlockStyles).toContain('padding-block: var(--website-section-standard);')
     expect(sources.some((source) => source.includes('my-16'))).toBe(false)
   })
 
   it('uses module-backed site containers for Blocks and preserves shell container primitives', () => {
-    expect(readSource('src/blocks/Content/Component.tsx')).toContain('styles.container')
-    expect(readSource('src/blocks/ArchiveBlock/Component.tsx')).toContain('styles.intro')
+    expect(readSource('src/collections/Pages/blocks/Content/Component.tsx')).toContain('styles.container')
+    expect(readSource('src/collections/Pages/blocks/Archive/Component.tsx')).toContain('styles.intro')
     for (const file of [
-      'src/blocks/Content/Component.module.css',
-      'src/blocks/ArchiveBlock/Component.module.css',
+      'src/collections/Pages/blocks/Content/Component.module.css',
+      'src/collections/Pages/blocks/Archive/Component.module.css',
     ]) {
       expect(readSource(file), file).toContain('var(--website-container-site)')
     }
@@ -125,8 +128,8 @@ describe('website layout primitives', () => {
   })
 
   it('uses the reading container contract for long-form post content and forms', () => {
-    expect(readSource('src/blocks/Form/Component.tsx')).toContain('styles.container')
-    expect(readSource('src/blocks/Form/Component.module.css')).toContain(
+    expect(readSource('src/collections/Pages/blocks/Form/Component.tsx')).toContain('styles.container')
+    expect(readSource('src/collections/Pages/blocks/Form/Component.module.css')).toContain(
       'var(--website-container-reading)',
     )
     expect(readSource('src/app/(frontend)/posts/[slug]/page.tsx')).toContain('styles.postContent')

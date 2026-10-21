@@ -201,13 +201,13 @@ const adaptBlock = (
   const blockID = id(value.id, `${key}-block-${index}`)
 
   switch (value.blockType) {
-    case 'categoryTabs':
+    case 'headerCategoryTabs':
       return adaptCategoryTabs(value, blockID)
-    case 'cardGroup':
+    case 'headerCardGroup':
       return adaptCardGroup(value, blockID)
-    case 'linkGroup':
+    case 'headerLinkGroup':
       return adaptLinkGroup(value, blockID)
-    case 'richCard':
+    case 'headerRichCard':
       return adaptRichCard(value, blockID)
     default:
       return null

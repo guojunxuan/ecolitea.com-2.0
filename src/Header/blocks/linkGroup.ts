@@ -5,9 +5,10 @@ import { HEADER_LINK_GROUP_LINKS_MAX, HEADER_LINK_GROUP_LINKS_MIN } from '@/Head
 import { enableHeadingField, headingField } from './fields'
 
 export const LinkGroup: Block = {
-  slug: 'linkGroup',
+  slug: 'headerLinkGroup',
   interfaceName: 'HeaderLinkGroupBlock',
   labels: { singular: 'Link Group', plural: 'Link Groups' },
+  admin: { group: 'Header' },
   fields: [
     enableHeadingField(),
     headingField(),

@@ -1,3 +1,4 @@
+import { blogRichTextBlocks } from '@/collections/Blogs/blocks/richTextBlocks'
 import type { Metadata } from 'next'
 import { draftMode } from 'next/headers'
 import { getPayload } from 'payload'
@@ -76,7 +77,7 @@ export default async function BlogPage({ params }: Args) {
           sidebar={hasShare ? <ArticleShare model={share} url={canonicalURL} /> : undefined}
         >
           <div className={styles.content} data-slot="blog-article-content">
-            <RichText
+            <RichText blocks={blogRichTextBlocks}
               context="article"
               data={blog.content}
               enableGutter={false}

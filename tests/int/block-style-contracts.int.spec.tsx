@@ -10,22 +10,24 @@ vi.mock('@payload-config', () => ({ default: {} }))
 vi.mock('payload', () => ({ getPayload: vi.fn() }))
 vi.mock('@payloadcms/ui/icons/Copy', () => ({ CopyIcon: () => <svg aria-hidden="true" /> }))
 
-import { RenderBlocks } from '@/blocks/RenderBlocks'
-import { ContentBlock } from '@/blocks/Content/Component'
-import { BannerBlock } from '@/blocks/Banner/Component'
-import { FormBlock, type FormBlockType } from '@/blocks/Form/Component'
-import { Width } from '@/blocks/Form/Width'
-import { CodeBlock } from '@/blocks/Code/Component'
+import { RenderPageBlocks } from '@/collections/Pages/blocks/RenderPageBlocks'
+import { ContentBlock } from '@/collections/Pages/blocks/Content/Component'
+import { BannerBlock } from '@/collections/Blogs/blocks/Banner/Component'
+import { FormBlock, type FormBlockType } from '@/collections/Pages/blocks/Form/Component'
+import { Width } from '@/collections/Pages/blocks/Form/Width'
+import { CodeBlock } from '@/collections/Posts/blocks/Code/Component'
 import type { Page } from '@/payload-types'
 import RichText from '@/components/RichText'
+import { blogRichTextBlocks } from '@/collections/Blogs/blocks/richTextBlocks'
 
 // The glob lets missing migration modules fail assertions rather than module resolution.
-const modules = import.meta.glob('/src/blocks/**/*.module.css', {
+const modules = import.meta.glob(['/src/blocks/**/*.module.css', '/src/collections/*/blocks/**/*.module.css'], {
   eager: true,
   import: 'default',
 }) as Record<string, Record<string, string>>
 const style = (path: string, name: string) => {
-  const className = modules[`/src/blocks/${path}.module.css`]?.[name]
+  const owner = path.startsWith('Form/') || path.startsWith('Content/') || path === 'RenderPageBlocks' ? 'Pages' : path.startsWith('Code/') ? 'Posts' : 'Blogs'
+  const className = modules[`/src/collections/${owner}/blocks/${path}.module.css`]?.[name]
   expect(className, `${path} exports ${name}`).toBeTruthy()
   return className
 }
@@ -96,16 +98,16 @@ afterEach(() => {
 describe('Block CSS module contracts', () => {
   it('renders typed page blocks with one page wrapper and keeps keyed nodes stable', () => {
     const first: Page['layout'] = [
-      { id: 'first', blockType: 'content', columns: [] },
-      { id: 'second', blockType: 'mediaBlock', media: 'missing' },
+      { id: 'first', blockType: 'pageContent', columns: [] },
+      { id: 'second', blockType: 'pageMediaBlock', media: 'missing' },
     ]
-    const { container, rerender } = render(<RenderBlocks blocks={first} />)
+    const { container, rerender } = render(<RenderPageBlocks blocks={first} />)
     const originalNodes = [...container.children]
     expect(originalNodes).toHaveLength(2)
     expect(
-      originalNodes.every((node) => node.classList.contains(style('RenderBlocks', 'section'))),
+      originalNodes.every((node) => node.classList.contains(style('RenderPageBlocks', 'section'))),
     ).toBe(true)
-    rerender(<RenderBlocks blocks={[first[1], first[0]]} />)
+    rerender(<RenderPageBlocks blocks={[first[1], first[0]]} />)
     expect(container.children[0]).toBe(originalNodes[1])
     expect(container.children[1]).toBe(originalNodes[0])
   })
@@ -125,14 +127,14 @@ describe('Block CSS module contracts', () => {
         format: '',
         indent: 0,
         children: [
-          block('media', { blockType: 'mediaBlock', media: 'missing', width: 'wide' }),
-          block('takeaways', { blockType: 'keyTakeaways', content: richText('Summary') }),
-          block('banner', { blockType: 'banner', style: 'info', content: richText('Notice') }),
-          block('cta', { blockType: 'cta', heading: 'Explore more', theme: 'inverse' }),
+          block('media', { blockType: 'blogMediaBlock', media: 'missing', width: 'wide' }),
+          block('takeaways', { blockType: 'blogKeyTakeaways', content: richText('Summary') }),
+          block('banner', { blockType: 'blogBanner', style: 'info', content: richText('Notice') }),
+          block('cta', { blockType: 'blogCta', heading: 'Explore more', theme: 'inverse' }),
         ],
       },
     } as never
-    const { container } = render(<RichText data={content} context="article" />)
+    const { container } = render(<RichText data={content} context="article" blocks={blogRichTextBlocks} />)
     expect(container.querySelectorAll('.payload-richtext__embedded')).toHaveLength(4)
     expect(screen.getByText('Summary')).toBeTruthy()
     expect(screen.getByText('Notice')).toBeTruthy()
@@ -143,10 +145,10 @@ describe('Block CSS module contracts', () => {
     expect(readFileSync('src/components/RichText/index.module.css', 'utf8')).toMatch(
       /\.article > :global\(\.payload-richtext__embedded\) > \*\s*\{[^}]*margin-block:\s*0/s,
     )
-    expect(readFileSync('src/blocks/MediaBlock/Component.module.css', 'utf8')).toMatch(
+    expect(readFileSync('src/collections/Blogs/blocks/MediaBlock/Component.module.css', 'utf8')).toMatch(
       /\.article\.wide\s*,\s*\.article\.fullWidth\s*\{[^}]*max-width:\s*none/,
     )
-    expect(readFileSync('src/blocks/RenderBlocks.module.css', 'utf8')).not.toContain(
+    expect(readFileSync('src/collections/Pages/blocks/RenderPageBlocks.module.css', 'utf8')).not.toContain(
       "data-block-context='article'",
     )
   })
@@ -166,7 +168,7 @@ describe('Block CSS module contracts', () => {
             format: '',
             fields: {
               id,
-              blockType: 'cta',
+              blockType: 'blogCta',
               heading: id,
               ...(id === 'inherited' ? {} : { theme: id }),
             },
@@ -176,7 +178,7 @@ describe('Block CSS module contracts', () => {
     } as never
     const { container } = render(
       <div data-website-theme="inverse">
-        <RichText data={content} context="article" />
+        <RichText data={content} context="article" blocks={blogRichTextBlocks} />
       </div>,
     )
     const panels = [
@@ -207,25 +209,25 @@ describe('Block CSS module contracts', () => {
 
   it('adds exactly one standard section wrapper per supported Block', () => {
     const { container } = render(
-      <RenderBlocks
+      <RenderPageBlocks
         blocks={[
-          { blockType: 'content', columns: [] },
-          { blockType: 'mediaBlock', media: 'missing' },
+          { blockType: 'pageContent', columns: [] },
+          { blockType: 'pageMediaBlock', media: 'missing' },
         ]}
       />,
     )
     expect(container.children).toHaveLength(2)
     for (const wrapper of container.children) {
-      expect(wrapper.classList).toContain(style('RenderBlocks', 'section'))
+      expect(wrapper.classList).toContain(style('RenderPageBlocks', 'section'))
       expect(wrapper.children).toHaveLength(1)
-      expect(wrapper.firstElementChild?.classList).not.toContain(style('RenderBlocks', 'section'))
+      expect(wrapper.firstElementChild?.classList).not.toContain(style('RenderPageBlocks', 'section'))
     }
   })
 
   it.each(['full', 'half', 'oneThird', 'twoThirds'] as const)(
     'maps the %s column without dynamic utility classes',
     (size) => {
-      render(<ContentBlock blockType="content" columns={[{ size, richText: richText(size) }]} />)
+      render(<ContentBlock blockType="pageContent" columns={[{ size, richText: richText(size) }]} />)
       const column = screen.getByText(size).closest('.payload-richtext')?.parentElement
       expect(column?.classList).toContain(style('Content/Component', size))
       expect(column?.classList).toContain(style('Content/Component', 'column'))
@@ -233,7 +235,7 @@ describe('Block CSS module contracts', () => {
   )
 
   it('preserves the medium half-width fallback for an unspecified column size', () => {
-    render(<ContentBlock blockType="content" columns={[{ richText: richText('Fallback') }]} />)
+    render(<ContentBlock blockType="pageContent" columns={[{ richText: richText('Fallback') }]} />)
     expect(
       screen.getByText('Fallback').closest('.payload-richtext')?.parentElement?.classList,
     ).toContain(style('Content/Component', 'partial'))
@@ -245,7 +247,7 @@ describe('Block CSS module contracts', () => {
       render(
         <BannerBlock
           id={`banner-${status}`}
-          blockType="banner"
+          blockType="blogBanner"
           style={status}
           content={richText('Notice')}
         />,
@@ -265,7 +267,7 @@ describe('Block CSS module contracts', () => {
     render(
       <BannerBlock
         id="banner-unknown"
-        blockType="banner"
+        blockType="blogBanner"
         style={'unknown' as never}
         content={richText('Notice')}
       />,
@@ -278,7 +280,7 @@ describe('Block CSS module contracts', () => {
     const writeText = vi.fn().mockResolvedValue(undefined)
     Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText } })
     const { container } = render(
-      <CodeBlock blockType="code" language="js" code="const tea = true" />,
+      <CodeBlock blockType="postCode" language="js" code="const tea = true" />,
     )
     expect(container.querySelector('pre')?.classList).toContain(style('Code/Component', 'code'))
     expect(container.querySelector('.token.keyword')?.textContent).toBe('const')
@@ -293,7 +295,7 @@ describe('Block CSS module contracts', () => {
   it('preserves MediaBlock border and radius in the image-owned module', () => {
     expect(style('MediaBlock/Component', 'image')).toBeTruthy()
     if (!style('MediaBlock/Component', 'image')) return
-    const css = readFileSync('src/blocks/MediaBlock/Component.module.css', 'utf8')
+    const css = readFileSync('src/collections/Blogs/blocks/MediaBlock/Component.module.css', 'utf8')
     expect(css).toMatch(/border:\s*1px solid var\(--website-color-border\)/)
     expect(css).toMatch(/border-radius:\s*var\(--website-radius-content\)/)
   })
@@ -342,7 +344,7 @@ describe('Form behavior across the style migration', () => {
       expect(visuallyHiddenText.parentElement?.classList).not.toContain('required')
     }
     for (const path of ['Form/Text/index', 'Form/Email/index', 'Form/Checkbox/index']) {
-      const css = readFileSync(`src/blocks/${path}.module.css`, 'utf8')
+      const css = readFileSync(`src/collections/Pages/blocks/${path}.module.css`, 'utf8')
       expect(css).toContain('composes: visually-hidden from global;')
     }
     expect(screen.getByRole('button', { name: 'Send' }).getAttribute('form')).toBe('contact-form')

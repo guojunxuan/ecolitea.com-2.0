@@ -34,10 +34,6 @@
   grid-column-start: 2;
 }
 
-.embeddedCTA {
-  grid-column: 1 / -1;
-  min-width: 0;
-}
 
 .mediaImage {
   margin: 0;

@@ -223,44 +223,44 @@ export type LexicalNodes_67D0DA17 =
   | SerializedQuoteNode<LexicalNodes_67D0DA17>;
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "LexicalNodes_C2DAD006".
+ * via the `definition` "LexicalNodes_46351820".
  */
-export type LexicalNodes_C2DAD006 =
+export type LexicalNodes_46351820 =
   | SerializedTextNode
   | SerializedTabNode
   | SerializedLineBreakNode
-  | SerializedParagraphNode<LexicalNodes_C2DAD006>
+  | SerializedParagraphNode<LexicalNodes_46351820>
   | SerializedHorizontalRuleNode
-  | SerializedBlockNode<BannerBlock | CodeBlock | MediaBlock_39A55B9F>
-  | SerializedHeadingNode<LexicalNodes_C2DAD006, 'h1' | 'h2' | 'h3' | 'h4'>
-  | SerializedAutoLinkNode<LexicalNodes_C2DAD006, LexicalLinkFields>
-  | SerializedLinkNode<LexicalNodes_C2DAD006, LexicalLinkFields>
-  | SerializedListNode<LexicalNodes_C2DAD006>
-  | SerializedListItemNode<LexicalNodes_C2DAD006>
-  | SerializedTableNode<LexicalNodes_C2DAD006>
-  | SerializedTableCellNode<LexicalNodes_C2DAD006>
-  | SerializedTableRowNode<LexicalNodes_C2DAD006>
-  | SerializedQuoteNode<LexicalNodes_C2DAD006>;
+  | SerializedBlockNode<PostBannerBlock | PostCodeBlock | PostMediaBlock>
+  | SerializedHeadingNode<LexicalNodes_46351820, 'h1' | 'h2' | 'h3' | 'h4'>
+  | SerializedAutoLinkNode<LexicalNodes_46351820, LexicalLinkFields>
+  | SerializedLinkNode<LexicalNodes_46351820, LexicalLinkFields>
+  | SerializedListNode<LexicalNodes_46351820>
+  | SerializedListItemNode<LexicalNodes_46351820>
+  | SerializedTableNode<LexicalNodes_46351820>
+  | SerializedTableCellNode<LexicalNodes_46351820>
+  | SerializedTableRowNode<LexicalNodes_46351820>
+  | SerializedQuoteNode<LexicalNodes_46351820>;
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "LexicalNodes_E63C6938".
+ * via the `definition` "LexicalNodes_C71AFECE".
  */
-export type LexicalNodes_E63C6938 =
+export type LexicalNodes_C71AFECE =
   | SerializedTextNode
   | SerializedTabNode
   | SerializedLineBreakNode
-  | SerializedParagraphNode<LexicalNodes_E63C6938>
-  | SerializedBlockNode<MediaBlock_39A55B9F | KeyTakeawaysBlock | CallToActionBlock_337B961F | BannerBlock>
-  | SerializedAutoLinkNode<LexicalNodes_E63C6938, LexicalLinkFields>
-  | SerializedLinkNode<LexicalNodes_E63C6938, LexicalLinkFields>
-  | SerializedListNode<LexicalNodes_E63C6938>
-  | SerializedListItemNode<LexicalNodes_E63C6938>
-  | SerializedTableNode<LexicalNodes_E63C6938>
-  | SerializedTableCellNode<LexicalNodes_E63C6938>
-  | SerializedTableRowNode<LexicalNodes_E63C6938>
+  | SerializedParagraphNode<LexicalNodes_C71AFECE>
+  | SerializedBlockNode<BlogMediaBlock | BlogKeyTakeawaysBlock | BlogCallToActionBlock | BlogBannerBlock>
+  | SerializedAutoLinkNode<LexicalNodes_C71AFECE, LexicalLinkFields>
+  | SerializedLinkNode<LexicalNodes_C71AFECE, LexicalLinkFields>
+  | SerializedListNode<LexicalNodes_C71AFECE>
+  | SerializedListItemNode<LexicalNodes_C71AFECE>
+  | SerializedTableNode<LexicalNodes_C71AFECE>
+  | SerializedTableCellNode<LexicalNodes_C71AFECE>
+  | SerializedTableRowNode<LexicalNodes_C71AFECE>
   | SerializedHorizontalRuleNode
-  | SerializedQuoteNode<LexicalNodes_E63C6938>
-  | SerializedHeadingNode<LexicalNodes_E63C6938, 'h2' | 'h3' | 'h4'>;
+  | SerializedQuoteNode<LexicalNodes_C71AFECE>
+  | SerializedHeadingNode<LexicalNodes_C71AFECE, 'h2' | 'h3' | 'h4'>;
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "LexicalNodes_46081D0A".
@@ -285,16 +285,7 @@ export interface Config {
   auth: {
     users: UserAuthOperations;
   };
-  blocks: {
-    archive: ArchiveBlock;
-    content: ContentBlock;
-    formBlock: FormBlock;
-    code: CodeBlock_86A1A6C3;
-    mediaBlock: MediaBlock;
-    keyTakeaways: KeyTakeawaysBlock_F21FD0F8;
-    cta: CallToActionBlock;
-    banner: BannerBlock_53835CC4;
-  };
+  blocks: {};
   collections: {
     folders: Folder;
     pages: Page;
@@ -402,43 +393,68 @@ export interface UserAuthOperations {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "ArchiveBlock".
+ * via the `definition` "folders".
  */
-export interface ArchiveBlock {
-  introContent?: LexicalRichText<LexicalNodes_B17D0A84> | null;
-  populateBy?: ('collection' | 'selection') | null;
-  relationTo?: 'posts' | null;
-  categories?: (string | Category)[] | null;
-  limit?: number | null;
-  selectedDocs?:
-    | {
-        relationTo: 'posts';
-        value: string | Post;
-      }[]
-    | null;
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'archive';
+export interface Folder {
+  id: string;
+  _h_folders?: (string | null) | Folder;
+  name: string;
+  updatedAt: string;
+  createdAt: string;
+  _h_slugPath?: string | null;
+  _h_titlePath?: string | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "categories".
+ * via the `definition` "pages".
  */
-export interface Category {
+export interface Page {
   id: string;
   title: string;
+  hero: {
+    type: 'none' | 'highImpact' | 'mediumImpact' | 'lowImpact';
+    headerTheme: 'light' | 'dark';
+    richText?: LexicalRichText<LexicalNodes_B17D0A84> | null;
+    links?:
+      | {
+          link: {
+            type?: ('reference' | 'custom') | null;
+            newTab?: boolean | null;
+            reference?:
+              | ({
+                  relationTo: 'pages';
+                  value: string | Page;
+                } | null)
+              | ({
+                  relationTo: 'posts';
+                  value: string | Post;
+                } | null);
+            url?: string | null;
+            label: string;
+            /**
+             * Choose how the link should be rendered.
+             */
+            appearance?: ('default' | 'outline') | null;
+          };
+          id?: string | null;
+        }[]
+      | null;
+    media?: (string | null) | Media;
+  };
+  layout: (PageCallToActionBlock | PageContentBlock | PageMediaBlock | PageArchiveBlock | PageFormBlock)[];
+  meta?: {
+    title?: string | null;
+    /**
+     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
+     */
+    image?: (string | null) | Media;
+    description?: string | null;
+  };
+  publishedAt?: string | null;
   slug: string;
-  parent?: (string | null) | Category;
-  breadcrumbs?:
-    | {
-        doc?: (string | null) | Category;
-        url?: string | null;
-        label?: string | null;
-        id?: string | null;
-      }[]
-    | null;
   updatedAt: string;
   createdAt: string;
+  _status?: ('draft' | 'published') | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -448,7 +464,7 @@ export interface Post {
   id: string;
   title: string;
   heroImage?: (string | null) | Media;
-  content: LexicalRichText<LexicalNodes_C2DAD006>;
+  content: LexicalRichText<LexicalNodes_46351820>;
   relatedPosts?: (string | Post)[] | null;
   categories?: (string | Category)[] | null;
   meta?: {
@@ -503,16 +519,23 @@ export interface Media {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "folders".
+ * via the `definition` "categories".
  */
-export interface Folder {
+export interface Category {
   id: string;
-  _h_folders?: (string | null) | Folder;
-  name: string;
+  title: string;
+  slug: string;
+  parent?: (string | null) | Category;
+  breadcrumbs?:
+    | {
+        doc?: (string | null) | Category;
+        url?: string | null;
+        label?: string | null;
+        id?: string | null;
+      }[]
+    | null;
   updatedAt: string;
   createdAt: string;
-  _h_slugPath?: string | null;
-  _h_titlePath?: string | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -542,97 +565,9 @@ export interface User {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "ContentBlock".
+ * via the `definition` "PageCallToActionBlock".
  */
-export interface ContentBlock {
-  columns?:
-    | {
-        size?: ('oneThird' | 'half' | 'twoThirds' | 'full') | null;
-        richText?: LexicalRichText<LexicalNodes_67D0DA17> | null;
-        enableLink?: boolean | null;
-        link?: {
-          type?: ('reference' | 'custom') | null;
-          newTab?: boolean | null;
-          reference?:
-            | ({
-                relationTo: 'pages';
-                value: string | Page;
-              } | null)
-            | ({
-                relationTo: 'posts';
-                value: string | Post;
-              } | null);
-          url?: string | null;
-          label: string;
-          /**
-           * Choose how the link should be rendered.
-           */
-          appearance?: ('default' | 'outline') | null;
-        };
-        id?: string | null;
-      }[]
-    | null;
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'content';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "pages".
- */
-export interface Page {
-  id: string;
-  title: string;
-  hero: {
-    type: 'none' | 'highImpact' | 'mediumImpact' | 'lowImpact';
-    headerTheme: 'light' | 'dark';
-    richText?: LexicalRichText<LexicalNodes_B17D0A84> | null;
-    links?:
-      | {
-          link: {
-            type?: ('reference' | 'custom') | null;
-            newTab?: boolean | null;
-            reference?:
-              | ({
-                  relationTo: 'pages';
-                  value: string | Page;
-                } | null)
-              | ({
-                  relationTo: 'posts';
-                  value: string | Post;
-                } | null);
-            url?: string | null;
-            label: string;
-            /**
-             * Choose how the link should be rendered.
-             */
-            appearance?: ('default' | 'outline') | null;
-          };
-          id?: string | null;
-        }[]
-      | null;
-    media?: (string | null) | Media;
-  };
-  layout: (CallToActionBlock | ContentBlock | MediaBlock | ArchiveBlock | FormBlock)[];
-  meta?: {
-    title?: string | null;
-    /**
-     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
-     */
-    image?: (string | null) | Media;
-    description?: string | null;
-  };
-  publishedAt?: string | null;
-  slug: string;
-  updatedAt: string;
-  createdAt: string;
-  _status?: ('draft' | 'published') | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "CallToActionBlock".
- */
-export interface CallToActionBlock {
+export interface PageCallToActionBlock {
   /**
    * Guide readers to a product, contact page, or download with a title, description, and links.
    */
@@ -666,13 +601,49 @@ export interface CallToActionBlock {
   theme?: ('default' | 'inverse') | null;
   id?: string | null;
   blockName?: string | null;
-  blockType: 'cta';
+  blockType: 'pageCta';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "MediaBlock".
+ * via the `definition` "PageContentBlock".
  */
-export interface MediaBlock {
+export interface PageContentBlock {
+  columns?:
+    | {
+        size?: ('oneThird' | 'half' | 'twoThirds' | 'full') | null;
+        richText?: LexicalRichText<LexicalNodes_67D0DA17> | null;
+        enableLink?: boolean | null;
+        link?: {
+          type?: ('reference' | 'custom') | null;
+          newTab?: boolean | null;
+          reference?:
+            | ({
+                relationTo: 'pages';
+                value: string | Page;
+              } | null)
+            | ({
+                relationTo: 'posts';
+                value: string | Post;
+              } | null);
+          url?: string | null;
+          label: string;
+          /**
+           * Choose how the link should be rendered.
+           */
+          appearance?: ('default' | 'outline') | null;
+        };
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'pageContent';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "PageMediaBlock".
+ */
+export interface PageMediaBlock {
   media: string | Media;
   /**
    * Overrides the media's default caption for this block only.
@@ -686,19 +657,39 @@ export interface MediaBlock {
   width?: ('default' | 'wide') | null;
   id?: string | null;
   blockName?: string | null;
-  blockType: 'mediaBlock';
+  blockType: 'pageMediaBlock';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "FormBlock".
+ * via the `definition` "PageArchiveBlock".
  */
-export interface FormBlock {
+export interface PageArchiveBlock {
+  introContent?: LexicalRichText<LexicalNodes_B17D0A84> | null;
+  populateBy?: ('collection' | 'selection') | null;
+  relationTo?: 'posts' | null;
+  categories?: (string | Category)[] | null;
+  limit?: number | null;
+  selectedDocs?:
+    | {
+        relationTo: 'posts';
+        value: string | Post;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'pageArchive';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "PageFormBlock".
+ */
+export interface PageFormBlock {
   form: string | Form;
   enableIntro?: boolean | null;
   introContent?: LexicalRichText<LexicalNodes_B17D0A84> | null;
   id?: string | null;
   blockName?: string | null;
-  blockType: 'formBlock';
+  blockType: 'pageFormBlock';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -857,52 +848,6 @@ export interface Textarea {
   blockType: 'textarea';
 }
 /**
- * Multiple blocks resolve to the `CodeBlock` interface with different fields, so a content hash is appended to keep the generated types stable and unambiguous. Set a unique `interfaceName` on the block to choose the name yourself. See https://payloadcms.com/docs/typescript/generating-types#block-interface-name-collisions
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "CodeBlock_86A1A6C3".
- */
-export interface CodeBlock_86A1A6C3 {
-  language?: ('typescript' | 'javascript' | 'css') | null;
-  code: string;
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'code';
-}
-/**
- * Multiple blocks resolve to the `KeyTakeawaysBlock` interface with different fields, so a content hash is appended to keep the generated types stable and unambiguous. Set a unique `interfaceName` on the block to choose the name yourself. See https://payloadcms.com/docs/typescript/generating-types#block-interface-name-collisions
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "KeyTakeawaysBlock_F21FD0F8".
- */
-export interface KeyTakeawaysBlock_F21FD0F8 {
-  /**
-   * Highlight the article’s summary, conclusions, or key points.
-   */
-  label?: string | null;
-  content: LexicalRichText<LexicalNodes_47D10C91>;
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'keyTakeaways';
-}
-/**
- * Multiple blocks resolve to the `BannerBlock` interface with different fields, so a content hash is appended to keep the generated types stable and unambiguous. Set a unique `interfaceName` on the block to choose the name yourself. See https://payloadcms.com/docs/typescript/generating-types#block-interface-name-collisions
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "BannerBlock_53835CC4".
- */
-export interface BannerBlock_53835CC4 {
-  /**
-   * Highlight a helpful note, warning, error, or success message within the article.
-   */
-  style: 'info' | 'warning' | 'error' | 'success';
-  title?: string | null;
-  content: LexicalRichText<LexicalNodes_47D10C91>;
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'banner';
-}
-/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "blogs".
  */
@@ -911,7 +856,7 @@ export interface Blog {
   title: string;
   heroImage: string | Media;
   excerpt: string;
-  content: LexicalRichText<LexicalNodes_E63C6938>;
+  content: LexicalRichText<LexicalNodes_C71AFECE>;
   meta?: {
     title?: string | null;
     /**
@@ -1055,7 +1000,7 @@ export interface CaseStudy {
       | null;
     media?: (string | null) | Media;
   };
-  layout: (CallToActionBlock | ContentBlock | MediaBlock)[];
+  layout: (CaseStudyCallToActionBlock | CaseStudyContentBlock | CaseStudyMediaBlock)[];
   meta?: {
     title?: string | null;
     /**
@@ -1069,6 +1014,102 @@ export interface CaseStudy {
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CaseStudyCallToActionBlock".
+ */
+export interface CaseStudyCallToActionBlock {
+  /**
+   * Guide readers to a product, contact page, or download with a title, description, and links.
+   */
+  heading: string;
+  description?: LexicalRichText<LexicalNodes_47D10C91> | null;
+  media?: (string | null) | Media;
+  links?:
+    | {
+        link: {
+          type?: ('reference' | 'custom') | null;
+          newTab?: boolean | null;
+          reference?:
+            | ({
+                relationTo: 'pages';
+                value: string | Page;
+              } | null)
+            | ({
+                relationTo: 'posts';
+                value: string | Post;
+              } | null);
+          url?: string | null;
+          label: string;
+          /**
+           * Choose how the link should be rendered.
+           */
+          appearance?: ('default' | 'outline') | null;
+        };
+        id?: string | null;
+      }[]
+    | null;
+  theme?: ('default' | 'inverse') | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'caseStudyCta';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CaseStudyContentBlock".
+ */
+export interface CaseStudyContentBlock {
+  columns?:
+    | {
+        size?: ('oneThird' | 'half' | 'twoThirds' | 'full') | null;
+        richText?: LexicalRichText<LexicalNodes_67D0DA17> | null;
+        enableLink?: boolean | null;
+        link?: {
+          type?: ('reference' | 'custom') | null;
+          newTab?: boolean | null;
+          reference?:
+            | ({
+                relationTo: 'pages';
+                value: string | Page;
+              } | null)
+            | ({
+                relationTo: 'posts';
+                value: string | Post;
+              } | null);
+          url?: string | null;
+          label: string;
+          /**
+           * Choose how the link should be rendered.
+           */
+          appearance?: ('default' | 'outline') | null;
+        };
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'caseStudyContent';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CaseStudyMediaBlock".
+ */
+export interface CaseStudyMediaBlock {
+  media: string | Media;
+  /**
+   * Overrides the media's default caption for this block only.
+   */
+  caption?: LexicalRichText<LexicalNodes_47D10C91> | null;
+  /**
+   * Original keeps the media proportions. Other ratios crop the image or video to fill the frame.
+   */
+  aspectRatio?: ('original' | '1:1' | '4:3' | '3:2' | '16:9' | '2:1') | null;
+  playback?: ('ambient' | 'player') | null;
+  width?: ('default' | 'wide') | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'caseStudyMediaBlock';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1443,7 +1484,15 @@ export interface PagesSelect<T extends boolean = true> {
             };
         media?: T;
       };
-  layout?: T | {};
+  layout?:
+    | T
+    | {
+        pageCta?: T | PageCallToActionBlockSelect<T>;
+        pageContent?: T | PageContentBlockSelect<T>;
+        pageMediaBlock?: T | PageMediaBlockSelect<T>;
+        pageArchive?: T | PageArchiveBlockSelect<T>;
+        pageFormBlock?: T | PageFormBlockSelect<T>;
+      };
   meta?:
     | T
     | {
@@ -1456,6 +1505,97 @@ export interface PagesSelect<T extends boolean = true> {
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "PageCallToActionBlock_select".
+ */
+export interface PageCallToActionBlockSelect<T extends boolean = true> {
+  heading?: T;
+  description?: T;
+  media?: T;
+  links?:
+    | T
+    | {
+        link?:
+          | T
+          | {
+              type?: T;
+              newTab?: T;
+              reference?: T;
+              url?: T;
+              label?: T;
+              appearance?: T;
+            };
+        id?: T;
+      };
+  theme?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "PageContentBlock_select".
+ */
+export interface PageContentBlockSelect<T extends boolean = true> {
+  columns?:
+    | T
+    | {
+        size?: T;
+        richText?: T;
+        enableLink?: T;
+        link?:
+          | T
+          | {
+              type?: T;
+              newTab?: T;
+              reference?: T;
+              url?: T;
+              label?: T;
+              appearance?: T;
+            };
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "PageMediaBlock_select".
+ */
+export interface PageMediaBlockSelect<T extends boolean = true> {
+  media?: T;
+  caption?: T;
+  aspectRatio?: T;
+  playback?: T;
+  width?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "PageArchiveBlock_select".
+ */
+export interface PageArchiveBlockSelect<T extends boolean = true> {
+  introContent?: T;
+  populateBy?: T;
+  relationTo?: T;
+  categories?: T;
+  limit?: T;
+  selectedDocs?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "PageFormBlock_select".
+ */
+export interface PageFormBlockSelect<T extends boolean = true> {
+  form?: T;
+  enableIntro?: T;
+  introContent?: T;
+  id?: T;
+  blockName?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1649,7 +1789,13 @@ export interface CaseStudiesSelect<T extends boolean = true> {
             };
         media?: T;
       };
-  layout?: T | {};
+  layout?:
+    | T
+    | {
+        caseStudyCta?: T | CaseStudyCallToActionBlockSelect<T>;
+        caseStudyContent?: T | CaseStudyContentBlockSelect<T>;
+        caseStudyMediaBlock?: T | CaseStudyMediaBlockSelect<T>;
+      };
   meta?:
     | T
     | {
@@ -1662,6 +1808,72 @@ export interface CaseStudiesSelect<T extends boolean = true> {
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CaseStudyCallToActionBlock_select".
+ */
+export interface CaseStudyCallToActionBlockSelect<T extends boolean = true> {
+  heading?: T;
+  description?: T;
+  media?: T;
+  links?:
+    | T
+    | {
+        link?:
+          | T
+          | {
+              type?: T;
+              newTab?: T;
+              reference?: T;
+              url?: T;
+              label?: T;
+              appearance?: T;
+            };
+        id?: T;
+      };
+  theme?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CaseStudyContentBlock_select".
+ */
+export interface CaseStudyContentBlockSelect<T extends boolean = true> {
+  columns?:
+    | T
+    | {
+        size?: T;
+        richText?: T;
+        enableLink?: T;
+        link?:
+          | T
+          | {
+              type?: T;
+              newTab?: T;
+              reference?: T;
+              url?: T;
+              label?: T;
+              appearance?: T;
+            };
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CaseStudyMediaBlock_select".
+ */
+export interface CaseStudyMediaBlockSelect<T extends boolean = true> {
+  media?: T;
+  caption?: T;
+  aspectRatio?: T;
+  playback?: T;
+  width?: T;
+  id?: T;
+  blockName?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -2121,7 +2333,7 @@ export interface HeaderCategoryTabsBlock {
   }[];
   id?: string | null;
   blockName?: string | null;
-  blockType: 'categoryTabs';
+  blockType: 'headerCategoryTabs';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -2199,7 +2411,7 @@ export interface HeaderCardGroupBlock {
   }[];
   id?: string | null;
   blockName?: string | null;
-  blockType: 'cardGroup';
+  blockType: 'headerCardGroup';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -2244,7 +2456,7 @@ export interface HeaderLinkGroupBlock {
   }[];
   id?: string | null;
   blockName?: string | null;
-  blockType: 'linkGroup';
+  blockType: 'headerLinkGroup';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -2286,7 +2498,7 @@ export interface HeaderRichCardBlock {
   };
   id?: string | null;
   blockName?: string | null;
-  blockType: 'richCard';
+  blockType: 'headerRichCard';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -2447,10 +2659,10 @@ export interface HeaderNavItemSelect<T extends boolean = true> {
   content?:
     | T
     | {
-        categoryTabs?: T | HeaderCategoryTabsBlockSelect<T>;
-        cardGroup?: T | HeaderCardGroupBlockSelect<T>;
-        linkGroup?: T | HeaderLinkGroupBlockSelect<T>;
-        richCard?: T | HeaderRichCardBlockSelect<T>;
+        headerCategoryTabs?: T | HeaderCategoryTabsBlockSelect<T>;
+        headerCardGroup?: T | HeaderCardGroupBlockSelect<T>;
+        headerLinkGroup?: T | HeaderLinkGroupBlockSelect<T>;
+        headerRichCard?: T | HeaderRichCardBlockSelect<T>;
       };
   id?: T;
 }
@@ -2829,11 +3041,11 @@ export interface TaskSchedulePublish {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "BannerBlock".
+ * via the `definition` "PostBannerBlock".
  */
-export interface BannerBlock {
+export interface PostBannerBlock {
   id: string;
-  blockType: 'banner';
+  blockType: 'postBanner';
   /**
    * Highlight a helpful note, warning, error, or success message within the article.
    */
@@ -2844,24 +3056,22 @@ export interface BannerBlock {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "CodeBlock".
+ * via the `definition` "PostCodeBlock".
  */
-export interface CodeBlock {
+export interface PostCodeBlock {
   id: string;
-  blockType: 'code';
+  blockType: 'postCode';
   language?: ('typescript' | 'javascript' | 'css') | null;
   code: string;
   blockName?: string | null;
 }
 /**
- * Multiple blocks resolve to the `MediaBlock` interface with different fields, so a content hash is appended to keep the generated types stable and unambiguous. Set a unique `interfaceName` on the block to choose the name yourself. See https://payloadcms.com/docs/typescript/generating-types#block-interface-name-collisions
- *
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "MediaBlock_39A55B9F".
+ * via the `definition` "PostMediaBlock".
  */
-export interface MediaBlock_39A55B9F {
+export interface PostMediaBlock {
   id: string;
-  blockType: 'mediaBlock';
+  blockType: 'postMediaBlock';
   media: string | Media;
   /**
    * Overrides the media's default caption for this block only.
@@ -2877,11 +3087,31 @@ export interface MediaBlock_39A55B9F {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "KeyTakeawaysBlock".
+ * via the `definition` "BlogMediaBlock".
  */
-export interface KeyTakeawaysBlock {
+export interface BlogMediaBlock {
   id: string;
-  blockType: 'keyTakeaways';
+  blockType: 'blogMediaBlock';
+  media: string | Media;
+  /**
+   * Overrides the media's default caption for this block only.
+   */
+  caption?: LexicalRichText<LexicalNodes_47D10C91> | null;
+  /**
+   * Original keeps the media proportions. Other ratios crop the image or video to fill the frame.
+   */
+  aspectRatio?: ('original' | '1:1' | '4:3' | '3:2' | '16:9' | '2:1') | null;
+  playback?: ('ambient' | 'player') | null;
+  width?: ('default' | 'wide') | null;
+  blockName?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "BlogKeyTakeawaysBlock".
+ */
+export interface BlogKeyTakeawaysBlock {
+  id: string;
+  blockType: 'blogKeyTakeaways';
   /**
    * Highlight the article’s summary, conclusions, or key points.
    */
@@ -2890,14 +3120,12 @@ export interface KeyTakeawaysBlock {
   blockName?: string | null;
 }
 /**
- * Multiple blocks resolve to the `CallToActionBlock` interface with different fields, so a content hash is appended to keep the generated types stable and unambiguous. Set a unique `interfaceName` on the block to choose the name yourself. See https://payloadcms.com/docs/typescript/generating-types#block-interface-name-collisions
- *
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "CallToActionBlock_337B961F".
+ * via the `definition` "BlogCallToActionBlock".
  */
-export interface CallToActionBlock_337B961F {
+export interface BlogCallToActionBlock {
   id: string;
-  blockType: 'cta';
+  blockType: 'blogCta';
   /**
    * Guide readers to a product, contact page, or download with a title, description, and links.
    */
@@ -2929,6 +3157,21 @@ export interface CallToActionBlock_337B961F {
       }[]
     | null;
   theme?: ('default' | 'inverse') | null;
+  blockName?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "BlogBannerBlock".
+ */
+export interface BlogBannerBlock {
+  id: string;
+  blockType: 'blogBanner';
+  /**
+   * Highlight a helpful note, warning, error, or success message within the article.
+   */
+  style: 'info' | 'warning' | 'error' | 'success';
+  title?: string | null;
+  content: LexicalRichText<LexicalNodes_47D10C91>;
   blockName?: string | null;
 }
 /**

@@ -62,7 +62,7 @@ describe('blog table of contents', () => {
       version: 2,
       fields: {
         id: 'banner',
-        blockType: 'banner',
+        blockType: 'blogBanner',
         style: 'info',
         content: lexicalDocument(heading('h2', [text('Block heading')])),
       },

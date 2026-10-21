@@ -3,7 +3,7 @@ import { cleanup, render, screen } from '@testing-library/react'
 import React from 'react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { Block, Field } from 'payload'
-import type { KeyTakeawaysBlock as TakeawaysProps } from '@/payload-types'
+import type { BlogKeyTakeawaysBlock as TakeawaysProps } from '@/payload-types'
 
 vi.mock('@/components/Media', () => ({
   Media: ({ presentation }: { presentation: unknown }) => (
@@ -12,12 +12,14 @@ vi.mock('@/components/Media', () => ({
 }))
 vi.mock('@payloadcms/ui/icons/Copy', () => ({ CopyIcon: () => <svg /> }))
 
-import { BannerBlock } from '@/blocks/Banner/Component'
-import { MediaBlock } from '@/blocks/MediaBlock/Component'
-import { CallToActionBlock } from '@/blocks/CallToAction/Component'
+import { BannerBlock } from '@/collections/Blogs/blocks/Banner/Component'
+import { MediaBlock } from '@/collections/Blogs/blocks/MediaBlock/Component'
+import { CallToActionBlock } from '@/collections/Blogs/blocks/CallToAction/Component'
 import RichText from '@/components/RichText'
+import { blogBlocks } from '@/collections/Blogs/blocks'
+import { postRichTextBlocks } from '@/collections/Posts/blocks/richTextBlocks'
 
-const components = import.meta.glob('/src/blocks/KeyTakeaways/Component.tsx', {
+const components = import.meta.glob('/src/collections/Blogs/blocks/KeyTakeaways/Component.tsx', {
   eager: true,
 }) as Record<
   string,
@@ -48,29 +50,20 @@ const media = { id: 'tea', caption: richText('Media caption') } as never
 const field = (block: Block, name: string) =>
   block.fields.find((entry) => 'name' in entry && entry.name === name)
 const metadata = [
-  ['mediaBlock', 'MediaBlock', 'Media', 'Media', 'Media', 'media'],
-  ['keyTakeaways', 'KeyTakeawaysBlock', 'Key Points', 'Key Points', 'Content', 'key-takeaways'],
-  ['cta', 'CallToActionBlock', 'Action Card', 'Action Cards', 'Conversion', 'cta'],
-  ['banner', 'BannerBlock', 'Notice', 'Notices', 'Content', 'banner'],
+  ['blogMediaBlock', 'BlogMediaBlock', 'Media', 'Media', 'Blogs', 'media'],
+  ['blogKeyTakeaways', 'BlogKeyTakeawaysBlock', 'Key Points', 'Key Points', 'Blogs', 'key-takeaways'],
+  ['blogCta', 'BlogCallToActionBlock', 'Action Card', 'Action Cards', 'Blogs', 'cta'],
+  ['blogBanner', 'BlogBannerBlock', 'Notice', 'Notices', 'Blogs', 'banner'],
 ]
 
 afterEach(cleanup)
 
 describe('editorial block schema', () => {
-  it('registers shared blocks once with usable Admin metadata and required content fields', async () => {
+  it('owns Blog blocks with usable Admin metadata and required content fields', async () => {
     const config = await (await import('@/payload.config')).default
-    expect(config.blocks?.map(({ slug }) => slug)).toEqual([
-      'archive',
-      'content',
-      'formBlock',
-      'code',
-      'mediaBlock',
-      'keyTakeaways',
-      'cta',
-      'banner',
-    ])
+    expect(config.blocks ?? []).toEqual([])
     for (const [slug, interfaceName, singular, plural, group, image] of metadata) {
-      const block = config.blocks!.find((entry) => entry.slug === slug)!
+      const block = blogBlocks.find((entry) => entry.slug === slug)!
       expect(block).toMatchObject({
         interfaceName,
         labels: { singular, plural },
@@ -85,16 +78,16 @@ describe('editorial block schema', () => {
             Block: '@/blocks/ArticleBlockEditor#ArticleBlockEditor',
             Label: {
               path: '@/blocks/BlockRowLabel#BlockRowLabel',
-              clientProps: { blockType: slug },
+              clientProps: { label: singular },
             },
           },
         },
       })
       expect(existsSync(`public/block-previews/${image}.svg`)).toBe(true)
-      const required = slug === 'cta' ? 'heading' : slug === 'mediaBlock' ? 'media' : 'content'
+      const required = slug === 'blogCta' ? 'heading' : slug === 'blogMediaBlock' ? 'media' : 'content'
       expect(field(block, required)).toMatchObject({ required: true })
     }
-    const cta = config.blocks!.find((entry) => entry.slug === 'cta')!
+    const cta = blogBlocks.find((entry) => entry.slug === 'blogCta')!
     expect(field(cta, 'links')).toMatchObject({ type: 'array', maxRows: 2 })
     expect(field(cta, 'richText')).toBeUndefined()
     const theme = field(cta, 'theme')
@@ -108,7 +101,7 @@ describe('editorial block schema', () => {
     })
     expect(theme).not.toHaveProperty('defaultValue')
     expect(theme).not.toHaveProperty('required', true)
-    const mediaBlock = config.blocks!.find((entry) => entry.slug === 'mediaBlock')!
+    const mediaBlock = blogBlocks.find((entry) => entry.slug === 'blogMediaBlock')!
     expect(field(mediaBlock, 'caption')).toMatchObject({ type: 'richText' })
     expect(field(mediaBlock, 'aspectRatio')).toMatchObject({
       type: 'select',
@@ -128,13 +121,13 @@ describe('editorial block schema', () => {
     })
     expect(
       field(
-        config.blocks!.find((entry) => entry.slug === 'keyTakeaways')!,
+        blogBlocks.find((entry) => entry.slug === 'blogKeyTakeaways')!,
         'label',
       ),
     ).not.toHaveProperty('defaultValue')
   }, 15000)
 
-  it('retains collection layout allowlists using root block slugs', async () => {
+  it('retains owner-specific collection layout allowlists', async () => {
     const { Pages } = await import('@/collections/Pages')
     const { CaseStudies } = await import('@/collections/CaseStudies')
     function layout(fields: Field[]): Field | undefined {
@@ -148,19 +141,19 @@ describe('editorial block schema', () => {
       }
     }
     expect(layout(Pages.fields)).toMatchObject({
-      blocks: ['cta', 'content', 'mediaBlock', 'archive', 'formBlock'],
+      blocks: ['pageCta', 'pageContent', 'pageMediaBlock', 'pageArchive', 'pageFormBlock'].map((slug) => expect.objectContaining({ slug })),
     })
-    expect(layout(CaseStudies.fields)).toMatchObject({ blocks: ['cta', 'content', 'mediaBlock'] })
+    expect(layout(CaseStudies.fields)).toMatchObject({ blocks: ['caseStudyCta', 'caseStudyContent', 'caseStudyMediaBlock'].map((slug) => expect.objectContaining({ slug })) })
   })
 })
 
 describe('editorial block rendering', () => {
   it('renders takeaways as a readable aside', () => {
-    const Takeaways = components['/src/blocks/KeyTakeaways/Component.tsx']?.KeyTakeawaysBlock
+    const Takeaways = components['/src/collections/Blogs/blocks/KeyTakeaways/Component.tsx']?.KeyTakeawaysBlock
     expect(Takeaways).toBeDefined()
     render(
       <>
-        <Takeaways id="takeaways" blockType="keyTakeaways" content={richText('Remember this')} />
+        <Takeaways id="takeaways" blockType="blogKeyTakeaways" content={richText('Remember this')} />
       </>,
     )
     expect(screen.queryByRole('heading')).toBeNull()
@@ -174,7 +167,7 @@ describe('editorial block rendering', () => {
       render(
         <BannerBlock
           {...{
-            blockType: 'banner',
+            blockType: 'blogBanner',
             style,
             title: 'Notice title',
             content: richText('Notice body'),
@@ -192,7 +185,8 @@ describe('editorial block rendering', () => {
     const { rerender, container } = render(
       <MediaBlock
         {...{
-          blockType: 'mediaBlock' as const,
+          id: 'captioned-media',
+          blockType: 'blogMediaBlock' as const,
           media,
           caption: richText('Block caption'),
           width: 'wide' as const,
@@ -205,9 +199,9 @@ describe('editorial block rendering', () => {
       '{"image":{"fit":"scale-down","quality":85},"video":{"playback":"ambient"}}',
     )
     expect(container.querySelector('figure')?.getAttribute('data-width')).toBe('wide')
-    rerender(<MediaBlock blockType="mediaBlock" media={media} />)
+    rerender(<MediaBlock id="fallback-caption-media" blockType="blogMediaBlock" media={media} />)
     expect(screen.getByText('Media caption')).toBeTruthy()
-    rerender(<MediaBlock blockType="mediaBlock" media="unpopulated" />)
+    rerender(<MediaBlock id="unpopulated-media" blockType="blogMediaBlock" media="unpopulated" />)
     expect(container.querySelector('figcaption')).toBeNull()
   })
 
@@ -216,7 +210,8 @@ describe('editorial block rendering', () => {
     (aspectRatio) => {
       const { container } = render(
         <MediaBlock
-          blockType="mediaBlock"
+          id={`cropped-media-${aspectRatio}`}
+          blockType="blogMediaBlock"
           media={media}
           aspectRatio={aspectRatio}
           caption={richText('Outside crop')}
@@ -237,7 +232,7 @@ describe('editorial block rendering', () => {
 
   it('keeps original proportions without a crop frame for Original', () => {
     const { container } = render(
-      <MediaBlock blockType="mediaBlock" media={media} aspectRatio="original" />,
+      <MediaBlock id="original-media" blockType="blogMediaBlock" media={media} aspectRatio="original" />,
     )
     expect(JSON.parse(screen.getByTestId('media').getAttribute('data-presentation')!)).toEqual({
       image: { fit: 'scale-down', quality: 85 },
@@ -250,7 +245,8 @@ describe('editorial block rendering', () => {
 
   it('renders CTA text and image variants, themes and shared links', () => {
     const props = {
-      blockType: 'cta' as const,
+      id: 'explore-tea-cta',
+      blockType: 'blogCta' as const,
       heading: 'Explore tea',
       description: richText('Find your blend'),
       links: [
@@ -284,7 +280,7 @@ describe('editorial block rendering', () => {
             type: 'block',
             version: 2,
             fields: {
-              blockType: 'banner',
+              blockType: 'postBanner',
               style: 'info',
               title: 'Embedded notice',
               content: richText('Notice'),
@@ -294,7 +290,7 @@ describe('editorial block rendering', () => {
             type: 'block',
             version: 2,
             fields: {
-              blockType: 'mediaBlock',
+              blockType: 'postMediaBlock',
               media,
               caption: richText('Embedded caption'),
               width: 'wide',
@@ -303,12 +299,12 @@ describe('editorial block rendering', () => {
           {
             type: 'block',
             version: 2,
-            fields: { blockType: 'code', language: 'js', code: 'const tea = true' },
+            fields: { blockType: 'postCode', language: 'js', code: 'const tea = true' },
           },
         ],
       },
     } as never
-    const { container } = render(<RichText data={content} />)
+    const { container } = render(<RichText data={content} blocks={postRichTextBlocks} />)
     expect(screen.getByRole('note', { name: 'Embedded notice' })).toBeTruthy()
     expect(screen.getByText('Embedded caption')).toBeTruthy()
     expect(container.querySelector('pre')?.textContent).toContain('const tea = true')
@@ -317,7 +313,7 @@ describe('editorial block rendering', () => {
   it.each(['MediaBlock', 'KeyTakeaways', 'CallToAction', 'Banner'])(
     'uses semantic colors in %s',
     (name) => {
-      const path = `src/blocks/${name}/Component.module.css`
+      const path = `src/collections/Blogs/blocks/${name}/Component.module.css`
       expect(existsSync(path)).toBe(true)
       expect(readFileSync(path, 'utf8')).not.toMatch(/#[\da-f]{3,8}\b|rgba?\(|hsla?\(/i)
     },

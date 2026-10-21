@@ -54,7 +54,7 @@ const normalizeBlock = (value: unknown): unknown => {
   if (!isRecord(value)) return value
 
   switch (value.blockType) {
-    case 'categoryTabs':
+    case 'headerCategoryTabs':
       return {
         ...value,
         ...(hasOwn(value, 'cta') ? { cta: normalizeLink(value.cta) } : {}),
@@ -66,20 +66,20 @@ const normalizeBlock = (value: unknown): unknown => {
             }
           : {}),
       }
-    case 'cardGroup':
+    case 'headerCardGroup':
       return {
         ...value,
         ...(hasOwn(value, 'heading') ? { heading: trim(value.heading) } : {}),
         ...(hasOwn(value, 'cta') ? { cta: normalizeLink(value.cta) } : {}),
         ...(hasOwn(value, 'items') ? { items: normalizeCardItems(value.items) } : {}),
       }
-    case 'linkGroup':
+    case 'headerLinkGroup':
       return {
         ...value,
         ...(hasOwn(value, 'heading') ? { heading: trim(value.heading) } : {}),
         ...(hasOwn(value, 'links') ? { links: normalizeLinkRows(value.links) } : {}),
       }
-    case 'richCard':
+    case 'headerRichCard':
       return {
         ...value,
         ...(hasOwn(value, 'title') ? { title: trim(value.title) } : {}),

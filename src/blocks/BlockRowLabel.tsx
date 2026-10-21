@@ -3,19 +3,11 @@
 import { useRowLabel, useWatchForm } from '@payloadcms/ui'
 
 type BlockData = {
-  blockType?: string
   heading?: string | null
   title?: string | null
   label?: string | null
   content?: unknown
   caption?: unknown
-}
-
-const labels: Record<string, string> = {
-  mediaBlock: 'Media',
-  keyTakeaways: 'Key Points',
-  cta: 'Action Card',
-  banner: 'Notice',
 }
 
 function textFromNode(value: unknown): string {
@@ -27,8 +19,7 @@ function textFromNode(value: unknown): string {
   return ''
 }
 
-function Summary({ data, blockType }: { data?: BlockData; blockType?: string }) {
-  const label = labels[blockType || data?.blockType || ''] || 'Block'
+function Summary({ data, label = 'Block' }: { data?: BlockData; label?: string }) {
   const summary = (
     data?.heading ||
     data?.title ||
@@ -40,15 +31,15 @@ function Summary({ data, blockType }: { data?: BlockData; blockType?: string }) 
   return <span>{summary ? `${label}: ${summary}` : label}</span>
 }
 
-function EmbeddedLabel({ path, blockType }: { path: string; blockType?: string }) {
+function EmbeddedLabel({ path, label }: { path: string; label?: string }) {
   const { getSiblingData } = useWatchForm()
-  return <Summary data={getSiblingData(path)} blockType={blockType} />
+  return <Summary data={getSiblingData(path)} label={label} />
 }
 
 // Collection blocks supply row context; Lexical labels supply the UI field path.
-export function BlockRowLabel({ path, blockType }: { path?: string; blockType?: string }) {
+export function BlockRowLabel({ path, label }: { path?: string; label?: string }) {
   const row = useRowLabel<BlockData>()
-  if (row.path) return <Summary data={row.data} blockType={blockType} />
-  if (path) return <EmbeddedLabel path={path} blockType={blockType} />
-  return <Summary data={row.data} blockType={blockType} />
+  if (row.path) return <Summary data={row.data} label={label} />
+  if (path) return <EmbeddedLabel path={path} label={label} />
+  return <Summary data={row.data} label={label} />
 }

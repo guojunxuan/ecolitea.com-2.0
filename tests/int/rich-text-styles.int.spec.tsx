@@ -44,17 +44,17 @@ vi.mock('@payloadcms/richtext-lexical/react', () => ({
 
     return (
       <div className={className} data-testid="rich-text">
-        {blocks.banner({ node })}
-        {blocks.mediaBlock({ node })}
-        {blocks.code({ node })}
-        {blocks.cta({ node })}
+        {blocks.postBanner?.({ node })}
+        {blocks.postMediaBlock?.({ node })}
+        {blocks.postCode?.({ node })}
+        {blocks.blogCta?.({ node })}
         {renderedTable}
       </div>
     )
   },
 }))
 
-vi.mock('@/blocks/Banner/Component', () => ({
+vi.mock('@/collections/Posts/blocks/Banner/Component', () => ({
   BannerBlock: ({ className }: { className?: string }) => (
     <div className={className} data-testid="embedded-banner">
       <div className="payload-richtext payload-richtext--plain" data-testid="banner-rich-text">
@@ -64,7 +64,7 @@ vi.mock('@/blocks/Banner/Component', () => ({
   ),
 }))
 
-vi.mock('@/blocks/MediaBlock/Component', () => ({
+vi.mock('@/collections/Posts/blocks/MediaBlock/Component', () => ({
   MediaBlock: ({
     captionClassName,
     className,
@@ -93,13 +93,13 @@ vi.mock('@/blocks/MediaBlock/Component', () => ({
   ),
 }))
 
-vi.mock('@/blocks/Code/Component', () => ({
+vi.mock('@/collections/Posts/blocks/Code/Component', () => ({
   CodeBlock: ({ className }: { className?: string }) => (
     <div className={className} data-testid="embedded-code" />
   ),
 }))
 
-vi.mock('@/blocks/CallToAction/Component', () => ({
+vi.mock('@/collections/Blogs/blocks/CallToAction/Component', () => ({
   CallToActionBlock: () => (
     <div data-testid="embedded-cta">
       <div className="payload-richtext payload-richtext--content" data-testid="cta-rich-text">
@@ -120,6 +120,9 @@ vi.mock('@/heros/HeaderThemeSync', () => ({
 }))
 
 import RichText from '@/components/RichText'
+import { postRichTextBlocks } from '@/collections/Posts/blocks/richTextBlocks'
+import { blogRichTextBlocks } from '@/collections/Blogs/blocks/richTextBlocks'
+const testBlocks = { ...postRichTextBlocks, blogCta: blogRichTextBlocks.blogCta }
 import styles from '@/components/RichText/index.module.css'
 import { HighImpactHero } from '@/heros/HighImpact'
 
@@ -158,7 +161,7 @@ describe('RichText style modes', () => {
   })
 
   it('makes converted tables a named keyboard reachable scroll region', () => {
-    render(<RichText data={data} />)
+    render(<RichText data={data} blocks={testBlocks} />)
     const region = screen.getByRole('region', { name: 'Scrollable table' })
     expect(region.getAttribute('tabindex')).toBe('0')
     expect(region.querySelector('table')).not.toBeNull()
@@ -223,7 +226,7 @@ describe('RichText style modes', () => {
   )
 
   it('keeps every embedded converter behind a stable boundary and CSS Module layout class', () => {
-    render(<RichText data={data} />)
+    render(<RichText data={data} blocks={testBlocks} />)
 
     const banner = screen.getByTestId('embedded-banner')
     const media = screen.getByTestId('embedded-media')
@@ -239,11 +242,11 @@ describe('RichText style modes', () => {
     expect(code.classList).toContain('payload-richtext__embedded')
     expect(code.classList).toContain(styles.embeddedCode)
     expect(ctaBoundary?.classList).toContain('payload-richtext__embedded')
-    expect(ctaBoundary?.classList).toContain(styles.embeddedCTA)
+    expect(ctaBoundary?.classList).toContain(styles.articleBlock)
   })
 
   it('lets nested content-enabled RichText establish a new content scope inside Block boundaries', () => {
-    render(<RichText data={data} />)
+    render(<RichText data={data} blocks={testBlocks} />)
 
     const mediaCaption = screen.getByTestId('media-caption-rich-text')
     const cta = screen.getByTestId('cta-rich-text')
@@ -269,7 +272,7 @@ describe('RichText style modes', () => {
   it('inherits semantic content colors without requiring a local inverse class', () => {
     render(
       <section data-website-theme="inverse">
-        <RichText data={data} />
+        <RichText data={data} blocks={testBlocks} />
       </section>,
     )
 
@@ -346,7 +349,6 @@ describe('RichText style modes', () => {
       'embeddedBanner',
       'embeddedMedia',
       'embeddedCode',
-      'embeddedCTA',
       'mediaImage',
       'mediaCaption',
     ]) {

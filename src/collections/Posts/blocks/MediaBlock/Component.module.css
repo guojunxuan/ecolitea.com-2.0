@@ -1,0 +1,62 @@
+@layer base, components, utilities;
+
+@layer components {
+  .figure {
+    width: 100%;
+    max-width: var(--website-container-reading);
+    margin: 0 auto;
+  }
+
+  .article {
+    margin-inline: 0;
+    max-width: var(--website-container-reading);
+  }
+
+  .article.wide,
+  .article.fullWidth {
+    max-width: none;
+  }
+
+  .container {
+    width: min(100% - (2 * var(--website-gutter)), var(--website-container-reading));
+    margin-inline: auto;
+  }
+
+  .wide {
+    max-width: 56.25rem;
+  }
+
+  .wide.container {
+    width: min(100% - (2 * var(--website-gutter)), 56.25rem);
+  }
+
+  .image {
+    border: 1px solid var(--website-color-border);
+    border-radius: var(--website-radius-content);
+  }
+
+  .crop {
+    aspect-ratio: var(--media-aspect-ratio);
+    overflow: hidden;
+    border-radius: var(--website-radius-content);
+  }
+
+  .crop picture {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .crop img,
+  .crop video {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .caption {
+    margin-top: var(--website-space-6);
+    color: var(--website-color-muted-foreground);
+  }
+}

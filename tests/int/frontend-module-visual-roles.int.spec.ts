@@ -9,6 +9,10 @@ const root = process.cwd()
 const moduleRoots = [
   'src/components',
   'src/blocks',
+  'src/collections/Pages/blocks',
+  'src/collections/CaseStudies/blocks',
+  'src/collections/Blogs/blocks',
+  'src/collections/Posts/blocks',
   'src/search',
   'src/app/(frontend)',
   'src/Header',
@@ -86,9 +90,9 @@ describe('frontend module visual roles', () => {
     for (const [file, selector, role] of [
       ['src/components/Card/index.module.css', '.card', 'content'],
       ['src/components/ui/card.module.css', '.card', 'content'],
-      ['src/blocks/Code/Component.module.css', '.code', 'content'],
-      ['src/blocks/CallToAction/Component.module.css', '.panel', 'panel'],
-      ['src/blocks/Form/Component.module.css', '.panel', 'panel'],
+      ['src/collections/Posts/blocks/Code/Component.module.css', '.code', 'content'],
+      ['src/collections/Blogs/blocks/CallToAction/Component.module.css', '.panel', 'panel'],
+      ['src/collections/Pages/blocks/Form/Component.module.css', '.panel', 'panel'],
     ]) {
       const radius = declarations(file).find(
         (entry) => entry.header === selector && entry.prop === 'border-radius',
@@ -101,7 +105,7 @@ describe('frontend module visual roles', () => {
     )
     expect(card.some((entry) => entry.prop === 'box-shadow')).toBe(false)
 
-    const banner = declarations('src/blocks/Banner/Component.module.css')
+    const banner = declarations('src/collections/Blogs/blocks/Banner/Component.module.css')
     expect(
       banner.find((entry) => entry.header === '.surface' && entry.prop === 'border-left-width')
         ?.value,
@@ -133,7 +137,7 @@ describe('frontend module visual roles', () => {
 
   it('assigns shared type roles while keeping heading levels in the existing markup', () => {
     for (const [file, selector, role] of [
-      ['src/blocks/Code/Component.module.css', '.code', 'code'],
+      ['src/collections/Posts/blocks/Code/Component.module.css', '.code', 'code'],
       ['src/components/Card/index.module.css', '.categoryLabel', 'eyebrow'],
       ['src/components/Card/index.module.css', '.heading', 'heading-3'],
       ['src/components/ui/card.module.css', '.title', 'heading-3'],
@@ -145,8 +149,8 @@ describe('frontend module visual roles', () => {
       ['src/components/ui/select.module.css', '.trigger', 'body-md'],
       ['src/components/ui/textarea.module.css', '.textarea', 'body-md'],
       ['src/components/ui/label.module.css', '.label', 'caption'],
-      ['src/blocks/Banner/Component.module.css', '.surface', 'body-md'],
-      ['src/blocks/Form/Error/index.module.css', '.error', 'caption'],
+      ['src/collections/Blogs/blocks/Banner/Component.module.css', '.surface', 'body-md'],
+      ['src/collections/Pages/blocks/Form/Error/index.module.css', '.error', 'caption'],
       ['src/Header/Nav/index.module.css', '.mobileNavTitle', 'eyebrow'],
       ['src/Header/Nav/index.module.css', '.mobileDirectLink', 'title'],
       ['src/Header/Nav/index.module.css', '.mobileAccordionTrigger', 'title'],
@@ -200,7 +204,7 @@ describe('frontend module visual roles', () => {
 
   it('reuses the global visually-hidden utility for form, search and pagination labels', () => {
     const scoped = [
-      ...cssModules('src/blocks/Form').filter((file) => file.endsWith('/index.module.css')),
+      ...cssModules('src/collections/Pages/blocks/Form').filter((file) => file.endsWith('/index.module.css')),
       'src/search/Component.module.css',
       'src/components/ui/pagination.module.css',
     ]
@@ -222,8 +226,8 @@ describe('frontend module visual roles', () => {
 
   it('drops the legacy 86rem cap where the owning site container is narrower', () => {
     for (const file of [
-      'src/blocks/CallToAction/Component.module.css',
-      'src/blocks/MediaBlock/Component.module.css',
+      'src/collections/Blogs/blocks/CallToAction/Component.module.css',
+      'src/collections/Blogs/blocks/MediaBlock/Component.module.css',
       'src/blocks/RelatedPosts/Component.module.css',
       'src/components/RichText/index.module.css',
     ])

@@ -272,8 +272,8 @@ describe('UI style primitives', () => {
 
   it('keeps Button component defaults in the components layer and migrates the Code copy slot', () => {
     const buttonSource = readSource('src/components/ui/button.module.css')
-    const copyButtonSource = readSource('src/blocks/Code/CopyButton.tsx')
-    const codeSource = readSource('src/blocks/Code/Component.module.css')
+    const copyButtonSource = readSource('src/collections/Posts/blocks/Code/CopyButton.tsx')
+    const codeSource = readSource('src/collections/Posts/blocks/Code/Component.module.css')
 
     expect(buttonSource).toMatch(/@layer components\s*{\s*\.button\s*{/)
     expect(copyButtonSource).toContain('className={styles.copyButton}')

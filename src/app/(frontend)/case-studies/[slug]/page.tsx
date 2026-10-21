@@ -6,7 +6,7 @@ import configPromise from '@payload-config'
 import { PayloadRedirects } from '@/components/PayloadRedirects'
 import { LivePreviewListener } from '@/components/LivePreviewListener'
 import { generateMeta } from '@/utilities/generateMeta'
-import { RenderBlocks } from '@/blocks/RenderBlocks'
+import { RenderCaseStudyBlocks } from '@/collections/CaseStudies/blocks/RenderCaseStudyBlocks'
 
 type Args = { params: Promise<{ slug?: string }> }
 const queryCaseStudy = cache(async (slug: string) => {
@@ -22,7 +22,7 @@ export default async function CaseStudy({ params }: Args) {
   const url = `/case-studies/${slug}`
   if (!doc) return <PayloadRedirects url={url} />
   const { isEnabled: draft } = await draftMode()
-  return <article><PayloadRedirects disableNotFound url={url} />{draft && <LivePreviewListener />}<h1>{doc.title}</h1>{doc.layout && <RenderBlocks blocks={doc.layout} />}</article>
+  return <article><PayloadRedirects disableNotFound url={url} />{draft && <LivePreviewListener />}<h1>{doc.title}</h1>{doc.layout && <RenderCaseStudyBlocks blocks={doc.layout} />}</article>
 }
 
 export async function generateMetadata({ params }: Args): Promise<Metadata> {

@@ -16,7 +16,7 @@ vi.mock('@payloadcms/ui', () => ({
 }))
 const modules = import.meta.glob('/src/blocks/BlockRowLabel.tsx', { eager: true }) as Record<
   string,
-  { BlockRowLabel: React.ComponentType<{ path?: string; blockType?: string }> }
+  { BlockRowLabel: React.ComponentType<{ path?: string; label?: string }> }
 >
 afterEach(cleanup)
 
@@ -25,17 +25,17 @@ describe('editorial block row labels', () => {
     const Label = modules['/src/blocks/BlockRowLabel.tsx']?.BlockRowLabel
     expect(Label).toBeDefined()
     state.row = {
-      data: { blockType: 'cta', heading: 'Explore tea' },
+      data: { blockType: 'pageCta', heading: 'Explore tea' },
       path: 'layout.0',
       rowNumber: 0,
     }
-    const { rerender } = render(<Label />)
+    const { rerender } = render(<Label label="Action Card" />)
     expect(screen.getByText('Action Card: Explore tea')).toBeTruthy()
     state.row.data = {
-      blockType: 'keyTakeaways',
+      blockType: 'blogKeyTakeaways',
       label: 'Opening paragraph',
     }
-    rerender(<Label />)
+    rerender(<Label label="Key Points" />)
     expect(screen.getByText('Key Points: Opening paragraph')).toBeTruthy()
   })
 
@@ -44,7 +44,7 @@ describe('editorial block row labels', () => {
     expect(Label).toBeDefined()
     state.row = { data: {}, path: '', rowNumber: undefined }
     state.sibling = { title: 'A useful note' }
-    render(<Label path="_components" blockType="banner" />)
+    render(<Label path="_components" label="Notice" />)
     expect(screen.getByText('Notice: A useful note')).toBeTruthy()
   })
 })

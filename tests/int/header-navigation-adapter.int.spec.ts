@@ -37,7 +37,7 @@ describe('adaptHeaderNavigation', () => {
           content: [
             {
               id: 'tabs',
-              blockType: 'categoryTabs',
+              blockType: 'headerCategoryTabs',
               enableCta: true,
               cta: { label: ' All products ', ...pageReference('products') },
               categories: [
@@ -63,7 +63,7 @@ describe('adaptHeaderNavigation', () => {
             },
             {
               id: 'cards',
-              blockType: 'cardGroup',
+              blockType: 'headerCardGroup',
               enableHeading: true,
               heading: ' Featured ',
               enableCta: false,
@@ -79,7 +79,7 @@ describe('adaptHeaderNavigation', () => {
             },
             {
               id: 'links',
-              blockType: 'linkGroup',
+              blockType: 'headerLinkGroup',
               enableHeading: false,
               heading: 'Inactive heading',
               links: [
@@ -91,7 +91,7 @@ describe('adaptHeaderNavigation', () => {
             },
             {
               id: 'rich',
-              blockType: 'richCard',
+              blockType: 'headerRichCard',
               image,
               title: ' Rich card ',
               description: ' A focused story. ',
@@ -217,7 +217,7 @@ describe('adaptHeaderNavigation', () => {
           content: [
             {
               id: 'company-links',
-              blockType: 'linkGroup',
+              blockType: 'headerLinkGroup',
               links: [
                 {
                   id: 'about',
@@ -313,7 +313,7 @@ describe('adaptHeaderNavigation', () => {
           content: [
             {
               id: 'rich',
-              blockType: 'richCard',
+              blockType: 'headerRichCard',
               image: invalidImage,
               title: 'Resource guide',
               link: { type: 'custom', url: '/guide' },
@@ -346,7 +346,7 @@ describe('adaptHeaderNavigation', () => {
           content: [
             {
               id: 'tabs',
-              blockType: 'categoryTabs',
+              blockType: 'headerCategoryTabs',
               enableCta: true,
               cta: { label: 'Broken CTA', type: 'custom', url: '' },
               categories: [
@@ -367,17 +367,17 @@ describe('adaptHeaderNavigation', () => {
             },
             {
               id: 'empty-card-group',
-              blockType: 'cardGroup',
+              blockType: 'headerCardGroup',
               items: [{ id: 'bad', title: 'Bad', link: { type: 'reference' } }],
             },
             {
               id: 'empty-link-group',
-              blockType: 'linkGroup',
+              blockType: 'headerLinkGroup',
               links: [{ id: 'bad', link: { label: 'Bad', type: 'custom', url: '' } }],
             },
             {
               id: 'bad-rich',
-              blockType: 'richCard',
+              blockType: 'headerRichCard',
               title: 'Bad rich card',
               link: { type: 'custom', url: '' },
             },
@@ -435,21 +435,21 @@ describe('adaptHeaderNavigation', () => {
           id: 'dropdown',
           label: 'Empty dropdown',
           navigationType: 'dropdown',
-          content: [{ blockType: 'linkGroup', links: [] }],
+          content: [{ blockType: 'headerLinkGroup', links: [] }],
         },
         {
           id: 'hybrid',
           label: 'Company',
           navigationType: 'directLinkAndDropdown',
           link: pageReference('company'),
-          content: [{ blockType: 'cardGroup', items: [] }],
+          content: [{ blockType: 'headerCardGroup', items: [] }],
         },
         {
           id: 'broken-hybrid',
           label: 'Broken',
           navigationType: 'directLinkAndDropdown',
           link: { type: 'custom', url: '' },
-          content: [{ blockType: 'linkGroup', links: [] }],
+          content: [{ blockType: 'headerLinkGroup', links: [] }],
         },
       ],
     } as never)
@@ -479,7 +479,7 @@ describe('adaptHeaderNavigation', () => {
           navigationType: 'dropdown',
           content: [
             {
-              blockType: 'categoryTabs',
+              blockType: 'headerCategoryTabs',
               categories: [
                 {
                   label: 'Category',
@@ -488,11 +488,11 @@ describe('adaptHeaderNavigation', () => {
               ],
             },
             {
-              blockType: 'linkGroup',
+              blockType: 'headerLinkGroup',
               links: [{ link: { label: 'Link', type: 'custom', url: '/link' } }],
             },
             {
-              blockType: 'richCard',
+              blockType: 'headerRichCard',
               title: 'Rich',
               link: { type: 'custom', url: '/rich' },
             },

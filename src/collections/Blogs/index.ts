@@ -1,3 +1,4 @@
+import { blogBlocks } from './blocks'
 import { imageOnly } from '@/collections/mediaUploadPolicy'
 import type { CollectionConfig } from 'payload'
 import {
@@ -64,7 +65,7 @@ export const Blogs: CollectionConfig = {
                 admin: { hideGutter: false, hideDraggableBlockElement: true },
                 features: [
                   ...defaultLexicalFeatures(),
-                  BlocksFeature({ blocks: ['mediaBlock', 'keyTakeaways', 'cta', 'banner'] }),
+                  BlocksFeature({ blocks: blogBlocks }),
                 ],
               }),
               required: true,

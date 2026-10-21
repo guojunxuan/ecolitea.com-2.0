@@ -1,3 +1,4 @@
+import { pageBlocks } from './blocks'
 import { imageOnly } from '@/collections/mediaUploadPolicy'
 import type { CollectionConfig } from 'payload'
 
@@ -70,7 +71,7 @@ export const Pages: CollectionConfig = {
             {
               name: 'layout',
               type: 'blocks',
-              blocks: ['cta', 'content', 'mediaBlock', 'archive', 'formBlock'],
+              blocks: pageBlocks,
               required: true,
               admin: {
                 initCollapsed: true,

@@ -1,3 +1,4 @@
+import { postRichTextBlocks } from '@/collections/Posts/blocks/richTextBlocks'
 import type { Metadata } from 'next'
 
 import { RelatedPosts } from '@/blocks/RelatedPosts/Component'
@@ -62,7 +63,7 @@ export default async function Post({ params: paramsPromise }: Args) {
       <PostHero post={post} />
 
       <div className={styles.postContent}>
-        <RichText data={post.content} enableGutter={false} />
+        <RichText blocks={postRichTextBlocks} data={post.content} enableGutter={false} />
         {post.relatedPosts && post.relatedPosts.length > 0 && (
           <RelatedPosts
             className={styles.relatedPosts}

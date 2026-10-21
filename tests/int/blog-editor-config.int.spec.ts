@@ -60,7 +60,7 @@ describe('blog Lexical presets', () => {
       'blocks',
     ])
     expect(features.find((feature) => feature.key === 'blocks')?.serverFeatureProps).toMatchObject({
-      blocks: ['mediaBlock', 'keyTakeaways', 'cta', 'banner'],
+      blocks: ['blogMediaBlock', 'blogKeyTakeaways', 'blogCta', 'blogBanner'].map((slug) => expect.objectContaining({ slug })),
     })
     expect(
       features.find((feature) => feature.key === 'blocks')?.serverFeatureProps,

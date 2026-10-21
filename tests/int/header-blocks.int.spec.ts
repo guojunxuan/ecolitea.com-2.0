@@ -51,10 +51,10 @@ describe('Header navigation Blocks', () => {
     })
 
     expect(content?.blocks?.map(({ interfaceName, slug }) => ({ interfaceName, slug }))).toEqual([
-      { interfaceName: 'HeaderCategoryTabsBlock', slug: 'categoryTabs' },
-      { interfaceName: 'HeaderCardGroupBlock', slug: 'cardGroup' },
-      { interfaceName: 'HeaderLinkGroupBlock', slug: 'linkGroup' },
-      { interfaceName: 'HeaderRichCardBlock', slug: 'richCard' },
+      { interfaceName: 'HeaderCategoryTabsBlock', slug: 'headerCategoryTabs' },
+      { interfaceName: 'HeaderCardGroupBlock', slug: 'headerCardGroup' },
+      { interfaceName: 'HeaderLinkGroupBlock', slug: 'headerLinkGroup' },
+      { interfaceName: 'HeaderRichCardBlock', slug: 'headerRichCard' },
     ])
     expect(content?.admin?.condition?.({}, { navigationType: 'directLink' })).toBe(false)
     expect(content?.admin?.condition?.({}, { navigationType: 'dropdown' })).toBe(true)
@@ -62,7 +62,7 @@ describe('Header navigation Blocks', () => {
   })
 
   it('defines Category Tabs with block/category CTAs and unlabeled card links', () => {
-    const block = content?.blocks?.find(({ slug }) => slug === 'categoryTabs')
+    const block = content?.blocks?.find(({ slug }) => slug === 'headerCategoryTabs')
     const categories = findNamed(fieldsWithin(block), 'categories')
     const categoryFields = fieldsWithin(categories)
     const items = findNamed(categoryFields, 'items')
@@ -89,7 +89,7 @@ describe('Header navigation Blocks', () => {
   })
 
   it('keeps Card Group card links unlabeled and its heading conditional', () => {
-    const block = content?.blocks?.find(({ slug }) => slug === 'cardGroup')
+    const block = content?.blocks?.find(({ slug }) => slug === 'headerCardGroup')
     const items = findNamed(fieldsWithin(block), 'items')
 
     expect(findNamed(fieldsWithin(block), 'enableHeading')).toMatchObject({
@@ -111,9 +111,9 @@ describe('Header navigation Blocks', () => {
   })
 
   it('uses labeled links for Link Group and an optional description for Rich Card', () => {
-    const linkGroup = content?.blocks?.find(({ slug }) => slug === 'linkGroup')
+    const linkGroup = content?.blocks?.find(({ slug }) => slug === 'headerLinkGroup')
     const links = findNamed(fieldsWithin(linkGroup), 'links')
-    const richCard = content?.blocks?.find(({ slug }) => slug === 'richCard')
+    const richCard = content?.blocks?.find(({ slug }) => slug === 'headerRichCard')
 
     expect(links).toMatchObject({ type: 'array', required: true, minRows: 1, maxRows: 8 })
     expect(linkHasLabel(findNamed(fieldsWithin(links), 'link'))).toBe(true)

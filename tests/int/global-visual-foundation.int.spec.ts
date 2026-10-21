@@ -294,7 +294,7 @@ describe('global visual foundation', () => {
     const contrast = (Math.max(foreground, background) + 0.05) / (Math.min(foreground, background) + 0.05)
     expect(contrast).toBeGreaterThanOrEqual(4.5)
 
-    const errorRules = auditCss(read('src/blocks/Form/Error/index.module.css'))
+    const errorRules = auditCss(read('src/collections/Pages/blocks/Form/Error/index.module.css'))
     expect(
       errorRules.declarations.find((entry) => entry.header === '.error' && entry.prop === 'color')
         ?.value,

@@ -6,7 +6,7 @@ import { getPayload, type RequiredDataFromCollectionSlug } from 'payload'
 import { draftMode } from 'next/headers'
 import React, { cache } from 'react'
 
-import { RenderBlocks } from '@/blocks/RenderBlocks'
+import { RenderPageBlocks } from '@/collections/Pages/blocks/RenderPageBlocks'
 import { RenderHero } from '@/heros/RenderHero'
 import { generateMeta } from '@/utilities/generateMeta'
 import { LivePreviewListener } from '@/components/LivePreviewListener'
@@ -65,7 +65,7 @@ export default async function Page({ params: paramsPromise }: Args) {
       {draft && <LivePreviewListener />}
 
       <RenderHero {...hero} />
-      <RenderBlocks blocks={layout} />
+      <RenderPageBlocks blocks={layout} />
     </article>
   )
 }

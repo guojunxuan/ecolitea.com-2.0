@@ -8,9 +8,10 @@ import {
 import { cardItemsField, ctaField, enableCtaField, validateRequiredHeaderText } from './fields'
 
 export const CategoryTabs: Block = {
-  slug: 'categoryTabs',
+  slug: 'headerCategoryTabs',
   interfaceName: 'HeaderCategoryTabsBlock',
   labels: { singular: 'Category Tabs', plural: 'Category Tabs' },
+  admin: { group: 'Header' },
   fields: [
     enableCtaField(),
     ctaField(),

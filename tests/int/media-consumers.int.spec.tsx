@@ -34,9 +34,9 @@ vi.mock('@/components/Media', () => ({
   ),
 }))
 
-import { MediaBlock } from '@/blocks/MediaBlock/Component'
-import { MediaBlock as MediaBlockConfig } from '@/blocks/MediaBlock/config'
-import mediaBlockStyles from '@/blocks/MediaBlock/Component.module.css'
+import { MediaBlock } from '@/collections/Pages/blocks/MediaBlock/Component'
+import { MediaBlock as MediaBlockConfig } from '@/collections/Pages/blocks/MediaBlock/config'
+import mediaBlockStyles from '@/collections/Pages/blocks/MediaBlock/Component.module.css'
 import { Card } from '@/components/Card'
 import cardStyles from '@/components/Card/index.module.css'
 import { HighImpactHero } from '@/heros/HighImpact'
@@ -88,7 +88,7 @@ describe('existing media consumers', () => {
   })
 
   it('declares original-ratio body presentation for Media Blocks', () => {
-    render(<MediaBlock blockType="mediaBlock" media={media as never} />)
+    render(<MediaBlock blockType="pageMediaBlock" media={media as never} />)
 
     expect(getMediaBoundary().getAttribute('data-presentation')).toBe(
       '{"image":{"fit":"scale-down","quality":85},"video":{"playback":"ambient"}}',
@@ -175,7 +175,7 @@ describe('video playback consumers', () => {
   it('passes player playback alongside a Media Block crop', () => {
     render(
       <MediaBlock
-        blockType="mediaBlock"
+        blockType="pageMediaBlock"
         media={media as never}
         playback="player"
         aspectRatio="16:9"
