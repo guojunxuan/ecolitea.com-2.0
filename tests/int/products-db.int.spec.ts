@@ -1,13 +1,16 @@
 // @vitest-environment node
 import { randomUUID } from 'node:crypto'
 import { mongooseAdapter, type MongooseAdapter } from '@payloadcms/db-mongodb'
+import { redirectsPlugin } from '@payloadcms/plugin-redirects'
 import { buildConfig, getPayload, type Payload } from 'payload'
-import { afterAll, beforeAll, describe, expect, it } from 'vitest'
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
 import { ProductCategories } from '@/collections/ProductCategories'
 import { Products } from '@/collections/Products'
 import { Users } from '@/collections/Users'
 import { defaultLexical } from '@/fields/defaultLexical'
 import { createIsolatedTestDatabaseURI } from '../helpers/isolatedDatabase'
+
+vi.mock('next/cache', () => ({ revalidatePath: vi.fn(), revalidateTag: vi.fn() }))
 
 describe('Products through isolated Payload Local API', () => {
   let payload: Payload
@@ -26,6 +29,11 @@ describe('Products through isolated Payload Local API', () => {
       editor: defaultLexical,
       typescript: { autoGenerate: false },
       db: mongooseAdapter({ url, connectOptions: { serverSelectionTimeoutMS: 3_000 } }),
+      plugins: [redirectsPlugin({
+        collections: ['products', 'product-categories'],
+        redirectTypes: ['301'],
+        redirectTypeFieldOverride: { defaultValue: '301', required: false },
+      })],
       collections: [
         Products,
         ProductCategories,
@@ -112,4 +120,33 @@ describe('Products through isolated Payload Local API', () => {
       (await payload.findByID({ collection: 'products', id: product.id, depth: 0 })).categorySlug,
     ).toBe('black-tea')
   }, 15_000)
+
+  it('renames a category across a published product and its unpublished draft without publishing edits', async () => {
+    const product = await payload.create({
+      collection: 'products',
+      data: {
+        title: 'Published title', slug: `tea-${randomUUID()}`, category: firstCategoryID,
+        gallery: [mediaID], excerpt: 'Public excerpt', _status: 'published',
+      },
+    })
+    await payload.update({
+      collection: 'products', id: product.id, draft: true,
+      data: { title: 'Unpublished title', excerpt: 'Private draft excerpt' },
+    })
+    const beforeDraft = await payload.findByID({ collection: 'products', id: product.id, draft: true, depth: 0 })
+    expect(beforeDraft.title).toBe('Unpublished title')
+    const beforePublic = await payload.findByID({ collection: 'products', id: product.id, draft: false, depth: 0 })
+    expect(beforePublic).toMatchObject({ title: 'Published title', _status: 'published' })
+
+    await payload.update({
+      collection: 'product-categories', id: firstCategoryID,
+      data: { slug: 'green-tea-renamed' },
+    })
+    const published = await payload.findByID({ collection: 'products', id: product.id, draft: false, depth: 0 })
+    const draft = await payload.findByID({ collection: 'products', id: product.id, draft: true, depth: 0 })
+    expect(published).toMatchObject({ title: 'Published title', categorySlug: 'green-tea-renamed', _status: 'published' })
+    expect(draft).toMatchObject({ title: 'Unpublished title', excerpt: 'Private draft excerpt', categorySlug: 'green-tea-renamed', _status: 'draft' })
+    const redirect = await payload.find({ collection: 'redirects', where: { from: { equals: `/products/green-tea/${product.slug}` } }, depth: 0 })
+    expect(redirect.docs[0]).toMatchObject({ type: '301', to: { type: 'reference', reference: { relationTo: 'products', value: product.id } } })
+  }, 20_000)
 })

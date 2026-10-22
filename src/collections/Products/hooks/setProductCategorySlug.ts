@@ -14,6 +14,8 @@ export const setProductCategorySlug: CollectionBeforeChangeHook = async ({
   originalDoc,
   req,
 }) => {
+  // Only category propagation may replace a cached slug for the same relationship.
+  if (req.context.setDerivedCategorySlug && typeof data.categorySlug === 'string') return data
   const categoryID = relationshipID(data.category ?? originalDoc?.category)
   const previousCategoryID = relationshipID(originalDoc?.category)
   const previousSlug = originalDoc?.categorySlug

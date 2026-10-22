@@ -9,6 +9,8 @@ import { authenticated } from '@/access/authenticated'
 import { anyone } from '@/access/anyone'
 import { imageOnly } from '@/collections/mediaUploadPolicy'
 import type { CollectionConfig } from 'payload'
+import { propagateCategorySlug } from '@/collections/Products/hooks/propagateCategorySlug'
+import { revalidateProductCategory, revalidateProductCategoryDelete } from './ProductCategories/hooks/revalidateProductCategory'
 
 export const ProductCategories: CollectionConfig = {
   slug: 'product-categories',
@@ -62,4 +64,8 @@ export const ProductCategories: CollectionConfig = {
     { name: 'slug', type: 'slug', useAsSlug: 'title', admin: { position: 'sidebar' } },
     { name: 'products', type: 'join', collection: 'products', on: 'category' },
   ],
+  hooks: {
+    afterChange: [propagateCategorySlug, revalidateProductCategory],
+    afterDelete: [revalidateProductCategoryDelete],
+  },
 }

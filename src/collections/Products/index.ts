@@ -13,6 +13,8 @@ import { compactLexical } from '@/fields/compactLexical'
 import { generatePreviewPath } from '@/utilities/generatePreviewPath'
 import { productBlocks } from './blocks'
 import { setProductCategorySlug } from './hooks/setProductCategorySlug'
+import { redirectProduct } from './hooks/productRedirects'
+import { revalidateProduct, revalidateProductDelete } from './hooks/revalidateProduct'
 
 export const Products: CollectionConfig = {
   slug: 'products',
@@ -181,6 +183,10 @@ export const Products: CollectionConfig = {
       filterOptions: ({ id }) => (id ? { id: { not_in: [id] } } : true),
     },
   ],
-  hooks: { beforeChange: [setProductCategorySlug] },
+  hooks: {
+    beforeChange: [setProductCategorySlug],
+    afterChange: [redirectProduct, revalidateProduct],
+    afterDelete: [revalidateProductDelete],
+  },
   versions: { drafts: { autosave: { interval: 100 }, schedulePublish: true }, maxPerDoc: 50 },
 }
