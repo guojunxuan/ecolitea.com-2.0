@@ -1,6 +1,7 @@
 import type { CollectionAfterChangeHook, PayloadRequest } from 'payload'
 import type { Product, Redirect } from '@/payload-types'
 import { productCategoryPath, productPath } from '@/utilities/products/paths'
+import { getProductPublicTransition } from './productPublicTransition'
 
 type Target = { relationTo: 'products' | 'product-categories'; id: string | number }
 
@@ -11,7 +12,17 @@ export const clearOccupiedRedirect = async (req: PayloadRequest, path: string) =
   for (const item of existing.docs) await req.payload.delete({ collection: 'redirects', id: item.id, req })
 }
 
-export const upsertRedirect = async (req: PayloadRequest, fromPath: string | null, toPath: string, to: Target) => {
+export function upsertRedirect(req: PayloadRequest, fromPath: string | null, to: Target): Promise<void>
+export function upsertRedirect(req: PayloadRequest, fromPath: string | null, to: Target, toPath: string): Promise<void>
+export async function upsertRedirect(req: PayloadRequest, fromPath: string | null, to: Target, knownToPath?: string): Promise<void> {
+  let toPath = knownToPath
+  if (!toPath) {
+    const target = await req.payload.findByID({ collection: to.relationTo, id: String(to.id), depth: 0, draft: false, req })
+    toPath = to.relationTo === 'products'
+      ? (target as Product).categorySlug && target.slug ? productPath((target as Product).categorySlug!, target.slug) : undefined
+      : target.slug ? productCategoryPath(target.slug) : undefined
+  }
+  if (!toPath) return
   await clearOccupiedRedirect(req, toPath)
   if (!fromPath || fromPath === toPath) return
   const existing = await req.payload.find({
@@ -26,12 +37,13 @@ export const upsertRedirect = async (req: PayloadRequest, fromPath: string | nul
 }
 
 export const redirectProduct: CollectionAfterChangeHook<Product> = async ({ doc, previousDoc, req }) => {
-  if (req.context.skipProductRedirect || doc._status !== 'published') return doc
-  if (!doc.slug || !doc.categorySlug) return doc
-  const toPath = productPath(doc.categorySlug, doc.slug)
-  const fromPath = previousDoc?._status === 'published' && previousDoc.slug && previousDoc.categorySlug
-    ? productPath(previousDoc.categorySlug, previousDoc.slug) : null
-  await upsertRedirect(req, fromPath, toPath, { relationTo: 'products', id: doc.id })
+  if (req.context.skipProductRedirect) return doc
+  const { before, after } = await getProductPublicTransition(req, doc, previousDoc)
+  if (!after?.slug || !after.categorySlug) return doc
+  const toPath = productPath(after.categorySlug, after.slug)
+  const fromPath = before?.slug && before.categorySlug
+    ? productPath(before.categorySlug, before.slug) : null
+  await upsertRedirect(req, fromPath, { relationTo: 'products', id: doc.id }, toPath)
   return doc
 }
 

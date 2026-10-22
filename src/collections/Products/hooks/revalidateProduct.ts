@@ -2,6 +2,7 @@ import type { CollectionAfterChangeHook, CollectionAfterDeleteHook } from 'paylo
 import { revalidatePath, revalidateTag } from 'next/cache'
 import type { Product } from '@/payload-types'
 import { productCategoryPath, productPath } from '@/utilities/products/paths'
+import { getProductPublicTransition } from './productPublicTransition'
 
 const relationshipID = (value: Product['category']) => typeof value === 'object' ? value?.id : value
 
@@ -19,20 +20,27 @@ export const invalidateProducts = (docs: Product[]) => {
   for (const tag of tags) revalidateTag(tag, 'max')
 }
 
-export const revalidateProduct: CollectionAfterChangeHook<Product> = ({ doc, previousDoc, req }) => {
+export const revalidateProduct: CollectionAfterChangeHook<Product> = async ({ doc, previousDoc, req }) => {
   if (!req.context.disableRevalidate) {
-    const published = [previousDoc, doc].filter((item): item is Product => item?._status === 'published')
-    if (published.length) {
-      invalidateProducts(published)
-      const oldPath = previousDoc?.slug && previousDoc.categorySlug ? productPath(previousDoc.categorySlug, previousDoc.slug) : null
-      const newPath = doc.slug && doc.categorySlug ? productPath(doc.categorySlug, doc.slug) : null
-      if (oldPath !== newPath || previousDoc?._status !== doc._status) revalidateTag('redirects', { expire: 0 })
+    const { before, after } = await getProductPublicTransition(req, doc, previousDoc)
+    if (JSON.stringify(before) !== JSON.stringify(after)) {
+      const published = [before, after].filter((item): item is Product => Boolean(item))
+      if (published.length) invalidateProducts(published)
+      const oldPath = before?.slug && before.categorySlug ? productPath(before.categorySlug, before.slug) : null
+      const newPath = after?.slug && after.categorySlug ? productPath(after.categorySlug, after.slug) : null
+      if (oldPath !== newPath || Boolean(before) !== Boolean(after)) revalidateTag('redirects', { expire: 0 })
     }
   }
   return doc
 }
 
-export const revalidateProductDelete: CollectionAfterDeleteHook<Product> = ({ doc, req }) => {
-  if (!req.context.disableRevalidate && doc._status === 'published') invalidateProducts([doc])
+export const revalidateProductDelete: CollectionAfterDeleteHook<Product> = async ({ doc, req }) => {
+  if (!req.context.disableRevalidate) {
+    const { before } = await getProductPublicTransition(req, doc, doc)
+    if (before) {
+      invalidateProducts([before])
+      revalidateTag('redirects', { expire: 0 })
+    }
+  }
   return doc
 }

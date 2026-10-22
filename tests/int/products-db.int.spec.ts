@@ -8,6 +8,7 @@ import { ProductCategories } from '@/collections/ProductCategories'
 import { Products } from '@/collections/Products'
 import { Users } from '@/collections/Users'
 import { defaultLexical } from '@/fields/defaultLexical'
+import { revalidatePath, revalidateTag } from 'next/cache'
 import { createIsolatedTestDatabaseURI } from '../helpers/isolatedDatabase'
 
 vi.mock('next/cache', () => ({ revalidatePath: vi.fn(), revalidateTag: vi.fn() }))
@@ -148,5 +149,66 @@ describe('Products through isolated Payload Local API', () => {
     expect(draft).toMatchObject({ title: 'Unpublished title', excerpt: 'Private draft excerpt', categorySlug: 'green-tea-renamed', _status: 'draft' })
     const redirect = await payload.find({ collection: 'redirects', where: { from: { equals: `/products/green-tea/${product.slug}` } }, depth: 0 })
     expect(redirect.docs[0]).toMatchObject({ type: '301', to: { type: 'reference', reference: { relationTo: 'products', value: product.id } } })
+  }, 20_000)
+
+  it('redirects and invalidates the old live URL when publishing a draft with a new slug and category', async () => {
+    const product = await payload.create({ collection: 'products', data: {
+      title: 'Live version', slug: `live-${randomUUID()}`, category: firstCategoryID,
+      gallery: [mediaID], excerpt: 'Live', _status: 'published',
+    } })
+    const oldPath = `/products/${product.categorySlug}/${product.slug}`
+    const draftSlug = `draft-${randomUUID()}`
+    vi.clearAllMocks()
+    await payload.update({ collection: 'products', id: product.id, draft: true,
+      data: { slug: draftSlug, category: secondCategoryID, title: 'Draft version' },
+    })
+    expect(revalidatePath).not.toHaveBeenCalled()
+    expect((await payload.find({ collection: 'redirects', where: { from: { equals: oldPath } } })).docs).toHaveLength(0)
+    vi.clearAllMocks()
+    await payload.update({ collection: 'products', id: product.id, data: { _status: 'published' } })
+    const redirect = await payload.find({ collection: 'redirects', where: { from: { equals: oldPath } }, depth: 0 })
+    expect(redirect.docs[0]).toMatchObject({ type: '301', to: { reference: { relationTo: 'products', value: product.id } } })
+    expect(revalidatePath).toHaveBeenCalledWith(oldPath)
+    expect(revalidatePath).toHaveBeenCalledWith(`/products/black-tea/${draftSlug}`)
+    expect(revalidateTag).toHaveBeenCalledWith(`product-category-${firstCategoryID}`, 'max')
+    expect(revalidateTag).toHaveBeenCalledWith(`product-category-${secondCategoryID}`, 'max')
+  }, 20_000)
+
+  it('renames only matching published and draft categories when a product has diverged versions', async () => {
+    const publicCategory = await payload.create({ collection: 'product-categories', data: { title: 'Public C', slug: `public-${randomUUID()}`, image: mediaID } })
+    const draftCategory = await payload.create({ collection: 'product-categories', data: { title: 'Draft D', slug: `draft-${randomUUID()}`, image: mediaID } })
+    const product = await payload.create({ collection: 'products', data: {
+      title: 'Public product', slug: `split-${randomUUID()}`, category: publicCategory.id,
+      gallery: [mediaID], excerpt: 'Live', _status: 'published',
+    } })
+    await payload.update({ collection: 'products', id: product.id, draft: true,
+      data: { category: draftCategory.id, title: 'Private product' },
+    })
+    const newPublicSlug = `${publicCategory.slug}-renamed`
+    await payload.update({ collection: 'product-categories', id: publicCategory.id, data: { slug: newPublicSlug } })
+    expect(await payload.findByID({ collection: 'products', id: product.id, draft: false, depth: 0 })).toMatchObject({ title: 'Public product', categorySlug: newPublicSlug, _status: 'published' })
+    expect(await payload.findByID({ collection: 'products', id: product.id, draft: true, depth: 0 })).toMatchObject({ title: 'Private product', categorySlug: draftCategory.slug, _status: 'draft' })
+    const liveRedirect = await payload.find({ collection: 'redirects', where: { from: { equals: `/products/${publicCategory.slug}/${product.slug}` } } })
+    expect(liveRedirect.docs).toHaveLength(1)
+
+    const newDraftSlug = `${draftCategory.slug}-renamed`
+    await payload.update({ collection: 'product-categories', id: draftCategory.id, data: { slug: newDraftSlug } })
+    expect(await payload.findByID({ collection: 'products', id: product.id, draft: false, depth: 0 })).toMatchObject({ title: 'Public product', categorySlug: newPublicSlug, _status: 'published' })
+    expect(await payload.findByID({ collection: 'products', id: product.id, draft: true, depth: 0 })).toMatchObject({ title: 'Private product', categorySlug: newDraftSlug, _status: 'draft' })
+    const draftRedirect = await payload.find({ collection: 'redirects', where: { from: { equals: `/products/${draftCategory.slug}/${product.slug}` } } })
+    expect(draftRedirect.docs).toHaveLength(0)
+  }, 20_000)
+
+  it('invalidates the public URL when deleting a product whose latest version is a draft', async () => {
+    const product = await payload.create({ collection: 'products', data: {
+      title: 'To delete', slug: `delete-${randomUUID()}`, category: secondCategoryID,
+      gallery: [mediaID], excerpt: 'Live', _status: 'published',
+    } })
+    const oldPath = `/products/${product.categorySlug}/${product.slug}`
+    await payload.update({ collection: 'products', id: product.id, draft: true, data: { title: 'Draft only' } })
+    vi.clearAllMocks()
+    await payload.delete({ collection: 'products', id: product.id })
+    expect(revalidatePath).toHaveBeenCalledWith(oldPath)
+    expect(revalidateTag).toHaveBeenCalledWith(`product-${product.id}`, 'max')
   }, 20_000)
 })
