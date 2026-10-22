@@ -10,6 +10,8 @@ export const revalidateSettings: GlobalAfterChangeHook = ({ doc, req: { context 
     revalidatePath('/blogs/page/[pageNumber]', 'page')
     revalidatePath('/blogs/category/[categorySlug]', 'page')
     revalidatePath('/blogs/category/[categorySlug]/page/[pageNumber]', 'page')
+    revalidatePath('/products')
+    revalidateTag('products-overview', 'max')
   }
 
   return doc

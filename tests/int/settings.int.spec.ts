@@ -8,6 +8,7 @@ import { MEDIA_UPLOAD_POLICY } from '@/collections/mediaUploadPolicy'
 import { Settings } from '@/Settings/config'
 import { settingsTabs } from '@/Settings/fields'
 import { blogTab } from '@/Settings/fields/blog'
+import { productTab } from '@/Settings/fields/product'
 import { trimText, validateEnabledHeading } from '@/Settings/fields/validation'
 import { revalidateSettings } from '@/Settings/hooks/revalidateSettings'
 import { revalidatePath, revalidateTag } from 'next/cache'
@@ -43,7 +44,7 @@ describe('Settings Global', () => {
   })
 
   it('organizes Hero and SEO as collapsible Blog sections', () => {
-    expect(settingsTabs).toEqual({ type: 'tabs', tabs: [blogTab] })
+    expect(settingsTabs).toEqual({ type: 'tabs', tabs: [blogTab, productTab] })
     expect(blogTab).toMatchObject({ name: 'blog', label: 'Blog' })
     expect(heroSection).toMatchObject({
       type: 'collapsible',
@@ -197,7 +198,8 @@ describe('Settings Global', () => {
         expect(revalidateTag).not.toHaveBeenCalled()
         expect(revalidatePath).not.toHaveBeenCalled()
       } else {
-        expect(revalidateTag).toHaveBeenCalledExactlyOnceWith('global_settings', 'max')
+        expect(revalidateTag).toHaveBeenCalledWith('global_settings', 'max')
+        expect(revalidateTag).toHaveBeenCalledWith('products-overview', 'max')
         expect(revalidatePath).toHaveBeenCalledWith('/blogs')
         expect(revalidatePath).toHaveBeenCalledWith('/blogs/[slug]', 'page')
         expect(revalidatePath).toHaveBeenCalledWith('/blogs/page/[pageNumber]', 'page')
