@@ -152,6 +152,12 @@ describe('owner rendering boundaries', () => {
     for (const wrapper of container.children)
       expect(wrapper.classList).toContain(caseStudyStyles.section)
     expect(screen.getByText('Case action')).toBeTruthy()
+    rerender(
+      <RenderPageBlocks
+        blocks={[{ blockType: 'unknown' }, { blockType: 'cta', heading: 'Legacy' }] as never}
+      />,
+    )
+    expect(container.children).toHaveLength(0)
     rerender(<RenderCaseStudyBlocks blocks={[{ blockType: 'unknown' }] as never} />)
     expect(container.children).toHaveLength(0)
   })

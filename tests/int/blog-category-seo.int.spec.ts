@@ -56,6 +56,9 @@ describe('Blog category SEO configuration', () => {
     expect(generateDescription(input({ title: 'Green Tea' }) as never)).toBe(
       'Explore green tea articles and guides.',
     )
+    expect(generateDescription(input({}) as never)).toBe(
+      'Explore our latest blog articles, insights, and guides.',
+    )
     expect(generateURL(args as never)).toBe(`${getServerSideURL()}/blogs/category/green-tea`)
     expect(generateURL(input({}) as never)).toBe(`${getServerSideURL()}/blogs`)
   })

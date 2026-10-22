@@ -87,7 +87,7 @@ const blog = {
       direction: null,
       format: '',
       indent: 0,
-      children: ['mediaBlock', 'keyTakeaways', 'cta', 'banner'].map((blockType, index) => ({
+      children: ['blogMediaBlock', 'blogKeyTakeaways', 'blogCta', 'blogBanner'].map((blockType, index) => ({
         type: 'block',
         version: 2,
         fields: { id: String(index), blockType },
@@ -130,7 +130,7 @@ describe('blog detail', () => {
     expect(container.querySelector('header > p')?.textContent).toBe(blog.excerpt)
     expect(container.querySelector('time')?.textContent).toBe('September 28, 2026')
     expect(screen.getByTestId('rich-text').getAttribute('data-context')).toBe('article')
-    for (const type of ['mediaBlock', 'keyTakeaways', 'cta', 'banner'])
+    for (const type of ['blogMediaBlock', 'blogKeyTakeaways', 'blogCta', 'blogBanner'])
       expect(screen.getByText(type)).toBeTruthy()
     expect(screen.getByRole('heading', { name: 'More to read' })).toBeTruthy()
     const cards = within(screen.getByRole('region', { name: 'More to read' })).getAllByRole(

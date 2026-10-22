@@ -53,10 +53,10 @@ export const generateDescription: GenerateDescription<SEOContent | Settings> = (
   const content = doc as SEOContent
   if (collectionConfig?.slug === 'blog-categories') {
     const category = content as BlogCategory
-    return (
-      category?.description ||
-      `Explore ${category?.title?.toLowerCase() || ''} articles and guides.`
-    )
+    if (category?.description) return category.description
+    return category?.title
+      ? `Explore ${category.title.toLowerCase()} articles and guides.`
+      : 'Explore our latest blog articles, insights, and guides.'
   }
   if (collectionConfig?.slug === 'blogs') return (content as Blog)?.excerpt || ''
   return content?.meta?.description || ''
