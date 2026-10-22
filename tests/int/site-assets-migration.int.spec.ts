@@ -3,7 +3,7 @@ import { execFile } from 'node:child_process'
 import { promisify } from 'node:util'
 import { randomUUID } from 'node:crypto'
 import { buildConfig, getPayload, type Payload } from 'payload'
-import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { up, down } from '@/migrations/20261013_site_assets'
 import { createIsolatedTestDatabaseURI } from '../helpers/isolatedDatabase'
@@ -13,6 +13,7 @@ describe('Site Assets database migration', () => {
   let adapter: MongooseAdapter
   const databaseName = `ecolitea2-assets-${randomUUID()}`
   const databaseURI = createIsolatedTestDatabaseURI(databaseName)
+  const asset = { _id: 'asset-id', filename: 'logo.svg', url: 'https://media.example.invalid/logo.svg' }
 
   beforeAll(async () => {
     console.info(`Migration test target: ${databaseURI}; storage: disabled, no uploads`)
@@ -32,9 +33,9 @@ describe('Site Assets database migration', () => {
     }
   })
 
-  it('renames assets, lock references and all preference substrings reversibly, preserving versions and IDs', async () => {
+  beforeEach(async () => {
     const db = adapter.connection.db!
-    const asset = { _id: 'asset-id', filename: 'logo.svg', url: 'https://media.example.invalid/logo.svg' }
+    await adapter.connection.dropDatabase()
     await db.collection<{ _id: string; [key: string]: unknown }>('brand-assets').insertOne(asset)
     await db.collection<{ _id: string; [key: string]: unknown }>('_brand-assets_versions').insertOne({ _id: 'legacy', value: asset })
     await db.collection<{ _id: string; [key: string]: unknown }>('payload-locked-documents').insertMany([
@@ -45,6 +46,10 @@ describe('Site Assets database migration', () => {
       { _id: 'pref', key: 'collection-brand-assets-brand-assets', value: { sort: 'filename' } },
       { _id: 'other', key: 'collection-media', value: {} },
     ])
+  })
+
+  it('renames assets, lock references and all preference substrings reversibly, preserving versions and IDs', async () => {
+    const db = adapter.connection.db!
     const info = vi.spyOn(payload.logger, 'info')
     await up({ payload, req: { payload } as never })
     expect(await db.collection<{ _id: string; [key: string]: unknown }>('site-assets').findOne({ _id: asset._id })).toEqual(asset)
@@ -71,6 +76,7 @@ describe('Site Assets database migration', () => {
         ...process.env,
         DATABASE_URI: databaseURI,
         DISABLE_R2_STORAGE: 'true',
+        PAYLOAD_CONFIG_PATH: 'tests/int/fixtures/site-assets-payload.config.ts',
         NODE_ENV: 'test',
       },
     })
