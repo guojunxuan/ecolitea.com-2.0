@@ -28,6 +28,7 @@ import { MetaDescriptionComponent as MetaDescriptionComponent_a8a977ebc872c5d5ea
 import { PreviewComponent as PreviewComponent_a8a977ebc872c5d5ea7ee689724c0860 } from '@payloadcms/plugin-seo/client'
 import { BlocksFeatureClient as BlocksFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { ArticleBlockEditor as ArticleBlockEditor_4971c3244241ba6cff288a3222e75719 } from '@/blocks/ArticleBlockEditor'
+import { SpecsRowLabel as SpecsRowLabel_76fec73d65cdcf0f322deac81e6b47ec } from '@/collections/Products/SpecsRowLabel'
 import { ImageCropControls as ImageCropControls_9959ec1372000a411e6c7216c9e7a00c } from '@/collections/mediaAdmin/ImageCropControls'
 import { UsedInPanel as UsedInPanel_465fcf04887261c29f77ab01f3d2132c } from '@/collections/mediaAdmin/UsedInPanel'
 import { AltPrefill as AltPrefill_0723c172e948fbb481376dc84e2f708c } from '@/collections/mediaAdmin/AltPrefill'
@@ -93,6 +94,7 @@ export const importMap = {
   "@payloadcms/plugin-seo/client#PreviewComponent": PreviewComponent_a8a977ebc872c5d5ea7ee689724c0860,
   "@payloadcms/richtext-lexical/client#BlocksFeatureClient": BlocksFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@/blocks/ArticleBlockEditor#ArticleBlockEditor": ArticleBlockEditor_4971c3244241ba6cff288a3222e75719,
+  "@/collections/Products/SpecsRowLabel#SpecsRowLabel": SpecsRowLabel_76fec73d65cdcf0f322deac81e6b47ec,
   "@/collections/mediaAdmin/ImageCropControls#ImageCropControls": ImageCropControls_9959ec1372000a411e6c7216c9e7a00c,
   "@/collections/mediaAdmin/UsedInPanel#UsedInPanel": UsedInPanel_465fcf04887261c29f77ab01f3d2132c,
   "@/collections/mediaAdmin/AltPrefill#AltPrefill": AltPrefill_0723c172e948fbb481376dc84e2f708c,

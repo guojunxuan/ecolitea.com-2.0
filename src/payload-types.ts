@@ -292,6 +292,8 @@ export interface Config {
     posts: Post;
     blogs: Blog;
     'blog-categories': BlogCategory;
+    'product-categories': ProductCategory;
+    products: Product;
     media: Media;
     documents: Document;
     'site-assets': SiteAsset;
@@ -313,6 +315,9 @@ export interface Config {
     'blog-categories': {
       blogs: 'blogs';
     };
+    'product-categories': {
+      products: 'products';
+    };
   };
   collectionsSelect: {
     folders: FoldersSelect<false> | FoldersSelect<true>;
@@ -320,6 +325,8 @@ export interface Config {
     posts: PostsSelect<false> | PostsSelect<true>;
     blogs: BlogsSelect<false> | BlogsSelect<true>;
     'blog-categories': BlogCategoriesSelect<false> | BlogCategoriesSelect<true>;
+    'product-categories': ProductCategoriesSelect<false> | ProductCategoriesSelect<true>;
+    products: ProductsSelect<false> | ProductsSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     documents: DocumentsSelect<false> | DocumentsSelect<true>;
     'site-assets': SiteAssetsSelect<false> | SiteAssetsSelect<true>;
@@ -907,6 +914,76 @@ export interface BlogCategory {
   createdAt: string;
 }
 /**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "product-categories".
+ */
+export interface ProductCategory {
+  id: string;
+  _order?: string | null;
+  title: string;
+  description?: string | null;
+  image: string | Media;
+  meta?: {
+    title?: string | null;
+    /**
+     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
+     */
+    image?: (string | null) | Media;
+    description?: string | null;
+  };
+  slug: string;
+  products?: {
+    docs?: (string | Product)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "products".
+ */
+export interface Product {
+  id: string;
+  title: string;
+  gallery: (string | Media)[];
+  excerpt: string;
+  specs?:
+    | {
+        group?: string | null;
+        label: string;
+        value: string;
+        id?: string | null;
+      }[]
+    | null;
+  layout?: unknown[] | null;
+  downloads?: (string | Document)[] | null;
+  faqs?:
+    | {
+        question: string;
+        answer: LexicalRichText<LexicalNodes_47D10C91>;
+        id?: string | null;
+      }[]
+    | null;
+  meta?: {
+    title?: string | null;
+    /**
+     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
+     */
+    image?: (string | null) | Media;
+    description?: string | null;
+  };
+  slug: string;
+  category: string | ProductCategory;
+  categorySlug?: string | null;
+  publishedAt?: string | null;
+  relatedProducts?: (string | Product)[] | null;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
  * Documents: PDF (.pdf), Word (.docx), Excel (.xlsx), PowerPoint (.pptx); maximum 10 MB. Legacy Office formats and documents with macros are not allowed.
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1366,6 +1443,14 @@ export interface PayloadLockedDocument {
         value: string | BlogCategory;
       } | null)
     | ({
+        relationTo: 'product-categories';
+        value: string | ProductCategory;
+      } | null)
+    | ({
+        relationTo: 'products';
+        value: string | Product;
+      } | null)
+    | ({
         relationTo: 'media';
         value: string | Media;
       } | null)
@@ -1685,6 +1770,68 @@ export interface BlogCategoriesSelect<T extends boolean = true> {
   blogs?: T;
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "product-categories_select".
+ */
+export interface ProductCategoriesSelect<T extends boolean = true> {
+  _order?: T;
+  title?: T;
+  description?: T;
+  image?: T;
+  meta?:
+    | T
+    | {
+        title?: T;
+        image?: T;
+        description?: T;
+      };
+  slug?: T;
+  products?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "products_select".
+ */
+export interface ProductsSelect<T extends boolean = true> {
+  title?: T;
+  gallery?: T;
+  excerpt?: T;
+  specs?:
+    | T
+    | {
+        group?: T;
+        label?: T;
+        value?: T;
+        id?: T;
+      };
+  layout?: T | {};
+  downloads?: T;
+  faqs?:
+    | T
+    | {
+        question?: T;
+        answer?: T;
+        id?: T;
+      };
+  meta?:
+    | T
+    | {
+        title?: T;
+        image?: T;
+        description?: T;
+      };
+  slug?: T;
+  category?: T;
+  categorySlug?: T;
+  publishedAt?: T;
+  relatedProducts?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -2973,6 +3120,8 @@ export interface CollectionQueryWidget {
       | 'posts'
       | 'blogs'
       | 'blog-categories'
+      | 'product-categories'
+      | 'products'
       | 'media'
       | 'documents'
       | 'categories'
@@ -3010,6 +3159,8 @@ export interface ActivityWidget {
           | 'posts'
           | 'blogs'
           | 'blog-categories'
+          | 'product-categories'
+          | 'products'
           | 'media'
           | 'documents'
           | 'categories'
@@ -3044,6 +3195,10 @@ export interface TaskSchedulePublish {
       | ({
           relationTo: 'blogs';
           value: string | Blog;
+        } | null)
+      | ({
+          relationTo: 'products';
+          value: string | Product;
         } | null)
       | ({
           relationTo: 'case-studies';

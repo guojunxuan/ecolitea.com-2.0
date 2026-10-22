@@ -7,6 +7,8 @@ import { fileURLToPath } from 'url'
 
 import { Blogs } from './collections/Blogs'
 import { BlogCategories } from './collections/BlogCategories'
+import { ProductCategories } from './collections/ProductCategories'
+import { Products } from './collections/Products'
 import { Categories } from './collections/Categories'
 import { SiteAssets } from './collections/SiteAssets'
 import { CaseStudies } from './collections/CaseStudies'
@@ -95,6 +97,8 @@ export default buildConfig({
     Posts,
     Blogs,
     BlogCategories,
+    ProductCategories,
+    Products,
     Media,
     Documents,
     SiteAssets,
