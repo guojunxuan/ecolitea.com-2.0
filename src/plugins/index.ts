@@ -17,15 +17,16 @@ import { beforeSyncWithSearch } from '@/search/beforeSync'
 import { publicBlogVisibility } from '@/utilities/blogs/publicVisibility'
 import { publicSearchVisibility } from '@/search/visibility'
 
-import { Blog, BlogCategory, CaseStudy, Page, Post, Settings } from '@/payload-types'
+import { Blog, BlogCategory, CaseStudy, Page, Post, Product, ProductCategory, Settings } from '@/payload-types'
 import { getServerSideURL } from '@/utilities/getURL'
 import { getContentPath } from '@/utilities/getContentPath'
+import { productsOverviewPath } from '@/utilities/products/paths'
 import { MEDIA_UPLOAD_POLICY } from '@/collections/mediaUploadPolicy'
 import { s3Storage, type S3StorageOptions } from '@payloadcms/storage-s3'
 import { serverEnv } from '@/utilities/env'
 import { getFileKey } from '@payloadcms/plugin-cloud-storage/utilities'
 
-type SEOContent = BlogCategory | Blog | CaseStudy | Page | Post
+type SEOContent = BlogCategory | Blog | CaseStudy | Page | Post | Product | ProductCategory
 
 export const generateTitle: GenerateTitle<SEOContent | Settings> = ({
   collectionConfig,
@@ -38,6 +39,12 @@ export const generateTitle: GenerateTitle<SEOContent | Settings> = ({
     return content?.title ? `${content.title} Blogs | Ecolitea` : 'Ecolitea'
   }
   if (collectionConfig?.slug === 'blogs') {
+    return content?.title ? `${content.title} | Ecolitea` : 'Ecolitea'
+  }
+  if (collectionConfig?.slug === 'product-categories') {
+    return content?.title ? `${content.title} Products | Ecolitea` : 'Ecolitea'
+  }
+  if (collectionConfig?.slug === 'products') {
     return content?.title ? `${content.title} | Ecolitea` : 'Ecolitea'
   }
   return content?.title ? `${content.title} | Payload Website Template` : 'Payload Website Template'
@@ -59,6 +66,14 @@ export const generateDescription: GenerateDescription<SEOContent | Settings> = (
       : 'Explore our latest blog articles, insights, and guides.'
   }
   if (collectionConfig?.slug === 'blogs') return (content as Blog)?.excerpt || ''
+  if (collectionConfig?.slug === 'product-categories') {
+    const category = content as ProductCategory
+    if (category?.description) return category.description
+    return category?.title
+      ? `Explore our ${category.title.toLowerCase()} products.`
+      : 'Explore our product range.'
+  }
+  if (collectionConfig?.slug === 'products') return (content as Product)?.excerpt || ''
   return content?.meta?.description || ''
 }
 
@@ -72,6 +87,14 @@ export const generateURL: GenerateURL<SEOContent | Settings> = ({
   const content = doc as SEOContent
   if (collectionConfig?.slug === 'blog-categories') {
     return `${url}/blogs${content?.slug ? `/category/${content.slug}` : ''}`
+  }
+  if (collectionConfig?.slug === 'product-categories' || collectionConfig?.slug === 'products') {
+    const path = content?.slug
+      ? getContentPath(collectionConfig.slug, content.slug, {
+          categorySlug: collectionConfig.slug === 'products' ? (content as Product).categorySlug : undefined,
+        })
+      : null
+    return `${url}${path ?? productsOverviewPath}`
   }
   const path =
     collectionConfig?.slug && content?.slug
@@ -126,6 +149,12 @@ export const generateImage: GenerateImage<SEOContent | Settings> = async ({
       case 'blogs':
       case 'posts':
         source = (content as Blog | Post)?.heroImage
+        break
+      case 'product-categories':
+        source = (content as ProductCategory)?.image
+        break
+      case 'products':
+        source = (content as Product)?.gallery?.[0]
         break
       case 'pages':
       case 'case-studies': {
