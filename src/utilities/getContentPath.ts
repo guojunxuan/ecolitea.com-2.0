@@ -1,4 +1,5 @@
 import type { CollectionSlug } from 'payload'
+import { productCategoryPath, productPath } from '@/utilities/products/paths'
 
 const contentPrefixes: Partial<Record<CollectionSlug, string>> = {
   pages: '',
@@ -8,7 +9,21 @@ const contentPrefixes: Partial<Record<CollectionSlug, string>> = {
   'case-studies': '/case-studies',
 }
 
-export const getContentPath = (relationTo: CollectionSlug, slug: string): string | null => {
+type ContentPathOptions = { categorySlug?: string | null }
+
+export const getContentPath = (
+  relationTo: CollectionSlug,
+  slug: string,
+  options: ContentPathOptions = {},
+): string | null => {
+  if (relationTo === ('products' as CollectionSlug)) {
+    return slug && options.categorySlug ? productPath(options.categorySlug, slug) : null
+  }
+
+  if (relationTo === ('product-categories' as CollectionSlug)) {
+    return slug ? productCategoryPath(slug) : null
+  }
+
   const prefix = contentPrefixes[relationTo]
   return prefix === undefined || !slug ? null : `${prefix}/${encodeURIComponent(slug)}`
 }

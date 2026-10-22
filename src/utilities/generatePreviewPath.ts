@@ -5,11 +5,12 @@ import { getContentPath } from '@/utilities/getContentPath'
 type Props = {
   collection: CollectionSlug
   slug: string
+  categorySlug?: string | null
   req: PayloadRequest
 }
 
-export const generatePreviewPath = ({ collection, slug }: Props) => {
-  const path = getContentPath(collection, slug)
+export const generatePreviewPath = ({ collection, slug, categorySlug }: Props) => {
+  const path = getContentPath(collection, slug, { categorySlug })
   if (!path) {
     return null
   }
