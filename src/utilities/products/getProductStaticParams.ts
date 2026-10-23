@@ -1,0 +1,1 @@
+export { getProductStaticParams } from './queries'

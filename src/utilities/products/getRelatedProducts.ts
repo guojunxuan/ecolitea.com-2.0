@@ -1,0 +1,1 @@
+export { getRelatedProducts } from './queries'

@@ -1,0 +1,1 @@
+export { getProductListing } from './queries'

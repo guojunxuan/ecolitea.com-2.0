@@ -1,0 +1,1 @@
+export { getProductBySlug } from './queries'

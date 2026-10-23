@@ -1,3 +1,4 @@
+import { getPayload } from 'payload'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 const unstableCacheMock = vi.hoisted(() => vi.fn())
@@ -17,6 +18,19 @@ describe('getCachedGlobal', () => {
   beforeEach(() => {
     unstableCacheMock.mockReset()
     unstableCacheMock.mockImplementation(() => async () => ({}))
+  })
+
+  it('reads Settings with public access enforcement and no drafts', async () => {
+    const findGlobal = vi.fn().mockResolvedValue({ product: {} })
+    vi.mocked(getPayload).mockResolvedValue({ findGlobal } as never)
+    unstableCacheMock.mockImplementation((fn) => fn)
+    await getCachedGlobal('settings', 1)()
+    expect(findGlobal).toHaveBeenCalledWith({
+      slug: 'settings',
+      depth: 1,
+      overrideAccess: false,
+      draft: false,
+    })
   })
 
   it('separates cached global values requested at different relationship depths', () => {
@@ -40,18 +54,12 @@ describe('getCachedGlobal', () => {
   it('provides fixed cached readers with stable keys and tags', async () => {
     await Promise.all([getCachedHeader(), getCachedFooter(), getCachedSiteSettings()])
 
-    expect(unstableCacheMock).toHaveBeenNthCalledWith(
-      1,
-      expect.any(Function),
-      ['header', '1'],
-      { tags: ['global_header'] },
-    )
-    expect(unstableCacheMock).toHaveBeenNthCalledWith(
-      2,
-      expect.any(Function),
-      ['footer', '1'],
-      { tags: ['global_footer'] },
-    )
+    expect(unstableCacheMock).toHaveBeenNthCalledWith(1, expect.any(Function), ['header', '1'], {
+      tags: ['global_header'],
+    })
+    expect(unstableCacheMock).toHaveBeenNthCalledWith(2, expect.any(Function), ['footer', '1'], {
+      tags: ['global_footer'],
+    })
     expect(unstableCacheMock).toHaveBeenNthCalledWith(
       3,
       expect.any(Function),
