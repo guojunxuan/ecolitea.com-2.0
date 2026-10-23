@@ -9,6 +9,7 @@ beforeEach(() => vi.clearAllMocks())
 
 const publicDoc = { id: 'p', slug: 'live', categorySlug: 'tea', _status: 'published' }
 const request = () => ({ context: {}, payload: {
+  logger: { warn: vi.fn(), debug: vi.fn() },
   findByID: vi.fn().mockResolvedValue(publicDoc),
   find: vi.fn().mockResolvedValue({ docs: [] }),
   create: vi.fn(), update: vi.fn(), delete: vi.fn(),

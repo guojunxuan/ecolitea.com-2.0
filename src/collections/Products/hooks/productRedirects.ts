@@ -5,11 +5,19 @@ import { getProductPublicTransition } from './productPublicTransition'
 
 type Target = { relationTo: 'products' | 'product-categories'; id: string | number }
 
-export const clearOccupiedRedirect = async (req: PayloadRequest, path: string) => {
+export const clearOccupiedRedirect = async (req: PayloadRequest, path: string, target: Target) => {
   const existing = await req.payload.find({
     collection: 'redirects', where: { from: { equals: path } }, limit: 1, depth: 0, req,
   })
-  for (const item of existing.docs) await req.payload.delete({ collection: 'redirects', id: item.id, req })
+  for (const item of existing.docs) {
+    const reference = item.to?.type === 'reference' ? item.to.reference : undefined
+    const referenceID = typeof reference?.value === 'object' ? reference.value?.id : reference?.value
+    const selfReference = reference?.relationTo === target.relationTo && referenceID != null && String(referenceID) === String(target.id)
+    const details = { from: item.from, to: item.to, trigger: target }
+    if (selfReference) req.payload.logger.debug(details, 'Removing redirect occupying a live product path')
+    else req.payload.logger.warn(details, 'Removing redirect occupying a live product path')
+    await req.payload.delete({ collection: 'redirects', id: item.id, req })
+  }
 }
 
 export function upsertRedirect(req: PayloadRequest, fromPath: string | null, to: Target): Promise<void>
@@ -23,7 +31,7 @@ export async function upsertRedirect(req: PayloadRequest, fromPath: string | nul
       : target.slug ? productCategoryPath(target.slug) : undefined
   }
   if (!toPath) return
-  await clearOccupiedRedirect(req, toPath)
+  await clearOccupiedRedirect(req, toPath, to)
   if (!fromPath || fromPath === toPath) return
   const existing = await req.payload.find({
     collection: 'redirects', where: { from: { equals: fromPath } }, limit: 1, depth: 0, req,

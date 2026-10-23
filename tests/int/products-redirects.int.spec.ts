@@ -9,6 +9,7 @@ vi.mock('next/cache', () => ({ revalidatePath: vi.fn(), revalidateTag: vi.fn() }
 const request = () => ({
   context: {},
   payload: {
+    logger: { warn: vi.fn(), debug: vi.fn() },
     find: vi.fn().mockResolvedValue({ docs: [], hasNextPage: false }),
     findByID: vi.fn().mockResolvedValue({ slug: 'new' }),
     create: vi.fn(), update: vi.fn(), delete: vi.fn(),
@@ -16,6 +17,47 @@ const request = () => ({
 })
 
 describe('product redirects', () => {
+  it.each([
+    { type: 'custom', url: 'https://example.test/manual' },
+    { type: 'reference', reference: { relationTo: 'products', value: 'other' } },
+    { type: 'reference', reference: { relationTo: 'product-categories', value: 'p' } },
+  ])('warns before deleting an occupied path with target $type', async (to) => {
+    const req = request()
+    const from = '/products/new/tea'
+    const trigger = { relationTo: 'products' as const, id: 'p' }
+    req.payload.find.mockResolvedValueOnce({ docs: [{ id: 'occupied', from, to }] })
+    await upsertRedirect(req as never, null, trigger, from)
+    expect(req.payload.logger.warn).toHaveBeenCalledExactlyOnceWith({ from, to, trigger }, 'Removing redirect occupying a live product path')
+    expect(req.payload.logger.warn.mock.invocationCallOrder[0]).toBeLessThan(req.payload.delete.mock.invocationCallOrder[0])
+    expect(req.payload.delete).toHaveBeenCalledExactlyOnceWith({ collection: 'redirects', id: 'occupied', req })
+    expect(req.payload.logger.debug).not.toHaveBeenCalled()
+  })
+
+  it.each([
+    { relationTo: 'products' as const, value: '42' },
+    { relationTo: 'products' as const, value: { id: 42, slug: 'tea' } },
+    { relationTo: 'product-categories' as const, value: { id: '42', slug: 'tea' } },
+  ])('debugs instead of warning before deleting a self reference $relationTo', async (reference) => {
+    const req = request()
+    const from = '/products/new/tea'
+    const trigger = { relationTo: reference.relationTo, id: 42 }
+    const to = { type: 'reference', reference }
+    req.payload.find.mockResolvedValueOnce({ docs: [{ id: 'occupied', from, to }] })
+    await upsertRedirect(req as never, null, trigger, from)
+    expect(req.payload.logger.debug).toHaveBeenCalledExactlyOnceWith({ from, to, trigger }, 'Removing redirect occupying a live product path')
+    expect(req.payload.logger.debug.mock.invocationCallOrder[0]).toBeLessThan(req.payload.delete.mock.invocationCallOrder[0])
+    expect(req.payload.logger.warn).not.toHaveBeenCalled()
+    expect(req.payload.delete).toHaveBeenCalledTimes(1)
+  })
+
+  it('does not log when the destination has no redirect', async () => {
+    const req = request()
+    await upsertRedirect(req as never, null, { relationTo: 'products', id: 'p' }, '/products/new/tea')
+    expect(req.payload.logger.warn).not.toHaveBeenCalled()
+    expect(req.payload.logger.debug).not.toHaveBeenCalled()
+    expect(req.payload.delete).not.toHaveBeenCalled()
+  })
+
   it('upserts a reference, clearing a redirect on the occupied destination', async () => {
     const req = request()
     req.payload.find.mockResolvedValueOnce({ docs: [{ id: 'occupied' }] }).mockResolvedValueOnce({ docs: [{ id: 'old' }] })
