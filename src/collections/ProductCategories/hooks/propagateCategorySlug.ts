@@ -7,17 +7,27 @@ import { upsertRedirect } from '@/collections/Products/hooks/productRedirects'
 import { invalidateProducts } from '@/collections/Products/hooks/revalidateProduct'
 
 const categoryRedirectPaths = (oldSlug: string, newSlug: string) => ({
-  from: productCategoryPath(oldSlug), to: productCategoryPath(newSlug),
+  from: productCategoryPath(oldSlug),
+  to: productCategoryPath(newSlug),
 })
 
 const PAGE_SIZE = 100
-const categoryID = (value: Product['category']) => typeof value === 'object' ? value?.id : value
+const categoryID = (value: Product['category']) => (typeof value === 'object' ? value?.id : value)
 
-export const propagateCategorySlug: CollectionAfterChangeHook<ProductCategory> = async ({ doc, previousDoc, req }) => {
+export const propagateCategorySlug: CollectionAfterChangeHook<ProductCategory> = async ({
+  doc,
+  previousDoc,
+  req,
+}) => {
   if (!doc.slug) return doc
   if (!previousDoc?.slug || previousDoc.slug === doc.slug) {
     // A once-redirected path may become a live category on creation or edit.
-    await upsertRedirect(req, null, { relationTo: 'product-categories', id: doc.id }, categoryRedirectPaths(doc.slug, doc.slug).to)
+    await upsertRedirect(
+      req,
+      null,
+      { relationTo: 'product-categories', id: doc.id },
+      categoryRedirectPaths(doc.slug, doc.slug).to,
+    )
     return doc
   }
 
@@ -28,8 +38,14 @@ export const propagateCategorySlug: CollectionAfterChangeHook<ProductCategory> =
     let page = 1
     while (true) {
       const result = await req.payload.find({
-        collection: 'products', where: { category: { equals: doc.id } },
-        draft, depth: 0, limit: PAGE_SIZE, page, sort: 'id', req,
+        collection: 'products',
+        where: { category: { equals: doc.id } },
+        draft,
+        depth: 0,
+        limit: PAGE_SIZE,
+        page,
+        sort: 'id',
+        req,
       })
       for (const product of result.docs) productIDs.add(String(product.id))
       if (!result.hasNextPage) break
@@ -68,9 +84,24 @@ export const propagateCategorySlug: CollectionAfterChangeHook<ProductCategory> =
   for (const id of productIDs) {
     // A published record may have a newer draft. Patch the public record first,
     // then patch the draft version independently so neither loses its other fields.
-    const published = await req.payload.findByID({ collection: 'products', id, draft: false, depth: 0, req, disableErrors: true })
-    const latest = await req.payload.findByID({ collection: 'products', id, draft: true, depth: 0, req, disableErrors: true })
-    const publicMatches = published?._status === 'published' && categoryID(published.category) === doc.id
+    const published = await req.payload.findByID({
+      collection: 'products',
+      id,
+      draft: false,
+      depth: 0,
+      req,
+      disableErrors: true,
+    })
+    const latest = await req.payload.findByID({
+      collection: 'products',
+      id,
+      draft: true,
+      depth: 0,
+      req,
+      disableErrors: true,
+    })
+    const publicMatches =
+      published?._status === 'published' && categoryID(published.category) === doc.id
     const draftMatches = latest?._status === 'draft' && categoryID(latest.category) === doc.id
     if (publicMatches && published) {
       affectedPublished.push(published)
@@ -78,14 +109,38 @@ export const propagateCategorySlug: CollectionAfterChangeHook<ProductCategory> =
       // Supply the complete public snapshot so private draft fields are not
       // inadvertently copied into the published record.
       const { id: _id, createdAt: _createdAt, updatedAt: _updatedAt, ...publicData } = published
-      await updateProduct({ collection: 'products', id, data: { ...publicData, categorySlug: doc.slug, _status: 'published' }, draft: false, depth: 0, req })
-      if (published.slug) await upsertRedirect(req, productPath(previousDoc.slug, published.slug), { relationTo: 'products', id }, productPath(doc.slug, published.slug))
+      await updateProduct({
+        collection: 'products',
+        id,
+        data: { ...publicData, categorySlug: doc.slug, _status: 'published' },
+        draft: false,
+        depth: 0,
+        req,
+      })
+      if (published.slug)
+        await upsertRedirect(
+          req,
+          productPath(previousDoc.slug, published.slug),
+          { relationTo: 'products', id },
+          productPath(doc.slug, published.slug),
+        )
     }
     if ((publicMatches || draftMatches) && latest?._status === 'draft') {
       // The public update writes a newer version. Restore the previously read
       // draft's complete content, changing its slug only if it belongs here.
       const { id: _id, createdAt: _createdAt, updatedAt: _updatedAt, ...draftData } = latest
-      await updateProduct({ collection: 'products', id, data: { ...draftData, categorySlug: draftMatches ? doc.slug : latest.categorySlug, _status: 'draft' }, draft: true, depth: 0, req })
+      await updateProduct({
+        collection: 'products',
+        id,
+        data: {
+          ...draftData,
+          categorySlug: draftMatches ? doc.slug : latest.categorySlug,
+          _status: 'draft',
+        },
+        draft: true,
+        depth: 0,
+        req,
+      })
       if (draftMatches) affectedDraftIDs.add(id)
     }
   }

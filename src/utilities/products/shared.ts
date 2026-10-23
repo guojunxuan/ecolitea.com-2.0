@@ -76,7 +76,8 @@ export const toProductCard = (value: Product): ProductCard => ({
 })
 export const toProductDetail = (value: Product): ProductDetail => ({
   ...value,
-  category: value.category && typeof value.category === 'object' ? toProductCategory(value.category) : null,
+  category:
+    value.category && typeof value.category === 'object' ? toProductCategory(value.category) : null,
   gallery: (value.gallery ?? []).flatMap((item) => media(item) ?? []),
   downloads: (value.downloads ?? []).flatMap((item) =>
     typeof item === 'object'

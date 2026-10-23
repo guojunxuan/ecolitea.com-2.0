@@ -22,8 +22,14 @@ describe('Blog site integrations', () => {
   })
 
   it('generates the Blog preview path', () => {
-    const preview = generatePreviewPath({ collection: 'blogs', slug: 'green-tea', req: {} as PayloadRequest })
-    expect(new URL(preview!, 'https://example.test').searchParams.get('path')).toBe('/blogs/green-tea')
+    const preview = generatePreviewPath({
+      collection: 'blogs',
+      slug: 'green-tea',
+      req: {} as PayloadRequest,
+    })
+    expect(new URL(preview!, 'https://example.test').searchParams.get('path')).toBe(
+      '/blogs/green-tea',
+    )
   })
 
   it.each([
@@ -32,19 +38,27 @@ describe('Blog site integrations', () => {
     ['blogs', 'tea', '/blogs/tea'],
     ['case-studies', 'client', '/case-studies/client'],
   ] as const)('generates the canonical %s SEO URL', (slug, docSlug, path) => {
-    expect(generateURL({ collectionConfig: { slug } as never, doc: { slug: docSlug } } as never))
-      .toBe(`http://localhost:3000${path}`)
+    expect(
+      generateURL({ collectionConfig: { slug } as never, doc: { slug: docSlug } } as never),
+    ).toBe(`http://localhost:3000${path}`)
   })
 
   it('uses Blog title and excerpt for SEO and preserves Page/Post titles', () => {
-    expect(generateTitle({ collectionConfig: { slug: 'blogs' }, doc: { title: 'Tea Notes' } } as never))
-      .toBe('Tea Notes | Ecolitea')
-    expect(generateDescription({ collectionConfig: { slug: 'blogs' }, doc: { excerpt: 'Fresh leaves' } } as never))
-      .toBe('Fresh leaves')
-    expect(generateTitle({ collectionConfig: { slug: 'posts' }, doc: { title: 'News' } } as never))
-      .toBe('News | Payload Website Template')
-    expect(generateTitle({ collectionConfig: { slug: 'pages' }, doc: { title: 'About' } } as never))
-      .toBe('About | Payload Website Template')
+    expect(
+      generateTitle({ collectionConfig: { slug: 'blogs' }, doc: { title: 'Tea Notes' } } as never),
+    ).toBe('Tea Notes | Ecolitea')
+    expect(
+      generateDescription({
+        collectionConfig: { slug: 'blogs' },
+        doc: { excerpt: 'Fresh leaves' },
+      } as never),
+    ).toBe('Fresh leaves')
+    expect(
+      generateTitle({ collectionConfig: { slug: 'posts' }, doc: { title: 'News' } } as never),
+    ).toBe('News | Payload Website Template')
+    expect(
+      generateTitle({ collectionConfig: { slug: 'pages' }, doc: { title: 'About' } } as never),
+    ).toBe('About | Payload Website Template')
   })
 
   it('allows Blog and Blog Category navigation references', () => {
@@ -61,20 +75,30 @@ describe('Blog site integrations', () => {
     const search = plugins.find((plugin) => plugin.slug === '@payloadcms/plugin-search')!
     const redirectsConfig = await redirects(config as never)
     const searchConfig = await search(config as never)
-    const redirectCollection = redirectsConfig.collections!.find((entry) => entry.slug === 'redirects')!
-    const destination = redirectCollection.fields.find((field) => 'name' in field && field.name === 'to')!
+    const redirectCollection = redirectsConfig.collections!.find(
+      (entry) => entry.slug === 'redirects',
+    )!
+    const destination = redirectCollection.fields.find(
+      (field) => 'name' in field && field.name === 'to',
+    )!
     expect(JSON.stringify(destination)).toContain('blogs')
-    expect(searchConfig.collections!.find((entry) => entry.slug === 'blogs')?.hooks?.afterChange?.length).toBeGreaterThan(0)
+    expect(
+      searchConfig.collections!.find((entry) => entry.slug === 'blogs')?.hooks?.afterChange?.length,
+    ).toBeGreaterThan(0)
     const searchCollection = searchConfig.collections!.find((entry) => entry.slug === 'search')!
     const read = searchCollection.access?.read as (args: unknown) => unknown
     const publicWhere = read({ req: {} })
-    expect(publicWhere).toMatchObject({ or: expect.arrayContaining([
-      { 'doc.relationTo': { equals: 'posts' } },
-      { and: expect.arrayContaining([
-        { 'doc.relationTo': { equals: 'blogs' } },
-        { publishedAt: { less_than_equal: expect.any(String) } },
-      ]) },
-    ]) })
+    expect(publicWhere).toMatchObject({
+      or: expect.arrayContaining([
+        { 'doc.relationTo': { equals: 'posts' } },
+        {
+          and: expect.arrayContaining([
+            { 'doc.relationTo': { equals: 'blogs' } },
+            { publishedAt: { less_than_equal: expect.any(String) } },
+          ]),
+        },
+      ]),
+    })
     expect(JSON.stringify(publicWhere)).not.toContain('blogStatus')
   })
 
@@ -82,56 +106,87 @@ describe('Blog site integrations', () => {
     const publication = '2026-08-01T00:00:00.000Z'
     const before = publicSearchVisibility(new Date('2026-07-31T23:59:59.000Z'))
     const after = publicSearchVisibility(new Date('2026-08-01T00:00:01.000Z'))
-    expect({ or: before.or?.slice(0, 2) }).toEqual({ or: [
-      { 'doc.relationTo': { equals: 'posts' } },
-      { and: [
-        { 'doc.relationTo': { equals: 'blogs' } },
-        { publishedAt: { less_than_equal: '2026-07-31T23:59:59.000Z' } },
-      ] },
-    ] })
-    expect({ or: after.or?.slice(0, 2) }).toEqual({ or: [
-      { 'doc.relationTo': { equals: 'posts' } },
-      { and: [
-        { 'doc.relationTo': { equals: 'blogs' } },
-        { publishedAt: { less_than_equal: '2026-08-01T00:00:01.000Z' } },
-      ] },
-    ] })
+    expect({ or: before.or?.slice(0, 2) }).toEqual({
+      or: [
+        { 'doc.relationTo': { equals: 'posts' } },
+        {
+          and: [
+            { 'doc.relationTo': { equals: 'blogs' } },
+            { publishedAt: { less_than_equal: '2026-07-31T23:59:59.000Z' } },
+          ],
+        },
+      ],
+    })
+    expect({ or: after.or?.slice(0, 2) }).toEqual({
+      or: [
+        { 'doc.relationTo': { equals: 'posts' } },
+        {
+          and: [
+            { 'doc.relationTo': { equals: 'blogs' } },
+            { publishedAt: { less_than_equal: '2026-08-01T00:00:01.000Z' } },
+          ],
+        },
+      ],
+    })
     expect(publication > '2026-07-31T23:59:59.000Z').toBe(true)
     expect(publication <= '2026-08-01T00:00:01.000Z').toBe(true)
   })
 
   it('indexes a published future Blog but does not index an unpublished draft', async () => {
     const search = plugins.find((plugin) => plugin.slug === '@payloadcms/plugin-search')!
-    const config = await search({ collections: [{ slug: 'blogs', fields: [] }], globals: [] } as never)
+    const config = await search({
+      collections: [{ slug: 'blogs', fields: [] }],
+      globals: [],
+    } as never)
     const blog = config.collections!.find((entry) => entry.slug === 'blogs')!
     const sync = blog.hooks?.afterChange?.at(-1)
     if (!sync) throw new Error('Missing Blog search hook')
     const create = vi.fn()
     const req = { payload: { create, config: {}, logger: { error: vi.fn() } }, context: {} }
     const published = {
-      id: 'blog-2', title: 'Future Blog', slug: 'future-blog', excerpt: 'Coming soon',
-      _status: 'published', publishedAt: '2999-01-01T00:00:00.000Z',
+      id: 'blog-2',
+      title: 'Future Blog',
+      slug: 'future-blog',
+      excerpt: 'Coming soon',
+      _status: 'published',
+      publishedAt: '2999-01-01T00:00:00.000Z',
     }
     await sync({ doc: published, operation: 'create', req } as never)
-    expect(create).toHaveBeenCalledWith(expect.objectContaining({
-      collection: 'search', data: expect.objectContaining({ publishedAt: published.publishedAt }),
-    }))
+    expect(create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        collection: 'search',
+        data: expect.objectContaining({ publishedAt: published.publishedAt }),
+      }),
+    )
 
     create.mockClear()
-    await sync({ doc: { ...published, id: 'blog-3', _status: 'draft' }, operation: 'create', req: { ...req, context: {} } } as never)
+    await sync({
+      doc: { ...published, id: 'blog-3', _status: 'draft' },
+      operation: 'create',
+      req: { ...req, context: {} },
+    } as never)
     expect(create).not.toHaveBeenCalled()
   })
 
   it('removes a stale Blog index row when its source has no published version', async () => {
     const search = plugins.find((plugin) => plugin.slug === '@payloadcms/plugin-search')!
-    const config = await search({ collections: [{ slug: 'blogs', fields: [] }], globals: [] } as never)
-    const sync = config.collections!.find((entry) => entry.slug === 'blogs')!.hooks?.afterChange?.at(-1)
+    const config = await search({
+      collections: [{ slug: 'blogs', fields: [] }],
+      globals: [],
+    } as never)
+    const sync = config
+      .collections!.find((entry) => entry.slug === 'blogs')!
+      .hooks?.afterChange?.at(-1)
     if (!sync) throw new Error('Missing Blog search hook')
     const remove = vi.fn()
-    const find = vi.fn()
+    const find = vi
+      .fn()
       .mockResolvedValueOnce({ docs: [{ id: 'search-1', priority: 0 }] })
       .mockResolvedValueOnce({ docs: [] })
-    const req = { payload: { find, delete: remove, config: {}, logger: { error: vi.fn() } }, context: {} }
+    const req = {
+      payload: { find, delete: remove, config: {}, logger: { error: vi.fn() } },
+      context: {},
+    }
 
     await sync({
       doc: { id: 'blog-4', title: 'Unpublished Blog', _status: 'draft', publishedAt: null },
@@ -139,11 +194,18 @@ describe('Blog site integrations', () => {
       req,
     } as never)
 
-    expect(find).toHaveBeenCalledWith(expect.objectContaining({
-      collection: 'blogs', draft: false,
-      where: expect.objectContaining({ and: expect.arrayContaining([{ _status: { equals: 'published' } }]) }),
-    }))
-    expect(remove).toHaveBeenCalledWith(expect.objectContaining({ collection: 'search', id: 'search-1' }))
+    expect(find).toHaveBeenCalledWith(
+      expect.objectContaining({
+        collection: 'blogs',
+        draft: false,
+        where: expect.objectContaining({
+          and: expect.arrayContaining([{ _status: { equals: 'published' } }]),
+        }),
+      }),
+    )
+    expect(remove).toHaveBeenCalledWith(
+      expect.objectContaining({ collection: 'search', id: 'search-1' }),
+    )
   })
 
   it('indexes a Blog title, excerpt, and category without copying private fields', async () => {
@@ -151,28 +213,41 @@ describe('Blog site integrations', () => {
     const result = await beforeSyncWithSearch({
       req: { payload: { findByID } },
       originalDoc: {
-        id: 'blog-1', slug: 'green-tea', title: 'Green Tea', excerpt: 'A guide', _status: 'published',
-        category: 'cat-1', authors: ['private-author'],
-        content: { root: { type: 'root', version: 1, direction: null, format: '', indent: 0, children: [] } },
+        id: 'blog-1',
+        slug: 'green-tea',
+        title: 'Green Tea',
+        excerpt: 'A guide',
+        _status: 'published',
+        category: 'cat-1',
+        authors: ['private-author'],
+        content: {
+          root: { type: 'root', version: 1, direction: null, format: '', indent: 0, children: [] },
+        },
       },
       searchDoc: { title: 'Green Tea', doc: { relationTo: 'blogs', value: 'blog-1' } },
     } as never)
 
     expect(result).toMatchObject({
-      title: 'Green Tea', slug: 'green-tea', excerpt: 'A guide',
+      title: 'Green Tea',
+      slug: 'green-tea',
+      excerpt: 'A guide',
       category: { relationTo: 'blog-categories', categoryID: 'cat-1', title: 'Brewing' },
       meta: { title: 'Green Tea', description: 'A guide' },
     })
     expect(result).not.toHaveProperty('authors')
     expect(result).not.toHaveProperty('content')
-    expect(findByID).toHaveBeenCalledWith(expect.objectContaining({ collection: 'blog-categories', id: 'cat-1' }))
+    expect(findByID).toHaveBeenCalledWith(
+      expect.objectContaining({ collection: 'blog-categories', id: 'cat-1' }),
+    )
   })
 
   it('preserves Post meta and category search fields', async () => {
     const result = await beforeSyncWithSearch({
       req: { payload: { findByID: vi.fn() } },
       originalDoc: {
-        id: 'post-1', slug: 'news', title: 'News',
+        id: 'post-1',
+        slug: 'news',
+        title: 'News',
         categories: [{ id: 'cat-1', title: 'Updates' }],
         meta: { title: 'Latest News', description: 'Post summary', image: { id: 'image-1' } },
       },
@@ -187,8 +262,11 @@ describe('Blog site integrations', () => {
   })
 
   it('declares the Blog fields needed by search results', () => {
-    expect(searchFields.map((field) => 'name' in field ? field.name : null))
-      .toEqual(expect.arrayContaining(['excerpt', 'category', 'heroImage', 'publishedAt']))
-    expect(searchFields.map((field) => 'name' in field ? field.name : null)).not.toContain('blogStatus')
+    expect(searchFields.map((field) => ('name' in field ? field.name : null))).toEqual(
+      expect.arrayContaining(['excerpt', 'category', 'heroImage', 'publishedAt']),
+    )
+    expect(searchFields.map((field) => ('name' in field ? field.name : null))).not.toContain(
+      'blogStatus',
+    )
   })
 })

@@ -1,4 +1,8 @@
-import type { CollectionBeforeChangeHook, CollectionBeforeDeleteHook, PayloadRequest } from 'payload'
+import type {
+  CollectionBeforeChangeHook,
+  CollectionBeforeDeleteHook,
+  PayloadRequest,
+} from 'payload'
 import type { Product } from '@/payload-types'
 
 type PublicTransition = { before: Product | null; after?: Product | null }
@@ -22,11 +26,23 @@ const capture = async (req: PayloadRequest, id: string) => {
   const transitions = getTransitions(req, true)!
   // A retry on the same request must never reuse an interrupted write's state.
   transitions.delete(id)
-  const before = await req.payload.findByID({ collection: 'products', id, draft: false, depth: 0, req, disableErrors: true })
+  const before = await req.payload.findByID({
+    collection: 'products',
+    id,
+    draft: false,
+    depth: 0,
+    req,
+    disableErrors: true,
+  })
   transitions.set(id, { before: before?._status === 'published' ? before : null })
 }
 
-export const captureProductPublicState: CollectionBeforeChangeHook<Product> = async ({ data, operation, originalDoc, req }) => {
+export const captureProductPublicState: CollectionBeforeChangeHook<Product> = async ({
+  data,
+  operation,
+  originalDoc,
+  req,
+}) => {
   // Creates have no prior public record, including duplicated documents.
   if (operation === 'update' && data._status === 'draft' && originalDoc?.id) {
     // Replace any interrupted capture and mark this document unchanged so after
@@ -60,7 +76,14 @@ export const getProductPublicTransition = async (
     }
   }
   if (transition.after === undefined) {
-    const current = await req.payload.findByID({ collection: 'products', id: doc.id, draft: false, depth: 0, req, disableErrors: true })
+    const current = await req.payload.findByID({
+      collection: 'products',
+      id: doc.id,
+      draft: false,
+      depth: 0,
+      req,
+      disableErrors: true,
+    })
     transition.after = current?._status === 'published' ? current : null
   }
   return { before: transition.before, after: transition.after }

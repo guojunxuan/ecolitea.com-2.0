@@ -3,11 +3,7 @@ import type { PayloadRequest } from 'payload'
 
 import { generatePreviewPath } from '@/utilities/generatePreviewPath'
 import { getContentPath } from '@/utilities/getContentPath'
-import {
-  productCategoryPath,
-  productPath,
-  productsOverviewPath,
-} from '@/utilities/products/paths'
+import { productCategoryPath, productPath, productsOverviewPath } from '@/utilities/products/paths'
 
 describe('product paths', () => {
   it('builds overview, category, and paginated category paths', () => {
@@ -22,8 +18,9 @@ describe('product paths', () => {
   })
 
   it('resolves product documents only when their category slug is available', () => {
-    expect(getContentPath('products', 'sencha', { categorySlug: 'green-tea' }))
-      .toBe('/products/green-tea/sencha')
+    expect(getContentPath('products', 'sencha', { categorySlug: 'green-tea' })).toBe(
+      '/products/green-tea/sencha',
+    )
     expect(getContentPath('products', 'sencha')).toBeNull()
     expect(getContentPath('products', 'sencha', { categorySlug: null })).toBeNull()
     expect(getContentPath('product-categories', 'green-tea')).toBe('/products/green-tea')
@@ -44,7 +41,8 @@ describe('product paths', () => {
       categorySlug: 'green-tea',
       req: {} as PayloadRequest,
     })
-    expect(new URL(preview!, 'https://example.test').searchParams.get('path'))
-      .toBe('/products/green-tea/sencha')
+    expect(new URL(preview!, 'https://example.test').searchParams.get('path')).toBe(
+      '/products/green-tea/sencha',
+    )
   })
 })

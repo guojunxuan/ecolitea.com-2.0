@@ -20,7 +20,9 @@ export const validateSettingsSeoImage: GlobalBeforeChangeHook = async ({
       req,
     })
 
-    if (!(MEDIA_UPLOAD_POLICY.image.mimeTypes as readonly string[]).includes(media.mimeType ?? '')) {
+    if (
+      !(MEDIA_UPLOAD_POLICY.image.mimeTypes as readonly string[]).includes(media.mimeType ?? '')
+    ) {
       throw new ValidationError({
         global: 'settings',
         errors: [

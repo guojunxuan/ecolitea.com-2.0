@@ -17,7 +17,16 @@ import { beforeSyncWithSearch } from '@/search/beforeSync'
 import { publicBlogVisibility } from '@/utilities/blogs/publicVisibility'
 import { publicSearchVisibility } from '@/search/visibility'
 
-import { Blog, BlogCategory, CaseStudy, Page, Post, Product, ProductCategory, Settings } from '@/payload-types'
+import {
+  Blog,
+  BlogCategory,
+  CaseStudy,
+  Page,
+  Post,
+  Product,
+  ProductCategory,
+  Settings,
+} from '@/payload-types'
 import { getServerSideURL } from '@/utilities/getURL'
 import { getContentPath } from '@/utilities/getContentPath'
 import { productsOverviewPath } from '@/utilities/products/paths'
@@ -91,7 +100,8 @@ export const generateURL: GenerateURL<SEOContent | Settings> = ({
   if (collectionConfig?.slug === 'product-categories' || collectionConfig?.slug === 'products') {
     const path = content?.slug
       ? getContentPath(collectionConfig.slug, content.slug, {
-          categorySlug: collectionConfig.slug === 'products' ? (content as Product).categorySlug : undefined,
+          categorySlug:
+            collectionConfig.slug === 'products' ? (content as Product).categorySlug : undefined,
         })
       : null
     return `${url}${path ?? productsOverviewPath}`

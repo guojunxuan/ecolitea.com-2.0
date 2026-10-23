@@ -111,43 +111,73 @@ describe('site search results', () => {
     },
   )
 
-  it.each(['tea', ''])('fetches renderable results before the limit with product hits ahead (q=%s)', async (q) => {
-    const fixtures = [
-      ...Array.from({ length: 13 }, (_, index) => ({
-        title: `Tea product ${index}`, slug: `tea-product-${index}`,
-        publishedAt: '2020-01-01T00:00:00.000Z',
-        doc: { relationTo: 'products', value: `product-${index}` },
-      })),
-      { title: 'Tea article', slug: 'tea-article', excerpt: 'Tea guide',
-        publishedAt: '2020-01-01T00:00:00.000Z',
-        doc: { relationTo: 'blogs', value: 'blog-article' } },
-      { title: 'Tea news', slug: 'tea-news', categories: [],
-        doc: { relationTo: 'posts', value: 'post-news' } },
-    ]
-    // Apply the actual consumer's predicate BEFORE limit, like the database.
-    const matches = (row: typeof fixtures[number], where: Where): boolean =>
-      Object.entries(where).every(([field, condition]) => {
-        if (field === 'and') return (condition as Where[]).every((clause) => matches(row, clause))
-        if (field === 'or') return (condition as Where[]).some((clause) => matches(row, clause))
-        const value = field.split('.').reduce<unknown>((item, key) =>
-          item && typeof item === 'object' ? (item as Record<string, unknown>)[key] : undefined, row)
-        return Object.entries(condition as Record<string, unknown>).every(([operator, expected]) => {
-          if (operator === 'equals') return value === expected
-          if (operator === 'in') return (expected as unknown[]).includes(value)
-          if (operator === 'less_than_equal') return typeof value === 'string' && value <= String(expected)
-          if (operator === 'like') return typeof value === 'string' && value.toLowerCase().includes(String(expected).toLowerCase())
-          throw new Error(`Unsupported fixture operator: ${operator}`)
+  it.each(['tea', ''])(
+    'fetches renderable results before the limit with product hits ahead (q=%s)',
+    async (q) => {
+      const fixtures = [
+        ...Array.from({ length: 13 }, (_, index) => ({
+          title: `Tea product ${index}`,
+          slug: `tea-product-${index}`,
+          publishedAt: '2020-01-01T00:00:00.000Z',
+          doc: { relationTo: 'products', value: `product-${index}` },
+        })),
+        {
+          title: 'Tea article',
+          slug: 'tea-article',
+          excerpt: 'Tea guide',
+          publishedAt: '2020-01-01T00:00:00.000Z',
+          doc: { relationTo: 'blogs', value: 'blog-article' },
+        },
+        {
+          title: 'Tea news',
+          slug: 'tea-news',
+          categories: [],
+          doc: { relationTo: 'posts', value: 'post-news' },
+        },
+      ]
+      // Apply the actual consumer's predicate BEFORE limit, like the database.
+      const matches = (row: (typeof fixtures)[number], where: Where): boolean =>
+        Object.entries(where).every(([field, condition]) => {
+          if (field === 'and') return (condition as Where[]).every((clause) => matches(row, clause))
+          if (field === 'or') return (condition as Where[]).some((clause) => matches(row, clause))
+          const value = field
+            .split('.')
+            .reduce<unknown>(
+              (item, key) =>
+                item && typeof item === 'object'
+                  ? (item as Record<string, unknown>)[key]
+                  : undefined,
+              row,
+            )
+          return Object.entries(condition as Record<string, unknown>).every(
+            ([operator, expected]) => {
+              if (operator === 'equals') return value === expected
+              if (operator === 'in') return (expected as unknown[]).includes(value)
+              if (operator === 'less_than_equal')
+                return typeof value === 'string' && value <= String(expected)
+              if (operator === 'like')
+                return (
+                  typeof value === 'string' &&
+                  value.toLowerCase().includes(String(expected).toLowerCase())
+                )
+              throw new Error(`Unsupported fixture operator: ${operator}`)
+            },
+          )
         })
+      find.mockImplementation(async ({ collection, where, limit }) => {
+        expect(collection).toBe('search')
+        return { docs: fixtures.filter((row) => matches(row, where)).slice(0, limit) }
       })
-    find.mockImplementation(async ({ collection, where, limit }) => {
-      expect(collection).toBe('search')
-      return { docs: fixtures.filter((row) => matches(row, where)).slice(0, limit) }
-    })
-    render(await SearchPage({ searchParams: Promise.resolve({ q }) }))
-    expect(screen.getByRole('link', { name: 'Tea article' }).getAttribute('href')).toBe('/blogs/tea-article')
-    expect(screen.getByRole('link', { name: 'Tea news' }).getAttribute('href')).toBe('/posts/tea-news')
-    expect(screen.queryByText('No results found.')).toBeNull()
-  })
+      render(await SearchPage({ searchParams: Promise.resolve({ q }) }))
+      expect(screen.getByRole('link', { name: 'Tea article' }).getAttribute('href')).toBe(
+        '/blogs/tea-article',
+      )
+      expect(screen.getByRole('link', { name: 'Tea news' }).getAttribute('href')).toBe(
+        '/posts/tea-news',
+      )
+      expect(screen.queryByText('No results found.')).toBeNull()
+    },
+  )
 
   it('also applies Blog visibility when no query is entered', async () => {
     find.mockResolvedValue({ totalDocs: 0, docs: [] })

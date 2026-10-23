@@ -4,7 +4,8 @@ import type { Product } from '@/payload-types'
 import { productCategoryPath, productPath } from '@/utilities/products/paths'
 import { clearProductPublicTransition, getProductPublicTransition } from './productPublicTransition'
 
-const relationshipID = (value: Product['category']) => typeof value === 'object' ? value?.id : value
+const relationshipID = (value: Product['category']) =>
+  typeof value === 'object' ? value?.id : value
 
 export const invalidateProducts = (docs: Product[]) => {
   const paths = new Set<string>()
@@ -20,7 +21,11 @@ export const invalidateProducts = (docs: Product[]) => {
   for (const tag of tags) revalidateTag(tag, 'max')
 }
 
-export const revalidateProduct: CollectionAfterChangeHook<Product> = async ({ doc, previousDoc, req }) => {
+export const revalidateProduct: CollectionAfterChangeHook<Product> = async ({
+  doc,
+  previousDoc,
+  req,
+}) => {
   try {
     if (!req.context.disableRevalidate) {
       const { before, after } = await getProductPublicTransition(req, doc, previousDoc)
@@ -29,9 +34,12 @@ export const revalidateProduct: CollectionAfterChangeHook<Product> = async ({ do
       if (changed) {
         const published = [before, after].filter((item): item is Product => Boolean(item))
         if (published.length) invalidateProducts(published)
-        const oldPath = before?.slug && before.categorySlug ? productPath(before.categorySlug, before.slug) : null
-        const newPath = after?.slug && after.categorySlug ? productPath(after.categorySlug, after.slug) : null
-        if (oldPath !== newPath || Boolean(before) !== Boolean(after)) revalidateTag('redirects', { expire: 0 })
+        const oldPath =
+          before?.slug && before.categorySlug ? productPath(before.categorySlug, before.slug) : null
+        const newPath =
+          after?.slug && after.categorySlug ? productPath(after.categorySlug, after.slug) : null
+        if (oldPath !== newPath || Boolean(before) !== Boolean(after))
+          revalidateTag('redirects', { expire: 0 })
       }
     }
   } finally {

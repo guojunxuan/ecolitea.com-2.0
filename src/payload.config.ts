@@ -4,7 +4,6 @@ import path from 'path'
 import { buildConfig, PayloadRequest } from 'payload'
 import { fileURLToPath } from 'url'
 
-
 import { Blogs } from './collections/Blogs'
 import { BlogCategories } from './collections/BlogCategories'
 import { ProductCategories } from './collections/ProductCategories'

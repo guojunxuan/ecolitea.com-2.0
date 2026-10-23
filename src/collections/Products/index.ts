@@ -15,7 +15,10 @@ import { productBlocks } from './blocks'
 import { setProductCategorySlug } from './hooks/setProductCategorySlug'
 import { redirectProduct } from './hooks/productRedirects'
 import { revalidateProduct, revalidateProductDelete } from './hooks/revalidateProduct'
-import { captureProductPublicBeforeDelete, captureProductPublicState } from './hooks/productPublicTransition'
+import {
+  captureProductPublicBeforeDelete,
+  captureProductPublicState,
+} from './hooks/productPublicTransition'
 
 export const Products: CollectionConfig = {
   slug: 'products',
