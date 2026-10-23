@@ -82,7 +82,7 @@ export const generateDescription: GenerateDescription<SEOContent | Settings> = (
       ? `Explore our ${category.title.toLowerCase()} products.`
       : 'Explore our product range.'
   }
-  if (collectionConfig?.slug === 'products') return (content as Product)?.excerpt || ''
+  if (collectionConfig?.slug === 'products') return (content as Product)?.summary || ''
   return content?.meta?.description || ''
 }
 

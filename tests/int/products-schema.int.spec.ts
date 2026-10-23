@@ -97,7 +97,7 @@ describe('Products configuration', () => {
         categorySlug: true,
         category: true,
         gallery: true,
-        excerpt: true,
+        summary: true,
         publishedAt: true,
       },
     })
@@ -120,13 +120,13 @@ describe('Products configuration', () => {
           filterOptions: imageOnly,
         }),
         expect.objectContaining({
-          name: 'excerpt',
+          name: 'summary',
           type: 'textarea',
           required: true,
           maxLength: 160,
         }),
         expect.objectContaining({
-          name: 'specs',
+          name: 'specifications',
           type: 'array',
           admin: expect.objectContaining({
             initCollapsed: true,
@@ -135,6 +135,23 @@ describe('Products configuration', () => {
         }),
       ]),
     )
+    for (const oldName of ['excerpt', 'specs']) {
+      expect(overview.fields.some((field) => 'name' in field && field.name === oldName)).toBe(false)
+    }
+    const specifications = overview.fields.find(
+      (field) => 'name' in field && field.name === 'specifications',
+    )
+    expect(specifications).toMatchObject({
+      fields: expect.arrayContaining([
+        expect.objectContaining({ name: 'group', type: 'text' }),
+        expect.objectContaining({ name: 'label', type: 'text', required: true }),
+        expect.objectContaining({ name: 'value', type: 'text', required: true }),
+      ]),
+    })
+    expect(tabs.tabs.find((tab) => tab.label === 'Details')).toMatchObject({
+      fields: [{ name: 'layout', type: 'blocks', blocks: [] }],
+    })
+    expect(tabs.tabs.some((tab) => tab.label === 'Description')).toBe(false)
     const download = tabs.tabs.find((tab) => tab.label === 'Download')!
     expect(download.fields).toContainEqual(
       expect.objectContaining({

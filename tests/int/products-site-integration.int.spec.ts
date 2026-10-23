@@ -74,14 +74,14 @@ describe('Products site integration', () => {
     expect(JSON.stringify(articleLinkFeature())).toContain('product-categories')
   })
 
-  it('indexes product excerpt, first gallery image, category and visibility date', async () => {
+  it('indexes product summary, first gallery image, category and visibility date', async () => {
     findByID.mockResolvedValue({ id: 'cat', title: 'Green', slug: 'green' })
     const result = await beforeSyncWithSearch({
       req: { payload: { findByID } },
       originalDoc: {
         slug: 'tea',
         title: 'Tea',
-        excerpt: 'Fresh',
+        summary: 'Fresh',
         gallery: [{ id: 'cover' }, 'second'],
         category: 'cat',
         categorySlug: 'green',
@@ -121,6 +121,26 @@ describe('Products site integration', () => {
       ]),
     })
   })
+
+  it.each([
+    [
+      'products',
+      { summary: 'Product summary', excerpt: 'Wrong product source' },
+      'Product summary',
+    ],
+    ['blogs', { excerpt: 'Blog excerpt', summary: 'Wrong blog source' }, 'Blog excerpt'],
+  ] as const)(
+    'projects %s content into the shared search excerpt field',
+    async (collection, content, expected) => {
+      const result = await beforeSyncWithSearch({
+        req: { payload: { findByID } },
+        originalDoc: { title: 'Tea', slug: 'tea', ...content },
+        searchDoc: { doc: { relationTo: collection, value: 'doc' } },
+      } as never)
+      expect(result).toMatchObject({ excerpt: expected, meta: { description: expected } })
+      expect(result).not.toHaveProperty('summary')
+    },
+  )
 
   it.each(['products', 'product-categories'] as const)(
     'permanently redirects %s references to their current public path',

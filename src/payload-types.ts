@@ -948,8 +948,8 @@ export interface Product {
   id: string;
   title: string;
   gallery: (string | Media)[];
-  excerpt: string;
-  specs?:
+  summary: string;
+  specifications?:
     | {
         group?: string | null;
         label: string;
@@ -1812,8 +1812,8 @@ export interface ProductCategoriesSelect<T extends boolean = true> {
 export interface ProductsSelect<T extends boolean = true> {
   title?: T;
   gallery?: T;
-  excerpt?: T;
-  specs?:
+  summary?: T;
+  specifications?:
     | T
     | {
         group?: T;

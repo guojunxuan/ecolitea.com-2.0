@@ -7,6 +7,7 @@ export const beforeSyncWithSearch: BeforeSync = async ({ req, originalDoc, searc
   if (collection === 'blogs' || collection === 'products') {
     const isProduct = collection === 'products'
     const categoryCollection = isProduct ? 'product-categories' : 'blog-categories'
+    const excerpt = isProduct ? originalDoc.summary : originalDoc.excerpt
     const cover = isProduct ? originalDoc.gallery?.[0] : originalDoc.heroImage
     const category = originalDoc.category
     const categoryDoc =
@@ -27,7 +28,7 @@ export const beforeSyncWithSearch: BeforeSync = async ({ req, originalDoc, searc
       ...searchDoc,
       slug,
       ...(isProduct ? { categorySlug: originalDoc.categorySlug } : {}),
-      excerpt: originalDoc.excerpt,
+      excerpt,
       heroImage: cover?.id || cover,
       publishedAt: originalDoc.publishedAt,
       category: categoryDoc
@@ -40,7 +41,7 @@ export const beforeSyncWithSearch: BeforeSync = async ({ req, originalDoc, searc
         : null,
       meta: {
         title: meta?.title || title,
-        description: meta?.description || originalDoc.excerpt,
+        description: meta?.description || excerpt,
         image: meta?.image?.id || meta?.image || cover?.id || cover,
       },
     }

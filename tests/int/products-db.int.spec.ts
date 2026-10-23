@@ -114,7 +114,7 @@ describe('Products through isolated Payload Local API', () => {
         slug: `autosave-${randomUUID()}`,
         category: secondCategoryID,
         gallery: [mediaID],
-        excerpt: 'Live',
+        summary: 'Live',
         _status: 'published',
       },
     })
@@ -170,7 +170,7 @@ describe('Products through isolated Payload Local API', () => {
           slug: `unpublish-${randomUUID()}`,
           category: firstCategoryID,
           gallery: [mediaID],
-          excerpt: 'Live version',
+          summary: 'Live version',
           _status: 'published',
         },
       })
@@ -251,7 +251,7 @@ describe('Products through isolated Payload Local API', () => {
         slug: `schedule-live-${randomUUID()}`,
         category: firstCategoryID,
         gallery: [mediaID],
-        excerpt: 'Scheduled public product',
+        summary: 'Scheduled public product',
         _status: 'published',
       },
     })
@@ -335,7 +335,7 @@ describe('Products through isolated Payload Local API', () => {
           slug: `valid-${randomUUID()}`,
           category: category.id,
           gallery: [mediaID],
-          excerpt: 'Valid',
+          summary: 'Valid',
           _status: 'published',
         },
       })
@@ -346,7 +346,7 @@ describe('Products through isolated Payload Local API', () => {
           slug: `legacy-${randomUUID()}`,
           category: category.id,
           gallery: [mediaID],
-          excerpt: 'Legacy missing title',
+          summary: 'Legacy missing title',
           _status: 'published',
         } as never,
       })
@@ -431,7 +431,7 @@ describe('Products through isolated Payload Local API', () => {
           slug: `reference-${randomUUID()}`,
           category: category.id,
           gallery: [mediaID],
-          excerpt: 'Reference',
+          summary: 'Reference',
           _status: state === 'draft' ? 'draft' : 'published',
         },
       })
@@ -485,7 +485,7 @@ describe('Products through isolated Payload Local API', () => {
         category: firstCategoryID,
         categorySlug: 'forged-create',
         gallery: [mediaID],
-        excerpt: 'Test product',
+        summary: 'Test product',
         _status: 'published',
       } as never,
     })
@@ -527,7 +527,7 @@ describe('Products through isolated Payload Local API', () => {
           slug: `${state}-${randomUUID()}`,
           category: secondCategoryID,
           gallery: [mediaID],
-          excerpt: state,
+          summary: state,
           _status: state === 'draft' ? 'draft' : 'published',
           publishedAt: state === 'future' ? '2099-01-01T00:00:00.000Z' : '2020-01-01T00:00:00.000Z',
         },
@@ -553,12 +553,23 @@ describe('Products through isolated Payload Local API', () => {
       title: 'Validation',
       category: secondCategoryID,
       gallery: [mediaID],
-      excerpt: 'Valid',
+      summary: 'Valid',
+      specifications: [{ group: 'General', label: 'Origin', value: 'China' }],
       _status: 'published' as const,
     }
+    const saved = await payload.create({
+      collection: 'products',
+      data: { ...valid, slug: `renamed-fields-${randomUUID()}` },
+    })
+    expect(saved).toMatchObject({ summary: 'Valid', specifications: valid.specifications })
+    expect(saved).not.toHaveProperty('excerpt')
+    expect(saved).not.toHaveProperty('specs')
     for (const invalid of [
       { gallery: [] },
-      { excerpt: 'x'.repeat(161) },
+      { summary: '' },
+      { specifications: [{ label: '', value: 'China' }] },
+      { specifications: [{ label: 'Origin', value: '' }] },
+      { summary: 'x'.repeat(161) },
       { slug: 'page' },
       { category: null },
     ]) {
@@ -583,7 +594,7 @@ describe('Products through isolated Payload Local API', () => {
         slug: `tea-${randomUUID()}`,
         category: firstCategoryID,
         gallery: [mediaID],
-        excerpt: 'Public excerpt',
+        summary: 'Public summary',
         _status: 'published',
       },
     })
@@ -591,7 +602,7 @@ describe('Products through isolated Payload Local API', () => {
       collection: 'products',
       id: product.id,
       draft: true,
-      data: { title: 'Unpublished title', excerpt: 'Private draft excerpt' },
+      data: { title: 'Unpublished title', summary: 'Private draft summary' },
     })
     const beforeDraft = await payload.findByID({
       collection: 'products',
@@ -632,7 +643,7 @@ describe('Products through isolated Payload Local API', () => {
     })
     expect(draft).toMatchObject({
       title: 'Unpublished title',
-      excerpt: 'Private draft excerpt',
+      summary: 'Private draft summary',
       categorySlug: 'green-tea-renamed',
       _status: 'draft',
     })
@@ -654,7 +665,7 @@ describe('Products through isolated Payload Local API', () => {
         slug: `live-${randomUUID()}`,
         category: firstCategoryID,
         gallery: [mediaID],
-        excerpt: 'Live',
+        summary: 'Live',
         _status: 'published',
       },
     })
@@ -697,7 +708,7 @@ describe('Products through isolated Payload Local API', () => {
           slug: `bulk-live-${randomUUID()}`,
           category: firstCategoryID,
           gallery: [mediaID],
-          excerpt: 'Public bulk product',
+          summary: 'Public bulk product',
           _status: 'published',
         },
       })
@@ -746,7 +757,7 @@ describe('Products through isolated Payload Local API', () => {
         slug: `historical-${randomUUID()}`,
         category: secondCategoryID,
         gallery: [mediaID],
-        excerpt: 'Historical public product',
+        summary: 'Historical public product',
         _status: 'published',
       },
     })
@@ -811,7 +822,7 @@ describe('Products through isolated Payload Local API', () => {
         slug: `reuse-${randomUUID()}`,
         category: firstCategoryID,
         gallery: [mediaID],
-        excerpt: 'Reused public product',
+        summary: 'Reused public product',
         _status: 'published',
       },
     })
@@ -873,7 +884,7 @@ describe('Products through isolated Payload Local API', () => {
         slug: `split-${randomUUID()}`,
         category: publicCategory.id,
         gallery: [mediaID],
-        excerpt: 'Live',
+        summary: 'Live',
         _status: 'published',
       },
     })
@@ -932,7 +943,7 @@ describe('Products through isolated Payload Local API', () => {
         slug: `delete-${randomUUID()}`,
         category: secondCategoryID,
         gallery: [mediaID],
-        excerpt: 'Live',
+        summary: 'Live',
         _status: 'published',
       },
     })
@@ -960,7 +971,7 @@ describe('Products through isolated Payload Local API', () => {
         slug: `scoped-${randomUUID()}`,
         category: category.id,
         gallery: [mediaID],
-        excerpt: 'Scoped excerpt',
+        summary: 'Scoped summary',
         _status: 'published',
       },
     })
@@ -1001,7 +1012,7 @@ describe('Products through isolated Payload Local API', () => {
     })
     expect(search.docs[0]).toMatchObject({
       categorySlug: renamed,
-      excerpt: 'Scoped excerpt',
+      excerpt: 'Scoped summary',
       heroImage: mediaID,
       category: { relationTo: 'product-categories', slug: renamed },
     })
@@ -1020,7 +1031,7 @@ describe('Products through isolated Payload Local API', () => {
         slug: `error-tea-${randomUUID()}`,
         category: category.id,
         gallery: [mediaID],
-        excerpt: 'Scoped error',
+        summary: 'Scoped error',
         _status: 'published',
       },
     })

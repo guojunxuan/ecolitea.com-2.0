@@ -9,7 +9,7 @@ export type ProductCategoryModel = Pick<
   ProductCategory,
   'id' | 'title' | 'slug' | 'description'
 > & { image: Media | null; meta: ProductMeta }
-export type ProductCard = Pick<Product, 'id' | 'title' | 'slug' | 'excerpt'> & {
+export type ProductCard = Pick<Product, 'id' | 'title' | 'slug' | 'summary'> & {
   categorySlug: string
   cover: Media | null
 }

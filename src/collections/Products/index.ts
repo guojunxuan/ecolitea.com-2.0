@@ -57,7 +57,7 @@ export const Products: CollectionConfig = {
     categorySlug: true,
     category: true,
     gallery: true,
-    excerpt: true,
+    summary: true,
     publishedAt: true,
   },
   fields: [
@@ -77,9 +77,9 @@ export const Products: CollectionConfig = {
               required: true,
               filterOptions: imageOnly,
             },
-            { name: 'excerpt', type: 'textarea', required: true, maxLength: 160 },
+            { name: 'summary', type: 'textarea', required: true, maxLength: 160 },
             {
-              name: 'specs',
+              name: 'specifications',
               type: 'array',
               admin: {
                 initCollapsed: true,
@@ -94,7 +94,7 @@ export const Products: CollectionConfig = {
           ],
         },
         {
-          label: 'Description',
+          label: 'Details',
           fields: [{ name: 'layout', type: 'blocks', blocks: productBlocks }],
         },
         {

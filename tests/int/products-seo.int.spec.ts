@@ -28,14 +28,14 @@ describe('Product SEO generation', () => {
     ['product-categories', {}, 'Ecolitea', 'Explore our product range.', '/products'],
     [
       'products',
-      { title: 'Sencha', slug: 'sencha', categorySlug: 'green-tea', excerpt: 'Fresh leaves' },
+      { title: 'Sencha', slug: 'sencha', categorySlug: 'green-tea', summary: 'Fresh leaves' },
       'Sencha | Ecolitea',
       'Fresh leaves',
       '/products/green-tea/sencha',
     ],
     [
       'products',
-      { title: 'Sencha', slug: 'sencha', excerpt: 'Fresh leaves' },
+      { title: 'Sencha', slug: 'sencha', summary: 'Fresh leaves' },
       'Sencha | Ecolitea',
       'Fresh leaves',
       '/products',

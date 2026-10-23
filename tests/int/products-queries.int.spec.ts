@@ -29,7 +29,8 @@ const product = (id: string) => ({
   slug: id,
   category,
   categorySlug: 'tea',
-  excerpt: 'text',
+  summary: 'text',
+  specifications: [{ group: 'General', label: 'Origin', value: 'China' }],
   gallery: ['raw', { id: 'image', url: '/image.jpg' }],
   downloads: [
     { id: 'doc', title: 'Guide', filesize: 100, filename: 'guide.pdf', url: '/guide.pdf' },
@@ -44,7 +45,7 @@ describe('public product queries', () => {
   it('returns exactly normalized card fields and preserves pagination', async () => {
     mocks.find.mockResolvedValue({ docs: [product('a')], page: 2, totalPages: 3 })
     expect(await getProductListing('cat', 2)).toEqual({
-      docs: [{ id: 'a', title: 'a', slug: 'a', categorySlug: 'tea', excerpt: 'text', cover: null }],
+      docs: [{ id: 'a', title: 'a', slug: 'a', categorySlug: 'tea', summary: 'text', cover: null }],
       page: 2,
       totalPages: 3,
     })
@@ -72,6 +73,10 @@ describe('public product queries', () => {
   it('normalizes detail relationships and downloads at depth one', async () => {
     mocks.find.mockResolvedValue({ docs: [product('self')] })
     const result = await getProductBySlug('self', { draft: false })
+    expect(result?.summary).toBe('text')
+    expect(result?.specifications).toEqual([{ group: 'General', label: 'Origin', value: 'China' }])
+    expect(result).not.toHaveProperty('excerpt')
+    expect(result).not.toHaveProperty('specs')
     expect(result?.category?.id).toBe('cat')
     expect(result?.gallery).toEqual([{ id: 'image', url: '/image.jpg' }])
     expect(result?.downloads).toEqual([

@@ -71,7 +71,7 @@ export const toProductCard = (value: Product): ProductCard => ({
   title: value.title,
   slug: value.slug,
   categorySlug: value.categorySlug ?? '',
-  excerpt: value.excerpt,
+  summary: value.summary,
   cover: media(value.gallery?.[0]),
 })
 export const toProductDetail = (value: Product): ProductDetail => ({

@@ -10,6 +10,7 @@ export const searchFields: Field[] = [
       readOnly: true,
     },
   },
+  // Shared search projection: Products.summary and Blogs.excerpt feed this field.
   {
     name: 'excerpt',
     type: 'textarea',
