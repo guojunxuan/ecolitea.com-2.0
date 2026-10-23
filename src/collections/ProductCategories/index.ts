@@ -9,10 +9,10 @@ import { authenticated } from '@/access/authenticated'
 import { anyone } from '@/access/anyone'
 import { imageOnly } from '@/collections/mediaUploadPolicy'
 import type { CollectionConfig } from 'payload'
-import { propagateCategorySlug } from '@/collections/Products/hooks/propagateCategorySlug'
-import { revalidateProductCategory, revalidateProductCategoryDelete } from './ProductCategories/hooks/revalidateProductCategory'
+import { propagateCategorySlug } from './hooks/propagateCategorySlug'
+import { revalidateProductCategory, revalidateProductCategoryDelete } from './hooks/revalidateProductCategory'
 
-import { preventReferencedDelete } from './ProductCategories/hooks/preventReferencedDelete'
+import { preventReferencedDelete } from './hooks/preventReferencedDelete'
 
 export const ProductCategories: CollectionConfig = {
   slug: 'product-categories',

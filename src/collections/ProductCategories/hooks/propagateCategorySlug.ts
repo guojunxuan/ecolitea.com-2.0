@@ -2,8 +2,13 @@ import type { CollectionAfterChangeHook } from 'payload'
 import { revalidateTag } from 'next/cache'
 import type { Product, ProductCategory } from '@/payload-types'
 import { productPath } from '@/utilities/products/paths'
-import { upsertRedirect, categoryRedirectPaths } from './productRedirects'
-import { invalidateProducts } from './revalidateProduct'
+import { productCategoryPath } from '@/utilities/products/paths'
+import { upsertRedirect } from '@/collections/Products/hooks/productRedirects'
+import { invalidateProducts } from '@/collections/Products/hooks/revalidateProduct'
+
+const categoryRedirectPaths = (oldSlug: string, newSlug: string) => ({
+  from: productCategoryPath(oldSlug), to: productCategoryPath(newSlug),
+})
 
 const PAGE_SIZE = 100
 const categoryID = (value: Product['category']) => typeof value === 'object' ? value?.id : value

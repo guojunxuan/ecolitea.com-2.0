@@ -55,7 +55,3 @@ export const redirectProduct: CollectionAfterChangeHook<Product> = async ({ doc,
   await upsertRedirect(req, fromPath, { relationTo: 'products', id: doc.id }, toPath)
   return doc
 }
-
-export const categoryRedirectPaths = (oldSlug: string, newSlug: string) => ({
-  from: productCategoryPath(oldSlug), to: productCategoryPath(newSlug),
-})

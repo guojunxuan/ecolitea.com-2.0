@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { revalidateTag } from 'next/cache'
 import { setProductCategorySlug } from '@/collections/Products/hooks/setProductCategorySlug'
 import { upsertRedirect, redirectProduct } from '@/collections/Products/hooks/productRedirects'
-import { propagateCategorySlug } from '@/collections/Products/hooks/propagateCategorySlug'
+import { propagateCategorySlug } from '@/collections/ProductCategories/hooks/propagateCategorySlug'
 
 vi.mock('next/cache', () => ({ revalidatePath: vi.fn(), revalidateTag: vi.fn() }))
 
