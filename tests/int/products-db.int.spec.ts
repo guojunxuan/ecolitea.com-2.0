@@ -215,6 +215,103 @@ describe('Products through isolated Payload Local API', () => {
     expect(revalidateTag).toHaveBeenCalledWith(`product-category-${secondCategoryID}`, 'max')
   }, 20_000)
 
+  it('keeps each old public transition during native bulk publication of changed drafts', async () => {
+    const products = []
+    for (const index of [0, 1]) {
+      const product = await payload.create({ collection: 'products', data: {
+        title: `Bulk live ${index}`, slug: `bulk-live-${randomUUID()}`, category: firstCategoryID,
+        gallery: [mediaID], excerpt: 'Public bulk product', _status: 'published',
+      } })
+      const draftSlug = `bulk-draft-${randomUUID()}`
+      await payload.update({ collection: 'products', id: product.id, draft: true,
+        data: { slug: draftSlug, category: secondCategoryID },
+      })
+      products.push({ ...product, draftSlug })
+    }
+    vi.clearAllMocks()
+    const result = await payload.update({
+      collection: 'products', where: { id: { in: products.map(({ id }) => id) } },
+      draft: true, data: { _status: 'published' },
+    })
+    expect(result.errors).toEqual([])
+    expect(result.docs).toHaveLength(2)
+    for (const product of products) {
+      const oldPath = `/products/${product.categorySlug}/${product.slug}`
+      const redirect = await payload.find({ collection: 'redirects', depth: 0,
+        where: { from: { equals: oldPath } },
+      })
+      expect(redirect.docs[0]).toMatchObject({ type: '301', to: { reference: { relationTo: 'products', value: product.id } } })
+      expect(revalidatePath).toHaveBeenCalledWith(oldPath)
+      expect(revalidatePath).toHaveBeenCalledWith(`/products/black-tea/${product.draftSlug}`)
+      expect(revalidatePath).toHaveBeenCalledWith(`/products/${product.categorySlug}`)
+      expect(revalidateTag).toHaveBeenCalledWith(`product-${product.id}`, 'max')
+    }
+    expect(revalidateTag).toHaveBeenCalledWith(`product-category-${firstCategoryID}`, 'max')
+    expect(revalidateTag).toHaveBeenCalledWith(`product-category-${secondCategoryID}`, 'max')
+  }, 20_000)
+
+  it('redirects the actual live URL when restoring a published version over a newer draft', async () => {
+    const historical = await payload.create({ collection: 'products', data: {
+      title: 'Historical published', slug: `historical-${randomUUID()}`, category: secondCategoryID,
+      gallery: [mediaID], excerpt: 'Historical public product', _status: 'published',
+    } })
+    const versions = await payload.findVersions({ collection: 'products', depth: 0,
+      where: { and: [{ parent: { equals: historical.id } }, { 'version.slug': { equals: historical.slug } }] },
+    })
+    const historicalVersion = versions.docs.find(({ version }) => version._status === 'published')!
+    expect(historicalVersion).toBeDefined()
+    const current = await payload.update({ collection: 'products', id: historical.id,
+      data: { slug: `current-${randomUUID()}`, category: firstCategoryID },
+    })
+    await payload.update({ collection: 'products', id: historical.id, draft: true,
+      data: { slug: `private-${randomUUID()}`, title: 'Private draft' },
+    })
+    vi.clearAllMocks()
+    const restored = await payload.restoreVersion({ collection: 'products', id: historicalVersion.id })
+    expect(restored).toMatchObject({ slug: historical.slug, _status: 'published' })
+    const oldPath = `/products/${current.categorySlug}/${current.slug}`
+    const redirect = await payload.find({ collection: 'redirects', depth: 0,
+      where: { from: { equals: oldPath } },
+    })
+    expect(redirect.docs[0]).toMatchObject({ type: '301', to: { reference: { relationTo: 'products', value: historical.id } } })
+    for (const path of [oldPath, `/products/black-tea/${historical.slug}`, `/products/${current.categorySlug}`]) {
+      expect(revalidatePath).toHaveBeenCalledWith(path)
+    }
+    for (const categoryID of [firstCategoryID, secondCategoryID]) {
+      expect(revalidateTag).toHaveBeenCalledWith(`product-category-${categoryID}`, 'max')
+    }
+    expect(revalidateTag).toHaveBeenCalledWith('redirects', { expire: 0 })
+  }, 20_000)
+
+  it('uses fresh public state when the same request is reused after suppressed writes and deletion', async () => {
+    const req = await createLocalReq({ context: { taskMarker: 'sequential' } }, payload)
+    const product = await payload.create({ collection: 'products', req, data: {
+      title: 'Reused request', slug: `reuse-${randomUUID()}`, category: firstCategoryID,
+      gallery: [mediaID], excerpt: 'Reused public product', _status: 'published',
+    } })
+    const suppressedSlug = `suppressed-${randomUUID()}`
+    await payload.update({ collection: 'products', id: product.id, req,
+      context: { disableRevalidate: true, skipProductRedirect: true }, data: { slug: suppressedSlug },
+    })
+    const nextSlug = `next-${randomUUID()}`
+    vi.clearAllMocks()
+    await payload.update({ collection: 'products', id: product.id, req,
+      context: { disableRevalidate: false, skipProductRedirect: false }, data: { slug: nextSlug },
+    })
+    const suppressedPath = `/products/${product.categorySlug}/${suppressedSlug}`
+    expect((await payload.find({ collection: 'redirects', req, depth: 0,
+      where: { from: { equals: suppressedPath } },
+    })).docs[0]).toMatchObject({ to: { reference: { value: product.id } } })
+    expect(revalidatePath).toHaveBeenCalledWith(suppressedPath)
+    await payload.update({ collection: 'products', id: product.id, req, draft: true,
+      data: { slug: `reuse-draft-${randomUUID()}` },
+    })
+    vi.clearAllMocks()
+    await payload.delete({ collection: 'products', id: product.id, req })
+    expect(revalidatePath).toHaveBeenCalledWith(`/products/${product.categorySlug}/${nextSlug}`)
+    expect(req.context.taskMarker).toBe('sequential')
+  }, 20_000)
+
   it('renames only matching published and draft categories when a product has diverged versions', async () => {
     const publicCategory = await payload.create({ collection: 'product-categories', data: { title: 'Public C', slug: `public-${randomUUID()}`, image: mediaID } })
     const draftCategory = await payload.create({ collection: 'product-categories', data: { title: 'Draft D', slug: `draft-${randomUUID()}`, image: mediaID } })

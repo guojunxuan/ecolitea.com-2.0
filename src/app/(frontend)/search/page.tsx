@@ -21,7 +21,11 @@ export default async function Page({ searchParams: searchParamsPromise }: Args) 
   const { q } = await searchParamsPromise
   const query = normalizeSearchQuery(q)
   const payload = await getPayload({ config: configPromise })
-  const publicWhere = publicSearchVisibility(new Date())
+  const publicWhere = {
+    ...publicSearchVisibility(new Date()),
+    // Constrain before limit: this page currently renders article cards only.
+    'doc.relationTo': { in: ['blogs', 'posts'] },
+  }
 
   const results = await payload.find({
     collection: 'search',
