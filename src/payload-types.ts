@@ -1231,7 +1231,6 @@ export interface Redirect {
         } | null);
     url?: string | null;
   };
-  type?: ('301' | '302' | '303' | '307' | '308') | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -2087,7 +2086,6 @@ export interface RedirectsSelect<T extends boolean = true> {
         reference?: T;
         url?: T;
       };
-  type?: T;
   updatedAt?: T;
   createdAt?: T;
 }

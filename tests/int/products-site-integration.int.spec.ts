@@ -1,6 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-const { find, findByID } = vi.hoisted(() => ({ find: vi.fn(), findByID: vi.fn() }))
+const { find, findByID, redirects, redirect, permanentRedirect, notFound } = vi.hoisted(() => ({
+  find: vi.fn(), findByID: vi.fn(), redirects: vi.fn(),
+  redirect: vi.fn(() => { throw new Error('TEMPORARY_REDIRECT') }),
+  permanentRedirect: vi.fn(() => { throw new Error('PERMANENT_REDIRECT') }),
+  notFound: vi.fn(() => { throw new Error('NOT_FOUND') }),
+}))
+vi.mock('@/utilities/getRedirects', () => ({ getCachedRedirects: () => redirects }))
+vi.mock('next/navigation', () => ({ redirect, permanentRedirect, notFound }))
 vi.mock('payload', async (original) => ({
   ...(await original<typeof import('payload')>()),
   getPayload: async () => ({ find, findByID }),
@@ -12,12 +19,15 @@ import { articleLinkFeature } from '@/fields/defaultLexical'
 import { resolveLinkHref } from '@/components/Link'
 import { beforeSyncWithSearch } from '@/search/beforeSync'
 import { publicSearchVisibility } from '@/search/visibility'
-import { proxy } from '@/proxy'
-import { NextRequest } from 'next/server'
+import { PayloadRedirects } from '@/components/PayloadRedirects'
 
 beforeEach(() => {
   find.mockReset()
   findByID.mockReset()
+  redirects.mockReset()
+  redirect.mockClear()
+  permanentRedirect.mockClear()
+  notFound.mockClear()
 })
 
 describe('Products site integration', () => {
@@ -105,82 +115,53 @@ describe('Products site integration', () => {
   })
 
   it.each(['products', 'product-categories'] as const)(
-    'returns actual HTTP 301 for %s to the current stable reference',
+    'permanently redirects %s references to their current public path',
     async (relationTo) => {
-      find.mockImplementation(async ({ collection }) => ({
-        docs:
-          collection === 'redirects'
-            ? [
-                {
-                  type: '301',
-                  from: '/products/old',
-                  to: {
-                    type: 'reference',
-                    reference: {
-                      relationTo,
-                      value: { id: 'target', slug: 'stale', categorySlug: 'stale' },
-                    },
-                  },
-                },
-              ]
-            : [{ id: 'visible' }],
-      }))
-      findByID.mockResolvedValue({
-        id: 'target',
-        slug: 'tea',
-        categorySlug: 'green',
-        _status: 'published',
-        publishedAt: '2020-01-01',
-      })
-      const response = await proxy(new NextRequest('https://example.test/products/old'))
-      expect(response.status).toBe(301)
-      expect(response.headers.get('location')).toBe(
-        `https://example.test/products/${relationTo === 'products' ? 'green/tea' : 'tea'}`,
-      )
-      expect(findByID).toHaveBeenCalledWith(
-        expect.objectContaining({ id: 'target', draft: false, overrideAccess: false }),
-      )
-      findByID.mockResolvedValue({
-        id: 'target',
-        slug: 'renamed',
-        categorySlug: 'new',
-        _status: 'published',
-        publishedAt: '2020-01-01',
-      })
-      expect(
-        (await proxy(new NextRequest('https://example.test/products/old'))).headers.get('location'),
-      ).toContain('renamed')
+      redirects.mockResolvedValue([{
+        from: '/products/old',
+        to: { type: 'reference', reference: { relationTo, value: { id: 'target', slug: 'stale', categorySlug: 'stale' } } },
+      }])
+      find.mockResolvedValue({ docs: [{ id: 'visible' }] })
+      findByID.mockResolvedValue({ id: 'target', slug: 'tea', categorySlug: 'green', _status: 'published', publishedAt: '2020-01-01' })
+      await expect(PayloadRedirects({ url: '/products/old' })).rejects.toThrow('PERMANENT_REDIRECT')
+      expect(permanentRedirect).toHaveBeenCalledWith(`/products/${relationTo === 'products' ? 'green/tea' : 'tea'}`)
+      expect(redirect).not.toHaveBeenCalled()
+      expect(findByID).toHaveBeenCalledWith(expect.objectContaining({ id: 'target', draft: false, overrideAccess: false }))
+      findByID.mockResolvedValue({ id: 'target', slug: 'renamed', categorySlug: 'new', _status: 'published', publishedAt: '2020-01-01' })
+      await expect(PayloadRedirects({ url: '/products/old' })).rejects.toThrow('PERMANENT_REDIRECT')
+      expect(permanentRedirect).toHaveBeenLastCalledWith(`/products/${relationTo === 'products' ? 'new/renamed' : 'renamed'}`)
     },
   )
 
-  it('does not expose missing, future or draft targets, empty categories, or redirect to itself', async () => {
-    const redirect = {
-      type: '301',
-      from: '/products/old',
-      to: { reference: { relationTo: 'products', value: 'target' } },
-    }
-    find.mockResolvedValue({ docs: [redirect] })
+  it('fails closed for missing, future, draft and empty category targets', async () => {
+    const reference = { relationTo: 'products', value: 'target' }
+    redirects.mockResolvedValue([{ from: '/products/old', to: { reference } }])
     for (const target of [
       null,
       { slug: 'tea', categorySlug: 'green', _status: 'draft', publishedAt: '2020-01-01' },
       { slug: 'tea', categorySlug: 'green', _status: 'published', publishedAt: '2099-01-01' },
     ]) {
       findByID.mockResolvedValue(target)
-      expect(
-        (await proxy(new NextRequest('https://example.test/products/old'))).headers.get('location'),
-      ).toBeNull()
+      await expect(PayloadRedirects({ url: '/products/old' })).rejects.toThrow('NOT_FOUND')
+      await expect(PayloadRedirects({ url: '/products/old', disableNotFound: true })).resolves.toBeNull()
     }
-    redirect.to.reference.relationTo = 'product-categories'
-    findByID.mockResolvedValue({ id: 'target', slug: 'old' })
-    find.mockImplementation(async ({ collection }) => ({
-      docs: collection === 'redirects' ? [redirect] : [],
-    }))
-    expect(
-      (await proxy(new NextRequest('https://example.test/products/old'))).headers.get('location'),
-    ).toBeNull()
-    find.mockResolvedValue({ docs: [redirect] })
-    expect(
-      (await proxy(new NextRequest('https://example.test/products/old'))).headers.get('location'),
-    ).toBeNull()
+    reference.relationTo = 'product-categories'
+    findByID.mockResolvedValue({ id: 'target', slug: 'tea' })
+    find.mockResolvedValue({ docs: [] })
+    await expect(PayloadRedirects({ url: '/products/old' })).rejects.toThrow('NOT_FOUND')
+    await expect(PayloadRedirects({ url: '/products/old', disableNotFound: true })).resolves.toBeNull()
+    expect(redirect).not.toHaveBeenCalled()
+    expect(permanentRedirect).not.toHaveBeenCalled()
+  })
+
+  it.each(['products', 'product-categories'] as const)('does not redirect a %s target to itself', async (relationTo) => {
+    const url = relationTo === 'products' ? '/products/green/tea' : '/products/tea'
+    redirects.mockResolvedValue([{ from: url, to: { reference: { relationTo, value: 'target' } } }])
+    findByID.mockResolvedValue({ id: 'target', slug: 'tea', categorySlug: 'green', _status: 'published', publishedAt: '2020-01-01' })
+    find.mockResolvedValue({ docs: [{ id: 'visible' }] })
+    await expect(PayloadRedirects({ url })).rejects.toThrow('NOT_FOUND')
+    await expect(PayloadRedirects({ url, disableNotFound: true })).resolves.toBeNull()
+    expect(redirect).not.toHaveBeenCalled()
+    expect(permanentRedirect).not.toHaveBeenCalled()
   })
 })

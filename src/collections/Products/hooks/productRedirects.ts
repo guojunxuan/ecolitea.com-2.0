@@ -31,7 +31,7 @@ export async function upsertRedirect(req: PayloadRequest, fromPath: string | nul
   const reference: NonNullable<NonNullable<Redirect['to']>['reference']> = to.relationTo === 'products'
     ? { relationTo: 'products', value: String(to.id) }
     : { relationTo: 'product-categories', value: String(to.id) }
-  const data = { to: { type: 'reference' as const, reference }, type: '301' as const }
+  const data = { to: { type: 'reference' as const, reference } }
   if (existing.docs[0]) await req.payload.update({ collection: 'redirects', id: existing.docs[0].id, data, req })
   else await req.payload.create({ collection: 'redirects', data: { from: fromPath, ...data }, req })
 }

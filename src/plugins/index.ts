@@ -232,8 +232,6 @@ export const plugins: Plugin[] = [
   }).init as unknown as Plugin,
   redirectsPlugin({
     collections: ['pages', 'posts', 'blogs', 'products', 'product-categories'],
-    redirectTypes: ['301', '302', '303', '307', '308'],
-    redirectTypeFieldOverride: { defaultValue: '301', required: false },
     overrides: {
       // @ts-expect-error - This is a valid override, mapped fields don't resolve to the same type
       fields: ({ defaultFields }) => {

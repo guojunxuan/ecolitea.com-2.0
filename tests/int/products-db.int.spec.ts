@@ -44,8 +44,6 @@ describe('Products through isolated Payload Local API', () => {
         },
       }), redirectsPlugin({
         collections: ['products', 'product-categories'],
-        redirectTypes: ['301'],
-        redirectTypeFieldOverride: { defaultValue: '301', required: false },
       })],
       collections: [
         Products,
@@ -189,7 +187,7 @@ describe('Products through isolated Payload Local API', () => {
     expect(published).toMatchObject({ title: 'Published title', categorySlug: 'green-tea-renamed', _status: 'published' })
     expect(draft).toMatchObject({ title: 'Unpublished title', excerpt: 'Private draft excerpt', categorySlug: 'green-tea-renamed', _status: 'draft' })
     const redirect = await payload.find({ collection: 'redirects', where: { from: { equals: `/products/green-tea/${product.slug}` } }, depth: 0 })
-    expect(redirect.docs[0]).toMatchObject({ type: '301', to: { type: 'reference', reference: { relationTo: 'products', value: product.id } } })
+    expect(redirect.docs[0]).toMatchObject({ to: { type: 'reference', reference: { relationTo: 'products', value: product.id } } })
   }, 20_000)
 
   it('redirects and invalidates the old live URL when publishing a draft with a new slug and category', async () => {
@@ -208,7 +206,7 @@ describe('Products through isolated Payload Local API', () => {
     vi.clearAllMocks()
     await payload.update({ collection: 'products', id: product.id, data: { _status: 'published' } })
     const redirect = await payload.find({ collection: 'redirects', where: { from: { equals: oldPath } }, depth: 0 })
-    expect(redirect.docs[0]).toMatchObject({ type: '301', to: { reference: { relationTo: 'products', value: product.id } } })
+    expect(redirect.docs[0]).toMatchObject({ to: { reference: { relationTo: 'products', value: product.id } } })
     expect(revalidatePath).toHaveBeenCalledWith(oldPath)
     expect(revalidatePath).toHaveBeenCalledWith(`/products/black-tea/${draftSlug}`)
     expect(revalidateTag).toHaveBeenCalledWith(`product-category-${firstCategoryID}`, 'max')
@@ -240,7 +238,7 @@ describe('Products through isolated Payload Local API', () => {
       const redirect = await payload.find({ collection: 'redirects', depth: 0,
         where: { from: { equals: oldPath } },
       })
-      expect(redirect.docs[0]).toMatchObject({ type: '301', to: { reference: { relationTo: 'products', value: product.id } } })
+      expect(redirect.docs[0]).toMatchObject({ to: { reference: { relationTo: 'products', value: product.id } } })
       expect(revalidatePath).toHaveBeenCalledWith(oldPath)
       expect(revalidatePath).toHaveBeenCalledWith(`/products/black-tea/${product.draftSlug}`)
       expect(revalidatePath).toHaveBeenCalledWith(`/products/${product.categorySlug}`)
@@ -273,7 +271,7 @@ describe('Products through isolated Payload Local API', () => {
     const redirect = await payload.find({ collection: 'redirects', depth: 0,
       where: { from: { equals: oldPath } },
     })
-    expect(redirect.docs[0]).toMatchObject({ type: '301', to: { reference: { relationTo: 'products', value: historical.id } } })
+    expect(redirect.docs[0]).toMatchObject({ to: { reference: { relationTo: 'products', value: historical.id } } })
     for (const path of [oldPath, `/products/black-tea/${historical.slug}`, `/products/${current.categorySlug}`]) {
       expect(revalidatePath).toHaveBeenCalledWith(path)
     }

@@ -34,9 +34,7 @@ export const PayloadRedirects: React.FC<Props> = async ({ disableNotFound, url }
       if (collection === 'products' || collection === 'product-categories') {
         const payload = await getPayload({ config: configPromise })
         const path = await resolveProductRedirect(payload, reference)
-        // /products/** requests receive their HTTP 301 from src/proxy.ts.
-        // Keep the component fallback safe for references from legacy paths.
-        if (path && path !== url) redirect(path)
+        if (path && path !== url) permanentRedirect(path)
         if (disableNotFound) return null
         notFound()
       }

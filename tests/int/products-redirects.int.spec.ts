@@ -16,12 +16,12 @@ const request = () => ({
 })
 
 describe('product redirects', () => {
-  it('upserts a 301 reference, clearing a redirect on the occupied destination', async () => {
+  it('upserts a reference, clearing a redirect on the occupied destination', async () => {
     const req = request()
     req.payload.find.mockResolvedValueOnce({ docs: [{ id: 'occupied' }] }).mockResolvedValueOnce({ docs: [{ id: 'old' }] })
     await upsertRedirect(req as never, '/products/old/tea', { relationTo: 'products', id: 'p' }, '/products/new/tea')
     expect(req.payload.delete).toHaveBeenCalledWith(expect.objectContaining({ collection: 'redirects', id: 'occupied', req }))
-    expect(req.payload.update).toHaveBeenCalledWith(expect.objectContaining({ collection: 'redirects', id: 'old', data: { to: { type: 'reference', reference: { relationTo: 'products', value: 'p' } }, type: '301' }, req }))
+    expect(req.payload.update).toHaveBeenCalledWith(expect.objectContaining({ collection: 'redirects', id: 'old', data: { to: { type: 'reference', reference: { relationTo: 'products', value: 'p' } } }, req }))
   })
 
   it('clears an occupied destination even without an old URL and skips same-path redirect', async () => {
@@ -44,7 +44,7 @@ describe('product redirects', () => {
     const previousDoc = { id: 'p', slug: 'old', categorySlug: 'tea', _status: 'published' }
     const doc = { ...previousDoc, slug: 'new' }
     await redirectProduct({ req, doc, previousDoc } as never)
-    expect(req.payload.create).toHaveBeenCalledWith(expect.objectContaining({ data: expect.objectContaining({ from: '/products/tea/old', type: '301' }) }))
+    expect(req.payload.create).toHaveBeenCalledWith(expect.objectContaining({ data: expect.objectContaining({ from: '/products/tea/old' }) }))
     req.payload.create.mockClear()
     await redirectProduct({ req, doc: { ...doc, _status: 'draft' }, previousDoc } as never)
     await redirectProduct({ req: { ...req, context: { skipProductRedirect: true } }, doc, previousDoc } as never)
