@@ -18,6 +18,7 @@ import { revalidateProduct, revalidateProductDelete } from './hooks/revalidatePr
 import {
   captureProductPublicBeforeDelete,
   captureProductPublicState,
+  captureProductWriteIntent,
 } from './hooks/productPublicTransition'
 
 export const Products: CollectionConfig = {
@@ -188,6 +189,7 @@ export const Products: CollectionConfig = {
     },
   ],
   hooks: {
+    beforeOperation: [captureProductWriteIntent],
     beforeChange: [captureProductPublicState, setProductCategorySlug],
     afterChange: [redirectProduct, revalidateProduct],
     beforeDelete: [captureProductPublicBeforeDelete],

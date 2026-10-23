@@ -1,13 +1,18 @@
 import type {
   CollectionBeforeChangeHook,
   CollectionBeforeDeleteHook,
+  CollectionBeforeOperationHook,
   PayloadRequest,
 } from 'payload'
 import type { Product } from '@/payload-types'
 
 type PublicTransition = { before: Product | null; after?: Product | null }
 const stateKey = Symbol('productPublicTransitions')
-type TransitionContainer = { [stateKey]: Map<string, PublicTransition> }
+const draftWriteKey = Symbol('productDraftWrite')
+type TransitionContainer = {
+  [stateKey]: Map<string, PublicTransition>
+  [draftWriteKey]?: boolean
+}
 
 const getTransitions = (req: PayloadRequest, create = false) => {
   const container = req.context.productPublicTransitions as TransitionContainer | undefined
@@ -19,6 +24,22 @@ const getTransitions = (req: PayloadRequest, create = false) => {
   // also survives restoreVersion's request Proxy and concurrent bulk hooks.
   req.context.productPublicTransitions = { [stateKey]: transitions }
   return transitions
+}
+
+export const captureProductWriteIntent: CollectionBeforeOperationHook<'products'> = ({
+  args,
+  operation,
+  req,
+}) => {
+  if (operation === 'update' || operation === 'create' || operation === 'restoreVersion') {
+    getTransitions(req, true)
+    const container = req.context.productPublicTransitions as TransitionContainer
+    // Public operation args carry draft intent for both REST and Local API;
+    // createLocalReq does not copy the Local API draft option to req.query.
+    // Reset on each write (including restore) so a reused request cannot retain
+    // draft intent. Nested reads must leave the write intent intact.
+    container[draftWriteKey] = operation === 'update' && args.draft === true
+  }
 }
 
 const capture = async (req: PayloadRequest, id: string) => {
@@ -44,7 +65,10 @@ export const captureProductPublicState: CollectionBeforeChangeHook<Product> = as
   req,
 }) => {
   // Creates have no prior public record, including duplicated documents.
-  if (operation === 'update' && data._status === 'draft' && originalDoc?.id) {
+  const draftWrite = (req.context.productPublicTransitions as TransitionContainer | undefined)?.[
+    draftWriteKey
+  ]
+  if (operation === 'update' && draftWrite && data._status === 'draft' && originalDoc?.id) {
     // Replace any interrupted capture and mark this document unchanged so after
     // hooks cannot fall back to reading its public record during a draft save.
     getTransitions(req, true)!.set(originalDoc.id, { before: null, after: null })

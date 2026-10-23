@@ -159,6 +159,90 @@ describe('Products through isolated Payload Local API', () => {
     ).toBe(true)
   }, 20_000)
 
+  it.each(['manual', 'scheduled'] as const)(
+    'invalidates the stored public version on %s unpublish without touching redirects',
+    async (mode) => {
+      const product = await payload.create({
+        collection: 'products',
+        depth: 0,
+        data: {
+          title: 'Unpublish live',
+          slug: `unpublish-${randomUUID()}`,
+          category: firstCategoryID,
+          gallery: [mediaID],
+          excerpt: 'Live version',
+          _status: 'published',
+        },
+      })
+      await payload.update({
+        collection: 'products',
+        id: product.id,
+        draft: true,
+        data: { slug: `private-${randomUUID()}`, category: secondCategoryID },
+      })
+      const livePath = `/products/${product.categorySlug}/${product.slug}`
+      const redirect = await payload.create({
+        collection: 'redirects',
+        data: { from: livePath, to: { type: 'custom', url: '/keep-this-redirect' } },
+      })
+      const job =
+        mode === 'scheduled'
+          ? await payload.jobs.queue({
+              task: 'schedulePublish',
+              input: { type: 'unpublish', doc: { relationTo: 'products', value: product.id } },
+            })
+          : null
+      const findByID = vi.spyOn(payload, 'findByID')
+      const find = vi.spyOn(payload, 'find')
+      const create = vi.spyOn(payload, 'create')
+      const update = vi.spyOn(payload, 'update')
+      const remove = vi.spyOn(payload, 'delete')
+      try {
+        vi.clearAllMocks()
+        if (job) {
+          const result = await payload.jobs.runByID({ id: job.id })
+          expect(result.jobStatus?.[job.id]).toEqual({ status: 'success' })
+        } else {
+          await payload.update({
+            collection: 'products',
+            id: product.id,
+            data: { _status: 'draft' },
+          })
+        }
+        expect(revalidatePath).toHaveBeenCalledWith(livePath)
+        expect(revalidatePath).toHaveBeenCalledWith('/products/green-tea')
+        for (const tag of [
+          `product-${product.id}`,
+          `product-category-${firstCategoryID}`,
+          'products-list',
+          'products-overview',
+          'products-sitemap',
+        ])
+          expect(revalidateTag).toHaveBeenCalledWith(tag, 'max')
+        expect(revalidateTag).toHaveBeenCalledWith('redirects', { expire: 0 })
+        expect(
+          findByID.mock.calls.filter(
+            ([args]) => args.collection === 'products' && args.draft === false,
+          ),
+        ).toHaveLength(2)
+        for (const spy of [find, create, update, remove])
+          expect(spy.mock.calls.filter(([args]) => args.collection === 'redirects')).toHaveLength(0)
+      } finally {
+        for (const spy of [findByID, find, create, update, remove]) spy.mockRestore()
+      }
+      expect(
+        await payload.findByID({ collection: 'products', id: product.id, draft: false, depth: 0 }),
+      ).toMatchObject({ _status: 'draft' })
+      expect(
+        await payload.findByID({ collection: 'redirects', id: redirect.id, depth: 0 }),
+      ).toMatchObject({
+        from: livePath,
+        to: { type: 'custom', url: '/keep-this-redirect' },
+      })
+    },
+    20_000,
+  )
+
   it('publishes a changed draft through the native queued schedulePublish task', async () => {
     const product = await payload.create({
       collection: 'products',
