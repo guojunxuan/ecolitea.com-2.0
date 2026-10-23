@@ -110,6 +110,7 @@ describe('Products through isolated Payload Local API', () => {
       } as never,
     })
     expect(product.categorySlug).toBe('green-tea')
+    expect((await payload.findByID({ collection: 'products', id: product.id, depth: 0 })).categorySlug).toBe('green-tea')
 
     await payload.update({
       collection: 'products',
@@ -133,6 +134,34 @@ describe('Products through isolated Payload Local API', () => {
       (await payload.findByID({ collection: 'products', id: product.id, depth: 0 })).categorySlug,
     ).toBe('black-tea')
   }, 15_000)
+
+  it('allows anonymous reads only for published products whose publication date has arrived', async () => {
+    const ids: string[] = []
+    for (const state of ['public', 'draft', 'future'] as const) {
+      const product = await payload.create({ collection: 'products', data: {
+        title: state, slug: `${state}-${randomUUID()}`, category: secondCategoryID,
+        gallery: [mediaID], excerpt: state,
+        _status: state === 'draft' ? 'draft' : 'published',
+        publishedAt: state === 'future' ? '2099-01-01T00:00:00.000Z' : '2020-01-01T00:00:00.000Z',
+      } })
+      ids.push(product.id)
+    }
+    const result = await payload.find({ collection: 'products', overrideAccess: false,
+      depth: 0, where: { id: { in: ids } } })
+    expect(result.docs.map(({ id }) => id)).toEqual([ids[0]])
+    for (const id of ids.slice(1)) {
+      await expect(payload.findByID({ collection: 'products', id, overrideAccess: false })).rejects.toThrow()
+    }
+  }, 20_000)
+
+  it('rejects invalid product fields and the reserved product slug on real writes', async () => {
+    const valid = { title: 'Validation', category: secondCategoryID, gallery: [mediaID], excerpt: 'Valid', _status: 'published' as const }
+    for (const invalid of [{ gallery: [] }, { excerpt: 'x'.repeat(161) }, { slug: 'page' }, { category: null }]) {
+      await expect(payload.create({ collection: 'products', data: {
+        ...valid, slug: `validation-${randomUUID()}`, ...invalid,
+      } as never })).rejects.toThrow()
+    }
+  }, 20_000)
 
   it('renames a category across a published product and its unpublished draft without publishing edits', async () => {
     const product = await payload.create({
