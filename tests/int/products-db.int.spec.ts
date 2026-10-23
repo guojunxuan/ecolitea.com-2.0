@@ -11,6 +11,7 @@ import { buildConfig, createLocalReq, getPayload, type Payload } from 'payload'
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
 import { ProductCategories } from '@/collections/ProductCategories'
 import { Products } from '@/collections/Products'
+import { Settings } from '@/Settings/config'
 import { Users } from '@/collections/Users'
 import { defaultLexical } from '@/fields/defaultLexical'
 import { revalidatePath, revalidateTag } from 'next/cache'
@@ -33,6 +34,7 @@ describe('Products through isolated Payload Local API', () => {
       editor: defaultLexical,
       typescript: { autoGenerate: false },
       db: mongooseAdapter({ url, connectOptions: { serverSelectionTimeoutMS: 3_000 } }),
+      globals: [Settings],
       plugins: [
         searchPlugin({
           collections: ['products'],
@@ -55,9 +57,16 @@ describe('Products through isolated Payload Local API', () => {
           upload: { disableLocalStorage: true, filesRequiredOnCreate: false },
           fields: [{ name: 'alt', type: 'text' }],
         },
+        { slug: 'site-assets', fields: [] },
         { slug: 'documents', fields: [{ name: 'title', type: 'text' }] },
         ...(['pages', 'posts', 'blogs', 'blog-categories', 'case-studies'] as const).map(
-          (slug) => ({ slug, fields: [{ name: 'title', type: 'text' as const }] }),
+          (slug) => ({
+            slug,
+            fields: [
+              { name: 'title', type: 'text' as const },
+              { name: 'slug', type: 'text' as const },
+            ],
+          }),
         ),
       ],
     })
@@ -103,6 +112,134 @@ describe('Products through isolated Payload Local API', () => {
       await (payload.db as MongooseAdapter).connection.dropDatabase()
       await payload.destroy()
     }
+  })
+
+  it('preserves inquiry buttons across modes, validates custom rows and resolves Settings defaults', async () => {
+    const { resolveProductInquiry } = await import('@/utilities/products/inquiry')
+    const { productDetailPopulate } = await import('@/utilities/products/getProductBySlug')
+    const originalSettings = await payload.findGlobal({ slug: 'settings', depth: 1 })
+    expect(resolveProductInquiry({}, originalSettings)).toEqual({ buttons: [] })
+    const page = await payload.create({
+      collection: 'pages',
+      data: { title: 'Contact', slug: 'contact' } as never,
+    })
+    const custom = {
+      type: 'custom' as const,
+      url: '/contact',
+      label: 'Contact us',
+      appearance: 'outline' as const,
+      newTab: true,
+    }
+    const internal = {
+      type: 'reference' as const,
+      reference: { relationTo: 'pages' as const, value: page.id },
+      label: 'Ask us',
+      appearance: 'default' as const,
+    }
+    const created = await payload.create({
+      collection: 'products',
+      depth: 0,
+      data: {
+        title: 'Inquiry modes',
+        slug: `inquiry-${randomUUID()}`,
+        category: firstCategoryID,
+        gallery: [mediaID],
+        summary: 'Inquiry',
+        _status: 'published',
+        inquiry: { mode: 'custom', buttons: [{ link: custom }, { link: internal }] },
+      },
+    })
+    const update = (data: unknown, draft = false) =>
+      payload.update({
+        collection: 'products',
+        id: created.id,
+        data: data as never,
+        depth: 0,
+        draft,
+      })
+    const buttons = created.inquiry!.buttons
+    for (const mode of ['default', 'hidden', 'custom'] as const) {
+      const result = await update({ inquiry: { mode } })
+      expect(result.inquiry).toMatchObject({ mode, buttons })
+      expect(
+        (await payload.findByID({ collection: 'products', id: created.id, depth: 0 })).inquiry
+          ?.buttons,
+      ).toEqual(buttons)
+    }
+    const invalid = async (data: unknown, path: string) => {
+      try {
+        await update(data)
+        expect.fail('Expected validation error')
+      } catch (error) {
+        expect(error).toBeInstanceOf((await import('payload')).ValidationError)
+        expect((error as import('payload').ValidationError).data?.errors).toContainEqual(
+          expect.objectContaining({ path }),
+        )
+      }
+    }
+    for (const buttons of [[], null])
+      await invalid({ inquiry: { mode: 'custom', buttons } }, 'inquiry.buttons')
+    await invalid(
+      { inquiry: { mode: 'custom', buttons: Array(3).fill({ link: custom }) } },
+      'inquiry.buttons',
+    )
+    for (const mode of ['default', 'hidden'] as const)
+      expect((await update({ inquiry: { mode, buttons: [] } })).inquiry?.buttons).toEqual([])
+    const draft = await update({ _status: 'draft', inquiry: { mode: 'custom', buttons: [] } }, true)
+    expect(draft.inquiry?.buttons).toEqual([])
+    await invalid({ _status: 'published' }, 'inquiry.buttons')
+    await update({
+      _status: 'published',
+      inquiry: { mode: 'custom', buttons: [{ link: internal }] },
+    })
+    const populated = await payload.findByID({
+      collection: 'products',
+      id: created.id,
+      depth: 2,
+      populate: productDetailPopulate,
+    })
+    expect(resolveProductInquiry(populated, null).buttons[0].reference).toMatchObject({
+      relationTo: 'pages',
+      value: { id: page.id, slug: 'contact' },
+    })
+    const defaults = await payload.updateGlobal({
+      slug: 'settings',
+      depth: 1,
+      data: { product: { inquiry: { buttons: [{ link: internal }] } } },
+    })
+    expect(
+      resolveProductInquiry({ inquiry: { mode: 'default' } }, defaults).buttons[0].reference,
+    ).toMatchObject({ value: { id: page.id, slug: 'contact' } })
+    const changed = await payload.updateGlobal({
+      slug: 'settings',
+      data: { product: { inquiry: { buttons: [{ link: custom }] } } },
+    })
+    expect(
+      resolveProductInquiry({ inquiry: { mode: 'default' } }, changed).buttons[0],
+    ).toMatchObject(custom)
+    expect(resolveProductInquiry(populated, changed).buttons[0].label).toBe('Ask us')
+    expect(resolveProductInquiry({ inquiry: { mode: 'hidden' } }, changed)).toEqual({ buttons: [] })
+    expect(
+      resolveProductInquiry(
+        {},
+        await payload.updateGlobal({
+          slug: 'settings',
+          data: { product: { inquiry: { buttons: [] } } },
+        }),
+      ),
+    ).toEqual({ buttons: [] })
+    for (const buttons of [Array(3).fill({ link: custom })])
+      await expect(
+        payload.updateGlobal({ slug: 'settings', data: { product: { inquiry: { buttons } } } }),
+      ).rejects.toMatchObject({
+        status: 400,
+        data: {
+          errors: expect.arrayContaining([
+            expect.objectContaining({ path: 'product.inquiry.buttons' }),
+          ]),
+        },
+      })
+    await payload.delete({ collection: 'products', id: created.id })
   })
 
   it('saves anchored empty sections, validates native limits and preserves partial row data', async () => {

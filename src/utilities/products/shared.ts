@@ -1,8 +1,9 @@
 import configPromise from '@payload-config'
 import { unstable_cache } from 'next/cache'
 import { getPayload, type Where } from 'payload'
-import type { Media, Product, ProductCategory } from '@/payload-types'
+import type { Media, Product, ProductCategory, Settings } from '@/payload-types'
 import type { ProductCard, ProductCategoryModel, ProductDetail, ProductMeta } from './models'
+import { resolveProductInquiry } from './inquiry'
 import { optionKey } from './keys'
 import { resolveOptionSelection } from './options'
 import { publicProductVisibility } from './publicVisibility'
@@ -76,7 +77,7 @@ export const toProductCard = (value: Product): ProductCard => ({
   summary: value.summary,
   cover: media(value.gallery?.[0]),
 })
-export const toProductDetail = (value: Product): ProductDetail => {
+export const toProductDetail = (value: Product, settings?: Settings | null): ProductDetail => {
   const options = (value.options ?? []).map((group) => ({
     key: optionKey(group.name ?? ''),
     name: group.name ?? '',
@@ -113,6 +114,7 @@ export const toProductDetail = (value: Product): ProductDetail => {
     createdAt: value.createdAt,
     updatedAt: value.updatedAt,
     _status: value._status,
+    inquiry: resolveProductInquiry(value, settings),
     options,
     specifications,
     defaultSelection,

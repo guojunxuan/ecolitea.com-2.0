@@ -1,5 +1,7 @@
 import type { PopulateType } from 'payload'
 import { headers } from 'next/headers'
+import type { Product } from '@/payload-types'
+import { getCachedSettings } from '@/utilities/getGlobals'
 import type { ProductDetail } from './models'
 import { cached, client, toProductDetail, visible } from './shared'
 
@@ -20,6 +22,15 @@ export const productDetailPopulate: PopulateType = {
   },
   'product-categories': { title: true, slug: true, description: true, image: true, meta: true },
   products: { slug: true, categorySlug: true },
+  pages: { slug: true },
+  posts: { slug: true },
+}
+
+const normalizeDetail = async (product: Product | null): Promise<ProductDetail | null> => {
+  if (!product) return null
+  const mode = product.inquiry?.mode ?? 'default'
+  const settings = mode === 'default' ? await getCachedSettings() : undefined
+  return toProductDetail(product, settings)
 }
 
 export async function getProductBySlug(
@@ -40,7 +51,7 @@ export async function getProductBySlug(
       limit: 1,
       where: { slug: { equals: slug } },
     })
-    return result.docs[0] ? toProductDetail(result.docs[0]) : null
+    return normalizeDetail(result.docs[0] ?? null)
   }
   // Resolve the current slug before caching by stable ID, as in Blogs.
   const lookupPayload = await client()
@@ -55,7 +66,7 @@ export async function getProductBySlug(
   })
   const id = lookup.docs[0]?.id
   if (!id) return null
-  return cached(
+  const product = await cached(
     ['product-detail', id],
     [`product-${id}`, 'products-list', 'product-categories'],
     async () => {
@@ -69,7 +80,8 @@ export async function getProductBySlug(
         limit: 1,
         where: visible([{ id: { equals: id } }]),
       })
-      return result.docs[0] ? toProductDetail(result.docs[0]) : null
+      return result.docs[0] ?? null
     },
   )
+  return normalizeDetail(product)
 }

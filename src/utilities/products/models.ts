@@ -1,5 +1,7 @@
 import type { Media, Product, ProductCategory } from '@/payload-types'
 
+export type InquiryButton = NonNullable<NonNullable<Product['inquiry']>['buttons']>[number]['link']
+
 export type ProductMeta = {
   title?: string | null
   description?: string | null
@@ -30,6 +32,7 @@ export type ProductOption = {
 }
 export type ProductDetail = Omit<
   Product,
+  | 'inquiry'
   | 'category'
   | 'gallery'
   | 'highlights'
@@ -39,6 +42,7 @@ export type ProductDetail = Omit<
   | 'options'
   | 'specifications'
 > & {
+  inquiry: { buttons: InquiryButton[] }
   options: ProductOption[]
   specifications: ProductSpecification[]
   defaultSelection: Record<string, string>

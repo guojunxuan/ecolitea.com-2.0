@@ -233,6 +233,7 @@ describe('Products configuration', () => {
       'summary',
       'highlights',
       'specifications',
+      'inquiry',
     ])
   })
 })

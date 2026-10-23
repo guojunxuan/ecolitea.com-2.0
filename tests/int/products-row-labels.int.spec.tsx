@@ -99,3 +99,15 @@ it('shows section title, anchor and block count with a numbered fallback', () =>
   expect(screen.getByText('Section 3')).toBeTruthy()
   expect(screen.getByText('# · 0 blocks')).toBeTruthy()
 })
+
+it('labels inquiry buttons from link.label with a numbered fallback', () => {
+  const Label =
+    modules['/src/collections/Products/admin/InquiryButtonRowLabel.tsx']?.InquiryButtonRowLabel
+  expect(Label).toBeDefined()
+  state.row = { data: { link: { label: ' Ask us ' } }, rowNumber: 0, path: 'inquiry.buttons.0' }
+  const { rerender } = render(<Label />)
+  expect(screen.getByText('Ask us')).toBeTruthy()
+  state.row = { data: {}, rowNumber: 1, path: 'inquiry.buttons.1' }
+  rerender(<Label />)
+  expect(screen.getByText('Button 2')).toBeTruthy()
+})

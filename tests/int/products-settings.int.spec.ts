@@ -23,8 +23,8 @@ describe('Product Listing settings', () => {
   it('places one collapsed SEO section after the Blog tab', () => {
     expect(settingsTabs.tabs).toHaveLength(2)
     expect(settingsTabs.tabs[0]).toBe(blogTab)
-    expect(productTab()).toMatchObject({ name: 'product', label: 'Product Listing' })
-    expect(productTab().fields).toHaveLength(1)
+    expect(productTab()).toMatchObject({ name: 'product', label: 'Product' })
+    expect(productTab().fields).toHaveLength(2)
     expect(productTab().fields[0]).toMatchObject({
       type: 'collapsible',
       label: 'Listing SEO',
@@ -105,6 +105,7 @@ describe('Product Listing settings', () => {
   it('revalidates the Products overview path and tag unless disabled', () => {
     const doc = { product: { seo: { title: 'Products' } } }
     expect(revalidateSettings({ doc, req: { context: {} } } as never)).toBe(doc)
+    expect(revalidateTag).toHaveBeenCalledWith('global_settings', 'max')
     expect(revalidatePath).toHaveBeenCalledWith('/products')
     expect(revalidateTag).toHaveBeenCalledWith('products-overview', 'max')
     vi.clearAllMocks()

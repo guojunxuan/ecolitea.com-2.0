@@ -7,13 +7,14 @@ import {
   PreviewField,
 } from '@payloadcms/plugin-seo/fields'
 
+import { link } from '@/fields/link'
 import { imageOnly } from '@/collections/mediaUploadPolicy'
 
 import { trimText } from './validation'
 
 export const productTab: Tab = {
   name: 'product',
-  label: 'Product Listing',
+  label: 'Product',
   fields: [
     {
       type: 'collapsible',
@@ -53,6 +54,26 @@ export const productTab: Tab = {
               descriptionPath: 'product.seo.description',
             }),
           ],
+        },
+      ],
+    },
+    {
+      name: 'inquiry',
+      label: 'Inquiry',
+      type: 'group',
+      admin: { description: 'Default inquiry buttons for products set to Default.' },
+      fields: [
+        {
+          name: 'buttons',
+          type: 'array',
+          minRows: 1,
+          maxRows: 2,
+          admin: {
+            components: {
+              RowLabel: '@/collections/Products/admin/InquiryButtonRowLabel#InquiryButtonRowLabel',
+            },
+          },
+          fields: [link({ appearances: ['default', 'outline'] })],
         },
       ],
     },

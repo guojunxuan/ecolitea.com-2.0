@@ -10,6 +10,7 @@ import { authenticated } from '@/access/authenticated'
 import { authenticatedOrPublishedProduct } from '@/access/authenticatedOrPublishedProduct'
 import { imageOnly } from '@/collections/mediaUploadPolicy'
 import { generatePreviewPath } from '@/utilities/generatePreviewPath'
+import { productInquiry } from './fields/inquiry'
 import { productSections } from './fields/sections'
 import { generateSectionAnchors } from './hooks/validateSections'
 import { productOptions } from './fields/options'
@@ -107,6 +108,7 @@ export const Products: CollectionConfig = {
                 { name: 'value', type: 'text', required: true },
               ],
             },
+            productInquiry,
           ],
         },
         { label: 'Options', fields: [productOptions] },

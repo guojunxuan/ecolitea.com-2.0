@@ -963,6 +963,33 @@ export interface Product {
         id?: string | null;
       }[]
     | null;
+  inquiry?: {
+    mode?: ('default' | 'custom' | 'hidden') | null;
+    buttons?:
+      | {
+          link: {
+            type?: ('reference' | 'custom') | null;
+            newTab?: boolean | null;
+            reference?:
+              | ({
+                  relationTo: 'pages';
+                  value: string | Page;
+                } | null)
+              | ({
+                  relationTo: 'posts';
+                  value: string | Post;
+                } | null);
+            url?: string | null;
+            label: string;
+            /**
+             * Choose how the link should be rendered.
+             */
+            appearance?: ('default' | 'outline') | null;
+          };
+          id?: string | null;
+        }[]
+      | null;
+  };
   /**
    * Options are generic: name each group freely (Color, Size, Capacity, Finish…). Selecting a value can swap the gallery and override specifications. No SKU or stock.
    */
@@ -1858,6 +1885,26 @@ export interface ProductsSelect<T extends boolean = true> {
         label?: T;
         value?: T;
         id?: T;
+      };
+  inquiry?:
+    | T
+    | {
+        mode?: T;
+        buttons?:
+          | T
+          | {
+              link?:
+                | T
+                | {
+                    type?: T;
+                    newTab?: T;
+                    reference?: T;
+                    url?: T;
+                    label?: T;
+                    appearance?: T;
+                  };
+              id?: T;
+            };
       };
   options?:
     | T
@@ -2845,6 +2892,35 @@ export interface Settings {
        */
       image?: (string | null) | Media;
     };
+    /**
+     * Default inquiry buttons for products set to Default.
+     */
+    inquiry?: {
+      buttons?:
+        | {
+            link: {
+              type?: ('reference' | 'custom') | null;
+              newTab?: boolean | null;
+              reference?:
+                | ({
+                    relationTo: 'pages';
+                    value: string | Page;
+                  } | null)
+                | ({
+                    relationTo: 'posts';
+                    value: string | Post;
+                  } | null);
+              url?: string | null;
+              label: string;
+              /**
+               * Choose how the link should be rendered.
+               */
+              appearance?: ('default' | 'outline') | null;
+            };
+            id?: string | null;
+          }[]
+        | null;
+    };
   };
   updatedAt?: string | null;
   createdAt?: string | null;
@@ -3176,6 +3252,25 @@ export interface SettingsSelect<T extends boolean = true> {
               title?: T;
               description?: T;
               image?: T;
+            };
+        inquiry?:
+          | T
+          | {
+              buttons?:
+                | T
+                | {
+                    link?:
+                      | T
+                      | {
+                          type?: T;
+                          newTab?: T;
+                          reference?: T;
+                          url?: T;
+                          label?: T;
+                          appearance?: T;
+                        };
+                    id?: T;
+                  };
             };
       };
   updatedAt?: T;

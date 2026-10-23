@@ -30,6 +30,7 @@ import { BlocksFeatureClient as BlocksFeatureClient_e70f5e05f09f93e00b997edb1ef0
 import { ArticleBlockEditor as ArticleBlockEditor_4971c3244241ba6cff288a3222e75719 } from '@/blocks/ArticleBlockEditor'
 import { HighlightRowLabel as HighlightRowLabel_b20e30472a4fa947db06de7f56d1ad4c } from '@/collections/Products/admin/HighlightRowLabel'
 import { SpecificationRowLabel as SpecificationRowLabel_3fde3139b1dca830953e6a07c3633a0a } from '@/collections/Products/admin/SpecificationRowLabel'
+import { InquiryButtonRowLabel as InquiryButtonRowLabel_87bb039929f3f444c0493bfc443ac4fb } from '@/collections/Products/admin/InquiryButtonRowLabel'
 import { OptionValueRowLabel as OptionValueRowLabel_acc9da8322e446fc030a6a6bc26522a7 } from '@/collections/Products/admin/OptionValueRowLabel'
 import { OptionRowLabel as OptionRowLabel_d605e855ccab39a524a3971529d0907b } from '@/collections/Products/admin/OptionRowLabel'
 import { SectionRowLabel as SectionRowLabel_f9b40a829c178a971850247d74ad4f4f } from '@/collections/Products/admin/SectionRowLabel'
@@ -100,6 +101,7 @@ export const importMap = {
   "@/blocks/ArticleBlockEditor#ArticleBlockEditor": ArticleBlockEditor_4971c3244241ba6cff288a3222e75719,
   "@/collections/Products/admin/HighlightRowLabel#HighlightRowLabel": HighlightRowLabel_b20e30472a4fa947db06de7f56d1ad4c,
   "@/collections/Products/admin/SpecificationRowLabel#SpecificationRowLabel": SpecificationRowLabel_3fde3139b1dca830953e6a07c3633a0a,
+  "@/collections/Products/admin/InquiryButtonRowLabel#InquiryButtonRowLabel": InquiryButtonRowLabel_87bb039929f3f444c0493bfc443ac4fb,
   "@/collections/Products/admin/OptionValueRowLabel#OptionValueRowLabel": OptionValueRowLabel_acc9da8322e446fc030a6a6bc26522a7,
   "@/collections/Products/admin/OptionRowLabel#OptionRowLabel": OptionRowLabel_d605e855ccab39a524a3971529d0907b,
   "@/collections/Products/admin/SectionRowLabel#SectionRowLabel": SectionRowLabel_f9b40a829c178a971850247d74ad4f4f,
