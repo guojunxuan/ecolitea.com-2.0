@@ -16,11 +16,11 @@ export const getContentPath = (
   slug: string,
   options: ContentPathOptions = {},
 ): string | null => {
-  if (relationTo === ('products' as CollectionSlug)) {
+  if (relationTo === 'products') {
     return slug && options.categorySlug ? productPath(options.categorySlug, slug) : null
   }
 
-  if (relationTo === ('product-categories' as CollectionSlug)) {
+  if (relationTo === 'product-categories') {
     return slug ? productCategoryPath(slug) : null
   }
 

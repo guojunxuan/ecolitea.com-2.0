@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import type { CollectionSlug, PayloadRequest } from 'payload'
+import type { PayloadRequest } from 'payload'
 
 import { generatePreviewPath } from '@/utilities/generatePreviewPath'
 import { getContentPath } from '@/utilities/getContentPath'
@@ -22,11 +22,11 @@ describe('product paths', () => {
   })
 
   it('resolves product documents only when their category slug is available', () => {
-    expect(getContentPath('products' as CollectionSlug, 'sencha', { categorySlug: 'green-tea' }))
+    expect(getContentPath('products', 'sencha', { categorySlug: 'green-tea' }))
       .toBe('/products/green-tea/sencha')
-    expect(getContentPath('products' as CollectionSlug, 'sencha')).toBeNull()
-    expect(getContentPath('products' as CollectionSlug, 'sencha', { categorySlug: null })).toBeNull()
-    expect(getContentPath('product-categories' as CollectionSlug, 'green-tea')).toBe('/products/green-tea')
+    expect(getContentPath('products', 'sencha')).toBeNull()
+    expect(getContentPath('products', 'sencha', { categorySlug: null })).toBeNull()
+    expect(getContentPath('product-categories', 'green-tea')).toBe('/products/green-tea')
   })
 
   it('keeps existing collection paths unchanged', () => {
@@ -39,7 +39,7 @@ describe('product paths', () => {
 
   it('uses the nested product path in preview query parameters', () => {
     const preview = generatePreviewPath({
-      collection: 'products' as CollectionSlug,
+      collection: 'products',
       slug: 'sencha',
       categorySlug: 'green-tea',
       req: {} as PayloadRequest,
