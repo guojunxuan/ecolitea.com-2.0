@@ -32,7 +32,32 @@ export const propagateCategorySlug: CollectionAfterChangeHook<ProductCategory> =
     }
   }
 
-  const context = { ...req.context, disableRevalidate: true, skipProductRedirect: true, setDerivedCategorySlug: true }
+  // createLocalReq merges context back onto this SAME req. Restore it after
+  // each nested write, keeping the request and transaction identity intact.
+  const updateProduct = async (options: {
+    collection: 'products'
+    id: string
+    data: Partial<Product>
+    draft: boolean
+    depth: 0
+    req: typeof req
+  }) => {
+    const originalContext = req.context
+    try {
+      return await req.payload.update({
+        ...options,
+        req,
+        context: {
+          ...originalContext,
+          disableRevalidate: true,
+          skipProductRedirect: true,
+          setDerivedCategorySlug: true,
+        },
+      })
+    } finally {
+      req.context = originalContext
+    }
+  }
   const affectedPublished: Product[] = []
   const affectedDraftIDs = new Set<string>()
   for (const id of productIDs) {
@@ -48,14 +73,14 @@ export const propagateCategorySlug: CollectionAfterChangeHook<ProductCategory> =
       // Supply the complete public snapshot so private draft fields are not
       // inadvertently copied into the published record.
       const { id: _id, createdAt: _createdAt, updatedAt: _updatedAt, ...publicData } = published
-      await req.payload.update({ collection: 'products', id, data: { ...publicData, categorySlug: doc.slug, _status: 'published' }, draft: false, depth: 0, req, context })
+      await updateProduct({ collection: 'products', id, data: { ...publicData, categorySlug: doc.slug, _status: 'published' }, draft: false, depth: 0, req })
       if (published.slug) await upsertRedirect(req, productPath(previousDoc.slug, published.slug), { relationTo: 'products', id }, productPath(doc.slug, published.slug))
     }
     if ((publicMatches || draftMatches) && latest?._status === 'draft') {
       // The public update writes a newer version. Restore the previously read
       // draft's complete content, changing its slug only if it belongs here.
       const { id: _id, createdAt: _createdAt, updatedAt: _updatedAt, ...draftData } = latest
-      await req.payload.update({ collection: 'products', id, data: { ...draftData, categorySlug: draftMatches ? doc.slug : latest.categorySlug, _status: 'draft' }, draft: true, depth: 0, req, context })
+      await updateProduct({ collection: 'products', id, data: { ...draftData, categorySlug: draftMatches ? doc.slug : latest.categorySlug, _status: 'draft' }, draft: true, depth: 0, req })
       if (draftMatches) affectedDraftIDs.add(id)
     }
   }

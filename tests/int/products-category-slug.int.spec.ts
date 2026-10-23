@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 import { setProductCategorySlug } from '@/collections/Products/hooks/setProductCategorySlug'
 
-const req = () => ({ payload: { findByID: vi.fn().mockResolvedValue({ slug: 'green-tea' }) } })
+const req = () => ({ context: {}, payload: { findByID: vi.fn().mockResolvedValue({ slug: 'green-tea' }) } })
 
 describe('Product categorySlug maintenance', () => {
   it.each(['category-1', { id: 'category-1', slug: 'forged' }])(

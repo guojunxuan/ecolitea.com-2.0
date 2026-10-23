@@ -1,8 +1,13 @@
 // @vitest-environment node
 import { randomUUID } from 'node:crypto'
 import { mongooseAdapter, type MongooseAdapter } from '@payloadcms/db-mongodb'
+import { searchPlugin } from '@payloadcms/plugin-search'
+import { searchFields } from '@/search/fieldOverrides'
+import { beforeSyncWithSearch } from '@/search/beforeSync'
+import { publicSearchVisibility } from '@/search/visibility'
+import { propagateCategorySlug } from '@/collections/Products/hooks/propagateCategorySlug'
 import { redirectsPlugin } from '@payloadcms/plugin-redirects'
-import { buildConfig, getPayload, type Payload } from 'payload'
+import { buildConfig, createLocalReq, getPayload, type Payload } from 'payload'
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
 import { ProductCategories } from '@/collections/ProductCategories'
 import { Products } from '@/collections/Products'
@@ -30,7 +35,14 @@ describe('Products through isolated Payload Local API', () => {
       editor: defaultLexical,
       typescript: { autoGenerate: false },
       db: mongooseAdapter({ url, connectOptions: { serverSelectionTimeoutMS: 3_000 } }),
-      plugins: [redirectsPlugin({
+      plugins: [searchPlugin({
+        collections: ['products'],
+        beforeSync: beforeSyncWithSearch,
+        searchOverrides: {
+          access: { read: () => publicSearchVisibility(new Date()) },
+          fields: ({ defaultFields }) => [...defaultFields, ...searchFields],
+        },
+      }), redirectsPlugin({
         collections: ['products', 'product-categories'],
         redirectTypes: ['301'],
         redirectTypeFieldOverride: { defaultValue: '301', required: false },
@@ -210,5 +222,101 @@ describe('Products through isolated Payload Local API', () => {
     await payload.delete({ collection: 'products', id: product.id })
     expect(revalidatePath).toHaveBeenCalledWith(oldPath)
     expect(revalidateTag).toHaveBeenCalledWith(`product-${product.id}`, 'max')
+  }, 20_000)
+  it('restores the parent request context and invalidates the batch and category after nested Local API updates', async () => {
+    const category = await payload.create({
+      collection: 'product-categories',
+      data: { title: 'Scoped', slug: `scope-${randomUUID()}`, image: mediaID },
+    })
+    const product = await payload.create({
+      collection: 'products',
+      data: {
+        title: 'Scoped Tea',
+        slug: `scoped-${randomUUID()}`,
+        category: category.id,
+        gallery: [mediaID],
+        excerpt: 'Scoped excerpt',
+        _status: 'published',
+      },
+    })
+    const originalContext = { taskMarker: 'parent', skipProductRedirect: false }
+    const req = await createLocalReq({ context: originalContext }, payload)
+    const updateSpy = vi.spyOn(payload, 'update')
+    vi.clearAllMocks()
+    const renamed = `${category.slug}-new`
+    await payload.update({
+      collection: 'product-categories',
+      id: category.id,
+      data: { slug: renamed },
+      req,
+    })
+    expect(req.context).toStrictEqual(originalContext)
+    expect(req.context).not.toHaveProperty('setDerivedCategorySlug')
+    expect(req.context).not.toHaveProperty('disableRevalidate')
+    expect(updateSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        collection: 'products',
+        req,
+        context: expect.objectContaining({
+          disableRevalidate: true,
+          skipProductRedirect: true,
+          setDerivedCategorySlug: true,
+        }),
+      }),
+    )
+    expect(revalidatePath).toHaveBeenCalledWith(`/products/${category.slug}/${product.slug}`)
+    expect(revalidatePath).toHaveBeenCalledWith(`/products/${renamed}/${product.slug}`)
+    expect(revalidateTag).toHaveBeenCalledWith('product-categories', 'max')
+    expect(revalidateTag).toHaveBeenCalledWith(`product-${product.id}`, 'max')
+    expect(revalidateTag).toHaveBeenCalledWith(`product-category-${category.id}`, 'max')
+    const search = await payload.find({
+      collection: 'search',
+      depth: 0,
+      where: { 'doc.value': { equals: product.id } },
+    })
+    expect(search.docs[0]).toMatchObject({
+      categorySlug: renamed,
+      excerpt: 'Scoped excerpt',
+      heroImage: mediaID,
+      category: { relationTo: 'product-categories', slug: renamed },
+    })
+    updateSpy.mockRestore()
+  }, 20_000)
+
+  it('restores the exact parent context when a nested write throws after createLocalReq mutates req', async () => {
+    const category = await payload.create({
+      collection: 'product-categories',
+      data: { title: 'Error scope', slug: `error-${randomUUID()}`, image: mediaID },
+    })
+    await payload.create({
+      collection: 'products',
+      data: {
+        title: 'Error Tea',
+        slug: `error-tea-${randomUUID()}`,
+        category: category.id,
+        gallery: [mediaID],
+        excerpt: 'Scoped error',
+        _status: 'published',
+      },
+    })
+    const originalContext = { taskMarker: 'error-parent', disableRevalidate: false }
+    const req = await createLocalReq({ context: originalContext }, payload)
+    const updateSpy = vi.spyOn(payload, 'update').mockImplementationOnce(async (options) => {
+      await createLocalReq({ req, context: options.context }, payload)
+      throw new Error('Injected nested write failure')
+    })
+    try {
+      await expect(
+        propagateCategorySlug({
+          doc: { ...category, slug: `${category.slug}-new` },
+          previousDoc: category,
+          req,
+        } as never),
+      ).rejects.toThrow('Injected nested write failure')
+      expect(req.context).toStrictEqual(originalContext)
+      expect(req.context).toEqual({ taskMarker: 'error-parent', disableRevalidate: false })
+    } finally {
+      updateSpy.mockRestore()
+    }
   }, 20_000)
 })

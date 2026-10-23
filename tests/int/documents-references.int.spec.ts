@@ -343,6 +343,14 @@ describe('Documents protection through the real Payload API', () => {
             upload: { disableLocalStorage: true, filesRequiredOnCreate: false },
           },
           {
+            slug: 'products',
+            versions: { drafts: true },
+            fields: [
+              { name: 'title', type: 'text' },
+              { name: 'downloads', type: 'relationship', relationTo: 'documents', hasMany: true },
+            ],
+          },
+          {
             slug: 'blogs',
             versions: { drafts: { autosave: true } },
             access: { read: () => false },
@@ -383,6 +391,47 @@ describe('Documents protection through the real Payload API', () => {
       await (payload.db as MongooseAdapter).connection.dropDatabase()
       await payload.destroy()
     }
+  })
+  it('discovers product downloads in current content and historical versions', async () => {
+    const asset = await payload.create({
+      collection: 'documents',
+      data: { title: 'Product certificate' },
+    })
+    const product = await payload.create({
+      collection: 'products',
+      data: { title: 'Certified tea', downloads: [asset.id], _status: 'published' } as never,
+    })
+    const refs = await findDocumentReferences(payload, [asset.id])
+    expect(refs).toContainEqual(
+      expect.objectContaining({
+        ownerSlug: 'products',
+        ownerDocumentID: product.id,
+        kind: 'current',
+        path: 'downloads[0]',
+      }),
+    )
+    await expect(payload.delete({ collection: 'documents', id: asset.id })).rejects.toThrow(
+      /Certified tea/,
+    )
+    await payload.update({
+      collection: 'products',
+      id: product.id,
+      data: { downloads: [], _status: 'published' } as never,
+    })
+    const history = await findDocumentReferences(payload, [asset.id])
+    expect(history.filter(({ kind }) => kind === 'current')).toEqual([])
+    expect(history).toContainEqual(
+      expect.objectContaining({
+        ownerSlug: 'products',
+        ownerDocumentID: product.id,
+        kind: 'version',
+        path: 'downloads[0]',
+      }),
+    )
+    await expect(payload.delete({ collection: 'documents', id: asset.id })).resolves.toHaveProperty(
+      'id',
+      asset.id,
+    )
   })
   it('blocks single and bulk deletion including access-hidden localized references', async () => {
     const blog = await payload.create({

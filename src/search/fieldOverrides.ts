@@ -1,6 +1,7 @@
 import { Field } from 'payload'
 
 export const searchFields: Field[] = [
+  { name: 'categorySlug', type: 'text', admin: { readOnly: true } },
   {
     name: 'slug',
     type: 'text',

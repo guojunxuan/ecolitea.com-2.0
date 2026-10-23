@@ -291,7 +291,7 @@ export const plugins: Plugin[] = [
     },
   }),
   searchPlugin({
-    collections: ['posts', 'blogs'],
+    collections: ['posts', 'blogs', 'products'],
     beforeSync: beforeSyncWithSearch,
     searchOverrides: {
       access: { read: () => publicSearchVisibility(new Date()) },

@@ -4,30 +4,35 @@ export const beforeSyncWithSearch: BeforeSync = async ({ req, originalDoc, searc
   const collection = searchDoc.doc.relationTo
   const { slug, id, title, meta } = originalDoc
 
-  if (collection === 'blogs') {
+  if (collection === 'blogs' || collection === 'products') {
+    const isProduct = collection === 'products'
+    const categoryCollection = isProduct ? 'product-categories' : 'blog-categories'
+    const cover = isProduct ? originalDoc.gallery?.[0] : originalDoc.heroImage
     const category = originalDoc.category
-    const categoryDoc = category && typeof category === 'object'
-      ? category
-      : category
-        ? await req.payload.findByID({
-            collection: 'blog-categories',
-            id: category,
-            disableErrors: true,
-            depth: 0,
-            select: { title: true, slug: true },
-            req,
-          })
-        : null
+    const categoryDoc =
+      category && typeof category === 'object'
+        ? category
+        : category
+          ? await req.payload.findByID({
+              collection: categoryCollection,
+              id: category,
+              disableErrors: true,
+              depth: 0,
+              select: { title: true, slug: true },
+              req,
+            })
+          : null
 
     return {
       ...searchDoc,
       slug,
+      ...(isProduct ? { categorySlug: originalDoc.categorySlug } : {}),
       excerpt: originalDoc.excerpt,
-      heroImage: originalDoc.heroImage?.id || originalDoc.heroImage,
+      heroImage: cover?.id || cover,
       publishedAt: originalDoc.publishedAt,
       category: categoryDoc
         ? {
-            relationTo: 'blog-categories',
+            relationTo: categoryCollection,
             categoryID: String(categoryDoc.id),
             title: categoryDoc.title,
             slug: categoryDoc.slug,
@@ -36,7 +41,7 @@ export const beforeSyncWithSearch: BeforeSync = async ({ req, originalDoc, searc
       meta: {
         title: meta?.title || title,
         description: meta?.description || originalDoc.excerpt,
-        image: meta?.image?.id || meta?.image || originalDoc.heroImage?.id || originalDoc.heroImage,
+        image: meta?.image?.id || meta?.image || cover?.id || cover,
       },
     }
   }

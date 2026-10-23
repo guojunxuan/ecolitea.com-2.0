@@ -3,6 +3,7 @@ import type { Page, Post } from '@/payload-types'
 
 import { getCachedDocument } from '@/utilities/getDocument'
 import { getCachedRedirects } from '@/utilities/getRedirects'
+import { resolveProductRedirect } from '@/utilities/products/resolveRedirect'
 import { getContentPath } from '@/utilities/getContentPath'
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
@@ -29,6 +30,16 @@ export const PayloadRedirects: React.FC<Props> = async ({ disableNotFound, url }
       const collection = reference.relationTo
       let document: { slug?: string | null } | null =
         typeof reference.value === 'object' ? reference.value : null
+
+      if (collection === 'products' || collection === 'product-categories') {
+        const payload = await getPayload({ config: configPromise })
+        const path = await resolveProductRedirect(payload, reference)
+        // /products/** requests receive their HTTP 301 from src/proxy.ts.
+        // Keep the component fallback safe for references from legacy paths.
+        if (path && path !== url) redirect(path)
+        if (disableNotFound) return null
+        notFound()
+      }
 
       if (collection === 'blogs') {
         // Cached relationships may contain an old populated slug. Resolve the stable

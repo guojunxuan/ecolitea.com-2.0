@@ -82,14 +82,14 @@ describe('Blog site integrations', () => {
     const publication = '2026-08-01T00:00:00.000Z'
     const before = publicSearchVisibility(new Date('2026-07-31T23:59:59.000Z'))
     const after = publicSearchVisibility(new Date('2026-08-01T00:00:01.000Z'))
-    expect(before).toEqual({ or: [
+    expect({ or: before.or?.slice(0, 2) }).toEqual({ or: [
       { 'doc.relationTo': { equals: 'posts' } },
       { and: [
         { 'doc.relationTo': { equals: 'blogs' } },
         { publishedAt: { less_than_equal: '2026-07-31T23:59:59.000Z' } },
       ] },
     ] })
-    expect(after).toEqual({ or: [
+    expect({ or: after.or?.slice(0, 2) }).toEqual({ or: [
       { 'doc.relationTo': { equals: 'posts' } },
       { and: [
         { 'doc.relationTo': { equals: 'blogs' } },

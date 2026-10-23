@@ -1270,7 +1270,12 @@ export interface Search {
     | {
         relationTo: 'blogs';
         value: string | Blog;
+      }
+    | {
+        relationTo: 'products';
+        value: string | Product;
       };
+  categorySlug?: string | null;
   slug?: string | null;
   excerpt?: string | null;
   heroImage?: (string | null) | Media;
@@ -2243,6 +2248,7 @@ export interface SearchSelect<T extends boolean = true> {
   title?: T;
   priority?: T;
   doc?: T;
+  categorySlug?: T;
   slug?: T;
   excerpt?: T;
   heroImage?: T;

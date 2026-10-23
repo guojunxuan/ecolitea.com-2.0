@@ -23,12 +23,20 @@ export const richTextEmbedClassNames = {
   articleBlock: styles.articleBlock,
 }
 
-const internalDocToHref = ({ linkNode }: { linkNode: SerializedLinkNode }) => {
+export const internalDocToHref = ({ linkNode }: { linkNode: SerializedLinkNode }) => {
   const { value, relationTo } = linkNode.fields.doc ?? {}
   // Payload preserves IDs when a relationship is unavailable to this reader.
   if (!value || typeof value !== 'object') return '#'
   const slug = value.slug
-  return typeof slug === 'string' ? getContentPath(relationTo as CollectionSlug, slug) || '#' : '#'
+  return typeof slug === 'string'
+    ? getContentPath(
+        relationTo as CollectionSlug,
+        slug,
+        relationTo === 'products'
+          ? { categorySlug: typeof value.categorySlug === 'string' ? value.categorySlug : null }
+          : undefined,
+      ) || '#'
+    : '#'
 }
 
 const jsxConverters =
