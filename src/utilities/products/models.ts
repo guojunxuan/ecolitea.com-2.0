@@ -13,13 +13,6 @@ export type ProductCard = Pick<Product, 'id' | 'title' | 'slug' | 'summary'> & {
   categorySlug: string
   cover: Media | null
 }
-export type ProductDownload = {
-  id: string
-  title: string
-  size: number | null
-  format: string | null
-  url: string | null
-}
 export type ProductSpecification = { group?: string | null; label: string; value: string }
 export type ProductOptionValue = {
   key: string
@@ -40,7 +33,7 @@ export type ProductDetail = Omit<
   | 'category'
   | 'gallery'
   | 'highlights'
-  | 'downloads'
+  | 'sections'
   | 'meta'
   | 'relatedProducts'
   | 'options'
@@ -54,7 +47,11 @@ export type ProductDetail = Omit<
   category: ProductCategoryModel | null
   gallery: Media[]
   highlights: string[]
-  downloads: ProductDownload[]
+  sections: {
+    label: string
+    anchor: string
+    blocks: NonNullable<NonNullable<Product['sections']>[number]['blocks']>
+  }[]
   meta: ProductMeta
   relatedProducts: string[]
 }

@@ -987,12 +987,14 @@ export interface Product {
         id?: string | null;
       }[]
     | null;
-  layout?: unknown[] | null;
-  downloads?: (string | Document)[] | null;
-  faqs?:
+  /**
+   * Each section becomes a tab in the sticky section nav on the product page, in this order. Sections without blocks are hidden.
+   */
+  sections?:
     | {
-        question: string;
-        answer: LexicalRichText<LexicalNodes_47D10C91>;
+        label: string;
+        anchor?: string | null;
+        blocks?: unknown[] | null;
         id?: string | null;
       }[]
     | null;
@@ -1880,13 +1882,12 @@ export interface ProductsSelect<T extends boolean = true> {
             };
         id?: T;
       };
-  layout?: T | {};
-  downloads?: T;
-  faqs?:
+  sections?:
     | T
     | {
-        question?: T;
-        answer?: T;
+        label?: T;
+        anchor?: T;
+        blocks?: T | {};
         id?: T;
       };
   meta?:

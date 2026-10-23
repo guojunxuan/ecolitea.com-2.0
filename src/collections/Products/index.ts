@@ -9,9 +9,9 @@ import {
 import { authenticated } from '@/access/authenticated'
 import { authenticatedOrPublishedProduct } from '@/access/authenticatedOrPublishedProduct'
 import { imageOnly } from '@/collections/mediaUploadPolicy'
-import { compactLexical } from '@/fields/compactLexical'
 import { generatePreviewPath } from '@/utilities/generatePreviewPath'
-import { productBlocks } from './blocks'
+import { productSections } from './fields/sections'
+import { generateSectionAnchors } from './hooks/validateSections'
 import { productOptions } from './fields/options'
 import { setProductCategorySlug } from './hooks/setProductCategorySlug'
 import { redirectProduct } from './hooks/productRedirects'
@@ -112,32 +112,7 @@ export const Products: CollectionConfig = {
         { label: 'Options', fields: [productOptions] },
         {
           label: 'Details',
-          fields: [{ name: 'layout', type: 'blocks', blocks: productBlocks }],
-        },
-        {
-          label: 'Download',
-          fields: [
-            {
-              name: 'downloads',
-              type: 'relationship',
-              relationTo: 'documents',
-              hasMany: true,
-              admin: { isSortable: true },
-            },
-          ],
-        },
-        {
-          label: 'FAQs',
-          fields: [
-            {
-              name: 'faqs',
-              type: 'array',
-              fields: [
-                { name: 'question', type: 'text', required: true },
-                { name: 'answer', type: 'richText', editor: compactLexical, required: true },
-              ],
-            },
-          ],
+          fields: [productSections],
         },
         {
           name: 'meta',
@@ -207,6 +182,7 @@ export const Products: CollectionConfig = {
   ],
   hooks: {
     beforeOperation: [captureProductWriteIntent],
+    beforeValidate: [generateSectionAnchors],
     beforeChange: [captureProductPublicState, setProductCategorySlug],
     afterChange: [redirectProduct, revalidateProduct],
     beforeDelete: [captureProductPublicBeforeDelete],

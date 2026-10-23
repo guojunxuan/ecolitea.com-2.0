@@ -70,7 +70,7 @@ describe('public product queries', () => {
       }),
     )
   })
-  it('normalizes detail relationships and downloads at depth two', async () => {
+  it('normalizes detail relationships and excludes legacy fields at depth two', async () => {
     mocks.find.mockResolvedValue({ docs: [product('self')] })
     const result = await getProductBySlug('self', { draft: false })
     expect(result?.summary).toBe('text')
@@ -79,9 +79,8 @@ describe('public product queries', () => {
     expect(result).not.toHaveProperty('specs')
     expect(result?.category?.id).toBe('cat')
     expect(result?.gallery).toEqual([{ id: 'image', url: '/image.jpg' }])
-    expect(result?.downloads).toEqual([
-      { id: 'doc', title: 'Guide', size: 100, format: 'pdf', url: '/guide.pdf' },
-    ])
+    for (const field of ['layout', 'downloads', 'faqs']) expect(result).not.toHaveProperty(field)
+    expect(result?.sections).toEqual([])
     expect(mocks.find).toHaveBeenLastCalledWith(
       expect.objectContaining({
         depth: 2,
@@ -346,5 +345,28 @@ it('normalizes incomplete native drafts without missing option names crashing pr
         { key: '', label: '', swatch: null, thumbnail: null, gallery: [], specifications: [] },
       ],
     },
+  ])
+})
+
+it('filters empty sections and preserves populated block order without configuring fake blocks', async () => {
+  const blocks = [{ blockType: 'future-fixture', document: { id: 'document' } }]
+  mocks.find.mockResolvedValue({
+    docs: [
+      {
+        ...product('self'),
+        layout: [],
+        faqs: [],
+        sections: [
+          { label: 'Empty', anchor: 'empty', blocks: [] },
+          { label: 'First', anchor: 'first', blocks },
+          { label: 'Missing', anchor: 'missing' },
+          { label: 'Second', anchor: 'second', blocks },
+        ],
+      },
+    ],
+  })
+  expect((await getProductBySlug('self'))?.sections).toEqual([
+    { label: 'First', anchor: 'first', blocks },
+    { label: 'Second', anchor: 'second', blocks },
   ])
 })

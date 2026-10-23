@@ -32,6 +32,7 @@ import { HighlightRowLabel as HighlightRowLabel_b20e30472a4fa947db06de7f56d1ad4c
 import { SpecificationRowLabel as SpecificationRowLabel_3fde3139b1dca830953e6a07c3633a0a } from '@/collections/Products/admin/SpecificationRowLabel'
 import { OptionValueRowLabel as OptionValueRowLabel_acc9da8322e446fc030a6a6bc26522a7 } from '@/collections/Products/admin/OptionValueRowLabel'
 import { OptionRowLabel as OptionRowLabel_d605e855ccab39a524a3971529d0907b } from '@/collections/Products/admin/OptionRowLabel'
+import { SectionRowLabel as SectionRowLabel_f9b40a829c178a971850247d74ad4f4f } from '@/collections/Products/admin/SectionRowLabel'
 import { ImageCropControls as ImageCropControls_9959ec1372000a411e6c7216c9e7a00c } from '@/collections/mediaAdmin/ImageCropControls'
 import { UsedInPanel as UsedInPanel_465fcf04887261c29f77ab01f3d2132c } from '@/collections/mediaAdmin/UsedInPanel'
 import { AltPrefill as AltPrefill_0723c172e948fbb481376dc84e2f708c } from '@/collections/mediaAdmin/AltPrefill'
@@ -101,6 +102,7 @@ export const importMap = {
   "@/collections/Products/admin/SpecificationRowLabel#SpecificationRowLabel": SpecificationRowLabel_3fde3139b1dca830953e6a07c3633a0a,
   "@/collections/Products/admin/OptionValueRowLabel#OptionValueRowLabel": OptionValueRowLabel_acc9da8322e446fc030a6a6bc26522a7,
   "@/collections/Products/admin/OptionRowLabel#OptionRowLabel": OptionRowLabel_d605e855ccab39a524a3971529d0907b,
+  "@/collections/Products/admin/SectionRowLabel#SectionRowLabel": SectionRowLabel_f9b40a829c178a971850247d74ad4f4f,
   "@/collections/mediaAdmin/ImageCropControls#ImageCropControls": ImageCropControls_9959ec1372000a411e6c7216c9e7a00c,
   "@/collections/mediaAdmin/UsedInPanel#UsedInPanel": UsedInPanel_465fcf04887261c29f77ab01f3d2132c,
   "@/collections/mediaAdmin/AltPrefill#AltPrefill": AltPrefill_0723c172e948fbb481376dc84e2f708c,

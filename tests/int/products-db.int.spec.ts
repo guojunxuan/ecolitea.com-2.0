@@ -105,6 +105,99 @@ describe('Products through isolated Payload Local API', () => {
     }
   })
 
+  it('saves anchored empty sections, validates native limits and preserves partial row data', async () => {
+    const base = {
+      title: 'Sections validation',
+      slug: `sections-${randomUUID()}`,
+      category: firstCategoryID,
+      gallery: [mediaID],
+      summary: 'Sections',
+      _status: 'published' as const,
+    }
+    const product = await payload.create({
+      collection: 'products',
+      depth: 0,
+      data: {
+        ...base,
+        sections: [
+          { label: 'Tea & Materials 中文', blocks: [] },
+          { label: 'Custom', anchor: 'chosen-anchor' },
+        ],
+      },
+    })
+    expect(product.sections?.map((row) => row.anchor)).toEqual(['tea-materials', 'chosen-anchor'])
+    const update = (data: unknown, draft = false) =>
+      payload.update({
+        collection: 'products',
+        id: product.id,
+        depth: 0,
+        data: data as never,
+        draft,
+      })
+    const invalid = async (sections: unknown, path: string) => {
+      try {
+        await update({ sections })
+        expect.fail('Expected validation error')
+      } catch (error) {
+        expect(error).toBeInstanceOf((await import('payload')).ValidationError)
+        expect((error as import('payload').ValidationError).data?.errors).toContainEqual(
+          expect.objectContaining({ path }),
+        )
+      }
+    }
+    const renamed = await update({
+      sections: [
+        { id: product.sections![0].id, label: 'New label' },
+        { id: product.sections![1].id, label: 'New custom label' },
+      ],
+    })
+    expect(renamed.sections?.map((row) => row.anchor)).toEqual(['tea-materials', 'chosen-anchor'])
+    expect((await update({ title: 'Other field' })).sections).toEqual(renamed.sections)
+    const regenerated = await update({ sections: [{ id: renamed.sections![1].id, anchor: '' }] })
+    expect(regenerated.sections?.[0]).toMatchObject({
+      label: 'New custom label',
+      anchor: 'new-custom-label',
+    })
+    await invalid([{ label: 'Same' }, { label: 'Same' }], 'sections.1.anchor')
+    for (const anchor of [
+      'overview',
+      'options',
+      'specifications',
+      'related-products',
+      'inquiry',
+      '9-start',
+      'bad space',
+    ])
+      await invalid([{ label: 'Label', anchor }], 'sections.0.anchor')
+    await invalid([{ label: '中文!!!' }], 'sections.0.anchor')
+    await invalid([{ label: '9 start' }], 'sections.0.anchor')
+    await invalid([{ label: '', anchor: 'valid' }], 'sections.0.label')
+    await invalid([{ label: 'L'.repeat(41), anchor: 'valid' }], 'sections.0.label')
+    const rows = Array.from({ length: 8 }, (_, index) => ({
+      label: `Section ${index}`,
+      blocks: [],
+    }))
+    expect((await update({ sections: rows })).sections).toHaveLength(8)
+    await invalid([...rows, { label: 'Ninth' }], 'sections')
+    const draft = await update(
+      { _status: 'draft', sections: [{ label: '', anchor: 'overview' }] },
+      true,
+    )
+    expect(draft.sections?.[0].anchor).toBe('overview')
+    try {
+      await update({ _status: 'published' })
+      expect.fail('Expected validation error')
+    } catch (error) {
+      expect(error).toBeInstanceOf((await import('payload')).ValidationError)
+    }
+    await update({ _status: 'published', sections: [{ label: 'Empty section', blocks: [] }] })
+    const { toProductDetail } = await import('@/utilities/products/shared')
+    expect(
+      toProductDetail(await payload.findByID({ collection: 'products', id: product.id })).sections,
+    ).toEqual([])
+    await payload.delete({ collection: 'products', id: product.id })
+  })
+
   it('validates options with native draft semantics, preserves inactive fields and populates detail media', async () => {
     const base = {
       title: 'Options validation',

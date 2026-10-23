@@ -103,7 +103,7 @@ describe('Products configuration', () => {
     })
   })
 
-  it('defines overview, download, FAQ, SEO and protected sidebar fields', async () => {
+  it('defines overview, sections, SEO and protected sidebar fields', async () => {
     const { Products } = await import('@/collections/Products')
     const tabs = Products.fields.find((field) => field.type === 'tabs')
     if (tabs?.type !== 'tabs') throw new Error('Missing product tabs')
@@ -151,30 +151,34 @@ describe('Products configuration', () => {
       ]),
     })
     expect(tabs.tabs.find((tab) => tab.label === 'Details')).toMatchObject({
-      fields: [{ name: 'layout', type: 'blocks', blocks: [] }],
+      fields: [
+        {
+          name: 'sections',
+          type: 'array',
+          maxRows: 8,
+          admin: {
+            initCollapsed: true,
+            description:
+              'Each section becomes a tab in the sticky section nav on the product page, in this order. Sections without blocks are hidden.',
+            components: {
+              RowLabel: '@/collections/Products/admin/SectionRowLabel#SectionRowLabel',
+            },
+          },
+          fields: expect.arrayContaining([
+            expect.objectContaining({ name: 'label', type: 'text', required: true, maxLength: 40 }),
+            expect.objectContaining({ name: 'anchor', type: 'text' }),
+            expect.objectContaining({ name: 'blocks', type: 'blocks', blocks: [] }),
+          ]),
+        },
+      ],
     })
-    expect(tabs.tabs.some((tab) => tab.label === 'Description')).toBe(false)
-    const download = tabs.tabs.find((tab) => tab.label === 'Download')!
-    expect(download.fields).toContainEqual(
-      expect.objectContaining({
-        name: 'downloads',
-        type: 'relationship',
-        relationTo: 'documents',
-        hasMany: true,
-        admin: { isSortable: true },
-      }),
-    )
-    const faqs = tabs.tabs.find((tab) => tab.label === 'FAQs')!
-    expect(faqs.fields).toContainEqual(
-      expect.objectContaining({
-        name: 'faqs',
-        type: 'array',
-        fields: expect.arrayContaining([
-          expect.objectContaining({ name: 'question', type: 'text', required: true }),
-          expect.objectContaining({ name: 'answer', type: 'richText', required: true }),
-        ]),
-      }),
-    )
+    for (const name of ['excerpt', 'specs', 'layout', 'downloads', 'faqs'])
+      expect(
+        tabs.tabs
+          .flatMap((tab) => tab.fields)
+          .some((field) => 'name' in field && field.name === name),
+      ).toBe(false)
+    expect(tabs.tabs.map((tab) => tab.label)).toEqual(['Overview', 'Options', 'Details', 'SEO'])
     const seo = tabs.tabs.find((tab) => 'name' in tab && tab.name === 'meta')!
     expect(seo.fields.map((field) => ('name' in field ? field.name : field.type))).toEqual(
       expect.arrayContaining(['title', 'image', 'description']),

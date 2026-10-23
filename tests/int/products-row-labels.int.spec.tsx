@@ -82,3 +82,20 @@ it('shows option summary and uses the actual parent display for swatch values', 
   rerender(<ValueLabel />)
   expect(screen.queryByLabelText('Color #f00')).toBeNull()
 })
+
+it('shows section title, anchor and block count with a numbered fallback', () => {
+  const Label = modules['/src/collections/Products/admin/SectionRowLabel.tsx']?.SectionRowLabel
+  expect(Label).toBeDefined()
+  state.row = {
+    data: { label: ' Materials ', anchor: 'materials', blocks: [{}, {}] },
+    rowNumber: 0,
+    path: 'sections.0',
+  }
+  const { rerender } = render(<Label />)
+  expect(screen.getByText('Materials')).toBeTruthy()
+  expect(screen.getByText('#materials · 2 blocks')).toBeTruthy()
+  state.row = { data: {}, rowNumber: 2, path: 'sections.2' }
+  rerender(<Label />)
+  expect(screen.getByText('Section 3')).toBeTruthy()
+  expect(screen.getByText('# · 0 blocks')).toBeTruthy()
+})

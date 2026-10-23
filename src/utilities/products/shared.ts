@@ -104,7 +104,15 @@ export const toProductDetail = (value: Product): ProductDetail => {
   }))
   const resolved = resolveOptionSelection({ gallery, specifications, options }, defaultSelection)
   return {
-    ...value,
+    id: value.id,
+    title: value.title,
+    slug: value.slug,
+    summary: value.summary,
+    categorySlug: value.categorySlug,
+    publishedAt: value.publishedAt,
+    createdAt: value.createdAt,
+    updatedAt: value.updatedAt,
+    _status: value._status,
     options,
     specifications,
     defaultSelection,
@@ -116,17 +124,9 @@ export const toProductDetail = (value: Product): ProductDetail => {
         : null,
     gallery,
     highlights: (value.highlights ?? []).map(({ text }) => text),
-    downloads: (value.downloads ?? []).flatMap((item) =>
-      typeof item === 'object'
-        ? [
-            {
-              id: item.id,
-              title: item.title,
-              size: item.filesize ?? null,
-              format: item.filename?.split('.').pop()?.toLowerCase() ?? null,
-              url: item.url ?? null,
-            },
-          ]
+    sections: (value.sections ?? []).flatMap((section) =>
+      section.blocks?.length
+        ? [{ label: section.label ?? '', anchor: section.anchor ?? '', blocks: section.blocks }]
         : [],
     ),
     meta: meta(value.meta),
