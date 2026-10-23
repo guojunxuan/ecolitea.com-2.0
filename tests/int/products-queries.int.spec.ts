@@ -145,6 +145,20 @@ describe('public product queries', () => {
     expect(params.products).toHaveLength(101)
     expect(params.products[100]).toEqual({ category: 'tea', product: 'last' })
   })
+  it.each([null, 'cat'])('handles an absent or unpopulated category %s across queries', async (categoryValue) => {
+    const item = { ...product('orphan'), category: categoryValue }
+    mocks.find.mockImplementation(async ({ collection }) => ({
+      docs: collection === 'product-categories' ? [category] : [item],
+    }))
+    expect(await getProductCategoriesOverview()).toHaveLength(categoryValue ? 1 : 0)
+    const params = await getProductStaticParams()
+    expect(params.categories).toEqual(categoryValue ? ['tea'] : [])
+    const detail = await getProductBySlug('orphan')
+    expect(detail?.category).toBeNull()
+    mocks.find.mockClear()
+    expect(await getRelatedProducts({ ...detail!, relatedProducts: [] })).toEqual([])
+    expect(mocks.find).not.toHaveBeenCalled()
+  })
   it('returns null for a category with no visible products', async () => {
     mocks.find.mockImplementation(async ({ collection }) => ({
       docs: collection === 'products' ? [] : [category],

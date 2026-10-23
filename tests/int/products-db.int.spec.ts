@@ -92,6 +92,27 @@ describe('Products through isolated Payload Local API', () => {
     }
   })
 
+  it('protects published, draft-only and divergent category references without rewriting products', async () => {
+    for (const state of ['published', 'draft', 'split'] as const) {
+      const category = await payload.create({ collection: 'product-categories', data: { title: `Delete ${state}`, slug: `delete-category-${randomUUID()}`, image: mediaID } })
+      const other = state === 'split' ? await payload.create({ collection: 'product-categories', data: { title: 'Draft destination', slug: `delete-other-${randomUUID()}`, image: mediaID } }) : null
+      const product = await payload.create({ collection: 'products', draft: state === 'draft', data: {
+        title: `Reference ${state}`, slug: `reference-${randomUUID()}`, category: category.id,
+        gallery: [mediaID], excerpt: 'Reference', _status: state === 'draft' ? 'draft' : 'published',
+      } })
+      if (other) await payload.update({ collection: 'products', id: product.id, draft: true, data: { category: other.id, title: 'Private reference' } })
+      const before = await Promise.all([false, true].map((draft) => payload.findByID({ collection: 'products', id: product.id, draft, depth: 0 })))
+      for (const target of [category, ...(other ? [other] : [])]) {
+        await expect(payload.delete({ collection: 'product-categories', id: target.id })).rejects.toMatchObject({ status: 400, message: expect.stringContaining('1 products still use it') })
+        expect(await payload.findByID({ collection: 'product-categories', id: target.id })).toMatchObject({ id: target.id })
+      }
+      const after = await Promise.all([false, true].map((draft) => payload.findByID({ collection: 'products', id: product.id, draft, depth: 0 })))
+      expect(after).toEqual(before)
+    }
+    const empty = await payload.create({ collection: 'product-categories', data: { title: 'Empty', slug: `empty-${randomUUID()}`, image: mediaID } })
+    expect(await payload.delete({ collection: 'product-categories', id: empty.id })).toMatchObject({ id: empty.id })
+  }, 20_000)
+
   it('persists the derived categorySlug across forged create, unchanged update, and category change', async () => {
     const product = await payload.create({
       collection: 'products',

@@ -12,6 +12,8 @@ import type { CollectionConfig } from 'payload'
 import { propagateCategorySlug } from '@/collections/Products/hooks/propagateCategorySlug'
 import { revalidateProductCategory, revalidateProductCategoryDelete } from './ProductCategories/hooks/revalidateProductCategory'
 
+import { preventReferencedDelete } from './ProductCategories/hooks/preventReferencedDelete'
+
 export const ProductCategories: CollectionConfig = {
   slug: 'product-categories',
   labels: { singular: 'Product Category', plural: 'Product Categories' },
@@ -65,6 +67,7 @@ export const ProductCategories: CollectionConfig = {
     { name: 'products', type: 'join', collection: 'products', on: 'category' },
   ],
   hooks: {
+    beforeDelete: [preventReferencedDelete],
     afterChange: [propagateCategorySlug, revalidateProductCategory],
     afterDelete: [revalidateProductCategoryDelete],
   },

@@ -60,7 +60,7 @@ export const getProductCategoriesOverview = () =>
       return categories.flatMap((category) => {
         const productCount = products.filter(
           (product) =>
-            (typeof product.category === 'string' ? product.category : product.category.id) ===
+            (typeof product.category === 'string' ? product.category : product.category?.id) ===
             category.id,
         ).length
         if (!productCount) return []
@@ -230,7 +230,7 @@ export const getProductStaticParams = () =>
       const active = categories.filter((category) =>
         products.some(
           (product) =>
-            (typeof product.category === 'string' ? product.category : product.category.id) ===
+            (typeof product.category === 'string' ? product.category : product.category?.id) ===
             category.id,
         ),
       )
