@@ -28,7 +28,11 @@ const capture = async (req: PayloadRequest, id: string) => {
 
 export const captureProductPublicState: CollectionBeforeChangeHook<Product> = async ({ data, operation, originalDoc, req }) => {
   // Creates have no prior public record, including duplicated documents.
-  if (operation !== 'create' && originalDoc?.id) await capture(req, originalDoc.id)
+  if (operation === 'update' && data._status === 'draft' && originalDoc?.id) {
+    // Replace any interrupted capture and mark this document unchanged so after
+    // hooks cannot fall back to reading its public record during a draft save.
+    getTransitions(req, true)!.set(originalDoc.id, { before: null, after: null })
+  } else if (operation !== 'create' && originalDoc?.id) await capture(req, originalDoc.id)
   return data
 }
 

@@ -18,6 +18,18 @@ describe('product cache invalidation', () => {
     expect(revalidateTag).toHaveBeenCalledWith('product-p', 'max')
   })
 
+  it('ignores nonpublic fields and property order, but invalidates a changed public timestamp', async () => {
+    const req = { context: {} }
+    const previousDoc = { id: 'p', slug: 'tea', categorySlug: 'green', _status: 'published', updatedAt: '2026-01-01', title: 'Old' }
+    const doc = { title: 'New', updatedAt: '2026-01-01', _status: 'published', categorySlug: 'green', slug: 'tea', id: 'p' }
+    await revalidateProduct({ req, doc, previousDoc } as never)
+    expect(revalidatePath).not.toHaveBeenCalled()
+    expect(revalidateTag).not.toHaveBeenCalled()
+    await revalidateProduct({ req, doc: { ...doc, updatedAt: '2026-01-02' }, previousDoc } as never)
+    expect(revalidateTag).toHaveBeenCalledWith('product-p', 'max')
+    expect(revalidateTag).not.toHaveBeenCalledWith('redirects', { expire: 0 })
+  })
+
   it('covers category rename/delete and skips disabled or draft-only product changes', async () => {
     const req = { context: {} }
     await revalidateProductCategory({ req, doc: { id: 'c', slug: 'new' }, previousDoc: { id: 'c', slug: 'old' } } as never)

@@ -32,6 +32,25 @@ describe('product redirects', () => {
     expect(req.payload.create).not.toHaveBeenCalled()
   })
 
+  it('does no redirect queries or writes when republishing the same public path', async () => {
+    const req = request()
+    const doc = { id: 'p', slug: 'tea', categorySlug: 'green', _status: 'published' }
+    await redirectProduct({ req, doc, previousDoc: { ...doc, title: 'Old content' } } as never)
+    expect(req.payload.find).toHaveBeenCalledTimes(0)
+    expect(req.payload.create).not.toHaveBeenCalled()
+    expect(req.payload.update).not.toHaveBeenCalled()
+    expect(req.payload.delete).not.toHaveBeenCalled()
+  })
+
+  it('clears an occupied path on first publication at the hook boundary', async () => {
+    const req = request()
+    req.payload.find.mockResolvedValueOnce({ docs: [{ id: 'occupied' }] })
+    await redirectProduct({ req, doc: { id: 'p', slug: 'tea', categorySlug: 'green', _status: 'published' }, previousDoc: { id: 'p', _status: 'draft' } } as never)
+    expect(req.payload.find).toHaveBeenCalledTimes(1)
+    expect(req.payload.delete).toHaveBeenCalledWith(expect.objectContaining({ id: 'occupied', req }))
+    expect(req.payload.create).not.toHaveBeenCalled()
+  })
+
   it('resolves the current reference path with the three-argument public helper', async () => {
     const req = request()
     await upsertRedirect(req as never, '/products/old', { relationTo: 'product-categories', id: 'c' })

@@ -24,7 +24,9 @@ export const revalidateProduct: CollectionAfterChangeHook<Product> = async ({ do
   try {
     if (!req.context.disableRevalidate) {
       const { before, after } = await getProductPublicTransition(req, doc, previousDoc)
-      if (JSON.stringify(before) !== JSON.stringify(after)) {
+      const publicKeys = ['_status', 'slug', 'categorySlug', 'publishedAt', 'updatedAt'] as const
+      const changed = publicKeys.some((key) => before?.[key] !== after?.[key])
+      if (changed) {
         const published = [before, after].filter((item): item is Product => Boolean(item))
         if (published.length) invalidateProducts(published)
         const oldPath = before?.slug && before.categorySlug ? productPath(before.categorySlug, before.slug) : null

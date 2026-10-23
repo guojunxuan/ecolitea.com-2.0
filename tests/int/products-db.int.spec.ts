@@ -25,12 +25,9 @@ describe('Products through isolated Payload Local API', () => {
   let firstCategoryID: string
   let secondCategoryID: string
 
-  beforeAll(async () => {
-    expect(process.env.DISABLE_R2_STORAGE).toBe('true')
-    const databaseName = `ecolitea2-products-int-${randomUUID()}`
-    const url = createIsolatedTestDatabaseURI(databaseName)
-    console.info(`Products DB test target: ${url}; storage: local disabled, R2 disabled`)
-    const config = await buildConfig({
+  let databaseURL: string
+
+  const testConfig = (url: string, products = Products) => buildConfig({
       secret: 'isolated-products-test-secret-32-characters',
       editor: defaultLexical,
       typescript: { autoGenerate: false },
@@ -46,7 +43,7 @@ describe('Products through isolated Payload Local API', () => {
         collections: ['products', 'product-categories'],
       })],
       collections: [
-        Products,
+        products,
         ProductCategories,
         Users,
         {
@@ -60,7 +57,17 @@ describe('Products through isolated Payload Local API', () => {
         ),
       ],
     })
+
+  beforeAll(async () => {
+    expect(process.env.DISABLE_R2_STORAGE).toBe('true')
+    const databaseName = `ecolitea2-products-int-${randomUUID()}`
+    const url = createIsolatedTestDatabaseURI(databaseName)
+    databaseURL = url
+    process.stdout.write(`Products DB test target: ${url}; storage: local disabled, R2 disabled\n`)
+    const config = await testConfig(url)
     payload = await getPayload({ config, key: databaseName })
+    const adapter = payload.db as MongooseAdapter
+    process.stdout.write(`Products DB transaction capability: transactionOptions=${JSON.stringify(adapter.transactionOptions)}; replicaSet=${adapter.connection.getClient().options.replicaSet ?? 'none'}; rollback test skipped when disabled.\n`)
     editor = await payload.create({
       collection: 'users',
       data: { email: 'products-editor@example.test', password: 'isolated-test-password' },
@@ -91,6 +98,104 @@ describe('Products through isolated Payload Local API', () => {
       await payload.destroy()
     }
   })
+
+  it('does no public product reads or redirects queries for native draft saves and autosaves', async () => {
+    const product = await payload.create({ collection: 'products', depth: 0, data: {
+      title: 'Autosave live', slug: `autosave-${randomUUID()}`, category: secondCategoryID,
+      gallery: [mediaID], excerpt: 'Live', _status: 'published',
+    } })
+    const findByID = vi.spyOn(payload, 'findByID')
+    const find = vi.spyOn(payload, 'find')
+    try {
+      for (const autosave of [false, true]) {
+        vi.clearAllMocks()
+        await payload.update({ collection: 'products', id: product.id, depth: 0,
+          draft: true, autosave, data: { slug: `private-${randomUUID()}` },
+        })
+        expect(findByID.mock.calls.filter(([args]) => args.collection === 'products' && args.draft === false)).toHaveLength(0)
+        expect(find.mock.calls.filter(([args]) => args.collection === 'redirects')).toHaveLength(0)
+        expect(revalidatePath).not.toHaveBeenCalled()
+        expect(revalidateTag).not.toHaveBeenCalled()
+      }
+    } finally {
+      findByID.mockRestore()
+      find.mockRestore()
+    }
+    expect(await payload.findByID({ collection: 'products', id: product.id, draft: false, depth: 0 })).toMatchObject({ slug: product.slug, _status: 'published' })
+    const versions = await payload.findVersions({ collection: 'products', where: { parent: { equals: product.id } } })
+    expect(versions.docs.some((version) => 'autosave' in version && version.autosave && version.version._status === 'draft')).toBe(true)
+  }, 20_000)
+
+  it('publishes a changed draft through the native queued schedulePublish task', async () => {
+    const product = await payload.create({ collection: 'products', data: {
+      title: 'Scheduled live', slug: `schedule-live-${randomUUID()}`, category: firstCategoryID,
+      gallery: [mediaID], excerpt: 'Scheduled public product', _status: 'published',
+    } })
+    const slug = `schedule-next-${randomUUID()}`
+    await payload.update({ collection: 'products', id: product.id, draft: true,
+      data: { slug, category: secondCategoryID },
+    })
+    const job = await payload.jobs.queue({ task: 'schedulePublish', input: {
+      type: 'publish', doc: { relationTo: 'products', value: product.id },
+    } })
+    vi.clearAllMocks()
+    const result = await payload.jobs.runByID({ id: job.id })
+    expect(result.jobStatus?.[job.id]).toEqual({ status: 'success' })
+    expect(await payload.findByID({ collection: 'products', id: product.id, depth: 0, draft: false })).toMatchObject({ slug, categorySlug: 'black-tea', _status: 'published' })
+    const oldPath = `/products/${product.categorySlug}/${product.slug}`
+    expect((await payload.find({ collection: 'redirects', depth: 0, where: { from: { equals: oldPath } } })).docs[0]).toMatchObject({ to: { reference: { value: product.id } } })
+    expect(revalidatePath).toHaveBeenCalledWith(oldPath)
+    expect(revalidatePath).toHaveBeenCalledWith(`/products/black-tea/${slug}`)
+    for (const tag of ['products-list', 'products-sitemap', `product-${product.id}`, `product-category-${firstCategoryID}`, `product-category-${secondCategoryID}`]) expect(revalidateTag).toHaveBeenCalledWith(tag, 'max')
+    expect(revalidateTag).toHaveBeenCalledWith('redirects', { expire: 0 })
+  }, 20_000)
+
+  it('rolls back a category rename and prior product/redirect writes when legacy required data fails validation', async (test) => {
+    const adapter = payload.db as MongooseAdapter
+    if (adapter.transactionOptions === false || !adapter.connection.getClient().options.replicaSet) {
+      const reason = `Local MongoDB transactionOptions=${JSON.stringify(adapter.transactionOptions)}; replicaSet=${adapter.connection.getClient().options.replicaSet ?? 'none'}; category/product/redirect rollback cannot be verified.`
+      process.stdout.write(`SKIP: ${reason}\n`)
+      test.skip(reason)
+    }
+    // A previous Payload schema permits missing title. Every fixture write uses
+    // the Local API; no raw Mongo writes bypass either schema or hooks.
+    const legacyProducts = { ...Products, fields: Products.fields.map((field) => 'name' in field && field.name === 'title' ? { ...field, required: false } : field) }
+    const legacy = await getPayload({ config: await testConfig(databaseURL, legacyProducts), key: `products-legacy-${randomUUID()}` })
+    const req = await createLocalReq({ context: { taskMarker: 'legacy-rollback' } }, payload)
+    try {
+      const category = await payload.create({ collection: 'product-categories', req,
+        data: { title: 'Legacy category', slug: `legacy-${randomUUID()}`, image: mediaID },
+      })
+      const valid = await payload.create({ collection: 'products', req, data: {
+        title: 'Valid before legacy', slug: `valid-${randomUUID()}`, category: category.id,
+        gallery: [mediaID], excerpt: 'Valid', _status: 'published',
+      } })
+      const invalid = await legacy.create({ collection: 'products', req, data: {
+        slug: `legacy-${randomUUID()}`, category: category.id,
+        gallery: [mediaID], excerpt: 'Legacy missing title', _status: 'published',
+      } as never })
+      const before = await Promise.all([valid.id, invalid.id].map((id) => payload.findByID({ collection: 'products', req, id, draft: false, depth: 0 })))
+      const redirectsBefore = await payload.find({ collection: 'redirects', req, depth: 0, pagination: false })
+      const nestedReqs: unknown[] = []
+      const update = payload.update.bind(payload)
+      const spy = vi.spyOn(payload, 'update').mockImplementation((options) => {
+        if (options.collection === 'products') nestedReqs.push(options.req)
+        return update(options)
+      })
+      try {
+        await expect(payload.update({ collection: 'product-categories', id: category.id, req,
+          data: { slug: `${category.slug}-new` },
+        })).rejects.toMatchObject({ name: 'ValidationError' })
+        expect(nestedReqs.length).toBeGreaterThanOrEqual(2)
+        expect(nestedReqs.every((nested) => nested === req)).toBe(true)
+      } finally { spy.mockRestore() }
+      expect(await payload.findByID({ collection: 'product-categories', id: category.id, req, depth: 0 })).toMatchObject({ slug: category.slug })
+      expect(await Promise.all([valid.id, invalid.id].map((id) => payload.findByID({ collection: 'products', req, id, draft: false, depth: 0 })))).toEqual(before)
+      expect((await payload.find({ collection: 'redirects', req, depth: 0, pagination: false })).docs).toEqual(redirectsBefore.docs)
+      expect(req.context.taskMarker).toBe('legacy-rollback')
+      expect(req.context.disableRevalidate).toBeUndefined()
+    } finally { await legacy.destroy() }
+  }, 25_000)
 
   it('protects published, draft-only and divergent category references without rewriting products', async () => {
     for (const state of ['published', 'draft', 'split'] as const) {
