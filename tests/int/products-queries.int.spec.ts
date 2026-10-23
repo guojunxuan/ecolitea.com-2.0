@@ -70,7 +70,7 @@ describe('public product queries', () => {
       }),
     )
   })
-  it('normalizes detail relationships and downloads at depth one', async () => {
+  it('normalizes detail relationships and downloads at depth two', async () => {
     mocks.find.mockResolvedValue({ docs: [product('self')] })
     const result = await getProductBySlug('self', { draft: false })
     expect(result?.summary).toBe('text')
@@ -83,7 +83,35 @@ describe('public product queries', () => {
       { id: 'doc', title: 'Guide', size: 100, format: 'pdf', url: '/guide.pdf' },
     ])
     expect(mocks.find).toHaveBeenLastCalledWith(
-      expect.objectContaining({ depth: 1, overrideAccess: false, draft: false }),
+      expect.objectContaining({
+        depth: 2,
+        overrideAccess: false,
+        draft: false,
+        populate: expect.objectContaining({
+          media: {
+            alt: true,
+            url: true,
+            thumbnailURL: true,
+            filename: true,
+            mimeType: true,
+            filesize: true,
+            width: true,
+            height: true,
+            focalX: true,
+            focalY: true,
+            createdAt: true,
+            updatedAt: true,
+          },
+          'product-categories': {
+            title: true,
+            slug: true,
+            description: true,
+            image: true,
+            meta: true,
+          },
+          products: { slug: true, categorySlug: true },
+        }),
+      }),
     )
   })
   it('authorizes draft reads outside cache and refuses anonymous users', async () => {
@@ -235,4 +263,88 @@ describe('public product queries', () => {
     })
     expect(await getProductListingSEO()).toEqual({ title: 'Tea', description: 'Range' })
   })
+})
+
+it('normalizes options and resolves defaults with shared public/draft population', async () => {
+  mocks.find.mockResolvedValue({
+    docs: [
+      {
+        ...product('self'),
+        options: [
+          {
+            name: 'Color',
+            display: 'image',
+            values: [
+              {
+                label: 'Red',
+                thumbnail: { id: 'thumb' },
+                swatch: '#f00',
+                gallery: ['raw', { id: 'red' }],
+                specifications: [{ label: 'Origin', value: 'India' }],
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  })
+  const detail = await getProductBySlug('self')
+  expect(detail?.options).toEqual([
+    {
+      key: 'color',
+      name: 'Color',
+      display: 'image',
+      values: [
+        {
+          key: 'red',
+          label: 'Red',
+          swatch: '#f00',
+          thumbnail: { id: 'thumb' },
+          gallery: [{ id: 'red' }],
+          specifications: [{ label: 'Origin', value: 'India' }],
+        },
+      ],
+    },
+  ])
+  expect(detail?.defaultSelection).toEqual({ color: 'red' })
+  expect(detail?.resolvedGallery).toEqual([{ id: 'red' }])
+  expect(detail?.resolvedSpecifications).toEqual([
+    { group: 'General', label: 'Origin', value: 'India' },
+  ])
+  const args = mocks.find.mock.calls.at(-1)![0]
+  expect(args.depth).toBe(2)
+  const lookup = mocks.find.mock.calls[0][0]
+  expect(lookup).toMatchObject({ depth: 0, select: {} })
+  mocks.auth.mockResolvedValue({ user: { id: 'editor' } })
+  await getProductBySlug('self', { draft: true })
+  expect(mocks.find.mock.calls.at(-1)![0].populate).toEqual(args.populate)
+})
+it.each([null, undefined, []])(
+  'normalizes absent options %s and specification arrays',
+  async (options) => {
+    mocks.find.mockResolvedValue({ docs: [{ ...product('self'), options, specifications: null }] })
+    const detail = await getProductBySlug('self')
+    expect(detail).toMatchObject({
+      options: [],
+      specifications: [],
+      defaultSelection: {},
+      resolvedSpecifications: [],
+      resolvedGallery: [{ id: 'image', url: '/image.jpg' }],
+    })
+  },
+)
+it('normalizes incomplete native drafts without missing option names crashing preview', async () => {
+  mocks.auth.mockResolvedValue({ user: { id: 'editor' } })
+  mocks.find.mockResolvedValue({ docs: [{ ...product('self'), options: [{ values: [{}] }] }] })
+  const detail = await getProductBySlug('self', { draft: true })
+  expect(detail?.options).toEqual([
+    {
+      key: '',
+      name: '',
+      display: 'text',
+      values: [
+        { key: '', label: '', swatch: null, thumbnail: null, gallery: [], specifications: [] },
+      ],
+    },
+  ])
 })

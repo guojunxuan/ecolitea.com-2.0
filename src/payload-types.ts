@@ -963,6 +963,30 @@ export interface Product {
         id?: string | null;
       }[]
     | null;
+  /**
+   * Options are generic: name each group freely (Color, Size, Capacity, Finish…). Selecting a value can swap the gallery and override specifications. No SKU or stock.
+   */
+  options?:
+    | {
+        name: string;
+        display: 'text' | 'swatch' | 'image';
+        values: {
+          label: string;
+          swatch?: string | null;
+          thumbnail?: (string | null) | Media;
+          gallery?: (string | Media)[] | null;
+          specifications?:
+            | {
+                label: string;
+                value: string;
+                id?: string | null;
+              }[]
+            | null;
+          id?: string | null;
+        }[];
+        id?: string | null;
+      }[]
+    | null;
   layout?: unknown[] | null;
   downloads?: (string | Document)[] | null;
   faqs?:
@@ -1831,6 +1855,29 @@ export interface ProductsSelect<T extends boolean = true> {
         group?: T;
         label?: T;
         value?: T;
+        id?: T;
+      };
+  options?:
+    | T
+    | {
+        name?: T;
+        display?: T;
+        values?:
+          | T
+          | {
+              label?: T;
+              swatch?: T;
+              thumbnail?: T;
+              gallery?: T;
+              specifications?:
+                | T
+                | {
+                    label?: T;
+                    value?: T;
+                    id?: T;
+                  };
+              id?: T;
+            };
         id?: T;
       };
   layout?: T | {};

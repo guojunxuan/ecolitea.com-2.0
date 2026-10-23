@@ -3,6 +3,8 @@ import { unstable_cache } from 'next/cache'
 import { getPayload, type Where } from 'payload'
 import type { Media, Product, ProductCategory } from '@/payload-types'
 import type { ProductCard, ProductCategoryModel, ProductDetail, ProductMeta } from './models'
+import { optionKey } from './keys'
+import { resolveOptionSelection } from './options'
 import { publicProductVisibility } from './publicVisibility'
 
 export const cached = <T>(key: string[], tags: string[], fn: () => Promise<T>) =>
@@ -74,27 +76,62 @@ export const toProductCard = (value: Product): ProductCard => ({
   summary: value.summary,
   cover: media(value.gallery?.[0]),
 })
-export const toProductDetail = (value: Product): ProductDetail => ({
-  ...value,
-  category:
-    value.category && typeof value.category === 'object' ? toProductCategory(value.category) : null,
-  gallery: (value.gallery ?? []).flatMap((item) => media(item) ?? []),
-  highlights: (value.highlights ?? []).map(({ text }) => text),
-  downloads: (value.downloads ?? []).flatMap((item) =>
-    typeof item === 'object'
-      ? [
-          {
-            id: item.id,
-            title: item.title,
-            size: item.filesize ?? null,
-            format: item.filename?.split('.').pop()?.toLowerCase() ?? null,
-            url: item.url ?? null,
-          },
-        ]
-      : [],
-  ),
-  meta: meta(value.meta),
-  relatedProducts: (value.relatedProducts ?? []).map((item) =>
-    typeof item === 'string' ? item : item.id,
-  ),
-})
+export const toProductDetail = (value: Product): ProductDetail => {
+  const options = (value.options ?? []).map((group) => ({
+    key: optionKey(group.name ?? ''),
+    name: group.name ?? '',
+    display: group.display ?? 'text',
+    values: (group.values ?? []).map((item) => ({
+      key: optionKey(item.label ?? ''),
+      label: item.label ?? '',
+      swatch: item.swatch ?? null,
+      thumbnail: media(item.thumbnail),
+      gallery: (item.gallery ?? []).flatMap((image) => media(image) ?? []),
+      specifications: (item.specifications ?? []).map(({ label, value }) => ({
+        label: label ?? '',
+        value: value ?? '',
+      })),
+    })),
+  }))
+  const defaultSelection = Object.fromEntries(
+    options.flatMap((group) => (group.values[0] ? [[group.key, group.values[0].key]] : [])),
+  )
+  const gallery = (value.gallery ?? []).flatMap((item) => media(item) ?? [])
+  const specifications = (value.specifications ?? []).map(({ group, label, value }) => ({
+    group,
+    label: label ?? '',
+    value: value ?? '',
+  }))
+  const resolved = resolveOptionSelection({ gallery, specifications, options }, defaultSelection)
+  return {
+    ...value,
+    options,
+    specifications,
+    defaultSelection,
+    resolvedGallery: resolved.gallery,
+    resolvedSpecifications: resolved.specifications,
+    category:
+      value.category && typeof value.category === 'object'
+        ? toProductCategory(value.category)
+        : null,
+    gallery,
+    highlights: (value.highlights ?? []).map(({ text }) => text),
+    downloads: (value.downloads ?? []).flatMap((item) =>
+      typeof item === 'object'
+        ? [
+            {
+              id: item.id,
+              title: item.title,
+              size: item.filesize ?? null,
+              format: item.filename?.split('.').pop()?.toLowerCase() ?? null,
+              url: item.url ?? null,
+            },
+          ]
+        : [],
+    ),
+    meta: meta(value.meta),
+    relatedProducts: (value.relatedProducts ?? []).map((item) =>
+      typeof item === 'string' ? item : item.id,
+    ),
+  }
+}

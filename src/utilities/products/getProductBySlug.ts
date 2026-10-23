@@ -1,6 +1,26 @@
+import type { PopulateType } from 'payload'
 import { headers } from 'next/headers'
 import type { ProductDetail } from './models'
 import { cached, client, toProductDetail, visible } from './shared'
+
+export const productDetailPopulate: PopulateType = {
+  media: {
+    alt: true,
+    url: true,
+    thumbnailURL: true,
+    filename: true,
+    mimeType: true,
+    filesize: true,
+    width: true,
+    height: true,
+    focalX: true,
+    focalY: true,
+    createdAt: true,
+    updatedAt: true,
+  },
+  'product-categories': { title: true, slug: true, description: true, image: true, meta: true },
+  products: { slug: true, categorySlug: true },
+}
 
 export async function getProductBySlug(
   slug: string,
@@ -12,7 +32,8 @@ export async function getProductBySlug(
     if (!user) return null
     const result = await payload.find({
       collection: 'products',
-      depth: 1,
+      depth: 2,
+      populate: productDetailPopulate,
       draft: true,
       overrideAccess: false,
       user,
@@ -41,7 +62,8 @@ export async function getProductBySlug(
       const payload = await client()
       const result = await payload.find({
         collection: 'products',
-        depth: 1,
+        depth: 2,
+        populate: productDetailPopulate,
         draft: false,
         overrideAccess: false,
         limit: 1,

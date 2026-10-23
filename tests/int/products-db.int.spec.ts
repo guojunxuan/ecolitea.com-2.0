@@ -87,7 +87,7 @@ describe('Products through isolated Payload Local API', () => {
     firstCategoryID = (
       await payload.create({
         collection: 'product-categories',
-        data: { title: 'Green Tea', slug: 'green-tea', image: mediaID },
+        data: { title: 'Green Tea', slug: 'green-tea', image: mediaID, meta: { image: mediaID } },
       })
     ).id
     secondCategoryID = (
@@ -103,6 +103,153 @@ describe('Products through isolated Payload Local API', () => {
       await (payload.db as MongooseAdapter).connection.dropDatabase()
       await payload.destroy()
     }
+  })
+
+  it('validates options with native draft semantics, preserves inactive fields and populates detail media', async () => {
+    const base = {
+      title: 'Options validation',
+      slug: `options-${randomUUID()}`,
+      category: firstCategoryID,
+      gallery: [mediaID],
+      summary: 'Options',
+      _status: 'published' as const,
+    }
+    const valid = [
+      {
+        name: 'Color',
+        display: 'swatch' as const,
+        values: [
+          {
+            label: 'Natural',
+            swatch: '#AbC',
+            thumbnail: mediaID,
+            gallery: [mediaID],
+            specifications: [{ label: 'Origin', value: 'India' }],
+          },
+        ],
+      },
+    ]
+    const created = await payload.create({
+      collection: 'products',
+      data: { ...base, options: valid },
+      depth: 0,
+    })
+    const update = (data: unknown, draft = false) =>
+      payload.update({
+        collection: 'products',
+        id: created.id,
+        data: data as never,
+        draft,
+        depth: 0,
+      })
+    const errors = async (data: unknown, path: string) => {
+      try {
+        await update(data)
+        expect.fail('Expected validation error')
+      } catch (error) {
+        expect(error).toBeInstanceOf((await import('payload')).ValidationError)
+        expect((error as import('payload').ValidationError).data?.errors).toEqual(
+          expect.arrayContaining([expect.objectContaining({ path })]),
+        )
+      }
+    }
+    await errors({ options: [...valid, { ...valid[0], name: ' COLOR ' }] }, 'options.1.name')
+    await errors({ options: [{ ...valid[0], name: 'N'.repeat(41) }] }, 'options.0.name')
+    await errors(
+      { options: [{ ...valid[0], values: [{ label: 'L'.repeat(41), swatch: '#abc' }] }] },
+      'options.0.values.0.label',
+    )
+    await errors({ options: [{ ...valid[0], values: [] }] }, 'options.0.values')
+    await errors({ options: [{ ...valid[0], values: null }] }, 'options.0.values')
+    await errors(
+      { options: [{ ...valid[0], values: [{ label: 'Natural', swatch: 'red' }] }] },
+      'options.0.values.0.swatch',
+    )
+    await errors(
+      { options: [{ ...valid[0], display: 'image', values: [{ label: 'Natural' }] }] },
+      'options.0.values.0.thumbnail',
+    )
+    await errors({ options: [{ ...valid[0], display: 'unknown' }] }, 'options.0.display')
+    const document = await payload.create({
+      collection: 'media',
+      data: { alt: 'Not an image', mimeType: 'application/pdf' },
+    })
+    await errors(
+      {
+        options: [
+          { ...valid[0], display: 'image', values: [{ label: 'PDF', thumbnail: document.id }] },
+        ],
+      },
+      'options.0.values.0.thumbnail',
+    )
+    await errors(
+      {
+        options: [
+          { ...valid[0], display: 'text', values: [{ label: 'PDF', gallery: [document.id] }] },
+        ],
+      },
+      'options.0.values.0.gallery',
+    )
+    const row = created.options![0]
+    const text = await update({ options: [{ ...row, display: 'text' }] })
+    expect(text.options![0].values[0]).toMatchObject({ swatch: '#AbC', thumbnail: mediaID })
+    const image = await update({ options: [{ ...text.options![0], display: 'image' }] })
+    expect(image.options![0].values[0]).toMatchObject({ swatch: '#AbC', thumbnail: mediaID })
+    const partial = await update({ title: 'Unrelated partial update' })
+    expect(partial.options![0].display).toBe('image')
+    const rowPatch = await update({ options: [{ id: image.options![0].id, name: 'Colour' }] })
+    expect(rowPatch.options![0].values[0]).toMatchObject({ swatch: '#AbC', thumbnail: mediaID })
+    const valuePatch = await update({
+      options: [
+        {
+          id: rowPatch.options![0].id,
+          values: [{ id: rowPatch.options![0].values[0].id, label: 'Natural edited' }],
+        },
+      ],
+    })
+    expect(valuePatch.options![0].values[0]).toMatchObject({
+      label: 'Natural edited',
+      swatch: '#AbC',
+      thumbnail: mediaID,
+    })
+    await errors(
+      {
+        options: [
+          { ...image.options![0], values: [{ ...image.options![0].values[0], thumbnail: null }] },
+        ],
+      },
+      'options.0.values.0.thumbnail',
+    )
+    const savedDraft = await update(
+      {
+        _status: 'draft',
+        options: [{ name: 'Color', display: 'image', values: [{ label: 'Natural' }] }],
+      },
+      true,
+    )
+    expect(savedDraft._status).toBe('draft')
+    await errors({ ...base, options: savedDraft.options }, 'options.0.values.0.thumbnail')
+    // Restore a valid published document before testing the exact detail population contract.
+    await update({ ...base, options: valid })
+    const { productDetailPopulate } = await import('@/utilities/products/getProductBySlug')
+    const populated = await payload.findByID({
+      collection: 'products',
+      id: created.id,
+      depth: 2,
+      populate: productDetailPopulate,
+    })
+    expect(populated.options![0].values[0].thumbnail).toMatchObject({
+      id: mediaID,
+      alt: 'Test image',
+    })
+    expect(populated.options![0].values[0].gallery![0]).toMatchObject({ id: mediaID })
+    expect(populated.category).toMatchObject({
+      image: { id: mediaID },
+      meta: { image: { id: mediaID } },
+    })
+    const { toProductDetail } = await import('@/utilities/products/shared')
+    expect(toProductDetail(populated).resolvedGallery[0]).toMatchObject({ id: mediaID })
+    await payload.delete({ collection: 'products', id: created.id })
   })
 
   it('does no public product reads or redirects queries for native draft saves and autosaves', async () => {

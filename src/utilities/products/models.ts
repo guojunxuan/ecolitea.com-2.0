@@ -20,10 +20,37 @@ export type ProductDownload = {
   format: string | null
   url: string | null
 }
+export type ProductSpecification = { group?: string | null; label: string; value: string }
+export type ProductOptionValue = {
+  key: string
+  label: string
+  swatch: string | null
+  thumbnail: Media | null
+  gallery: Media[]
+  specifications: ProductSpecification[]
+}
+export type ProductOption = {
+  key: string
+  name: string
+  display: 'text' | 'swatch' | 'image'
+  values: ProductOptionValue[]
+}
 export type ProductDetail = Omit<
   Product,
-  'category' | 'gallery' | 'highlights' | 'downloads' | 'meta' | 'relatedProducts'
+  | 'category'
+  | 'gallery'
+  | 'highlights'
+  | 'downloads'
+  | 'meta'
+  | 'relatedProducts'
+  | 'options'
+  | 'specifications'
 > & {
+  options: ProductOption[]
+  specifications: ProductSpecification[]
+  defaultSelection: Record<string, string>
+  resolvedGallery: Media[]
+  resolvedSpecifications: ProductSpecification[]
   category: ProductCategoryModel | null
   gallery: Media[]
   highlights: string[]

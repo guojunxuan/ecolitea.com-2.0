@@ -12,6 +12,7 @@ import { imageOnly } from '@/collections/mediaUploadPolicy'
 import { compactLexical } from '@/fields/compactLexical'
 import { generatePreviewPath } from '@/utilities/generatePreviewPath'
 import { productBlocks } from './blocks'
+import { productOptions } from './fields/options'
 import { setProductCategorySlug } from './hooks/setProductCategorySlug'
 import { redirectProduct } from './hooks/productRedirects'
 import { revalidateProduct, revalidateProductDelete } from './hooks/revalidateProduct'
@@ -108,6 +109,7 @@ export const Products: CollectionConfig = {
             },
           ],
         },
+        { label: 'Options', fields: [productOptions] },
         {
           label: 'Details',
           fields: [{ name: 'layout', type: 'blocks', blocks: productBlocks }],
