@@ -1,1 +1,61 @@
-export { getRelatedProducts } from './queries'
+import type { Product } from '@/payload-types'
+import type { ProductDetail } from './models'
+import { cached, client, toProductCard, visible } from './shared'
+
+export const getRelatedProducts = (product: ProductDetail) =>
+  cached(
+    [
+      'product-related',
+      product.id,
+      product.category?.id ?? '',
+      JSON.stringify(product.relatedProducts),
+    ],
+    [
+      'products-list',
+      `product-${product.id}`,
+      ...(product.category ? [`product-category-${product.category.id}`] : []),
+    ],
+    async () => {
+      const payload = await client()
+      const ids = [...new Set(product.relatedProducts)].filter((id) => id !== product.id)
+      const selected: Product[] = []
+      if (ids.length) {
+        const result = await payload.find({
+          collection: 'products',
+          depth: 1,
+          draft: false,
+          overrideAccess: false,
+          pagination: false,
+          limit: ids.length,
+          where: visible([{ id: { in: ids } }, { id: { not_in: [product.id] } }]),
+        })
+        const byId = new Map(result.docs.map((doc) => [doc.id, doc]))
+        for (const id of ids) {
+          const doc = byId.get(id)
+          if (doc && selected.length < 4) selected.push(doc)
+        }
+      }
+      if (selected.length < 4 && product.category) {
+        const result = await payload.find({
+          collection: 'products',
+          depth: 1,
+          draft: false,
+          overrideAccess: false,
+          limit: 4 - selected.length,
+          sort: '-publishedAt',
+          where: visible([
+            { category: { equals: product.category.id } },
+            { id: { not_in: [product.id, ...selected.map((doc) => doc.id)] } },
+          ]),
+        })
+        for (const doc of result.docs)
+          if (
+            doc.id !== product.id &&
+            !selected.some((item) => item.id === doc.id) &&
+            selected.length < 4
+          )
+            selected.push(doc)
+      }
+      return selected.map(toProductCard)
+    },
+  )

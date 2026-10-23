@@ -96,7 +96,7 @@ describe('public product queries', () => {
     mocks.find
       .mockResolvedValueOnce({ docs: [product('a'), product('b')] })
       .mockResolvedValueOnce({ docs: [product('c')] })
-    const { toProductDetail } = await import('@/utilities/products/models')
+    const { toProductDetail } = await import('@/utilities/products/shared')
     expect(
       (await getRelatedProducts(toProductDetail(product('self') as never))).map((x) => x.id),
     ).toEqual(['b', 'a', 'c'])
