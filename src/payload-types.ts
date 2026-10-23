@@ -949,6 +949,12 @@ export interface Product {
   title: string;
   gallery: (string | Media)[];
   summary: string;
+  highlights?:
+    | {
+        text: string;
+        id?: string | null;
+      }[]
+    | null;
   specifications?:
     | {
         group?: string | null;
@@ -1813,6 +1819,12 @@ export interface ProductsSelect<T extends boolean = true> {
   title?: T;
   gallery?: T;
   summary?: T;
+  highlights?:
+    | T
+    | {
+        text?: T;
+        id?: T;
+      };
   specifications?:
     | T
     | {

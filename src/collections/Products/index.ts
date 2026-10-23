@@ -79,11 +79,26 @@ export const Products: CollectionConfig = {
             },
             { name: 'summary', type: 'textarea', required: true, maxLength: 160 },
             {
+              name: 'highlights',
+              type: 'array',
+              maxRows: 6,
+              admin: {
+                initCollapsed: true,
+                components: {
+                  RowLabel: '@/collections/Products/admin/HighlightRowLabel#HighlightRowLabel',
+                },
+              },
+              fields: [{ name: 'text', type: 'text', required: true, maxLength: 120 }],
+            },
+            {
               name: 'specifications',
               type: 'array',
               admin: {
                 initCollapsed: true,
-                components: { RowLabel: '@/collections/Products/SpecsRowLabel#SpecsRowLabel' },
+                components: {
+                  RowLabel:
+                    '@/collections/Products/admin/SpecificationRowLabel#SpecificationRowLabel',
+                },
               },
               fields: [
                 { name: 'group', type: 'text' },

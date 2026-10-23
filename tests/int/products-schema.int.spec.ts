@@ -130,7 +130,9 @@ describe('Products configuration', () => {
           type: 'array',
           admin: expect.objectContaining({
             initCollapsed: true,
-            components: { RowLabel: '@/collections/Products/SpecsRowLabel#SpecsRowLabel' },
+            components: {
+              RowLabel: '@/collections/Products/admin/SpecificationRowLabel#SpecificationRowLabel',
+            },
           }),
         }),
       ]),
@@ -197,5 +199,36 @@ describe('Products configuration', () => {
     if (typeof related.filterOptions !== 'function')
       throw new Error('Missing related product filter')
     expect(related.filterOptions?.({ id: 'self' } as never)).toEqual({ id: { not_in: ['self'] } })
+  })
+
+  it('provides optional collapsed highlights with native row and text limits', async () => {
+    const { Products } = await import('@/collections/Products')
+    const tabs = Products.fields.find((field) => field.type === 'tabs')
+    if (tabs?.type !== 'tabs') throw new Error('Missing product tabs')
+    const overview = tabs.tabs.find((tab) => tab.label === 'Overview')!
+    const highlights = overview.fields.find(
+      (field) => 'name' in field && field.name === 'highlights',
+    )
+    expect(highlights).toMatchObject({
+      type: 'array',
+      maxRows: 6,
+      admin: {
+        initCollapsed: true,
+        components: {
+          RowLabel: '@/collections/Products/admin/HighlightRowLabel#HighlightRowLabel',
+        },
+      },
+      fields: expect.arrayContaining([
+        expect.objectContaining({ name: 'text', type: 'text', required: true, maxLength: 120 }),
+      ]),
+    })
+    expect(highlights).not.toHaveProperty('required', true)
+    expect(highlights).not.toHaveProperty('minRows')
+    expect(overview.fields.map((field) => ('name' in field ? field.name : field.type))).toEqual([
+      'gallery',
+      'summary',
+      'highlights',
+      'specifications',
+    ])
   })
 })

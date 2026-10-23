@@ -2,10 +2,10 @@
 
 import { useRowLabel, type RowLabelProps } from '@payloadcms/ui'
 
-type SpecsRow = { label?: string | null; value?: string | null }
+type SpecificationRow = { label?: string | null; value?: string | null }
 
-export const SpecsRowLabel: React.FC<RowLabelProps> = () => {
-  const { data, rowNumber } = useRowLabel<SpecsRow>()
+export const SpecificationRowLabel: React.FC<RowLabelProps> = () => {
+  const { data, rowNumber } = useRowLabel<SpecificationRow>()
   const label = data?.label?.trim()
   const value = data?.value?.trim()
   if (label && value) return <span>{`${label}: ${value}`}</span>

@@ -22,10 +22,11 @@ export type ProductDownload = {
 }
 export type ProductDetail = Omit<
   Product,
-  'category' | 'gallery' | 'downloads' | 'meta' | 'relatedProducts'
+  'category' | 'gallery' | 'highlights' | 'downloads' | 'meta' | 'relatedProducts'
 > & {
   category: ProductCategoryModel | null
   gallery: Media[]
+  highlights: string[]
   downloads: ProductDownload[]
   meta: ProductMeta
   relatedProducts: string[]

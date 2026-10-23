@@ -97,6 +97,27 @@ describe('public product queries', () => {
     )
     expect(mocks.cache).not.toHaveBeenCalled()
   })
+  it.each([undefined, null, []])(
+    'normalizes absent or empty highlights %s to an empty array',
+    async (highlights) => {
+      mocks.find.mockResolvedValue({ docs: [{ ...product('self'), highlights }] })
+      expect((await getProductBySlug('self'))?.highlights).toEqual([])
+    },
+  )
+  it('normalizes highlight rows into ordered detail strings', async () => {
+    mocks.find.mockResolvedValue({
+      docs: [
+        {
+          ...product('self'),
+          highlights: [
+            { id: 'one', text: 'Organic tea' },
+            { id: 'two', text: 'Fresh harvest' },
+          ],
+        },
+      ],
+    })
+    expect((await getProductBySlug('self'))?.highlights).toEqual(['Organic tea', 'Fresh harvest'])
+  })
   it('keeps handpicked order, excludes self and duplicates, fills only same category', async () => {
     mocks.find
       .mockResolvedValueOnce({ docs: [product('a'), product('b')] })

@@ -79,6 +79,7 @@ export const toProductDetail = (value: Product): ProductDetail => ({
   category:
     value.category && typeof value.category === 'object' ? toProductCategory(value.category) : null,
   gallery: (value.gallery ?? []).flatMap((item) => media(item) ?? []),
+  highlights: (value.highlights ?? []).map(({ text }) => text),
   downloads: (value.downloads ?? []).flatMap((item) =>
     typeof item === 'object'
       ? [
