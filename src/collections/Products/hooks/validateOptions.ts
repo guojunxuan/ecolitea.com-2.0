@@ -9,15 +9,16 @@ type Group = { id?: string; name?: string; display?: string; values?: Value[] | 
 const effectiveRows = <T extends { id?: string }>(rows: T[], previous: T[] = []): T[] =>
   rows.map((row) => ({ ...previous.find((old) => row.id && old.id === row.id), ...row }))
 
-export const validateOptions: ArrayFieldValidation = (value, { previousValue, data, req }) => {
-  const incoming = (
-    value === undefined ? (data as { options?: Group[] | null }).options : value
-  ) as Group[] | null | undefined
-  const previous = previousValue as Group[] | null | undefined
-  const groups = effectiveRows(
-    incoming === undefined ? (previous ?? []) : (incoming ?? []),
-    previous ?? [],
-  )
+export const validateOptions: ArrayFieldValidation = (
+  value,
+  { previousValue, data, req, event },
+) => {
+  const formOptions = (data as { options?: Group[] | null }).options
+  const incoming = (event === 'onChange' || value === undefined ? formOptions : value) as
+    Group[] | null | undefined
+  // Admin form state stores array initialValue as a row count, not persisted rows.
+  const previous = Array.isArray(previousValue) ? (previousValue as Group[]) : []
+  const groups = effectiveRows(incoming === undefined ? previous : (incoming ?? []), previous)
   const errors: ValidationFieldError[] = []
   const names = new Set<string>()
   const groupKeys = new Set<string>()
@@ -50,6 +51,11 @@ export const validateOptions: ArrayFieldValidation = (value, { previousValue, da
         errors.push({ path: `${path}.thumbnail`, message: 'Choose an image for this value.' })
     })
   })
-  if (errors.length) throw new ValidationError({ collection: 'products', errors, req })
+  if (errors.length) {
+    // Form-state validation consumes string results and logs any thrown error.
+    // Submit validation preserves official child-field paths for API/Admin writes.
+    if (event === 'onChange') return `${errors[0].path}: ${errors[0].message}`
+    throw new ValidationError({ collection: 'products', errors, req })
+  }
   return true
 }

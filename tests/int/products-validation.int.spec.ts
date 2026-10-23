@@ -1,4 +1,5 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
+import { fieldSchemasToFormState } from '@payloadcms/ui/forms/fieldSchemasToFormState'
 import { ValidationError } from 'payload'
 import { Products } from '@/collections/Products'
 import { imageOnly } from '@/collections/mediaUploadPolicy'
@@ -115,4 +116,89 @@ describe('product options schema and server validation', () => {
       ).toBe(name === 'thumbnail')
     }
   })
+})
+
+describe('Options Admin onChange validation', () => {
+  it.each([0, 1])('accepts valid form rows with numeric previousValue %s', (previousValue) => {
+    const options = [{ id: 'group', ...text() }]
+    expect(
+      field.validate?.(options, {
+        event: 'onChange',
+        previousValue,
+        data: { options },
+        path: ['options'],
+      } as never),
+    ).toBe(true)
+  })
+
+  it('uses the full current form data instead of stale row values during onChange', () => {
+    const options = [{ id: 'group', ...text(), display: 'image' }]
+    expect(
+      field.validate?.([], {
+        event: 'onChange',
+        previousValue: 1,
+        data: { options },
+        path: ['options'],
+      } as never),
+    ).toBe('options.0.values.0.thumbnail: Choose an image for this value.')
+  })
+
+  const formState = async (options: unknown[], previousCount: number) => {
+    const logger = { error: vi.fn() }
+    const result = await fieldSchemasToFormState({
+      collectionSlug: 'products',
+      fields: [field],
+      fieldSchemaMap: undefined,
+      data: { options },
+      permissions: {},
+      preferences: { fields: {} },
+      previousFormState: { options: { initialValue: previousCount, value: previousCount } },
+      renderAllFields: false,
+      operation: 'update',
+      schemaPath: 'products',
+      req: { payload: { logger, config: { localization: false } } } as never,
+    })
+    return { result, logger }
+  }
+
+  it('refreshes valid options through the public form-state API without logging errors', async () => {
+    const { result, logger } = await formState([{ id: 'group', ...text() }], 1)
+    expect(result.options.initialValue).toBe(1)
+    expect(result.options.valid).not.toBe(false)
+    expect(result.options.errorMessage).toBeUndefined()
+    expect(logger.error).not.toHaveBeenCalled()
+  })
+
+  it.each([
+    {
+      options: [
+        { id: 'one', ...text() },
+        { id: 'two', ...text(' COLOR ') },
+      ],
+      path: 'options.1.name',
+      message: 'Use a unique name containing letters or numbers.',
+    },
+    {
+      options: [
+        { id: 'one', ...text(), display: 'swatch', values: [{ label: 'Red', swatch: 'bad' }] },
+      ],
+      path: 'options.0.values.0.swatch',
+      message: 'Enter a color as #RGB or #RRGGBB.',
+    },
+    {
+      options: [{ id: 'one', ...text(), display: 'image' }],
+      path: 'options.0.values.0.thumbnail',
+      message: 'Choose an image for this value.',
+    },
+  ])(
+    'returns actionable $path feedback through actual onChange form-state handling',
+    async ({ options, path, message }) => {
+      const { result, logger } = await formState(options, 0)
+      expect(result.options.valid).toBe(false)
+      expect(result.options.errorMessage).toBe(`${path}: ${message}`)
+      expect(result.options.errorMessage).not.toContain('Error validating field')
+      expect(logger.error).not.toHaveBeenCalled()
+      expectPath(options, path)
+    },
+  )
 })
