@@ -1,4 +1,5 @@
 import { createRequire } from 'node:module'
+import { isDeepStrictEqual } from 'node:util'
 import { describe, expect, it, vi } from 'vitest'
 import {
   down,
@@ -24,6 +25,24 @@ type Operation = {
   updateOne: { filter: Document; update: { $set?: Document; $unset?: Document } }
 }
 function fixture(main: Document[] = [], versions: Document[] = []) {
+  let beforeWrite: (() => void) | undefined
+  const fieldValue = (document: Document, path: string) => {
+    const parts = path.split('.')
+    const field = parts.pop()!
+    const base = parts.reduce((base, key) => base?.[key] as Document, document)
+    return { exists: Boolean(base && Object.hasOwn(base, field)), value: base?.[field] }
+  }
+  const matches = (document: Document, filter: Document): boolean =>
+    Object.entries(filter).every(([key, condition]) => {
+      if (key === '$and') return (condition as Document[]).every((part) => matches(document, part))
+      if (key === '$expr') {
+        const [path, expected] = (condition as { $eq: [string, { $literal: unknown }] }).$eq
+        return isDeepStrictEqual(fieldValue(document, path.slice(1)).value, expected.$literal)
+      }
+      if (condition && typeof condition === 'object' && '$exists' in condition)
+        return fieldValue(document, key).exists === condition.$exists
+      return isDeepStrictEqual(fieldValue(document, key).value, condition)
+    })
   const documents = { products: main, _products_versions: versions }
   const handles = Object.fromEntries(
     Object.entries(documents).map(([collectionName, docs]) => [
@@ -36,8 +55,12 @@ function fixture(main: Document[] = [], versions: Document[] = []) {
           },
         })),
         bulkWrite: vi.fn(async (operations: Operation[], _options?: unknown) => {
+          beforeWrite?.()
+          let matchedCount = 0
           for (const { updateOne } of operations) {
-            const document = docs.find((doc) => doc._id === updateOne.filter._id)!
+            const document = docs.find((doc) => matches(doc, updateOne.filter))
+            if (!document) continue
+            matchedCount++
             for (const [operator, values] of Object.entries(updateOne.update)) {
               for (const [path, value] of Object.entries(values as Document)) {
                 const parts = path.split('.')
@@ -48,6 +71,7 @@ function fixture(main: Document[] = [], versions: Document[] = []) {
               }
             }
           }
+          return { matchedCount }
         }),
       },
     ]),
@@ -60,7 +84,14 @@ function fixture(main: Document[] = [], versions: Document[] = []) {
     },
     logger: { info: vi.fn() },
   }
-  return { payload, documents, handles }
+  return {
+    payload,
+    documents,
+    handles,
+    beforeWrite: (callback: () => void) => {
+      beforeWrite = callback
+    },
+  }
 }
 
 const specs = [{ group: 'Power', label: 'Voltage', value: '240 V' }]
@@ -288,6 +319,74 @@ describe('product model migration', () => {
     ])
     expect(f.handles.products.bulkWrite.mock.calls[0][1]).toEqual({ session })
     expect((await scanProductModelMigration(f.payload.db as never, 'up')).toRename).toBe(0)
+  })
+})
+
+describe('snapshot conditions protect concurrent edits', () => {
+  const cases = [
+    { name: 'layout becomes nonempty', field: 'layout', value: [{ content: 'concurrent' }] },
+    { name: 'downloads becomes nonempty', field: 'downloads', value: ['concurrent'] },
+    { name: 'faqs becomes nonempty', field: 'faqs', value: [{ question: 'concurrent' }] },
+    { name: 'source text changes', field: 'source', value: 'concurrent' },
+    { name: 'missing destination becomes null', field: 'target', value: null },
+    { name: 'missing destination becomes populated', field: 'target', value: 'concurrent' },
+    { name: 'null legacy becomes missing', field: 'downloads', remove: true },
+    { name: 'missing legacy becomes null', field: 'faqs', initiallyMissing: true, value: null },
+  ]
+  for (const direction of ['up', 'down'] as const)
+    for (const version of [false, true])
+      it.each(cases)(
+        `${direction} version=${version} preserves $name and reports unmatched writes`,
+        async ({ field, value, remove, initiallyMissing }) => {
+          const source = direction === 'up' ? 'excerpt' : 'summary'
+          const target = direction === 'up' ? 'summary' : 'excerpt'
+          const base: Document = { [source]: 'before', layout: [], downloads: null, faqs: [] }
+          const path = field === 'source' ? source : field === 'target' ? target : field
+          if (initiallyMissing) delete base[path]
+          const doc: Document = version ? { _id: 'v', version: base } : { _id: 'p', ...base }
+          const f = fixture(version ? [] : [doc], version ? [doc] : [])
+          const current = version ? (doc.version as Document) : doc
+          f.beforeWrite(() => {
+            if (remove) delete current[path]
+            else current[path] = value
+          })
+          await expect(
+            (direction === 'up' ? up : down)({ payload: f.payload } as never),
+          ).rejects.toThrow(/matched 0 of 1.*concurrent.*partially applied/s)
+          expect(Object.hasOwn(current, path)).toBe(!remove)
+          if (!remove) expect(current[path]).toEqual(value)
+          expect(current[source]).toBe(field === 'source' ? value : 'before')
+          if (field !== 'target') expect(current).not.toHaveProperty(target)
+        },
+      )
+
+  it('stops before the next batch after a mismatch and supports a fresh idempotent scan', async () => {
+    const docs = Array.from({ length: 251 }, (_, _id) => ({ _id, excerpt: 'before' }) as Document)
+    const f = fixture(docs)
+    f.beforeWrite(() => {
+      docs[0].excerpt = 'concurrent'
+    })
+    await expect(up({ payload: f.payload } as never)).rejects.toThrow(/matched 249 of 250/)
+    expect(f.handles.products.bulkWrite).toHaveBeenCalledTimes(1)
+    expect(docs[0]).toEqual({ _id: 0, excerpt: 'concurrent' })
+    expect(docs[1]).toEqual({ _id: 1, summary: 'before' })
+    expect(docs[250]).toEqual({ _id: 250, excerpt: 'before' })
+    f.beforeWrite(() => {})
+    await up({ payload: f.payload } as never)
+    expect(docs[0]).toEqual({ _id: 0, summary: 'concurrent' })
+    expect((await scanProductModelMigration(f.payload.db as never, 'up')).toRename).toBe(0)
+  })
+
+  it('guards entire specification arrays and equal dual fields on versions', async () => {
+    const base: Document = { excerpt: 'same', summary: 'same', specs, specifications: specs }
+    const f = fixture([], [{ _id: 'v', version: base }])
+    f.beforeWrite(() => {
+      base.specs = [{ ...specs[0], value: 'concurrent', metadata: { keep: true } }]
+    })
+    await expect(up({ payload: f.payload } as never)).rejects.toThrow(/matched 0 of 1/)
+    expect(base.excerpt).toBe('same')
+    expect(base.specs).toEqual([{ ...specs[0], value: 'concurrent', metadata: { keep: true } }])
+    expect(base.specifications).toBe(specs)
   })
 })
 

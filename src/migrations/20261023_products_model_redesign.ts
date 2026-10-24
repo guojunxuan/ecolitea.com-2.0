@@ -16,7 +16,7 @@ type Operation = {
 type RawCollection = {
   collectionName: string
   find: (filter: RecordValue, options: Options) => AsyncIterable<RecordValue>
-  bulkWrite: (operations: Operation[], options: Options) => Promise<unknown>
+  bulkWrite: (operations: Operation[], options: Options) => Promise<{ matchedCount: number }>
 }
 const legacyFields = ['layout', 'downloads', 'faqs'] as const
 const counts = (): Record<LegacyField, number> => ({ layout: 0, downloads: 0, faqs: 0 })
@@ -124,6 +124,23 @@ export function planProductModelMigration(
   return plan
 }
 
+/** MongoDB evaluates each condition atomically with the update. $expr compares
+ * whole arrays exactly; query-level $eq can also match an array element.
+ * Explicit $exists distinguishes absent fields from stored null values.
+ */
+function snapshotFilter(document: RecordValue, version: boolean): RecordValue {
+  const base = (version ? document.version : document) as RecordValue
+  const prefix = version ? 'version.' : ''
+  const conditions: RecordValue[] = []
+  for (const field of ['excerpt', 'summary', 'specs', 'specifications', ...legacyFields]) {
+    const path = `${prefix}${field}`
+    const exists = Object.hasOwn(base, field)
+    conditions.push({ [path]: { $exists: exists } })
+    if (exists) conditions.push({ $expr: { $eq: [`$${path}`, { $literal: base[field] }] } })
+  }
+  return { _id: document._id, $and: conditions }
+}
+
 export function assertProductMigrationTarget(adapter: MongooseAdapter) {
   const target = {
     host: adapter.connection.host,
@@ -228,7 +245,7 @@ export async function scanProductModelMigration(
         row.toChangeDocuments++
         operations.push({
           updateOne: {
-            filter: { _id: document._id },
+            filter: snapshotFilter(document, version),
             update: {
               ...(Object.keys(plan.set).length ? { $set: plan.set } : {}),
               ...(Object.keys(plan.unset).length ? { $unset: plan.unset } : {}),
@@ -266,8 +283,14 @@ async function migrate(args: MigrateUpArgs | MigrateDownArgs, direction: Directi
       `Product model migration aborted before writes: unknown=${report.unknown.length}; conflicts=${report.conflicts.length}; nonemptyLegacy=${JSON.stringify(report.nonemptyLegacy)}`,
     )
   for (const { collection, operations } of writes)
-    for (let i = 0; i < operations.length; i += 250)
-      await collection.bulkWrite(operations.slice(i, i + 250), options)
+    for (let i = 0; i < operations.length; i += 250) {
+      const batch = operations.slice(i, i + 250)
+      const result = await collection.bulkWrite(batch, options)
+      if (result.matchedCount !== batch.length)
+        throw new Error(
+          `Product model migration stopped: ${collection.collectionName} batch ${i / 250 + 1} matched ${result.matchedCount} of ${batch.length}; concurrent changes detected. Without a transaction, earlier writes may be partially applied; rerun preflight before retrying.`,
+        )
+    }
 }
 export async function up(args: MigrateUpArgs) {
   await migrate(args, 'up')
