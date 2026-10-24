@@ -130,7 +130,7 @@ const cases = [
           playbackField,
         ],
       },
-      { ...requiredMedia, name: 'defaultMedia' },
+      { ...requiredMedia, name: 'defaultMedia', label: 'Default Media' },
       mediaPosition,
       aspectRatio(['1:1', '4:3', '4:5', '16:9'], '1:1'),
       themeField,

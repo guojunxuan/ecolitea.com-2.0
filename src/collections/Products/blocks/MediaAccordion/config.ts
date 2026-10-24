@@ -46,6 +46,7 @@ export const MediaAccordion: Block = {
     },
     {
       name: 'defaultMedia',
+      label: 'Default Media',
       type: 'upload',
       relationTo: 'media',
       filterOptions: imageOrVideo,
