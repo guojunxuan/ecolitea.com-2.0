@@ -1,4 +1,5 @@
 export const mediaAspectRatios = {
+  '21:9': { width: 21, height: 9 },
   '1:1': { width: 1, height: 1 },
   '4:3': { width: 4, height: 3 },
   '3:2': { width: 3, height: 2 },
