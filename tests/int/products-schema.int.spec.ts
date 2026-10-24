@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { ProductCategories } from '@/collections/ProductCategories'
+import { productBlocks } from '@/collections/Products/blocks'
 import { imageOnly } from '@/collections/mediaUploadPolicy'
 
 describe('Product category configuration', () => {
@@ -167,7 +168,7 @@ describe('Products configuration', () => {
           fields: expect.arrayContaining([
             expect.objectContaining({ name: 'label', type: 'text', required: true, maxLength: 40 }),
             expect.objectContaining({ name: 'anchor', type: 'text' }),
-            expect.objectContaining({ name: 'blocks', type: 'blocks', blocks: [] }),
+            expect.objectContaining({ name: 'blocks', type: 'blocks', blocks: productBlocks }),
           ]),
         },
       ],

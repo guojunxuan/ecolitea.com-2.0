@@ -1,4 +1,4 @@
-import type { Field } from 'payload'
+import type { Block, Field } from 'payload'
 import { describe, expect, it } from 'vitest'
 
 import { imageOrVideo } from '@/collections/mediaUploadPolicy'
@@ -13,6 +13,12 @@ import {
 } from '@/collections/Products/blocks/shared/playbackCondition'
 import { themeField } from '@/collections/Products/blocks/shared/themeField'
 import { compactLexical } from '@/fields/compactLexical'
+import { productBlocks } from '@/collections/Products/blocks'
+import { pageBlocks } from '@/collections/Pages/blocks'
+import { caseStudyBlocks } from '@/collections/CaseStudies/blocks'
+import { blogBlocks } from '@/collections/Blogs/blocks'
+import { postBlocks } from '@/collections/Posts/blocks'
+import { CardGroup, CategoryTabs, LinkGroup, RichCard } from '@/Header/blocks'
 
 const media = { name: 'media', type: 'upload', relationTo: 'media', filterOptions: imageOrVideo }
 const requiredMedia = { ...media, required: true }
@@ -203,5 +209,181 @@ describe('Products media block schemas', () => {
       for (const field of sharedFields)
         expect(field).not.toBe(name === 'theme' ? themeField : playbackField)
     }
+  })
+})
+
+describe('Products Code block and registry', () => {
+  const getCode = async (): Promise<Block> =>
+    (await import('@/collections/Products/blocks/Code/config')).Code
+
+  it('declares the Custom Code identity and native Admin presentation', async () => {
+    const code = await getCode()
+    expect(code.slug).toBe('productCode')
+    expect(code.interfaceName).toBe('ProductCodeBlock')
+    expect(code.labels).toEqual({ singular: 'Custom Code', plural: 'Custom Code' })
+    expect(code.admin).toEqual({
+      group: 'Products',
+      disableBlockName: true,
+      images: { icon: '/block-previews/media.svg', thumbnail: '/block-previews/media.svg' },
+      components: {
+        Label: {
+          path: '@/blocks/BlockRowLabel#BlockRowLabel',
+          clientProps: { label: 'Custom Code' },
+        },
+      },
+    })
+  })
+
+  it('declares exactly the ordered Code fields, descriptions and native constraints', async () => {
+    const code = await getCode()
+    expect(code.fields).toEqual([
+      {
+        name: 'label',
+        type: 'text',
+        required: true,
+        maxLength: 80,
+        admin: {
+          description: 'Identifies this block in the Admin list. Not shown on the live site.',
+        },
+      },
+      {
+        name: 'html',
+        type: 'code',
+        required: true,
+        admin: {
+          language: 'html',
+          description:
+            'Custom HTML content. Use {{asset:0}}, {{asset:1}}, etc. to reference assets below.',
+        },
+      },
+      {
+        name: 'css',
+        type: 'code',
+        admin: {
+          language: 'css',
+          description:
+            'Optional inline styles. Use var(--color-foreground) and other tokens for theme-aware colors.',
+        },
+      },
+      {
+        name: 'js',
+        type: 'code',
+        admin: {
+          language: 'javascript',
+          description:
+            'Optional inline script. Runs in a sandboxed iframe; cannot access the parent window.',
+        },
+      },
+      {
+        name: 'assets',
+        type: 'upload',
+        relationTo: 'media',
+        hasMany: true,
+        filterOptions: imageOrVideo,
+        admin: {
+          description:
+            'Uploaded media for use in your HTML/CSS/JS. Reference them with {{asset:0}}, {{asset:1}}, etc.',
+        },
+      },
+      {
+        name: 'heightMode',
+        label: 'Height Mode',
+        type: 'select',
+        options: [
+          { label: 'Aspect Ratio', value: 'aspect' },
+          { label: 'Fixed Height', value: 'fixed' },
+        ],
+        defaultValue: 'aspect',
+        required: true,
+      },
+      {
+        name: 'aspectRatio',
+        label: 'Aspect Ratio',
+        type: 'select',
+        options: ['21:9', '16:9', '4:3', '1:1', '4:5'].map((value) => ({ label: value, value })),
+        defaultValue: '16:9',
+        admin: { condition: expect.any(Function) },
+      },
+      {
+        name: 'height',
+        label: 'Desktop Height (px)',
+        type: 'number',
+        defaultValue: 600,
+        admin: {
+          description: 'Fixed height for desktop viewports.',
+          condition: expect.any(Function),
+        },
+      },
+      {
+        name: 'mobileHeight',
+        label: 'Mobile Height (px)',
+        type: 'number',
+        defaultValue: 400,
+        admin: {
+          description: 'Fixed height for mobile viewports.',
+          condition: expect.any(Function),
+        },
+      },
+      {
+        name: 'width',
+        type: 'select',
+        options: [
+          { label: 'Standard', value: 'standard' },
+          { label: 'Full Width', value: 'full' },
+        ],
+        defaultValue: 'standard',
+        required: true,
+      },
+      themeField,
+    ])
+    expect(code.fields.find((field) => 'name' in field && field.name === 'assets')).toHaveProperty(
+      'filterOptions',
+      imageOrVideo,
+    )
+    expect(code.fields.at(-1)).not.toBe(themeField)
+  })
+
+  it.each(['aspectRatio', 'height', 'mobileHeight'])(
+    'shows %s only for its height mode and preserves stored values',
+    async (name) => {
+      const code = await getCode()
+      const field = code.fields.find((field) => 'name' in field && field.name === name)!
+      const data = { heightMode: 'fixed', aspectRatio: '4:5', height: 720, mobileHeight: 480 }
+      const before = structuredClone(data)
+      for (const heightMode of ['aspect', 'fixed', undefined]) {
+        expect(field.admin?.condition?.({}, { ...data, heightMode }, {} as never)).toBe(
+          heightMode === (name === 'aspectRatio' ? 'aspect' : 'fixed'),
+        )
+      }
+      expect(field.admin?.condition?.({}, undefined as never, {} as never)).toBe(false)
+      expect(data).toEqual(before)
+      expect(field).not.toHaveProperty('required', true)
+      expect(field).not.toHaveProperty('min')
+      expect(field).not.toHaveProperty('max')
+    },
+  )
+
+  it('registers exactly six ordered product blocks with globally unique slugs and interfaces', () => {
+    expect(productBlocks.map(({ slug }) => slug)).toEqual([
+      'productMediaBanner',
+      'productMediaCarousel',
+      'productMediaTabs',
+      'productMediaAccordion',
+      'productMediaText',
+      'productCode',
+    ])
+    const all = [
+      ...productBlocks,
+      ...pageBlocks,
+      ...caseStudyBlocks,
+      ...blogBlocks,
+      ...postBlocks,
+      CategoryTabs,
+      CardGroup,
+      LinkGroup,
+      RichCard,
+    ]
+    expect(new Set(all.map(({ slug }) => slug)).size).toBe(all.length)
+    expect(new Set(all.map(({ interfaceName }) => interfaceName)).size).toBe(all.length)
   })
 })

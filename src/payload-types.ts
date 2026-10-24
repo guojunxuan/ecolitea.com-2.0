@@ -1021,7 +1021,16 @@ export interface Product {
     | {
         label: string;
         anchor?: string | null;
-        blocks?: unknown[] | null;
+        blocks?:
+          | (
+              | ProductMediaBannerBlock
+              | ProductMediaCarouselBlock
+              | ProductMediaTabsBlock
+              | ProductMediaAccordionBlock
+              | ProductMediaTextBlock
+              | ProductCodeBlock
+            )[]
+          | null;
         id?: string | null;
       }[]
     | null;
@@ -1041,6 +1050,158 @@ export interface Product {
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ProductMediaBannerBlock".
+ */
+export interface ProductMediaBannerBlock {
+  /**
+   * A wide media banner with an overlaid title and short centered copy.
+   */
+  media: string | Media;
+  title: string;
+  content?: string | null;
+  aspectRatio: 'full-screen' | '21:9' | '16:9' | 'original';
+  theme?: ('default' | 'inverse') | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'productMediaBanner';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ProductMediaCarouselBlock".
+ */
+export interface ProductMediaCarouselBlock {
+  /**
+   * A media carousel for product views or usage scenes.
+   */
+  eyebrow?: string | null;
+  title?: string | null;
+  slides?:
+    | {
+        media: string | Media;
+        playback?: ('ambient' | 'player') | null;
+        caption?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  aspectRatio: '21:9' | '16:9' | '4:3';
+  theme?: ('default' | 'inverse') | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'productMediaCarousel';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ProductMediaTabsBlock".
+ */
+export interface ProductMediaTabsBlock {
+  /**
+   * Media tabs for comparing product colors or usage scenes.
+   */
+  title?: string | null;
+  tabs?:
+    | {
+        label: string;
+        media: string | Media;
+        playback?: ('ambient' | 'player') | null;
+        id?: string | null;
+      }[]
+    | null;
+  aspectRatio: '21:9' | '16:9' | '4:3' | '1:1';
+  theme?: ('default' | 'inverse') | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'productMediaTabs';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ProductMediaAccordionBlock".
+ */
+export interface ProductMediaAccordionBlock {
+  /**
+   * An accordion with optional item media and a shared default image or video.
+   */
+  eyebrow?: string | null;
+  title?: string | null;
+  items?:
+    | {
+        heading: string;
+        body?: LexicalRichText<LexicalNodes_47D10C91> | null;
+        media?: (string | null) | Media;
+        playback?: ('ambient' | 'player') | null;
+        id?: string | null;
+      }[]
+    | null;
+  defaultMedia: string | Media;
+  mediaPosition: 'right' | 'left';
+  aspectRatio: '1:1' | '4:3' | '4:5' | '16:9';
+  theme?: ('default' | 'inverse') | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'productMediaAccordion';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ProductMediaTextBlock".
+ */
+export interface ProductMediaTextBlock {
+  /**
+   * Media and text side by side for a product feature or story.
+   */
+  eyebrow?: string | null;
+  title: string;
+  body?: LexicalRichText<LexicalNodes_47D10C91> | null;
+  media: string | Media;
+  playback?: ('ambient' | 'player') | null;
+  mediaPosition: 'right' | 'left';
+  aspectRatio: '21:9' | '16:9' | '4:3' | '1:1' | '4:5' | 'original';
+  theme?: ('default' | 'inverse') | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'productMediaText';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ProductCodeBlock".
+ */
+export interface ProductCodeBlock {
+  /**
+   * Identifies this block in the Admin list. Not shown on the live site.
+   */
+  label: string;
+  /**
+   * Custom HTML content. Use {{asset:0}}, {{asset:1}}, etc. to reference assets below.
+   */
+  html: string;
+  /**
+   * Optional inline styles. Use var(--color-foreground) and other tokens for theme-aware colors.
+   */
+  css?: string | null;
+  /**
+   * Optional inline script. Runs in a sandboxed iframe; cannot access the parent window.
+   */
+  js?: string | null;
+  /**
+   * Uploaded media for use in your HTML/CSS/JS. Reference them with {{asset:0}}, {{asset:1}}, etc.
+   */
+  assets?: (string | Media)[] | null;
+  heightMode: 'aspect' | 'fixed';
+  aspectRatio?: ('21:9' | '16:9' | '4:3' | '1:1' | '4:5') | null;
+  /**
+   * Fixed height for desktop viewports.
+   */
+  height?: number | null;
+  /**
+   * Fixed height for mobile viewports.
+   */
+  mobileHeight?: number | null;
+  width: 'standard' | 'full';
+  theme?: ('default' | 'inverse') | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'productCode';
 }
 /**
  * Documents: PDF (.pdf), Word (.docx), Excel (.xlsx), PowerPoint (.pptx); maximum 10 MB. Legacy Office formats and documents with macros are not allowed.
@@ -1934,7 +2095,16 @@ export interface ProductsSelect<T extends boolean = true> {
     | {
         label?: T;
         anchor?: T;
-        blocks?: T | {};
+        blocks?:
+          | T
+          | {
+              productMediaBanner?: T | ProductMediaBannerBlockSelect<T>;
+              productMediaCarousel?: T | ProductMediaCarouselBlockSelect<T>;
+              productMediaTabs?: T | ProductMediaTabsBlockSelect<T>;
+              productMediaAccordion?: T | ProductMediaAccordionBlockSelect<T>;
+              productMediaText?: T | ProductMediaTextBlockSelect<T>;
+              productCode?: T | ProductCodeBlockSelect<T>;
+            };
         id?: T;
       };
   meta?:
@@ -1952,6 +2122,116 @@ export interface ProductsSelect<T extends boolean = true> {
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ProductMediaBannerBlock_select".
+ */
+export interface ProductMediaBannerBlockSelect<T extends boolean = true> {
+  media?: T;
+  title?: T;
+  content?: T;
+  aspectRatio?: T;
+  theme?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ProductMediaCarouselBlock_select".
+ */
+export interface ProductMediaCarouselBlockSelect<T extends boolean = true> {
+  eyebrow?: T;
+  title?: T;
+  slides?:
+    | T
+    | {
+        media?: T;
+        playback?: T;
+        caption?: T;
+        id?: T;
+      };
+  aspectRatio?: T;
+  theme?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ProductMediaTabsBlock_select".
+ */
+export interface ProductMediaTabsBlockSelect<T extends boolean = true> {
+  title?: T;
+  tabs?:
+    | T
+    | {
+        label?: T;
+        media?: T;
+        playback?: T;
+        id?: T;
+      };
+  aspectRatio?: T;
+  theme?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ProductMediaAccordionBlock_select".
+ */
+export interface ProductMediaAccordionBlockSelect<T extends boolean = true> {
+  eyebrow?: T;
+  title?: T;
+  items?:
+    | T
+    | {
+        heading?: T;
+        body?: T;
+        media?: T;
+        playback?: T;
+        id?: T;
+      };
+  defaultMedia?: T;
+  mediaPosition?: T;
+  aspectRatio?: T;
+  theme?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ProductMediaTextBlock_select".
+ */
+export interface ProductMediaTextBlockSelect<T extends boolean = true> {
+  eyebrow?: T;
+  title?: T;
+  body?: T;
+  media?: T;
+  playback?: T;
+  mediaPosition?: T;
+  aspectRatio?: T;
+  theme?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ProductCodeBlock_select".
+ */
+export interface ProductCodeBlockSelect<T extends boolean = true> {
+  label?: T;
+  html?: T;
+  css?: T;
+  js?: T;
+  assets?: T;
+  heightMode?: T;
+  aspectRatio?: T;
+  height?: T;
+  mobileHeight?: T;
+  width?: T;
+  theme?: T;
+  id?: T;
+  blockName?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

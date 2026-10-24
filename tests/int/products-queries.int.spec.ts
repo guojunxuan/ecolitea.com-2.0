@@ -348,8 +348,36 @@ it('normalizes incomplete native drafts without missing option names crashing pr
   ])
 })
 
-it('filters empty sections and preserves populated block order without configuring fake blocks', async () => {
-  const blocks = [{ blockType: 'future-fixture', document: { id: 'document' } }]
+it('filters empty sections and preserves real product block data and order', async () => {
+  const blocks = [
+    {
+      id: 'text',
+      blockType: 'productMediaText',
+      eyebrow: 'Harvest',
+      title: 'Fresh tea',
+      body: { root: { type: 'root', children: [] } },
+      media: { id: 'video', url: '/tea.mp4', mimeType: 'video/mp4' },
+      playback: 'player',
+      mediaPosition: 'left',
+      aspectRatio: '4:5',
+      theme: 'inverse',
+    },
+    {
+      id: 'code',
+      blockType: 'productCode',
+      label: 'Animation',
+      html: '<img src="{{asset:0}}">',
+      css: 'img { width: 100%; }',
+      js: 'console.log("tea")',
+      assets: [{ id: 'asset', url: '/tea.gif', mimeType: 'image/gif' }],
+      heightMode: 'fixed',
+      aspectRatio: '21:9',
+      height: 720,
+      mobileHeight: 480,
+      width: 'full',
+      theme: 'default',
+    },
+  ]
   mocks.find.mockResolvedValue({
     docs: [
       {
@@ -365,8 +393,18 @@ it('filters empty sections and preserves populated block order without configuri
       },
     ],
   })
-  expect((await getProductBySlug('self'))?.sections).toEqual([
+  const detail = await getProductBySlug('self')
+  expect(detail?.sections).toEqual([
     { label: 'First', anchor: 'first', blocks },
     { label: 'Second', anchor: 'second', blocks },
   ])
+  for (const field of ['layout', 'downloads', 'faqs']) expect(detail).not.toHaveProperty(field)
+  expect(mocks.find).toHaveBeenLastCalledWith(
+    expect.objectContaining({
+      depth: 2,
+      populate: expect.objectContaining({
+        media: expect.objectContaining({ url: true, mimeType: true }),
+      }),
+    }),
+  )
 })
