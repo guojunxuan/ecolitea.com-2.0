@@ -659,7 +659,7 @@ export interface PageMediaBlock {
   /**
    * Original keeps the media proportions. Other ratios crop the image or video to fill the frame.
    */
-  aspectRatio?: ('original' | '1:1' | '4:3' | '3:2' | '16:9' | '2:1') | null;
+  aspectRatio?: ('original' | '21:9' | '1:1' | '4:3' | '3:2' | '16:9' | '2:1') | null;
   playback?: ('ambient' | 'player') | null;
   width?: ('default' | 'wide') | null;
   id?: string | null;
@@ -1248,7 +1248,7 @@ export interface CaseStudyMediaBlock {
   /**
    * Original keeps the media proportions. Other ratios crop the image or video to fill the frame.
    */
-  aspectRatio?: ('original' | '1:1' | '4:3' | '3:2' | '16:9' | '2:1') | null;
+  aspectRatio?: ('original' | '21:9' | '1:1' | '4:3' | '3:2' | '16:9' | '2:1') | null;
   playback?: ('ambient' | 'player') | null;
   width?: ('default' | 'wide') | null;
   id?: string | null;
@@ -3440,7 +3440,7 @@ export interface PostMediaBlock {
   /**
    * Original keeps the media proportions. Other ratios crop the image or video to fill the frame.
    */
-  aspectRatio?: ('original' | '1:1' | '4:3' | '3:2' | '16:9' | '2:1') | null;
+  aspectRatio?: ('original' | '21:9' | '1:1' | '4:3' | '3:2' | '16:9' | '2:1') | null;
   playback?: ('ambient' | 'player') | null;
   width?: ('default' | 'wide') | null;
   blockName?: string | null;
@@ -3460,7 +3460,7 @@ export interface BlogMediaBlock {
   /**
    * Original keeps the media proportions. Other ratios crop the image or video to fill the frame.
    */
-  aspectRatio?: ('original' | '1:1' | '4:3' | '3:2' | '16:9' | '2:1') | null;
+  aspectRatio?: ('original' | '21:9' | '1:1' | '4:3' | '3:2' | '16:9' | '2:1') | null;
   playback?: ('ambient' | 'player') | null;
   width?: ('default' | 'wide') | null;
   blockName?: string | null;
