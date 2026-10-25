@@ -1,7 +1,8 @@
 import type { Block } from 'payload'
 
 import { imageOrVideo } from '@/collections/mediaUploadPolicy'
-import { getProductAspectRatioOptions } from '../shared/aspectRatioOptions'
+import { productAspectRatioField } from '../shared/aspectRatio'
+import { playbackField } from '../shared/playbackField'
 import { themeField } from '../shared/themeField'
 
 export const MediaBanner: Block = {
@@ -11,7 +12,10 @@ export const MediaBanner: Block = {
   admin: {
     group: 'Products',
     disableBlockName: true,
-    images: { icon: '/block-previews/media.svg', thumbnail: '/block-previews/media.svg' },
+    images: {
+      icon: '/block-previews/product-media-banner.svg',
+      thumbnail: '/block-previews/product-media-banner.svg',
+    },
     components: {
       Label: {
         path: '@/blocks/BlockRowLabel#BlockRowLabel',
@@ -21,34 +25,30 @@ export const MediaBanner: Block = {
   },
   fields: [
     {
+      name: 'title',
+      type: 'text',
+      required: true,
+      maxLength: 80,
+      admin: { description: 'A wide media banner with an overlaid title and short centered copy.' },
+    },
+    { name: 'body', type: 'textarea', maxLength: 200 },
+    {
       name: 'media',
       type: 'upload',
       relationTo: 'media',
       filterOptions: imageOrVideo,
       required: true,
-      admin: { description: 'A wide media banner with an overlaid title and short centered copy.' },
     },
-    { name: 'title', type: 'text', required: true, maxLength: 80 },
-    { name: 'content', type: 'textarea', maxLength: 200 },
+    playbackField,
     {
-      name: 'aspectRatio',
-      label: 'Aspect Ratio',
-      type: 'select',
-      options: [
-        { label: 'Full Screen', value: 'full-screen' },
-        ...getProductAspectRatioOptions(['21:9', '16:9', 'original']).map((option) => ({
-          ...option,
-          label:
-            option.value === '21:9'
-              ? 'Wide 21:9'
-              : option.value === '16:9'
-                ? 'Standard 16:9'
-                : option.label,
-        })),
+      type: 'row',
+      fields: [
+        productAspectRatioField({
+          values: ['full-screen', '21:9', '16:9', 'original'],
+          defaultValue: '16:9',
+        }),
+        themeField,
       ],
-      defaultValue: '16:9',
-      required: true,
     },
-    { ...themeField },
   ],
 }

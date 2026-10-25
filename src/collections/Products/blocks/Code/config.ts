@@ -1,7 +1,6 @@
 import type { Block } from 'payload'
 
 import { imageOrVideo } from '@/collections/mediaUploadPolicy'
-import { getProductAspectRatioOptions } from '../shared/aspectRatioOptions'
 import { themeField } from '../shared/themeField'
 
 export const Code: Block = {
@@ -11,7 +10,10 @@ export const Code: Block = {
   admin: {
     group: 'Products',
     disableBlockName: true,
-    images: { icon: '/block-previews/media.svg', thumbnail: '/block-previews/media.svg' },
+    images: {
+      icon: '/block-previews/product-code.svg',
+      thumbnail: '/block-previews/product-code.svg',
+    },
     components: {
       Label: {
         path: '@/blocks/BlockRowLabel#BlockRowLabel',
@@ -69,56 +71,31 @@ export const Code: Block = {
       },
     },
     {
-      name: 'heightMode',
-      label: 'Height Mode',
-      type: 'select',
-      options: [
-        { label: 'Aspect Ratio', value: 'aspect' },
-        { label: 'Fixed Height', value: 'fixed' },
+      type: 'row',
+      fields: [
+        {
+          name: 'minHeight',
+          type: 'number',
+          required: true,
+          defaultValue: 400,
+          min: 100,
+          max: 2000,
+          admin: {
+            description: 'Placeholder height in px until the content reports its real height.',
+          },
+        },
+        {
+          name: 'width',
+          type: 'select',
+          options: [
+            { label: 'Standard', value: 'standard' },
+            { label: 'Full Width', value: 'full' },
+          ],
+          defaultValue: 'standard',
+          required: true,
+        },
+        themeField,
       ],
-      defaultValue: 'aspect',
-      required: true,
     },
-    {
-      name: 'aspectRatio',
-      label: 'Aspect Ratio',
-      type: 'select',
-      options: getProductAspectRatioOptions(['21:9', '16:9', '4:3', '1:1', '4:5']),
-      defaultValue: '16:9',
-      admin: {
-        condition: (_data, siblingData) => siblingData?.heightMode === 'aspect',
-      },
-    },
-    {
-      name: 'height',
-      label: 'Desktop Height (px)',
-      type: 'number',
-      defaultValue: 600,
-      admin: {
-        description: 'Fixed height for desktop viewports.',
-        condition: (_data, siblingData) => siblingData?.heightMode === 'fixed',
-      },
-    },
-    {
-      name: 'mobileHeight',
-      label: 'Mobile Height (px)',
-      type: 'number',
-      defaultValue: 400,
-      admin: {
-        description: 'Fixed height for mobile viewports.',
-        condition: (_data, siblingData) => siblingData?.heightMode === 'fixed',
-      },
-    },
-    {
-      name: 'width',
-      type: 'select',
-      options: [
-        { label: 'Standard', value: 'standard' },
-        { label: 'Full Width', value: 'full' },
-      ],
-      defaultValue: 'standard',
-      required: true,
-    },
-    { ...themeField },
   ],
 }

@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
 import type { Block, Field } from 'payload'
 import { describe, expect, it } from 'vitest'
 
@@ -7,10 +9,7 @@ import { MediaCarousel } from '@/collections/Products/blocks/MediaCarousel/confi
 import { MediaTabs } from '@/collections/Products/blocks/MediaTabs/config'
 import { MediaAccordion } from '@/collections/Products/blocks/MediaAccordion/config'
 import { MediaText } from '@/collections/Products/blocks/MediaText/config'
-import {
-  playbackField,
-  videoPlaybackCondition,
-} from '@/collections/Products/blocks/shared/playbackCondition'
+import { playbackField } from '@/collections/Products/blocks/shared/playbackField'
 import { themeField } from '@/collections/Products/blocks/shared/themeField'
 import { compactLexical } from '@/fields/compactLexical'
 import { productBlocks } from '@/collections/Products/blocks'
@@ -43,7 +42,10 @@ const aspectRatio = (values: string[], defaultValue: string) => ({
   type: 'select',
   required: true,
   defaultValue,
-  options: values.map((value) => ({ label: value === 'original' ? 'Original' : value, value })),
+  options: values.map((value) => ({
+    label: value === 'original' ? 'Original' : value === 'full-screen' ? 'Full Screen' : value,
+    value,
+  })),
 })
 
 const cases = [
@@ -54,19 +56,14 @@ const cases = [
     plural: 'Media Banners',
     purpose: /banner/i,
     fields: [
-      { ...requiredMedia, admin: description },
-      { ...title, required: true },
-      { name: 'content', type: 'textarea', maxLength: 200 },
+      { ...title, required: true, admin: description },
+      { name: 'body', type: 'textarea', maxLength: 200 },
+      requiredMedia,
+      playbackField,
       {
-        ...aspectRatio([], '16:9'),
-        options: [
-          { label: 'Full Screen', value: 'full-screen' },
-          { label: 'Wide 21:9', value: '21:9' },
-          { label: 'Standard 16:9', value: '16:9' },
-          { label: 'Original', value: 'original' },
-        ],
+        type: 'row',
+        fields: [aspectRatio(['full-screen', '21:9', '16:9', 'original'], '16:9'), themeField],
       },
-      themeField,
     ],
   },
   {
@@ -86,8 +83,7 @@ const cases = [
         admin: { initCollapsed: true },
         fields: [requiredMedia, playbackField, { name: 'caption', type: 'text', maxLength: 120 }],
       },
-      aspectRatio(['21:9', '16:9', '4:3'], '16:9'),
-      themeField,
+      { type: 'row', fields: [aspectRatio(['21:9', '16:9', '4:3'], '16:9'), themeField] },
     ],
   },
   {
@@ -97,7 +93,8 @@ const cases = [
     plural: 'Media Tabs',
     purpose: /tabs/i,
     fields: [
-      { ...title, admin: description },
+      { ...eyebrow, admin: description },
+      title,
       {
         name: 'tabs',
         type: 'array',
@@ -105,13 +102,12 @@ const cases = [
         maxRows: 6,
         admin: { initCollapsed: true },
         fields: [
-          { name: 'label', type: 'text', required: true, maxLength: 40 },
+          { name: 'title', type: 'text', required: true, maxLength: 40 },
           requiredMedia,
           playbackField,
         ],
       },
-      aspectRatio(['21:9', '16:9', '4:3', '1:1'], '16:9'),
-      themeField,
+      { type: 'row', fields: [aspectRatio(['21:9', '16:9', '4:3', '1:1'], '16:9'), themeField] },
     ],
   },
   {
@@ -130,16 +126,17 @@ const cases = [
         maxRows: 6,
         admin: { initCollapsed: true },
         fields: [
-          { name: 'heading', type: 'text', required: true, maxLength: 80 },
+          { name: 'title', type: 'text', required: true, maxLength: 80 },
           body,
           media,
           playbackField,
         ],
       },
       { ...requiredMedia, name: 'defaultMedia', label: 'Default Media' },
-      mediaPosition,
-      aspectRatio(['1:1', '4:3', '4:5', '16:9'], '1:1'),
-      themeField,
+      {
+        type: 'row',
+        fields: [mediaPosition, aspectRatio(['4:5', '1:1', '4:3'], '1:1'), themeField],
+      },
     ],
   },
   {
@@ -154,9 +151,14 @@ const cases = [
       body,
       requiredMedia,
       playbackField,
-      mediaPosition,
-      aspectRatio(['21:9', '16:9', '4:3', '1:1', '4:5', 'original'], '1:1'),
-      themeField,
+      {
+        type: 'row',
+        fields: [
+          mediaPosition,
+          aspectRatio(['4:5', '1:1', '4:3', '16:9', 'original'], '4:3'),
+          themeField,
+        ],
+      },
     ],
   },
 ]
@@ -172,7 +174,10 @@ describe('Products media block schemas', () => {
     expect(entry.block.admin).toEqual({
       group: 'Products',
       disableBlockName: true,
-      images: { icon: '/block-previews/media.svg', thumbnail: '/block-previews/media.svg' },
+      images: {
+        icon: `/block-previews/product-${entry.name.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase()}.svg`,
+        thumbnail: `/block-previews/product-${entry.name.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase()}.svg`,
+      },
       components: {
         Label: {
           path: '@/blocks/BlockRowLabel#BlockRowLabel',
@@ -195,19 +200,19 @@ describe('Products media block schemas', () => {
       if (field.type === 'upload') expect(field.filterOptions).toBe(imageOrVideo)
       if (field.type === 'richText') expect(field.editor).toBe(compactLexical)
       if ('name' in field && field.name === 'playback') {
-        expect(field.admin?.condition).toBe(videoPlaybackCondition)
-        expect(field).not.toBe(playbackField)
+        expect(field.admin).not.toHaveProperty('condition')
+        expect(field).toBe(playbackField)
       }
     }
   })
 
-  it('uses independent shared field objects across schemas', () => {
+  it('reuses shared fields directly across schemas', () => {
     const fields = cases.flatMap(({ block }) => allFields(block.fields))
     for (const name of ['theme', 'playback']) {
       const sharedFields = fields.filter((field) => 'name' in field && field.name === name)
-      expect(new Set(sharedFields).size).toBe(sharedFields.length)
+      expect(new Set(sharedFields).size).toBe(1)
       for (const field of sharedFields)
-        expect(field).not.toBe(name === 'theme' ? themeField : playbackField)
+        expect(field).toBe(name === 'theme' ? themeField : playbackField)
     }
   })
 })
@@ -224,7 +229,10 @@ describe('Products Code block and registry', () => {
     expect(code.admin).toEqual({
       group: 'Products',
       disableBlockName: true,
-      images: { icon: '/block-previews/media.svg', thumbnail: '/block-previews/media.svg' },
+      images: {
+        icon: '/block-previews/product-code.svg',
+        thumbnail: '/block-previews/product-code.svg',
+      },
       components: {
         Label: {
           path: '@/blocks/BlockRowLabel#BlockRowLabel',
@@ -286,82 +294,61 @@ describe('Products Code block and registry', () => {
         },
       },
       {
-        name: 'heightMode',
-        label: 'Height Mode',
-        type: 'select',
-        options: [
-          { label: 'Aspect Ratio', value: 'aspect' },
-          { label: 'Fixed Height', value: 'fixed' },
+        type: 'row',
+        fields: [
+          {
+            name: 'minHeight',
+            type: 'number',
+            required: true,
+            defaultValue: 400,
+            min: 100,
+            max: 2000,
+            admin: {
+              description: 'Placeholder height in px until the content reports its real height.',
+            },
+          },
+          {
+            name: 'width',
+            type: 'select',
+            options: [
+              { label: 'Standard', value: 'standard' },
+              { label: 'Full Width', value: 'full' },
+            ],
+            defaultValue: 'standard',
+            required: true,
+          },
+          themeField,
         ],
-        defaultValue: 'aspect',
-        required: true,
       },
-      {
-        name: 'aspectRatio',
-        label: 'Aspect Ratio',
-        type: 'select',
-        options: ['21:9', '16:9', '4:3', '1:1', '4:5'].map((value) => ({ label: value, value })),
-        defaultValue: '16:9',
-        admin: { condition: expect.any(Function) },
-      },
-      {
-        name: 'height',
-        label: 'Desktop Height (px)',
-        type: 'number',
-        defaultValue: 600,
-        admin: {
-          description: 'Fixed height for desktop viewports.',
-          condition: expect.any(Function),
-        },
-      },
-      {
-        name: 'mobileHeight',
-        label: 'Mobile Height (px)',
-        type: 'number',
-        defaultValue: 400,
-        admin: {
-          description: 'Fixed height for mobile viewports.',
-          condition: expect.any(Function),
-        },
-      },
-      {
-        name: 'width',
-        type: 'select',
-        options: [
-          { label: 'Standard', value: 'standard' },
-          { label: 'Full Width', value: 'full' },
-        ],
-        defaultValue: 'standard',
-        required: true,
-      },
-      themeField,
     ])
     expect(code.fields.find((field) => 'name' in field && field.name === 'assets')).toHaveProperty(
       'filterOptions',
       imageOrVideo,
     )
-    expect(code.fields.at(-1)).not.toBe(themeField)
+    expect(allFields(code.fields)).toContain(themeField)
   })
 
-  it.each(['aspectRatio', 'height', 'mobileHeight'])(
-    'shows %s only for its height mode and preserves stored values',
-    async (name) => {
-      const code = await getCode()
-      const field = code.fields.find((field) => 'name' in field && field.name === name)!
-      const data = { heightMode: 'fixed', aspectRatio: '4:5', height: 720, mobileHeight: 480 }
-      const before = structuredClone(data)
-      for (const heightMode of ['aspect', 'fixed', undefined]) {
-        expect(field.admin?.condition?.({}, { ...data, heightMode }, {} as never)).toBe(
-          heightMode === (name === 'aspectRatio' ? 'aspect' : 'fixed'),
-        )
+  it('removes legacy vocabulary and Code heights and provides distinct existing wireframe previews', () => {
+    for (const block of productBlocks) {
+      const names = allFields(block.fields).map((field) =>
+        'name' in field ? field.name : field.type,
+      )
+      expect(names).not.toContain('content')
+      expect(names).not.toContain('heading')
+      if (block.slug === 'productMediaTabs') expect(names).not.toContain('label')
+      if (block.slug === 'productCode')
+        for (const name of ['heightMode', 'aspectRatio', 'height', 'mobileHeight'])
+          expect(names).not.toContain(name)
+      for (const url of [block.admin?.images?.icon, block.admin?.images?.thumbnail]) {
+        expect(url).toMatch(/^\/block-previews\/product-.*\.svg$/)
+        const svg = readFileSync(resolve('public', String(url).slice(1)), 'utf8')
+        expect(svg).toContain('viewBox="0 0 480 320"')
+        expect(svg).toContain('stroke-width="8"')
+        expect(svg).not.toMatch(/<text|fill="(?!none)/)
       }
-      expect(field.admin?.condition?.({}, undefined as never, {} as never)).toBe(false)
-      expect(data).toEqual(before)
-      expect(field).not.toHaveProperty('required', true)
-      expect(field).not.toHaveProperty('min')
-      expect(field).not.toHaveProperty('max')
-    },
-  )
+    }
+    expect(new Set(productBlocks.map((block) => block.admin?.images?.icon)).size).toBe(6)
+  })
 
   it('registers exactly six ordered product blocks with globally unique slugs and interfaces', () => {
     expect(productBlocks.map(({ slug }) => slug)).toEqual([

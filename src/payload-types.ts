@@ -659,7 +659,7 @@ export interface PageMediaBlock {
   /**
    * Original keeps the media proportions. Other ratios crop the image or video to fill the frame.
    */
-  aspectRatio?: ('original' | '21:9' | '1:1' | '4:3' | '3:2' | '16:9' | '2:1') | null;
+  aspectRatio?: ('original' | '1:1' | '4:3' | '3:2' | '16:9' | '2:1') | null;
   playback?: ('ambient' | 'player') | null;
   width?: ('default' | 'wide') | null;
   id?: string | null;
@@ -1059,9 +1059,13 @@ export interface ProductMediaBannerBlock {
   /**
    * A wide media banner with an overlaid title and short centered copy.
    */
-  media: string | Media;
   title: string;
-  content?: string | null;
+  body?: string | null;
+  media: string | Media;
+  /**
+   * Video only. Ambient plays muted on loop; Player shows controls. Ignored for images and GIFs.
+   */
+  playback: 'ambient' | 'player';
   aspectRatio: 'full-screen' | '21:9' | '16:9' | 'original';
   theme?: ('default' | 'inverse') | null;
   id?: string | null;
@@ -1081,7 +1085,10 @@ export interface ProductMediaCarouselBlock {
   slides?:
     | {
         media: string | Media;
-        playback?: ('ambient' | 'player') | null;
+        /**
+         * Video only. Ambient plays muted on loop; Player shows controls. Ignored for images and GIFs.
+         */
+        playback: 'ambient' | 'player';
         caption?: string | null;
         id?: string | null;
       }[]
@@ -1100,12 +1107,16 @@ export interface ProductMediaTabsBlock {
   /**
    * Media tabs for comparing product colors or usage scenes.
    */
+  eyebrow?: string | null;
   title?: string | null;
   tabs?:
     | {
-        label: string;
+        title: string;
         media: string | Media;
-        playback?: ('ambient' | 'player') | null;
+        /**
+         * Video only. Ambient plays muted on loop; Player shows controls. Ignored for images and GIFs.
+         */
+        playback: 'ambient' | 'player';
         id?: string | null;
       }[]
     | null;
@@ -1127,16 +1138,19 @@ export interface ProductMediaAccordionBlock {
   title?: string | null;
   items?:
     | {
-        heading: string;
+        title: string;
         body?: LexicalRichText<LexicalNodes_47D10C91> | null;
         media?: (string | null) | Media;
-        playback?: ('ambient' | 'player') | null;
+        /**
+         * Video only. Ambient plays muted on loop; Player shows controls. Ignored for images and GIFs.
+         */
+        playback: 'ambient' | 'player';
         id?: string | null;
       }[]
     | null;
   defaultMedia: string | Media;
   mediaPosition: 'right' | 'left';
-  aspectRatio: '1:1' | '4:3' | '4:5' | '16:9';
+  aspectRatio: '4:5' | '1:1' | '4:3';
   theme?: ('default' | 'inverse') | null;
   id?: string | null;
   blockName?: string | null;
@@ -1154,9 +1168,12 @@ export interface ProductMediaTextBlock {
   title: string;
   body?: LexicalRichText<LexicalNodes_47D10C91> | null;
   media: string | Media;
-  playback?: ('ambient' | 'player') | null;
+  /**
+   * Video only. Ambient plays muted on loop; Player shows controls. Ignored for images and GIFs.
+   */
+  playback: 'ambient' | 'player';
   mediaPosition: 'right' | 'left';
-  aspectRatio: '21:9' | '16:9' | '4:3' | '1:1' | '4:5' | 'original';
+  aspectRatio: '4:5' | '1:1' | '4:3' | '16:9' | 'original';
   theme?: ('default' | 'inverse') | null;
   id?: string | null;
   blockName?: string | null;
@@ -1187,16 +1204,10 @@ export interface ProductCodeBlock {
    * Uploaded media for use in your HTML/CSS/JS. Reference them with {{asset:0}}, {{asset:1}}, etc.
    */
   assets?: (string | Media)[] | null;
-  heightMode: 'aspect' | 'fixed';
-  aspectRatio?: ('21:9' | '16:9' | '4:3' | '1:1' | '4:5') | null;
   /**
-   * Fixed height for desktop viewports.
+   * Placeholder height in px until the content reports its real height.
    */
-  height?: number | null;
-  /**
-   * Fixed height for mobile viewports.
-   */
-  mobileHeight?: number | null;
+  minHeight: number;
   width: 'standard' | 'full';
   theme?: ('default' | 'inverse') | null;
   id?: string | null;
@@ -1409,7 +1420,7 @@ export interface CaseStudyMediaBlock {
   /**
    * Original keeps the media proportions. Other ratios crop the image or video to fill the frame.
    */
-  aspectRatio?: ('original' | '21:9' | '1:1' | '4:3' | '3:2' | '16:9' | '2:1') | null;
+  aspectRatio?: ('original' | '1:1' | '4:3' | '3:2' | '16:9' | '2:1') | null;
   playback?: ('ambient' | 'player') | null;
   width?: ('default' | 'wide') | null;
   id?: string | null;
@@ -2128,9 +2139,10 @@ export interface ProductsSelect<T extends boolean = true> {
  * via the `definition` "ProductMediaBannerBlock_select".
  */
 export interface ProductMediaBannerBlockSelect<T extends boolean = true> {
-  media?: T;
   title?: T;
-  content?: T;
+  body?: T;
+  media?: T;
+  playback?: T;
   aspectRatio?: T;
   theme?: T;
   id?: T;
@@ -2161,11 +2173,12 @@ export interface ProductMediaCarouselBlockSelect<T extends boolean = true> {
  * via the `definition` "ProductMediaTabsBlock_select".
  */
 export interface ProductMediaTabsBlockSelect<T extends boolean = true> {
+  eyebrow?: T;
   title?: T;
   tabs?:
     | T
     | {
-        label?: T;
+        title?: T;
         media?: T;
         playback?: T;
         id?: T;
@@ -2185,7 +2198,7 @@ export interface ProductMediaAccordionBlockSelect<T extends boolean = true> {
   items?:
     | T
     | {
-        heading?: T;
+        title?: T;
         body?: T;
         media?: T;
         playback?: T;
@@ -2224,10 +2237,7 @@ export interface ProductCodeBlockSelect<T extends boolean = true> {
   css?: T;
   js?: T;
   assets?: T;
-  heightMode?: T;
-  aspectRatio?: T;
-  height?: T;
-  mobileHeight?: T;
+  minHeight?: T;
   width?: T;
   theme?: T;
   id?: T;
@@ -3720,7 +3730,7 @@ export interface PostMediaBlock {
   /**
    * Original keeps the media proportions. Other ratios crop the image or video to fill the frame.
    */
-  aspectRatio?: ('original' | '21:9' | '1:1' | '4:3' | '3:2' | '16:9' | '2:1') | null;
+  aspectRatio?: ('original' | '1:1' | '4:3' | '3:2' | '16:9' | '2:1') | null;
   playback?: ('ambient' | 'player') | null;
   width?: ('default' | 'wide') | null;
   blockName?: string | null;
@@ -3740,7 +3750,7 @@ export interface BlogMediaBlock {
   /**
    * Original keeps the media proportions. Other ratios crop the image or video to fill the frame.
    */
-  aspectRatio?: ('original' | '21:9' | '1:1' | '4:3' | '3:2' | '16:9' | '2:1') | null;
+  aspectRatio?: ('original' | '1:1' | '4:3' | '3:2' | '16:9' | '2:1') | null;
   playback?: ('ambient' | 'player') | null;
   width?: ('default' | 'wide') | null;
   blockName?: string | null;

@@ -1,8 +1,8 @@
 import type { Block } from 'payload'
 
 import { imageOrVideo } from '@/collections/mediaUploadPolicy'
-import { getProductAspectRatioOptions } from '../shared/aspectRatioOptions'
-import { playbackField } from '../shared/playbackCondition'
+import { productAspectRatioField } from '../shared/aspectRatio'
+import { playbackField } from '../shared/playbackField'
 import { themeField } from '../shared/themeField'
 
 export const MediaCarousel: Block = {
@@ -12,7 +12,10 @@ export const MediaCarousel: Block = {
   admin: {
     group: 'Products',
     disableBlockName: true,
-    images: { icon: '/block-previews/media.svg', thumbnail: '/block-previews/media.svg' },
+    images: {
+      icon: '/block-previews/product-media-carousel.svg',
+      thumbnail: '/block-previews/product-media-carousel.svg',
+    },
     components: {
       Label: {
         path: '@/blocks/BlockRowLabel#BlockRowLabel',
@@ -42,18 +45,16 @@ export const MediaCarousel: Block = {
           filterOptions: imageOrVideo,
           required: true,
         },
-        { ...playbackField },
+        playbackField,
         { name: 'caption', type: 'text', maxLength: 120 },
       ],
     },
     {
-      name: 'aspectRatio',
-      label: 'Aspect Ratio',
-      type: 'select',
-      options: getProductAspectRatioOptions(['21:9', '16:9', '4:3']),
-      defaultValue: '16:9',
-      required: true,
+      type: 'row',
+      fields: [
+        productAspectRatioField({ values: ['21:9', '16:9', '4:3'], defaultValue: '16:9' }),
+        themeField,
+      ],
     },
-    { ...themeField },
   ],
 }

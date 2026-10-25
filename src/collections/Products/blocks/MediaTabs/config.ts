@@ -1,8 +1,8 @@
 import type { Block } from 'payload'
 
 import { imageOrVideo } from '@/collections/mediaUploadPolicy'
-import { getProductAspectRatioOptions } from '../shared/aspectRatioOptions'
-import { playbackField } from '../shared/playbackCondition'
+import { productAspectRatioField } from '../shared/aspectRatio'
+import { playbackField } from '../shared/playbackField'
 import { themeField } from '../shared/themeField'
 
 export const MediaTabs: Block = {
@@ -12,7 +12,10 @@ export const MediaTabs: Block = {
   admin: {
     group: 'Products',
     disableBlockName: true,
-    images: { icon: '/block-previews/media.svg', thumbnail: '/block-previews/media.svg' },
+    images: {
+      icon: '/block-previews/product-media-tabs.svg',
+      thumbnail: '/block-previews/product-media-tabs.svg',
+    },
     components: {
       Label: {
         path: '@/blocks/BlockRowLabel#BlockRowLabel',
@@ -22,11 +25,12 @@ export const MediaTabs: Block = {
   },
   fields: [
     {
-      name: 'title',
+      name: 'eyebrow',
       type: 'text',
-      maxLength: 80,
+      maxLength: 40,
       admin: { description: 'Media tabs for comparing product colors or usage scenes.' },
     },
+    { name: 'title', type: 'text', maxLength: 80 },
     {
       name: 'tabs',
       type: 'array',
@@ -34,7 +38,7 @@ export const MediaTabs: Block = {
       maxRows: 6,
       admin: { initCollapsed: true },
       fields: [
-        { name: 'label', type: 'text', required: true, maxLength: 40 },
+        { name: 'title', type: 'text', required: true, maxLength: 40 },
         {
           name: 'media',
           type: 'upload',
@@ -42,17 +46,15 @@ export const MediaTabs: Block = {
           filterOptions: imageOrVideo,
           required: true,
         },
-        { ...playbackField },
+        playbackField,
       ],
     },
     {
-      name: 'aspectRatio',
-      label: 'Aspect Ratio',
-      type: 'select',
-      options: getProductAspectRatioOptions(['21:9', '16:9', '4:3', '1:1']),
-      defaultValue: '16:9',
-      required: true,
+      type: 'row',
+      fields: [
+        productAspectRatioField({ values: ['21:9', '16:9', '4:3', '1:1'], defaultValue: '16:9' }),
+        themeField,
+      ],
     },
-    { ...themeField },
   ],
 }

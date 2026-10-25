@@ -2,8 +2,8 @@ import type { Block } from 'payload'
 
 import { imageOrVideo } from '@/collections/mediaUploadPolicy'
 import { compactLexical } from '@/fields/compactLexical'
-import { getProductAspectRatioOptions } from '../shared/aspectRatioOptions'
-import { playbackField } from '../shared/playbackCondition'
+import { productAspectRatioField } from '../shared/aspectRatio'
+import { playbackField } from '../shared/playbackField'
 import { themeField } from '../shared/themeField'
 
 export const MediaAccordion: Block = {
@@ -13,7 +13,10 @@ export const MediaAccordion: Block = {
   admin: {
     group: 'Products',
     disableBlockName: true,
-    images: { icon: '/block-previews/media.svg', thumbnail: '/block-previews/media.svg' },
+    images: {
+      icon: '/block-previews/product-media-accordion.svg',
+      thumbnail: '/block-previews/product-media-accordion.svg',
+    },
     components: {
       Label: {
         path: '@/blocks/BlockRowLabel#BlockRowLabel',
@@ -38,10 +41,10 @@ export const MediaAccordion: Block = {
       maxRows: 6,
       admin: { initCollapsed: true },
       fields: [
-        { name: 'heading', type: 'text', required: true, maxLength: 80 },
+        { name: 'title', type: 'text', required: true, maxLength: 80 },
         { name: 'body', type: 'richText', editor: compactLexical },
         { name: 'media', type: 'upload', relationTo: 'media', filterOptions: imageOrVideo },
-        { ...playbackField },
+        playbackField,
       ],
     },
     {
@@ -53,24 +56,22 @@ export const MediaAccordion: Block = {
       required: true,
     },
     {
-      name: 'mediaPosition',
-      label: 'Media Position',
-      type: 'select',
-      options: [
-        { label: 'Right', value: 'right' },
-        { label: 'Left', value: 'left' },
+      type: 'row',
+      fields: [
+        {
+          name: 'mediaPosition',
+          label: 'Media Position',
+          type: 'select',
+          options: [
+            { label: 'Right', value: 'right' },
+            { label: 'Left', value: 'left' },
+          ],
+          defaultValue: 'right',
+          required: true,
+        },
+        productAspectRatioField({ values: ['4:5', '1:1', '4:3'], defaultValue: '1:1' }),
+        themeField,
       ],
-      defaultValue: 'right',
-      required: true,
     },
-    {
-      name: 'aspectRatio',
-      label: 'Aspect Ratio',
-      type: 'select',
-      options: getProductAspectRatioOptions(['1:1', '4:3', '4:5', '16:9']),
-      defaultValue: '1:1',
-      required: true,
-    },
-    { ...themeField },
   ],
 }
