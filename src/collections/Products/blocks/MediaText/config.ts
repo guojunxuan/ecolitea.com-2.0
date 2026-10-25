@@ -29,7 +29,7 @@ export const MediaText: Block = {
       name: 'eyebrow',
       type: 'text',
       maxLength: 40,
-      admin: { description: 'Media and text side by side for a product feature or story.' },
+      admin: { description: 'Optional short label shown above the title.' },
     },
     { name: 'title', type: 'text', required: true, maxLength: 80 },
     { name: 'body', type: 'richText', editor: compactLexical },

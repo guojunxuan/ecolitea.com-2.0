@@ -71,7 +71,7 @@ const cases = [
     name: 'MediaCarousel',
     singular: 'Media Carousel',
     plural: 'Media Carousels',
-    purpose: /carousel/i,
+    purpose: /^Optional short label shown above the title\.$/,
     fields: [
       { ...eyebrow, admin: description },
       title,
@@ -91,7 +91,7 @@ const cases = [
     name: 'MediaTabs',
     singular: 'Media Tabs',
     plural: 'Media Tabs',
-    purpose: /tabs/i,
+    purpose: /^Optional short label shown above the title\.$/,
     fields: [
       { ...eyebrow, admin: description },
       title,
@@ -115,7 +115,7 @@ const cases = [
     name: 'MediaAccordion',
     singular: 'Media Accordion',
     plural: 'Media Accordions',
-    purpose: /accordion/i,
+    purpose: /^Optional short label shown above the title\.$/,
     fields: [
       { ...eyebrow, admin: description },
       title,
@@ -144,7 +144,7 @@ const cases = [
     name: 'MediaText',
     singular: 'Media + Text',
     plural: 'Media + Text',
-    purpose: /media.*text/i,
+    purpose: /^Optional short label shown above the title\.$/,
     fields: [
       { ...eyebrow, admin: description },
       { ...title, required: true },

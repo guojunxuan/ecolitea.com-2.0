@@ -30,7 +30,7 @@ export const MediaAccordion: Block = {
       type: 'text',
       maxLength: 40,
       admin: {
-        description: 'An accordion with optional item media and a shared default image or video.',
+        description: 'Optional short label shown above the title.',
       },
     },
     { name: 'title', type: 'text', maxLength: 80 },

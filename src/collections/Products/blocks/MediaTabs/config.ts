@@ -28,7 +28,7 @@ export const MediaTabs: Block = {
       name: 'eyebrow',
       type: 'text',
       maxLength: 40,
-      admin: { description: 'Media tabs for comparing product colors or usage scenes.' },
+      admin: { description: 'Optional short label shown above the title.' },
     },
     { name: 'title', type: 'text', maxLength: 80 },
     {

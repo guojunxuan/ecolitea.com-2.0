@@ -1078,7 +1078,7 @@ export interface ProductMediaBannerBlock {
  */
 export interface ProductMediaCarouselBlock {
   /**
-   * A media carousel for product views or usage scenes.
+   * Optional short label shown above the title.
    */
   eyebrow?: string | null;
   title?: string | null;
@@ -1105,7 +1105,7 @@ export interface ProductMediaCarouselBlock {
  */
 export interface ProductMediaTabsBlock {
   /**
-   * Media tabs for comparing product colors or usage scenes.
+   * Optional short label shown above the title.
    */
   eyebrow?: string | null;
   title?: string | null;
@@ -1132,7 +1132,7 @@ export interface ProductMediaTabsBlock {
  */
 export interface ProductMediaAccordionBlock {
   /**
-   * An accordion with optional item media and a shared default image or video.
+   * Optional short label shown above the title.
    */
   eyebrow?: string | null;
   title?: string | null;
@@ -1162,7 +1162,7 @@ export interface ProductMediaAccordionBlock {
  */
 export interface ProductMediaTextBlock {
   /**
-   * Media and text side by side for a product feature or story.
+   * Optional short label shown above the title.
    */
   eyebrow?: string | null;
   title: string;

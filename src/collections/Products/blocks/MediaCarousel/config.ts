@@ -28,7 +28,7 @@ export const MediaCarousel: Block = {
       name: 'eyebrow',
       type: 'text',
       maxLength: 40,
-      admin: { description: 'A media carousel for product views or usage scenes.' },
+      admin: { description: 'Optional short label shown above the title.' },
     },
     { name: 'title', type: 'text', maxLength: 80 },
     {
