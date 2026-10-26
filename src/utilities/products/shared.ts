@@ -98,8 +98,7 @@ export const toProductDetail = (value: Product, settings?: Settings | null): Pro
     options.flatMap((group) => (group.values[0] ? [[group.key, group.values[0].key]] : [])),
   )
   const gallery = (value.gallery ?? []).flatMap((item) => media(item) ?? [])
-  const specifications = (value.specifications ?? []).map(({ group, label, value }) => ({
-    group,
+  const specifications = (value.specifications ?? []).map(({ label, value }) => ({
     label: label ?? '',
     value: value ?? '',
   }))

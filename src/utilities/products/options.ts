@@ -22,7 +22,7 @@ export function resolveOptionSelection(
           matched = true
         }
       })
-      if (!matched) specifications.push({ group: '', label: override.label, value: override.value })
+      if (!matched) specifications.push({ label: override.label, value: override.value })
     }
   }
   return { gallery: gallery ?? [...product.gallery], specifications }

@@ -957,7 +957,6 @@ export interface Product {
     | null;
   specifications?:
     | {
-        group?: string | null;
         label: string;
         value: string;
         id?: string | null;
@@ -2053,7 +2052,6 @@ export interface ProductsSelect<T extends boolean = true> {
   specifications?:
     | T
     | {
-        group?: T;
         label?: T;
         value?: T;
         id?: T;

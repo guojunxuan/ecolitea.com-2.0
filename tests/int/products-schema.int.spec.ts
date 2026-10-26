@@ -144,9 +144,11 @@ describe('Products configuration', () => {
     const specifications = overview.fields.find(
       (field) => 'name' in field && field.name === 'specifications',
     )
+    expect(specifications).not.toMatchObject({
+      fields: expect.arrayContaining([expect.objectContaining({ name: 'group' })]),
+    })
     expect(specifications).toMatchObject({
       fields: expect.arrayContaining([
-        expect.objectContaining({ name: 'group', type: 'text' }),
         expect.objectContaining({ name: 'label', type: 'text', required: true }),
         expect.objectContaining({ name: 'value', type: 'text', required: true }),
       ]),

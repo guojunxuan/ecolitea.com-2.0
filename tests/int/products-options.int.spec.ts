@@ -34,11 +34,11 @@ describe('option keys and selection resolution', () => {
     ])
     expect(resolve({ ...product, options: [] }).gallery).toEqual([media('base')])
   })
-  it('overrides normalized labels in place preserving groups and lets later groups win', () => {
+  it('overrides normalized labels in place without groups and lets later groups win', () => {
     const product = {
       gallery: [],
       specifications: [
-        { group: 'Base', label: ' Origin ', value: 'China' },
+        { label: ' Origin ', value: 'China' },
         { label: 'Weight', value: '10g' },
       ],
       options: [
@@ -59,9 +59,9 @@ describe('option keys and selection resolution', () => {
     Object.freeze(product.specifications)
     product.specifications.forEach(Object.freeze)
     expect(resolve(product).specifications).toEqual([
-      { group: 'Base', label: ' Origin ', value: 'India' },
+      { label: ' Origin ', value: 'India' },
       { label: 'Weight', value: '10g' },
-      { group: '', label: 'Finish', value: 'Matt' },
+      { label: 'Finish', value: 'Matt' },
     ])
     expect(product.specifications[0].value).toBe('China')
   })
@@ -71,13 +71,13 @@ it('keeps duplicate base labels across groups and applies overrides to every mat
   const product = {
     gallery: [],
     specifications: [
-      { group: 'A', label: 'Weight', value: '10g' },
-      { group: 'B', label: ' weight ', value: '20g' },
+      { label: 'Weight', value: '10g' },
+      { label: ' weight ', value: '20g' },
     ],
     options: [group('size', [value('large', [], [{ label: 'WEIGHT', value: '30g' }])])],
   }
   expect(resolve(product).specifications).toEqual([
-    { group: 'A', label: 'Weight', value: '30g' },
-    { group: 'B', label: ' weight ', value: '30g' },
+    { label: 'Weight', value: '30g' },
+    { label: ' weight ', value: '30g' },
   ])
 })

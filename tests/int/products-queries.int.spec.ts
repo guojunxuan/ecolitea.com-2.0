@@ -30,7 +30,7 @@ const product = (id: string) => ({
   category,
   categorySlug: 'tea',
   summary: 'text',
-  specifications: [{ group: 'General', label: 'Origin', value: 'China' }],
+  specifications: [{ label: 'Origin', value: 'China' }],
   gallery: ['raw', { id: 'image', url: '/image.jpg' }],
   downloads: [
     { id: 'doc', title: 'Guide', filesize: 100, filename: 'guide.pdf', url: '/guide.pdf' },
@@ -74,7 +74,7 @@ describe('public product queries', () => {
     mocks.find.mockResolvedValue({ docs: [product('self')] })
     const result = await getProductBySlug('self', { draft: false })
     expect(result?.summary).toBe('text')
-    expect(result?.specifications).toEqual([{ group: 'General', label: 'Origin', value: 'China' }])
+    expect(result?.specifications).toEqual([{ label: 'Origin', value: 'China' }])
     expect(result).not.toHaveProperty('excerpt')
     expect(result).not.toHaveProperty('specs')
     expect(result?.category?.id).toBe('cat')
@@ -307,9 +307,7 @@ it('normalizes options and resolves defaults with shared public/draft population
   ])
   expect(detail?.defaultSelection).toEqual({ color: 'red' })
   expect(detail?.resolvedGallery).toEqual([{ id: 'red' }])
-  expect(detail?.resolvedSpecifications).toEqual([
-    { group: 'General', label: 'Origin', value: 'India' },
-  ])
+  expect(detail?.resolvedSpecifications).toEqual([{ label: 'Origin', value: 'India' }])
   const args = mocks.find.mock.calls.at(-1)![0]
   expect(args.depth).toBe(2)
   const lookup = mocks.find.mock.calls[0][0]

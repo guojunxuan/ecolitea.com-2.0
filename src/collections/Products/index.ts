@@ -103,7 +103,6 @@ export const Products: CollectionConfig = {
                 },
               },
               fields: [
-                { name: 'group', type: 'text' },
                 { name: 'label', type: 'text', required: true },
                 { name: 'value', type: 'text', required: true },
               ],

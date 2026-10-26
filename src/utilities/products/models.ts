@@ -15,7 +15,7 @@ export type ProductCard = Pick<Product, 'id' | 'title' | 'slug' | 'summary'> & {
   categorySlug: string
   cover: Media | null
 }
-export type ProductSpecification = { group?: string | null; label: string; value: string }
+export type ProductSpecification = { label: string; value: string }
 export type ProductOptionValue = {
   key: string
   label: string
