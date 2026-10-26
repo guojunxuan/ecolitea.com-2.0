@@ -13,19 +13,22 @@ vi.mock('next/cache', () => ({ revalidatePath: vi.fn(), revalidateTag: vi.fn() }
 
 const productTab = () => settingsTabs.tabs[1]
 const productSEO = () => {
-  const section = productTab()?.fields[0] as CollapsibleField
+  const section = productTab()?.fields.find(
+    (field) => field.type === 'collapsible' && field.label === 'Listing SEO',
+  ) as CollapsibleField
   return section?.fields[0] as GroupField
 }
 
 describe('Product Listing settings', () => {
   beforeEach(() => vi.clearAllMocks())
 
-  it('places one collapsed SEO section after the Blog tab', () => {
+  it('places the shared Listing Hero before collapsed SEO after the Blog tab', () => {
     expect(settingsTabs.tabs).toHaveLength(2)
     expect(settingsTabs.tabs[0]).toBe(blogTab)
     expect(productTab()).toMatchObject({ name: 'product', label: 'Product' })
-    expect(productTab().fields).toHaveLength(2)
-    expect(productTab().fields[0]).toMatchObject({
+    expect(productTab().fields).toHaveLength(3)
+    expect(productTab().fields[0]).toEqual(blogTab.fields[0])
+    expect(productTab().fields[1]).toMatchObject({
       type: 'collapsible',
       label: 'Listing SEO',
       admin: { initCollapsed: true, style: { marginTop: 0, marginBottom: 'var(--spacer-2-5)' } },

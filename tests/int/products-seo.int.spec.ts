@@ -56,8 +56,10 @@ describe('Product SEO generation', () => {
   })
 
   it('keeps Product Listing generation disabled because plugin callbacks lack a field path', () => {
-    const section = productTab.fields[0]
-    if (!('fields' in section)) throw new Error('Missing SEO section')
+    const section = productTab.fields.find(
+      (field) => field.type === 'collapsible' && field.label === 'Listing SEO',
+    )
+    if (!section || !('fields' in section)) throw new Error('Missing SEO section')
     const seo = section.fields[0]
     if (!('fields' in seo)) throw new Error('Missing SEO fields')
     const [, title, description, image, preview] = seo.fields

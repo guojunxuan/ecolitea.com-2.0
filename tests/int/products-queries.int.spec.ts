@@ -159,6 +159,91 @@ describe('public product queries', () => {
       expect.objectContaining({ revalidate: 600, tags: expect.arrayContaining(['products-list']) }),
     )
   })
+  it.each([1, 6, 7, 10])(
+    'returns up to six normalized previews and only product six to eight covers for %s products',
+    async (count) => {
+      const docs = Array.from({ length: count }, (_, index) => ({
+        ...product(String(index)),
+        category: index % 2 ? 'cat' : category,
+        gallery: index === 6 ? ['unpopulated'] : [{ id: `image-${index}` }],
+      }))
+      mocks.find.mockImplementation(async ({ collection }) => ({
+        docs: collection === 'product-categories' ? [category, { ...category, id: 'empty' }] : docs,
+      }))
+      const result = await getProductCategoriesOverview()
+      expect(result).toHaveLength(1)
+      expect(result[0]).not.toHaveProperty('meta')
+      expect(result[0]).toMatchObject({
+        productCount: count,
+        products: docs.slice(0, 6).map((item) => ({
+          id: item.id,
+          title: item.title,
+          slug: item.slug,
+          summary: item.summary,
+          categorySlug: 'tea',
+          cover: typeof item.gallery[0] === 'object' ? item.gallery[0] : null,
+        })),
+        moreCovers:
+          count > 6
+            ? docs
+                .slice(5, 8)
+                .flatMap((item) => (typeof item.gallery[0] === 'object' ? [item.gallery[0]] : []))
+            : [],
+      })
+      expect(mocks.find).toHaveBeenCalledTimes(2)
+      expect(mocks.find).toHaveBeenCalledWith(
+        expect.objectContaining({
+          collection: 'products',
+          sort: '-publishedAt',
+        }),
+      )
+      expect(mocks.find).toHaveBeenCalledWith(
+        expect.objectContaining({
+          collection: 'product-categories',
+          sort: '_order',
+        }),
+      )
+      expect(mocks.cache).toHaveBeenCalledWith(['products-overview'], {
+        tags: ['products-overview', 'product-categories', 'products-list'],
+        revalidate: 600,
+      })
+    },
+  )
+  it('fills handpicked related products up to eight without changing selection order', async () => {
+    mocks.find
+      .mockResolvedValueOnce({ docs: [product('a'), product('b')] })
+      .mockResolvedValueOnce({ docs: ['c', 'd', 'e', 'f', 'g', 'h'].map(product) })
+    const { toProductDetail } = await import('@/utilities/products/shared')
+    const result = await getRelatedProducts(toProductDetail(product('self') as never))
+    expect(result.map(({ id }) => id)).toEqual(['b', 'a', 'c', 'd', 'e', 'f', 'g', 'h'])
+    expect(mocks.find.mock.calls[1][0]).toMatchObject({
+      limit: 6,
+      sort: '-publishedAt',
+      where: {
+        and: [
+          {
+            _status: { equals: 'published' },
+            publishedAt: { less_than_equal: expect.any(String) },
+          },
+          { category: { equals: 'cat' } },
+          { id: { not_in: ['self', 'b', 'a'] } },
+        ],
+      },
+    })
+  })
+  it('caps handpicked related products at eight and skips category fill when full', async () => {
+    const selected = Array.from({ length: 10 }, (_, index) => `selected-${index}`)
+    mocks.find.mockResolvedValue({ docs: [...selected].reverse().map(product) })
+    const { toProductDetail } = await import('@/utilities/products/shared')
+    const result = await getRelatedProducts(
+      toProductDetail({
+        ...product('self'),
+        relatedProducts: ['self', ...selected, selected[0]],
+      } as never),
+    )
+    expect(result.map(({ id }) => id)).toEqual(selected.slice(0, 8))
+    expect(mocks.find).toHaveBeenCalledTimes(1)
+  })
   it('scans every category and product page for visible counts and static params', async () => {
     mocks.find.mockImplementation(async ({ collection, page = 1 }) =>
       collection === 'product-categories'

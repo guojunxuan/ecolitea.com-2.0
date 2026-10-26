@@ -10,12 +10,14 @@ import {
 import { link } from '@/fields/link'
 import { imageOnly } from '@/collections/mediaUploadPolicy'
 
+import { listingHero } from './listingHero'
 import { trimText } from './validation'
 
 export const productTab: Tab = {
   name: 'product',
   label: 'Product',
   fields: [
+    listingHero(),
     {
       type: 'collapsible',
       label: 'Listing SEO',

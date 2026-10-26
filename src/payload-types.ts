@@ -3173,6 +3173,16 @@ export interface Settings {
     };
   };
   product?: {
+    hero?: {
+      enabled?: boolean | null;
+      heading?: string | null;
+      description?: string | null;
+      image?: (string | null) | Media;
+      /**
+       * Use Dark for dark images (white text and header), Light for bright images or no image.
+       */
+      headerTheme?: ('light' | 'dark') | null;
+    };
     seo?: {
       title?: string | null;
       description?: string | null;
@@ -3535,6 +3545,15 @@ export interface SettingsSelect<T extends boolean = true> {
   product?:
     | T
     | {
+        hero?:
+          | T
+          | {
+              enabled?: T;
+              heading?: T;
+              description?: T;
+              image?: T;
+              headerTheme?: T;
+            };
         seo?:
           | T
           | {

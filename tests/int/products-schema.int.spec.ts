@@ -202,7 +202,7 @@ describe('Products configuration', () => {
       (field) => 'name' in field && field.name === 'relatedProducts',
     )!
     if (related.type !== 'relationship') throw new Error('Missing related products')
-    expect(related.maxRows).toBe(4)
+    expect(related.maxRows).toBe(8)
     if (typeof related.filterOptions !== 'function')
       throw new Error('Missing related product filter')
     expect(related.filterOptions?.({ id: 'self' } as never)).toEqual({ id: { not_in: ['self'] } })

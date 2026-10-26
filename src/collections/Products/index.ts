@@ -176,7 +176,7 @@ export const Products: CollectionConfig = {
       type: 'relationship',
       relationTo: 'products',
       hasMany: true,
-      maxRows: 4,
+      maxRows: 8,
       admin: { position: 'sidebar' },
       filterOptions: ({ id }) => (id ? { id: { not_in: [id] } } : true),
     },

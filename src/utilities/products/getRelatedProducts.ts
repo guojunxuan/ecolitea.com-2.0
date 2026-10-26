@@ -32,16 +32,16 @@ export const getRelatedProducts = (product: ProductDetail) =>
         const byId = new Map(result.docs.map((doc) => [doc.id, doc]))
         for (const id of ids) {
           const doc = byId.get(id)
-          if (doc && selected.length < 4) selected.push(doc)
+          if (doc && selected.length < 8) selected.push(doc)
         }
       }
-      if (selected.length < 4 && product.category) {
+      if (selected.length < 8 && product.category) {
         const result = await payload.find({
           collection: 'products',
           depth: 1,
           draft: false,
           overrideAccess: false,
-          limit: 4 - selected.length,
+          limit: 8 - selected.length,
           sort: '-publishedAt',
           where: visible([
             { category: { equals: product.category.id } },
@@ -52,7 +52,7 @@ export const getRelatedProducts = (product: ProductDetail) =>
           if (
             doc.id !== product.id &&
             !selected.some((item) => item.id === doc.id) &&
-            selected.length < 4
+            selected.length < 8
           )
             selected.push(doc)
       }

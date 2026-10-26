@@ -1,5 +1,7 @@
-import type { ArrayFieldValidation, FieldHook, TextFieldValidation } from 'payload'
+import type { ArrayFieldValidation, Condition, FieldHook, TextFieldValidation } from 'payload'
 import { validations } from 'payload'
+
+export const whenEnabled: Condition = (_, siblingData) => siblingData?.enabled === true
 
 export const trimText: FieldHook = ({ value }) => (typeof value === 'string' ? value.trim() : value)
 

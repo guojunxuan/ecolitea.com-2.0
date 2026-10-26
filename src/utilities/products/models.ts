@@ -15,6 +15,11 @@ export type ProductCard = Pick<Product, 'id' | 'title' | 'slug' | 'summary'> & {
   categorySlug: string
   cover: Media | null
 }
+export type ProductCategoryOverview = Omit<ProductCategoryModel, 'meta'> & {
+  productCount: number
+  products: ProductCard[]
+  moreCovers: Media[]
+}
 export type ProductSpecification = { label: string; value: string }
 export type ProductGalleryItem = {
   media: Media
