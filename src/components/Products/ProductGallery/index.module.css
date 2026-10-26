@@ -1,0 +1,102 @@
+.root {
+  display: grid;
+  grid-template-columns: 72px minmax(0, 1fr);
+  gap: var(--website-space-4);
+  align-self: start;
+  position: sticky;
+  top: calc(var(--header-height) + var(--website-space-6));
+}
+.thumbs {
+  display: flex;
+  flex-direction: column;
+  gap: var(--website-space-3);
+  max-height: 70svh;
+  overflow-y: auto;
+}
+.thumbs button {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  flex-shrink: 0;
+  border: 1px solid var(--website-color-border);
+  border-radius: var(--website-radius-control);
+  background: var(--website-color-muted-surface);
+  overflow: hidden;
+  cursor: pointer;
+  padding: 0;
+}
+.thumbs button[aria-current] {
+  border-color: var(--website-color-action);
+}
+.thumbs button:focus-visible,
+.track:focus-visible {
+  outline: 2px solid var(--website-color-focus);
+  outline-offset: 3px;
+}
+.main,
+.empty {
+  position: relative;
+  aspect-ratio: 1;
+  background: var(--website-color-muted-surface);
+  border-radius: var(--website-radius-content);
+  min-width: 0;
+}
+.track {
+  height: 100%;
+  border-radius: inherit;
+  overflow: hidden;
+}
+.slide {
+  position: relative;
+  aspect-ratio: 1;
+  height: 100%;
+  display: none;
+}
+.slide[data-active='true'] {
+  display: block;
+}
+.image {
+  object-fit: contain;
+}
+.count {
+  position: absolute;
+  right: var(--website-space-4);
+  bottom: var(--website-space-4);
+  padding: var(--website-space-1) var(--website-space-3);
+  font-size: 12px;
+  background: var(--website-glass-surface);
+  border-radius: var(--website-radius-pill);
+  color: var(--website-color-neutral-900);
+}
+.segments {
+  display: none;
+}
+@media (width < 48rem) {
+  .root {
+    display: block;
+    position: relative;
+    top: auto;
+  }
+  .thumbs {
+    display: none;
+  }
+  .main {
+    border-radius: 0;
+  }
+  .track {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+  }
+  .slide,
+  .slide[data-active='true'] {
+    display: block;
+    flex: 0 0 100%;
+    scroll-snap-align: center;
+  }
+  .segments {
+    display: block;
+    padding: var(--website-space-4) var(--website-gutter);
+  }
+}
