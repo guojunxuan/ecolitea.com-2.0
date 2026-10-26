@@ -1,0 +1,19 @@
+.header {
+  margin-bottom: var(--website-space-8);
+}
+.eyebrow {
+  margin: 0 0 var(--website-space-3);
+  color: var(--website-color-muted-foreground);
+}
+.title {
+  margin: 0;
+  font-size: clamp(28px, 3vw, 36px);
+  line-height: 1.15;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+}
+@media (width < 48rem) {
+  .title {
+    font-size: 24px;
+  }
+}

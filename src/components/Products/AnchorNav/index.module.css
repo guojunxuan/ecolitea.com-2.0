@@ -1,0 +1,127 @@
+.navigation {
+  position: sticky;
+  top: var(--header-height);
+  z-index: var(--website-z-sticky);
+  height: 56px;
+  border-block: 1px solid var(--website-glass-border);
+  background: var(--website-glass-surface);
+  backdrop-filter: blur(var(--website-glass-blur)) saturate(var(--website-glass-saturation));
+}
+.container {
+  width: min(calc(100% - 2 * var(--website-gutter)), var(--website-container-site));
+  height: 100%;
+  margin-inline: auto;
+  display: flex;
+  align-items: center;
+  gap: var(--website-space-6);
+}
+.overflow {
+  position: relative;
+  min-width: 0;
+  flex: 1;
+  height: 100%;
+}
+.links {
+  display: flex;
+  justify-content: safe center;
+  gap: var(--website-space-8);
+  height: 100%;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.links::-webkit-scrollbar {
+  display: none;
+}
+.navigation[data-variant='detail'][data-stuck] .links {
+  justify-content: flex-start;
+}
+.link {
+  display: flex;
+  align-items: center;
+  position: relative;
+  flex-shrink: 0;
+  height: 100%;
+  color: var(--website-color-muted-foreground);
+  text-decoration: none;
+  font-size: 15px;
+  line-height: 1;
+  white-space: nowrap;
+  transition: color var(--website-duration-fast) var(--website-easing-standard);
+}
+.link:hover,
+.link[aria-current] {
+  color: var(--website-color-foreground);
+}
+.link[aria-current] {
+  font-weight: 500;
+}
+.link[aria-current]::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  inset-inline: 0;
+  height: 2px;
+  background: var(--website-color-action);
+}
+.link:focus-visible,
+.arrow:focus-visible {
+  outline: 2px solid var(--website-color-focus);
+  outline-offset: -4px;
+}
+.arrow {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: var(--website-control-target-min);
+  display: flex;
+  align-items: center;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  color: var(--website-color-foreground);
+}
+.arrow[hidden] {
+  display: none;
+}
+.previous {
+  left: 0;
+  justify-content: flex-start;
+  background: linear-gradient(to right, var(--website-color-surface) 55%, transparent);
+}
+.next {
+  right: 0;
+  justify-content: flex-end;
+  background: linear-gradient(to left, var(--website-color-surface) 55%, transparent);
+}
+.action {
+  flex-shrink: 0;
+  animation: appear var(--website-duration-standard) var(--website-easing-standard);
+}
+@keyframes appear {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@media (width < 48rem) {
+  .links {
+    justify-content: flex-start;
+    gap: var(--website-space-6);
+  }
+  .action {
+    display: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .link {
+    transition: none;
+  }
+  .action {
+    animation: none;
+  }
+  .links {
+    scroll-behavior: auto;
+  }
+}

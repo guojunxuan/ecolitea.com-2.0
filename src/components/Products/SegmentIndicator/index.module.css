@@ -1,0 +1,13 @@
+.indicator {
+  display: flex;
+  gap: var(--website-space-1);
+  width: 100%;
+}
+.segment {
+  height: 2px;
+  flex: 1;
+  background: var(--website-color-border);
+}
+.segment[data-active] {
+  background: var(--website-color-action);
+}
