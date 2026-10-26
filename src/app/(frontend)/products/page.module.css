@@ -1,0 +1,77 @@
+.root {
+  color: var(--website-color-foreground);
+}
+.header {
+  width: min(calc(100% - 2 * var(--website-gutter)), var(--website-container-site));
+  margin-inline: auto;
+  padding-block: calc(var(--header-height) + var(--website-space-16)) var(--website-space-16);
+}
+.header h1 {
+  font-size: clamp(36px, 4.4vw, 56px);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  font-weight: 600;
+  margin: var(--website-space-3) 0 var(--website-space-4);
+}
+.header > p:last-child {
+  max-width: var(--website-container-reading);
+  color: var(--website-color-muted-foreground);
+}
+.category {
+  scroll-margin-top: calc(var(--header-height) + 56px + var(--website-space-4));
+}
+.products {
+  padding-block: var(--website-space-12) var(--website-space-16);
+  background: var(--website-color-muted-surface);
+}
+.category:last-child .products {
+  padding-bottom: var(--website-space-20);
+}
+.empty {
+  width: min(calc(100% - 2 * var(--website-gutter)), var(--website-container-site));
+  margin: 0 auto;
+  padding-bottom: var(--website-space-20);
+}
+.inquiryAction,
+.extraAction {
+  display: contents;
+}
+@media (width < 48rem) {
+  .header h1 {
+    font-size: 30px;
+  }
+  .extraAction {
+    display: none;
+  }
+  .category [data-product-band-actions] {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--website-space-3);
+  }
+  .category [data-product-band-actions] > a,
+  .category [data-product-band-actions] > span > a {
+    width: 100%;
+    height: var(--website-control-target-min);
+    padding-inline: var(--website-space-3);
+    font-size: 14px;
+  }
+}
+
+.bandOutline {
+  background: transparent;
+}
+
+.root > [data-hero='blog-listing'] h1 {
+  font-size: clamp(36px, 4.4vw, 56px);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+}
+@media (width < 48rem) {
+  .root > [data-hero='blog-listing'] h1 {
+    font-size: 30px;
+  }
+  .category [data-product-band-actions] > a,
+  .category [data-product-band-actions] > span > a {
+    min-height: var(--website-control-target-min);
+  }
+}

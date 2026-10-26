@@ -1,0 +1,30 @@
+.grid {
+  width: min(calc(100% - 2 * var(--website-gutter)), var(--website-container-site));
+  margin-inline: auto;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--website-space-6);
+}
+.segments {
+  display: none;
+}
+@media (width < 48rem) {
+  .grid {
+    width: 100%;
+    display: flex;
+    gap: var(--website-space-4);
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    padding-inline: var(--website-gutter);
+    scroll-padding-inline: var(--website-gutter);
+  }
+  .grid > * {
+    flex: 0 0 68%;
+    scroll-snap-align: start;
+  }
+  .segments {
+    display: block;
+    padding: var(--website-space-6) var(--website-gutter) 0;
+  }
+}
