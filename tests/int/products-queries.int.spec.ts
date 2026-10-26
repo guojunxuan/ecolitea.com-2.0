@@ -78,7 +78,7 @@ describe('public product queries', () => {
     expect(result).not.toHaveProperty('excerpt')
     expect(result).not.toHaveProperty('specs')
     expect(result?.category?.id).toBe('cat')
-    expect(result?.gallery).toEqual([{ id: 'image', url: '/image.jpg' }])
+    expect(result?.gallery).toEqual([{ media: { id: 'image', url: '/image.jpg' }, values: [] }])
     for (const field of ['layout', 'downloads', 'faqs']) expect(result).not.toHaveProperty(field)
     expect(result?.sections).toEqual([])
     expect(mocks.find).toHaveBeenLastCalledWith(
@@ -276,9 +276,8 @@ it('normalizes options and resolves defaults with shared public/draft population
             values: [
               {
                 label: 'Red',
-                thumbnail: { id: 'thumb' },
+                image: { id: 'red' },
                 swatch: '#f00',
-                gallery: ['raw', { id: 'red' }],
                 specifications: [{ label: 'Origin', value: 'India' }],
               },
             ],
@@ -298,15 +297,18 @@ it('normalizes options and resolves defaults with shared public/draft population
           key: 'red',
           label: 'Red',
           swatch: '#f00',
-          thumbnail: { id: 'thumb' },
-          gallery: [{ id: 'red' }],
+          image: { id: 'red' },
           specifications: [{ label: 'Origin', value: 'India' }],
         },
       ],
     },
   ])
   expect(detail?.defaultSelection).toEqual({ color: 'red' })
-  expect(detail?.resolvedGallery).toEqual([{ id: 'red' }])
+  expect(detail?.gallery).toEqual([
+    { media: { id: 'image', url: '/image.jpg' }, values: [] },
+    { media: { id: 'red' }, values: [{ optionKey: 'color', valueKey: 'red' }] },
+  ])
+  expect(detail).not.toHaveProperty('resolvedGallery')
   expect(detail?.resolvedSpecifications).toEqual([{ label: 'Origin', value: 'India' }])
   const args = mocks.find.mock.calls.at(-1)![0]
   expect(args.depth).toBe(2)
@@ -326,7 +328,7 @@ it.each([null, undefined, []])(
       specifications: [],
       defaultSelection: {},
       resolvedSpecifications: [],
-      resolvedGallery: [{ id: 'image', url: '/image.jpg' }],
+      gallery: [{ media: { id: 'image', url: '/image.jpg' }, values: [] }],
     })
   },
 )
@@ -339,9 +341,7 @@ it('normalizes incomplete native drafts without missing option names crashing pr
       key: '',
       name: '',
       display: 'text',
-      values: [
-        { key: '', label: '', swatch: null, thumbnail: null, gallery: [], specifications: [] },
-      ],
+      values: [{ key: '', label: '', swatch: null, image: null, specifications: [] }],
     },
   ])
 })
@@ -402,4 +402,47 @@ it('filters empty sections and preserves real product block data and order', asy
       }),
     }),
   )
+})
+
+it('appends option images in order, deduplicates all media IDs and retains every selection source', async () => {
+  mocks.find.mockResolvedValue({
+    docs: [
+      {
+        ...product('dedup'),
+        gallery: [{ id: 'base' }, { id: 'shared' }, { id: 'base' }, 'raw'],
+        options: [
+          {
+            name: 'Color',
+            display: 'text',
+            values: [
+              { label: 'Red', image: { id: 'shared' } },
+              { label: 'Blue', image: { id: 'blue' } },
+            ],
+          },
+          {
+            name: 'Size',
+            display: 'image',
+            values: [
+              { label: 'Small', image: { id: 'blue' } },
+              { label: 'Large', image: { id: 'large' } },
+              { label: 'Empty', image: 'raw' },
+            ],
+          },
+        ],
+      },
+    ],
+  })
+  const detail = await getProductBySlug('dedup')
+  expect(detail?.gallery).toEqual([
+    { media: { id: 'base' }, values: [] },
+    { media: { id: 'shared' }, values: [{ optionKey: 'color', valueKey: 'red' }] },
+    {
+      media: { id: 'blue' },
+      values: [
+        { optionKey: 'color', valueKey: 'blue' },
+        { optionKey: 'size', valueKey: 'small' },
+      ],
+    },
+    { media: { id: 'large' }, values: [{ optionKey: 'size', valueKey: 'large' }] },
+  ])
 })

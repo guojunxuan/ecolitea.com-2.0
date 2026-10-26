@@ -1,19 +1,29 @@
-import type { Media } from '@/payload-types'
 import type { ProductDetail, ProductSpecification } from './models'
+
+type SelectionProduct = Pick<ProductDetail, 'gallery' | 'specifications' | 'options'>
 
 /** Resolve presentation only; never mutate persisted product data or selection. */
 export function resolveOptionSelection(
-  product: Pick<ProductDetail, 'gallery' | 'specifications' | 'options'>,
+  product: SelectionProduct,
   selection: Record<string, string>,
-): { gallery: Media[]; specifications: ProductSpecification[] } {
-  let gallery: Media[] | undefined
-  const specifications = product.specifications.map((row) => ({ ...row }))
+  changedOptionKey?: string,
+): { specifications: ProductSpecification[]; activeImageIndex: number | null } {
+  let activeImageIndex: number | null = null
+  const specifications = product.specifications.map(({ label, value }) => ({ label, value }))
   const normalize = (label: string) => label.trim().toLowerCase()
   for (const group of product.options) {
     const selected =
       group.values.find((value) => value.key === selection[group.key]) ?? group.values[0]
     if (!selected) continue
-    if (!gallery && selected.gallery.length) gallery = [...selected.gallery]
+    if (
+      selected.image &&
+      (changedOptionKey === undefined ? activeImageIndex === null : changedOptionKey === group.key)
+    ) {
+      const index = product.gallery.findIndex(
+        (item) => String(item.media.id) === String(selected.image!.id),
+      )
+      if (index >= 0) activeImageIndex = index
+    }
     for (const override of selected.specifications) {
       let matched = false
       specifications.forEach((row, index) => {
@@ -25,5 +35,16 @@ export function resolveOptionSelection(
       if (!matched) specifications.push({ label: override.label, value: override.value })
     }
   }
-  return { gallery: gallery ?? [...product.gallery], specifications }
+  return { specifications, activeImageIndex }
+}
+
+/** A product-only image leaves selection unchanged; shared images synchronize all sources. */
+export function selectionForImage(
+  product: Pick<ProductDetail, 'gallery'>,
+  index: number,
+): Record<string, string> {
+  if (!Number.isInteger(index)) return {}
+  return Object.fromEntries(
+    (product.gallery[index]?.values ?? []).map(({ optionKey, valueKey }) => [optionKey, valueKey]),
+  )
 }

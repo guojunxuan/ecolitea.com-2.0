@@ -16,7 +16,7 @@ export const productOptions: ArrayField = {
   admin: {
     initCollapsed: true,
     description:
-      'Options are generic: name each group freely (Color, Size, Capacity, Finish…). Selecting a value can swap the gallery and override specifications. No SKU or stock.',
+      'Options are generic: name each group freely (Color, Size, Capacity, Finish…). Each value can show one image in the product gallery and override specifications. No SKU or stock.',
     components: { RowLabel: '@/collections/Products/admin/OptionRowLabel#OptionRowLabel' },
   },
   fields: [
@@ -43,18 +43,14 @@ export const productOptions: ArrayField = {
         { name: 'label', type: 'text', required: true, maxLength: 40 },
         { name: 'swatch', type: 'text', admin: { condition: displayIs('swatch') } },
         {
-          name: 'thumbnail',
+          name: 'image',
           type: 'upload',
           relationTo: 'media',
           filterOptions: imageOnly,
-          admin: { condition: displayIs('image') },
-        },
-        {
-          name: 'gallery',
-          type: 'upload',
-          relationTo: 'media',
-          hasMany: true,
-          filterOptions: imageOnly,
+          admin: {
+            description:
+              'Shown in the product gallery when this value is selected. Also used as the thumbnail when the group displays images.',
+          },
         },
         {
           name: 'specifications',

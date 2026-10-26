@@ -10,6 +10,15 @@ const state = vi.hoisted(() => ({
   },
 }))
 vi.mock('@payloadcms/ui', () => ({
+  useConfig: () => ({ config: { routes: { api: '/custom-api' } } }),
+  usePayloadAPI: () => [
+    { data: { id: 'media-id', url: '/api/media/file/test.jpg', filename: 'test.jpg' } },
+  ],
+  Thumbnail: ({ fileSrc, width, height }: { fileSrc: string; width: number; height: number }) => (
+    // Payload Thumbnail test double intentionally renders a native image.
+    // eslint-disable-next-line @next/next/no-img-element
+    <img alt="option image" src={fileSrc} width={width} height={height} />
+  ),
   useRowLabel: () => state.row,
   useFormFields: (selector: (value: unknown) => unknown) =>
     selector([{ 'options.1.display': { value: state.row.data.display } }]),
@@ -111,3 +120,22 @@ it('labels inquiry buttons from link.label with a numbered fallback', () => {
   rerender(<Label />)
   expect(screen.getByText('Button 2')).toBeTruthy()
 })
+
+it.each(['text', 'swatch', 'image'])(
+  'shows a 20px image with the value label for %s display',
+  (display) => {
+    const Label =
+      modules['/src/collections/Products/admin/OptionValueRowLabel.tsx'].OptionValueRowLabel
+    state.row.data = { label: 'Natural', display, image: 'media-id', swatch: '#abc' }
+    const { rerender } = render(<Label />)
+    expect(screen.getByRole('img').getAttribute('width')).toBe('20')
+    expect(screen.getByRole('img').getAttribute('height')).toBe('20')
+    expect(screen.getByText('Natural')).toBeTruthy()
+    state.row.data = { label: 'Natural', display, image: { id: 'other', url: '/other.jpg' } }
+    rerender(<Label />)
+    expect(screen.getByRole('img').getAttribute('src')).toBe('/other.jpg')
+    state.row.data = { label: 'Natural', display }
+    rerender(<Label />)
+    expect(screen.queryByRole('img')).toBeNull()
+  },
+)

@@ -2,7 +2,13 @@ import configPromise from '@payload-config'
 import { unstable_cache } from 'next/cache'
 import { getPayload, type Where } from 'payload'
 import type { Media, Product, ProductCategory, Settings } from '@/payload-types'
-import type { ProductCard, ProductCategoryModel, ProductDetail, ProductMeta } from './models'
+import type {
+  ProductCard,
+  ProductCategoryModel,
+  ProductDetail,
+  ProductGalleryItem,
+  ProductMeta,
+} from './models'
 import { resolveProductInquiry } from './inquiry'
 import { optionKey } from './keys'
 import { resolveOptionSelection } from './options'
@@ -86,8 +92,7 @@ export const toProductDetail = (value: Product, settings?: Settings | null): Pro
       key: optionKey(item.label ?? ''),
       label: item.label ?? '',
       swatch: item.swatch ?? null,
-      thumbnail: media(item.thumbnail),
-      gallery: (item.gallery ?? []).flatMap((image) => media(image) ?? []),
+      image: media(item.image),
       specifications: (item.specifications ?? []).map(({ label, value }) => ({
         label: label ?? '',
         value: value ?? '',
@@ -97,7 +102,22 @@ export const toProductDetail = (value: Product, settings?: Settings | null): Pro
   const defaultSelection = Object.fromEntries(
     options.flatMap((group) => (group.values[0] ? [[group.key, group.values[0].key]] : [])),
   )
-  const gallery = (value.gallery ?? []).flatMap((item) => media(item) ?? [])
+  const gallery: ProductGalleryItem[] = []
+  const byID = new Map<string, ProductGalleryItem>()
+  const append = (image: Media | null, source?: ProductGalleryItem['values'][number]) => {
+    if (!image) return
+    let item = byID.get(String(image.id))
+    if (!item) {
+      item = { media: image, values: [] }
+      byID.set(String(image.id), item)
+      gallery.push(item)
+    }
+    if (source) item.values.push(source)
+  }
+  for (const image of value.gallery ?? []) append(media(image))
+  for (const group of options)
+    for (const item of group.values)
+      append(item.image, { optionKey: group.key, valueKey: item.key })
   const specifications = (value.specifications ?? []).map(({ label, value }) => ({
     label: label ?? '',
     value: value ?? '',
@@ -117,7 +137,6 @@ export const toProductDetail = (value: Product, settings?: Settings | null): Pro
     options,
     specifications,
     defaultSelection,
-    resolvedGallery: resolved.gallery,
     resolvedSpecifications: resolved.specifications,
     category:
       value.category && typeof value.category === 'object'

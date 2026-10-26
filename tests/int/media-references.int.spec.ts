@@ -114,6 +114,36 @@ describe('shared Media reference scanner', () => {
       )
     }
   })
+  it('discovers a Products option value image through the generic scan', async () => {
+    const payload = fakePayload()
+    payload.config.collections.push({
+      slug: 'products',
+      versions: true,
+      admin: { useAsTitle: 'title' },
+    })
+    payload.find.mockImplementation(async ({ collection }) =>
+      page(
+        collection === 'products'
+          ? [
+              {
+                id: 'product',
+                title: 'Camera',
+                options: [{ name: 'Color', values: [{ label: 'Red', image: '12' }] }],
+              },
+            ]
+          : [],
+      ),
+    )
+    const refs = await findMediaReferences(payload as unknown as Payload, [12])
+    expect(refs).toContainEqual(
+      expect.objectContaining({
+        ownerSlug: 'products',
+        documentID: 'product',
+        path: 'options[0].values[0].image',
+        kind: 'current',
+      }),
+    )
+  })
   it('fully paginates collections and both types of versions', async () => {
     const payload = fakePayload()
     const results = (currentPage: number) =>

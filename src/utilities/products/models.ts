@@ -16,12 +16,15 @@ export type ProductCard = Pick<Product, 'id' | 'title' | 'slug' | 'summary'> & {
   cover: Media | null
 }
 export type ProductSpecification = { label: string; value: string }
+export type ProductGalleryItem = {
+  media: Media
+  values: { optionKey: string; valueKey: string }[]
+}
 export type ProductOptionValue = {
   key: string
   label: string
   swatch: string | null
-  thumbnail: Media | null
-  gallery: Media[]
+  image: Media | null
   specifications: ProductSpecification[]
 }
 export type ProductOption = {
@@ -46,10 +49,9 @@ export type ProductDetail = Omit<
   options: ProductOption[]
   specifications: ProductSpecification[]
   defaultSelection: Record<string, string>
-  resolvedGallery: Media[]
   resolvedSpecifications: ProductSpecification[]
   category: ProductCategoryModel | null
-  gallery: Media[]
+  gallery: ProductGalleryItem[]
   highlights: string[]
   sections: {
     label: string

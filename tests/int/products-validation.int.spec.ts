@@ -29,7 +29,7 @@ describe('product options schema and server validation', () => {
       admin: {
         initCollapsed: true,
         description:
-          'Options are generic: name each group freely (Color, Size, Capacity, Finish…). Selecting a value can swap the gallery and override specifications. No SKU or stock.',
+          'Options are generic: name each group freely (Color, Size, Capacity, Finish…). Each value can show one image in the product gallery and override specifications. No SKU or stock.',
       },
     })
     expect(field.fields).toEqual(
@@ -44,12 +44,20 @@ describe('product options schema and server validation', () => {
       ]),
     )
     const values = field.fields.find((f) => 'name' in f && f.name === 'values') as ArrayField
+    expect(
+      values.fields.some((f) => 'name' in f && ['thumbnail', 'gallery'].includes(f.name)),
+    ).toBe(false)
+    const image = values.fields.find((f) => 'name' in f && f.name === 'image') as UploadField
+    expect(image.admin?.condition).toBeUndefined()
+    expect(image.admin?.description).toBe(
+      'Shown in the product gallery when this value is selected. Also used as the thumbnail when the group displays images.',
+    )
     expect(values).toMatchObject({ required: true, minRows: 1, admin: { initCollapsed: true } })
     expect(values.fields.find((f) => 'name' in f && f.name === 'label')).toMatchObject({
       required: true,
       maxLength: 40,
     })
-    for (const name of ['thumbnail', 'gallery'])
+    for (const name of ['image'])
       expect(values.fields.find((f) => 'name' in f && f.name === name)).toMatchObject({
         type: 'upload',
         filterOptions: imageOnly,
@@ -74,9 +82,9 @@ describe('product options schema and server validation', () => {
   })
   it('validates active display without clearing hidden data', () => {
     expect(validate(null, [{ name: '!!!' }])).toBe(true)
-    expect(
-      validate([{ ...text(), values: [{ label: 'Red', swatch: 'bad', thumbnail: null }] }]),
-    ).toBe(true)
+    expect(validate([{ ...text(), values: [{ label: 'Red', swatch: 'bad', image: null }] }])).toBe(
+      true,
+    )
     for (const swatch of [null, '', '#12', '#12345g'])
       expectPath(
         [{ ...text(), display: 'swatch', values: [{ label: 'Red', swatch }] }],
@@ -86,34 +94,34 @@ describe('product options schema and server validation', () => {
       expect(validate([{ ...text(), display: 'swatch', values: [{ label: 'Red', swatch }] }])).toBe(
         true,
       )
-    expectPath([{ ...text(), display: 'image' }], 'options.0.values.0.thumbnail')
+    expectPath([{ ...text(), display: 'image' }], 'options.0.values.0.image')
     const previous = [
       {
         id: 'group',
         ...text(),
         display: 'image',
-        values: [{ id: 'value', label: 'Red', thumbnail: 'id' }],
+        values: [{ id: 'value', label: 'Red', image: 'id' }],
       },
     ]
     expect(validate([{ id: 'group', values: [{ id: 'value', label: 'Red' }] }], previous)).toBe(
       true,
     )
     expectPath(
-      [{ id: 'group', values: [{ id: 'value', thumbnail: null }] }],
-      'options.0.values.0.thumbnail',
+      [{ id: 'group', values: [{ id: 'value', image: null }] }],
+      'options.0.values.0.image',
       previous,
     )
   })
   it('locates parent display for conditions in the second group through public path', () => {
     const values = field.fields.find((f) => 'name' in f && f.name === 'values') as ArrayField
     const data = { options: [{ display: 'swatch' }, { display: 'image' }] }
-    for (const name of ['swatch', 'thumbnail']) {
+    for (const name of ['swatch']) {
       const f = values.fields.find((f) => 'name' in f && f.name === name) as TextField | UploadField
       expect(
         f.admin?.condition?.(data, { label: 'Value' }, {
           path: ['options', 1, 'values', 0, name],
         } as never),
-      ).toBe(name === 'thumbnail')
+      ).toBe(false)
     }
   })
 })
@@ -140,7 +148,7 @@ describe('Options Admin onChange validation', () => {
         data: { options },
         path: ['options'],
       } as never),
-    ).toBe('options.0.values.0.thumbnail: Choose an image for this value.')
+    ).toBe('options.0.values.0.image: Choose an image for this value.')
   })
 
   const formState = async (options: unknown[], previousCount: number) => {
@@ -187,7 +195,7 @@ describe('Options Admin onChange validation', () => {
     },
     {
       options: [{ id: 'one', ...text(), display: 'image' }],
-      path: 'options.0.values.0.thumbnail',
+      path: 'options.0.values.0.image',
       message: 'Choose an image for this value.',
     },
   ])(

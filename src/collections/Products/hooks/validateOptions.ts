@@ -1,7 +1,7 @@
 import { ValidationError, type ArrayFieldValidation, type ValidationFieldError } from 'payload'
 import { optionKey } from '@/utilities/products/keys'
 
-type Value = { id?: string; label?: string; swatch?: string | null; thumbnail?: unknown }
+type Value = { id?: string; label?: string; swatch?: string | null; image?: unknown }
 type Group = { id?: string; name?: string; display?: string; values?: Value[] | null }
 
 // Payload replaces source arrays. Resolve omitted row fields by stable row ID,
@@ -47,8 +47,8 @@ export const validateOptions: ArrayFieldValidation = (
       unique(item.label, labels, valueKeys, `${path}.label`)
       if (group.display === 'swatch' && !/^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(item.swatch ?? ''))
         errors.push({ path: `${path}.swatch`, message: 'Enter a color as #RGB or #RRGGBB.' })
-      if (group.display === 'image' && !item.thumbnail)
-        errors.push({ path: `${path}.thumbnail`, message: 'Choose an image for this value.' })
+      if (group.display === 'image' && !item.image)
+        errors.push({ path: `${path}.image`, message: 'Choose an image for this value.' })
     })
   })
   if (errors.length) {

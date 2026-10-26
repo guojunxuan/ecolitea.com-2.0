@@ -352,8 +352,7 @@ describe('Products through isolated Payload Local API', () => {
           {
             label: 'Natural',
             swatch: '#AbC',
-            thumbnail: mediaID,
-            gallery: [mediaID],
+            image: mediaID,
             specifications: [{ label: 'Origin', value: 'India' }],
           },
         ],
@@ -397,7 +396,7 @@ describe('Products through isolated Payload Local API', () => {
     )
     await errors(
       { options: [{ ...valid[0], display: 'image', values: [{ label: 'Natural' }] }] },
-      'options.0.values.0.thumbnail',
+      'options.0.values.0.image',
     )
     await errors({ options: [{ ...valid[0], display: 'unknown' }] }, 'options.0.display')
     const document = await payload.create({
@@ -407,28 +406,26 @@ describe('Products through isolated Payload Local API', () => {
     await errors(
       {
         options: [
-          { ...valid[0], display: 'image', values: [{ label: 'PDF', thumbnail: document.id }] },
+          { ...valid[0], display: 'image', values: [{ label: 'PDF', image: document.id }] },
         ],
       },
-      'options.0.values.0.thumbnail',
+      'options.0.values.0.image',
     )
     await errors(
       {
-        options: [
-          { ...valid[0], display: 'text', values: [{ label: 'PDF', gallery: [document.id] }] },
-        ],
+        options: [{ ...valid[0], display: 'text', values: [{ label: 'PDF', image: document.id }] }],
       },
-      'options.0.values.0.gallery',
+      'options.0.values.0.image',
     )
     const row = created.options![0]
     const text = await update({ options: [{ ...row, display: 'text' }] })
-    expect(text.options![0].values[0]).toMatchObject({ swatch: '#AbC', thumbnail: mediaID })
+    expect(text.options![0].values[0]).toMatchObject({ swatch: '#AbC', image: mediaID })
     const image = await update({ options: [{ ...text.options![0], display: 'image' }] })
-    expect(image.options![0].values[0]).toMatchObject({ swatch: '#AbC', thumbnail: mediaID })
+    expect(image.options![0].values[0]).toMatchObject({ swatch: '#AbC', image: mediaID })
     const partial = await update({ title: 'Unrelated partial update' })
     expect(partial.options![0].display).toBe('image')
     const rowPatch = await update({ options: [{ id: image.options![0].id, name: 'Colour' }] })
-    expect(rowPatch.options![0].values[0]).toMatchObject({ swatch: '#AbC', thumbnail: mediaID })
+    expect(rowPatch.options![0].values[0]).toMatchObject({ swatch: '#AbC', image: mediaID })
     const valuePatch = await update({
       options: [
         {
@@ -440,15 +437,15 @@ describe('Products through isolated Payload Local API', () => {
     expect(valuePatch.options![0].values[0]).toMatchObject({
       label: 'Natural edited',
       swatch: '#AbC',
-      thumbnail: mediaID,
+      image: mediaID,
     })
     await errors(
       {
         options: [
-          { ...image.options![0], values: [{ ...image.options![0].values[0], thumbnail: null }] },
+          { ...image.options![0], values: [{ ...image.options![0].values[0], image: null }] },
         ],
       },
-      'options.0.values.0.thumbnail',
+      'options.0.values.0.image',
     )
     const savedDraft = await update(
       {
@@ -458,7 +455,7 @@ describe('Products through isolated Payload Local API', () => {
       true,
     )
     expect(savedDraft._status).toBe('draft')
-    await errors({ ...base, options: savedDraft.options }, 'options.0.values.0.thumbnail')
+    await errors({ ...base, options: savedDraft.options }, 'options.0.values.0.image')
     // Restore a valid published document before testing the exact detail population contract.
     await update({ ...base, options: valid })
     const { productDetailPopulate } = await import('@/utilities/products/getProductBySlug')
@@ -468,17 +465,16 @@ describe('Products through isolated Payload Local API', () => {
       depth: 2,
       populate: productDetailPopulate,
     })
-    expect(populated.options![0].values[0].thumbnail).toMatchObject({
+    expect(populated.options![0].values[0].image).toMatchObject({
       id: mediaID,
       alt: 'Test image',
     })
-    expect(populated.options![0].values[0].gallery![0]).toMatchObject({ id: mediaID })
     expect(populated.category).toMatchObject({
       image: { id: mediaID },
       meta: { image: { id: mediaID } },
     })
     const { toProductDetail } = await import('@/utilities/products/shared')
-    expect(toProductDetail(populated).resolvedGallery[0]).toMatchObject({ id: mediaID })
+    expect(toProductDetail(populated).gallery[0].media).toMatchObject({ id: mediaID })
     await payload.delete({ collection: 'products', id: created.id })
   })
 
@@ -931,7 +927,7 @@ describe('Products through isolated Payload Local API', () => {
       category: secondCategoryID,
       gallery: [mediaID],
       summary: 'Valid',
-      specifications: [{ group: 'General', label: 'Origin', value: 'China' }],
+      specifications: [{ label: 'Origin', value: 'China' }],
       _status: 'published' as const,
     }
     const saved = await payload.create({

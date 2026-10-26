@@ -1,0 +1,16 @@
+.label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.swatch {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+}
+.image {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}

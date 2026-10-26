@@ -990,7 +990,7 @@ export interface Product {
       | null;
   };
   /**
-   * Options are generic: name each group freely (Color, Size, Capacity, Finish…). Selecting a value can swap the gallery and override specifications. No SKU or stock.
+   * Options are generic: name each group freely (Color, Size, Capacity, Finish…). Each value can show one image in the product gallery and override specifications. No SKU or stock.
    */
   options?:
     | {
@@ -999,8 +999,10 @@ export interface Product {
         values: {
           label: string;
           swatch?: string | null;
-          thumbnail?: (string | null) | Media;
-          gallery?: (string | Media)[] | null;
+          /**
+           * Shown in the product gallery when this value is selected. Also used as the thumbnail when the group displays images.
+           */
+          image?: (string | null) | Media;
           specifications?:
             | {
                 label: string;
@@ -2086,8 +2088,7 @@ export interface ProductsSelect<T extends boolean = true> {
           | {
               label?: T;
               swatch?: T;
-              thumbnail?: T;
-              gallery?: T;
+              image?: T;
               specifications?:
                 | T
                 | {
