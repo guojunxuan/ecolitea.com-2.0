@@ -1,0 +1,13 @@
+.block {
+  width: min(calc(100% - var(--website-gutter) * 2), var(--website-container-site));
+  margin-inline: auto;
+}
+.block[data-width='full'] {
+  width: 100%;
+}
+.frame {
+  display: block;
+  border: 0;
+  width: 100%;
+  background: var(--website-color-background);
+}

@@ -1,0 +1,104 @@
+.layout {
+  display: grid;
+  grid-template-columns: 5fr 7fr;
+  align-items: center;
+  gap: var(--website-space-12);
+  width: min(calc(100% - var(--website-gutter) * 2), var(--website-container-site));
+  margin-inline: auto;
+  color: var(--website-color-foreground);
+}
+.header {
+  margin-bottom: var(--website-space-8);
+}
+.copy,
+.visual {
+  min-width: 0;
+}
+.item {
+  border-bottom: 1px solid var(--website-color-border);
+}
+.item h3 {
+  margin: 0;
+}
+.item button {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  gap: var(--website-space-4);
+  padding: var(--website-space-6) 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.icon {
+  font-weight: 400;
+  transition: transform var(--website-duration-fast) var(--website-easing-standard);
+}
+.item button[aria-expanded='true'] .icon {
+  transform: rotate(45deg);
+}
+.body {
+  display: grid;
+  grid-template-rows: 0fr;
+  visibility: hidden;
+  transition:
+    grid-template-rows var(--website-duration-standard) var(--website-easing-standard),
+    visibility var(--website-duration-standard);
+}
+.body[data-open='true'] {
+  grid-template-rows: 1fr;
+  visibility: visible;
+}
+.body > div {
+  overflow: hidden;
+  min-height: 0;
+}
+.body[data-open='true'] > div {
+  padding-bottom: var(--website-space-6);
+}
+.visual {
+  display: grid;
+}
+.panel {
+  grid-area: 1 / 1;
+  min-width: 0;
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity var(--website-duration-standard) var(--website-easing-standard),
+    visibility var(--website-duration-standard);
+}
+.panel[data-active='true'] {
+  opacity: 1;
+  visibility: visible;
+}
+.layout[data-position='left'] {
+  grid-template-columns: 7fr 5fr;
+}
+.layout[data-position='left'] .visual {
+  grid-column: 1;
+  grid-row: 1;
+}
+@media (width < 48rem) {
+  .layout,
+  .layout[data-position='left'] {
+    grid-template-columns: 1fr;
+    gap: var(--website-space-8);
+  }
+  .visual,
+  .layout[data-position='left'] .visual {
+    grid-column: 1;
+    grid-row: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .body,
+  .panel,
+  .icon {
+    transition: none;
+  }
+}

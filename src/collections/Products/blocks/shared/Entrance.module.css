@@ -1,0 +1,18 @@
+.entrance[data-entered='true'] {
+  animation: entrance var(--website-duration-slow) var(--website-easing-standard) both;
+}
+@keyframes entrance {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .entrance[data-entered='true'] {
+    animation: none;
+  }
+}

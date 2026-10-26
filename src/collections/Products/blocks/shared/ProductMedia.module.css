@@ -1,0 +1,27 @@
+.frame {
+  aspect-ratio: var(--product-aspect-ratio, auto);
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  border-radius: var(--website-radius-content);
+  background: var(--website-color-muted-surface);
+}
+.frame[data-aspect-ratio='original'] {
+  aspect-ratio: auto;
+}
+.frame > div,
+.picture {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.media {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.frame[data-aspect-ratio='original'] .media {
+  height: auto;
+  object-fit: contain;
+}
