@@ -43,6 +43,15 @@ export const AnchorNav = ({
     targets.forEach((target) => {
       target.style.scrollMarginTop = 'calc(var(--header-height) + 56px + var(--website-space-4))'
     })
+    let frame = 0
+    let spy = () => {}
+    const onScroll = () => {
+      if (frame) return
+      frame = window.requestAnimationFrame(() => {
+        frame = 0
+        spy()
+      })
+    }
     let observer: IntersectionObserver | undefined
     let overviewObserver: IntersectionObserver | undefined
     const setup = () => {
@@ -50,19 +59,18 @@ export const AnchorNav = ({
       overviewObserver?.disconnect()
       const header = headerHeight()
       if (typeof IntersectionObserver === 'undefined') return
-      observer = new IntersectionObserver(
-        () => {
-          const offset = header + 56 + 16
-          const passed = targets.filter(
-            (target) => target.getBoundingClientRect().top <= offset + 1,
-          )
-          const current =
-            passed.at(-1) ??
-            targets.find((target) => target.getBoundingClientRect().top < window.innerHeight * 0.5)
-          if (current) setActive(current.id)
-        },
-        { rootMargin: `-${header + 56}px 0px -55% 0px`, threshold: 0 },
-      )
+      spy = () => {
+        const offset = header + 56 + 16
+        const passed = targets.filter((target) => target.getBoundingClientRect().top <= offset + 1)
+        const current =
+          passed.at(-1) ??
+          targets.find((target) => target.getBoundingClientRect().top < window.innerHeight * 0.5)
+        if (current) setActive(current.id)
+      }
+      observer = new IntersectionObserver(spy, {
+        rootMargin: `-${header + 56}px 0px -55% 0px`,
+        threshold: 0,
+      })
       targets.forEach((target) => observer?.observe(target))
       if (variant === 'detail') {
         const overview = document.getElementById('overview')
@@ -81,10 +89,13 @@ export const AnchorNav = ({
     }
     setup()
     window.addEventListener('resize', setup)
+    window.addEventListener('scroll', onScroll, { passive: true })
     return () => {
       observer?.disconnect()
       overviewObserver?.disconnect()
       window.removeEventListener('resize', setup)
+      window.removeEventListener('scroll', onScroll)
+      window.cancelAnimationFrame(frame)
       targets.forEach((target, index) => {
         target.style.scrollMarginTop = previousMargins[index]
       })

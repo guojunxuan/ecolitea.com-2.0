@@ -340,3 +340,42 @@ describe('anchor navigation', () => {
     expect(screen.queryByRole('button', { name: 'Next sections' })).toBeNull()
   })
 })
+
+it('updates scrollspy when a section top crosses the activation line without another IO transition', async () => {
+  let detailTop = 200
+  vi.mocked(HTMLElement.prototype.getBoundingClientRect).mockImplementation(function (
+    this: HTMLElement,
+  ) {
+    return this.id === 'overview'
+      ? new DOMRect(0, -900, 400, 800)
+      : this.id === 'details'
+        ? new DOMRect(0, detailTop, 400, 1000)
+        : new DOMRect(0, 0, 400, 300)
+  })
+  render(
+    <>
+      <section id="overview">Overview</section>
+      <section id="details">Details</section>
+      <AnchorNav
+        variant="detail"
+        items={[
+          { id: 'overview', label: 'Overview' },
+          { id: 'details', label: 'Details' },
+        ]}
+      />
+    </>,
+  )
+  const observer = intersections.find((item) => item.targets.length === 2)!
+  act(() => observer.callback([], {} as IntersectionObserver))
+  expect(screen.getByRole('link', { name: 'Overview' }).getAttribute('aria-current')).toBe(
+    'location',
+  )
+  detailTop = 70
+  await act(async () => {
+    fireEvent.scroll(window)
+    await new Promise((resolve) => setTimeout(resolve, 30))
+  })
+  expect(screen.getByRole('link', { name: 'Details' }).getAttribute('aria-current')).toBe(
+    'location',
+  )
+})
