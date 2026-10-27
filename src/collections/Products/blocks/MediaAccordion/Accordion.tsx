@@ -87,12 +87,7 @@ export function Accordion({ items, defaultMedia, aspectRatio, mediaPosition, hea
           </div>
         ))}
         {active === null && (
-          <div
-            className={styles.panel}
-            data-active={true}
-            aria-hidden={active !== null}
-            inert={active !== null}
-          >
+          <div className={`${styles.panel} ${styles.defaultPanel}`} data-active>
             <ActiveMedia
               active
               resource={defaultMedia}

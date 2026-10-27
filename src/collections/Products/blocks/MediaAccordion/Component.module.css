@@ -76,6 +76,15 @@
   opacity: 1;
   visibility: visible;
 }
+/* Mounted only when every item is collapsed, so it fades in while the item panel fades out. */
+.defaultPanel {
+  animation: defaultPanelIn var(--website-duration-standard) var(--website-easing-standard);
+}
+@keyframes defaultPanelIn {
+  from {
+    opacity: 0;
+  }
+}
 .layout[data-position='left'] {
   grid-template-columns: 7fr 5fr;
 }
@@ -100,5 +109,8 @@
   .panel,
   .icon {
     transition: none;
+  }
+  .defaultPanel {
+    animation: none;
   }
 }
