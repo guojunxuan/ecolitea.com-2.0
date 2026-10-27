@@ -2,7 +2,13 @@
 
 import React, { useEffect, useRef, useState } from 'react'
 import { escapeStyle, inheritedTokenNames } from './tokens'
+
 import styles from './Component.module.css'
+
+const fontFallbacks: Record<string, string> = {
+  '--website-font-sans': 'ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif',
+  '--website-font-mono': 'ui-monospace, SFMono-Regular, Menlo, monospace',
+}
 
 export function CodeFrame({
   title,
@@ -39,7 +45,9 @@ export function CodeFrame({
     const values = inheritedTokenNames
       .map((name) => {
         const value = computed.getPropertyValue(name).trim()
-        return value ? `${name}:${value};` : ''
+        // Site web fonts cannot load in the opaque-origin frame, so keep a generic fallback.
+        const fallback = fontFallbacks[name]
+        return value ? `${name}:${fallback ? `${value}, ${fallback}` : value};` : ''
       })
       .join('')
     setPreparedSource({
