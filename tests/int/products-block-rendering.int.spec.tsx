@@ -1,4 +1,6 @@
 import React from 'react'
+import { renderToStaticMarkup } from 'react-dom/server'
+import { Accordion as InteractiveAccordion } from '@/collections/Products/blocks/MediaAccordion/Accordion'
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
@@ -216,4 +218,61 @@ describe('Product Blocks', () => {
     )
     expect(container.innerHTML).toBe('')
   })
+})
+
+it('starts server-rendered Carousel at the first real slide without clone slots or JS-only controls', () => {
+  const markup = renderToStaticMarkup(
+    <Carousel
+      blockType="productMediaCarousel"
+      title="No JS"
+      aspectRatio="16:9"
+      slides={[
+        { media: image, playback: 'ambient', caption: 'Real first' },
+        { media: image, playback: 'ambient', caption: 'Real last' },
+      ]}
+    />,
+  )
+  const parsed = new DOMParser().parseFromString(markup, 'text/html')
+  const figures = parsed.querySelectorAll('figure')
+  expect(figures).toHaveLength(2)
+  expect(figures[0].textContent).toContain('Real first')
+  expect(figures[0].getAttribute('aria-hidden')).toBe('false')
+  expect(parsed.querySelector('button')).toBeNull()
+})
+
+it('moves accordion focus only between triggers and mounts standalone default media only while all items are closed', () => {
+  render(
+    <InteractiveAccordion
+      header={<button>Header action</button>}
+      defaultMedia={{ ...image, alt: 'Standalone default' }}
+      aspectRatio="1:1"
+      mediaPosition="right"
+      items={[
+        {
+          title: 'First trigger',
+          body: <button>Body action</button>,
+          media: { ...image, alt: 'First image' },
+          playback: 'ambient',
+        },
+        {
+          title: 'Second trigger',
+          body: null,
+          media: { ...image, alt: 'Second image' },
+          playback: 'ambient',
+        },
+      ]}
+    />,
+  )
+  const first = screen.getByRole('button', { name: 'First trigger' })
+  const second = screen.getByRole('button', { name: 'Second trigger' })
+  expect(screen.queryByText('Standalone default')).toBeNull()
+  first.focus()
+  fireEvent.keyDown(first, { key: 'ArrowDown' })
+  expect(document.activeElement).toBe(second)
+  fireEvent.keyDown(second, { key: 'Home' })
+  expect(document.activeElement).toBe(first)
+  fireEvent.click(first)
+  expect(screen.getByText('Standalone default')).toBeTruthy()
+  fireEvent.click(second)
+  expect(screen.queryByText('Standalone default')).toBeNull()
 })

@@ -21,6 +21,8 @@ vi.mock('@/components/Media', () => ({
   Media: ({ resource }: { resource: Media }) => <span data-testid="media">{resource.alt}</span>,
 }))
 
+const actualComputedStyle = window.getComputedStyle.bind(window)
+
 const media = { id: 'image', alt: 'Paper tea bag', url: '/tea.jpg' } as Media
 const product: ProductCardModel = {
   id: 'tea',
@@ -39,13 +41,29 @@ const category: ProductCategoryModel = {
   meta: { image: null },
 }
 const resizeCallbacks: (() => void)[] = []
-const intersections: { callback: IntersectionObserverCallback; targets: Element[] }[] = []
+const intersections: {
+  callback: IntersectionObserverCallback
+  targets: Element[]
+  options?: IntersectionObserverInit
+}[] = []
 const scrollBy = vi.fn()
 const scrollIntoView = vi.fn()
 let dimensions = { width: 400, total: 1000 }
 
 beforeEach(() => {
   dimensions = { width: 400, total: 1000 }
+  const computedStyle = actualComputedStyle
+  vi.spyOn(window, 'getComputedStyle').mockImplementation((element) => {
+    const style = computedStyle(element)
+    return new Proxy(style, {
+      get(target, name) {
+        if (element.tagName === 'NAV' && name === 'top') return '60px'
+        if (element.tagName === 'NAV' && name === 'height') return '56px'
+        const value = Reflect.get(target, name)
+        return typeof value === 'function' ? value.bind(target) : value
+      },
+    })
+  })
   vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(
     () => new DOMRect(0, 0, 400, 300),
   )
@@ -63,8 +81,8 @@ beforeEach(() => {
     'IntersectionObserver',
     class {
       targets: Element[] = []
-      constructor(callback: IntersectionObserverCallback) {
-        intersections.push({ callback, targets: this.targets })
+      constructor(callback: IntersectionObserverCallback, options?: IntersectionObserverInit) {
+        intersections.push({ callback, targets: this.targets, options })
       }
       observe(target: Element) {
         this.targets.push(target)
@@ -377,5 +395,42 @@ it('updates scrollspy when a section top crosses the activation line without ano
   })
   expect(screen.getByRole('link', { name: 'Details' }).getAttribute('aria-current')).toBe(
     'location',
+  )
+})
+
+it('uses resolved navigation top and height pixels for observer margins instead of parsing header custom-property units', () => {
+  const readStyle = actualComputedStyle
+  vi.spyOn(window, 'getComputedStyle').mockImplementation((element) => {
+    const style = readStyle(element)
+    return new Proxy(style, {
+      get(target, name) {
+        if (element.tagName === 'NAV' && name === 'top') return '112.75px'
+        if (element.tagName === 'NAV' && name === 'height') return '64.5px'
+        if (element === document.documentElement && name === 'getPropertyValue')
+          return (key: string) =>
+            key === '--header-height' ? 'calc(1rem + 10vh)' : style.getPropertyValue(key)
+        const value = Reflect.get(target, name)
+        return typeof value === 'function' ? value.bind(target) : value
+      },
+    })
+  })
+  render(
+    <>
+      <section id="overview">Overview</section>
+      <section id="details">Details</section>
+      <AnchorNav
+        variant="detail"
+        items={[
+          { id: 'overview', label: 'Overview' },
+          { id: 'details', label: 'Details' },
+        ]}
+      />
+    </>,
+  )
+  expect(intersections.find((item) => item.targets.length === 2)?.options?.rootMargin).toBe(
+    '-177.25px 0px -55% 0px',
+  )
+  expect(intersections.find((item) => item.targets.length === 1)?.options?.rootMargin).toBe(
+    '-112.75px 0px 0px 0px',
   )
 })

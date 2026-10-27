@@ -1,4 +1,5 @@
 import React from 'react'
+import { renderToStaticMarkup } from 'react-dom/server'
 import { act, cleanup, render, screen, waitFor } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { Component } from '@/collections/Products/blocks/Code/Component'
@@ -132,4 +133,42 @@ describe('Product Code isolation', () => {
     frame.remove()
     measured.mockRestore()
   })
+})
+
+it('reserves the SSR height without starting an iframe before token preparation', () => {
+  const server = renderToStaticMarkup(<Component {...block} />)
+  expect(server).not.toContain('<iframe')
+  expect(server).toContain('min-height:400px')
+})
+
+it('assigns one prepared srcdoc when the iframe first mounts', () => {
+  const writes: string[] = []
+  const original = Element.prototype.setAttribute
+  const attribute = vi.spyOn(Element.prototype, 'setAttribute').mockImplementation(function (
+    this: Element,
+    name: string,
+    value: string,
+  ) {
+    if (this.tagName === 'IFRAME' && name.toLowerCase() === 'srcdoc') writes.push(value)
+    return original.call(this, name, value)
+  })
+  try {
+    const { rerender } = render(
+      <div data-website-theme="inverse">
+        <Component {...block} />
+      </div>,
+    )
+    const frame = screen.getByTitle(block.label)
+    expect(writes).toHaveLength(1)
+    expect(writes[0]).toContain('<html data-website-theme="inverse">')
+    rerender(
+      <div data-website-theme="inverse">
+        <Component {...block} minHeight={500} />
+      </div>,
+    )
+    expect(screen.getByTitle(block.label)).toBe(frame)
+    expect(writes).toHaveLength(1)
+  } finally {
+    attribute.mockRestore()
+  }
 })

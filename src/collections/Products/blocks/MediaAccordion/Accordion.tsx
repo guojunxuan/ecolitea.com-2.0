@@ -16,15 +16,18 @@ type Props = Pick<ProductMediaAccordionBlock, 'defaultMedia' | 'aspectRatio' | '
 export function Accordion({ items, defaultMedia, aspectRatio, mediaPosition, header }: Props) {
   const [active, setActive] = useState<number | null>(0)
   const id = useId()
-  const copy = useRef<HTMLDivElement>(null)
+  const triggers = useRef<(HTMLButtonElement | null)[]>([])
   return (
     <div className={styles.layout} data-position={mediaPosition}>
-      <div className={styles.copy} ref={copy}>
+      <div className={styles.copy}>
         {header}
         {items.map((item, index) => (
           <div key={item.id || index} className={styles.item}>
             <h3>
               <button
+                ref={(element) => {
+                  triggers.current[index] = element
+                }}
                 type="button"
                 id={`${id}-trigger-${index}`}
                 aria-expanded={active === index}
@@ -43,7 +46,7 @@ export function Accordion({ items, defaultMedia, aspectRatio, mediaPosition, hea
                             : null
                   if (next === null) return
                   event.preventDefault()
-                  copy.current?.querySelectorAll<HTMLButtonElement>('button')[next]?.focus()
+                  triggers.current[next]?.focus()
                 }}
               >
                 {item.title}
@@ -83,19 +86,21 @@ export function Accordion({ items, defaultMedia, aspectRatio, mediaPosition, hea
             />
           </div>
         ))}
-        <div
-          className={styles.panel}
-          data-active={active === null}
-          aria-hidden={active !== null}
-          inert={active !== null}
-        >
-          <ActiveMedia
-            active={active === null}
-            resource={defaultMedia}
-            playback="ambient"
-            aspectRatio={aspectRatio}
-          />
-        </div>
+        {active === null && (
+          <div
+            className={styles.panel}
+            data-active={true}
+            aria-hidden={active !== null}
+            inert={active !== null}
+          >
+            <ActiveMedia
+              active
+              resource={defaultMedia}
+              playback="ambient"
+              aspectRatio={aspectRatio}
+            />
+          </div>
+        )}
       </div>
     </div>
   )

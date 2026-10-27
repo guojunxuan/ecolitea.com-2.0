@@ -2,7 +2,9 @@
   width: min(calc(100% - 2 * var(--website-gutter)), var(--website-container-site));
   margin-inline: auto;
   padding-block: var(--website-space-16);
-  scroll-margin-top: calc(var(--header-height) + 56px + var(--website-space-8));
+  scroll-margin-top: calc(
+    var(--header-height) + var(--website-anchor-nav-height) + var(--website-space-8)
+  );
 }
 .heading {
   font-size: clamp(28px, 3vw, 36px);

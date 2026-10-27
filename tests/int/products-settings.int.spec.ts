@@ -110,6 +110,12 @@ describe('Product Listing settings', () => {
     expect(revalidateSettings({ doc, req: { context: {} } } as never)).toBe(doc)
     expect(revalidateTag).toHaveBeenCalledWith('global_settings', 'max')
     expect(revalidatePath).toHaveBeenCalledWith('/products')
+    for (const path of [
+      '/products/[category]',
+      '/products/[category]/page/[pageNumber]',
+      '/products/[category]/[product]',
+    ])
+      expect(revalidatePath).toHaveBeenCalledWith(path, 'page')
     expect(revalidateTag).toHaveBeenCalledWith('products-overview', 'max')
     vi.clearAllMocks()
     expect(

@@ -13,15 +13,18 @@ export function CodeFrame({
   srcDoc: string
   minHeight: number
 }) {
+  const container = useRef<HTMLDivElement>(null)
   const frame = useRef<HTMLIFrameElement>(null)
   const minimum = Number.isFinite(minHeight) ? Math.min(10000, Math.max(0, minHeight)) : 400
   const [measurement, setMeasurement] = useState({ srcDoc, minimum, height: minimum })
   const height =
     measurement.srcDoc === srcDoc && measurement.minimum === minimum ? measurement.height : minimum
-  const [document, setDocument] = useState(srcDoc)
+  const [preparedSource, setPreparedSource] = useState<{ input: string; value: string } | null>(
+    null,
+  )
   useEffect(() => {
-    const element = frame.current
-    if (!element?.parentElement) return
+    const element = container.current
+    if (!element) return
     const inheritedTheme = element
       .closest('[data-website-theme]')
       ?.getAttribute('data-website-theme')
@@ -32,19 +35,20 @@ export function CodeFrame({
             `<html data-website-theme="${inheritedTheme}">`,
           )
         : srcDoc
-    const computed = getComputedStyle(element.parentElement)
+    const computed = getComputedStyle(element)
     const values = inheritedTokenNames
       .map((name) => {
         const value = computed.getPropertyValue(name).trim()
         return value ? `${name}:${value};` : ''
       })
       .join('')
-    setDocument(
-      themedSource.replace(
+    setPreparedSource({
+      input: srcDoc,
+      value: themedSource.replace(
         '<style id="product-code-theme"></style>',
         `<style id="product-code-theme">:root{${escapeStyle(values)}}</style>`,
       ),
-    )
+    })
   }, [srcDoc])
   useEffect(() => {
     const receive = (event: MessageEvent) => {
@@ -66,13 +70,17 @@ export function CodeFrame({
     return () => window.removeEventListener('message', receive)
   }, [minimum, srcDoc])
   return (
-    <iframe
-      className={styles.frame}
-      ref={frame}
-      sandbox="allow-scripts"
-      title={title}
-      srcDoc={document}
-      style={{ height }}
-    />
+    <div ref={container} style={{ minHeight: minimum }}>
+      {preparedSource?.input === srcDoc && (
+        <iframe
+          className={styles.frame}
+          ref={frame}
+          sandbox="allow-scripts"
+          title={title}
+          srcDoc={preparedSource.value}
+          style={{ height }}
+        />
+      )}
+    </div>
   )
 }

@@ -2,7 +2,7 @@
   position: sticky;
   top: var(--header-height);
   z-index: var(--website-z-sticky);
-  height: 56px;
+  height: var(--website-anchor-nav-height);
   border-block: 1px solid var(--website-glass-border);
   background: var(--website-glass-surface);
   backdrop-filter: blur(var(--website-glass-blur)) saturate(var(--website-glass-saturation));

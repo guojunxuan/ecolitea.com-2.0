@@ -1,7 +1,7 @@
 'use client'
 
 import { ChevronLeft, ChevronRight } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 import { CMSLink } from '@/components/Link'
 import {
@@ -14,13 +14,6 @@ import styles from './index.module.css'
 
 type AnchorItem = { id: string; label: string }
 
-const headerHeight = () => {
-  const rootStyle = getComputedStyle(document.documentElement)
-  const value = rootStyle.getPropertyValue('--header-height').trim()
-  const pixels = Number.parseFloat(value) || 0
-  return value.endsWith('rem') ? pixels * (Number.parseFloat(rootStyle.fontSize) || 16) : pixels
-}
-
 export const AnchorNav = ({
   items,
   variant,
@@ -30,6 +23,7 @@ export const AnchorNav = ({
   variant: 'category' | 'detail'
   action?: InquiryButton
 }) => {
+  const navigation = useRef<HTMLElement>(null)
   const [active, setActive] = useState(items[0]?.id ?? '')
   const [stuck, setStuck] = useState(false)
   const { ref, edges, scroll } = useOverflowTrack(0.6)
@@ -41,7 +35,8 @@ export const AnchorNav = ({
     })
     const previousMargins = targets.map((target) => target.style.scrollMarginTop)
     targets.forEach((target) => {
-      target.style.scrollMarginTop = 'calc(var(--header-height) + 56px + var(--website-space-4))'
+      target.style.scrollMarginTop =
+        'calc(var(--header-height) + var(--website-anchor-nav-height) + var(--website-space-4))'
     })
     let frame = 0
     let spy = () => {}
@@ -57,10 +52,14 @@ export const AnchorNav = ({
     const setup = () => {
       observer?.disconnect()
       overviewObserver?.disconnect()
-      const header = headerHeight()
+      if (!navigation.current) return
+      const measured = getComputedStyle(navigation.current)
+      const header = Number.parseFloat(measured.top) || 0
+      const navHeight = Number.parseFloat(measured.height) || 0
+      const space = Number.parseFloat(measured.getPropertyValue('--website-space-4')) || 0
       if (typeof IntersectionObserver === 'undefined') return
       spy = () => {
-        const offset = header + 56 + 16
+        const offset = header + navHeight + space
         const passed = targets.filter((target) => target.getBoundingClientRect().top <= offset + 1)
         const current =
           passed.at(-1) ??
@@ -68,7 +67,7 @@ export const AnchorNav = ({
         if (current) setActive(current.id)
       }
       observer = new IntersectionObserver(spy, {
-        rootMargin: `-${header + 56}px 0px -55% 0px`,
+        rootMargin: `-${header + navHeight}px 0px -55% 0px`,
         threshold: 0,
       })
       targets.forEach((target) => observer?.observe(target))
@@ -117,6 +116,7 @@ export const AnchorNav = ({
 
   return (
     <nav
+      ref={navigation}
       className={styles.navigation}
       aria-label={variant === 'category' ? 'Product categories' : 'Product sections'}
       data-variant={variant}

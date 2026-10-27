@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useLayoutEffect, useRef, useState, useSyncExternalStore } from 'react'
 import type { ProductMediaCarouselBlock } from '@/payload-types'
 import { SegmentIndicator } from '@/components/Products/SegmentIndicator'
 import { ActiveMedia } from '../shared/ActiveMedia'
@@ -11,11 +11,16 @@ type Props = {
   aspectRatio: string
   label: string
 }
+const subscribeToHydration = () => () => {}
+const clientSnapshot = () => true
+const serverSnapshot = () => false
+
 export function Carousel({ slides, aspectRatio, label }: Props) {
   const [active, setActive] = useState(0)
   const track = useRef<HTMLDivElement>(null)
   const count = slides.length
-  const loop = count > 1
+  const hydrated = useSyncExternalStore(subscribeToHydration, clientSnapshot, serverSnapshot)
+  const loop = count > 1 && hydrated
   const entries = loop ? [slides[count - 1], ...slides, slides[0]] : slides
   const scroll = (position: number, smooth = false) => {
     const element = track.current
@@ -26,7 +31,7 @@ export function Carousel({ slides, aspectRatio, label }: Props) {
       smooth && !window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ? 'smooth' : 'auto'
     element.scrollTo?.({ left, behavior })
   }
-  useEffect(() => {
+  useLayoutEffect(() => {
     scroll(loop ? 1 : 0)
     // Recenter the current slide after the responsive track changes width.
     const element = track.current
