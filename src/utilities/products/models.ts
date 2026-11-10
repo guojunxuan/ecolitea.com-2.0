@@ -1,7 +1,5 @@
 import type { Media, Product, ProductCategory } from '@/payload-types'
 
-export type InquiryButton = NonNullable<NonNullable<Product['inquiry']>['buttons']>[number]['link']
-
 export type ProductMeta = {
   title?: string | null
   description?: string | null
@@ -18,46 +16,37 @@ export type ProductCard = Pick<Product, 'id' | 'title' | 'slug' | 'summary'> & {
 export type ProductCategoryOverview = Omit<ProductCategoryModel, 'meta'> & {
   productCount: number
   products: ProductCard[]
-  moreCovers: Media[]
+  imageFit: 'contain' | 'cover'
 }
 export type ProductSpecification = { label: string; value: string }
-export type ProductGalleryItem = {
-  media: Media
-  values: { optionKey: string; valueKey: string }[]
+export type ProductSpecificationGroup = {
+  group: string | null
+  items: ProductSpecification[]
 }
-export type ProductOptionValue = {
-  key: string
-  label: string
-  swatch: string | null
-  image: Media | null
-  specifications: ProductSpecification[]
+export type ProductDownload = {
+  id: string
+  title: string
+  url: string
+  mimeType: string | null
+  filesize: number | null
 }
-export type ProductOption = {
-  key: string
-  name: string
-  display: 'text' | 'swatch' | 'image'
-  values: ProductOptionValue[]
-}
-export type ProductDetail = Omit<
+export type ProductDetail = Pick<
   Product,
-  | 'inquiry'
-  | 'category'
-  | 'gallery'
-  | 'highlights'
-  | 'sections'
-  | 'meta'
-  | 'relatedProducts'
-  | 'options'
-  | 'specifications'
+  | 'id'
+  | 'title'
+  | 'slug'
+  | 'summary'
+  | 'categorySlug'
+  | 'publishedAt'
+  | 'createdAt'
+  | 'updatedAt'
+  | '_status'
 > & {
-  inquiry: { buttons: InquiryButton[] }
-  options: ProductOption[]
-  specifications: ProductSpecification[]
-  defaultSelection: Record<string, string>
-  resolvedSpecifications: ProductSpecification[]
+  overview: string[]
+  specifications: ProductSpecificationGroup[]
+  downloads: ProductDownload[]
   category: ProductCategoryModel | null
-  gallery: ProductGalleryItem[]
-  highlights: string[]
+  gallery: Media[]
   sections: {
     label: string
     anchor: string

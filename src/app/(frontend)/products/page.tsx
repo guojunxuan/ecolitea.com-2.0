@@ -1,16 +1,17 @@
 import type { Metadata } from 'next'
+import Link from 'next/link'
 import { CMSLink } from '@/components/Link'
+import { Media } from '@/components/Media'
 import { PayloadRedirects } from '@/components/PayloadRedirects'
 import { AnchorNav } from '@/components/Products/AnchorNav'
-import { CategoryBand } from '@/components/Products/CategoryBand'
+import { CategoryCarousel } from '@/components/Products/CategoryCarousel'
 import { ProductCard } from '@/components/Products/ProductCard'
-import { ProductMoreCard } from '@/components/Products/ProductMoreCard'
 import { ProductPreviewGrid } from '@/components/Products/ProductPreviewGrid'
-import { BlogListingHero } from '@/heros/BlogListingHero'
+import { ProductListingHero } from '@/heros/ProductListingHero'
 import { HeaderThemeSync } from '@/heros/HeaderThemeSync'
 import { getProductCategoriesOverview } from '@/utilities/products/getProductCategoriesOverview'
+import { getProductCategoryCarousel } from '@/utilities/products/getProductCategoryCarousel'
 import { getProductListingHero } from '@/utilities/products/getProductListingHero'
-import { getDefaultInquiryButtons } from '@/utilities/products/getDefaultInquiryButtons'
 import { getProductListingSEO } from '@/utilities/products/getProductListingSEO'
 import { productCategoryPath } from '@/utilities/products/paths'
 import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
@@ -18,82 +19,96 @@ import styles from './page.module.css'
 
 export const dynamic = 'force-static'
 export const revalidate = 600
+const CATEGORY_CAROUSEL_ID = 'product-category-carousel'
 export default async function ProductsPage() {
-  const [categories, hero, actions, seo] = await Promise.all([
+  const [categories, hero, seo] = await Promise.all([
     getProductCategoriesOverview(),
     getProductListingHero(),
-    getDefaultInquiryButtons(),
     getProductListingSEO(),
   ])
+  const categoryItems = await getProductCategoryCarousel(categories)
   return (
     <div className={styles.root}>
       <PayloadRedirects disableNotFound url="/products" />
-      {hero ? (
-        <BlogListingHero {...hero} />
+      {hero.length ? (
+        <>
+          <h1 className={styles.pageTitle}>{seo.title || 'Products'}</h1>
+          <ProductListingHero slides={hero} />
+        </>
       ) : (
         <header className={styles.header}>
           <HeaderThemeSync theme="light" />
           <p className="website-type-eyebrow">Products</p>
-          <h1>{seo.title || 'Products'}</h1>
-          {seo.description && <p>{seo.description}</p>}
+          <h1 className={styles.heading}>{seo.title || 'Products'}</h1>
+          {seo.description && <p className={styles.description}>{seo.description}</p>}
         </header>
       )}
       {categories.length ? (
         <>
+          <CategoryCarousel id={CATEGORY_CAROUSEL_ID} items={categoryItems} />
           <AnchorNav
             variant="category"
+            revealAfter={categoryItems.length ? CATEGORY_CAROUSEL_ID : undefined}
             items={categories.map((category) => ({ id: category.slug, label: category.title }))}
           />
           {categories.map((category) => {
-            const more = category.productCount > 6
-            const products = category.products.slice(0, more ? 5 : 6)
+            const products = category.products.slice(0, 4)
             const href = productCategoryPath(category.slug)
+            const headingID = `${category.slug}-heading`
+            const { image, imageFit } = category
             return (
-              <section key={category.id} id={category.slug} className={styles.category}>
-                <CategoryBand
-                  category={category}
-                  headingLevel="h2"
-                  actions={
-                    <>
-                      <CMSLink
-                        type="custom"
-                        url={href}
-                        label="View all products"
-                        appearance="default"
-                      />
-                      {actions.map((action, index) => (
-                        <span
-                          key={index}
-                          className={index > 0 ? styles.extraAction : styles.inquiryAction}
-                        >
-                          <CMSLink
-                            {...action}
-                            className={
-                              action.appearance === 'default' ? undefined : styles.bandOutline
-                            }
-                            appearance={action.appearance ?? 'outline'}
-                          />
-                        </span>
-                      ))}
-                    </>
-                  }
-                />
-                <div className={styles.products}>
-                  <ProductPreviewGrid count={products.length + (more ? 1 : 0)}>
-                    {products.map((product) => (
-                      <ProductCard key={product.id} product={product} />
-                    ))}
-                    {more && (
-                      <ProductMoreCard
+              <section
+                key={category.id}
+                id={category.slug}
+                aria-labelledby={headingID}
+                className={styles.category}
+              >
+                <div className="site-container">
+                  <div className={`${styles.categoryIntro} ${!image ? styles.textOnly : ''}`}>
+                    {image && (
+                      <Link
                         href={href}
-                        remaining={category.productCount - 5}
-                        categoryTitle={category.title}
-                        covers={category.moreCovers}
-                        productCount={category.productCount}
-                      />
+                        aria-label={`Explore ${category.title}`}
+                        className={styles.categoryMedia}
+                        data-image-fit={imageFit}
+                      >
+                        <Media
+                          resource={image}
+                          fill
+                          htmlElement={null}
+                          pictureClassName={styles.categoryPicture}
+                          imgClassName={styles.categoryImage}
+                          presentation={{ image: { fit: imageFit } }}
+                          size="(min-width: 1284px) 732px, (min-width: 1024px) 60vw, (min-width: 768px) 56vw, 100vw"
+                        />
+                      </Link>
                     )}
-                  </ProductPreviewGrid>
+                    <div className={styles.categoryCopy}>
+                      <h2
+                        id={headingID}
+                        className={`website-type-heading-1 ${styles.categoryTitle}`}
+                      >
+                        {category.title}
+                      </h2>
+                      {category.description && (
+                        <p className={`website-type-body-md ${styles.categoryDescription}`}>
+                          {category.description}
+                        </p>
+                      )}
+                      <div className={styles.categoryActions}>
+                        <CMSLink type="custom" url={href} label="View More" appearance="default" />
+                      </div>
+                    </div>
+                  </div>
+                  <p className={`website-type-heading-3 ${styles.productsHeading}`}>
+                    Latest Products
+                  </p>
                 </div>
+                <ProductPreviewGrid href={href} categoryTitle={category.title}>
+                  {products.map((product) => (
+                    <ProductCard key={product.id} product={product} showAction />
+                  ))}
+                </ProductPreviewGrid>
               </section>
             )
           })}

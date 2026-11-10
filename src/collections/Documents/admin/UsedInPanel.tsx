@@ -5,7 +5,6 @@ import {
   Button,
   FieldDescription,
   FieldLabel,
-  Link,
   Pill,
   ShimmerEffect,
   useConfig,
@@ -14,6 +13,7 @@ import {
 import React, { useEffect, useState } from 'react'
 import type { DocumentReference } from '../references'
 import styles from './UsedInPanel.module.css'
+import { UsedInTable } from '../../mediaAdmin/UsedInTable'
 
 type References = { current: DocumentReference[]; historicalCount: number }
 
@@ -74,8 +74,7 @@ function UsedInReferences({ id }: { id: string | number }) {
     return true
   })
   return (
-    <section className={styles.panel} aria-label="Used in">
-      <hr className={styles.divider} />
+    <section aria-label="Used in">
       <div className={styles.heading}>
         <div>
           <FieldLabel path="usedIn" label="Used in" />
@@ -107,21 +106,19 @@ function UsedInReferences({ id }: { id: string | number }) {
       ) : (
         <>
           {current.length > 0 && (
-            <ul className={styles.list}>
-              {(expanded ? current : current.slice(0, 5)).map((reference) => (
-                <li key={reference.editURL} className={styles.row}>
-                  <Pill size="small">
-                    {reference.ownerType === 'global'
-                      ? 'Global'
-                      : (labelText(
-                          config.collections.find(({ slug }) => slug === reference.ownerSlug)
-                            ?.labels?.singular,
-                        ) ?? reference.ownerSlug)}
-                  </Pill>
-                  <Link href={reference.editURL}>{reference.title}</Link>
-                </li>
-              ))}
-            </ul>
+            <UsedInTable
+              rows={(expanded ? current : current.slice(0, 5)).map((reference) => ({
+                title: reference.title,
+                editURL: reference.editURL,
+                type:
+                  reference.ownerType === 'global'
+                    ? 'Global'
+                    : (labelText(
+                        config.collections.find(({ slug }) => slug === reference.ownerSlug)?.labels
+                          ?.singular,
+                      ) ?? reference.ownerSlug),
+              }))}
+            />
           )}
           {!expanded && current.length > 5 && (
             <Button buttonStyle="ghost" onClick={() => setExpanded(true)}>

@@ -1,6 +1,7 @@
 import React from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { cleanup, render, screen } from '@testing-library/react'
+import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/react'
+import type { Props as MediaProps } from '@/components/Media/types'
 const mocks = vi.hoisted(() => ({
   overview: vi.fn(),
   category: vi.fn(),
@@ -9,7 +10,7 @@ const mocks = vi.hoisted(() => ({
   related: vi.fn(),
   hero: vi.fn(),
   seo: vi.fn(),
-  actions: vi.fn(),
+  carousel: vi.fn(),
   draft: vi.fn(),
 }))
 vi.mock('@/utilities/products/getProductCategoriesOverview', () => ({
@@ -23,8 +24,8 @@ vi.mock('@/utilities/products/getProductBySlug', () => ({ getProductBySlug: mock
 vi.mock('@/utilities/products/getRelatedProducts', () => ({ getRelatedProducts: mocks.related }))
 vi.mock('@/utilities/products/getProductListingHero', () => ({ getProductListingHero: mocks.hero }))
 vi.mock('@/utilities/products/getProductListingSEO', () => ({ getProductListingSEO: mocks.seo }))
-vi.mock('@/utilities/products/getDefaultInquiryButtons', () => ({
-  getDefaultInquiryButtons: mocks.actions,
+vi.mock('@/utilities/products/getProductCategoryCarousel', () => ({
+  getProductCategoryCarousel: mocks.carousel,
 }))
 vi.mock('@/utilities/products/getProductStaticParams', () => ({
   getProductStaticParams: async () => ({ categories: [], products: [] }),
@@ -41,7 +42,12 @@ vi.mock('@/heros/HeaderThemeSync', () => ({ HeaderThemeSync: () => null }))
 vi.mock('@/heros/BlogListingHero', () => ({
   BlogListingHero: ({ heading }: { heading: string }) => <h1>{heading}</h1>,
 }))
-vi.mock('@/components/Media', () => ({ Media: () => null }))
+vi.mock('@/components/Media', () => ({
+  Media: ({ resource, presentation }: MediaProps) =>
+    resource && typeof resource === 'object' ? (
+      <span role="img" aria-label={resource.alt || ''} data-fit={presentation?.image?.fit} />
+    ) : null,
+}))
 vi.mock('@/components/LivePreviewListener', () => ({
   LivePreviewListener: () => <span>Preview listener</span>,
 }))
@@ -57,8 +63,6 @@ vi.mock('@/components/Products/OverflowCarousel', () => ({
     </section>
   ),
 }))
-vi.mock('@/components/Products/ProductGallery', () => ({ ProductGallery: () => null }))
-vi.mock('@/components/Products/MobileInquiryBar', () => ({ MobileInquiryBar: () => null }))
 import Overview, { generateMetadata as overviewMetadata } from '@/app/(frontend)/products/page'
 import {
   parsePageNumber,
@@ -74,6 +78,7 @@ const category = {
   title: 'Tea bags',
   description: 'Tea packaging',
   image: null,
+  imageFit: 'cover',
   meta: { image: null },
 }
 const cards = Array.from({ length: 6 }, (_, i) => ({
@@ -93,45 +98,157 @@ const detail = {
   meta: { image: null },
   summary: 'Summary',
   gallery: [],
-  options: [],
+  overview: ['Summary'],
   specifications: [],
-  defaultSelection: {},
-  inquiry: { buttons: [] },
-  highlights: [],
+  downloads: [],
   sections: [{ anchor: 'features', label: 'Hidden label', blocks: [] }],
   relatedProducts: [],
 }
 beforeEach(() => {
   vi.clearAllMocks()
+  vi.stubGlobal(
+    'matchMedia',
+    vi.fn(() => ({ matches: false, addEventListener: vi.fn(), removeEventListener: vi.fn() })),
+  )
   mocks.overview.mockResolvedValue([])
   mocks.category.mockResolvedValue(category)
   mocks.listing.mockResolvedValue({ docs: cards, totalPages: 1, page: 1 })
   mocks.product.mockResolvedValue(detail)
   mocks.related.mockResolvedValue([])
-  mocks.hero.mockResolvedValue(null)
+  mocks.hero.mockResolvedValue([])
+  mocks.carousel.mockResolvedValue([])
   mocks.seo.mockResolvedValue({ title: 'Our Products', description: 'Discover products' })
-  mocks.actions.mockResolvedValue([])
   mocks.draft.mockResolvedValue({ isEnabled: false })
 })
-afterEach(cleanup)
+afterEach(() => {
+  cleanup()
+  vi.unstubAllGlobals()
+  vi.restoreAllMocks()
+})
 describe('Products routes', () => {
   it('renders empty overview without category nav', async () => {
     render(await Overview())
     expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('Our Products')
     expect(screen.getByText('No products yet.')).toBeTruthy()
   })
-  it.each([6, 8])('overview with %s products uses six cards or five and More', async (count) => {
+  it.each(['Our Products', ''])(
+    'keeps one persistent SEO h1 (%s) with media-only slides before the product sections',
+    async (seoTitle) => {
+      mocks.seo.mockResolvedValue({ title: seoTitle, description: 'Discover products' })
+      mocks.overview.mockResolvedValue([{ ...category, productCount: 6, products: cards }])
+      mocks.hero.mockResolvedValue([
+        {
+          id: 'slide',
+          title: 'Featured range',
+          media: null,
+          theme: 'light',
+          cta: { type: 'custom', url: '/contact', label: 'Discover' },
+        },
+      ])
+      mocks.carousel.mockResolvedValue([
+        { id: 'tea', title: 'Tea bags', href: '/products/tea', image: null },
+      ])
+      render(await Overview())
+      const headings = screen.getAllByRole('heading', { level: 1 })
+      expect(headings).toHaveLength(1)
+      expect(headings[0].textContent).toBe(seoTitle || 'Products')
+      expect(headings[0].closest('[aria-roledescription="slide"]')).toBeNull()
+      expect(screen.queryByRole('heading', { level: 2, name: 'Featured range' })).toBeNull()
+      expect(screen.getByRole('link', { name: 'Discover' }).getAttribute('href')).toBe('/contact')
+      expect(screen.getByRole('link', { name: 'Tea bags' }).getAttribute('href')).toBe(
+        '/products/tea',
+      )
+      expect(document.getElementById('tea')).toBeTruthy()
+    },
+  )
+  it.each([1, 2, 3, 4, 6, 8])(
+    'overview with %s products previews the latest four and a category entry',
+    async (count) => {
+      mocks.overview.mockResolvedValue([
+        { ...category, productCount: count, products: cards.slice(0, count) },
+      ])
+      render(await Overview())
+      const section = screen.getByRole('region', { name: 'Tea bags' })
+      expect(within(section).getByRole('heading', { level: 2 }).textContent).toBe('Tea bags')
+      expect(within(section).getByText('Tea packaging')).toBeTruthy()
+      expect(within(section).getByText('Latest Products')).toBeTruthy()
+      const more = within(section).getByRole('link', { name: 'View More' })
+      expect(more.getAttribute('href')).toBe('/products/tea')
+      expect(more.querySelector('svg')).toBeNull()
+      const list = within(section).getByRole('list')
+      const items = within(list).getAllByRole('listitem')
+      expect(items).toHaveLength(Math.min(count, 4) + 1)
+      expect(
+        items.slice(0, -1).map((item) => within(item).getByRole('heading').textContent),
+      ).toEqual(cards.slice(0, Math.min(count, 4)).map((card) => card.title))
+      expect(within(items[0]).getByRole('link').getAttribute('href')).toBe('/products/tea/bag-0')
+      expect(within(list).getAllByRole('link')).toHaveLength(items.length)
+      for (const item of items.slice(0, -1)) {
+        const productLink = within(item).getByRole('link')
+        expect(within(productLink).getByText('View More')).toBeTruthy()
+        expect(productLink.querySelector('a, button')).toBeNull()
+      }
+      const categoryEntry = within(items.at(-1)!).getByRole('link', {
+        name: 'View More · Tea bags',
+      })
+      expect(categoryEntry.getAttribute('href')).toBe('/products/tea')
+      expect(categoryEntry.textContent).toBe('View More')
+      expect(screen.queryByText(/^View all/)).toBeNull()
+      expect(screen.queryByText(/^\+\d+$/)).toBeNull()
+      expect(screen.queryByRole('heading', { name: 'Bag 4' })).toBeNull()
+    },
+  )
+  it.each([
+    { width: 1600, height: 900, fit: 'cover' },
+    { width: 600, height: 600, fit: 'contain' },
+    { width: undefined, height: undefined, fit: 'cover' },
+  ])('renders category media using the shared renderer ($fit, $width × $height)', async (image) => {
     mocks.overview.mockResolvedValue([
-      { ...category, productCount: count, products: cards, moreCovers: [] },
+      {
+        ...category,
+        image: {
+          id: 'category-image',
+          alt: 'Tea category cover',
+          width: image.width,
+          height: image.height,
+        },
+        imageFit: image.fit,
+        productCount: 6,
+        products: cards,
+      },
     ])
     render(await Overview())
-    expect(screen.queryByRole('heading', { name: 'Bag 5' })).toBe(
-      count === 6 ? screen.getByRole('heading', { name: 'Bag 5' }) : null,
+    const cover = screen.getByRole('img', { name: 'Tea category cover' })
+    expect(cover.getAttribute('data-fit')).toBe(image.fit)
+    expect(cover.closest('a')?.getAttribute('href')).toBe('/products/tea')
+  })
+  it('keeps each category preview separate and usable without a cover or description', async () => {
+    mocks.overview.mockResolvedValue([
+      { ...category, productCount: 6, products: cards },
+      {
+        ...category,
+        id: 'coffee',
+        slug: 'coffee',
+        title: 'Coffee bags',
+        description: null,
+        productCount: 1,
+        products: [
+          { ...cards[0], id: 'coffee-bag', categorySlug: 'coffee', title: 'Coffee filter' },
+        ],
+      },
+    ])
+    render(await Overview())
+    const tea = screen.getByRole('region', { name: 'Tea bags' })
+    const coffee = screen.getByRole('region', { name: 'Coffee bags' })
+    expect(tea.id).toBe('tea')
+    expect(coffee.id).toBe('coffee')
+    expect(within(coffee).getByRole('link', { name: 'View More' }).getAttribute('href')).toBe(
+      '/products/coffee',
     )
-    if (count > 6) {
-      expect(screen.getByText('+3')).toBeTruthy()
-      expect(screen.getByText('View all 8')).toBeTruthy()
-    }
+    expect(within(coffee).queryByRole('img')).toBeNull()
+    expect(within(coffee).getAllByRole('listitem')).toHaveLength(2)
+    expect(within(tea).queryByText('Coffee filter')).toBeNull()
+    expect(within(coffee).queryByRole('heading', { name: 'Bag 0' })).toBeNull()
   })
   it('rejects page one aliases, malformed and unsafe page numbers', () => {
     for (const value of ['1', '0', '-1', '02', '2x', '9007199254740992'])
@@ -142,6 +259,18 @@ describe('Products routes', () => {
     render(await renderProductListing({ categorySlug: 'tea', page: 1 }))
     expect(screen.queryByRole('navigation', { name: 'pagination' })).toBeNull()
     expect(screen.queryByText('Explore other ranges')).toBeNull()
+    expect(screen.getAllByText('View More')).toHaveLength(cards.length)
+    expect(
+      screen.getAllByText('View More').map((action) => action.closest('a')?.getAttribute('href')),
+    ).toEqual(cards.map((card) => `/products/tea/${card.slug}`))
+  })
+  it('uses the same single-link View More action for related product cards', async () => {
+    mocks.related.mockResolvedValue([cards[0]])
+    render(await Detail({ params: Promise.resolve({ category: 'tea', product: 'bag' }) }))
+    const related = document.querySelector('[data-product-card]') as HTMLElement
+    expect(related).toBeTruthy()
+    expect(within(related).getByText('View More').closest('a')).toBe(related)
+    expect(related.querySelector('a, button, [role="button"]')).toBeNull()
   })
   it('404s missing categories and out-of-range pages', async () => {
     mocks.category.mockResolvedValue(null)
@@ -156,12 +285,235 @@ describe('Products routes', () => {
       Detail({ params: Promise.resolve({ category: 'other', product: 'bag' }) }),
     ).rejects.toThrow('404')
   })
-  it('does not render section labels or empty Related and specifications', async () => {
+  it('selects Overview when specifications are empty and omits an empty Download action', async () => {
     render(await Detail({ params: Promise.resolve({ category: 'tea', product: 'bag' }) }))
     expect(screen.queryByText('Hidden label')).toBeNull()
     expect(screen.queryByText('You may also need')).toBeNull()
-    expect(screen.queryByText('Specifications')).toBeNull()
+    expect(screen.queryByRole('tab', { name: 'Specifications' })).toBeNull()
+    const overview = screen.getByRole('tab', { name: 'Overview', selected: true })
+    expect(screen.getByRole('tabpanel', { name: 'Overview' }).id).toBe(
+      overview.getAttribute('aria-controls'),
+    )
+    expect(screen.getByText('Summary')).toBeTruthy()
     expect(screen.getByText('Block content')).toBeTruthy()
+    expect(screen.queryByText(/Download/)).toBeNull()
+    expect(
+      screen.getByRole<HTMLButtonElement>('button', { name: 'Request a quote' }).disabled,
+    ).toBe(true)
+  })
+  it('selects Overview by default and slides panels in the direction of the selected tab', async () => {
+    mocks.product.mockResolvedValue({
+      ...detail,
+      overview: ['The first paragraph.', 'A second paragraph.'],
+      specifications: [{ group: null, items: [{ label: 'Width', value: '60 mm' }] }],
+    })
+    render(await Detail({ params: Promise.resolve({ category: 'tea', product: 'bag' }) }))
+    const tabs = screen.getAllByRole('tab')
+    expect(tabs.map((tab) => tab.textContent)).toEqual(['Overview', 'Specifications'])
+    const overview = screen.getByRole('tab', { name: 'Overview', selected: true })
+    const specifications = screen.getByRole('tab', { name: 'Specifications', selected: false })
+    expect(specifications.tabIndex).toBe(-1)
+    const overviewPanel = screen.getByRole('tabpanel', { name: 'Overview' })
+    expect(Array.from(overviewPanel.querySelectorAll('p'), (p) => p.textContent)).toEqual([
+      'The first paragraph.',
+      'A second paragraph.',
+    ])
+    const specificationsPanel = document.getElementById(
+      specifications.getAttribute('aria-controls')!,
+    )!
+    expect(overviewPanel.dataset.position).toBe('current')
+    expect(specificationsPanel.dataset.position).toBe('after')
+    expect(specificationsPanel.hasAttribute('inert')).toBe(true)
+
+    overview.focus()
+    fireEvent.keyDown(overview, { key: 'ArrowRight' })
+    expect(document.activeElement).toBe(specifications)
+    expect(specifications.getAttribute('aria-selected')).toBe('true')
+    expect(specifications.tabIndex).toBe(0)
+    expect(overview.tabIndex).toBe(-1)
+    expect(screen.queryByRole('tabpanel', { name: 'Overview' })).toBeNull()
+    expect(screen.getByRole('tabpanel', { name: 'Specifications' }).textContent).toContain('60 mm')
+    expect(overviewPanel.dataset.position).toBe('before')
+    expect(specificationsPanel.dataset.position).toBe('current')
+    expect(specificationsPanel.hasAttribute('inert')).toBe(false)
+
+    fireEvent.keyDown(specifications, { key: 'Home' })
+    expect(document.activeElement).toBe(overview)
+    fireEvent.keyDown(overview, { key: 'ArrowLeft' })
+    expect(document.activeElement).toBe(specifications)
+    fireEvent.keyDown(specifications, { key: 'Home' })
+    fireEvent.keyDown(overview, { key: 'End' })
+    expect(document.activeElement).toBe(specifications)
+  })
+  it('shows the first six specifications across groups and expands the rest in order', async () => {
+    mocks.product.mockResolvedValue({
+      ...detail,
+      specifications: [
+        {
+          group: 'Materials',
+          items: Array.from({ length: 5 }, (_, i) => ({
+            label: `Material ${i + 1}`,
+            value: 'Paper',
+          })),
+        },
+        {
+          group: 'Dimensions',
+          items: [
+            { label: 'Width', value: '60 mm' },
+            { label: 'Height', value: '90 mm' },
+          ],
+        },
+      ],
+    })
+    render(await Detail({ params: Promise.resolve({ category: 'tea', product: 'bag' }) }))
+    fireEvent.click(screen.getByRole('tab', { name: 'Specifications' }))
+    const panel = screen.getByRole('tabpanel', { name: 'Specifications' })
+    expect(within(panel).getByRole('heading', { name: 'Materials' })).toBeTruthy()
+    expect(within(panel).getByRole('heading', { name: 'Dimensions' })).toBeTruthy()
+    expect(within(panel).getByText('Width')).toBeTruthy()
+    expect(within(panel).queryByText('Height')).toBeNull()
+    const toggle = within(panel).getByRole('button', { name: 'Show all specifications' })
+    expect(toggle.getAttribute('aria-expanded')).toBe('false')
+    fireEvent.click(toggle)
+    expect(within(panel).getByText('Height')).toBeTruthy()
+    expect(toggle.getAttribute('aria-expanded')).toBe('true')
+    fireEvent.click(toggle)
+    expect(within(panel).queryByText('Height')).toBeNull()
+  })
+  it('offers to expand Overview only when the copy exceeds five measured lines', async () => {
+    let fullHeight = 120
+    let measure: ResizeObserverCallback | undefined
+    vi.stubGlobal(
+      'ResizeObserver',
+      class {
+        constructor(callback: ResizeObserverCallback) {
+          measure = callback
+        }
+        observe() {}
+        disconnect() {}
+      },
+    )
+    const getComputedStyle = window.getComputedStyle.bind(window)
+    vi.spyOn(window, 'getComputedStyle').mockImplementation((node) =>
+      Object.assign(getComputedStyle(node), { lineHeight: '24px' }),
+    )
+    vi.spyOn(HTMLElement.prototype, 'scrollHeight', 'get').mockImplementation(() => fullHeight)
+
+    render(await Detail({ params: Promise.resolve({ category: 'tea', product: 'bag' }) }))
+    expect(screen.queryByRole('button', { name: 'Read more' })).toBeNull()
+    fullHeight = 144
+    act(() => measure?.([], {} as ResizeObserver))
+    const toggle = screen.getByRole('button', { name: 'Read more' })
+    expect(toggle.getAttribute('aria-expanded')).toBe('false')
+    fireEvent.click(toggle)
+    expect(screen.getByRole('button', { name: 'Read less' })).toBe(toggle)
+    expect(toggle.getAttribute('aria-expanded')).toBe('true')
+    fireEvent.click(toggle)
+    expect(toggle.getAttribute('aria-expanded')).toBe('false')
+    fullHeight = 96
+    act(() => measure?.([], {} as ResizeObserver))
+    expect(screen.queryByRole('button', { name: 'Read more' })).toBeNull()
+  })
+  it('opens one download from a panel and keeps file details out of the button', async () => {
+    mocks.product.mockResolvedValue({
+      ...detail,
+      downloads: [
+        {
+          id: 'spec',
+          title: 'Specification sheet',
+          url: 'https://files.example.test/spec.pdf',
+          mimeType: 'application/pdf',
+          filesize: 2_400_000,
+        },
+      ],
+    })
+    render(await Detail({ params: Promise.resolve({ category: 'tea', product: 'bag' }) }))
+    const trigger = screen.getByRole('button', { name: 'Download' })
+    expect(trigger.textContent).toBe('Download')
+    const panel = document.getElementById(trigger.getAttribute('aria-controls')!)!
+    expect(trigger.getAttribute('aria-expanded')).toBe('false')
+    expect(panel.hasAttribute('inert')).toBe(true)
+    expect(panel.hasAttribute('data-open')).toBe(false)
+
+    fireEvent.click(trigger)
+    expect(trigger.getAttribute('aria-expanded')).toBe('true')
+    expect(panel.hasAttribute('inert')).toBe(false)
+    expect(panel.hasAttribute('data-open')).toBe(true)
+    const link = within(panel).getByRole('link')
+    expect(link.getAttribute('href')).toBe('https://files.example.test/spec.pdf')
+    expect(link.getAttribute('target')).toBe('_blank')
+    expect(link.textContent).toContain('Specification sheet')
+    expect(link.textContent).toContain('PDF · 2.4 MB')
+
+    link.focus()
+    fireEvent.keyDown(document, { key: 'Escape' })
+    expect(trigger.getAttribute('aria-expanded')).toBe('false')
+    expect(document.activeElement).toBe(trigger)
+  })
+  it('lists every download in the panel and closes on an outside pointer press', async () => {
+    mocks.product.mockResolvedValue({
+      ...detail,
+      downloads: [
+        {
+          id: 'spec',
+          title: 'Specification sheet',
+          url: '/spec.pdf',
+          mimeType: null,
+          filesize: null,
+        },
+        {
+          id: 'sizes',
+          title: 'Size chart',
+          url: '/sizes.xlsx',
+          mimeType: null,
+          filesize: 5_000,
+        },
+      ],
+    })
+    render(await Detail({ params: Promise.resolve({ category: 'tea', product: 'bag' }) }))
+    const trigger = screen.getByRole('button', { name: 'Download' })
+    fireEvent.click(trigger)
+    const panel = document.getElementById(trigger.getAttribute('aria-controls')!)!
+    const links = within(panel).getAllByRole('link')
+    expect(links.map((link) => link.getAttribute('href'))).toEqual(['/spec.pdf', '/sizes.xlsx'])
+    expect(links[0].textContent).toContain('Specification sheet')
+    expect(links[1].textContent).toContain('XLSX · 5 KB')
+    expect(links[1].getAttribute('target')).toBe('_blank')
+
+    fireEvent.pointerDown(document.body)
+    expect(trigger.getAttribute('aria-expanded')).toBe('false')
+    expect(panel.hasAttribute('inert')).toBe(true)
+  })
+  it('switches gallery images by thumbnail, keyboard and touch scrolling without changing the URL', async () => {
+    const url = window.location.href
+    let desktop = true
+    vi.stubGlobal('matchMedia', () => ({
+      matches: desktop,
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+    }))
+    mocks.product.mockResolvedValue({
+      ...detail,
+      gallery: [
+        { id: 'front', alt: 'Front view' },
+        { id: 'back', alt: 'Back view' },
+      ],
+    })
+    render(await Detail({ params: Promise.resolve({ category: 'tea', product: 'bag' }) }))
+    const gallery = screen.getByRole('region', { name: 'Product images' })
+    expect(within(gallery).getByRole('img', { name: 'Front view' })).toBeTruthy()
+    fireEvent.click(screen.getByRole('button', { name: 'Show image 2 of 2' }))
+    expect(within(gallery).getByRole('img', { name: 'Back view' })).toBeTruthy()
+    expect(screen.getByText('2 / 2')).toBeTruthy()
+    fireEvent.keyDown(gallery, { key: 'ArrowLeft' })
+    expect(within(gallery).getByRole('img', { name: 'Front view' })).toBeTruthy()
+
+    desktop = false
+    Object.defineProperty(gallery, 'clientWidth', { value: 200 })
+    gallery.scrollLeft = 200
+    fireEvent.scroll(gallery)
+    expect(within(gallery).getByRole('img', { name: 'Back view' })).toBeTruthy()
+    expect(window.location.href).toBe(url)
   })
   it('uses draft lookup and live preview listener', async () => {
     mocks.draft.mockResolvedValue({ isEnabled: true })

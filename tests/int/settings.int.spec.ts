@@ -17,8 +17,9 @@ import { getServerSideURL } from '@/utilities/getURL'
 
 vi.mock('next/cache', () => ({ revalidatePath: vi.fn(), revalidateTag: vi.fn() }))
 
-const heroSection = blogTab.fields[0] as CollapsibleField
-const seoSection = blogTab.fields[1] as CollapsibleField
+const overview = blogTab.fields[0] as GroupField
+const heroSection = overview.fields[0] as CollapsibleField
+const seoSection = overview.fields[1] as CollapsibleField
 const hero = heroSection.fields[0] as GroupField
 const seo = seoSection.fields[0] as GroupField
 
@@ -31,13 +32,13 @@ const validateHeading = (value: string, enabled: boolean) =>
 describe('Settings Global', () => {
   beforeEach(() => vi.clearAllMocks())
 
-  it('defines the public, authenticated-update unversioned global', () => {
+  it('defines the public, authenticated-update versioned global', () => {
     expect(Settings).toMatchObject({
       slug: 'settings',
       label: 'Settings',
       typescript: { interface: 'Settings' },
       access: { read: anyone, update: authenticated },
-      versions: false,
+      versions: { max: 20 },
       fields: [settingsTabs],
       hooks: { afterChange: [revalidateSettings] },
     })
@@ -48,12 +49,12 @@ describe('Settings Global', () => {
     expect(blogTab).toMatchObject({ name: 'blog', label: 'Blog' })
     expect(heroSection).toMatchObject({
       type: 'collapsible',
-      label: 'Listing Hero',
+      label: 'Hero',
       admin: { initCollapsed: false },
     })
     expect(seoSection).toMatchObject({
       type: 'collapsible',
-      label: 'Listing SEO',
+      label: 'SEO',
       admin: { initCollapsed: true },
     })
     expect(hero).toMatchObject({ name: 'hero', label: false, type: 'group' })
@@ -62,10 +63,12 @@ describe('Settings Global', () => {
       'heading',
       'description',
       'image',
+      'mobileMedia',
       'headerTheme',
     ])
     expect(hero.fields[0]).toMatchObject({ type: 'checkbox', defaultValue: false })
     expect(hero.fields[1]).toMatchObject({
+      label: 'Title',
       type: 'text',
       hooks: { beforeValidate: [trimText] },
       validate: validateEnabledHeading,
@@ -74,21 +77,34 @@ describe('Settings Global', () => {
       type: 'textarea',
       hooks: { beforeValidate: [trimText] },
     })
-    expect(hero.fields[3]).toMatchObject({ type: 'upload', relationTo: 'media' })
+    expect(hero.fields[3]).toMatchObject({
+      label: 'Desktop media',
+      type: 'upload',
+      relationTo: 'media',
+    })
+    expect(hero.fields[4]).toMatchObject({
+      label: 'Mobile media',
+      type: 'upload',
+      relationTo: 'media',
+    })
     expect((hero.fields[3] as UploadField).filterOptions).toEqual({
       mimeType: { in: [...MEDIA_UPLOAD_POLICY.image.mimeTypes] },
     })
-    expect(hero.fields[4]).toMatchObject({
+    expect((hero.fields[4] as UploadField).filterOptions).toEqual(
+      (hero.fields[3] as UploadField).filterOptions,
+    )
+    expect(hero.fields[5]).toMatchObject({
+      label: 'Header Theme',
       type: 'select',
       required: true,
       defaultValue: 'light',
       options: [
-        { label: 'Light', value: 'light' },
-        { label: 'Dark', value: 'dark' },
+        { label: 'dark', value: 'dark' },
+        { label: 'light', value: 'light' },
       ],
       admin: {
         description:
-          'Use Dark for dark images (white text and header), Light for bright images or no image.',
+          'Use dark for light text and icons over dark media, or light for dark text and icons over bright media. Applies to the Header and Hero foreground; it does not recolor the media.',
       },
     })
     expect((hero.fields[1] as TextField).required).toBeFalsy()
@@ -166,7 +182,7 @@ describe('Settings Global', () => {
   })
 
   it.each([
-    ['  ', true, 'Heading is required when the Hero is enabled.'],
+    ['  ', true, 'Title is required when the Hero is enabled.'],
     [' Content ', true, true],
     ['', false, true],
     [' Saved heading ', false, true],
@@ -260,6 +276,42 @@ describe('Settings SEO image write integrity', () => {
 // Run the Global hook itself: this boundary must protect API writes even when
 // Payload skips hidden field validation because the Hero is disabled.
 describe('Settings Hero image write integrity', () => {
+  it.each([true, false])('rejects mobile videos even when enabled=%s', async (enabled) => {
+    const findByID = vi.fn().mockResolvedValue({ id: 'video', mimeType: 'video/mp4' })
+    await expect(
+      Settings.hooks!.beforeChange![0]({
+        data: { blog: { hero: { enabled, mobileMedia: { id: 'video', mimeType: 'image/jpeg' } } } },
+        req: { payload: { findByID } },
+      } as never),
+    ).rejects.toMatchObject({
+      status: 400,
+      data: { errors: [{ path: 'blog.hero.mobileMedia' }] },
+    })
+  })
+
+  it('checks retained mobile images on partial writes and allows explicitly clearing them', async () => {
+    const findByID = vi.fn().mockResolvedValue({ id: 'mobile', mimeType: 'image/jpeg' })
+    const originalDoc = { blog: { hero: { mobileMedia: 'mobile' } } }
+    const data = { blog: { hero: { enabled: false } } }
+    await expect(
+      Settings.hooks!.beforeChange![0]({
+        data,
+        originalDoc,
+        req: { payload: { findByID } },
+      } as never),
+    ).resolves.toBe(data)
+    expect(findByID).toHaveBeenCalledWith(expect.objectContaining({ id: 'mobile', depth: 0 }))
+    findByID.mockClear()
+    const cleared = { blog: { hero: { mobileMedia: null } } }
+    await expect(
+      Settings.hooks!.beforeChange![0]({
+        data: cleared,
+        originalDoc,
+        req: { payload: { findByID } },
+      } as never),
+    ).resolves.toBe(cleared)
+    expect(findByID).not.toHaveBeenCalled()
+  })
   it.each([true, false])('rejects video relationships when enabled=%s', async (enabled) => {
     const findByID = vi.fn().mockResolvedValue({ id: 'video-id', mimeType: 'video/mp4' })
     const hook = Settings.hooks?.beforeChange?.[0]

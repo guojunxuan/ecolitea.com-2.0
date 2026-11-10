@@ -8,6 +8,7 @@ import { serverEnv } from '@/utilities/env'
 import { documentFileEndpoint } from './endpoints/file'
 import { documentReferencesEndpoint } from './endpoints/references'
 import { preventReferencedDelete } from './hooks/preventReferencedDelete'
+import { revalidateProductDownloads } from './hooks/revalidateProductDownloads'
 
 export const Documents: CollectionConfig = {
   slug: 'documents',
@@ -79,6 +80,7 @@ export const Documents: CollectionConfig = {
     },
   ],
   hooks: {
+    afterChange: [revalidateProductDownloads],
     beforeDelete: [preventReferencedDelete],
     beforeOperation: [validateDocumentUploadEarly],
     beforeValidate: [validateDocumentUpload, validateTitle],

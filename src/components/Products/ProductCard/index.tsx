@@ -1,11 +1,18 @@
 import Link from 'next/link'
 
 import { Media } from '@/components/Media'
+import { Button } from '@/components/ui/button'
 import type { ProductCard as ProductCardModel } from '@/utilities/products/models'
 
 import styles from './index.module.css'
 
-export const ProductCard = ({ product }: { product: ProductCardModel }) => (
+export const ProductCard = ({
+  product,
+  showAction = false,
+}: {
+  product: ProductCardModel
+  showAction?: boolean
+}) => (
   <Link
     className={styles.card}
     data-product-card
@@ -17,14 +24,21 @@ export const ProductCard = ({ product }: { product: ProductCardModel }) => (
           resource={product.cover}
           fill
           imgClassName={styles.image}
-          presentation={{ image: { fit: 'contain', aspectRatio: { width: 1, height: 1 } } }}
-          size="(max-width: 767px) 72vw, 33vw"
+          presentation={{ image: { fit: 'contain', aspectRatio: { width: 5, height: 4 } } }}
+          size="(max-width: 1023px) 50vw, 33vw"
         />
       )}
     </div>
     <div className={styles.content}>
       <h3 className={styles.title}>{product.title}</h3>
       {product.summary && <p className={styles.summary}>{product.summary}</p>}
+      {showAction && (
+        <div className={styles.actions}>
+          <Button asChild className={styles.action}>
+            <span data-product-card-action>View More</span>
+          </Button>
+        </div>
+      )}
     </div>
   </Link>
 )

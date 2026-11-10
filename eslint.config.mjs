@@ -30,6 +30,9 @@ const eslintConfig = [
       '.worktrees/',
       'playwright-report/',
       'test-results/',
+      // Local browser bundles and archived reports are verification artifacts.
+      'output/playwright/',
+      'docs/superpowers/reports/',
       'src/payload-types.ts',
       'src/payload-generated-schema.ts',
     ],

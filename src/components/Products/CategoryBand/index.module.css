@@ -33,9 +33,8 @@
   padding-block: var(--website-space-16);
 }
 .breadcrumb {
+  composes: website-type-caption from global;
   margin-bottom: var(--website-space-6);
-  font-size: 13px;
-  line-height: 1.5;
   color: var(--website-color-muted-foreground);
 }
 .breadcrumb nav {
@@ -54,18 +53,14 @@
   flex-shrink: 0;
 }
 .title {
+  composes: website-type-heading-1 from global;
   max-width: 46rem;
   margin: 0;
-  font-size: clamp(36px, 4.4vw, 56px);
-  font-weight: 600;
-  letter-spacing: -0.02em;
-  line-height: 1.05;
 }
 .description {
+  composes: website-type-body-md from global;
   max-width: 36rem;
   margin: var(--website-space-4) 0 0;
-  font-size: 18px;
-  line-height: 1.5;
   color: var(--website-color-muted-foreground);
 }
 .actions {
@@ -73,9 +68,6 @@
   flex-wrap: wrap;
   gap: var(--website-space-3);
   margin-top: var(--website-space-8);
-}
-.actions :global([data-slot='button']) {
-  min-height: var(--website-control-default);
 }
 @media (width < 48rem) {
   .band {
@@ -92,11 +84,7 @@
       color-mix(in srgb, var(--website-color-brand-black) var(--website-scrim-subtle), transparent)
     );
   }
-  .title {
-    font-size: 28px;
-  }
   .description {
-    font-size: 16px;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;

@@ -1,7 +1,6 @@
 import type { PopulateType } from 'payload'
 import { headers } from 'next/headers'
 import type { Product } from '@/payload-types'
-import { getCachedSettings } from '@/utilities/getGlobals'
 import type { ProductDetail } from './models'
 import { cached, client, toProductDetail, visible } from './shared'
 
@@ -20,18 +19,15 @@ export const productDetailPopulate: PopulateType = {
     createdAt: true,
     updatedAt: true,
   },
+  documents: { title: true, url: true, filename: true, mimeType: true, filesize: true },
   'product-categories': { title: true, slug: true, description: true, image: true, meta: true },
   products: { slug: true, categorySlug: true },
   pages: { slug: true },
   posts: { slug: true },
 }
 
-const normalizeDetail = async (product: Product | null): Promise<ProductDetail | null> => {
-  if (!product) return null
-  const mode = product.inquiry?.mode ?? 'default'
-  const settings = mode === 'default' ? await getCachedSettings() : undefined
-  return toProductDetail(product, settings)
-}
+const normalizeDetail = (product: Product | null): ProductDetail | null =>
+  product ? toProductDetail(product) : null
 
 export async function getProductBySlug(
   slug: string,
@@ -67,7 +63,7 @@ export async function getProductBySlug(
   const id = lookup.docs[0]?.id
   if (!id) return null
   const product = await cached(
-    ['product-detail', id],
+    ['product-detail-v2', id],
     [`product-${id}`, 'products-list', 'product-categories'],
     async () => {
       const payload = await client()

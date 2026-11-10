@@ -27,6 +27,11 @@ export const MEDIA_UPLOAD_POLICY = {
   },
 } as const
 
+export const MEDIA_RENDERABLE_MIME_TYPES = {
+  image: MEDIA_UPLOAD_POLICY.image.mimeTypes,
+  video: MEDIA_UPLOAD_POLICY.video.mimeTypes,
+} as const
+
 export const validateImageDimensions = (
   width?: number | null,
   height?: number | null,

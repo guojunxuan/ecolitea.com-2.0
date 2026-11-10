@@ -39,12 +39,17 @@ export interface Props {
   imgClassName?: string
   onClick?: () => void
   onLoad?: () => void
+  /** Controls ambient video playback; omitted preserves the normal Media behavior. */
+  paused?: boolean
   loading?: 'lazy' | 'eager' // for NextImage only
   priority?: boolean // for NextImage only
   presentation?: MediaPresentation
   ref?: Ref<HTMLImageElement | HTMLVideoElement | null>
+  mobileResource?: MediaType | null // Optional image art direction below 48rem
   resource?: MediaType | string | number | null // for Payload media
   size?: string // for NextImage only
   src?: StaticImageData // for static media
   videoClassName?: string
+  /** Native source selection before the client knows its responsive breakpoint. */
+  videoSourceMedia?: string
 }

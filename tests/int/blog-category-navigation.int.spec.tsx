@@ -92,7 +92,7 @@ describe('Blog category text navigation', () => {
     const { container } = render(<BlogCategoryTabs categories={categories} />)
     const menu = container.querySelector<HTMLDetailsElement>('[data-slot="blog-mobile-menu"]')!
     const summary = menu.querySelector('summary')!
-    expect(summary.textContent).toContain('All')
+    expect(summary.textContent).toBe('Category: All')
     expect(menu.open).toBe(false)
     fireEvent.click(summary)
     expect(menu.open).toBe(true)

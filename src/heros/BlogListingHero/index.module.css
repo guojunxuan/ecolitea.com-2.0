@@ -24,6 +24,7 @@
 
 .image {
   object-fit: cover;
+  object-position: var(--hero-focal-point, center);
 }
 
 .scrim {
@@ -61,5 +62,11 @@
 @media (width >= 48rem) {
   .content {
     padding-bottom: var(--website-space-16);
+  }
+}
+
+@media (width < 48rem) {
+  .image {
+    object-position: var(--hero-mobile-focal-point, center);
   }
 }

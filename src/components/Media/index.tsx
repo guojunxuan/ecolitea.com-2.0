@@ -2,7 +2,7 @@ import React, { Fragment } from 'react'
 
 import type { Props } from './types'
 
-import { MEDIA_RENDERABLE_MIME_TYPES } from './config'
+import { MEDIA_RENDERABLE_MIME_TYPES } from '@/collections/mediaUploadPolicy.shared'
 import { ImageMedia } from './ImageMedia'
 import { VideoMedia } from './VideoMedia'
 

@@ -23,22 +23,17 @@ const shellFiles = (suffix: string) =>
 
 describe('frontend style architecture', () => {
   it('recognizes all approved global typography roles in component classes', () => {
-    const roles = [
-      'display',
-      'heading-large',
-      'heading-medium',
-      'heading-small',
-      'body-large',
-      'body',
-      'body-small',
-      'caption',
-      'code',
-    ]
+    const roles = new Set(
+      auditCss(read('src/styles/typography.css')).blocks.flatMap(({ header }) =>
+        header.startsWith('.website-type-') ? [header.slice(1)] : [],
+      ),
+    )
+    expect(roles.size).toBeGreaterThan(0)
     for (const role of roles) {
       expect(
         scanShellClasses(
           'src/Header/test.tsx',
-          `const View = () => <div className="website-type-${role}" />`,
+          `const View = () => <div className="${role}" />`,
         ),
         role,
       ).toEqual([])

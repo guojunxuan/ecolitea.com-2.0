@@ -3,12 +3,10 @@
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 
-import { CMSLink } from '@/components/Link'
 import {
   scrollBehavior,
   useOverflowTrack,
 } from '@/components/Products/OverflowCarousel/useOverflowTrack'
-import type { InquiryButton } from '@/utilities/products/models'
 
 import styles from './index.module.css'
 
@@ -17,11 +15,11 @@ type AnchorItem = { id: string; label: string }
 export const AnchorNav = ({
   items,
   variant,
-  action,
+  revealAfter,
 }: {
   items: AnchorItem[]
   variant: 'category' | 'detail'
-  action?: InquiryButton
+  revealAfter?: string
 }) => {
   const navigation = useRef<HTMLElement>(null)
   const [active, setActive] = useState(items[0]?.id ?? '')
@@ -48,17 +46,24 @@ export const AnchorNav = ({
       })
     }
     let observer: IntersectionObserver | undefined
-    let overviewObserver: IntersectionObserver | undefined
+    let boundaryObserver: IntersectionObserver | undefined
     const setup = () => {
       observer?.disconnect()
-      overviewObserver?.disconnect()
+      boundaryObserver?.disconnect()
       if (!navigation.current) return
       const measured = getComputedStyle(navigation.current)
       const header = Number.parseFloat(measured.top) || 0
       const navHeight = Number.parseFloat(measured.height) || 0
       const space = Number.parseFloat(measured.getPropertyValue('--website-space-4')) || 0
-      if (typeof IntersectionObserver === 'undefined') return
+      const boundaryId = revealAfter ?? (variant === 'detail' ? 'overview' : undefined)
+      const boundary = boundaryId ? document.getElementById(boundaryId) : null
+      const updateStuck = () => {
+        if (boundary) setStuck(boundary.getBoundingClientRect().bottom <= header)
+        else if (revealAfter) setStuck(true)
+      }
+      updateStuck()
       spy = () => {
+        updateStuck()
         const offset = header + navHeight + space
         const passed = targets.filter((target) => target.getBoundingClientRect().top <= offset + 1)
         const current =
@@ -66,24 +71,20 @@ export const AnchorNav = ({
           targets.find((target) => target.getBoundingClientRect().top < window.innerHeight * 0.5)
         if (current) setActive(current.id)
       }
+      if (typeof IntersectionObserver === 'undefined') return
       observer = new IntersectionObserver(spy, {
         rootMargin: `-${header + navHeight}px 0px -55% 0px`,
         threshold: 0,
       })
       targets.forEach((target) => observer?.observe(target))
-      if (variant === 'detail') {
-        const overview = document.getElementById('overview')
-        if (overview) {
-          setStuck(overview.getBoundingClientRect().bottom <= header)
-          overviewObserver = new IntersectionObserver(
-            ([entry]) => {
-              if (entry)
-                setStuck(!entry.isIntersecting && entry.boundingClientRect.bottom <= header)
-            },
-            { rootMargin: `-${header}px 0px 0px 0px`, threshold: 0 },
-          )
-          overviewObserver.observe(overview)
-        }
+      if (boundary) {
+        boundaryObserver = new IntersectionObserver(
+          ([entry]) => {
+            if (entry) setStuck(!entry.isIntersecting && entry.boundingClientRect.bottom <= header)
+          },
+          { rootMargin: `-${header}px 0px 0px 0px`, threshold: 0 },
+        )
+        boundaryObserver.observe(boundary)
       }
     }
     setup()
@@ -91,7 +92,7 @@ export const AnchorNav = ({
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => {
       observer?.disconnect()
-      overviewObserver?.disconnect()
+      boundaryObserver?.disconnect()
       window.removeEventListener('resize', setup)
       window.removeEventListener('scroll', onScroll)
       window.cancelAnimationFrame(frame)
@@ -99,7 +100,7 @@ export const AnchorNav = ({
         target.style.scrollMarginTop = previousMargins[index]
       })
     }
-  }, [items, variant])
+  }, [items, variant, revealAfter])
 
   useEffect(() => {
     const track = ref.current
@@ -121,6 +122,9 @@ export const AnchorNav = ({
       aria-label={variant === 'category' ? 'Product categories' : 'Product sections'}
       data-variant={variant}
       data-stuck={stuck || undefined}
+      data-reveal-after={revealAfter}
+      aria-hidden={Boolean(revealAfter && !stuck) || undefined}
+      inert={Boolean(revealAfter && !stuck)}
     >
       <div className={styles.container}>
         <div className={styles.overflow}>
@@ -167,11 +171,6 @@ export const AnchorNav = ({
             <ChevronRight aria-hidden="true" size={18} />
           </button>
         </div>
-        {variant === 'detail' && stuck && action && (
-          <div className={styles.action}>
-            <CMSLink {...action} appearance={action.appearance ?? 'default'} size="sm" />
-          </div>
-        )}
       </div>
     </nav>
   )

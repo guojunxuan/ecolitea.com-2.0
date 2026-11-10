@@ -127,32 +127,65 @@ describe('Products configuration', () => {
           maxLength: 160,
         }),
         expect.objectContaining({
-          name: 'specifications',
-          type: 'array',
-          admin: expect.objectContaining({
-            initCollapsed: true,
-            components: {
-              RowLabel: '@/collections/Products/admin/SpecificationRowLabel#SpecificationRowLabel',
-            },
-          }),
+          name: 'overview',
+          type: 'textarea',
+          label: 'Overview text',
+          maxLength: 1500,
+        }),
+        expect.objectContaining({
+          name: 'resources',
+          label: 'Resources',
+          type: 'upload',
+          hasMany: true,
+          relationTo: 'documents',
         }),
       ]),
     )
-    for (const oldName of ['excerpt', 'specs']) {
-      expect(overview.fields.some((field) => 'name' in field && field.name === oldName)).toBe(false)
-    }
-    const specifications = overview.fields.find(
-      (field) => 'name' in field && field.name === 'specifications',
-    )
-    expect(specifications).not.toMatchObject({
-      fields: expect.arrayContaining([expect.objectContaining({ name: 'group' })]),
-    })
-    expect(specifications).toMatchObject({
-      fields: expect.arrayContaining([
-        expect.objectContaining({ name: 'label', type: 'text', required: true }),
-        expect.objectContaining({ name: 'value', type: 'text', required: true }),
-      ]),
-    })
+    expect(overview.fields.map((field) => 'name' in field && field.name)).toEqual([
+      'gallery',
+      'summary',
+      'overview',
+      'resources',
+    ])
+    expect(tabs.tabs.map((tab) => tab.label)).toEqual([
+      'Overview',
+      'Specifications',
+      'Details',
+      'SEO',
+    ])
+    const specificationTab = tabs.tabs.find((tab) => tab.label === 'Specifications')
+    expect(specificationTab).not.toHaveProperty('name')
+    expect(specificationTab?.fields).toMatchObject([
+      {
+        name: 'specifications',
+        type: 'array',
+        admin: {
+          components: {
+            RowLabel:
+              '@/collections/Products/admin/SpecificationGroupRowLabel#SpecificationGroupRowLabel',
+          },
+        },
+        fields: expect.arrayContaining([
+          expect.objectContaining({ name: 'group', type: 'text' }),
+          expect.objectContaining({
+            name: 'items',
+            type: 'array',
+            required: true,
+            minRows: 1,
+            admin: {
+              components: {
+                RowLabel:
+                  '@/collections/Products/admin/SpecificationRowLabel#SpecificationRowLabel',
+              },
+            },
+            fields: expect.arrayContaining([
+              expect.objectContaining({ name: 'label', type: 'text', required: true }),
+              expect.objectContaining({ name: 'value', type: 'text', required: true }),
+            ]),
+          }),
+        ]),
+      },
+    ])
     expect(tabs.tabs.find((tab) => tab.label === 'Details')).toMatchObject({
       fields: [
         {
@@ -181,7 +214,6 @@ describe('Products configuration', () => {
           .flatMap((tab) => tab.fields)
           .some((field) => 'name' in field && field.name === name),
       ).toBe(false)
-    expect(tabs.tabs.map((tab) => tab.label)).toEqual(['Overview', 'Options', 'Details', 'SEO'])
     const seo = tabs.tabs.find((tab) => 'name' in tab && tab.name === 'meta')!
     expect(seo.fields.map((field) => ('name' in field ? field.name : field.type))).toEqual(
       expect.arrayContaining(['title', 'image', 'description']),
@@ -206,37 +238,5 @@ describe('Products configuration', () => {
     if (typeof related.filterOptions !== 'function')
       throw new Error('Missing related product filter')
     expect(related.filterOptions?.({ id: 'self' } as never)).toEqual({ id: { not_in: ['self'] } })
-  })
-
-  it('provides optional collapsed highlights with native row and text limits', async () => {
-    const { Products } = await import('@/collections/Products')
-    const tabs = Products.fields.find((field) => field.type === 'tabs')
-    if (tabs?.type !== 'tabs') throw new Error('Missing product tabs')
-    const overview = tabs.tabs.find((tab) => tab.label === 'Overview')!
-    const highlights = overview.fields.find(
-      (field) => 'name' in field && field.name === 'highlights',
-    )
-    expect(highlights).toMatchObject({
-      type: 'array',
-      maxRows: 6,
-      admin: {
-        initCollapsed: true,
-        components: {
-          RowLabel: '@/collections/Products/admin/HighlightRowLabel#HighlightRowLabel',
-        },
-      },
-      fields: expect.arrayContaining([
-        expect.objectContaining({ name: 'text', type: 'text', required: true, maxLength: 120 }),
-      ]),
-    })
-    expect(highlights).not.toHaveProperty('required', true)
-    expect(highlights).not.toHaveProperty('minRows')
-    expect(overview.fields.map((field) => ('name' in field ? field.name : field.type))).toEqual([
-      'gallery',
-      'summary',
-      'highlights',
-      'specifications',
-      'inquiry',
-    ])
   })
 })

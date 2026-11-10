@@ -12,6 +12,12 @@
 
 /* Below the tab breakpoint the category band attaches to the Hero as its sub-navigation. */
 @media (width < 48rem) {
+  .tabs {
+    position: sticky;
+    top: var(--header-height);
+    z-index: var(--website-z-raised);
+  }
+
   .hasHero .tabs {
     margin-top: 0;
   }

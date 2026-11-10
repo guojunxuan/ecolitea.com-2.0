@@ -4,8 +4,11 @@ import { validateArticleSharePlatforms } from './validation'
 
 export const articleShareField: CollapsibleField = {
   type: 'collapsible',
-  label: 'Article Sharing',
-  admin: { initCollapsed: true, style: { marginTop: 0, marginBottom: 0 } },
+  label: 'Sharing',
+  admin: {
+    initCollapsed: true,
+    style: { marginTop: 0, marginBottom: 0 },
+  },
   fields: [
     {
       name: 'share',

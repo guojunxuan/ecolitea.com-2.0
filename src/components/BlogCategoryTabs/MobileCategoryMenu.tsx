@@ -48,7 +48,8 @@ export function MobileCategoryMenu({
       }}
     >
       <summary className={styles.mobileTrigger} ref={summaryRef} aria-controls={panelID}>
-        {currentTitle}
+        <span className={styles.mobileLabel}>Category: </span>
+        <span className={styles.currentTitle}>{currentTitle}</span>
         <svg
           className={styles.chevron}
           width="20"

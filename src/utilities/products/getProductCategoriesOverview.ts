@@ -4,7 +4,7 @@ import { allCategories, allProducts, cached, toProductCard, toProductCategory } 
 
 export const getProductCategoriesOverview = (): Promise<ProductCategoryOverview[]> =>
   cached(
-    ['products-overview'],
+    ['products-overview-v2'],
     ['products-overview', 'product-categories', 'products-list'],
     async () => {
       const [categories, products] = await Promise.all([allCategories(), allProducts()])
@@ -26,14 +26,13 @@ export const getProductCategoriesOverview = (): Promise<ProductCategoryOverview[
           {
             ...model,
             productCount,
-            products: grouped.slice(0, 6).map(toProductCard),
-            moreCovers:
-              productCount > 6
-                ? grouped.slice(5, 8).flatMap((product) => {
-                    const { cover } = toProductCard(product)
-                    return cover ? [cover] : []
-                  })
-                : [],
+            products: grouped.slice(0, 4).map(toProductCard),
+            imageFit:
+              model.image?.width &&
+              model.image.height &&
+              model.image.width / model.image.height <= 1.3
+                ? 'contain'
+                : 'cover',
           },
         ]
       })

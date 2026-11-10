@@ -19,13 +19,13 @@
 .explore {
   padding-block: var(--website-space-16) var(--website-space-20);
 }
-@media (width < 48rem) {
+@media (width < 64rem) {
   .grid {
-    grid-template-columns: 1fr;
-    gap: var(--website-space-4);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
-
-.bandOutline {
-  background: transparent;
+@media (width < 48rem) {
+  .grid {
+    gap: var(--website-space-3);
+  }
 }

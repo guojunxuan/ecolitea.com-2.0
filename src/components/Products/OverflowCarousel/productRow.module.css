@@ -1,0 +1,40 @@
+/* Shared by overview previews and the detail page's related-product row. */
+.root {
+  --product-row-gutter: max(
+    var(--website-gutter),
+    calc((100vw - var(--website-container-site)) / 2)
+  );
+  --product-row-content: min(
+    calc(100vw - 2 * var(--website-gutter)),
+    var(--website-container-site)
+  );
+  --product-row-gap: var(--website-space-6);
+  --product-row-peek: var(--website-space-20);
+  --product-row-card: min(
+    calc((var(--product-row-content) - 2 * var(--product-row-gap)) / 3),
+    calc(
+      (100vw - var(--product-row-gutter) - var(--product-row-peek) - 3 * var(--product-row-gap)) / 3
+    )
+  );
+  --carousel-gutter: var(--product-row-gutter);
+  --carousel-card-width: var(--product-row-card);
+  --carousel-gap: var(--product-row-gap);
+  --carousel-content-start: var(--product-row-gutter);
+  --carousel-content-end: calc(
+    var(--product-row-gutter) + 3 * var(--product-row-card) + 2 * var(--product-row-gap)
+  );
+  --carousel-media-center: calc(var(--product-row-card) / 2);
+}
+@media (width < 64rem) {
+  .root {
+    --product-row-card: calc(
+      (var(--product-row-content) - var(--website-space-16) - 2 * var(--product-row-gap)) / 2
+    );
+  }
+}
+@media (width < 48rem) {
+  .root {
+    --product-row-gap: var(--website-space-3);
+    --product-row-card: calc((var(--product-row-content) - var(--product-row-gap)) / 2);
+  }
+}

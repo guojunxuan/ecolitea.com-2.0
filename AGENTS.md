@@ -25,6 +25,12 @@ are compatible with the installed versions.
 
 ## Technical documentation
 
+- Use the [official Payload Beta documentation](https://payloadcms.com/docs/beta/getting-started/what-is-payload)
+  as a development reference for Payload concepts and public APIs. Follow the
+  relevant topic pages when implementing features. Beta documentation can change;
+  verify examples against the installed versions, types, and existing project
+  patterns before applying them. If they disagree, report the mismatch rather
+  than assuming the documentation matches the installed canary release.
 - Organize technical documentation around the Payload application architecture:
   content models, extension points, data flow, frontend consumption, and
   operational boundaries. Business requirements should be mapped onto those

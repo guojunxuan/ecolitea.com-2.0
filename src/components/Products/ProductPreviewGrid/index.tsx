@@ -1,40 +1,58 @@
-'use client'
-import React, { useRef, useState } from 'react'
-import { SegmentIndicator } from '../SegmentIndicator'
+import { Children, type ReactNode } from 'react'
+import Link from 'next/link'
+import { ChevronRight } from 'lucide-react'
+
+import { OverflowTrack } from '../OverflowCarousel/Track'
 import styles from './index.module.css'
+
 export function ProductPreviewGrid({
   children,
-  count,
+  href,
+  categoryTitle,
 }: {
-  children: React.ReactNode
-  count: number
+  children: ReactNode
+  href: string
+  categoryTitle: string
 }) {
-  const [active, setActive] = useState(0)
-  const track = useRef<HTMLDivElement>(null)
+  const products = Children.toArray(children)
+  if (!products.length) return null
+
   return (
-    <>
-      <div
-        ref={track}
-        className={styles.grid}
-        onScroll={(event) => {
-          const element = event.currentTarget
-          const child = element.firstElementChild as HTMLElement | null
-          if (child) {
-            const gap = parseFloat(getComputedStyle(element).columnGap) || 0
-            setActive(
-              Math.max(
-                0,
-                Math.min(count - 1, Math.round(element.scrollLeft / (child.offsetWidth + gap))),
-              ),
-            )
-          }
-        }}
+    <div
+      className={styles.root}
+      data-product-preview
+      data-product-layout="three"
+      data-count={products.length}
+    >
+      <OverflowTrack
+        title={`Latest Products · ${categoryTitle}`}
+        variant="contained"
+        controls="outer"
+        className={styles.viewport}
+        trackClassName={styles.track}
+        draggable
       >
-        {children}
-      </div>
-      <div className={styles.segments}>
-        <SegmentIndicator count={count} active={active} />
-      </div>
-    </>
+        <ul className={styles.grid}>
+          {products.map((child, index) => (
+            <li className={styles.item} key={index}>
+              {child}
+            </li>
+          ))}
+          <li className={`${styles.item} ${styles.moreItem}`}>
+            <Link
+              href={href}
+              className={styles.moreCard}
+              aria-label={`View More · ${categoryTitle}`}
+              data-product-view-more
+            >
+              <span className={styles.moreIcon} aria-hidden="true">
+                <ChevronRight />
+              </span>
+              <span className={`website-type-title ${styles.moreLabel}`}>View More</span>
+            </Link>
+          </li>
+        </ul>
+      </OverflowTrack>
+    </div>
   )
 }

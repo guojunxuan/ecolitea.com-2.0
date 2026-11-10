@@ -1,55 +1,54 @@
-'use client'
-import React, { useState } from 'react'
+import { useId, useState } from 'react'
+
 import { Button } from '@/components/ui/button'
-import { useProductSelection } from '../ProductSelection'
+import type { ProductSpecificationGroup } from '@/utilities/products/models'
+
 import styles from './index.module.css'
 
-export function ProductSpecifications({ compact = false }: { compact?: boolean }) {
-  const { specifications, changed, revision } = useProductSelection()
+const initialRows = 6
+
+export function ProductSpecifications({ groups }: { groups: ProductSpecificationGroup[] }) {
   const [expanded, setExpanded] = useState(false)
-  if (!specifications.length) return null
-  const rows = compact
-    ? specifications.slice(0, 4)
-    : expanded
-      ? specifications
-      : specifications.slice(0, 12)
-  const list = (
-    <dl className={compact ? styles.key : styles.list}>
-      {rows.map((row, index) => (
-        <div
-          key={`${row.label}-${index}-${changed.includes(row.label) ? revision : 0}`}
-          className={changed.includes(row.label) ? styles.changed : undefined}
-        >
-          <dt>{row.label}</dt>
-          <dd>{row.value}</dd>
-        </div>
-      ))}
-    </dl>
-  )
-  if (compact)
-    return (
-      <div className={styles.summary}>
-        {list}
-        <a className={styles.all} href="#specifications">
-          View all specifications
-        </a>
-      </div>
-    )
+  const listId = useId()
+  const rowCount = groups.reduce((count, { items }) => count + items.length, 0)
+  let remaining = expanded ? rowCount : initialRows
+  const visibleGroups: ProductSpecificationGroup[] = []
+  for (const { group, items } of groups) {
+    if (remaining <= 0) break
+    visibleGroups.push({ group, items: items.slice(0, remaining) })
+    remaining -= items.length
+  }
+
   return (
-    <section id="specifications" className={styles.root}>
-      <h2 className={styles.heading}>Specifications</h2>
-      {list}
-      {specifications.length > 12 && (
-        <div className={styles.toggle}>
-          <Button
-            variant="outline"
-            onClick={() => setExpanded((value) => !value)}
-            aria-expanded={expanded}
-          >
-            {expanded ? 'Show fewer specifications' : 'Show all specifications'}
-          </Button>
-        </div>
+    <>
+      <div id={listId}>
+        {visibleGroups.map(({ group, items }, groupIndex) => (
+          <div key={groupIndex} className={styles.group}>
+            {group && <h2 className={styles.groupTitle}>{group}</h2>}
+            <dl className={styles.list}>
+              {items.map(({ label, value }, index) => (
+                <div key={index} className={styles.row}>
+                  <dt>{label}</dt>
+                  <dd>{value}</dd>
+                </div>
+              ))}
+            </dl>
+          </div>
+        ))}
+      </div>
+      {rowCount > initialRows && (
+        <Button
+          type="button"
+          variant="link"
+          size="clear"
+          className={styles.toggle}
+          onClick={() => setExpanded(!expanded)}
+          aria-expanded={expanded}
+          aria-controls={listId}
+        >
+          {expanded ? 'Show fewer specifications' : 'Show all specifications'}
+        </Button>
       )}
-    </section>
+    </>
   )
 }

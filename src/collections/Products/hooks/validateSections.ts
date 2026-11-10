@@ -7,7 +7,12 @@ import {
 import { array } from 'payload/shared'
 
 type Section = { id?: string; label?: string; anchor?: string | null }
-const reserved = new Set(['overview', 'options', 'specifications', 'related-products', 'inquiry'])
+const reserved = new Set([
+  'overview',
+  'related-products',
+  'product-tab-specifications',
+  'product-tab-overview',
+])
 const sectionAnchor = (label: string) =>
   label
     .toLowerCase()
@@ -16,19 +21,31 @@ const sectionAnchor = (label: string) =>
     .replace(/-+/g, '-')
     .replace(/^-|-$/g, '')
 
+function resolveAnchors(rows: Section[], previous: Section[]) {
+  const effective = rows.map((row) => ({
+    ...previous.find((old) => row.id && old.id === row.id),
+    ...row,
+  }))
+  const anchors = effective.map(({ anchor, label }) =>
+    anchor?.trim() ? anchor : sectionAnchor(label ?? ''),
+  )
+  const taken = new Set([...reserved, ...anchors])
+  return anchors.map((anchor, index) => {
+    if (anchor || !effective[index].label?.trim()) return anchor
+    const base = `section-${index + 1}`
+    let fallback = base
+    let suffix = 2
+    while (taken.has(fallback)) fallback = `${base}-${suffix++}`
+    taken.add(fallback)
+    return fallback
+  })
+}
+
 export const generateSectionAnchors: CollectionBeforeValidateHook = ({ data, originalDoc }) => {
   if (!Array.isArray(data?.sections)) return data
-  const previous: Section[] = originalDoc?.sections ?? []
-  return {
-    ...data,
-    sections: data.sections.map((row: Section) => {
-      const effective = { ...previous.find((old) => row.id && old.id === row.id), ...row }
-      return {
-        ...row,
-        anchor: effective.anchor?.trim() ? effective.anchor : sectionAnchor(effective.label ?? ''),
-      }
-    }),
-  }
+  const sections: Section[] = data.sections
+  const anchors = resolveAnchors(sections, originalDoc?.sections ?? [])
+  return { ...data, sections: sections.map((row, index) => ({ ...row, anchor: anchors[index] })) }
 }
 
 export const validateSections: ArrayFieldValidation = (value, options) => {
@@ -44,9 +61,7 @@ export const validateSections: ArrayFieldValidation = (value, options) => {
   if (lengthResult !== true) return lengthResult
   const anchors = new Set<string>()
   const errors: ValidationFieldError[] = []
-  rows.forEach((row, index) => {
-    const effective = { ...previous.find((old) => row.id && old.id === row.id), ...row }
-    const anchor = effective.anchor ?? ''
+  resolveAnchors(rows, previous).forEach((anchor, index) => {
     let message: string | undefined
     if (!/^[a-z][a-z0-9-]*$/.test(anchor))
       message = 'Start with a lowercase letter and use only lowercase letters, numbers and hyphens.'

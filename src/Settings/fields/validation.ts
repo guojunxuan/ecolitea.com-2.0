@@ -11,7 +11,7 @@ export const validateEnabledHeading: TextFieldValidation = (value, options) => {
 
   const siblingData = options.siblingData as { enabled?: boolean } | undefined
   if (siblingData?.enabled && (typeof value !== 'string' || !value.trim())) {
-    return 'Heading is required when the Hero is enabled.'
+    return 'Title is required when the Hero is enabled.'
   }
 
   return true

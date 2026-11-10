@@ -1,6 +1,7 @@
 import React from 'react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { cleanup, fireEvent, render, screen } from '@testing-library/react'
+import { cleanup, fireEvent, render, screen, within } from '@testing-library/react'
+import type { Column } from 'payload'
 import { UsedInPanel as MediaPanel } from '@/collections/mediaAdmin/UsedInPanel'
 import { UsedInPanel as DocumentsPanel } from '@/collections/Documents/admin/UsedInPanel'
 
@@ -21,6 +22,27 @@ vi.mock('@payloadcms/ui', () => ({
   FieldDescription: ({ description }: { description: string }) => <p>{description}</p>,
   Pill: ({ children }: { children: React.ReactNode }) => <span>{children}</span>,
   Link: (props: React.AnchorHTMLAttributes<HTMLAnchorElement>) => <a {...props} />,
+  EditIcon: () => <svg data-testid="edit-icon" />,
+  Table: ({ columns, data }: { columns: Column[]; data: unknown[] }) => (
+    <table>
+      <thead>
+        <tr>
+          {columns.map((column) => (
+            <th key={column.accessor}>{column.Heading}</th>
+          ))}
+        </tr>
+      </thead>
+      <tbody>
+        {data.map((_, index) => (
+          <tr key={index}>
+            {columns.map((column) => (
+              <td key={column.accessor}>{column.renderedCells[index]}</td>
+            ))}
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  ),
   ShimmerEffect: (props: React.HTMLAttributes<HTMLDivElement>) => <div {...props} />,
   Banner: ({ children }: { children: React.ReactNode }) => <aside>{children}</aside>,
 }))
@@ -72,6 +94,15 @@ describe.each([
       '/admin/collections/blogs/blog-1',
     )
     expect(screen.getAllByRole('link')).toHaveLength(2)
+    const table = screen.getByRole('table')
+    expect(
+      within(table)
+        .getAllByRole('columnheader')
+        .map((cell) => cell.textContent),
+    ).toEqual(['Title', 'Type'])
+    expect(within(table).getAllByRole('row')).toHaveLength(3)
+    const titleLink = within(table).getByRole('link', { name: 'Tea story 1' })
+    expect(within(titleLink).getByTestId('edit-icon').closest('[aria-hidden="true"]')).toBeTruthy()
     expect(screen.getByText('Blog')).toBeTruthy()
     expect(screen.getByText('Global')).toBeTruthy()
     expect(screen.getByText('2')).toBeTruthy()
@@ -109,6 +140,7 @@ describe.each([
     render(<Panel />)
     expect(await screen.findByText('Not used anywhere. It can be deleted.')).toBeTruthy()
     expect(screen.queryByText('0')).toBeNull()
+    expect(screen.queryByRole('table')).toBeNull()
     expect(Boolean(screen.queryByText(/Also in/))).toBe(count > 0)
   })
   it('shows a loading state, then offers retry after an error', async () => {

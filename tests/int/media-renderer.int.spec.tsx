@@ -96,7 +96,7 @@ describe('Media renderer', () => {
     )
   })
 
-  it('passes stored focal coordinates including zero to Cloudflare', () => {
+  it('makes stored focal coordinates including zero available to both the loader and CSS', () => {
     render(
       <Media
         presentation={MEDIA_PRESENTATION.card}
@@ -111,9 +111,9 @@ describe('Media renderer', () => {
         })}
       />,
     )
-    expect(screen.getByRole('img', { name: 'Focused tea' }).getAttribute('src')).toContain(
-      'gravity=0x1',
-    )
+    const image = screen.getByRole('img', { name: 'Focused tea' })
+    expect(image.getAttribute('src')).toContain('gravity=0x1')
+    expect(image.closest('picture')?.style.getPropertyValue('--media-focal-point')).toBe('0% 100%')
   })
 
   it('reserves the delivered crop ratio for a non-fill Payload image', () => {

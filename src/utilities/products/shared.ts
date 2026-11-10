@@ -1,17 +1,15 @@
 import configPromise from '@payload-config'
 import { unstable_cache } from 'next/cache'
 import { getPayload, type Where } from 'payload'
-import type { Media, Product, ProductCategory, Settings } from '@/payload-types'
+import type { Media, Product, ProductCategory } from '@/payload-types'
 import type {
   ProductCard,
   ProductCategoryModel,
   ProductDetail,
-  ProductGalleryItem,
+  ProductDownload,
+  ProductSpecification,
   ProductMeta,
 } from './models'
-import { resolveProductInquiry } from './inquiry'
-import { optionKey } from './keys'
-import { resolveOptionSelection } from './options'
 import { publicProductVisibility } from './publicVisibility'
 
 export const cached = <T>(key: string[], tags: string[], fn: () => Promise<T>) =>
@@ -83,46 +81,58 @@ export const toProductCard = (value: Product): ProductCard => ({
   summary: value.summary,
   cover: media(value.gallery?.[0]),
 })
-export const toProductDetail = (value: Product, settings?: Settings | null): ProductDetail => {
-  const options = (value.options ?? []).map((group) => ({
-    key: optionKey(group.name ?? ''),
-    name: group.name ?? '',
-    display: group.display ?? 'text',
-    values: (group.values ?? []).map((item) => ({
-      key: optionKey(item.label ?? ''),
-      label: item.label ?? '',
-      swatch: item.swatch ?? null,
-      image: media(item.image),
-      specifications: (item.specifications ?? []).map(({ label, value }) => ({
-        label: label ?? '',
-        value: value ?? '',
-      })),
-    })),
-  }))
-  const defaultSelection = Object.fromEntries(
-    options.flatMap((group) => (group.values[0] ? [[group.key, group.values[0].key]] : [])),
-  )
-  const gallery: ProductGalleryItem[] = []
-  const byID = new Map<string, ProductGalleryItem>()
-  const append = (image: Media | null, source?: ProductGalleryItem['values'][number]) => {
-    if (!image) return
-    let item = byID.get(String(image.id))
-    if (!item) {
-      item = { media: image, values: [] }
-      byID.set(String(image.id), item)
-      gallery.push(item)
-    }
-    if (source) item.values.push(source)
+type LegacySpecification = Partial<ProductSpecification>
+
+function specificationRows(rows: (LegacySpecification | null)[]): ProductSpecification[] {
+  return rows.flatMap((row) => {
+    const label = typeof row?.label === 'string' ? row.label.trim() : ''
+    const value = typeof row?.value === 'string' ? row.value.trim() : ''
+    return label && value ? [{ label, value }] : []
+  })
+}
+
+function toDownloads(resources: Product['resources']): ProductDownload[] {
+  return (resources ?? []).flatMap((doc) => {
+    if (!doc || typeof doc !== 'object') return []
+    const url = doc.url?.trim()
+    if (!url || !/^(https?:\/\/|\/(?![\/\\]))/i.test(url) || /[\t\r\n]/.test(url)) return []
+    return [
+      {
+        id: doc.id,
+        title: doc.title?.trim() || doc.filename?.trim() || doc.id,
+        url,
+        mimeType: doc.mimeType ?? null,
+        filesize: doc.filesize ?? null,
+      },
+    ]
+  })
+}
+
+export const toProductDetail = (value: Product): ProductDetail => {
+  const gallery = new Map<string, Media>()
+  for (const image of value.gallery ?? []) {
+    const item = media(image)
+    if (item && !gallery.has(item.id)) gallery.set(item.id, item)
   }
-  for (const image of value.gallery ?? []) append(media(image))
-  for (const group of options)
-    for (const item of group.values)
-      append(item.image, { optionKey: group.key, valueKey: item.key })
-  const specifications = (value.specifications ?? []).map(({ label, value }) => ({
-    label: label ?? '',
-    value: value ?? '',
-  }))
-  const resolved = resolveOptionSelection({ gallery, specifications, options }, defaultSelection)
+  const overview = (value.overview ?? '')
+    .split(/\r?\n[ \t]*\r?\n/)
+    .map((text) => text.trim())
+    .filter(Boolean)
+  const specifications: ProductDetail['specifications'] = []
+  // Keep published detail reads working until stored flat rows have been migrated.
+  const groups = (value.specifications ?? []) as (
+    NonNullable<Product['specifications']>[number] | LegacySpecification
+  )[]
+  const legacyRows = groups.filter(
+    (group): group is LegacySpecification => group && !('items' in group),
+  )
+  const legacyItems = specificationRows(legacyRows)
+  if (legacyItems.length) specifications.push({ group: null, items: legacyItems })
+  for (const group of groups) {
+    if (!group || !('items' in group) || !Array.isArray(group.items)) continue
+    const items = specificationRows(group.items)
+    if (items.length) specifications.push({ group: group.group?.trim() || null, items })
+  }
   return {
     id: value.id,
     title: value.title,
@@ -133,17 +143,14 @@ export const toProductDetail = (value: Product, settings?: Settings | null): Pro
     createdAt: value.createdAt,
     updatedAt: value.updatedAt,
     _status: value._status,
-    inquiry: resolveProductInquiry(value, settings),
-    options,
+    overview: overview.length ? overview : value.summary?.trim() ? [value.summary.trim()] : [],
     specifications,
-    defaultSelection,
-    resolvedSpecifications: resolved.specifications,
+    downloads: toDownloads(value.resources),
     category:
       value.category && typeof value.category === 'object'
         ? toProductCategory(value.category)
         : null,
-    gallery,
-    highlights: (value.highlights ?? []).map(({ text }) => text),
+    gallery: [...gallery.values()],
     sections: (value.sections ?? []).flatMap((section) =>
       section.blocks?.length
         ? [{ label: section.label ?? '', anchor: section.anchor ?? '', blocks: section.blocks }]

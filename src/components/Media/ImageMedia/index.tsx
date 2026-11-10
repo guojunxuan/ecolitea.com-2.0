@@ -3,7 +3,7 @@
 import type { StaticImageData } from 'next/image'
 
 import { cn } from '@/utilities/ui'
-import NextImage from 'next/image'
+import NextImage, { getImageProps } from 'next/image'
 import React from 'react'
 
 import type { Props as MediaProps } from '../types'
@@ -28,6 +28,7 @@ export const ImageMedia: React.FC<MediaProps> = (props) => {
     imgClassName,
     priority,
     resource,
+    mobileResource,
     presentation,
     size: sizeFromProps,
     src: srcFromProps,
@@ -84,6 +85,19 @@ export const ImageMedia: React.FC<MediaProps> = (props) => {
     height = Math.round((width * ratio.height) / ratio.width)
   }
 
+  const focalPoint =
+    resource &&
+    typeof resource === 'object' &&
+    (resource.focalX != null || resource.focalY != null)
+      ? { x: resource.focalX ?? 50, y: resource.focalY ?? 50 }
+      : undefined
+  const pictureStyle: React.CSSProperties = useRatioFrame
+    ? { display: 'block', position: 'relative', aspectRatio: `${ratio.width} / ${ratio.height}` }
+    : {}
+  if (focalPoint) {
+    Object.assign(pictureStyle, { '--media-focal-point': `${focalPoint.x}% ${focalPoint.y}%` })
+  }
+
   const loader =
     typeof src === 'string'
       ? ({
@@ -93,19 +107,18 @@ export const ImageMedia: React.FC<MediaProps> = (props) => {
         }: Parameters<NonNullable<React.ComponentProps<typeof NextImage>['loader']>>[0]) =>
           buildCloudflareImageURL({
             presentation: imagePresentation,
-            focalPoint:
-              resource &&
-              typeof resource === 'object' &&
-              (resource.focalX != null || resource.focalY != null)
-                ? { x: resource.focalX ?? 50, y: resource.focalY ?? 50 }
-                : undefined,
+            focalPoint,
             quality,
             source,
             width: requestedWidth,
           })
       : undefined
 
-  const loading = loadingFromProps || (!priority ? 'lazy' : undefined)
+  const hasMobileImage = Boolean(
+    mobileResource?.url && mobileResource.mimeType?.startsWith('image/'),
+  )
+  const loading =
+    loadingFromProps || (hasMobileImage && priority ? 'eager' : !priority ? 'lazy' : undefined)
 
   // NOTE: this is used by the browser to determine which image to download at different screen sizes
   const sizes = sizeFromProps
@@ -114,19 +127,27 @@ export const ImageMedia: React.FC<MediaProps> = (props) => {
         .map(([, value]) => `(max-width: ${value}px) ${value * 2}w`)
         .join(', ')
 
+  const mobileProps =
+    hasMobileImage && mobileResource
+      ? getImageProps({
+          src: getMediaUrl(mobileResource.url, mobileResource.updatedAt),
+          alt: alt ?? '',
+          fill: true,
+          sizes,
+          loader: ({ src: source, width: requestedWidth, quality }) =>
+            buildCloudflareImageURL({
+              source,
+              width: requestedWidth,
+              quality,
+              presentation: imagePresentation,
+              focalPoint: { x: mobileResource.focalX ?? 50, y: mobileResource.focalY ?? 50 },
+            }),
+        }).props
+      : null
+
   return (
-    <picture
-      className={cn(pictureClassName)}
-      style={
-        useRatioFrame
-          ? {
-              display: 'block',
-              position: 'relative',
-              aspectRatio: `${ratio.width} / ${ratio.height}`,
-            }
-          : undefined
-      }
-    >
+    <picture className={cn(pictureClassName)} style={pictureStyle}>
+      {mobileProps && <source media="(width < 48rem)" srcSet={mobileProps.srcSet} sizes={sizes} />}
       <NextImage
         alt={alt ?? ''}
         className={cn(styles.image, imgClassName)}
@@ -136,7 +157,8 @@ export const ImageMedia: React.FC<MediaProps> = (props) => {
         loader={loader}
         placeholder="blur"
         blurDataURL={placeholderBlur}
-        priority={priority}
+        priority={hasMobileImage ? false : priority}
+        fetchPriority={hasMobileImage && priority ? 'high' : undefined}
         loading={loading}
         sizes={sizes}
         src={src}

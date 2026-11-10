@@ -949,67 +949,20 @@ export interface Product {
   title: string;
   gallery: (string | Media)[];
   summary: string;
-  highlights?:
-    | {
-        text: string;
-        id?: string | null;
-      }[]
-    | null;
+  /**
+   * Shown in the Overview tab on the product page. Separate paragraphs with a blank line. Falls back to Summary when empty.
+   */
+  overview?: string | null;
+  /**
+   * Files offered by the Download button on the product page.
+   */
+  resources?: (string | Document)[] | null;
   specifications?:
     | {
-        label: string;
-        value: string;
-        id?: string | null;
-      }[]
-    | null;
-  inquiry?: {
-    mode?: ('default' | 'custom' | 'hidden') | null;
-    buttons?:
-      | {
-          link: {
-            type?: ('reference' | 'custom') | null;
-            newTab?: boolean | null;
-            reference?:
-              | ({
-                  relationTo: 'pages';
-                  value: string | Page;
-                } | null)
-              | ({
-                  relationTo: 'posts';
-                  value: string | Post;
-                } | null);
-            url?: string | null;
-            label: string;
-            /**
-             * Choose how the link should be rendered.
-             */
-            appearance?: ('default' | 'outline') | null;
-          };
-          id?: string | null;
-        }[]
-      | null;
-  };
-  /**
-   * Options are generic: name each group freely (Color, Size, Capacity, Finish…). Each value can show one image in the product gallery and override specifications. No SKU or stock.
-   */
-  options?:
-    | {
-        name: string;
-        display: 'text' | 'swatch' | 'image';
-        values: {
+        group?: string | null;
+        items: {
           label: string;
-          swatch?: string | null;
-          /**
-           * Shown in the product gallery when this value is selected. Also used as the thumbnail when the group displays images.
-           */
-          image?: (string | null) | Media;
-          specifications?:
-            | {
-                label: string;
-                value: string;
-                id?: string | null;
-              }[]
-            | null;
+          value: string;
           id?: string | null;
         }[];
         id?: string | null;
@@ -1051,6 +1004,34 @@ export interface Product {
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
+}
+/**
+ * Documents: PDF (.pdf), Word (.docx), Excel (.xlsx), PowerPoint (.pptx); maximum 10 MB. Legacy Office formats and documents with macros are not allowed.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "documents".
+ */
+export interface Document {
+  id: string;
+  /**
+   * Shown to editors when choosing this document.
+   */
+  title: string;
+  /**
+   * Optional short summary.
+   */
+  description?: string | null;
+  _h_folders?: (string | null) | Folder;
+  updatedAt?: string | null;
+  prefix?: string | null;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1214,34 +1195,6 @@ export interface ProductCodeBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'productCode';
-}
-/**
- * Documents: PDF (.pdf), Word (.docx), Excel (.xlsx), PowerPoint (.pptx); maximum 10 MB. Legacy Office formats and documents with macros are not allowed.
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "documents".
- */
-export interface Document {
-  id: string;
-  /**
-   * Shown to editors when choosing this document.
-   */
-  title: string;
-  /**
-   * Optional short summary.
-   */
-  description?: string | null;
-  _h_folders?: (string | null) | Folder;
-  updatedAt?: string | null;
-  prefix?: string | null;
-  createdAt: string;
-  url?: string | null;
-  thumbnailURL?: string | null;
-  filename?: string | null;
-  mimeType?: string | null;
-  filesize?: number | null;
-  width?: number | null;
-  height?: number | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -2045,57 +1998,17 @@ export interface ProductsSelect<T extends boolean = true> {
   title?: T;
   gallery?: T;
   summary?: T;
-  highlights?:
-    | T
-    | {
-        text?: T;
-        id?: T;
-      };
+  overview?: T;
+  resources?: T;
   specifications?:
     | T
     | {
-        label?: T;
-        value?: T;
-        id?: T;
-      };
-  inquiry?:
-    | T
-    | {
-        mode?: T;
-        buttons?:
-          | T
-          | {
-              link?:
-                | T
-                | {
-                    type?: T;
-                    newTab?: T;
-                    reference?: T;
-                    url?: T;
-                    label?: T;
-                    appearance?: T;
-                  };
-              id?: T;
-            };
-      };
-  options?:
-    | T
-    | {
-        name?: T;
-        display?: T;
-        values?:
+        group?: T;
+        items?:
           | T
           | {
               label?: T;
-              swatch?: T;
-              image?: T;
-              specifications?:
-                | T
-                | {
-                    label?: T;
-                    value?: T;
-                    id?: T;
-                  };
+              value?: T;
               id?: T;
             };
         id?: T;
@@ -3139,15 +3052,31 @@ export interface SiteSettings {
 export interface Settings {
   id: string;
   blog?: {
+    /**
+     * Configure the Hero title, description, responsive background images and Header Theme. Leave both media fields empty for a text-only Hero.
+     */
     hero?: {
       enabled?: boolean | null;
+      /**
+       * Title displayed on the blog overview page. Category pages use their own title.
+       */
       heading?: string | null;
+      /**
+       * Optional text displayed below the title. Category pages use their own description.
+       */
       description?: string | null;
+      /**
+       * Background image for desktop and the fallback for mobile. Images are cropped to fill the Hero using their focal point.
+       */
       image?: (string | null) | Media;
       /**
-       * Use Dark for dark images (white text and header), Light for bright images or no image.
+       * Optional background image for screens below 48rem. When empty, Desktop media is used with its focal point. If Desktop media is empty, this image is used on all screens.
        */
-      headerTheme?: ('light' | 'dark') | null;
+      mobileMedia?: (string | null) | Media;
+      /**
+       * Use dark for light text and icons over dark media, or light for dark text and icons over bright media. Applies to the Header and Hero foreground; it does not recolor the media.
+       */
+      headerTheme?: ('dark' | 'light') | null;
     };
     seo?: {
       title?: string | null;
@@ -3173,15 +3102,96 @@ export interface Settings {
     };
   };
   product?: {
-    hero?: {
+    /**
+     * Slides rotate every 4 seconds. Drag rows to reorder. Enable Show text to display the slide title and description.
+     */
+    heroSlides?:
+      | {
+          /**
+           * Display the title and description on the website. Media is optional for text slides.
+           */
+          showText?: boolean | null;
+          /**
+           * Slide title. Displayed when Show text is enabled.
+           */
+          title: string;
+          /**
+           * Optional slide description. Displayed when Show text is enabled.
+           */
+          description?: string | null;
+          /**
+           * Image or MP4 video for desktop and the fallback for mobile. Required unless Show text is enabled. Use 16:9; the Hero crops to fill its frame. Images use their focal point; videos are centered.
+           */
+          media?: (string | null) | Media;
+          /**
+           * Optional image or MP4 for screens below 48rem. Use 4:5. When empty, the desktop media is cropped using the image focal point (videos are centered).
+           */
+          mobileMedia?: (string | null) | Media;
+          /**
+           * Use dark for light text and icons over dark media, or light for dark text and icons over bright media. Applies to the Header and Hero foreground; it does not recolor the media. Follows this slide while it is active.
+           */
+          theme: 'dark' | 'light';
+          /**
+           * Enable to make the whole slide image or video clickable using the CTA link below.
+           */
+          enableCta?: boolean | null;
+          /**
+           * Choose the destination opened when the slide image or video is clicked. The link label is for screen readers; no button is displayed over the media.
+           */
+          cta?: {
+            type?: ('reference' | 'custom') | null;
+            newTab?: boolean | null;
+            reference?:
+              | ({
+                  relationTo: 'pages';
+                  value: string | Page;
+                } | null)
+              | ({
+                  relationTo: 'posts';
+                  value: string | Post;
+                } | null)
+              | ({
+                  relationTo: 'products';
+                  value: string | Product;
+                } | null)
+              | ({
+                  relationTo: 'product-categories';
+                  value: string | ProductCategory;
+                } | null);
+            url?: string | null;
+            /**
+             * Describes the destination for screen readers. Not displayed over the media.
+             */
+            label: string;
+          };
+          id?: string | null;
+        }[]
+      | null;
+    /**
+     * Only categories with public products appear on the site.
+     */
+    categoryCarousel?: {
       enabled?: boolean | null;
-      heading?: string | null;
-      description?: string | null;
-      image?: (string | null) | Media;
       /**
-       * Use Dark for dark images (white text and header), Light for bright images or no image.
+       * Only categories with public products appear on the site. Drag to reorder. Leave empty for all public categories. The previous category selection must be selected again in this list.
        */
-      headerTheme?: ('light' | 'dark') | null;
+      items?:
+        | {
+            /**
+             * Opens the category page when the carousel card is clicked. Each category can only appear once.
+             */
+            category: string | ProductCategory;
+            /**
+             * Optional carousel-only image. Transparent product cut-outs work best. Select an image to choose its fit. When empty, the category image is used with Cover; the saved fit is retained.
+             */
+            image?: (string | null) | Media;
+            /**
+             * Applies only to the override image. Use Contain for transparent product cut-outs. Cover fills the frame using the image focal point. Removing the image hides this control and keeps the saved fit.
+             */
+            imageFit?: ('contain' | 'cover') | null;
+            id?: string | null;
+          }[]
+        | null;
     };
     seo?: {
       title?: string | null;
@@ -3190,35 +3200,6 @@ export interface Settings {
        * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
        */
       image?: (string | null) | Media;
-    };
-    /**
-     * Default inquiry buttons for products set to Default.
-     */
-    inquiry?: {
-      buttons?:
-        | {
-            link: {
-              type?: ('reference' | 'custom') | null;
-              newTab?: boolean | null;
-              reference?:
-                | ({
-                    relationTo: 'pages';
-                    value: string | Page;
-                  } | null)
-                | ({
-                    relationTo: 'posts';
-                    value: string | Post;
-                  } | null);
-              url?: string | null;
-              label: string;
-              /**
-               * Choose how the link should be rendered.
-               */
-              appearance?: ('default' | 'outline') | null;
-            };
-            id?: string | null;
-          }[]
-        | null;
     };
   };
   updatedAt?: string | null;
@@ -3519,6 +3500,7 @@ export interface SettingsSelect<T extends boolean = true> {
               heading?: T;
               description?: T;
               image?: T;
+              mobileMedia?: T;
               headerTheme?: T;
             };
         seo?:
@@ -3545,14 +3527,39 @@ export interface SettingsSelect<T extends boolean = true> {
   product?:
     | T
     | {
-        hero?:
+        heroSlides?:
+          | T
+          | {
+              showText?: T;
+              title?: T;
+              description?: T;
+              media?: T;
+              mobileMedia?: T;
+              theme?: T;
+              enableCta?: T;
+              cta?:
+                | T
+                | {
+                    type?: T;
+                    newTab?: T;
+                    reference?: T;
+                    url?: T;
+                    label?: T;
+                  };
+              id?: T;
+            };
+        categoryCarousel?:
           | T
           | {
               enabled?: T;
-              heading?: T;
-              description?: T;
-              image?: T;
-              headerTheme?: T;
+              items?:
+                | T
+                | {
+                    category?: T;
+                    image?: T;
+                    imageFit?: T;
+                    id?: T;
+                  };
             };
         seo?:
           | T
@@ -3560,25 +3567,6 @@ export interface SettingsSelect<T extends boolean = true> {
               title?: T;
               description?: T;
               image?: T;
-            };
-        inquiry?:
-          | T
-          | {
-              buttons?:
-                | T
-                | {
-                    link?:
-                      | T
-                      | {
-                          type?: T;
-                          newTab?: T;
-                          reference?: T;
-                          url?: T;
-                          label?: T;
-                          appearance?: T;
-                        };
-                    id?: T;
-                  };
             };
       };
   updatedAt?: T;

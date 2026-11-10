@@ -7,6 +7,7 @@ import { settingsTabs } from './fields'
 import { revalidateSettings } from './hooks/revalidateSettings'
 import { validateSettingsHeroImage } from './hooks/validateSettingsHeroImage'
 import { validateSettingsSeoImage } from './hooks/validateSettingsSeoImage'
+import { validateProductListingMedia } from './hooks/validateProductListingMedia'
 
 export const Settings: GlobalConfig = {
   slug: 'settings',
@@ -17,11 +18,16 @@ export const Settings: GlobalConfig = {
   access: {
     read: anyone,
     update: authenticated,
+    readVersions: authenticated,
   },
   fields: [settingsTabs],
-  versions: false,
+  versions: { max: 20 },
   hooks: {
-    beforeChange: [validateSettingsHeroImage, validateSettingsSeoImage],
+    beforeChange: [
+      validateSettingsHeroImage,
+      validateSettingsSeoImage,
+      validateProductListingMedia,
+    ],
     afterChange: [revalidateSettings],
   },
 }

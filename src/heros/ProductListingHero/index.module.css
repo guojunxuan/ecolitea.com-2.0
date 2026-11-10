@@ -1,0 +1,239 @@
+.root {
+  --hero-controls-space: calc(var(--website-space-12) + var(--website-space-12));
+  position: relative;
+  display: grid;
+  width: 100%;
+  min-width: 0;
+  isolation: isolate;
+  aspect-ratio: 8 / 3;
+  min-height: 36rem;
+  max-height: 85svh;
+  overflow: hidden;
+  touch-action: pan-y pinch-zoom;
+  background: var(--website-color-background);
+}
+.slide {
+  position: relative;
+  grid-area: 1 / 1;
+  isolation: isolate;
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  color: var(--website-color-foreground);
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity var(--website-duration-slow) var(--website-easing-standard),
+    visibility 0s linear var(--website-duration-slow);
+}
+.slide[data-active] {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity var(--website-duration-slow) var(--website-easing-standard);
+}
+.slideLink {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  user-select: none;
+}
+.slideLink:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: -4px;
+}
+.mediaFrame {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  user-select: none;
+}
+.mediaFrame > div,
+.mediaFrame picture {
+  position: absolute;
+  inset: 0;
+}
+.media {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: var(--hero-focal-point, center);
+}
+.mobileMedia {
+  display: none;
+}
+.content {
+  display: flex;
+  width: min(
+    calc(
+      100% - 2 * (var(--website-gutter) + var(--website-control-default) + var(--website-space-6))
+    ),
+    var(--website-container-site)
+  );
+  margin-inline: auto;
+  padding-block: calc(var(--header-height) + var(--website-space-8)) var(--hero-controls-space);
+}
+.copy {
+  position: relative;
+  isolation: isolate;
+  max-width: min(44rem, 100%);
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.title {
+  composes: website-type-heading-1 from global;
+  margin: 0;
+}
+.description {
+  composes: website-type-body-md from global;
+  max-width: 34ch;
+  margin: var(--website-space-3) 0 0;
+  color: var(--website-color-foreground);
+  white-space: pre-line;
+}
+.arrow {
+  composes: arrow from '../../components/Products/OverflowCarousel/index.module.css';
+}
+.root .arrow {
+  top: 50%;
+  background: color-mix(
+    in srgb, var(--website-color-brand-black) var(--website-scrim-subtle), transparent
+  );
+  color: var(--website-color-brand-white);
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity var(--website-duration-fast) var(--website-easing-standard),
+    background-color var(--website-duration-fast) var(--website-easing-standard);
+}
+.root .arrow:hover {
+  background: color-mix(
+    in srgb, var(--website-color-brand-black) var(--website-scrim-standard), transparent
+  );
+}
+.root:hover .arrow,
+.root[data-keyboard-focus] .arrow {
+  opacity: 1;
+  pointer-events: auto;
+}
+.previous {
+  left: var(--website-gutter);
+}
+.next {
+  right: var(--website-gutter);
+}
+.controls {
+  position: absolute;
+  bottom: var(--website-space-6);
+  left: 50%;
+  z-index: var(--website-z-raised);
+  display: flex;
+  align-items: center;
+  max-width: calc(100% - 2 * var(--website-gutter));
+  transform: translateX(-50%);
+  color: var(--website-color-foreground);
+}
+.dots {
+  display: flex;
+  align-items: center;
+  gap: var(--website-space-1);
+}
+.dot {
+  display: grid;
+  align-items: center;
+  box-sizing: border-box;
+  width: 24px;
+  height: var(--website-control-target-min);
+  padding: 0 2px;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+.dot[data-active] {
+  width: 44px;
+}
+.segment {
+  display: block;
+  position: relative;
+  height: 3px;
+  width: 100%;
+  overflow: hidden;
+  border-radius: var(--website-radius-pill);
+  background: color-mix(in srgb, currentColor 40%, transparent);
+}
+.progress {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: currentColor;
+  transform-origin: left;
+  transform: scaleX(0);
+}
+.progress[data-running] {
+  animation: progress var(--hero-autoplay) linear forwards;
+}
+@keyframes progress {
+  to {
+    transform: scaleX(1);
+  }
+}
+.root .arrow:focus-visible,
+.dot:focus-visible,
+.root:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 4px;
+}
+@media (48rem <= width < 64rem) {
+  .root {
+    aspect-ratio: 4 / 3;
+    min-height: 32rem;
+    max-height: none;
+  }
+}
+@media (width < 48rem) {
+  .root {
+    aspect-ratio: 4 / 5;
+    min-height: 0;
+    max-height: none;
+  }
+  .slide {
+    align-items: flex-end;
+  }
+  .content {
+    width: calc(100% - 2 * var(--website-gutter));
+    justify-content: center;
+    text-align: center;
+  }
+  .copy {
+    max-width: 100%;
+  }
+  .description {
+    margin-inline: auto;
+  }
+  .desktopMedia {
+    display: none;
+  }
+  .mobileMedia {
+    display: block;
+  }
+  .media {
+    object-position: var(--hero-mobile-focal-point, center);
+  }
+  .root .arrow {
+    display: none;
+  }
+  .controls {
+    bottom: var(--website-space-4);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .slide,
+  .slide[data-active],
+  .root .arrow {
+    transition: none;
+  }
+  .progress[data-running] {
+    animation: none;
+    transform: scaleX(1);
+  }
+}

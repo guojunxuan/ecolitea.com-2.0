@@ -1,5 +1,5 @@
 import { resolveLinkHref, type CMSLinkType } from '@/components/Link'
-import { MEDIA_RENDERABLE_MIME_TYPES } from '@/components/Media/config'
+import { MEDIA_RENDERABLE_MIME_TYPES } from '@/collections/mediaUploadPolicy.shared'
 import type { Header, Media } from '@/payload-types'
 
 import type {

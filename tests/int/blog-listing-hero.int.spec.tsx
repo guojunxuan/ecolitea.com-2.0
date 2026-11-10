@@ -52,6 +52,7 @@ describe('getBlogListingHero', () => {
       heading: 'Stories',
       description: 'From the journal',
       headerTheme: 'light',
+      mobileMedia: null,
     })
 
     getCachedSettingsMock.mockResolvedValue({
@@ -62,6 +63,7 @@ describe('getBlogListingHero', () => {
       heading: 'Stories',
       description: null,
       headerTheme: 'light',
+      mobileMedia: null,
     })
   })
 
@@ -94,6 +96,21 @@ describe('getBlogListingHero', () => {
     })
 
     await expect(getBlogListingHero()).resolves.toMatchObject({ headerTheme: 'light' })
+  })
+
+  it('normalizes the mobile image relationship without modifying saved settings', async () => {
+    const mobileMedia = { id: 'mobile', url: '/mobile.jpg', mimeType: 'image/jpeg' }
+    const settings = { blog: { hero: { enabled: true, heading: 'Stories', mobileMedia } } }
+    getCachedSettingsMock.mockResolvedValue(settings)
+    await expect(getBlogListingHero()).resolves.toMatchObject({ mobileMedia })
+    expect(settings.blog.hero.mobileMedia).toBe(mobileMedia)
+
+    for (const value of ['unresolved', { id: 'video', url: '/video.mp4', mimeType: 'video/mp4' }]) {
+      getCachedSettingsMock.mockResolvedValue({
+        blog: { hero: { enabled: true, heading: 'Stories', mobileMedia: value } },
+      })
+      await expect(getBlogListingHero()).resolves.toMatchObject({ mobileMedia: null })
+    }
   })
 })
 
@@ -176,4 +193,34 @@ describe('BlogListingHero', () => {
       expect(container.querySelector('[data-hero-scrim]')).toBeNull()
     },
   )
+
+  it('passes mobile art direction to shared Media and uses it as the desktop fallback', async () => {
+    const { BlogListingHero } = await import('@/heros/BlogListingHero')
+    const image = {
+      id: 'desktop',
+      alt: 'Desktop hero image',
+      url: '/desktop.jpg',
+      mimeType: 'image/jpeg',
+      createdAt: '',
+      updatedAt: '',
+    }
+    const mobileMedia = { ...image, id: 'mobile', url: '/mobile.jpg' }
+    const { rerender } = render(
+      <BlogListingHero
+        heading="Journal"
+        image={image}
+        mobileMedia={mobileMedia}
+        headerTheme="light"
+      />,
+    )
+    expect(mediaMock.mock.calls.at(-1)?.[0]).toMatchObject({
+      resource: image,
+      mobileResource: mobileMedia,
+    })
+    rerender(<BlogListingHero heading="Journal" mobileMedia={mobileMedia} headerTheme="light" />)
+    expect(mediaMock.mock.calls.at(-1)?.[0]).toMatchObject({
+      resource: mobileMedia,
+      mobileResource: mobileMedia,
+    })
+  })
 })

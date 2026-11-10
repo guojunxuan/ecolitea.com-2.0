@@ -6,10 +6,10 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { AnchorNav } from '@/components/Products/AnchorNav'
 import { CategoryBand } from '@/components/Products/CategoryBand'
 import { CategoryCard } from '@/components/Products/CategoryCard'
+import { CategoryCarousel } from '@/components/Products/CategoryCarousel'
 import { OverflowCarousel } from '@/components/Products/OverflowCarousel'
 import { ProductBlockHeader } from '@/components/Products/ProductBlockHeader'
 import { ProductCard } from '@/components/Products/ProductCard'
-import { ProductMoreCard } from '@/components/Products/ProductMoreCard'
 import { SegmentIndicator } from '@/components/Products/SegmentIndicator'
 import type { Media } from '@/payload-types'
 import type {
@@ -112,32 +112,55 @@ afterEach(() => {
 })
 
 describe('shared product presentation', () => {
+  it('places the category title inside the image cover without a caption arrow', () => {
+    render(<CategoryCard category={category} />)
+    const title = screen.getByRole('heading', { name: category.title })
+    const cover = title.closest('[data-product-category-cover]')
+    expect(cover?.contains(screen.getByTestId('media'))).toBe(true)
+    expect(title.parentElement?.querySelector('svg')).toBeNull()
+  })
+
+  it('keeps collection links named by their label with a decorative SVG chevron', () => {
+    render(
+      <OverflowCarousel title="Explore other ranges" href="/products" linkLabel="All products">
+        <Link href="/products/tea">Tea</Link>
+      </OverflowCarousel>,
+    )
+    const link = screen.getByRole('link', { name: 'All products' })
+    const icon = link.querySelector('svg')
+    expect(link.getAttribute('href')).toBe('/products')
+    expect(icon?.getAttribute('aria-hidden')).toBe('true')
+    expect(icon?.getAttribute('focusable')).toBe('false')
+    expect(icon?.querySelectorAll('path')).toHaveLength(1)
+    expect(icon?.getAttribute('viewBox')).toBe('0 0 16 19')
+  })
+
   it('makes the product a single link with H3 and a safe missing-cover placeholder', () => {
     const { rerender } = render(<ProductCard product={product} />)
     expect(screen.getByRole('link').getAttribute('href')).toBe('/products/bags/paper')
     expect(screen.getByRole('heading', { level: 3 }).textContent).toBe(product.title)
     expect(screen.getByText(product.summary!)).toBeTruthy()
     expect(screen.getByTestId('media')).toBeTruthy()
+    expect(screen.queryByText('View More')).toBeNull()
     rerender(<ProductCard product={{ ...product, cover: null }} />)
     expect(screen.queryByTestId('media')).toBeNull()
     expect(screen.getByRole('link').textContent).toContain(product.title)
   })
 
-  it('limits more-card covers to three and exposes the remaining and total counts', () => {
-    render(
-      <ProductMoreCard
-        href="/products/bags"
-        remaining={7}
-        productCount={12}
-        categoryTitle="Tea bags"
-        covers={[media, media, media, media]}
-      />,
-    )
-    expect(screen.getAllByTestId('media')).toHaveLength(3)
-    expect(screen.getByText('+7')).toBeTruthy()
-    expect(screen.getByText('View all 12')).toBeTruthy()
-    expect(screen.getByRole('link').getAttribute('href')).toBe('/products/bags')
-  })
+  it.each([product, { ...product, cover: null, summary: '' }])(
+    'keeps View More within the single product link when enabled (cover: $cover)',
+    (item) => {
+      render(<ProductCard product={item} showAction />)
+      const action = screen.getByText('View More')
+      const link = screen.getByRole('link')
+      expect(action.closest('a')).toBe(link)
+      expect(link.getAttribute('href')).toBe('/products/bags/paper')
+      expect(action.getAttribute('data-slot')).toBe('button')
+      expect(action.hasAttribute('tabindex')).toBe(false)
+      expect(link.querySelector('a, button, [role="button"]')).toBeNull()
+      expect(screen.getAllByText('View More')).toHaveLength(1)
+    },
+  )
 
   it('links a category and renders its band at the requested heading level without an empty action row', () => {
     render(
@@ -185,8 +208,61 @@ describe('shared product presentation', () => {
   })
 })
 
+describe('category carousel', () => {
+  it('updates edge fades as the contained track scrolls and resizes', () => {
+    render(
+      <CategoryCarousel
+        items={[
+          {
+            id: 'bags',
+            title: 'Tea bags',
+            href: '/products/bags',
+            image: media,
+            imageFit: 'cover',
+          },
+          {
+            id: 'tools',
+            title: 'Tea tools',
+            href: '/products/tools',
+            image: media,
+            imageFit: 'contain',
+          },
+        ]}
+      />,
+    )
+    const track = screen.getByRole('region', { name: 'Product categories' })
+    expect(screen.getAllByRole('link').map((link) => link.getAttribute('href'))).toEqual([
+      '/products/bags',
+      '/products/tools',
+    ])
+    const viewport = track.parentElement!
+    expect(viewport.getAttribute('data-overflow-start')).toBeNull()
+    expect(viewport.getAttribute('data-overflow-end')).not.toBeNull()
+    expect(track.scrollLeft).toBe(0)
+    fireEvent.click(screen.getByRole('button', { name: 'Next items' }))
+    expect(scrollBy).toHaveBeenLastCalledWith({ left: 320, behavior: 'smooth' })
+    Object.defineProperty(track, 'scrollLeft', { configurable: true, value: 300 })
+    fireEvent.scroll(track)
+    expect(viewport.hasAttribute('data-overflow-start')).toBe(true)
+    expect(viewport.hasAttribute('data-overflow-end')).toBe(true)
+    Object.defineProperty(track, 'scrollLeft', { configurable: true, value: 600 })
+    fireEvent.scroll(track)
+    expect(viewport.hasAttribute('data-overflow-start')).toBe(true)
+    expect(viewport.hasAttribute('data-overflow-end')).toBe(false)
+    dimensions.total = dimensions.width
+    act(() => resizeCallbacks.forEach((callback) => callback()))
+    expect(viewport.hasAttribute('data-overflow-start')).toBe(false)
+    expect(viewport.hasAttribute('data-overflow-end')).toBe(false)
+  })
+
+  it('does not render a category strip without items', () => {
+    const { container } = render(<CategoryCarousel items={[]} />)
+    expect(container.children).toHaveLength(0)
+  })
+})
+
 describe('overflow carousel', () => {
-  it('hides unavailable arrows at each edge and when all content fits', () => {
+  it('disables boundary arrows and hides both only when all content fits', () => {
     render(
       <OverflowCarousel title="Explore ranges">
         <Link href="/one">One</Link>
@@ -194,12 +270,16 @@ describe('overflow carousel', () => {
       </OverflowCarousel>,
     )
     const track = screen.getByRole('region', { name: 'Explore ranges' })
-    expect(screen.queryByRole('button', { name: 'Previous items' })).toBeNull()
-    expect(screen.getByRole('button', { name: 'Next items' })).toBeTruthy()
+    expect(screen.getByRole('button', { name: 'Previous items' }).hasAttribute('disabled')).toBe(
+      true,
+    )
+    expect(screen.getByRole('button', { name: 'Next items' }).hasAttribute('disabled')).toBe(false)
     Object.defineProperty(track, 'scrollLeft', { configurable: true, value: 600 })
     fireEvent.scroll(track)
-    expect(screen.getByRole('button', { name: 'Previous items' })).toBeTruthy()
-    expect(screen.queryByRole('button', { name: 'Next items' })).toBeNull()
+    expect(screen.getByRole('button', { name: 'Previous items' }).hasAttribute('disabled')).toBe(
+      false,
+    )
+    expect(screen.getByRole('button', { name: 'Next items' }).hasAttribute('disabled')).toBe(true)
     dimensions.total = 400
     act(() => resizeCallbacks.forEach((callback) => callback()))
     expect(screen.queryByRole('button', { name: 'Previous items' })).toBeNull()
@@ -233,19 +313,17 @@ describe('anchor navigation', () => {
     { id: 'details', label: 'Details' },
   ]
 
-  it('shows the detail action only after overview has left above the header', () => {
+  it('tracks the detail navigation sticky state after overview leaves above the header', () => {
     render(
       <>
         <section id="overview">Overview content</section>
         <section id="details">Detail content</section>
-        <AnchorNav
-          items={items}
-          variant="detail"
-          action={{ type: 'custom', url: '/contact', label: 'Get a Quote' }}
-        />
+        <AnchorNav items={items} variant="detail" />
       </>,
     )
-    expect(screen.queryByRole('link', { name: 'Get a Quote' })).toBeNull()
+    expect(
+      screen.getByRole('navigation', { name: 'Product sections' }).hasAttribute('data-stuck'),
+    ).toBe(false)
     const observer = intersections.find(
       ({ targets }) => targets.length === 1 && targets[0].id === 'overview',
     )!
@@ -266,7 +344,9 @@ describe('anchor navigation', () => {
         {} as IntersectionObserver,
       ),
     )
-    expect(screen.getByRole('link', { name: 'Get a Quote' }).getAttribute('href')).toBe('/contact')
+    expect(
+      screen.getByRole('navigation', { name: 'Product sections' }).getAttribute('data-stuck'),
+    ).toBe('true')
     act(() =>
       observer.callback(
         [
@@ -283,18 +363,16 @@ describe('anchor navigation', () => {
         {} as IntersectionObserver,
       ),
     )
-    expect(screen.queryByRole('link', { name: 'Get a Quote' })).toBeNull()
+    expect(
+      screen.getByRole('navigation', { name: 'Product sections' }).hasAttribute('data-stuck'),
+    ).toBe(false)
   })
 
-  it('keeps a below-fold overview from triggering the detail action or scrolling the page on mount', () => {
+  it('keeps a below-fold overview from triggering the sticky state or scrolling the page on mount', () => {
     render(
       <>
         <section id="overview">Overview content</section>
-        <AnchorNav
-          items={items}
-          variant="detail"
-          action={{ type: 'custom', url: '/contact', label: 'Get a Quote' }}
-        />
+        <AnchorNav items={items} variant="detail" />
       </>,
     )
     const observer = intersections.find(
@@ -316,7 +394,9 @@ describe('anchor navigation', () => {
         {} as IntersectionObserver,
       ),
     )
-    expect(screen.queryByRole('link', { name: 'Get a Quote' })).toBeNull()
+    expect(
+      screen.getByRole('navigation', { name: 'Product sections' }).hasAttribute('data-stuck'),
+    ).toBe(false)
     expect(scrollIntoView).not.toHaveBeenCalled()
   })
 

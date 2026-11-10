@@ -1,0 +1,19 @@
+.table {
+  margin: 0.75rem 0;
+  min-width: 0;
+}
+
+.link {
+  gap: 0.5rem;
+  text-decoration: none;
+}
+
+.title {
+  overflow-wrap: anywhere;
+  padding-block: 0.5rem;
+}
+
+.icon {
+  display: inline-flex;
+  flex-shrink: 0;
+}

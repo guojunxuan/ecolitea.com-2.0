@@ -10,10 +10,8 @@ import { authenticated } from '@/access/authenticated'
 import { authenticatedOrPublishedProduct } from '@/access/authenticatedOrPublishedProduct'
 import { imageOnly } from '@/collections/mediaUploadPolicy'
 import { generatePreviewPath } from '@/utilities/generatePreviewPath'
-import { productInquiry } from './fields/inquiry'
 import { productSections } from './fields/sections'
 import { generateSectionAnchors } from './hooks/validateSections'
-import { productOptions } from './fields/options'
 import { setProductCategorySlug } from './hooks/setProductCategorySlug'
 import { redirectProduct } from './hooks/productRedirects'
 import { revalidateProduct, revalidateProductDelete } from './hooks/revalidateProduct'
@@ -81,17 +79,30 @@ export const Products: CollectionConfig = {
             },
             { name: 'summary', type: 'textarea', required: true, maxLength: 160 },
             {
-              name: 'highlights',
-              type: 'array',
-              maxRows: 6,
+              name: 'overview',
+              label: 'Overview text',
+              type: 'textarea',
+              maxLength: 1500,
               admin: {
-                initCollapsed: true,
-                components: {
-                  RowLabel: '@/collections/Products/admin/HighlightRowLabel#HighlightRowLabel',
-                },
+                description:
+                  'Shown in the Overview tab on the product page. Separate paragraphs with a blank line. Falls back to Summary when empty.',
               },
-              fields: [{ name: 'text', type: 'text', required: true, maxLength: 120 }],
             },
+            {
+              name: 'resources',
+              label: 'Resources',
+              type: 'upload',
+              relationTo: 'documents',
+              hasMany: true,
+              admin: {
+                description: 'Files offered by the Download button on the product page.',
+              },
+            },
+          ],
+        },
+        {
+          label: 'Specifications',
+          fields: [
             {
               name: 'specifications',
               type: 'array',
@@ -99,18 +110,31 @@ export const Products: CollectionConfig = {
                 initCollapsed: true,
                 components: {
                   RowLabel:
-                    '@/collections/Products/admin/SpecificationRowLabel#SpecificationRowLabel',
+                    '@/collections/Products/admin/SpecificationGroupRowLabel#SpecificationGroupRowLabel',
                 },
               },
               fields: [
-                { name: 'label', type: 'text', required: true },
-                { name: 'value', type: 'text', required: true },
+                { name: 'group', type: 'text' },
+                {
+                  name: 'items',
+                  type: 'array',
+                  required: true,
+                  minRows: 1,
+                  admin: {
+                    components: {
+                      RowLabel:
+                        '@/collections/Products/admin/SpecificationRowLabel#SpecificationRowLabel',
+                    },
+                  },
+                  fields: [
+                    { name: 'label', type: 'text', required: true },
+                    { name: 'value', type: 'text', required: true },
+                  ],
+                },
               ],
             },
-            productInquiry,
           ],
         },
-        { label: 'Options', fields: [productOptions] },
         {
           label: 'Details',
           fields: [productSections],

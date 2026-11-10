@@ -18,50 +18,65 @@ export const blogTab: Tab = {
   name: 'blog',
   label: 'Blog',
   fields: [
-    listingHero(),
     {
-      type: 'collapsible',
-      label: 'Listing SEO',
+      type: 'group',
+      label: 'Overview',
       admin: {
-        initCollapsed: true,
-        style: { marginTop: 0, marginBottom: 'var(--spacer-2-5)' },
+        description:
+          'Hero and search settings for the blog overview page (/blogs). Category pages share the Hero media and Header Theme, with their own title and description.',
       },
       fields: [
+        listingHero(),
         {
-          name: 'seo',
-          label: false,
-          type: 'group',
-          admin: { hideGutter: true },
+          type: 'collapsible',
+          label: 'SEO',
+          admin: {
+            initCollapsed: true,
+            style: { marginTop: 0, marginBottom: 'var(--spacer-2-5)' },
+          },
           fields: [
-            OverviewField({
-              titlePath: 'blog.seo.title',
-              descriptionPath: 'blog.seo.description',
-              imagePath: 'blog.seo.image',
-            }),
-            MetaTitleField({
-              hasGenerateFn: true,
-              overrides: { hooks: { beforeValidate: [trimText] } },
-            }),
-            MetaDescriptionField({
-              hasGenerateFn: true,
-              overrides: { hooks: { beforeValidate: [trimText] } },
-            }),
-            MetaImageField({
-              relationTo: 'media',
-              hasGenerateFn: true,
-              overrides: {
-                filterOptions: imageOnly,
-              },
-            }),
-            PreviewField({
-              hasGenerateFn: true,
-              titlePath: 'blog.seo.title',
-              descriptionPath: 'blog.seo.description',
-            }),
+            {
+              name: 'seo',
+              label: false,
+              type: 'group',
+              admin: { hideGutter: true },
+              fields: [
+                OverviewField({
+                  titlePath: 'blog.seo.title',
+                  descriptionPath: 'blog.seo.description',
+                  imagePath: 'blog.seo.image',
+                }),
+                MetaTitleField({
+                  hasGenerateFn: true,
+                  overrides: { hooks: { beforeValidate: [trimText] } },
+                }),
+                MetaDescriptionField({
+                  hasGenerateFn: true,
+                  overrides: { hooks: { beforeValidate: [trimText] } },
+                }),
+                MetaImageField({
+                  relationTo: 'media',
+                  hasGenerateFn: true,
+                  overrides: {
+                    filterOptions: imageOnly,
+                  },
+                }),
+                PreviewField({
+                  hasGenerateFn: true,
+                  titlePath: 'blog.seo.title',
+                  descriptionPath: 'blog.seo.description',
+                }),
+              ],
+            },
           ],
         },
       ],
     },
-    articleShareField,
+    {
+      type: 'group',
+      label: 'Articles',
+      admin: { description: 'Settings applied to every blog article.' },
+      fields: [articleShareField],
+    },
   ],
 }

@@ -2,18 +2,15 @@ import type { Metadata } from 'next'
 import { draftMode } from 'next/headers'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import { CMSLink } from '@/components/Link'
 import { PayloadRedirects } from '@/components/PayloadRedirects'
 import { LivePreviewListener } from '@/components/LivePreviewListener'
 import { HeaderThemeSync } from '@/heros/HeaderThemeSync'
-import { ProductDetailNav } from '@/components/Products/ProductSelection/DetailNav'
+import { ProductDetailNav } from '@/components/Products/ProductDetailNav'
 import { OverflowCarousel } from '@/components/Products/OverflowCarousel'
 import { ProductCard } from '@/components/Products/ProductCard'
 import { ProductGallery } from '@/components/Products/ProductGallery'
-import { ProductOptions } from '@/components/Products/ProductOptions'
-import { ProductSpecifications } from '@/components/Products/ProductSpecifications'
-import { ProductSelectionProvider } from '@/components/Products/ProductSelection'
-import { MobileInquiryBar } from '@/components/Products/MobileInquiryBar'
+import { ProductTabs } from '@/components/Products/ProductTabs'
+import { ProductActions } from '@/components/Products/ProductActions'
 import { RenderProductBlocks } from '@/collections/Products/blocks/RenderProductBlocks'
 import { getProductBySlug } from '@/utilities/products/getProductBySlug'
 import { getRelatedProducts } from '@/utilities/products/getRelatedProducts'
@@ -35,10 +32,9 @@ export default async function ProductPage({ params }: Args) {
   if (!product) return <PayloadRedirects url={url} />
   if (product.categorySlug !== category) notFound()
   const related = await getRelatedProducts(product)
-  const action = product.inquiry.buttons[0]
 
   return (
-    <article className={action ? styles.withInquiry : styles.root}>
+    <article className={styles.root}>
       <HeaderThemeSync theme="light" />
       <PayloadRedirects disableNotFound url={url} />
       {draft && <LivePreviewListener />}
@@ -49,61 +45,44 @@ export default async function ProductPage({ params }: Args) {
         <span aria-hidden="true">/</span>
         <span aria-current="page">{product.title}</span>
       </nav>
-      <ProductSelectionProvider product={product}>
-        <header id="overview" className={styles.overview}>
-          <ProductGallery />
-          <div className={styles.info}>
-            <p className="website-type-eyebrow">{product.category?.title}</p>
-            <h1>{product.title}</h1>
-            {product.summary && <p className={styles.summary}>{product.summary}</p>}
-            {product.highlights.length > 0 && (
-              <ul className={styles.highlights}>
-                {product.highlights.map((item, index) => (
-                  <li key={index}>{item}</li>
-                ))}
-              </ul>
-            )}
-            <ProductOptions />
-            <ProductSpecifications compact />
-            {action && (
-              <div id="inquiry" className={styles.actions}>
-                {product.inquiry.buttons.map((button, index) => (
-                  <CMSLink key={index} {...button} appearance={button.appearance ?? 'default'} />
-                ))}
-              </div>
-            )}
-          </div>
-        </header>
-        <ProductDetailNav
-          sections={product.sections.map((section) => ({
-            id: section.anchor,
-            label: section.label,
-          }))}
-          hasRelated={related.length > 0}
-          action={action}
-        />
-        {product.sections.map((section) => (
-          <section key={section.anchor} id={section.anchor} className={styles.section}>
-            <RenderProductBlocks blocks={section.blocks} />
-          </section>
-        ))}
-        <ProductSpecifications />
-      </ProductSelectionProvider>
+      <header id="overview" className={styles.overview}>
+        <ProductGallery key={product.id} images={product.gallery} />
+        <div className={styles.info}>
+          <p className={styles.eyebrow}>{product.category?.title}</p>
+          <h1 className={styles.title}>{product.title}</h1>
+          <ProductTabs
+            key={product.id}
+            specifications={product.specifications}
+            overview={product.overview}
+          />
+          <ProductActions downloads={product.downloads} />
+        </div>
+      </header>
+      <ProductDetailNav
+        sections={product.sections.map((section) => ({
+          id: section.anchor,
+          label: section.label,
+        }))}
+        hasRelated={related.length > 0}
+      />
+      {product.sections.map((section) => (
+        <section key={section.anchor} id={section.anchor} className={styles.section}>
+          <RenderProductBlocks blocks={section.blocks} />
+        </section>
+      ))}
       {related.length > 0 && (
         <section id="related-products" className={styles.related}>
           <OverflowCarousel
-            eyebrow="Related"
             title="You may also need"
             href={productCategoryPath(category)}
             linkLabel="View more"
           >
             {related.map((item) => (
-              <ProductCard key={item.id} product={item} />
+              <ProductCard key={item.id} product={item} showAction />
             ))}
           </OverflowCarousel>
         </section>
       )}
-      <MobileInquiryBar action={action} />
     </article>
   )
 }

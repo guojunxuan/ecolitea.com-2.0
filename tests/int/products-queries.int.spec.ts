@@ -32,9 +32,7 @@ const product = (id: string) => ({
   summary: 'text',
   specifications: [{ label: 'Origin', value: 'China' }],
   gallery: ['raw', { id: 'image', url: '/image.jpg' }],
-  downloads: [
-    { id: 'doc', title: 'Guide', filesize: 100, filename: 'guide.pdf', url: '/guide.pdf' },
-  ],
+  content: [{ id: 'doc', title: 'Guide', filesize: 100, filename: 'guide.pdf', url: '/guide.pdf' }],
   relatedProducts: ['b', 'a', 'b', 'self', 'hidden'],
 })
 beforeEach(() => {
@@ -74,12 +72,19 @@ describe('public product queries', () => {
     mocks.find.mockResolvedValue({ docs: [product('self')] })
     const result = await getProductBySlug('self', { draft: false })
     expect(result?.summary).toBe('text')
-    expect(result?.specifications).toEqual([{ label: 'Origin', value: 'China' }])
+    expect(result?.specifications).toEqual([
+      { group: null, items: [{ label: 'Origin', value: 'China' }] },
+    ])
+    expect(result?.overview).toEqual(['text'])
+    expect(result?.downloads).toEqual([
+      { id: 'doc', title: 'Guide', url: '/guide.pdf', filesize: 100, mimeType: null },
+    ])
     expect(result).not.toHaveProperty('excerpt')
     expect(result).not.toHaveProperty('specs')
     expect(result?.category?.id).toBe('cat')
-    expect(result?.gallery).toEqual([{ media: { id: 'image', url: '/image.jpg' }, values: [] }])
-    for (const field of ['layout', 'downloads', 'faqs']) expect(result).not.toHaveProperty(field)
+    expect(result?.gallery).toEqual([{ id: 'image', url: '/image.jpg' }])
+    for (const field of ['layout', 'content', 'faqs', 'highlights', 'options'])
+      expect(result).not.toHaveProperty(field)
     expect(result?.sections).toEqual([])
     expect(mocks.find).toHaveBeenLastCalledWith(
       expect.objectContaining({
@@ -101,6 +106,7 @@ describe('public product queries', () => {
             createdAt: true,
             updatedAt: true,
           },
+          documents: { title: true, url: true, filename: true, mimeType: true, filesize: true },
           'product-categories': {
             title: true,
             slug: true,
@@ -124,26 +130,62 @@ describe('public product queries', () => {
     )
     expect(mocks.cache).not.toHaveBeenCalled()
   })
-  it.each([undefined, null, []])(
-    'normalizes absent or empty highlights %s to an empty array',
-    async (highlights) => {
-      mocks.find.mockResolvedValue({ docs: [{ ...product('self'), highlights }] })
-      expect((await getProductBySlug('self'))?.highlights).toEqual([])
-    },
-  )
-  it('normalizes highlight rows into ordered detail strings', async () => {
+  it('normalizes overview paragraphs, grouped specifications and ordered downloads', async () => {
     mocks.find.mockResolvedValue({
       docs: [
         {
           ...product('self'),
-          highlights: [
-            { id: 'one', text: 'Organic tea' },
-            { id: 'two', text: 'Fresh harvest' },
+          overview: ' First line\r\nContinued \r\n  \r\n Second paragraph \n\n',
+          specifications: [
+            {
+              group: '  Build ',
+              items: [
+                { label: ' Origin ', value: ' China ' },
+                { label: '', value: 'x' },
+              ],
+            },
+            { group: 'Empty', items: [] },
+            { group: ' ', items: [{ label: 'Size', value: '2' }] },
+          ],
+          content: [
+            'unpopulated',
+            { id: 'empty', url: null },
+            {
+              id: 'one',
+              title: ' ',
+              filename: 'manual.pdf',
+              url: '/files/manual.pdf',
+              mimeType: 'application/pdf',
+            },
+            { id: 'unsafe', url: 'javascript:alert(1)' },
+            { id: 'two', title: ' Specs ', url: 'https://example.test/spec.pdf', filesize: 20 },
           ],
         },
       ],
     })
-    expect((await getProductBySlug('self'))?.highlights).toEqual(['Organic tea', 'Fresh harvest'])
+    expect(await getProductBySlug('self')).toMatchObject({
+      overview: ['First line\r\nContinued', 'Second paragraph'],
+      specifications: [
+        { group: 'Build', items: [{ label: 'Origin', value: 'China' }] },
+        { group: null, items: [{ label: 'Size', value: '2' }] },
+      ],
+      downloads: [
+        {
+          id: 'one',
+          title: 'manual.pdf',
+          url: '/files/manual.pdf',
+          mimeType: 'application/pdf',
+          filesize: null,
+        },
+        {
+          id: 'two',
+          title: 'Specs',
+          url: 'https://example.test/spec.pdf',
+          mimeType: null,
+          filesize: 20,
+        },
+      ],
+    })
   })
   it('keeps handpicked order, excludes self and duplicates, fills only same category', async () => {
     mocks.find
@@ -160,7 +202,7 @@ describe('public product queries', () => {
     )
   })
   it.each([1, 6, 7, 10])(
-    'returns up to six normalized previews and only product six to eight covers for %s products',
+    'returns up to four normalized previews and preserves the total for %s products',
     async (count) => {
       const docs = Array.from({ length: count }, (_, index) => ({
         ...product(String(index)),
@@ -168,14 +210,20 @@ describe('public product queries', () => {
         gallery: index === 6 ? ['unpopulated'] : [{ id: `image-${index}` }],
       }))
       mocks.find.mockImplementation(async ({ collection }) => ({
-        docs: collection === 'product-categories' ? [category, { ...category, id: 'empty' }] : docs,
+        docs:
+          collection === 'product-categories'
+            ? [
+                { ...category, image: { id: 'cover', width: 400, height: 400 } },
+                { ...category, id: 'empty' },
+              ]
+            : docs,
       }))
       const result = await getProductCategoriesOverview()
       expect(result).toHaveLength(1)
       expect(result[0]).not.toHaveProperty('meta')
       expect(result[0]).toMatchObject({
         productCount: count,
-        products: docs.slice(0, 6).map((item) => ({
+        products: docs.slice(0, 4).map((item) => ({
           id: item.id,
           title: item.title,
           slug: item.slug,
@@ -183,12 +231,7 @@ describe('public product queries', () => {
           categorySlug: 'tea',
           cover: typeof item.gallery[0] === 'object' ? item.gallery[0] : null,
         })),
-        moreCovers:
-          count > 6
-            ? docs
-                .slice(5, 8)
-                .flatMap((item) => (typeof item.gallery[0] === 'object' ? [item.gallery[0]] : []))
-            : [],
+        imageFit: 'contain',
       })
       expect(mocks.find).toHaveBeenCalledTimes(2)
       expect(mocks.find).toHaveBeenCalledWith(
@@ -203,7 +246,7 @@ describe('public product queries', () => {
           sort: '_order',
         }),
       )
-      expect(mocks.cache).toHaveBeenCalledWith(['products-overview'], {
+      expect(mocks.cache).toHaveBeenCalledWith(['products-overview-v2'], {
         tags: ['products-overview', 'product-categories', 'products-list'],
         revalidate: 600,
       })
@@ -349,86 +392,19 @@ describe('public product queries', () => {
   })
 })
 
-it('normalizes options and resolves defaults with shared public/draft population', async () => {
+it('normalizes incomplete native drafts using the same population as published reads', async () => {
   mocks.find.mockResolvedValue({
     docs: [
-      {
-        ...product('self'),
-        options: [
-          {
-            name: 'Color',
-            display: 'image',
-            values: [
-              {
-                label: 'Red',
-                image: { id: 'red' },
-                swatch: '#f00',
-                specifications: [{ label: 'Origin', value: 'India' }],
-              },
-            ],
-          },
-        ],
-      },
+      { ...product('self'), overview: '  ', specifications: [{ group: 'Empty' }, { items: [{}] }] },
     ],
   })
   const detail = await getProductBySlug('self')
-  expect(detail?.options).toEqual([
-    {
-      key: 'color',
-      name: 'Color',
-      display: 'image',
-      values: [
-        {
-          key: 'red',
-          label: 'Red',
-          swatch: '#f00',
-          image: { id: 'red' },
-          specifications: [{ label: 'Origin', value: 'India' }],
-        },
-      ],
-    },
-  ])
-  expect(detail?.defaultSelection).toEqual({ color: 'red' })
-  expect(detail?.gallery).toEqual([
-    { media: { id: 'image', url: '/image.jpg' }, values: [] },
-    { media: { id: 'red' }, values: [{ optionKey: 'color', valueKey: 'red' }] },
-  ])
-  expect(detail).not.toHaveProperty('resolvedGallery')
-  expect(detail?.resolvedSpecifications).toEqual([{ label: 'Origin', value: 'India' }])
-  const args = mocks.find.mock.calls.at(-1)![0]
-  expect(args.depth).toBe(2)
-  const lookup = mocks.find.mock.calls[0][0]
+  const [lookup, lookupDetail] = mocks.find.mock.calls.map(([args]) => args)
   expect(lookup).toMatchObject({ depth: 0, select: {} })
+  expect(detail).toMatchObject({ specifications: [], overview: ['text'] })
   mocks.auth.mockResolvedValue({ user: { id: 'editor' } })
   await getProductBySlug('self', { draft: true })
-  expect(mocks.find.mock.calls.at(-1)![0].populate).toEqual(args.populate)
-})
-it.each([null, undefined, []])(
-  'normalizes absent options %s and specification arrays',
-  async (options) => {
-    mocks.find.mockResolvedValue({ docs: [{ ...product('self'), options, specifications: null }] })
-    const detail = await getProductBySlug('self')
-    expect(detail).toMatchObject({
-      options: [],
-      specifications: [],
-      defaultSelection: {},
-      resolvedSpecifications: [],
-      gallery: [{ media: { id: 'image', url: '/image.jpg' }, values: [] }],
-    })
-  },
-)
-it('normalizes incomplete native drafts without missing option names crashing preview', async () => {
-  mocks.auth.mockResolvedValue({ user: { id: 'editor' } })
-  mocks.find.mockResolvedValue({ docs: [{ ...product('self'), options: [{ values: [{}] }] }] })
-  const detail = await getProductBySlug('self', { draft: true })
-  expect(detail?.options).toEqual([
-    {
-      key: '',
-      name: '',
-      display: 'text',
-      values: [{ key: '', label: '', swatch: null, image: null, specifications: [] }],
-    },
-  ])
+  expect(mocks.find.mock.calls.at(-1)![0].populate).toEqual(lookupDetail.populate)
 })
 
 it('filters empty sections and preserves real product block data and order', async () => {
@@ -478,7 +454,8 @@ it('filters empty sections and preserves real product block data and order', asy
     { label: 'First', anchor: 'first', blocks },
     { label: 'Second', anchor: 'second', blocks },
   ])
-  for (const field of ['layout', 'downloads', 'faqs']) expect(detail).not.toHaveProperty(field)
+  for (const field of ['layout', 'content', 'faqs', 'highlights', 'options'])
+    expect(detail).not.toHaveProperty(field)
   expect(mocks.find).toHaveBeenLastCalledWith(
     expect.objectContaining({
       depth: 2,
@@ -489,45 +466,11 @@ it('filters empty sections and preserves real product block data and order', asy
   )
 })
 
-it('appends option images in order, deduplicates all media IDs and retains every selection source', async () => {
+it('deduplicates populated gallery images in their original order', async () => {
   mocks.find.mockResolvedValue({
     docs: [
-      {
-        ...product('dedup'),
-        gallery: [{ id: 'base' }, { id: 'shared' }, { id: 'base' }, 'raw'],
-        options: [
-          {
-            name: 'Color',
-            display: 'text',
-            values: [
-              { label: 'Red', image: { id: 'shared' } },
-              { label: 'Blue', image: { id: 'blue' } },
-            ],
-          },
-          {
-            name: 'Size',
-            display: 'image',
-            values: [
-              { label: 'Small', image: { id: 'blue' } },
-              { label: 'Large', image: { id: 'large' } },
-              { label: 'Empty', image: 'raw' },
-            ],
-          },
-        ],
-      },
+      { ...product('dedup'), gallery: [{ id: 'base' }, { id: 'second' }, { id: 'base' }, 'raw'] },
     ],
   })
-  const detail = await getProductBySlug('dedup')
-  expect(detail?.gallery).toEqual([
-    { media: { id: 'base' }, values: [] },
-    { media: { id: 'shared' }, values: [{ optionKey: 'color', valueKey: 'red' }] },
-    {
-      media: { id: 'blue' },
-      values: [
-        { optionKey: 'color', valueKey: 'blue' },
-        { optionKey: 'size', valueKey: 'small' },
-      ],
-    },
-    { media: { id: 'large' }, values: [{ optionKey: 'size', valueKey: 'large' }] },
-  ])
+  expect((await getProductBySlug('dedup'))?.gallery).toEqual([{ id: 'base' }, { id: 'second' }])
 })

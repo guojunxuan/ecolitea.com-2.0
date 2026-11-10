@@ -17,7 +17,7 @@ export const CategoryBand = ({
   category: Category
   headingLevel: 'h1' | 'h2'
   breadcrumb?: ReactNode
-  actions: ReactNode
+  actions?: ReactNode
 }) => (
   <div
     className={styles.band}

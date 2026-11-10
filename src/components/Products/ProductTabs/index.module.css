@@ -1,0 +1,117 @@
+.tabList {
+  position: relative;
+  display: flex;
+  gap: var(--website-space-6);
+  border-bottom: 1px solid var(--website-color-border);
+}
+.tab {
+  composes: website-type-eyebrow from global;
+  min-height: var(--website-control-target-min);
+  margin-bottom: -1px;
+  padding-inline: 0;
+  border-bottom: 2px solid transparent;
+  color: var(--website-color-subtle-foreground);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  transition: color var(--website-duration-standard) var(--website-easing-standard);
+}
+.tab:hover,
+.tab[aria-selected='true'] {
+  color: var(--website-color-foreground);
+}
+/* Server-rendered fallback marker, replaced by the shared indicator once measured. */
+.tabList:not([data-indicator]) .tab[aria-selected='true'] {
+  border-color: var(--website-color-action);
+}
+.indicator {
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: var(--tab-indicator-width, 0);
+  height: 2px;
+  background: var(--website-color-action);
+  transform: translateX(var(--tab-indicator-left, 0));
+  opacity: 0;
+  pointer-events: none;
+}
+.tabList[data-indicator] .indicator {
+  opacity: 1;
+}
+.tabList[data-animate] .indicator {
+  transition:
+    transform var(--website-duration-standard) var(--website-easing-standard),
+    width var(--website-duration-standard) var(--website-easing-standard);
+}
+
+/* Panels share one grid cell so switching never moves the actions below. */
+.panels {
+  --panel-shift: var(--website-space-2);
+  display: grid;
+}
+.panel {
+  grid-area: 1 / 1;
+  min-width: 0;
+  transition:
+    opacity var(--website-duration-standard) var(--website-easing-standard),
+    transform var(--website-duration-standard) var(--website-easing-standard),
+    visibility 0s linear var(--website-duration-standard);
+}
+.panel[data-position='current'] {
+  transition-delay: 0s;
+}
+/* Panels sit on the side of their tab, so content slides in the direction of travel. */
+.panel[data-position='before'],
+.panel[data-position='after'] {
+  opacity: 0;
+  visibility: hidden;
+}
+.panel[data-position='before'] {
+  transform: translateX(calc(var(--panel-shift) * -1));
+}
+.panel[data-position='after'] {
+  transform: translateX(var(--panel-shift));
+}
+.overview {
+  padding-top: var(--website-space-3);
+}
+.copy {
+  composes: website-type-body-sm from global;
+  color: var(--website-color-muted-foreground);
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+.copy p {
+  margin: 0;
+}
+.copy p + p {
+  text-indent: var(--website-space-4);
+}
+.copy[data-collapsed] {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 5;
+  overflow: hidden;
+}
+.toggle {
+  min-height: var(--website-control-target-min);
+  padding-inline: 0;
+}
+.toggle svg {
+  transition: transform var(--website-duration-fast) var(--website-easing-standard);
+}
+.toggle[aria-expanded='true'] svg {
+  transform: rotate(180deg);
+}
+@media (prefers-reduced-motion: reduce) {
+  .tab,
+  .panel,
+  .toggle svg,
+  .tabList[data-animate] .indicator {
+    transition: none;
+  }
+  .panel[data-position='before'],
+  .panel[data-position='after'] {
+    transform: none;
+  }
+}

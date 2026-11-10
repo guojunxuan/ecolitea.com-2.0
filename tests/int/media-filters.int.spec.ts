@@ -47,6 +47,7 @@ describe('Media reference filters', () => {
       imageOnly,
     ]),
     ['Settings hero', blogTab.fields, 'hero.image', imageOnly],
+    ['Settings mobile hero', blogTab.fields, 'hero.mobileMedia', imageOnly],
     ['Settings SEO', blogTab.fields, 'seo.image', imageOnly],
   ] as [string, Field[], string, unknown][])(
     '%s uses the shared MIME allowlist',
@@ -77,6 +78,7 @@ const consumers = [
   ...[Blogs, Posts, Pages, CaseStudies].map((c) => find(c.fields, 'meta.image')),
   imageField(),
   find(blogTab.fields, 'hero.image'),
+  find(blogTab.fields, 'hero.mobileMedia'),
   find(blogTab.fields, 'seo.image'),
 ]
 describe('Media reference constraints through Local API', () => {

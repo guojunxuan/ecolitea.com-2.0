@@ -1,0 +1,84 @@
+.root {
+  --carousel-gutter: 0px;
+  --carousel-control-offset: calc(var(--website-control-default) + var(--website-space-8));
+  --carousel-media-center: 50%;
+  --category-gutter: max(
+    var(--website-gutter),
+    calc(var(--carousel-control-offset) + var(--website-space-4))
+  );
+  padding-block: var(--website-space-8) var(--website-space-4);
+  background: var(--website-color-muted-surface);
+}
+.container {
+  width: min(calc(100% - 2 * var(--category-gutter)), var(--website-container-site));
+  margin-inline: auto;
+}
+.card {
+  display: flex;
+  flex: 0 0 10rem;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--website-space-3);
+  padding-block: var(--website-space-2);
+  text-align: center;
+  text-decoration: none;
+  color: var(--website-color-muted-foreground);
+  border-radius: var(--website-radius-small);
+}
+.card:hover,
+.card:focus-visible {
+  color: var(--website-color-foreground);
+}
+.card:hover .img {
+  transform: scale(1.04);
+}
+.card:focus-visible {
+  outline: 2px solid var(--website-color-focus);
+  outline-offset: -2px;
+}
+.image {
+  display: block;
+  position: relative;
+  width: 9rem;
+  height: 7rem;
+  overflow: hidden;
+  border-radius: var(--website-radius-content);
+  background: var(--website-color-interactive-surface);
+}
+.img {
+  object-fit: cover;
+  object-position: var(--category-focal-point, center);
+  transition: transform var(--website-duration-standard) var(--website-easing-standard);
+}
+.image[data-image-fit='contain'] .img {
+  object-fit: contain;
+  padding: var(--website-space-3);
+}
+.title {
+  composes: website-type-caption from global;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  transition: color var(--website-duration-fast) var(--website-easing-standard);
+}
+@media (width <= 1170px) {
+  .root {
+    --category-gutter: var(--website-gutter);
+  }
+}
+@media (width < 48rem) {
+  .root {
+    padding-top: var(--website-space-6);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .img,
+  .title {
+    transition: none;
+  }
+  .card:hover .img {
+    transform: none;
+  }
+}

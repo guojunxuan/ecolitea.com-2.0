@@ -54,7 +54,9 @@ describe('blog listing components', () => {
       '/blogs/organic-tea',
     )
     expect(
-      screen.getAllByRole('link').filter((link) => link.getAttribute('href') === '/blogs/organic-tea'),
+      screen
+        .getAllByRole('link')
+        .filter((link) => link.getAttribute('href') === '/blogs/organic-tea'),
     ).toHaveLength(1)
     expect(screen.getByTestId('card-media').textContent).toBe('Tea leaves')
     expect(screen.getByText('A better cup of tea.')).toBeTruthy()
@@ -86,18 +88,22 @@ describe('blog listing components', () => {
       />,
     )
     const navigation = screen.getByRole('navigation', { name: 'Blog categories' })
-    expect(within(navigation).getAllByRole('link', { name: /All/ })[0]?.getAttribute('href')).toBe('/blogs')
-    expect(within(navigation).getAllByRole('link', { name: /Tea Guides/ })[0]?.getAttribute('href')).toBe(
-      '/blogs/category/tea-guides',
+    expect(within(navigation).getAllByRole('link', { name: /All/ })[0]?.getAttribute('href')).toBe(
+      '/blogs',
     )
-    expect(within(navigation).getAllByRole('link', { name: /News/ })[0]?.getAttribute('aria-current')).toBe(
-      'page',
-    )
+    expect(
+      within(navigation)
+        .getAllByRole('link', { name: /Tea Guides/ })[0]
+        ?.getAttribute('href'),
+    ).toBe('/blogs/category/tea-guides')
+    expect(
+      within(navigation).getAllByRole('link', { name: /News/ })[0]?.getAttribute('aria-current'),
+    ).toBe('page')
     expect(within(navigation).queryByText('Empty')).toBeNull()
     const menu = navigation.querySelector<HTMLDetailsElement>('[data-slot="blog-mobile-menu"]')!
     expect(menu.open).toBe(false)
     const trigger = menu.querySelector('summary')!
-    expect(trigger.textContent).toBe('News')
+    expect(trigger.textContent).toBe('Category: News')
     fireEvent.click(trigger)
     expect(menu.open).toBe(true)
     expect(menu.querySelector('a[aria-current="page"]')?.textContent).toBe('News')
@@ -106,9 +112,11 @@ describe('blog listing components', () => {
     )
 
     rerender(
-      <BlogCategoryTabs categories={[{ id: 'tea', title: 'Tea Guides', slug: 'tea-guides', count: 3 }]} />,
+      <BlogCategoryTabs
+        categories={[{ id: 'tea', title: 'Tea Guides', slug: 'tea-guides', count: 3 }]}
+      />,
     )
-    expect(menu.querySelector('summary')?.textContent).toBe('All')
+    expect(menu.querySelector('summary')?.textContent).toBe('Category: All')
     expect(menu.querySelector('a[aria-current="page"]')?.textContent).toBe('All')
   })
 
@@ -135,7 +143,14 @@ describe('blog listing components', () => {
     fireEvent.click(screen.getByRole('button', { name: '1' }))
     expect(push).toHaveBeenLastCalledWith('/blogs')
 
-    rerender(<Pagination page={2} totalPages={3} routeBase="/blogs/category/tea" firstPageHref="/blogs/category/tea" />)
+    rerender(
+      <Pagination
+        page={2}
+        totalPages={3}
+        routeBase="/blogs/category/tea"
+        firstPageHref="/blogs/category/tea"
+      />,
+    )
     fireEvent.click(screen.getByRole('button', { name: 'Go to previous page' }))
     expect(push).toHaveBeenLastCalledWith('/blogs/category/tea')
 
@@ -145,14 +160,20 @@ describe('blog listing components', () => {
   })
 
   it('renders canonical blog pagination links for navigation without JavaScript', () => {
-    render(<Pagination linkMode page={2} totalPages={3} routeBase="/blogs" firstPageHref="/blogs" />)
-    expect(screen.getByRole('link', { name: 'Go to previous page' }).getAttribute('href')).toBe('/blogs')
+    render(
+      <Pagination linkMode page={2} totalPages={3} routeBase="/blogs" firstPageHref="/blogs" />,
+    )
+    expect(screen.getByRole('link', { name: 'Go to previous page' }).getAttribute('href')).toBe(
+      '/blogs',
+    )
     expect(screen.getByRole('link', { name: '3' }).getAttribute('href')).toBe('/blogs/page/3')
     expect(screen.getByRole('link', { name: '2' }).getAttribute('aria-current')).toBe('page')
   })
 
   it('keeps the first and last blog pages reachable around the current page', () => {
-    render(<Pagination linkMode page={5} totalPages={10} routeBase="/blogs" firstPageHref="/blogs" />)
+    render(
+      <Pagination linkMode page={5} totalPages={10} routeBase="/blogs" firstPageHref="/blogs" />,
+    )
     const pages = screen
       .getAllByRole('link')
       .filter((link) => !link.getAttribute('aria-label'))
@@ -166,5 +187,4 @@ describe('blog listing components', () => {
     ])
     expect(screen.getAllByText('More pages')).toHaveLength(2)
   })
-
 })

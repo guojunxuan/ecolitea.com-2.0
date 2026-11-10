@@ -11,6 +11,7 @@ import { buildConfig, createLocalReq, getPayload, type Payload } from 'payload'
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
 import { ProductCategories } from '@/collections/ProductCategories'
 import { Products } from '@/collections/Products'
+import { revalidateProductDownloads } from '@/collections/Documents/hooks/revalidateProductDownloads'
 import { Settings } from '@/Settings/config'
 import { Users } from '@/collections/Users'
 import { defaultLexical } from '@/fields/defaultLexical'
@@ -58,7 +59,15 @@ describe('Products through isolated Payload Local API', () => {
           fields: [{ name: 'alt', type: 'text' }],
         },
         { slug: 'site-assets', fields: [] },
-        { slug: 'documents', fields: [{ name: 'title', type: 'text' }] },
+        {
+          slug: 'documents',
+          fields: [
+            { name: 'title', type: 'text' },
+            { name: 'url', type: 'text' },
+            { name: 'mimeType', type: 'text' },
+          ],
+          hooks: { afterChange: [revalidateProductDownloads] },
+        },
         ...(['pages', 'posts', 'blogs', 'blog-categories', 'case-studies'] as const).map(
           (slug) => ({
             slug,
@@ -112,134 +121,6 @@ describe('Products through isolated Payload Local API', () => {
       await (payload.db as MongooseAdapter).connection.dropDatabase()
       await payload.destroy()
     }
-  })
-
-  it('preserves inquiry buttons across modes, validates custom rows and resolves Settings defaults', async () => {
-    const { resolveProductInquiry } = await import('@/utilities/products/inquiry')
-    const { productDetailPopulate } = await import('@/utilities/products/getProductBySlug')
-    const originalSettings = await payload.findGlobal({ slug: 'settings', depth: 1 })
-    expect(resolveProductInquiry({}, originalSettings)).toEqual({ buttons: [] })
-    const page = await payload.create({
-      collection: 'pages',
-      data: { title: 'Contact', slug: 'contact' } as never,
-    })
-    const custom = {
-      type: 'custom' as const,
-      url: '/contact',
-      label: 'Contact us',
-      appearance: 'outline' as const,
-      newTab: true,
-    }
-    const internal = {
-      type: 'reference' as const,
-      reference: { relationTo: 'pages' as const, value: page.id },
-      label: 'Ask us',
-      appearance: 'default' as const,
-    }
-    const created = await payload.create({
-      collection: 'products',
-      depth: 0,
-      data: {
-        title: 'Inquiry modes',
-        slug: `inquiry-${randomUUID()}`,
-        category: firstCategoryID,
-        gallery: [mediaID],
-        summary: 'Inquiry',
-        _status: 'published',
-        inquiry: { mode: 'custom', buttons: [{ link: custom }, { link: internal }] },
-      },
-    })
-    const update = (data: unknown, draft = false) =>
-      payload.update({
-        collection: 'products',
-        id: created.id,
-        data: data as never,
-        depth: 0,
-        draft,
-      })
-    const buttons = created.inquiry!.buttons
-    for (const mode of ['default', 'hidden', 'custom'] as const) {
-      const result = await update({ inquiry: { mode } })
-      expect(result.inquiry).toMatchObject({ mode, buttons })
-      expect(
-        (await payload.findByID({ collection: 'products', id: created.id, depth: 0 })).inquiry
-          ?.buttons,
-      ).toEqual(buttons)
-    }
-    const invalid = async (data: unknown, path: string) => {
-      try {
-        await update(data)
-        expect.fail('Expected validation error')
-      } catch (error) {
-        expect(error).toBeInstanceOf((await import('payload')).ValidationError)
-        expect((error as import('payload').ValidationError).data?.errors).toContainEqual(
-          expect.objectContaining({ path }),
-        )
-      }
-    }
-    for (const buttons of [[], null])
-      await invalid({ inquiry: { mode: 'custom', buttons } }, 'inquiry.buttons')
-    await invalid(
-      { inquiry: { mode: 'custom', buttons: Array(3).fill({ link: custom }) } },
-      'inquiry.buttons',
-    )
-    for (const mode of ['default', 'hidden'] as const)
-      expect((await update({ inquiry: { mode, buttons: [] } })).inquiry?.buttons).toEqual([])
-    const draft = await update({ _status: 'draft', inquiry: { mode: 'custom', buttons: [] } }, true)
-    expect(draft.inquiry?.buttons).toEqual([])
-    await invalid({ _status: 'published' }, 'inquiry.buttons')
-    await update({
-      _status: 'published',
-      inquiry: { mode: 'custom', buttons: [{ link: internal }] },
-    })
-    const populated = await payload.findByID({
-      collection: 'products',
-      id: created.id,
-      depth: 2,
-      populate: productDetailPopulate,
-    })
-    expect(resolveProductInquiry(populated, null).buttons[0].reference).toMatchObject({
-      relationTo: 'pages',
-      value: { id: page.id, slug: 'contact' },
-    })
-    const defaults = await payload.updateGlobal({
-      slug: 'settings',
-      depth: 1,
-      data: { product: { inquiry: { buttons: [{ link: internal }] } } },
-    })
-    expect(
-      resolveProductInquiry({ inquiry: { mode: 'default' } }, defaults).buttons[0].reference,
-    ).toMatchObject({ value: { id: page.id, slug: 'contact' } })
-    const changed = await payload.updateGlobal({
-      slug: 'settings',
-      data: { product: { inquiry: { buttons: [{ link: custom }] } } },
-    })
-    expect(
-      resolveProductInquiry({ inquiry: { mode: 'default' } }, changed).buttons[0],
-    ).toMatchObject(custom)
-    expect(resolveProductInquiry(populated, changed).buttons[0].label).toBe('Ask us')
-    expect(resolveProductInquiry({ inquiry: { mode: 'hidden' } }, changed)).toEqual({ buttons: [] })
-    expect(
-      resolveProductInquiry(
-        {},
-        await payload.updateGlobal({
-          slug: 'settings',
-          data: { product: { inquiry: { buttons: [] } } },
-        }),
-      ),
-    ).toEqual({ buttons: [] })
-    for (const buttons of [Array(3).fill({ link: custom })])
-      await expect(
-        payload.updateGlobal({ slug: 'settings', data: { product: { inquiry: { buttons } } } }),
-      ).rejects.toMatchObject({
-        status: 400,
-        data: {
-          errors: expect.arrayContaining([
-            expect.objectContaining({ path: 'product.inquiry.buttons' }),
-          ]),
-        },
-      })
-    await payload.delete({ collection: 'products', id: created.id })
   })
 
   it('saves anchored empty sections, validates native limits and preserves partial row data', async () => {
@@ -298,15 +179,16 @@ describe('Products through isolated Payload Local API', () => {
     await invalid([{ label: 'Same' }, { label: 'Same' }], 'sections.1.anchor')
     for (const anchor of [
       'overview',
-      'options',
-      'specifications',
+      'product-tab-specifications',
+      'product-tab-overview',
       'related-products',
-      'inquiry',
       '9-start',
       'bad space',
     ])
       await invalid([{ label: 'Label', anchor }], 'sections.0.anchor')
-    await invalid([{ label: '中文!!!' }], 'sections.0.anchor')
+    expect((await update({ sections: [{ label: '中文!!!' }] })).sections?.[0]?.anchor).toBe(
+      'section-1',
+    )
     await invalid([{ label: '9 start' }], 'sections.0.anchor')
     await invalid([{ label: '', anchor: 'valid' }], 'sections.0.label')
     await invalid([{ label: 'L'.repeat(41), anchor: 'valid' }], 'sections.0.label')
@@ -335,148 +217,60 @@ describe('Products through isolated Payload Local API', () => {
     await payload.delete({ collection: 'products', id: product.id })
   })
 
-  it('validates options with native draft semantics, preserves inactive fields and populates detail media', async () => {
+  it('populates ordered downloads and invalidates referencing published products when a document changes', async () => {
+    const first = await payload.create({
+      collection: 'documents',
+      data: { title: 'Guide', url: '/files/guide.pdf', mimeType: 'application/pdf' },
+    })
+    const second = await payload.create({
+      collection: 'documents',
+      data: { title: 'Sheet', url: '/files/sheet.pdf', mimeType: 'application/pdf' },
+    })
     const base = {
-      title: 'Options validation',
-      slug: `options-${randomUUID()}`,
+      title: 'Product downloads',
       category: firstCategoryID,
       gallery: [mediaID],
-      summary: 'Options',
+      summary: 'Downloads test',
+      overview: 'First paragraph\n\nSecond paragraph',
       _status: 'published' as const,
     }
-    const valid = [
-      {
-        name: 'Color',
-        display: 'swatch' as const,
-        values: [
-          {
-            label: 'Natural',
-            swatch: '#AbC',
-            image: mediaID,
-            specifications: [{ label: 'Origin', value: 'India' }],
-          },
-        ],
-      },
-    ]
-    const created = await payload.create({
+    const product = await payload.create({
       collection: 'products',
-      data: { ...base, options: valid },
-      depth: 0,
-    })
-    const update = (data: unknown, draft = false) =>
-      payload.update({
-        collection: 'products',
-        id: created.id,
-        data: data as never,
-        draft,
-        depth: 0,
-      })
-    const errors = async (data: unknown, path: string) => {
-      try {
-        await update(data)
-        expect.fail('Expected validation error')
-      } catch (error) {
-        expect(error).toBeInstanceOf((await import('payload')).ValidationError)
-        expect((error as import('payload').ValidationError).data?.errors).toEqual(
-          expect.arrayContaining([expect.objectContaining({ path })]),
-        )
-      }
-    }
-    await errors({ options: [...valid, { ...valid[0], name: ' COLOR ' }] }, 'options.1.name')
-    await errors({ options: [{ ...valid[0], name: 'N'.repeat(41) }] }, 'options.0.name')
-    await errors(
-      { options: [{ ...valid[0], values: [{ label: 'L'.repeat(41), swatch: '#abc' }] }] },
-      'options.0.values.0.label',
-    )
-    await errors({ options: [{ ...valid[0], values: [] }] }, 'options.0.values')
-    await errors({ options: [{ ...valid[0], values: null }] }, 'options.0.values')
-    await errors(
-      { options: [{ ...valid[0], values: [{ label: 'Natural', swatch: 'red' }] }] },
-      'options.0.values.0.swatch',
-    )
-    await errors(
-      { options: [{ ...valid[0], display: 'image', values: [{ label: 'Natural' }] }] },
-      'options.0.values.0.image',
-    )
-    await errors({ options: [{ ...valid[0], display: 'unknown' }] }, 'options.0.display')
-    const document = await payload.create({
-      collection: 'media',
-      data: { alt: 'Not an image', mimeType: 'application/pdf' },
-    })
-    await errors(
-      {
-        options: [
-          { ...valid[0], display: 'image', values: [{ label: 'PDF', image: document.id }] },
-        ],
+      data: {
+        ...base,
+        slug: `downloads-${randomUUID()}`,
+        resources: [second.id, first.id],
+        specifications: [{ group: 'Details', items: [{ label: 'Origin', value: 'China' }] }],
       },
-      'options.0.values.0.image',
-    )
-    await errors(
-      {
-        options: [{ ...valid[0], display: 'text', values: [{ label: 'PDF', image: document.id }] }],
-      },
-      'options.0.values.0.image',
-    )
-    const row = created.options![0]
-    const text = await update({ options: [{ ...row, display: 'text' }] })
-    expect(text.options![0].values[0]).toMatchObject({ swatch: '#AbC', image: mediaID })
-    const image = await update({ options: [{ ...text.options![0], display: 'image' }] })
-    expect(image.options![0].values[0]).toMatchObject({ swatch: '#AbC', image: mediaID })
-    const partial = await update({ title: 'Unrelated partial update' })
-    expect(partial.options![0].display).toBe('image')
-    const rowPatch = await update({ options: [{ id: image.options![0].id, name: 'Colour' }] })
-    expect(rowPatch.options![0].values[0]).toMatchObject({ swatch: '#AbC', image: mediaID })
-    const valuePatch = await update({
-      options: [
-        {
-          id: rowPatch.options![0].id,
-          values: [{ id: rowPatch.options![0].values[0].id, label: 'Natural edited' }],
-        },
-      ],
     })
-    expect(valuePatch.options![0].values[0]).toMatchObject({
-      label: 'Natural edited',
-      swatch: '#AbC',
-      image: mediaID,
+    const unrelated = await payload.create({
+      collection: 'products',
+      data: { ...base, slug: `unrelated-${randomUUID()}`, resources: [second.id] },
     })
-    await errors(
-      {
-        options: [
-          { ...image.options![0], values: [{ ...image.options![0].values[0], image: null }] },
-        ],
-      },
-      'options.0.values.0.image',
-    )
-    const savedDraft = await update(
-      {
-        _status: 'draft',
-        options: [{ name: 'Color', display: 'image', values: [{ label: 'Natural' }] }],
-      },
-      true,
-    )
-    expect(savedDraft._status).toBe('draft')
-    await errors({ ...base, options: savedDraft.options }, 'options.0.values.0.image')
-    // Restore a valid published document before testing the exact detail population contract.
-    await update({ ...base, options: valid })
     const { productDetailPopulate } = await import('@/utilities/products/getProductBySlug')
-    const populated = await payload.findByID({
-      collection: 'products',
-      id: created.id,
-      depth: 2,
-      populate: productDetailPopulate,
-    })
-    expect(populated.options![0].values[0].image).toMatchObject({
-      id: mediaID,
-      alt: 'Test image',
-    })
-    expect(populated.category).toMatchObject({
-      image: { id: mediaID },
-      meta: { image: { id: mediaID } },
-    })
     const { toProductDetail } = await import('@/utilities/products/shared')
-    expect(toProductDetail(populated).gallery[0].media).toMatchObject({ id: mediaID })
-    await payload.delete({ collection: 'products', id: created.id })
-  })
+    const detail = toProductDetail(
+      await payload.findByID({
+        collection: 'products',
+        id: product.id,
+        depth: 2,
+        populate: productDetailPopulate,
+      }),
+    )
+    expect(detail.overview).toEqual(['First paragraph', 'Second paragraph'])
+    expect(detail.specifications).toEqual([
+      { group: 'Details', items: [{ label: 'Origin', value: 'China' }] },
+    ])
+    expect(detail.downloads.map(({ title, url }) => ({ title, url }))).toEqual([
+      { title: 'Sheet', url: '/files/sheet.pdf' },
+      { title: 'Guide', url: '/files/guide.pdf' },
+    ])
+    vi.mocked(revalidateTag).mockClear()
+    await payload.update({ collection: 'documents', id: first.id, data: { title: 'New guide' } })
+    expect(revalidateTag).toHaveBeenCalledExactlyOnceWith(`product-${product.id}`, { expire: 0 })
+    await payload.delete({ collection: 'products', id: product.id })
+    await payload.delete({ collection: 'products', id: unrelated.id })
+  }, 20_000)
 
   it('does no public product reads or redirects queries for native draft saves and autosaves', async () => {
     const product = await payload.create({
@@ -927,7 +721,7 @@ describe('Products through isolated Payload Local API', () => {
       category: secondCategoryID,
       gallery: [mediaID],
       summary: 'Valid',
-      specifications: [{ label: 'Origin', value: 'China' }],
+      specifications: [{ items: [{ label: 'Origin', value: 'China' }] }],
       _status: 'published' as const,
     }
     const saved = await payload.create({
@@ -940,8 +734,10 @@ describe('Products through isolated Payload Local API', () => {
     for (const invalid of [
       { gallery: [] },
       { summary: '' },
-      { specifications: [{ label: '', value: 'China' }] },
-      { specifications: [{ label: 'Origin', value: '' }] },
+      { specifications: [{ items: [] }] },
+      { specifications: [{ items: [{ label: '', value: 'China' }] }] },
+      { specifications: [{ items: [{ label: 'Origin', value: '' }] }] },
+      { overview: 'x'.repeat(1501) },
       { summary: 'x'.repeat(161) },
       { slug: 'page' },
       { category: null },
