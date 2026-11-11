@@ -16,6 +16,7 @@ import { Documents } from './collections/Documents'
 import { Pages } from './collections/Pages'
 import { Posts } from './collections/Posts'
 import { SocialPlatforms } from './collections/SocialPlatforms'
+import { QuoteRequests } from './collections/QuoteRequests'
 import { Users } from './collections/Users'
 import { Footer } from './Footer/config'
 import { Header } from './Header/config'
@@ -98,6 +99,7 @@ export default buildConfig({
     BlogCategories,
     ProductCategories,
     Products,
+    QuoteRequests,
     Media,
     Documents,
     SiteAssets,
