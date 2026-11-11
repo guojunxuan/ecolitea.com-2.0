@@ -1,5 +1,5 @@
 import { DOCUMENT_UPLOAD_POLICY } from '@/collections/Documents/uploadPolicy'
-import { Button } from '@/components/ui/button'
+import { QuoteRequestDialog } from '@/components/Products/QuoteRequest/QuoteRequestDialog'
 import type { ProductDownload } from '@/utilities/products/models'
 
 import { DownloadDialog } from './DownloadDialog'
@@ -24,12 +24,16 @@ function describeDownload({ url, mimeType, filesize }: ProductDownload) {
   return [fileType, `${fileSizeFormat.format(value)} ${unit}`].filter(Boolean).join(' · ')
 }
 
-export function ProductActions({ downloads }: { downloads: ProductDownload[] }) {
+export function ProductActions({
+  downloads,
+  product,
+}: {
+  downloads: ProductDownload[]
+  product: { title: string; slug: string }
+}) {
   return (
     <div className={styles.actions}>
-      <Button type="button" disabled className={styles.quote}>
-        Request a quote
-      </Button>
+      <QuoteRequestDialog product={product} />
       {downloads.length > 0 && (
         <DownloadDialog
           files={downloads.map((file) => ({

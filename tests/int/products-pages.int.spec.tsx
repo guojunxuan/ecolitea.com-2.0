@@ -299,9 +299,9 @@ describe('Products routes', () => {
     expect(screen.getByText('Summary')).toBeTruthy()
     expect(screen.getByText('Block content')).toBeTruthy()
     expect(screen.queryByText(/Download/)).toBeNull()
-    expect(
-      screen.getByRole<HTMLButtonElement>('button', { name: 'Request a quote' }).disabled,
-    ).toBe(true)
+    const quote = screen.getByRole<HTMLButtonElement>('button', { name: 'Request a quote' })
+    expect(quote.disabled).toBe(false)
+    expect(quote.getAttribute('aria-haspopup')).toBe('dialog')
   })
   it('selects Overview by default and slides panels in the direction of the selected tab', async () => {
     mocks.product.mockResolvedValue({
@@ -437,7 +437,8 @@ describe('Products routes', () => {
       },
       { id: 'sizes', title: 'Size chart', url: '/sizes.xlsx', mimeType: null, filesize: 5_000 },
     ]
-    const dialogOf = () => document.querySelector('dialog')!
+    const dialogOf = () =>
+      screen.getByRole('heading', { name: 'Resources', hidden: true }).closest('dialog')!
 
     it('keeps file details out of the button and lists them in a labelled dialog', async () => {
       mocks.product.mockResolvedValue({ ...detail, downloads: files.slice(0, 1) })

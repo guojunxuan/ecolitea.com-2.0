@@ -3,11 +3,6 @@
   gap: var(--website-space-3);
   margin-top: var(--website-space-6);
 }
-.quote:disabled {
-  color: var(--website-color-action-foreground);
-  border-color: transparent;
-  background: var(--website-color-action);
-}
 @media (width < 48rem) {
   .actions:has(> :nth-child(2)) {
     display: grid;
