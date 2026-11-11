@@ -1,0 +1,42 @@
+.form {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-height: 0;
+}
+.fields {
+  display: grid;
+  gap: var(--website-space-4);
+  min-height: 0;
+  padding: var(--website-space-6);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.footer {
+  display: grid;
+  flex-shrink: 0;
+  gap: var(--website-space-3);
+  padding: var(--website-space-4) var(--website-space-6);
+  padding-bottom: max(var(--website-space-4), env(safe-area-inset-bottom));
+  border-top: 1px solid var(--website-color-border);
+  background: var(--website-color-surface);
+}
+.product {
+  composes: website-type-body-md from global;
+  margin: 0;
+  color: var(--website-color-muted-foreground);
+}
+.field {
+  display: grid;
+  gap: var(--website-space-2);
+}
+.error {
+  composes: website-type-caption from global;
+  margin: 0;
+  color: var(--website-status-error-inline-foreground);
+}
+.notice {
+  composes: website-type-caption from global;
+  margin: 0;
+  color: var(--website-status-error-inline-foreground);
+}
