@@ -294,6 +294,7 @@ export interface Config {
     'blog-categories': BlogCategory;
     'product-categories': ProductCategory;
     products: Product;
+    'quote-requests': QuoteRequest;
     media: Media;
     documents: Document;
     'site-assets': SiteAsset;
@@ -327,6 +328,7 @@ export interface Config {
     'blog-categories': BlogCategoriesSelect<false> | BlogCategoriesSelect<true>;
     'product-categories': ProductCategoriesSelect<false> | ProductCategoriesSelect<true>;
     products: ProductsSelect<false> | ProductsSelect<true>;
+    'quote-requests': QuoteRequestsSelect<false> | QuoteRequestsSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     documents: DocumentsSelect<false> | DocumentsSelect<true>;
     'site-assets': SiteAssetsSelect<false> | SiteAssetsSelect<true>;
@@ -1198,6 +1200,34 @@ export interface ProductCodeBlock {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "quote-requests".
+ */
+export interface QuoteRequest {
+  id: string;
+  name: string;
+  email: string;
+  company: string;
+  message: string;
+  status: 'new' | 'contacted' | 'closed';
+  product?: (string | null) | Product;
+  /**
+   * Snapshot at submission time.
+   */
+  productTitle?: string | null;
+  /**
+   * Snapshot at submission time.
+   */
+  productSlug?: string | null;
+  userAgent?: string | null;
+  /**
+   * Salted hash used only for rate limiting.
+   */
+  ipHash?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "site-assets".
  */
 export interface SiteAsset {
@@ -1647,6 +1677,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'products';
         value: string | Product;
+      } | null)
+    | ({
+        relationTo: 'quote-requests';
+        value: string | QuoteRequest;
       } | null)
     | ({
         relationTo: 'media';
@@ -2154,6 +2188,24 @@ export interface ProductCodeBlockSelect<T extends boolean = true> {
   theme?: T;
   id?: T;
   blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "quote-requests_select".
+ */
+export interface QuoteRequestsSelect<T extends boolean = true> {
+  name?: T;
+  email?: T;
+  company?: T;
+  message?: T;
+  status?: T;
+  product?: T;
+  productTitle?: T;
+  productSlug?: T;
+  userAgent?: T;
+  ipHash?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -3608,6 +3660,7 @@ export interface CollectionQueryWidget {
       | 'blog-categories'
       | 'product-categories'
       | 'products'
+      | 'quote-requests'
       | 'media'
       | 'documents'
       | 'categories'
@@ -3647,6 +3700,7 @@ export interface ActivityWidget {
           | 'blog-categories'
           | 'product-categories'
           | 'products'
+          | 'quote-requests'
           | 'media'
           | 'documents'
           | 'categories'
