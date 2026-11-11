@@ -15,7 +15,7 @@ export type ServerEnv = {
 
 const required = ['DATABASE_URI','PAYLOAD_SECRET','NEXT_PUBLIC_SERVER_URL','CRON_SECRET','PREVIEW_SECRET','R2_BUCKET','R2_ACCESS_KEY_ID','R2_SECRET_ACCESS_KEY','R2_ENDPOINT','R2_PUBLIC_URL'] as const
 const optional = ['TURNSTILE_SECRET_KEY', 'QUOTE_IP_HASH_SALT'] as const
-export function parseServerEnv(env: NodeJS.ProcessEnv): ServerEnv {
+export function parseServerEnv(env: Partial<NodeJS.ProcessEnv>): ServerEnv {
   const out = {} as Record<(typeof required)[number], string>
   for (const key of required) {
     const value = env[key]
