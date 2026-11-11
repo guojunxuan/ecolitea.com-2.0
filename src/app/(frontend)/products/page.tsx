@@ -104,7 +104,11 @@ export default async function ProductsPage() {
                     Latest Products
                   </p>
                 </div>
-                <ProductPreviewGrid href={href} categoryTitle={category.title}>
+                <ProductPreviewGrid
+                  href={href}
+                  categoryTitle={category.title}
+                  totalProducts={category.productCount}
+                >
                   {products.map((product) => (
                     <ProductCard key={product.id} product={product} showAction />
                   ))}

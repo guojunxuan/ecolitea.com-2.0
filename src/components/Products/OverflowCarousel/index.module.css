@@ -11,6 +11,19 @@
   --carousel-content-start: var(--carousel-gutter);
   --carousel-content-end: calc(100% - var(--carousel-gutter));
 }
+/* Tablet: same card rule as the product rows (two full cards plus a short peek, 260-360px),
+   so the range rail does not read a size smaller than the product cards above it. */
+@media (width < 64rem) {
+  .categories {
+    --carousel-card-width: clamp(
+      16.25rem,
+      calc(
+        (100vw - 2 * var(--carousel-gutter) - var(--website-space-6) - var(--website-space-8)) / 2
+      ),
+      22.5rem
+    );
+  }
+}
 .header {
   display: flex;
   align-items: flex-end;

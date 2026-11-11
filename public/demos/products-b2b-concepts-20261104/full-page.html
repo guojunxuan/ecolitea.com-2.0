@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="robots" content="noindex,nofollow" />
+    <title>Products · 分类与最新产品仿真</title>
+    <link rel="stylesheet" href="tokens.css" />
+    <style>
+      @font-face {
+        font-family: Geist;
+        src: url('Geist-Regular.woff2') format('woff2');
+        font-display: swap;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: var(--website-color-background);
+        font:
+          13px/1.4 Geist,
+          Arial,
+          sans-serif;
+        color: var(--website-color-foreground);
+      }
+      iframe {
+        display: block;
+        width: 100%;
+        height: 100dvh;
+        border: 0;
+      }
+      .preview-tools {
+        position: fixed;
+        right: 16px;
+        bottom: 16px;
+        z-index: 100;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 8px 12px;
+        border: 1px solid var(--website-color-border);
+        border-radius: var(--website-radius-content);
+        background: var(--website-color-surface);
+        box-shadow: var(--website-shadow-subtle);
+      }
+      .preview-tools p {
+        margin: 0;
+        font-size: 12px;
+      }
+      .preview-tools p span {
+        display: block;
+        color: var(--website-color-muted-foreground);
+        font-size: 11px;
+        margin-top: 2px;
+      }
+      button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font: inherit;
+        min-height: 44px;
+        padding: 8px 12px;
+        color: var(--website-color-foreground);
+        background: var(--website-color-background);
+        border: 1px solid var(--website-color-border);
+        border-radius: var(--website-radius-control);
+        cursor: pointer;
+      }
+      button[aria-pressed='true'] {
+        color: var(--website-color-action-foreground);
+        background: var(--website-color-action);
+        border-color: var(--website-color-action);
+      }
+      button:disabled {
+        opacity: 0.5;
+        cursor: default;
+      }
+      button:focus-visible {
+        outline: 2px solid var(--website-color-focus);
+        outline-offset: 3px;
+      }
+      #restore {
+        display: none;
+      }
+      .preview-tools.compact {
+        padding: 4px;
+      }
+      .preview-tools.compact > :not(#collapse) {
+        display: none;
+      }
+      .preview-tools.compact #collapse {
+        border: 0;
+      }
+      @media (width < 48rem) {
+        .preview-tools {
+          left: 8px;
+          right: 8px;
+          bottom: 8px;
+          gap: 8px;
+          padding: 6px 8px;
+          justify-content: space-between;
+        }
+        .preview-tools p {
+          font-size: 11px;
+        }
+        .preview-tools p span {
+          font-size: 10px;
+        }
+        button {
+          font-size: 12px;
+          padding: 8px 10px;
+        }
+        .preview-tools.compact {
+          left: auto;
+        }
+      }
+    </style>
+    <script src="full-page.js?revision=desktop-image" defer></script>
+  </head>
+  <body>
+    <iframe id="page" title="当前 Products 页面的分类信息与最新产品仿真"></iframe>
+    <aside class="preview-tools" aria-label="仿真预览工具">
+      <p>完整页面仿真<span id="status" role="status">正在读取当前页面…</span></p>
+      <button id="ab" type="button" aria-pressed="true">AB 仿真</button>
+      <button id="original" type="button" aria-pressed="false">当前原版</button>
+      <button id="restore" type="button">返回预览</button>
+      <button id="collapse" type="button" aria-expanded="true" aria-label="收起预览工具">
+        收起
+      </button>
+    </aside>
+  </body>
+</html>
