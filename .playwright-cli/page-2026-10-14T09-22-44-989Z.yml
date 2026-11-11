@@ -1,0 +1,362 @@
+- generic [active] [ref=f1e1]:
+  - link "Skip to content" [ref=f1e2] [cursor=pointer]:
+    - /url: "#main-content"
+  - banner:
+    - generic [ref=f1e6]:
+      - button "Open navigation" [ref=f1e7] [cursor=pointer]
+      - link "ecolitea-logo-dark" [ref=f1e11] [cursor=pointer]:
+        - /url: /
+        - img "ecolitea-logo-dark" [ref=f1e12]
+      - link "Search" [ref=f1e13] [cursor=pointer]:
+        - /url: /search
+  - main [ref=f1e17]:
+    - article [ref=f1e18]:
+      - link "Skip to table of contents" [ref=f1e19] [cursor=pointer]:
+        - /url: "#table-of-contents"
+      - navigation "Breadcrumb" [ref=f1e20]:
+        - list [ref=f1e21]:
+          - listitem [ref=f1e22]:
+            - link "Home" [ref=f1e23] [cursor=pointer]:
+              - /url: /
+          - listitem [aria-hidden] [ref=f1e24]: /
+          - listitem [ref=f1e25]:
+            - link "Blogs" [ref=f1e26] [cursor=pointer]:
+              - /url: /blogs
+          - listitem [aria-hidden] [ref=f1e27]: /
+          - listitem [ref=f1e28]:
+            - link "Product Insights" [ref=f1e29] [cursor=pointer]:
+              - /url: /blogs/category/product-insights
+          - listitem [aria-hidden] [ref=f1e30]: /
+          - listitem [ref=f1e31]: Small details, better everyday products
+      - generic [ref=f1e32]:
+        - heading "Small details, better everyday products" [level=1] [ref=f1e33]
+        - generic [ref=f1e34]:
+          - generic [ref=f1e35]:
+            - text: By
+            - strong [ref=f1e36]: admin
+          - generic [aria-hidden] [ref=f1e37]: ·
+          - time [ref=f1e38]: October 3, 2026
+        - paragraph [ref=f1e39]: Explore how careful material choices and practical design turn familiar products into reliable companions for everyday life.
+      - img "Coastal Rides" [ref=f1e43]
+      - generic [ref=f1e44]:
+        - complementary [ref=f1e45]:
+          - button "Open table of contents" [ref=f1e47] [cursor=pointer]:
+            - generic [ref=f1e48]: On this page
+            - generic [ref=f1e49]: Designed around real routines
+        - generic [ref=f1e52]:
+          - generic [ref=f1e53]:
+            - note "A note from the editor" [ref=f1e56]:
+              - heading "A note from the editor" [level=2] [ref=f1e59]
+              - paragraph [ref=f1e61]: This is a sample article created to explore the journal layout. The ideas and examples are illustrative.
+            - complementary "At a Glance" [ref=f1e63]:
+              - heading "At a Glance" [level=2] [ref=f1e64]
+              - list [ref=f1e66]:
+                - listitem [ref=f1e67]: Start with the task people repeat most often.
+                - listitem [ref=f1e68]: Use materials that support comfort and durability.
+                - listitem [ref=f1e69]: Test small details before making final design choices.
+            - heading [level=2]
+            - figure [ref=f1e71]:
+              - img "Winter Sports" [ref=f1e74]
+            - heading "Designed around real routines" [level=2] [ref=f1e75]
+            - paragraph [ref=f1e76]: "A useful product earns its place by making a familiar task feel easier. The difference often comes from quiet details: a comfortable grip, a clear control, or a surface that is simple to clean."
+            - paragraph [ref=f1e77]: Imagine a small team testing early prototypes around the office. Each person notices something different, and those observations become the next round of improvements.
+            - figure [ref=f1e79]:
+              - img "Hiking" [ref=f1e82]
+              - paragraph [ref=f1e85]: An outdoor moment, selected from the existing media library for this layout preview.
+            - heading "Materials that feel right" [level=2] [ref=f1e86]
+            - paragraph [ref=f1e87]: Texture, weight, and finish shape the first impression. A balanced material palette can make a product feel approachable while supporting the way it will be used every day.
+            - heading "Making the final choice" [level=2] [ref=f1e88]
+            - paragraph [ref=f1e89]:
+              - code [ref=f1e90]: "`The best design decisions connect appearance with purpose. Start with the everyday task, test the details, and keep the experience clear from the first use.`"
+              - text: The best design decisions connect appearance with purpose. Start with the everyday task, test the details, and keep the experience clear from the first use.The best design decisions connect appearance with purpose. Start with the everyday task, test the details, and keep the experience clear from the first use.
+              - strong [ref=f1e91]: The best design decisions connect appearance with purpose. Start with the everyday task, test the details, and keep the experience clear from the first use.
+              - emphasis [ref=f1e92]: The best design decisions
+              - link [ref=f1e93] [cursor=pointer]:
+                - /url: https://
+                - emphasis [ref=f1e94]: connect appearance with purpose. Start with the everyday task, test the details, and keep the experience clear from the first use.
+              - text: The best design decisions connect appearance with purpose. Start with the everyday task, test the details, and keep the experience clear from the first use.The best design decisions connect appearance with purpose. Start with the everyday task, test the details, and keep the experience clear from the first use.The best design decisions connect appearance with purpose. Start with the everyday task, test the details, and keep the experience clear from the first use.The best design decisions connect appearance with purpose. Start with the everyday task, test the details, and keep the experience clear from the first use.The best design decisions connect appearance with purpose. Start with the everyday task, test the details, and keep the experience clear from the first use.The best design decisions connect appearance with purpose
+            - heading ". Start with the everyday task," [level=2] [ref=f1e95]
+            - paragraph [ref=f1e96]: test the details, and keep the experience clear from the first use.The best design decisions connect appearance with purpose. Start with the everyday task, test the details, and keep the experience clear from the first use.The best design decisions connect appearance with purpose. Start with the everyday task, test the details, and keep the experience clear from the first use.The best design decisions connect appearance with purpose. Start with the everyday task, test the details, and keep the experience clear from the first use.The best design decisions connect appearance with purpose. Start with the everyday task, test the details, and keep the experience clear from the first use.The best design decisions connect appearance with purpose. Start with the everyday task, test the details, and keep the experience clear from the first use.The best design decisions connect appearance with purpose. Start with the everyday task, test the details, and keep the experience clear from the first use.The best design decisions connect appearance with purpose. Start with the everyday task, test the details, and keep the experience clear from the first use.The best design decisions connect appearance with purpose. Start with the everyday task, test the details, and keep the experience clear from the first use.The best design decisions connect appearance with purpose. Start with the everyday task, test the details, and keep the experience clear from the first use.
+            - generic [ref=f1e99]:
+              - img "Family Moments" [ref=f1e102]
+              - generic [ref=f1e103]:
+                - heading "Find ideas for your next project" [level=2] [ref=f1e104]
+                - paragraph [ref=f1e106]: Discover more product stories, practical guides, and thoughtful design ideas from the Ecolitea journal.
+                - link "Explore the journal" [ref=f1e108] [cursor=pointer]:
+                  - /url: /blogs
+            - paragraph [ref=f1e109]:
+              - strong [ref=f1e110]: Lighting a carport
+              - text: is not just about brightness; it is about choosing a fixture that can handle the unique “half-in, half-out” nature of the space. While a fully enclosed garage protects fixtures from the elements, a semi-enclosed garage or carport exposes them to humidity and debris. Many traditional indoor lights fail in these environments due to corrosion or poor sealing. This article explores the technical differences between a specialized canopy light fixture and standard garage ceiling lights, focusing on how specific designs can improve the functionality of your outdoor parking and utility zones.
+            - heading "Define a Canopy Light Fixture for Residential Use" [level=2] [ref=f1e111]
+            - paragraph [ref=f1e112]:
+              - text: Historically, canopy lighting was almost exclusively found in commercial environments like gas station fuel islands or loading docks. However, modern technology has brought
+              - link "high-performance led canopy lights" [ref=f1e113] [cursor=pointer]:
+                - /url: https://hi-hyperlite.com/collections/led-canopy-light
+              - text: into the residential market. These fixtures are designed specifically to be mounted on the underside of a structure—such as a carport roof—providing powerful, downward-facing light that minimizes wasted energy and light pollution.
+            - heading "Understanding the Low-Profile Design" [level=3] [ref=f1e114]
+            - paragraph [ref=f1e115]:
+              - text: The most defining characteristic of a modern canopy light fixture is its
+              - strong [ref=f1e116]: slim, low-profile design
+              - text: . Most residential units are square or circular and rarely exceed three inches in depth. This “thin” design is intentional, as carports often have lower ceiling clearances than commercial buildings.
+              - strong [ref=f1e117]: By using a flush-mount or surface-mount design
+              - text: ", these lights stay out of the way of tall vehicle trunks, roof racks, and pedestrian movement, reducing the risk of accidental damage to the fixture."
+            - heading "Benefits of Flush-Mounting" [level=3] [ref=f1e118]
+            - paragraph [ref=f1e119]:
+              - text: Flush-mounting a canopy light offers significant structural advantages. Because the light is fitted tightly against the ceiling, there are no gaps where birds can nest or spiders can weave webs—common issues with hanging shop lights in carports. Furthermore, the solid mounting interface helps the fixture act as its own heat sink. Many high-quality units use
+              - link "an aluminum housing" [ref=f1e120] [cursor=pointer]:
+                - /url: https://hi-hyperlite.com/blogs/comprehensive-guides/1070-vs-6063-aluminum-thermal-performance-led-lighting
+              - text: that dissipates heat into the surrounding air, ensuring the LED chips do not overheat and degrade prematurely.
+            - heading "Light Distribution Patterns" [level=3] [ref=f1e121]
+            - paragraph [ref=f1e122]:
+              - text: Unlike a standard bulb that radiates light in all directions, a canopy light is engineered with a specific beam angle, usually between 120 and 160 degrees. This ensures the light is pushed downward and outward, covering the entire width of a parking bay. This controlled distribution is
+              - strong [ref=f1e123]: highly effective for semi-enclosed garages
+              - text: ", as it provides “wall-to-wall” illumination without shining light directly into the eyes of approaching drivers or neighboring properties."
+            - heading "Compare Canopy Lights vs. Ceiling Lights for Carports" [level=2] [ref=f1e124]
+            - paragraph [ref=f1e125]: When conducting a comparison of canopy lights vs ceiling lights for carports, the primary differences lie in their durability and how they handle light spread. While a standard indoor ceiling light might seem like a cost-effective alternative, it often lacks the specialized engineering required for an outdoor environment.
+            - heading "Differences in Durability and Build Quality" [level=3] [ref=f1e126]
+            - paragraph [ref=f1e127]:
+              - strong [ref=f1e128]: Standard garage ceiling lights
+              - text: are typically made of thin plastic or stamped steel, designed for a dry, climate-controlled room. In a carport, these materials can quickly succumb to rust or UV degradation. In contrast, specialized led canopy lights are built with rugged, die-cast aluminum housings and impact-resistant polycarbonate lenses. These materials are chosen specifically to withstand the vibration of heavy wind and the abrasive nature of airborne dust and salt.
+            - heading "Evaluating Light Spread and Shadowing" [level=3] [ref=f1e129]
+            - paragraph [ref=f1e130]: In a semi-enclosed garage, the placement of the light source is critical. Standard ceiling lights often produce “hot spots” directly under the fixture with deep shadows in the corners. Because the canopy lights vs ceiling lights for carports debate often centers on safety, the wide, diffused light of a canopy fixture is superior. It fills the entire volume of the carport, making it easier to see around car doors and into the engine bay, which is essential for evening maintenance or unloading groceries.
+            - heading "Thermal Performance in Semi-Enclosed Spaces" [level=3] [ref=f1e131]
+            - paragraph [ref=f1e132]: Carports can experience extreme temperature swings, from freezing nights to scorching summer afternoons. Standard indoor lights are not rated for these fluctuations, which can lead to driver failure or flickering. A dedicated canopy light fixture is built with a wide operating temperature range, often from -40°C to +50°C. This ensures consistent performance year-round, regardless of the local climate, providing a level of reliability that indoor-only fixtures cannot match.
+            - heading "Install LED Canopy Lights for High-Traffic Areas" [level=2] [ref=f1e133]
+            - paragraph [ref=f1e134]:
+              - text: Carports are inherently high-traffic zones. Between vehicles entering and exiting, and family members walking past, the lighting must be both effective and unobtrusive. By choosing to install
+              - strong [ref=f1e135]: led canopy lights
+              - text: ", you are prioritizing a “set and forget” solution that offers maximum clearance and wide-area visibility."
+            - heading "Advantages of Low-Profile Clearances" [level=3] [ref=f1e136]
+            - paragraph [ref=f1e137]:
+              - text: One of the most practical reasons to choose canopy lighting is
+              - strong [ref=f1e138]: vehicle clearance
+              - text: . If you drive a large SUV or a truck with a lift kit, a hanging shop light can be a hazard. Because led canopy lights are mounted flush to the ceiling, they provide the maximum possible overhead room. This reduces the stress of parking a tall vehicle and prevents the lighting from becoming an obstacle when you are moving long items like ladders or lumber through the garage.
+            - heading "Achieving Wide, Uniform Illumination" [level=3] [ref=f1e139]
+            - paragraph [ref=f1e140]:
+              - text: Safety in a carport depends on eliminating blind spots where someone could be hiding or where a trip hazard might be located. A high-quality
+              - link "canopy fixture" [ref=f1e141] [cursor=pointer]:
+                - /url: https://hi-hyperlite.com/collections/led-canopy-light
+              - text: provides uniform illumination that reaches the very edges of the concrete slab. By spacing two or three fixtures evenly across a two-car carport, you create a seamless blanket of light. This is far more effective than a single, high-wattage central bulb, which would create long, dark shadows behind the vehicles.
+            - heading "Long Lifespan for Reduced Maintenance" [level=3] [ref=f1e142]
+            - paragraph [ref=f1e143]:
+              - text: Because carport ceilings can be difficult to reach, you want a light that requires zero maintenance. Modern LED canopy units are often rated for 50,000 to 100,000 hours of use. In a residential setting, this translates to decades of service. By choosing
+              - strong [ref=f1e144]: a high-output LED system
+              - text: over traditional bulbs, you eliminate the need to climb ladders every few months to change burnt-out lamps, which is a significant safety benefit for homeowners.
+            - heading "Select the Right Outdoor Garage Lights for Harsh Weather" [level=2] [ref=f1e145]
+            - paragraph [ref=f1e146]:
+              - text: When selecting fixtures for a carport, you must look beyond the wattage and consider how the unit will handle the “harshness” of the local environment,
+              - strong [ref=f1e147]: particularly regarding dust and moisture
+              - text: .
+            - heading "The Importance of Dust and Moisture Resistance" [level=3] [ref=f1e148]
+            - paragraph [ref=f1e149]: In a carport, wind-driven rain and morning mist are constant factors. Standard lights have seams and vents that allow moisture to enter, leading to short circuits and internal mold. High-performance outdoor garage lights are fully sealed with high-grade silicone gaskets. This prevents water from penetrating the housing, even during a storm. Additionally, a sealed unit prevents insects from crawling into the lens, which is a common cause of dimming and unappealing “dark spots” in older garage lights.
+            - heading "Resistance to Salt and Corrosion" [level=3] [ref=f1e150]
+            - paragraph [ref=f1e151]:
+              - text: If you live in a coastal area, salt air is your primary enemy. Salt can eat through standard steel fixtures in a matter of months. When selecting led canopy lights, look for units with a “powder-coated” aluminum finish. Powder coating is a dry finishing process that creates a much harder and more durable barrier than liquid paint.
+              - link "It resists salt corrosion and UV fading" [ref=f1e152] [cursor=pointer]:
+                - /url: https://hi-hyperlite.com/blogs/comprehensive-guides/stainless-aluminum-hardware-salt-air-sites
+              - text: ", ensuring the fixture remains aesthetically pleasing and structurally sound even in salt-heavy environments."
+            - heading "Selecting Impact-Resistant Materials" [level=3] [ref=f1e153]
+            - paragraph [ref=f1e154]:
+              - text: Carports are often play areas for children or workspaces for DIY projects. A stray ball or a piece of lumber could easily shatter a traditional glass light fixture. Therefore, it is essential to select outdoor garage lights that utilize
+              - link "polycarbonate or tempered glass lenses" [ref=f1e155] [cursor=pointer]:
+                - /url: https://hi-hyperlite.com/blogs/comprehensive-guides/glass-vs-polycarbonate-lenses-outdoor-led-lights
+              - text: . Polycarbonate is virtually unbreakable and is the same material used in safety goggles. This ensures that even if the light takes a direct hit, it will not shatter into dangerous shards on your driveway.
+            - heading "Find Effective Waterproof Carport Lighting Solutions" [level=2] [ref=f1e156]
+            - paragraph [ref=f1e157]:
+              - strong [ref=f1e158]: Waterproofing
+              - text: is the most critical technical specification for any carport fixture. To find effective waterproof carport lighting solutions, you must understand
+              - link "the Ingress Protection (IP) rating system" [ref=f1e159] [cursor=pointer]:
+                - /url: https://hi-hyperlite.com/blogs/news/guide-to-outdoor-light-ip-ratings
+              - text: ", which defines how well a fixture is protected against solids and liquids."
+            - heading "Understanding IP Ratings for Semi-Enclosed Spaces" [level=3] [ref=f1e160]
+            - paragraph [ref=f1e161]: The standard for effective waterproof carport lighting solutions is an IP65 rating.
+            - list [ref=f1e162]:
+              - listitem [ref=f1e163]:
+                - strong [ref=f1e164]: The first digit (6)
+                - text: ": Indicates the fixture is “dust-tight,” meaning no dust can enter the unit."
+              - listitem [ref=f1e165]:
+                - strong [ref=f1e166]: The second digit (5)
+                - text: ": Indicates the fixture can withstand low-pressure water jets from any angle."
+            - paragraph [ref=f1e167]:
+              - text: This rating is ideal for carports, as it ensures the light can
+              - strong [ref=f1e168]: handle wind-driven rain
+              - text: and can even be hosed down during a spring cleaning without damaging the internal electronics.
+            - heading "Gaskets and Conduit Seals" [level=3] [ref=f1e169]
+            - paragraph [ref=f1e170]:
+              - text: A waterproof fixture is only effective if the installation is also waterproof. High-quality led canopy lights feature threaded entry points for liquid-tight conduits. When installing these, it is vital to use silicone sealant around the threads to prevent moisture from traveling through the electrical pipes and into the fixture. Professional-grade units also include
+              - link "high-durability EPDM gaskets" [ref=f1e171] [cursor=pointer]:
+                - /url: https://www.fhwa.dot.gov/bridge/tunnel/pubs/hif20035.pdf
+              - text: that do not become brittle in the sun, maintaining a watertight seal for the life of the product.
+            - heading "Condensation Management" [level=3] [ref=f1e172]
+            - paragraph [ref=f1e173]:
+              - text: In humid climates, condensation can form inside a sealed light if it is not properly designed.
+              - strong [ref=f1e174]: Top-tier waterproof carport lighting
+              - text: solutions often include a small, breathable membrane or “vent” that allows air pressure to equalize without letting liquid water in. This prevents the “vacuum effect” that can pull moisture through gaskets during rapid temperature changes, ensuring the lens stays clear of fog and the internal driver remains dry.
+            - heading "Maximize Security with Motion-Activated Canopy Lighting" [level=2] [ref=f1e175]
+            - paragraph [ref=f1e176]:
+              - text: A carport is a primary entry point for many homes, making it a critical area for security.
+              - strong [ref=f1e177]: By integrating sensors with your led canopy lights
+              - text: ", you can deter intruders and provide a safe path for your family when arriving home at night."
+            - heading "Combining Sensors with Low-Profile Fixtures" [level=3] [ref=f1e178]
+            - paragraph [ref=f1e179]:
+              - text: Many modern canopy units come with integrated microwave or
+              - link "PIR (Passive Infrared) sensors" [ref=f1e180] [cursor=pointer]:
+                - /url: https://hi-hyperlite.com/products/motion-sensor-wholesale-ufo-series
+              - text: . Unlike older, bulky motion sensors that hang off the side of the house, these are often built directly into the center of the canopy light fixture. This maintains the sleek look of the carport while providing 360-degree detection coverage. When a car pulls into the driveway, the lights immediately switch to full brightness, illuminating the entire area before the driver even exits the vehicle.
+            - heading "Deterring Intruders Through Immediate Brightness" [level=3] [ref=f1e181]
+            - paragraph [ref=f1e182]:
+              - text: Intruders prefer to work in the dark. A dark carport provides cover for someone to check car door handles or look for unlocked house entrances. Motion-activated outdoor garage lights eliminate this cover instantly. The sudden burst of
+              - link "4,000 or 5,000 lumens" [ref=f1e183] [cursor=pointer]:
+                - /url: https://hi-hyperlite.com/blogs/comprehensive-guides/4000k-vs-5000k-cct-garage-workshop-lighting
+              - text: is often enough to convince an intruder to move on. For maximum security, look for fixtures that have a “dim-to-bright” feature, where the light stays at 10% brightness for visibility but jumps to 100% when motion is detected.
+            - heading "Improving Nighttime Safety for Residents" [level=3] [ref=f1e184]
+            - paragraph [ref=f1e185]:
+              - text: Beyond security, motion sensors are a major convenience. If you are carrying heavy groceries from the car to the house, you don’t want to fumble for a light switch.
+              - strong [ref=f1e186]: Motion-activated led canopy lights
+              - text: ensure your path is always lit. This prevents trips and falls on uneven concrete or stray toys left in the carport. You can typically adjust the “hold time” in the settings, ensuring the lights stay on long enough for you to safely enter the house before they turn off or dim down.
+            - heading "Conclusion" [level=2] [ref=f1e187]
+            - paragraph [ref=f1e188]:
+              - text: When it comes to the canopy lights vs ceiling lights for carports debate,
+              - strong [ref=f1e189]: the specialized canopy fixture is the clear winner
+              - text: for semi-enclosed spaces. Its low-profile design, wide light distribution, and superior weather resistance make it a far more reliable investment than a standard indoor fixture. By selecting a high-quality canopy light fixture with
+              - strong [ref=f1e190]: at least an IP65 rating
+              - text: ", you are ensuring that your carport remains safe, secure, and bright for decades. Investing in dedicated led canopy lights not only improves the functionality of your home but also provides peace of mind through every storm and every dark night."
+            - heading "FAQs" [level=2] [ref=f1e191]
+            - heading "Can I install led canopy lights on a wood ceiling?" [level=3] [ref=f1e192]
+            - paragraph [ref=f1e193]:
+              - strong [ref=f1e194]: "Yes"
+              - text: ", you can. Most led canopy lights are designed to be surface-mounted on various materials, including wood, metal, and concrete. However, because LEDs still generate some heat at the driver level, ensure the fixture is rated for “direct contact” with combustible surfaces. Using a small spacer or ensuring the unit has an aluminum backing will keep the installation safe and compliant with local electrical codes."
+            - heading "Is an IP65 rating enough for a carport that gets wind-driven rain?" [level=3] [ref=f1e195]
+            - paragraph [ref=f1e196]:
+              - strong [ref=f1e197]: "Yes"
+              - text: .
+              - link "An IP65 rating" [ref=f1e198] [cursor=pointer]:
+                - /url: https://hi-hyperlite.com/blogs/comprehensive-guides/ip65-ratings-outdoor-led-lights
+              - text: is specifically designed to handle “water jets,” which is a much higher force than even the strongest wind-driven rain. As long as the canopy light fixture is installed with waterproof conduit and proper gaskets, it will remain perfectly safe and functional during heavy storms and high-humidity events.
+            - heading "Do led canopy lights attract bugs in a semi-enclosed garage?" [level=3] [ref=f1e199]
+            - paragraph [ref=f1e200]:
+              - strong [ref=f1e201]: LEDs attract significantly fewer insects
+              - text: than traditional incandescent or fluorescent bulbs. This is because LEDs emit very little UV (ultraviolet) light and almost no infrared (heat), which are the two primary factors that draw bugs to a light source. To further reduce insect attraction, choose a “warm” color temperature (around 3000K) rather than a “bright blue” light (6000K+).
+            - heading "How many lumens do I need for a two-car carport?" [level=3] [ref=f1e202]
+            - paragraph [ref=f1e203]:
+              - text: For a standard two-car carport, you should aim for a total of
+              - strong [ref=f1e204]: 4,000 to 6,000 lumens
+              - text: . This can be achieved with one high-output
+              - link "60W canopy light" [ref=f1e205] [cursor=pointer]:
+                - /url: https://hi-hyperlite.com/products/hyperlite-led-canopy-lights-mstar-series-8400lumens-5000k-ac-120-277v
+              - text: fixture or two smaller 30W units. Spreading the light across two fixtures is generally better for a carport, as it reduces shadows created by the vehicles and provides more uniform coverage across the entire floor area.
+            - heading "Can I use a canopy light fixture as a security light?" [level=3] [ref=f1e206]
+            - paragraph [ref=f1e207]:
+              - strong [ref=f1e208]: Absolutely
+              - text: . In fact, led canopy lights are among the most effective security lights because they illuminate the area directly from above, making it impossible for someone to hide in a shadow cast by a wall-mounted light. When paired with a motion sensor, they provide an excellent deterrent against intruders while offering safe passage for residents.
+            - heading "Are waterproof carport lighting solutions more expensive to install?" [level=3] [ref=f1e209]
+            - paragraph [ref=f1e210]: The initial cost of the hardware for waterproof carport lighting solutions is slightly higher than indoor-only lights, but the installation cost is similar. The long-term value is much higher, however, as you will not have to pay for replacement fixtures or repair labor when an indoor light inevitably fails due to moisture or corrosion in the outdoor environment.
+          - region "Share this article" [ref=f1e212]:
+            - paragraph [ref=f1e213]: Share this article
+            - generic [ref=f1e214]:
+              - link "Share on x" [ref=f1e215] [cursor=pointer]:
+                - /url: https://www.x.com/share?url=http%3A%2F%2Flocalhost%3A3000%2Fblogs%2Fsmall-details-better-everyday-products&title=Small%20details%2C%20better%20everyday%20products
+              - link "Share on linkedin" [ref=f1e216] [cursor=pointer]:
+                - /url: https://www.linkedin.com/share?url=http%3A%2F%2Flocalhost%3A3000%2Fblogs%2Fsmall-details-better-everyday-products&title=Small%20details%2C%20better%20everyday%20products
+              - link "Share on Facebook" [ref=f1e217] [cursor=pointer]:
+                - /url: https://www.facebook.com/share?url=http%3A%2F%2Flocalhost%3A3000%2Fblogs%2Fsmall-details-better-everyday-products&title=Small%20details%2C%20better%20everyday%20products
+              - generic [ref=f1e218]:
+                - button "Copy link" [ref=f1e219] [cursor=pointer]
+                - status
+      - region "More to read" [ref=f1e223]:
+        - heading "More to read" [level=2] [ref=f1e224]
+        - generic [ref=f1e225]:
+          - article [ref=f1e226]:
+            - link "Read Built for moments outside" [ref=f1e227] [cursor=pointer]:
+              - /url: /blogs/built-for-moments-outside
+              - img "Hiking" [ref=f1e230]
+            - generic [ref=f1e231]:
+              - link "Product Insights" [ref=f1e232] [cursor=pointer]:
+                - /url: /blogs/category/product-insights
+              - heading [level=3] [ref=f1e233]:
+                - link "Built for moments outside" [ref=f1e234] [cursor=pointer]:
+                  - /url: /blogs/built-for-moments-outside
+              - paragraph [ref=f1e235]: A field-note style story about simple gear, open spaces, and products that fit naturally into an active day.
+          - article [ref=f1e236]:
+            - link "Read A closer look at materials that last" [ref=f1e237] [cursor=pointer]:
+              - /url: /blogs/a-closer-look-at-materials-that-last
+              - img "Cycling POV" [ref=f1e240]
+            - generic [ref=f1e241]:
+              - link "Sustainability" [ref=f1e242] [cursor=pointer]:
+                - /url: /blogs/category/sustainability
+              - heading [level=3] [ref=f1e243]:
+                - link "A closer look at materials that last" [ref=f1e244] [cursor=pointer]:
+                  - /url: /blogs/a-closer-look-at-materials-that-last
+              - paragraph [ref=f1e245]: A practical look at texture, durability, and the material decisions that help products stay useful for longer.
+          - article [ref=f1e246]:
+            - link "Read From first sketch to everyday habit" [ref=f1e247] [cursor=pointer]:
+              - /url: /blogs/from-first-sketch-to-everyday-habit
+              - img "Scuba Diving" [ref=f1e250]
+            - generic [ref=f1e251]:
+              - link "Design & Innovation" [ref=f1e252] [cursor=pointer]:
+                - /url: /blogs/category/design--innovation
+              - heading [level=3] [ref=f1e253]:
+                - link "From first sketch to everyday habit" [ref=f1e254] [cursor=pointer]:
+                  - /url: /blogs/from-first-sketch-to-everyday-habit
+              - paragraph [ref=f1e255]: Follow an illustrative design journey from an early idea to a product that feels at home in a daily routine.
+  - contentinfo [ref=f1e256]:
+    - generic [ref=f1e257]:
+      - generic [ref=f1e258]:
+        - region "Brand" [ref=f1e259]:
+          - link [ref=f1e260] [cursor=pointer]:
+            - /url: /
+            - img "ecolitea-logo-dark" [ref=f1e261]
+          - paragraph [ref=f1e262]: Ecolitea is a B2B company providing reliable products and tailored solutions to customers worldwide.
+          - list "Social media" [ref=f1e263]:
+            - listitem [ref=f1e264]:
+              - link "LinkedIn" [ref=f1e265] [cursor=pointer]:
+                - /url: https://example.com/ecolitea/linkedin
+            - listitem [ref=f1e266]:
+              - link "YouTube" [ref=f1e267] [cursor=pointer]:
+                - /url: https://example.com/ecolitea/youtube
+            - listitem [ref=f1e268]:
+              - link "Facebook" [ref=f1e269] [cursor=pointer]:
+                - /url: https://example.com/ecolitea/facebook
+            - listitem [ref=f1e270]:
+              - link "Instagram" [ref=f1e271] [cursor=pointer]:
+                - /url: https://example.com/ecolitea/instagram
+            - listitem [ref=f1e272]:
+              - link "X" [ref=f1e273] [cursor=pointer]:
+                - /url: https://example.com/ecolitea/x
+        - navigation "Footer" [ref=f1e274]:
+          - button "Products" [ref=f1e276]:
+            - generic [aria-hidden] [ref=f1e278]: +
+          - button "Solutions" [ref=f1e280]:
+            - generic [aria-hidden] [ref=f1e282]: +
+          - button "Resources" [ref=f1e284]:
+            - generic [aria-hidden] [ref=f1e286]: +
+          - button "Company" [ref=f1e288]:
+            - generic [aria-hidden] [ref=f1e290]: +
+        - generic [ref=f1e291]:
+          - region "Newsletter" [ref=f1e292]:
+            - heading "SUBSCRIBE TO OUR NEWSLETTER" [level=2] [ref=f1e293]
+            - paragraph [ref=f1e294]: Unlock savings & perks, members-only offers.
+            - generic [ref=f1e295]:
+              - textbox "Email address" [disabled] [ref=f1e296]
+              - button "Subscribe" [disabled] [ref=f1e297]
+          - list [ref=f1e299]:
+            - listitem [ref=f1e300]:
+              - generic [ref=f1e304]: 5425 Janet Ct, OAK FOREST, IL 60452-3740, United States
+            - listitem [ref=f1e305]:
+              - link "+86 1234567 8910" [ref=f1e308] [cursor=pointer]:
+                - /url: tel:+86 1234567 8910
+            - listitem [ref=f1e309]:
+              - link "sales@ecolitea.com" [ref=f1e313] [cursor=pointer]:
+                - /url: mailto:sales@ecolitea.com
+      - generic [ref=f1e314]:
+        - paragraph [ref=f1e315]: © 2026 Ecolitea. All rights reserved.
+        - navigation "Legal" [ref=f1e316]:
+          - list [ref=f1e317]:
+            - listitem [ref=f1e318]:
+              - link "Privacy Policy" [ref=f1e319] [cursor=pointer]:
+                - /url: /home
+            - listitem [ref=f1e320]:
+              - link "Terms" [ref=f1e321] [cursor=pointer]:
+                - /url: /home
+  - button "Open Next.js Dev Tools" [ref=f1e327] [cursor=pointer]
+  - alert [ref=f1e331]

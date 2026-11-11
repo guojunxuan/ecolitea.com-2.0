@@ -1,0 +1,11 @@
+### Result
+{"url":"http://localhost:3000/admin/collections/products?depth=1&limit=10&search=%E7%A4%BA%E4%BE%8B&page=1","rows":["TitleCategoryPublished AtStatus","Insta360 Pro 2 · 示例 10影像设备 · 示例<No Published At>Draft","Insta360 Mic Pro · 示例 09影像设备 · 示例<No Published At>Draft","Insta360 Link 2 Pro · 示例 08影像设备 · 示例<No Published At>Draft","Insta360 Flow 2 Series · 示例 07影像设备 · 示例<No Published At>Draft","Insta360 GO 3S · 示例 06影像设备 · 示例<No Published At>Draft","Insta360 GO Ultra · 示例 05影像设备 · 示例<No Published At>Draft","Insta360 Ace Pro 2 · 示例 04影像设备 · 示例<No Published At>Draft","Insta360 X4 Air · 示例 03影像设备 · 示例<No Published At>Draft","Insta360 X5 · 示例 02影像设备 · 示例<No Published At>Draft","Insta360 X6 · 示例 01影像设备 · 示例<No Published At>Draft"],"screenshot":"output/playwright/products-2026-10-24/products-list.png"}
+### Ran Playwright code
+```js
+await (async (page) => { await page.goto('http://localhost:3000/admin/collections/products'); await page.getByRole('heading',{name:'Products',exact:true,level:1}).waitFor(); await page.getByRole('textbox',{name:'Search',exact:true}).fill('示例'); await page.getByText('1-10 of 10',{exact:true}).waitFor(); const rows=await page.getByRole('table').getByRole('row').allTextContents(); await page.screenshot({path:'/Users/jason/ecolitea.com 2.0/output/playwright/products-2026-10-24/products-list.png',fullPage:true}); return {url:page.url(),rows,screenshot:'output/playwright/products-2026-10-24/products-list.png'}; })(page);
+```
+### Page
+- Page URL: http://localhost:3000/admin/collections/products?depth=1&limit=10&search=%E7%A4%BA%E4%BE%8B&page=1
+- Page Title: Products - Payload
+### Events
+- New console entries: .playwright-cli/console-2026-10-25T01-25-34-708Z.log#L368-L369

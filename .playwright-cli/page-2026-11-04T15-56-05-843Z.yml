@@ -1,0 +1,24 @@
+- generic [active] [ref=f1e1]:
+  - generic [ref=f1e3]:
+    - paragraph [ref=f1e18]: Welcome to your dashboard! This is where site admins will log in to manage your website.
+    - generic [ref=f1e19]:
+      - generic [ref=f1e20]:
+        - generic [ref=f1e21]:
+          - generic [ref=f1e22]:
+            - text: Email
+            - generic [ref=f1e23]: "*"
+          - textbox "Email *" [ref=f1e25]
+        - generic [ref=f1e26]:
+          - generic [ref=f1e27]:
+            - text: Password
+            - generic [ref=f1e28]: "*"
+          - generic [ref=f1e30]:
+            - textbox "Password" [ref=f1e31]
+            - button "Show password" [ref=f1e32] [cursor=pointer]
+      - generic [ref=f1e35]:
+        - button "Login" [ref=f1e37] [cursor=pointer]
+        - link "Forgot password?" [ref=f1e38] [cursor=pointer]:
+          - /url: /admin/forgot
+  - status [ref=f1e39]
+  - region "Notifications alt+T"
+  - alert [ref=f1e40]

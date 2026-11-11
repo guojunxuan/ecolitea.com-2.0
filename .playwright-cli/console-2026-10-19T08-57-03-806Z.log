@@ -1,0 +1,232 @@
+[     810ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[     923ms] [LOG] [HMR] connected @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[   34419ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/api/documents/6ad5db0be38dfe7d4115154b/file?2026-10-19T08%3A55%3A39.885Z:0
+[   34446ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/api/documents/6ad5db08e38dfe7d4115154a/file?2026-10-19T08%3A55%3A36.875Z:0
+[   34446ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/api/documents/6ad5db04e38dfe7d41151549/file?2026-10-19T08%3A55%3A33.417Z:0
+[   34446ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/api/documents/6ad5dad7e38dfe7d41151548/file?2026-10-19T08%3A54%3A48.448Z:0
+[  107592ms] [ERROR] %c%s%c (node:11590) [MONGOOSE] Warning: mongoose: the `new` option for `findOneAndUpdate()` and `findOneAndReplace()` is deprecated. Use `returnDocument: 'after'` instead. background: #e6e6e6;background: light-dark(rgba(0,0,0,0.1), rgba(255,255,255,0.25));color: #000000;color: light-dark(#000000, #ffffff);border-radius: 2px  Server   @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:1052
+[  109071ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  109095ms] [LOG] [HMR] connected @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  111532ms] [ERROR] %c%s%c (node:11590) [MONGOOSE] Warning: mongoose: the `new` option for `findOneAndUpdate()` and `findOneAndReplace()` is deprecated. Use `returnDocument: 'after'` instead. background: #e6e6e6;background: light-dark(rgba(0,0,0,0.1), rgba(255,255,255,0.25));color: #000000;color: light-dark(#000000, #ffffff);border-radius: 2px  Server   @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:1052
+[  113003ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  113028ms] [LOG] [HMR] connected @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  115382ms] [ERROR] %c%s%c (node:11590) [MONGOOSE] Warning: mongoose: the `new` option for `findOneAndUpdate()` and `findOneAndReplace()` is deprecated. Use `returnDocument: 'after'` instead. background: #e6e6e6;background: light-dark(rgba(0,0,0,0.1), rgba(255,255,255,0.25));color: #000000;color: light-dark(#000000, #ffffff);border-radius: 2px  Server   @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:1052
+[  130580ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  130601ms] [LOG] [HMR] connected @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  133066ms] [ERROR] %c%s%c (node:11590) [MONGOOSE] Warning: mongoose: the `new` option for `findOneAndUpdate()` and `findOneAndReplace()` is deprecated. Use `returnDocument: 'after'` instead. background: #e6e6e6;background: light-dark(rgba(0,0,0,0.1), rgba(255,255,255,0.25));color: #000000;color: light-dark(#000000, #ffffff);border-radius: 2px  Server   @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:1052
+[  134558ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  134578ms] [LOG] [HMR] connected @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  136841ms] [ERROR] %c%s%c (node:11590) [MONGOOSE] Warning: mongoose: the `new` option for `findOneAndUpdate()` and `findOneAndReplace()` is deprecated. Use `returnDocument: 'after'` instead. background: #e6e6e6;background: light-dark(rgba(0,0,0,0.1), rgba(255,255,255,0.25));color: #000000;color: light-dark(#000000, #ffffff);border-radius: 2px  Server   @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:1052
+[  138214ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  138241ms] [LOG] [HMR] connected @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  140739ms] [ERROR] %c%s%c (node:11590) [MONGOOSE] Warning: mongoose: the `new` option for `findOneAndUpdate()` and `findOneAndReplace()` is deprecated. Use `returnDocument: 'after'` instead. background: #e6e6e6;background: light-dark(rgba(0,0,0,0.1), rgba(255,255,255,0.25));color: #000000;color: light-dark(#000000, #ffffff);border-radius: 2px  Server   @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:1052
+[  160341ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  160370ms] [LOG] [HMR] connected @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  160513ms] [ERROR] %c%s%c (node:11590) [MONGOOSE] Warning: mongoose: the `new` option for `findOneAndUpdate()` and `findOneAndReplace()` is deprecated. Use `returnDocument: 'after'` instead. background: #e6e6e6;background: light-dark(rgba(0,0,0,0.1), rgba(255,255,255,0.25));color: #000000;color: light-dark(#000000, #ffffff);border-radius: 2px  Server   @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:1052
+[  160611ms] [ERROR] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+
+- A server/client branch `if (typeof window !== 'undefined')`.
+- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+- Date formatting in a user's locale which doesn't match the server.
+- External changing data without sending a snapshot of it along with the HTML.
+- Invalid HTML tag nesting.
+
+It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+
+%s%s https://react.dev/link/hydration-mismatch 
+
+  ...
+    <DefaultListView collectionSlug="documents" columnState={[...]} enableRowSelections={true} hasCreatePermission={true} ...>
+      <TableColumnsProvider collectionSlug="documents" columnState={[...]}>
+        <div className="collection...">
+          <SelectionProvider docs={[...]} totalDocs={10}>
+            <CollectionListHeader>
+            <ListControls>
+            ...
+              <div className="table">
+                <table cellPadding="0" cellSpacing="0">
+                  <thead>
+                  <tbody>
+                    <tr>
+                    <tr>
+                    <tr>
+                    <tr>
+                    <tr>
+                    <tr className="row-6" data-id="6ad5dbcae3...">
+                      <td className="cell-_select">
+                        <SelectRow rowData={{...}} selectRowLabel="Select 模拟资...">
+                          <CheckboxInput aria-label="Select 模拟资..." checked={false} className="select-row..." ...>
+                            <div className="select-row..." onPointerEnter={undefined} onPointerLeave={undefined}>
+                              <div className="checkbox-i...">
+                                <div className="checkbox-i...">
+                                  <input
+                                    aria-label="Select 模拟资料｜产品样品目录"
+                                    aria-labelledby={undefined}
+                                    checked={false}
+                                    disabled={true}
+                                    id="_R_ml9jajeatpesneb6jd9etb_"
+                                    name={undefined}
+                                    onChange={function t5}
+                                    ref={undefined}
+                                    required={undefined}
+                                    title={undefined}
+                                    type="checkbox"
+-                                   style={{caret-color:"transparent"}}
+                                  >
+                                  ...
+                                ...
+                      ...
+                    <tr className="row-7" data-id="6ad5db0be3...">
+                      <td className="cell-_select">
+                        <SelectRow rowData={{...}} selectRowLabel="Select 模拟资...">
+                          <CheckboxInput aria-label="Select 模拟资..." checked={false} className="select-row..." ...>
+                            <div className="select-row..." onPointerEnter={undefined} onPointerLeave={undefined}>
+                              <div className="checkbox-i...">
+                                <div className="checkbox-i...">
+                                  <input
+                                    aria-label="Select 模拟资料｜茶叶包装尺寸手册"
+                                    aria-labelledby={undefined}
+                                    checked={false}
+                                    disabled={true}
+                                    id="_R_nl9jajeatpesneb6jd9etb_"
+                                    name={undefined}
+                                    onChange={function t5}
+                                    ref={undefined}
+                                    required={undefined}
+                                    title={undefined}
+                                    type="checkbox"
+-                                   style={{caret-color:"transparent"}}
+                                  >
+                                  ...
+                                ...
+                      ...
+                    <tr className="row-8" data-id="6ad5db08e3...">
+                      <td className="cell-_select">
+                        <SelectRow rowData={{...}} selectRowLabel="Select 模拟资...">
+                          <CheckboxInput aria-label="Select 模拟资..." checked={false} className="select-row..." ...>
+                            <div className="select-row..." onPointerEnter={undefined} onPointerLeave={undefined}>
+                              <div className="checkbox-i...">
+                                <div className="checkbox-i...">
+                                  <input
+                                    aria-label="Select 模拟资料｜绿茶储存与运输说明"
+                                    aria-labelledby={undefined}
+                                    checked={false}
+                                    disabled={true}
+                                    id="_R_ol9jajeatpesneb6jd9etb_"
+                                    name={undefined}
+                                    onChange={function t5}
+                                    ref={undefined}
+                                    required={undefined}
+                                    title={undefined}
+                                    type="checkbox"
+-                                   style={{caret-color:"transparent"}}
+                                  >
+                                  ...
+                                ...
+                      ...
+                    <tr className="row-9" data-id="6ad5db04e3...">
+                      <td className="cell-_select">
+                        <SelectRow rowData={{...}} selectRowLabel="Select 模拟资...">
+                          <CheckboxInput aria-label="Select 模拟资..." checked={false} className="select-row..." ...>
+                            <div className="select-row..." onPointerEnter={undefined} onPointerLeave={undefined}>
+                              <div className="checkbox-i...">
+                                <div className="checkbox-i...">
+                                  <input
+                                    aria-label="Select 模拟资料｜红茶冲泡指南"
+                                    aria-labelledby={undefined}
+                                    checked={false}
+                                    disabled={true}
+                                    id="_R_pl9jajeatpesneb6jd9etb_"
+                                    name={undefined}
+                                    onChange={function t5}
+                                    ref={undefined}
+                                    required={undefined}
+                                    title={undefined}
+                                    type="checkbox"
+-                                   style={{caret-color:"transparent"}}
+                                  >
+                                  ...
+                                ...
+                      ...
+                    <tr className="row-10" data-id="6ad5dad7e3...">
+                      <td className="cell-_select">
+                        <SelectRow rowData={{...}} selectRowLabel="Select 模拟资...">
+                          <CheckboxInput aria-label="Select 模拟资..." checked={false} className="select-row..." ...>
+                            <div className="select-row..." onPointerEnter={undefined} onPointerLeave={undefined}>
+                              <div className="checkbox-i...">
+                                <div className="checkbox-i...">
+                                  <input
+                                    aria-label="Select 模拟资料｜春茶产品规格说明"
+                                    aria-labelledby={undefined}
+                                    checked={false}
+                                    disabled={true}
+                                    id="_R_ql9jajeatpesneb6jd9etb_"
+                                    name={undefined}
+                                    onChange={function t5}
+                                    ref={undefined}
+                                    required={undefined}
+                                    title={undefined}
+                                    type="checkbox"
+-                                   style={{caret-color:"transparent"}}
+                                  >
+                                  ...
+                                ...
+                      ...
+            <PageControls AfterPageControls={null} collectionConfig={{slug:"docu...", ...}}>
+              <PageControlsComponent AfterPageControls={null} data={{docs:[...], ...}} ...>
+                <div className="page-controls">
+                  <div className="page-contr...">
+                    <Pagination hasNextPage={false} hasPrevPage={false} limit={10} nextPage={null} numberOfNeighbors={1} ...>
+                      <div className="paginator">
+                        <ClickableArrow>
+                        <ClickableArrow>
+                        <div className="paginator_...">
+                          <input
+                            aria-label="Go to page"
+                            className="paginator__page-input"
+                            disabled={true}
+                            inputMode="numeric"
+                            max={1}
+                            min={1}
+                            onBlur={function t10}
+                            onChange={function t9}
+                            onKeyDown={function t11}
++                           style={{width:"1ch"}}
+-                           style={{width:"1ch",caret-color:"transparent"}}
+                            type="text"
+                            value="1"
+                          >
+                          ...
+                    ...
+ @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:1052
+[  160748ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/api/documents/6ad5dbebe38dfe7d41151551/file?2026-10-19T08%3A59%3A24.319Z:0
+[  160793ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/api/documents/6ad5dbe7e38dfe7d41151550/file?2026-10-19T08%3A59%3A20.422Z:0
+[  160793ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/api/documents/6ad5dbd2e38dfe7d4115154e/file?2026-10-19T08%3A58%3A58.951Z:0
+[  160793ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/api/documents/6ad5dbe4e38dfe7d4115154f/file?2026-10-19T08%3A59%3A16.637Z:0
+[  160793ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/api/documents/6ad5dbcee38dfe7d4115154d/file?2026-10-19T08%3A58%3A55.095Z:0
+[  160793ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/api/documents/6ad5dbcae38dfe7d4115154c/file?2026-10-19T08%3A58%3A51.155Z:0
+[  160794ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/api/documents/6ad5db0be38dfe7d4115154b/file?2026-10-19T08%3A55%3A39.885Z:0
+[  160807ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/api/documents/6ad5db08e38dfe7d4115154a/file?2026-10-19T08%3A55%3A36.875Z:0
+[  160807ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/api/documents/6ad5db04e38dfe7d41151549/file?2026-10-19T08%3A55%3A33.417Z:0
+[  160807ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/api/documents/6ad5dad7e38dfe7d41151548/file?2026-10-19T08%3A54%3A48.448Z:0
+[  161090ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  161111ms] [LOG] [Fast Refresh] done in 122ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[ 4688279ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[ 4689004ms] [LOG] [Fast Refresh] done in 788ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[ 4689595ms] [LOG] [Fast Refresh] done in 788ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[ 4690641ms] [LOG] [Fast Refresh] done in 788ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[ 4693622ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[ 4694731ms] [LOG] [Fast Refresh] done in 1210ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[ 7233241ms] [ERROR] Failed to load resource: the server responded with a status of 400 (Bad Request) @ http://localhost:3000/api/users/logout:0
+[16272569ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[16272654ms] [LOG] [Fast Refresh] done in 187ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[16676229ms] [LOG] [Fast Refresh] done in 305139ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[16677037ms] [LOG] [Fast Refresh] done in 305139ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[16678987ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[16680632ms] [LOG] [Fast Refresh] done in 1742ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[16680701ms] [LOG] [Fast Refresh] done in 1789ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[16681175ms] [LOG] [Fast Refresh] done in 1789ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[16693403ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[16693556ms] [LOG] [Fast Refresh] done in 254ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[16741038ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[16741086ms] [LOG] [HMR] connected @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776

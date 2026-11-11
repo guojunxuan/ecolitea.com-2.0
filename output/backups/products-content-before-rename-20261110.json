@@ -1,0 +1,872 @@
+{
+  "products": [
+    {
+      "_id": "6add5c4b82afd3ebe2331b2c",
+      "createdAt": "2026-10-25T01:32:59.985Z",
+      "updatedAt": "2026-11-10T03:35:30.788Z",
+      "title": "Insta360 Flow 2 Series · 示例 07",
+      "gallery": [
+        "6aaa3f4c773f2cc00fdb918f",
+        "6aaa480c3b01909772704a45",
+        "6aaa48133b01909772704a63"
+      ],
+      "summary": "复用站内 Flow 2 Series 产品图与场景素材的完整示例，包含图库、卖点、规格及两段产品 sections，用于后台编辑与内容结构演示。",
+      "specifications": [
+        {
+          "group": null,
+          "items": [
+            {
+              "label": "内容用途",
+              "value": "移动创作内容演示",
+              "id": "6add5c4b6ac5303e64c6a8d9"
+            },
+            {
+              "label": "素材来源",
+              "value": "站内已有 Media",
+              "id": "6add5c4b6ac5303e64c6a8da"
+            }
+          ],
+          "id": "aafe3c865e7025ebe66356e1"
+        }
+      ],
+      "sections": [
+        {
+          "label": "产品亮点",
+          "anchor": "product-story",
+          "blocks": [
+            {
+              "blockType": "productMediaBanner",
+              "title": "Flow 2 Series，让创作成为日常",
+              "body": "围绕 Flow 2 Series 建立从产品展示到应用场景的内容叙事，所有图片均复用站内素材。此为本地演示内容。",
+              "media": "6aaa3f4c773f2cc00fdb918f",
+              "playback": "ambient",
+              "aspectRatio": "16:9",
+              "id": "6add5c4b6ac5303e64c6a8db"
+            }
+          ],
+          "id": "6add5c4b6ac5303e64c6a8dc"
+        },
+        {
+          "label": "使用场景",
+          "anchor": "creative-scenes",
+          "blocks": [
+            {
+              "blockType": "productMediaText",
+              "eyebrow": "CREATIVE SCENES",
+              "title": "把故事从构思带到画面",
+              "body": {
+                "root": {
+                  "children": [
+                    {
+                      "children": [
+                        {
+                          "detail": 0,
+                          "format": 0,
+                          "mode": "normal",
+                          "style": "",
+                          "text": "通过 Vlogging 与 Family Moments 两类现有场景素材，展示 Flow 2 Series 产品内容的图文组合方式。编辑者可以调整章节名称、媒体位置和段落内容。此为本地演示文案，具体技术参数以正式产品资料为准。",
+                          "type": "text",
+                          "version": 1
+                        }
+                      ],
+                      "direction": null,
+                      "format": "",
+                      "indent": 0,
+                      "type": "paragraph",
+                      "version": 1,
+                      "textFormat": 0,
+                      "textStyle": ""
+                    }
+                  ],
+                  "direction": null,
+                  "format": "",
+                  "indent": 0,
+                  "type": "root",
+                  "version": 1
+                }
+              },
+              "media": "6aaa480c3b01909772704a45",
+              "playback": "ambient",
+              "mediaPosition": "left",
+              "aspectRatio": "1:1",
+              "id": "6add5c4b6ac5303e64c6a8dd"
+            }
+          ],
+          "id": "6add5c4b6ac5303e64c6a8de"
+        },
+        {
+          "label": "场景切换",
+          "anchor": "scene-tabs",
+          "blocks": [
+            {
+              "blockType": "productMediaTabs",
+              "title": "选择你的创作场景",
+              "tabs": [
+                {
+                  "title": "产品外观",
+                  "media": "6aaa3f4c773f2cc00fdb918f",
+                  "playback": "ambient",
+                  "id": "6add5c4b6ac5303e64c6a8df"
+                },
+                {
+                  "title": "使用场景",
+                  "media": "6aaa480c3b01909772704a45",
+                  "playback": "ambient",
+                  "id": "6add5c4b6ac5303e64c6a8e0"
+                }
+              ],
+              "aspectRatio": "4:3",
+              "theme": "default",
+              "id": "6add5c4b6ac5303e64c6a8e1"
+            }
+          ],
+          "id": "6add5c4b6ac5303e64c6a8e2"
+        }
+      ],
+      "meta": {},
+      "slug": "demo-insta360-flow-2-series",
+      "category": "6adcb95ef43c3bb2c41ea3f5",
+      "categorySlug": "demo-imaging-equipment",
+      "_status": "published",
+      "__v": 0,
+      "publishedAt": "2026-10-27T13:49:55.280Z",
+      "overview": "Insta360 Flow 2 Series · 示例 07是影像设备分类的产品展示样例。围绕取景、安装与素材交付展示一套基础影像流程。可用来演示如何通过产品图、应用图和配置说明组织选型页面。\n\n适用于渠道产品培训、展会讲解和项目初选。本文为站点演示内容。",
+      "content": [
+        "6ad5dbe7e38dfe7d41151550",
+        "6ad5dbd2e38dfe7d4115154e"
+      ]
+    }
+  ],
+  "versions": [
+    {
+      "_id": "6af28f76829b4492a22a9ba3",
+      "parent": "6ae9ee697257262c88d45a19",
+      "version": {
+        "title": "Snow 雪地影像套装 · 示例",
+        "gallery": [
+          "6aaa48113b01909772704a5d"
+        ],
+        "summary": "为滑雪与雪山探索准备的影像套装，用于轮播溢出演示。",
+        "overview": "Snow 雪地影像套装 · 示例用于演示雪地影像设备的选型页面。可按头戴、手持和随身固定等机位展示器材搭配，帮助渠道团队讲解应用场景。\n\n低温续航、防护和佩戴方式应按实际活动条件与正式资料核对。本文为站点演示内容。",
+        "content": [
+          "6ad5dbebe38dfe7d41151551",
+          "6ad5dbe4e38dfe7d4115154f"
+        ],
+        "specifications": [
+          {
+            "group": "应用配置（示例）",
+            "items": [
+              {
+                "label": "应用场景",
+                "value": "雪地活动记录与渠道展示",
+                "id": "6af1f13799a44647e8f62399"
+              },
+              {
+                "label": "配置说明",
+                "value": "机位和固定配件按实际活动选型",
+                "id": "6af1f13899a44647e8f6239b"
+              }
+            ],
+            "id": "6af1f0d799a44647e8f62397"
+          }
+        ],
+        "sections": [],
+        "meta": {
+          "title": "Snow 雪地影像套装 · 示例 | Ecolitea",
+          "image": "6aaa48113b01909772704a5d",
+          "description": "为滑雪与雪山探索准备的影像套装，用于轮播溢出演示。"
+        },
+        "slug": "demo-snow-camera",
+        "category": "6ae9ee5b7257262c88d45a17",
+        "categorySlug": "demo-snow-adventure",
+        "publishedAt": "2026-11-03T14:23:53.170Z",
+        "relatedProducts": [
+          "6add5c4582afd3ebe2331b2a"
+        ],
+        "updatedAt": "2026-11-10T03:28:58.230Z",
+        "createdAt": "2026-11-03T14:23:37.327Z",
+        "_status": "draft"
+      },
+      "createdAt": "2026-11-10T03:28:54.717Z",
+      "updatedAt": "2026-11-10T03:28:58.230Z",
+      "autosave": true,
+      "__v": 0
+    },
+    {
+      "_id": "6af28f7a829b4492a22a9ba4",
+      "parent": "6ae9ee697257262c88d45a19",
+      "version": {
+        "title": "Snow 雪地影像套装 · 示例",
+        "gallery": [
+          "6aaa48113b01909772704a5d"
+        ],
+        "summary": "为滑雪与雪山探索准备的影像套装，用于轮播溢出演示。",
+        "overview": "Snow 雪地影像套装 · 示例用于演示雪地影像设备的选型页面。可按头戴、手持和随身固定等机位展示器材搭配，帮助渠道团队讲解应用场景。\n\n低温续航、防护和佩戴方式应按实际活动条件与正式资料核对。本文为站点演示内容。",
+        "content": [
+          "6ad5dbebe38dfe7d41151551",
+          "6ad5dbe4e38dfe7d4115154f"
+        ],
+        "specifications": [
+          {
+            "group": "应用配置（示例）",
+            "items": [
+              {
+                "label": "应用场景",
+                "value": "雪地活动记录与渠道展示",
+                "id": "6af1f13799a44647e8f62399"
+              },
+              {
+                "label": "配置说明",
+                "value": "机位和固定配件按实际活动选型",
+                "id": "6af1f13899a44647e8f6239b"
+              }
+            ],
+            "id": "6af1f0d799a44647e8f62397"
+          }
+        ],
+        "sections": [],
+        "meta": {
+          "title": "Snow 雪地影像套装 · 示例 | Ecolitea",
+          "image": "6aaa48113b01909772704a5d",
+          "description": "为滑雪与雪山探索准备的影像套装，用于轮播溢出演示。"
+        },
+        "slug": "demo-snow-camera",
+        "category": "6ae9ee5b7257262c88d45a17",
+        "categorySlug": "demo-snow-adventure",
+        "publishedAt": "2026-11-03T14:23:53.170Z",
+        "relatedProducts": [
+          "6add5c4582afd3ebe2331b2a"
+        ],
+        "updatedAt": "2026-11-10T03:28:58.953Z",
+        "createdAt": "2026-11-03T14:23:37.327Z",
+        "_status": "draft"
+      },
+      "createdAt": "2026-11-10T03:28:58.953Z",
+      "updatedAt": "2026-11-10T03:28:58.953Z",
+      "autosave": false,
+      "__v": 0
+    },
+    {
+      "_id": "6af28f97829b4492a22a9ba5",
+      "parent": "6ae9ee697257262c88d45a19",
+      "version": {
+        "title": "Snow 雪地影像套装 · 示例",
+        "gallery": [
+          "6aaa48113b01909772704a5d"
+        ],
+        "summary": "为滑雪与雪山探索准备的影像套装，用于轮播溢出演示。",
+        "overview": "Snow 雪地影像套装 · 示例用于演示雪地影像设备的选型页面。可按头戴、手持和随身固定等机位展示器材搭配，帮助渠道团队讲解应用场景。\n\n低温续航、防护和佩戴方式应按实际活动条件与正式资料核对。本文为站点演示内容。",
+        "content": [
+          "6ad5dbebe38dfe7d41151551",
+          "6ad5dbe4e38dfe7d4115154f"
+        ],
+        "specifications": [
+          {
+            "group": "应用配置（示例）",
+            "items": [
+              {
+                "label": "应用场景",
+                "value": "雪地活动记录与渠道展示",
+                "id": "6af1f13799a44647e8f62399"
+              },
+              {
+                "label": "配置说明",
+                "value": "机位和固定配件按实际活动选型",
+                "id": "6af1f13899a44647e8f6239b"
+              }
+            ],
+            "id": "6af1f0d799a44647e8f62397"
+          }
+        ],
+        "sections": [],
+        "meta": {
+          "title": "Snow 雪地影像套装 · 示例 | Ecolitea",
+          "image": "6aaa48113b01909772704a5d",
+          "description": "为滑雪与雪山探索准备的影像套装，用于轮播溢出演示。"
+        },
+        "slug": "demo-snow-camera",
+        "category": "6ae9ee5b7257262c88d45a17",
+        "categorySlug": "demo-snow-adventure",
+        "publishedAt": "2026-11-03T14:23:53.170Z",
+        "relatedProducts": [
+          "6add5c4582afd3ebe2331b2a"
+        ],
+        "updatedAt": "2026-11-10T03:29:31.538Z",
+        "createdAt": "2026-11-03T14:23:37.327Z",
+        "_status": "draft"
+      },
+      "createdAt": "2026-11-10T03:29:27.249Z",
+      "updatedAt": "2026-11-10T03:29:31.538Z",
+      "latest": true,
+      "autosave": true,
+      "__v": 0
+    },
+    {
+      "_id": "6af28fa4829b4492a22a9ba6",
+      "parent": "6add5c4b82afd3ebe2331b2c",
+      "version": {
+        "title": "Insta360 Flow 2 Series · 示例 07",
+        "gallery": [
+          "6aaa3f4c773f2cc00fdb918f",
+          "6aaa480c3b01909772704a45",
+          "6aaa48133b01909772704a63"
+        ],
+        "summary": "复用站内 Flow 2 Series 产品图与场景素材的完整示例，包含图库、卖点、规格及两段产品 sections，用于后台编辑与内容结构演示。",
+        "overview": "Insta360 Flow 2 Series · 示例 07是影像设备分类的产品展示样例。围绕取景、安装与素材交付展示一套基础影像流程。可用来演示如何通过产品图、应用图和配置说明组织选型页面。\n\n适用于渠道产品培训、展会讲解和项目初选。本文为站点演示内容。",
+        "content": [
+          "6ad5dbe7e38dfe7d41151550"
+        ],
+        "specifications": [
+          {
+            "group": null,
+            "items": [
+              {
+                "label": "内容用途",
+                "value": "移动创作内容演示",
+                "id": "6add5c4b6ac5303e64c6a8d9"
+              },
+              {
+                "label": "素材来源",
+                "value": "站内已有 Media",
+                "id": "6add5c4b6ac5303e64c6a8da"
+              }
+            ],
+            "id": "aafe3c865e7025ebe66356e1"
+          }
+        ],
+        "sections": [
+          {
+            "label": "产品亮点",
+            "anchor": "product-story",
+            "blocks": [
+              {
+                "blockType": "productMediaBanner",
+                "title": "Flow 2 Series，让创作成为日常",
+                "body": "围绕 Flow 2 Series 建立从产品展示到应用场景的内容叙事，所有图片均复用站内素材。此为本地演示内容。",
+                "media": "6aaa3f4c773f2cc00fdb918f",
+                "playback": "ambient",
+                "aspectRatio": "16:9",
+                "id": "6add5c4b6ac5303e64c6a8db"
+              }
+            ],
+            "id": "6add5c4b6ac5303e64c6a8dc"
+          },
+          {
+            "label": "使用场景",
+            "anchor": "creative-scenes",
+            "blocks": [
+              {
+                "blockType": "productMediaText",
+                "eyebrow": "CREATIVE SCENES",
+                "title": "把故事从构思带到画面",
+                "body": {
+                  "root": {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "detail": 0,
+                            "format": 0,
+                            "mode": "normal",
+                            "style": "",
+                            "text": "通过 Vlogging 与 Family Moments 两类现有场景素材，展示 Flow 2 Series 产品内容的图文组合方式。编辑者可以调整章节名称、媒体位置和段落内容。此为本地演示文案，具体技术参数以正式产品资料为准。",
+                            "type": "text",
+                            "version": 1
+                          }
+                        ],
+                        "direction": null,
+                        "format": "",
+                        "indent": 0,
+                        "type": "paragraph",
+                        "version": 1,
+                        "textFormat": 0,
+                        "textStyle": ""
+                      }
+                    ],
+                    "direction": null,
+                    "format": "",
+                    "indent": 0,
+                    "type": "root",
+                    "version": 1
+                  }
+                },
+                "media": "6aaa480c3b01909772704a45",
+                "playback": "ambient",
+                "mediaPosition": "left",
+                "aspectRatio": "1:1",
+                "id": "6add5c4b6ac5303e64c6a8dd"
+              }
+            ],
+            "id": "6add5c4b6ac5303e64c6a8de"
+          },
+          {
+            "label": "场景切换",
+            "anchor": "scene-tabs",
+            "blocks": [
+              {
+                "blockType": "productMediaTabs",
+                "title": "选择你的创作场景",
+                "tabs": [
+                  {
+                    "title": "产品外观",
+                    "media": "6aaa3f4c773f2cc00fdb918f",
+                    "playback": "ambient",
+                    "id": "6add5c4b6ac5303e64c6a8df"
+                  },
+                  {
+                    "title": "使用场景",
+                    "media": "6aaa480c3b01909772704a45",
+                    "playback": "ambient",
+                    "id": "6add5c4b6ac5303e64c6a8e0"
+                  }
+                ],
+                "aspectRatio": "4:3",
+                "theme": "default",
+                "id": "6add5c4b6ac5303e64c6a8e1"
+              }
+            ],
+            "id": "6add5c4b6ac5303e64c6a8e2"
+          }
+        ],
+        "meta": {},
+        "slug": "demo-insta360-flow-2-series",
+        "category": "6adcb95ef43c3bb2c41ea3f5",
+        "categorySlug": "demo-imaging-equipment",
+        "publishedAt": "2026-10-27T13:49:55.280Z",
+        "updatedAt": "2026-11-10T03:29:40.901Z",
+        "createdAt": "2026-10-25T01:32:59.985Z",
+        "_status": "draft"
+      },
+      "createdAt": "2026-11-10T03:29:40.901Z",
+      "updatedAt": "2026-11-10T03:29:40.901Z",
+      "autosave": true,
+      "__v": 0
+    },
+    {
+      "_id": "6af28fa7829b4492a22a9ba7",
+      "parent": "6add5c4b82afd3ebe2331b2c",
+      "version": {
+        "title": "Insta360 Flow 2 Series · 示例 07",
+        "gallery": [
+          "6aaa3f4c773f2cc00fdb918f",
+          "6aaa480c3b01909772704a45",
+          "6aaa48133b01909772704a63"
+        ],
+        "summary": "复用站内 Flow 2 Series 产品图与场景素材的完整示例，包含图库、卖点、规格及两段产品 sections，用于后台编辑与内容结构演示。",
+        "overview": "Insta360 Flow 2 Series · 示例 07是影像设备分类的产品展示样例。围绕取景、安装与素材交付展示一套基础影像流程。可用来演示如何通过产品图、应用图和配置说明组织选型页面。\n\n适用于渠道产品培训、展会讲解和项目初选。本文为站点演示内容。",
+        "content": [
+          "6ad5dbe7e38dfe7d41151550"
+        ],
+        "specifications": [
+          {
+            "group": null,
+            "items": [
+              {
+                "label": "内容用途",
+                "value": "移动创作内容演示",
+                "id": "6add5c4b6ac5303e64c6a8d9"
+              },
+              {
+                "label": "素材来源",
+                "value": "站内已有 Media",
+                "id": "6add5c4b6ac5303e64c6a8da"
+              }
+            ],
+            "id": "aafe3c865e7025ebe66356e1"
+          }
+        ],
+        "sections": [
+          {
+            "label": "产品亮点",
+            "anchor": "product-story",
+            "blocks": [
+              {
+                "blockType": "productMediaBanner",
+                "title": "Flow 2 Series，让创作成为日常",
+                "body": "围绕 Flow 2 Series 建立从产品展示到应用场景的内容叙事，所有图片均复用站内素材。此为本地演示内容。",
+                "media": "6aaa3f4c773f2cc00fdb918f",
+                "playback": "ambient",
+                "aspectRatio": "16:9",
+                "id": "6add5c4b6ac5303e64c6a8db"
+              }
+            ],
+            "id": "6add5c4b6ac5303e64c6a8dc"
+          },
+          {
+            "label": "使用场景",
+            "anchor": "creative-scenes",
+            "blocks": [
+              {
+                "blockType": "productMediaText",
+                "eyebrow": "CREATIVE SCENES",
+                "title": "把故事从构思带到画面",
+                "body": {
+                  "root": {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "detail": 0,
+                            "format": 0,
+                            "mode": "normal",
+                            "style": "",
+                            "text": "通过 Vlogging 与 Family Moments 两类现有场景素材，展示 Flow 2 Series 产品内容的图文组合方式。编辑者可以调整章节名称、媒体位置和段落内容。此为本地演示文案，具体技术参数以正式产品资料为准。",
+                            "type": "text",
+                            "version": 1
+                          }
+                        ],
+                        "direction": null,
+                        "format": "",
+                        "indent": 0,
+                        "type": "paragraph",
+                        "version": 1,
+                        "textFormat": 0,
+                        "textStyle": ""
+                      }
+                    ],
+                    "direction": null,
+                    "format": "",
+                    "indent": 0,
+                    "type": "root",
+                    "version": 1
+                  }
+                },
+                "media": "6aaa480c3b01909772704a45",
+                "playback": "ambient",
+                "mediaPosition": "left",
+                "aspectRatio": "1:1",
+                "id": "6add5c4b6ac5303e64c6a8dd"
+              }
+            ],
+            "id": "6add5c4b6ac5303e64c6a8de"
+          },
+          {
+            "label": "场景切换",
+            "anchor": "scene-tabs",
+            "blocks": [
+              {
+                "blockType": "productMediaTabs",
+                "title": "选择你的创作场景",
+                "tabs": [
+                  {
+                    "title": "产品外观",
+                    "media": "6aaa3f4c773f2cc00fdb918f",
+                    "playback": "ambient",
+                    "id": "6add5c4b6ac5303e64c6a8df"
+                  },
+                  {
+                    "title": "使用场景",
+                    "media": "6aaa480c3b01909772704a45",
+                    "playback": "ambient",
+                    "id": "6add5c4b6ac5303e64c6a8e0"
+                  }
+                ],
+                "aspectRatio": "4:3",
+                "theme": "default",
+                "id": "6add5c4b6ac5303e64c6a8e1"
+              }
+            ],
+            "id": "6add5c4b6ac5303e64c6a8e2"
+          }
+        ],
+        "meta": {},
+        "slug": "demo-insta360-flow-2-series",
+        "category": "6adcb95ef43c3bb2c41ea3f5",
+        "categorySlug": "demo-imaging-equipment",
+        "publishedAt": "2026-10-27T13:49:55.280Z",
+        "updatedAt": "2026-11-10T03:29:43.410Z",
+        "createdAt": "2026-10-25T01:32:59.985Z",
+        "_status": "published"
+      },
+      "createdAt": "2026-11-10T03:29:43.418Z",
+      "updatedAt": "2026-11-10T03:29:43.418Z",
+      "autosave": false,
+      "__v": 0
+    },
+    {
+      "_id": "6af291007e56d2f0b00468da",
+      "parent": "6add5c4b82afd3ebe2331b2c",
+      "version": {
+        "title": "Insta360 Flow 2 Series · 示例 07",
+        "gallery": [
+          "6aaa3f4c773f2cc00fdb918f",
+          "6aaa480c3b01909772704a45",
+          "6aaa48133b01909772704a63"
+        ],
+        "summary": "复用站内 Flow 2 Series 产品图与场景素材的完整示例，包含图库、卖点、规格及两段产品 sections，用于后台编辑与内容结构演示。",
+        "overview": "Insta360 Flow 2 Series · 示例 07是影像设备分类的产品展示样例。围绕取景、安装与素材交付展示一套基础影像流程。可用来演示如何通过产品图、应用图和配置说明组织选型页面。\n\n适用于渠道产品培训、展会讲解和项目初选。本文为站点演示内容。",
+        "content": [
+          "6ad5dbe7e38dfe7d41151550",
+          "6ad5dbd2e38dfe7d4115154e"
+        ],
+        "specifications": [
+          {
+            "group": null,
+            "items": [
+              {
+                "label": "内容用途",
+                "value": "移动创作内容演示",
+                "id": "6add5c4b6ac5303e64c6a8d9"
+              },
+              {
+                "label": "素材来源",
+                "value": "站内已有 Media",
+                "id": "6add5c4b6ac5303e64c6a8da"
+              }
+            ],
+            "id": "aafe3c865e7025ebe66356e1"
+          }
+        ],
+        "sections": [
+          {
+            "label": "产品亮点",
+            "anchor": "product-story",
+            "blocks": [
+              {
+                "blockType": "productMediaBanner",
+                "title": "Flow 2 Series，让创作成为日常",
+                "body": "围绕 Flow 2 Series 建立从产品展示到应用场景的内容叙事，所有图片均复用站内素材。此为本地演示内容。",
+                "media": "6aaa3f4c773f2cc00fdb918f",
+                "playback": "ambient",
+                "aspectRatio": "16:9",
+                "id": "6add5c4b6ac5303e64c6a8db"
+              }
+            ],
+            "id": "6add5c4b6ac5303e64c6a8dc"
+          },
+          {
+            "label": "使用场景",
+            "anchor": "creative-scenes",
+            "blocks": [
+              {
+                "blockType": "productMediaText",
+                "eyebrow": "CREATIVE SCENES",
+                "title": "把故事从构思带到画面",
+                "body": {
+                  "root": {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "detail": 0,
+                            "format": 0,
+                            "mode": "normal",
+                            "style": "",
+                            "text": "通过 Vlogging 与 Family Moments 两类现有场景素材，展示 Flow 2 Series 产品内容的图文组合方式。编辑者可以调整章节名称、媒体位置和段落内容。此为本地演示文案，具体技术参数以正式产品资料为准。",
+                            "type": "text",
+                            "version": 1
+                          }
+                        ],
+                        "direction": null,
+                        "format": "",
+                        "indent": 0,
+                        "type": "paragraph",
+                        "version": 1,
+                        "textFormat": 0,
+                        "textStyle": ""
+                      }
+                    ],
+                    "direction": null,
+                    "format": "",
+                    "indent": 0,
+                    "type": "root",
+                    "version": 1
+                  }
+                },
+                "media": "6aaa480c3b01909772704a45",
+                "playback": "ambient",
+                "mediaPosition": "left",
+                "aspectRatio": "1:1",
+                "id": "6add5c4b6ac5303e64c6a8dd"
+              }
+            ],
+            "id": "6add5c4b6ac5303e64c6a8de"
+          },
+          {
+            "label": "场景切换",
+            "anchor": "scene-tabs",
+            "blocks": [
+              {
+                "blockType": "productMediaTabs",
+                "title": "选择你的创作场景",
+                "tabs": [
+                  {
+                    "title": "产品外观",
+                    "media": "6aaa3f4c773f2cc00fdb918f",
+                    "playback": "ambient",
+                    "id": "6add5c4b6ac5303e64c6a8df"
+                  },
+                  {
+                    "title": "使用场景",
+                    "media": "6aaa480c3b01909772704a45",
+                    "playback": "ambient",
+                    "id": "6add5c4b6ac5303e64c6a8e0"
+                  }
+                ],
+                "aspectRatio": "4:3",
+                "theme": "default",
+                "id": "6add5c4b6ac5303e64c6a8e1"
+              }
+            ],
+            "id": "6add5c4b6ac5303e64c6a8e2"
+          }
+        ],
+        "meta": {},
+        "slug": "demo-insta360-flow-2-series",
+        "category": "6adcb95ef43c3bb2c41ea3f5",
+        "categorySlug": "demo-imaging-equipment",
+        "publishedAt": "2026-10-27T13:49:55.280Z",
+        "updatedAt": "2026-11-10T03:35:28.610Z",
+        "createdAt": "2026-10-25T01:32:59.985Z",
+        "_status": "draft"
+      },
+      "createdAt": "2026-11-10T03:35:28.610Z",
+      "updatedAt": "2026-11-10T03:35:28.610Z",
+      "autosave": true,
+      "__v": 0
+    },
+    {
+      "_id": "6af291027e56d2f0b00468db",
+      "parent": "6add5c4b82afd3ebe2331b2c",
+      "version": {
+        "title": "Insta360 Flow 2 Series · 示例 07",
+        "gallery": [
+          "6aaa3f4c773f2cc00fdb918f",
+          "6aaa480c3b01909772704a45",
+          "6aaa48133b01909772704a63"
+        ],
+        "summary": "复用站内 Flow 2 Series 产品图与场景素材的完整示例，包含图库、卖点、规格及两段产品 sections，用于后台编辑与内容结构演示。",
+        "overview": "Insta360 Flow 2 Series · 示例 07是影像设备分类的产品展示样例。围绕取景、安装与素材交付展示一套基础影像流程。可用来演示如何通过产品图、应用图和配置说明组织选型页面。\n\n适用于渠道产品培训、展会讲解和项目初选。本文为站点演示内容。",
+        "content": [
+          "6ad5dbe7e38dfe7d41151550",
+          "6ad5dbd2e38dfe7d4115154e"
+        ],
+        "specifications": [
+          {
+            "group": null,
+            "items": [
+              {
+                "label": "内容用途",
+                "value": "移动创作内容演示",
+                "id": "6add5c4b6ac5303e64c6a8d9"
+              },
+              {
+                "label": "素材来源",
+                "value": "站内已有 Media",
+                "id": "6add5c4b6ac5303e64c6a8da"
+              }
+            ],
+            "id": "aafe3c865e7025ebe66356e1"
+          }
+        ],
+        "sections": [
+          {
+            "label": "产品亮点",
+            "anchor": "product-story",
+            "blocks": [
+              {
+                "blockType": "productMediaBanner",
+                "title": "Flow 2 Series，让创作成为日常",
+                "body": "围绕 Flow 2 Series 建立从产品展示到应用场景的内容叙事，所有图片均复用站内素材。此为本地演示内容。",
+                "media": "6aaa3f4c773f2cc00fdb918f",
+                "playback": "ambient",
+                "aspectRatio": "16:9",
+                "id": "6add5c4b6ac5303e64c6a8db"
+              }
+            ],
+            "id": "6add5c4b6ac5303e64c6a8dc"
+          },
+          {
+            "label": "使用场景",
+            "anchor": "creative-scenes",
+            "blocks": [
+              {
+                "blockType": "productMediaText",
+                "eyebrow": "CREATIVE SCENES",
+                "title": "把故事从构思带到画面",
+                "body": {
+                  "root": {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "detail": 0,
+                            "format": 0,
+                            "mode": "normal",
+                            "style": "",
+                            "text": "通过 Vlogging 与 Family Moments 两类现有场景素材，展示 Flow 2 Series 产品内容的图文组合方式。编辑者可以调整章节名称、媒体位置和段落内容。此为本地演示文案，具体技术参数以正式产品资料为准。",
+                            "type": "text",
+                            "version": 1
+                          }
+                        ],
+                        "direction": null,
+                        "format": "",
+                        "indent": 0,
+                        "type": "paragraph",
+                        "version": 1,
+                        "textFormat": 0,
+                        "textStyle": ""
+                      }
+                    ],
+                    "direction": null,
+                    "format": "",
+                    "indent": 0,
+                    "type": "root",
+                    "version": 1
+                  }
+                },
+                "media": "6aaa480c3b01909772704a45",
+                "playback": "ambient",
+                "mediaPosition": "left",
+                "aspectRatio": "1:1",
+                "id": "6add5c4b6ac5303e64c6a8dd"
+              }
+            ],
+            "id": "6add5c4b6ac5303e64c6a8de"
+          },
+          {
+            "label": "场景切换",
+            "anchor": "scene-tabs",
+            "blocks": [
+              {
+                "blockType": "productMediaTabs",
+                "title": "选择你的创作场景",
+                "tabs": [
+                  {
+                    "title": "产品外观",
+                    "media": "6aaa3f4c773f2cc00fdb918f",
+                    "playback": "ambient",
+                    "id": "6add5c4b6ac5303e64c6a8df"
+                  },
+                  {
+                    "title": "使用场景",
+                    "media": "6aaa480c3b01909772704a45",
+                    "playback": "ambient",
+                    "id": "6add5c4b6ac5303e64c6a8e0"
+                  }
+                ],
+                "aspectRatio": "4:3",
+                "theme": "default",
+                "id": "6add5c4b6ac5303e64c6a8e1"
+              }
+            ],
+            "id": "6add5c4b6ac5303e64c6a8e2"
+          }
+        ],
+        "meta": {},
+        "slug": "demo-insta360-flow-2-series",
+        "category": "6adcb95ef43c3bb2c41ea3f5",
+        "categorySlug": "demo-imaging-equipment",
+        "publishedAt": "2026-10-27T13:49:55.280Z",
+        "updatedAt": "2026-11-10T03:35:30.788Z",
+        "createdAt": "2026-10-25T01:32:59.985Z",
+        "_status": "published"
+      },
+      "createdAt": "2026-11-10T03:35:30.796Z",
+      "updatedAt": "2026-11-10T03:35:30.796Z",
+      "latest": true,
+      "autosave": false,
+      "__v": 0
+    }
+  ]
+}

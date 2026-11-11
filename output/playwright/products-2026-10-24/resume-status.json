@@ -1,0 +1,33 @@
+{
+  "state": "complete",
+  "confirmedCreated": 10,
+  "remaining": 0,
+  "sections": 29,
+  "blocks": 29,
+  "blockTypes": {
+    "productMediaBanner": 10,
+    "productMediaText": 10,
+    "productMediaCarousel": 3,
+    "productMediaTabs": 2,
+    "productMediaAccordion": 2,
+    "productCode": 2
+  },
+  "allDrafts": true,
+  "allMediaExist": true,
+  "originalUserDraftPreserved": true,
+  "mediaListPreferencesRestored": {
+    "headers": [
+      "",
+      "Name",
+      "Alt text",
+      "Type",
+      "Dimensions",
+      "Size",
+      "Folder",
+      "Updated At"
+    ],
+    "perPage": 10
+  },
+  "writes": "Product01 via Admin UI; Products02-10 via Playwright authenticated public Payload REST API; limited first-two Banner field sync",
+  "sourceCodeEdited": false
+}

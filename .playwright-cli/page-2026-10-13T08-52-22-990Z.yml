@@ -1,0 +1,239 @@
+- generic [active] [ref=e1]:
+  - link "Skip to content" [ref=e2] [cursor=pointer]:
+    - /url: "#main-content"
+  - banner:
+    - generic [ref=e4]:
+      - link [ref=e5] [cursor=pointer]:
+        - /url: /
+        - img "ecolitea-logo-dark" [ref=e6]
+      - generic [ref=e7]:
+        - navigation "Primary" [ref=e10]:
+          - generic [ref=e11]:
+            - button "Products" [ref=e13] [cursor=pointer]
+            - link "Accessories" [ref=e15] [cursor=pointer]:
+              - /url: https://store.insta360.com/accessory
+            - button "Shop by Interest" [ref=e17] [cursor=pointer]
+            - button "Professional" [ref=e19] [cursor=pointer]
+            - button "Support" [ref=e21] [cursor=pointer]
+        - generic [ref=e22]:
+          - link "Search" [ref=e23] [cursor=pointer]:
+            - /url: /search
+          - link "Request a Qoute" [ref=e27] [cursor=pointer]:
+            - /url: /posts/post-1
+  - main [ref=e28]:
+    - article [ref=e29]:
+      - link "Skip to table of contents" [ref=e30] [cursor=pointer]:
+        - /url: "#table-of-contents"
+      - navigation "Breadcrumb" [ref=e31]:
+        - list [ref=e32]:
+          - listitem [ref=e33]:
+            - link "Home" [ref=e34] [cursor=pointer]:
+              - /url: /
+          - listitem [aria-hidden] [ref=e35]: /
+          - listitem [ref=e36]:
+            - link "Blogs" [ref=e37] [cursor=pointer]:
+              - /url: /blogs
+          - listitem [aria-hidden] [ref=e38]: /
+          - listitem [ref=e39]:
+            - link "Sustainability" [ref=e40] [cursor=pointer]:
+              - /url: /blogs/category/sustainability
+          - listitem [aria-hidden] [ref=e41]: /
+          - listitem [ref=e42]: A closer look at materials that last
+      - generic [ref=e43]:
+        - link "Sustainability" [ref=e44] [cursor=pointer]:
+          - /url: /blogs/category/sustainability
+        - heading "A closer look at materials that last" [level=1] [ref=e45]
+        - generic [ref=e46]:
+          - generic [ref=e47]:
+            - generic "admin" [ref=e48]: A
+            - generic [ref=e49]: admin
+          - time [ref=e50]: 10/03/2026
+          - generic "Share article" [ref=e51]:
+            - link "Share on X" [ref=e52] [cursor=pointer]:
+              - /url: https://twitter.com/intent/tweet?url=http%3A%2F%2Flocalhost%3A3000%2Fblogs%2Fa-closer-look-at-materials-that-last&text=A%20closer%20look%20at%20materials%20that%20last
+              - text: X
+            - link "Share on Facebook" [ref=e53] [cursor=pointer]:
+              - /url: https://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2Flocalhost%3A3000%2Fblogs%2Fa-closer-look-at-materials-that-last
+              - text: f
+            - link "Share on LinkedIn" [ref=e54] [cursor=pointer]:
+              - /url: https://www.linkedin.com/sharing/share-offsite/?url=http%3A%2F%2Flocalhost%3A3000%2Fblogs%2Fa-closer-look-at-materials-that-last
+              - text: in
+      - img "Cycling POV" [ref=e58]
+      - generic [ref=e59]:
+        - generic [ref=e61]:
+          - heading "What makes a material feel dependable?" [level=2] [ref=e62]
+          - paragraph [ref=e63]: Durability begins with understanding how a product will be handled, stored, and maintained. A material that works beautifully in one setting may need a different finish in another.
+          - paragraph [ref=e64]: For this sample story, we compare a smooth reusable surface, a textured grip, and a lightweight structural shell. Each choice supports a different part of the experience.
+          - heading "Think beyond the first impression" [level=2] [ref=e65]
+          - paragraph [ref=e66]: Good materials keep their usefulness over time. Consider cleaning, repair, replacement parts, and how the surface will look after repeated use.
+          - heading "A simple checklist" [level=2] [ref=e67]
+          - list [ref=e68]:
+            - listitem [ref=e69]: Match the material to the everyday task.
+            - listitem [ref=e70]: Choose a finish that is easy to care for.
+            - listitem [ref=e71]: Balance weight with comfort and stability.
+          - paragraph [ref=e72]: Small decisions made early can help a product remain a welcome part of daily life.
+        - complementary [ref=e73]:
+          - navigation "Table of contents" [ref=e74]:
+            - paragraph [ref=e75]: On this page
+            - list [ref=e76]:
+              - listitem [ref=e77]:
+                - link "What makes a material feel dependable?" [ref=e78] [cursor=pointer]:
+                  - /url: "#what-makes-a-material-feel-dependable"
+              - listitem [ref=e79]:
+                - link "Think beyond the first impression" [ref=e80] [cursor=pointer]:
+                  - /url: "#think-beyond-the-first-impression"
+              - listitem [ref=e81]:
+                - link "A simple checklist" [ref=e82] [cursor=pointer]:
+                  - /url: "#a-simple-checklist"
+      - region "More to read" [ref=e83]:
+        - heading "More to read" [level=2] [ref=e84]
+        - generic [ref=e85]:
+          - article [ref=e86]:
+            - link "Read Rethinking packaging one layer at a time" [ref=e87] [cursor=pointer]:
+              - /url: /blogs/rethinking-packaging-one-layer-at-a-time
+              - img "Canoeing" [ref=e90]
+            - generic [ref=e91]:
+              - link "Sustainability" [ref=e92] [cursor=pointer]:
+                - /url: /blogs/category/sustainability
+              - heading [level=3] [ref=e93]:
+                - link "Rethinking packaging one layer at a time" [ref=e94] [cursor=pointer]:
+                  - /url: /blogs/rethinking-packaging-one-layer-at-a-time
+              - paragraph [ref=e95]: Consider how clearer choices in packaging can balance protection, presentation, and a more thoughtful unboxing experience.
+          - article [ref=e96]:
+            - link "Read From first sketch to everyday habit" [ref=e97] [cursor=pointer]:
+              - /url: /blogs/from-first-sketch-to-everyday-habit
+              - img "Scuba Diving" [ref=e100]
+            - generic [ref=e101]:
+              - link "Design & Innovation" [ref=e102] [cursor=pointer]:
+                - /url: /blogs/category/design--innovation
+              - heading [level=3] [ref=e103]:
+                - link "From first sketch to everyday habit" [ref=e104] [cursor=pointer]:
+                  - /url: /blogs/from-first-sketch-to-everyday-habit
+              - paragraph [ref=e105]: Follow an illustrative design journey from an early idea to a product that feels at home in a daily routine.
+          - article [ref=e106]:
+            - link "Read Built for moments outside" [ref=e107] [cursor=pointer]:
+              - /url: /blogs/built-for-moments-outside
+              - img "Hiking" [ref=e110]
+            - generic [ref=e111]:
+              - link "Product Insights" [ref=e112] [cursor=pointer]:
+                - /url: /blogs/category/product-insights
+              - heading [level=3] [ref=e113]:
+                - link "Built for moments outside" [ref=e114] [cursor=pointer]:
+                  - /url: /blogs/built-for-moments-outside
+              - paragraph [ref=e115]: A field-note style story about simple gear, open spaces, and products that fit naturally into an active day.
+  - contentinfo [ref=e116]:
+    - generic [ref=e117]:
+      - generic [ref=e118]:
+        - region "Brand" [ref=e119]:
+          - link [ref=e120] [cursor=pointer]:
+            - /url: /
+            - img "ecolitea-logo-dark" [ref=e121]
+          - paragraph [ref=e122]: Ecolitea is a B2B company providing reliable products and tailored solutions to customers worldwide.
+          - list "Social media" [ref=e123]:
+            - listitem [ref=e124]:
+              - link "LinkedIn" [ref=e125] [cursor=pointer]:
+                - /url: https://example.com/ecolitea/linkedin
+            - listitem [ref=e126]:
+              - link "YouTube" [ref=e127] [cursor=pointer]:
+                - /url: https://example.com/ecolitea/youtube
+            - listitem [ref=e128]:
+              - link "Facebook" [ref=e129] [cursor=pointer]:
+                - /url: https://example.com/ecolitea/facebook
+            - listitem [ref=e130]:
+              - link "Instagram" [ref=e131] [cursor=pointer]:
+                - /url: https://example.com/ecolitea/instagram
+            - listitem [ref=e132]:
+              - link "X" [ref=e133] [cursor=pointer]:
+                - /url: https://example.com/ecolitea/x
+        - navigation "Footer" [ref=e134]:
+          - generic [ref=e135]:
+            - heading "Products" [level=2] [ref=e136]
+            - list [ref=e138]:
+              - listitem [ref=e139]:
+                - link "Product 01" [ref=e140] [cursor=pointer]:
+                  - /url: /placeholder/products/category-01
+              - listitem [ref=e141]:
+                - link "Product 02" [ref=e142] [cursor=pointer]:
+                  - /url: /placeholder/products/category-02
+              - listitem [ref=e143]:
+                - link "Product 03" [ref=e144] [cursor=pointer]:
+                  - /url: /placeholder/products/category-03
+              - listitem [ref=e145]:
+                - link "Product 04" [ref=e146] [cursor=pointer]:
+                  - /url: /placeholder/products/category-04
+              - listitem [ref=e147]:
+                - link "Product 05" [ref=e148] [cursor=pointer]:
+                  - /url: /placeholder/products/category-05
+              - listitem [ref=e149]:
+                - link "Product 06" [ref=e150] [cursor=pointer]:
+                  - /url: /placeholder/products/category-06
+              - listitem [ref=e151]:
+                - link "Product 07" [ref=e152] [cursor=pointer]:
+                  - /url: /placeholder/products/category-07
+              - listitem [ref=e153]:
+                - link "Product 08" [ref=e154] [cursor=pointer]:
+                  - /url: /placeholder/products/category-08
+          - generic [ref=e155]:
+            - heading "Solutions" [level=2] [ref=e156]
+            - list [ref=e158]:
+              - listitem [ref=e159]:
+                - link "Hospitality" [ref=e160] [cursor=pointer]:
+                  - /url: /placeholder/solutions/hospitality
+              - listitem [ref=e161]:
+                - link "Commercial" [ref=e162] [cursor=pointer]:
+                  - /url: /placeholder/solutions/commercial
+              - listitem [ref=e163]:
+                - link "Residential" [ref=e164] [cursor=pointer]:
+                  - /url: /placeholder/solutions/residential
+              - listitem [ref=e165]:
+                - link "Custom projects" [ref=e166] [cursor=pointer]:
+                  - /url: /placeholder/solutions/custom-projects
+          - generic [ref=e167]:
+            - heading "Resources" [level=2] [ref=e168]
+            - list [ref=e170]:
+              - listitem [ref=e171]:
+                - link "Downloads" [ref=e172] [cursor=pointer]:
+                  - /url: /placeholder/resources/downloads
+              - listitem [ref=e173]:
+                - link "External resource" [ref=e174] [cursor=pointer]:
+                  - /url: https://example.com/placeholder-resource
+          - generic [ref=e175]:
+            - heading "Company" [level=2] [ref=e176]
+            - list [ref=e178]:
+              - listitem [ref=e179]:
+                - link "About us" [ref=e180] [cursor=pointer]:
+                  - /url: /placeholder/company/about
+              - listitem [ref=e181]:
+                - link "Contact" [ref=e182] [cursor=pointer]:
+                  - /url: /placeholder/company/contact
+              - listitem [ref=e183]:
+                - link "Partner portal" [ref=e184] [cursor=pointer]:
+                  - /url: https://example.com/placeholder-partner-portal
+        - generic [ref=e185]:
+          - region "Newsletter" [ref=e186]:
+            - heading "SUBSCRIBE TO OUR NEWSLETTER" [level=2] [ref=e187]
+            - paragraph [ref=e188]: Unlock savings & perks, members-only offers.
+            - generic [ref=e189]:
+              - textbox "Email address" [disabled] [ref=e190]
+              - button "Subscribe" [disabled] [ref=e191]
+          - list [ref=e193]:
+            - listitem [ref=e194]:
+              - generic [ref=e198]: 5425 Janet Ct, OAK FOREST, IL 60452-3740, United States
+            - listitem [ref=e199]:
+              - link "+86 1234567 8910" [ref=e202] [cursor=pointer]:
+                - /url: tel:+86 1234567 8910
+            - listitem [ref=e203]:
+              - link "sales@ecolitea.com" [ref=e207] [cursor=pointer]:
+                - /url: mailto:sales@ecolitea.com
+      - generic [ref=e208]:
+        - paragraph [ref=e209]: © 2026 Ecolitea. All rights reserved.
+        - navigation "Legal" [ref=e210]:
+          - list [ref=e211]:
+            - listitem [ref=e212]:
+              - link "Privacy Policy" [ref=e213] [cursor=pointer]:
+                - /url: /home
+            - listitem [ref=e214]:
+              - link "Terms" [ref=e215] [cursor=pointer]:
+                - /url: /home
+  - button "Open Next.js Dev Tools" [ref=e221] [cursor=pointer]
+  - alert [ref=e225]

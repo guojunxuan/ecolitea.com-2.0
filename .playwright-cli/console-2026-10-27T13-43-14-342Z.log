@@ -1,0 +1,145 @@
+[    1157ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[    1172ms] [LOG] [HMR] connected @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[    1213ms] [WARNING] Image with src "/api/media/file/header-insta360-x6.png?2026-10-18T11%3A27%3A27.642Z" has a "loader" property that does not implement width. Please implement it or use the "unoptimized" property instead.
+Read more: https://nextjs.org/docs/messages/next-image-missing-loader-width @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[    1217ms] [WARNING] Image with src "/api/media/file/header-insta360-x5.jpg?2026-10-18T11%3A27%3A28.009Z" has a "loader" property that does not implement width. Please implement it or use the "unoptimized" property instead.
+Read more: https://nextjs.org/docs/messages/next-image-missing-loader-width @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[    1521ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3000/api/media/file/header-insta360-x6.png?2026-10-18T11%3A27%3A27.642Z:0
+[    1524ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3000/api/media/file/header-insta360-x5.jpg?2026-10-18T11%3A27%3A28.009Z:0
+[    4525ms] [WARNING] The resource http://localhost:3000/_next/static/chunks/src_app_(frontend)_pages_module_20iobdx.css was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/products:0
+[  167959ms] [ERROR] WebSocket connection to 'ws://localhost:3000/_next/hmr?id=LSG8U0PuMA6trPBLExFtl' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_client_1s_doiy._.js:16348
+[  168963ms] [ERROR] WebSocket connection to 'ws://localhost:3000/_next/hmr?id=LSG8U0PuMA6trPBLExFtl' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_client_1s_doiy._.js:16348
+[  169967ms] [ERROR] WebSocket connection to 'ws://localhost:3000/_next/hmr?id=LSG8U0PuMA6trPBLExFtl' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_client_1s_doiy._.js:16348
+[  170971ms] [ERROR] WebSocket connection to 'ws://localhost:3000/_next/hmr?id=LSG8U0PuMA6trPBLExFtl' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_client_1s_doiy._.js:16348
+[  171975ms] [ERROR] WebSocket connection to 'ws://localhost:3000/_next/hmr?id=LSG8U0PuMA6trPBLExFtl' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_client_1s_doiy._.js:16348
+[  176978ms] [ERROR] WebSocket connection to 'ws://localhost:3000/_next/hmr?id=LSG8U0PuMA6trPBLExFtl' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_client_1s_doiy._.js:16348
+[  181986ms] [LOG] [HMR] connected @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  184220ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  184231ms] [LOG] [HMR] connected @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  184257ms] [WARNING] Image with src "/api/media/file/header-insta360-x6.png?2026-10-18T11%3A27%3A27.642Z" has a "loader" property that does not implement width. Please implement it or use the "unoptimized" property instead.
+Read more: https://nextjs.org/docs/messages/next-image-missing-loader-width @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  184262ms] [WARNING] Image with src "/api/media/file/header-insta360-x5.jpg?2026-10-18T11%3A27%3A28.009Z" has a "loader" property that does not implement width. Please implement it or use the "unoptimized" property instead.
+Read more: https://nextjs.org/docs/messages/next-image-missing-loader-width @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  186114ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3000/api/media/file/header-insta360-x5.jpg?2026-10-18T11%3A27%3A28.009Z:0
+[  186117ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3000/api/media/file/header-insta360-x6.png?2026-10-18T11%3A27%3A27.642Z:0
+[  189119ms] [WARNING] The resource http://localhost:3000/_next/static/chunks/src_app_(frontend)_pages_module_20iobdx.css was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/products:0
+[  195843ms] [WARNING] The resource http://localhost:3000/_next/static/chunks/src_app_(frontend)_pages_module_20iobdx.css was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/products:0
+[  244712ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  245496ms] [LOG] [Fast Refresh] done in 885ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  247814ms] [WARNING] The resource http://localhost:3000/_next/static/chunks/src_app_(frontend)_pages_module_20iobdx.css was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/products:0
+[  386150ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  386186ms] [LOG] [Fast Refresh] done in 33ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  386244ms] [LOG] [Fast Refresh] done in 33ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  390520ms] [WARNING] The resource http://localhost:3000/_next/static/chunks/src_app_(frontend)_pages_module_20iobdx.css was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/products:0
+[  400925ms] [LOG] [Fast Refresh] done in 33ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  401229ms] [LOG] [Fast Refresh] done in 33ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  401343ms] [LOG] [Fast Refresh] done in 33ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  410604ms] [LOG] [Fast Refresh] done in 33ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  411512ms] [LOG] [Fast Refresh] done in 33ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  411568ms] [LOG] [Fast Refresh] done in 33ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  418190ms] [LOG] [Fast Refresh] done in 33ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  418847ms] [LOG] [Fast Refresh] done in 33ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  428595ms] [LOG] [Fast Refresh] done in 33ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  430533ms] [LOG] [Fast Refresh] done in 33ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  434500ms] [LOG] [Fast Refresh] done in 33ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  437640ms] [LOG] [Fast Refresh] done in 33ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  446744ms] [LOG] [Fast Refresh] done in 33ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  465837ms] [LOG] [Fast Refresh] done in 33ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  466852ms] [LOG] [Fast Refresh] done in 33ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  469353ms] [LOG] [Fast Refresh] done in 33ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  471632ms] [LOG] [Fast Refresh] done in 33ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  472203ms] [LOG] [Fast Refresh] done in 33ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  472836ms] [LOG] [Fast Refresh] done in 33ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  524415ms] [LOG] [Fast Refresh] done in 33ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  525192ms] [LOG] [Fast Refresh] done in 33ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  543328ms] [LOG] [Fast Refresh] done in 33ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  551875ms] [LOG] [Fast Refresh] done in 33ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  556866ms] [LOG] [Fast Refresh] done in 33ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  559154ms] [LOG] [Fast Refresh] done in 33ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  559320ms] [LOG] [Fast Refresh] done in 33ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  559477ms] [LOG] [Fast Refresh] done in 33ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  560622ms] [LOG] [Fast Refresh] done in 33ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  561351ms] [LOG] [Fast Refresh] done in 33ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  563035ms] [LOG] [Fast Refresh] done in 33ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  565093ms] [LOG] [Fast Refresh] done in 33ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  565431ms] [LOG] [Fast Refresh] done in 33ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  566146ms] [LOG] [Fast Refresh] done in 33ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  566577ms] [LOG] [Fast Refresh] done in 33ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  575104ms] [LOG] [Fast Refresh] done in 33ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  575920ms] [LOG] [Fast Refresh] done in 33ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  584033ms] [LOG] [Fast Refresh] done in 33ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  585170ms] [LOG] [Fast Refresh] done in 33ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  585228ms] [LOG] [Fast Refresh] done in 33ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  585318ms] [LOG] [Fast Refresh] done in 33ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  585356ms] [LOG] [Fast Refresh] done in 33ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  585423ms] [LOG] [Fast Refresh] done in 33ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  586053ms] [LOG] [Fast Refresh] done in 33ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  593333ms] [LOG] [Fast Refresh] done in 33ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  593407ms] [LOG] [Fast Refresh] done in 33ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  593567ms] [LOG] [Fast Refresh] done in 33ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  599903ms] [LOG] [Fast Refresh] done in 33ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  599990ms] [LOG] [Fast Refresh] done in 33ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  600237ms] [LOG] [Fast Refresh] done in 33ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  600353ms] [LOG] [Fast Refresh] done in 33ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  600422ms] [LOG] [Fast Refresh] done in 33ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  602236ms] [LOG] [Fast Refresh] done in 33ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  602441ms] [LOG] [Fast Refresh] done in 33ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  602635ms] [LOG] [Fast Refresh] done in 33ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  606669ms] [LOG] [Fast Refresh] done in 33ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  611165ms] [LOG] [Fast Refresh] done in 33ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  614659ms] [LOG] [Fast Refresh] done in 33ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  615867ms] [LOG] [Fast Refresh] done in 33ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  616197ms] [LOG] [Fast Refresh] done in 33ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  616564ms] [LOG] [Fast Refresh] done in 33ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  617487ms] [LOG] [Fast Refresh] done in 33ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  618766ms] [LOG] [Fast Refresh] done in 33ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  618820ms] [LOG] [Fast Refresh] done in 33ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  619016ms] [LOG] [Fast Refresh] done in 33ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  660081ms] [LOG] [Fast Refresh] done in 33ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  663055ms] [LOG] [Fast Refresh] done in 33ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  665581ms] [LOG] [Fast Refresh] done in 33ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  667770ms] [LOG] [Fast Refresh] done in 33ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  669767ms] [LOG] [Fast Refresh] done in 33ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  671439ms] [LOG] [Fast Refresh] done in 33ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  671770ms] [LOG] [Fast Refresh] done in 33ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  672541ms] [LOG] [Fast Refresh] done in 33ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  675174ms] [LOG] [Fast Refresh] done in 33ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  675618ms] [LOG] [Fast Refresh] done in 33ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  676857ms] [LOG] [Fast Refresh] done in 33ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  677555ms] [LOG] [Fast Refresh] done in 33ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  680541ms] [LOG] [Fast Refresh] done in 33ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  680631ms] [LOG] [Fast Refresh] done in 33ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  686978ms] [LOG] [Fast Refresh] done in 33ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  696057ms] [LOG] [Fast Refresh] done in 33ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  697754ms] [LOG] [Fast Refresh] done in 33ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  702535ms] [LOG] [Fast Refresh] done in 33ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  703522ms] [LOG] [Fast Refresh] done in 33ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  703611ms] [LOG] [Fast Refresh] done in 33ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  709183ms] [LOG] [Fast Refresh] done in 33ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  710449ms] [LOG] [Fast Refresh] done in 33ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  737745ms] [LOG] [Fast Refresh] done in 33ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  740249ms] [LOG] [Fast Refresh] done in 33ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  743334ms] [LOG] [Fast Refresh] done in 33ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  743691ms] [LOG] [Fast Refresh] done in 33ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  744103ms] [LOG] [Fast Refresh] done in 33ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  745583ms] [LOG] [Fast Refresh] done in 33ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  746369ms] [LOG] [Fast Refresh] done in 33ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  747259ms] [LOG] [Fast Refresh] done in 33ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  747566ms] [LOG] [Fast Refresh] done in 33ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  747987ms] [LOG] [Fast Refresh] done in 33ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  750228ms] [LOG] [Fast Refresh] done in 33ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  750614ms] [LOG] [Fast Refresh] done in 33ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  751023ms] [LOG] [Fast Refresh] done in 33ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  751558ms] [LOG] [Fast Refresh] done in 33ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  752344ms] [LOG] [Fast Refresh] done in 33ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  753231ms] [LOG] [Fast Refresh] done in 33ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  756479ms] [LOG] [Fast Refresh] done in 33ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  757052ms] [LOG] [Fast Refresh] done in 33ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  757148ms] [LOG] [Fast Refresh] done in 33ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  760782ms] [LOG] [Fast Refresh] done in 33ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[ 1289613ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[ 1289923ms] [LOG] [Fast Refresh] done in 376ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[ 1292716ms] [WARNING] The resource http://localhost:3000/_next/static/chunks/src_app_(frontend)_pages_module_20iobdx.css was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/products:0
+[ 1306173ms] [LOG] [Fast Refresh] done in 376ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[ 1307748ms] [LOG] [Fast Refresh] done in 376ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[ 4687010ms] [LOG] [HMR] connected @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776

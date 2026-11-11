@@ -1,0 +1,577 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Template A · Blog detail mockup</title>
+<style>
+  @font-face {
+    font-family: 'Geist';
+    src: url('./Geist-Variable.woff2') format('woff2');
+    font-weight: 100 900;
+    font-display: swap;
+  }
+
+  :root {
+    --black: #0a0a0a;
+    --white: #ffffff;
+    --n100: #f7f7f8;
+    --n200: #ededee;
+    --n300: #e0e0e2;
+    --n500: #9a9aa1;
+    --n600: #76767f;
+    --n900: #262629;
+    --fg: var(--n900);
+    --muted: var(--n600);
+    --border: var(--n300);
+    --container: 76.25rem;
+    --reading: 46rem;
+    --aside: 17.5rem;
+    --gutter: 1.5rem;
+    --radius-control: 8px;
+    --radius-content: 12px;
+    --radius-panel: 16px;
+    --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+
+  @media (width >= 48rem) {
+    :root { --gutter: 2rem; }
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+  body {
+    margin: 0;
+    font-family: 'Geist', system-ui, sans-serif;
+    color: var(--fg);
+    background: var(--white);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  a { color: inherit; text-decoration: none; }
+  img { display: block; max-width: 100%; }
+
+  .container {
+    width: min(100% - 2 * var(--gutter), var(--container));
+    margin-inline: auto;
+  }
+
+  /* Mockup label */
+  .mock-label {
+    padding: 6px var(--gutter);
+    background: var(--n100);
+    border-bottom: 1px solid var(--border);
+    color: var(--muted);
+    font-size: 12px;
+    text-align: center;
+  }
+
+  /* Site header (simplified replica) */
+  .site-header { border-bottom: 1px solid var(--border); }
+  .site-header .container {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    height: 64px;
+  }
+  .logo { line-height: 1; }
+  .logo strong { display: block; font-size: 20px; letter-spacing: 0.04em; font-weight: 700; }
+  .logo span { display: block; margin-top: 2px; font-size: 7px; letter-spacing: 0.18em; font-weight: 600; }
+  .site-nav { display: none; gap: 1.5rem; margin-left: auto; font-size: 13px; }
+  .site-actions { display: flex; align-items: center; gap: 1rem; margin-left: auto; }
+  .quote {
+    display: none;
+    padding: 9px 14px;
+    border-radius: var(--radius-control);
+    background: var(--black);
+    color: var(--white);
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .icon-btn { width: 20px; height: 20px; }
+  @media (width >= 64rem) {
+    .site-nav { display: flex; }
+    .site-actions { margin-left: 0; }
+    .quote { display: inline-block; }
+    .menu-btn { display: none; }
+  }
+
+  /* Article header */
+  .breadcrumb {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 8px;
+    margin: 40px 0 0;
+    padding: 0;
+    list-style: none;
+    color: var(--muted);
+    font-size: 13px;
+    min-width: 0;
+  }
+  @media (width >= 64rem) { .breadcrumb { margin-top: 56px; } }
+  .breadcrumb li { white-space: nowrap; }
+  .breadcrumb li:last-child { overflow: hidden; text-overflow: ellipsis; color: var(--fg); }
+  .breadcrumb a:hover { color: var(--fg); text-decoration: underline; text-underline-offset: 3px; }
+
+  h1 {
+    margin: 32px 0 0;
+    font-size: clamp(2.25rem, 1.35rem + 3.4vw, 4rem);
+    font-weight: 600;
+    line-height: 1.04;
+    letter-spacing: -0.032em;
+    text-wrap: pretty;
+  }
+  .dek {
+    margin: 28px 0 0;
+    padding: 18px 20px;
+    border-left: 4px solid var(--fg);
+    border-radius: 0 var(--radius-content) var(--radius-content) 0;
+    background: var(--n100);
+    color: var(--fg);
+    font-size: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
+    font-style: italic;
+    line-height: 1.6;
+    text-wrap: pretty;
+  }
+  @media (width >= 48rem) { .dek { padding: 20px 32px; } }
+  .byline {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 10px;
+    margin-top: 24px;
+    color: var(--muted);
+    font-size: 14px;
+  }
+  .byline strong { color: var(--fg); font-weight: 600; }
+  .byline .dot { width: 3px; height: 3px; border-radius: 50%; background: var(--n500); }
+
+  .hero {
+    overflow: hidden;
+    margin-top: 40px;
+    border-radius: var(--radius-content);
+    aspect-ratio: 4 / 3;
+    background: var(--n100);
+  }
+  .hero img { width: 100%; height: 100%; object-fit: cover; }
+  @media (width >= 48rem) { .hero { aspect-ratio: 16 / 9; } }
+  @media (width >= 64rem) { .hero { aspect-ratio: 21 / 9; } }
+
+  /* Body grid */
+  .article-body { margin-top: 40px; }
+  @media (width >= 64rem) {
+    .article-body {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) var(--aside);
+      column-gap: clamp(3rem, 6vw, 6rem);
+      align-items: start;
+      margin-top: 64px;
+    }
+  }
+
+  .main > * { max-width: var(--reading); }
+  .main > .wide { max-width: none; }
+
+  .main p {
+    margin: 0 0 1.25em;
+    font-size: 17px;
+    line-height: 1.75;
+    text-wrap: pretty;
+  }
+  .main h2 {
+    margin: 2.25em 0 0.6em;
+    font-size: clamp(1.5rem, 1.3rem + 0.6vw, 1.75rem);
+    font-weight: 600;
+    line-height: 1.25;
+    letter-spacing: -0.015em;
+    scroll-margin-top: 88px;
+  }
+  @media (width >= 64rem) { .main h2 { scroll-margin-top: 40px; } }
+  .main h2 + p { margin-top: 0; }
+
+  .block { margin-block: 48px; }
+  .main > .block:first-child { margin-top: 0; }
+  .block + h2 { margin-top: 0; }
+
+  /* Existing block appearances, kept as they render today */
+  .banner {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 12px;
+    padding: 14px 16px;
+    border: 1px solid #c7d7fe;
+    border-radius: var(--radius-control);
+    background: #eff4ff;
+    color: #1d3a8a;
+    font-size: 15px;
+    line-height: 1.55;
+  }
+  .banner svg { width: 18px; height: 18px; margin-top: 2px; }
+  .banner strong { display: block; margin-bottom: 2px; }
+
+  .takeaways {
+    padding: 24px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-content);
+    background: var(--n100);
+  }
+  .takeaways h3 { margin: 0 0 12px; font-size: 18px; font-weight: 600; }
+  .takeaways ul { margin: 0; padding-left: 1.25em; font-size: 16px; line-height: 1.6; }
+  .takeaways li + li { margin-top: 6px; }
+  .takeaways li::marker { color: var(--n500); }
+
+  figure { margin: 0; }
+  figure img {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    border-radius: var(--radius-content);
+  }
+  figcaption {
+    max-width: var(--reading);
+    margin-top: 12px;
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1.55;
+  }
+
+  .cta {
+    display: grid;
+    gap: 24px;
+    padding: 24px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-panel);
+  }
+  .cta img { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; border-radius: var(--radius-content); }
+  .cta h3 { margin: 0; font-size: 24px; font-weight: 600; letter-spacing: -0.01em; }
+  .cta p { margin: 10px 0 20px !important; color: var(--muted); font-size: 16px !important; line-height: 1.6 !important; }
+  .cta .content { align-self: center; }
+  .button {
+    display: inline-block;
+    padding: 12px 18px;
+    border-radius: var(--radius-control);
+    background: var(--black);
+    color: var(--white);
+    font-size: 14px;
+    font-weight: 600;
+  }
+  @media (width >= 48rem) { .cta { grid-template-columns: 1fr 1fr; align-items: center; } }
+
+  /* Desktop aside: TOC + share */
+  .aside { display: none; }
+  @media (width >= 64rem) {
+    .aside { display: block; position: sticky; top: 40px; }
+  }
+  .aside-label {
+    margin: 0 0 14px;
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .toc { margin: 0; padding: 0; list-style: none; border-left: 1px solid var(--border); }
+  .toc a {
+    display: block;
+    margin-left: -1px;
+    padding: 7px 0 7px 16px;
+    border-left: 2px solid transparent;
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1.45;
+    transition: color 160ms var(--ease), border-color 160ms var(--ease);
+  }
+  .toc a:hover { color: var(--fg); }
+  .toc a.active { border-left-color: var(--black); color: var(--fg); font-weight: 500; }
+  .toc a:focus-visible, .share-btn:focus-visible, .toc-bar button:focus-visible {
+    outline: 2px solid var(--black);
+    outline-offset: 2px;
+  }
+
+  .share { margin-top: 32px; padding-top: 24px; border-top: 1px solid var(--border); }
+  .share-row { display: flex; align-items: center; gap: 4px; margin-left: -10px; }
+  /* Same treatment as the Footer icons: bare marks, muted until hover; 44px touch target. */
+  .share-btn {
+    display: inline-grid;
+    place-items: center;
+    width: 40px;
+    height: 44px;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--fg);
+    cursor: pointer;
+    opacity: 0.68;
+    transition: opacity 160ms var(--ease);
+  }
+  .share-btn:hover, .share-btn:focus-visible { opacity: 1; }
+  .share-btn img, .share-btn svg { width: 20px; height: 20px; object-fit: contain; }
+  .copied { margin: 10px 0 0; color: var(--muted); font-size: 12px; min-height: 1em; }
+
+  /* Mobile: share at article end */
+  .share-inline { margin-top: 48px; }
+  @media (width >= 64rem) { .share-inline { display: none; } }
+
+  /* Mobile sticky TOC bar */
+  .toc-bar {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    margin: 32px calc(-1 * var(--gutter)) 0;
+    padding: 0 var(--gutter);
+    border-block: 1px solid var(--border);
+    background: rgb(255 255 255 / 92%);
+    backdrop-filter: blur(8px);
+  }
+  .toc-bar button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    min-height: 48px;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--fg);
+    font: inherit;
+    font-size: 14px;
+    cursor: pointer;
+    text-align: left;
+  }
+  .toc-bar .label { color: var(--muted); white-space: nowrap; }
+  .toc-bar .current { overflow: hidden; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
+  .toc-bar svg { width: 16px; height: 16px; margin-left: auto; flex: none; }
+  @media (width >= 64rem) { .toc-bar { display: none; } }
+
+  dialog.drawer {
+    position: fixed;
+    inset: auto 0 0 0;
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius-panel) var(--radius-panel) 0 0;
+    background: var(--white);
+    color: var(--fg);
+    box-shadow: 0 -12px 40px rgb(0 0 0 / 12%);
+  }
+  dialog.drawer::backdrop { background: rgb(0 0 0 / 40%); }
+  .drawer-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px var(--gutter);
+    border-bottom: 1px solid var(--border);
+  }
+  .drawer-head h2 { margin: 0; font-size: 16px; }
+  .drawer-head button { width: 44px; height: 44px; border: 0; background: none; font-size: 24px; cursor: pointer; }
+  .drawer .toc { margin: 16px var(--gutter) 28px; }
+  .drawer .toc a { padding-block: 11px; font-size: 15px; }
+
+  /* Related */
+  .related { margin-top: 64px; padding-top: 48px; border-top: 1px solid var(--border); }
+  .related h2 { margin: 0 0 32px; font-size: clamp(1.5rem, 1.3rem + 0.6vw, 2rem); font-weight: 600; letter-spacing: -0.015em; }
+  .related-grid { display: grid; gap: 24px; }
+  @media (width >= 48rem) { .related-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  .card { overflow: hidden; border: 1px solid var(--border); border-radius: var(--radius-content); }
+  .card .media { overflow: hidden; aspect-ratio: 3 / 2; background: var(--n100); }
+  .card img { width: 100%; height: 100%; object-fit: cover; transition: transform 240ms var(--ease); }
+  .card:hover img { transform: scale(1.04); }
+  .card .body { padding: 20px 24px 24px; }
+  .card .cat { color: var(--muted); font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; }
+  .card h3 { margin: 10px 0 8px; font-size: 18px; font-weight: 600; line-height: 1.3; }
+  .card p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.55; }
+
+  .site-footer { margin-top: 96px; padding: 48px 0; background: var(--black); color: var(--n500); font-size: 13px; }
+</style>
+</head>
+<body>
+  <div class="mock-label">Mockup · Template A 编辑双栏 · 使用文章真实内容</div>
+
+  <header class="site-header">
+    <div class="container">
+      <a class="logo" href="#"><strong>ECOLITEA</strong><span>ILLUMINATE THE FUTURE</span></a>
+      <nav class="site-nav" aria-label="Main">
+        <a href="#">Products</a><a href="#">Accessories</a><a href="#">Shop by Interest</a><a href="#">Professional</a><a href="#">Support</a>
+      </nav>
+      <div class="site-actions">
+        <svg class="icon-btn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <a class="quote" href="#">Request a Quote</a>
+        <svg class="icon-btn menu-btn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <nav aria-label="Breadcrumb">
+      <ol class="breadcrumb">
+        <li><a href="#">Home</a></li><li aria-hidden="true">/</li>
+        <li><a href="#">Blogs</a></li><li aria-hidden="true">/</li>
+        <li><a href="#">Product Insights</a></li><li aria-hidden="true">/</li>
+        <li aria-current="page">Small details, better everyday products</li>
+      </ol>
+    </nav>
+
+    <article>
+      <header class="article-header">
+        <h1>Small details, better everyday products</h1>
+        <div class="byline">
+          <span>By <strong>admin</strong></span><span class="dot"></span>
+          <time datetime="2026-10-03">October 3, 2026</time>
+        </div>
+        <p class="dek">Explore how careful material choices and practical design turn familiar products into reliable companions for everyday life.</p>
+      </header>
+
+      <div class="hero"><img src="./img/interest-16.jpg" alt="Coastal Rides" /></div>
+
+      <div class="toc-bar">
+        <button type="button" id="open-toc" aria-haspopup="dialog">
+          <span class="label">On this page</span>
+          <span class="current" id="toc-current">Designed around real routines</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+      </div>
+
+      <div class="article-body">
+        <div class="main">
+          <div class="block banner" role="note">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>
+            <div><strong>A note from the editor</strong>This is a sample article created to explore the journal layout. The ideas and examples are illustrative.</div>
+          </div>
+
+          <aside class="block takeaways" aria-label="At a Glance">
+            <h3>At a Glance</h3>
+            <ul>
+              <li>Start with the task people repeat most often.</li>
+              <li>Use materials that support comfort and durability.</li>
+              <li>Test small details before making final design choices.</li>
+            </ul>
+          </aside>
+
+          <h2 id="designed-around-real-routines">Designed around real routines</h2>
+          <p>A useful product earns its place by making a familiar task feel easier. The difference often comes from quiet details: a comfortable grip, a clear control, or a surface that is simple to clean.</p>
+          <p>Imagine a small team testing early prototypes around the office. Each person notices something different, and those observations become the next round of improvements.</p>
+
+          <figure class="block wide">
+            <img src="./img/interest-13.jpg" alt="Hiking" />
+            <figcaption>An outdoor moment, selected from the existing media library for this layout preview.</figcaption>
+          </figure>
+
+          <h2 id="materials-that-feel-right">Materials that feel right</h2>
+          <p>Texture, weight, and finish shape the first impression. A balanced material palette can make a product feel approachable while supporting the way it will be used every day.</p>
+
+          <h2 id="making-the-final-choice">Making the final choice</h2>
+          <p>The best design decisions connect appearance with purpose. Start with the everyday task, test the details, and keep the experience clear from the first use.</p>
+
+          <div class="block wide cta">
+            <img src="./img/interest-14.jpg" alt="Family Moments" />
+            <div class="content">
+              <h3>Find ideas for your next project</h3>
+              <p>Discover more product stories, practical guides, and thoughtful design ideas from the Ecolitea journal.</p>
+              <a class="button" href="#">Explore the journal</a>
+            </div>
+          </div>
+
+          <div class="share-inline">
+            <p class="aside-label">Share this article</p>
+            <div class="share-row" data-share></div>
+            <p class="copied" aria-live="polite"></p>
+          </div>
+        </div>
+
+        <aside class="aside" aria-label="Article tools">
+          <nav aria-label="Table of contents">
+            <p class="aside-label">On this page</p>
+            <ol class="toc" data-toc></ol>
+          </nav>
+          <div class="share">
+            <p class="aside-label">Share</p>
+            <div class="share-row" data-share></div>
+            <p class="copied" aria-live="polite"></p>
+          </div>
+        </aside>
+      </div>
+    </article>
+
+    <section class="related" aria-label="More to read">
+      <h2>More to read</h2>
+      <div class="related-grid">
+        <article class="card"><a href="#"><div class="media"><img src="./img/interest-13.jpg" alt="" /></div></a>
+          <div class="body"><span class="cat">Product Insights</span><h3><a href="#">Built for moments outside</a></h3><p>A field-note style story about simple gear, open spaces, and products that fit naturally into an active day.</p></div></article>
+        <article class="card"><a href="#"><div class="media"><img src="./img/interest-15.jpg" alt="" /></div></a>
+          <div class="body"><span class="cat">Sustainability</span><h3><a href="#">A closer look at materials that last</a></h3><p>A practical look at texture, durability, and the material decisions that help products stay useful for longer.</p></div></article>
+        <article class="card"><a href="#"><div class="media"><img src="./img/interest-10.jpg" alt="" /></div></a>
+          <div class="body"><span class="cat">Design &amp; Innovation</span><h3><a href="#">From first sketch to everyday habit</a></h3><p>Follow an illustrative design journey from an early idea to a product that feels at home in a daily routine.</p></div></article>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer"><div class="container">Site footer (unchanged)</div></footer>
+
+  <dialog class="drawer" id="toc-drawer" aria-labelledby="drawer-title">
+    <div class="drawer-head">
+      <h2 id="drawer-title">On this page</h2>
+      <button type="button" id="close-toc" aria-label="Close table of contents">×</button>
+    </div>
+    <nav aria-label="Table of contents"><ol class="toc" data-toc></ol></nav>
+  </dialog>
+
+  <script>
+    const headings = [...document.querySelectorAll('.main h2[id]')]
+    for (const list of document.querySelectorAll('[data-toc]')) {
+      list.innerHTML = headings.map((h) => `<li><a href="#${h.id}">${h.textContent}</a></li>`).join('')
+    }
+
+    // Platform icons come from Social Platforms (the Footer's SVGs); copy link is a UI icon, not a brand mark.
+    const platforms = [
+      ['X', './icons/social-x.svg'],
+      ['Facebook', './icons/social-facebook.svg'],
+      ['LinkedIn', './icons/social-linkedin.svg'],
+    ]
+    const copyIcon = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.66 0l3-3a4 4 0 0 0-5.66-5.66l-1 1M14 10a4 4 0 0 0-5.66 0l-3 3a4 4 0 0 0 5.66 5.66l1-1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>'
+    for (const row of document.querySelectorAll('[data-share]')) {
+      row.innerHTML =
+        platforms
+          .map(([name, src]) => `<a class="share-btn" href="#" aria-label="Share on ${name}"><img src="${src}" alt="" /></a>`)
+          .join('') +
+        `<button class="share-btn" type="button" aria-label="Copy link" data-name="Copy link">${copyIcon}</button>`
+    }
+    document.addEventListener('click', (event) => {
+      const button = event.target.closest('.share-btn[data-name="Copy link"]')
+      if (!button) return
+      navigator.clipboard?.writeText(location.href)
+      for (const status of document.querySelectorAll('.copied')) {
+        status.textContent = 'Link copied'
+        setTimeout(() => (status.textContent = ''), 2000)
+      }
+    })
+
+    const links = [...document.querySelectorAll('[data-toc] a')]
+    const current = document.getElementById('toc-current')
+    const setActive = (id) => {
+      for (const link of links) link.classList.toggle('active', link.hash === `#${id}`)
+      const heading = document.getElementById(id)
+      if (heading) current.textContent = heading.textContent
+    }
+    setActive(headings[0].id)
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries.filter((entry) => entry.isIntersecting)
+        if (visible.length) setActive(visible[0].target.id)
+      },
+      { rootMargin: '0px 0px -70% 0px' },
+    )
+    headings.forEach((heading) => observer.observe(heading))
+
+    const drawer = document.getElementById('toc-drawer')
+    document.getElementById('open-toc').addEventListener('click', () => drawer.showModal())
+    document.getElementById('close-toc').addEventListener('click', () => drawer.close())
+    drawer.addEventListener('click', (event) => {
+      if (event.target === drawer || event.target.closest('a')) drawer.close()
+    })
+  </script>
+</body>
+</html>

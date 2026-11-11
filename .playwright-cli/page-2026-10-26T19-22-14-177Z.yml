@@ -1,0 +1,229 @@
+- generic [active] [ref=e1]:
+  - link "Skip to content" [ref=e2] [cursor=pointer]:
+    - /url: "#main-content"
+  - banner:
+    - generic [ref=e4]:
+      - link [ref=e5] [cursor=pointer]:
+        - /url: /
+        - img "ecolitea-logo-dark" [ref=e6]
+      - generic [ref=e7]:
+        - navigation "Primary" [ref=e10]:
+          - generic [ref=e11]:
+            - button "Products" [ref=e13] [cursor=pointer]
+            - link "Accessories" [ref=e15] [cursor=pointer]:
+              - /url: https://store.insta360.com/accessory
+            - button "Shop by Interest" [ref=e17] [cursor=pointer]
+            - button "Professional" [ref=e19] [cursor=pointer]
+            - button "Support" [ref=e21] [cursor=pointer]
+        - link "Search" [ref=e23] [cursor=pointer]:
+          - /url: /search
+  - main [ref=e27]:
+    - article [ref=e28]:
+      - generic [ref=e29]:
+        - heading "Local component validation" [level=1] [ref=e30]
+        - link "Get a Quote" [ref=e32] [cursor=pointer]:
+          - /url: /products
+      - navigation "Product sections" [ref=e33]:
+        - generic [ref=e35]:
+          - generic [ref=e36]:
+            - link "Overview" [ref=e37] [cursor=pointer]:
+              - /url: "#overview"
+            - link "Product section 1" [ref=e38] [cursor=pointer]:
+              - /url: "#check-0"
+            - link "Product section 2" [ref=e39] [cursor=pointer]:
+              - /url: "#check-1"
+            - link "Product section 3" [ref=e40] [cursor=pointer]:
+              - /url: "#check-2"
+            - link "Product section 4" [ref=e41] [cursor=pointer]:
+              - /url: "#check-3"
+            - link "Product section 5" [ref=e42] [cursor=pointer]:
+              - /url: "#check-4"
+            - link "Product section 6" [ref=e43] [cursor=pointer]:
+              - /url: "#check-5"
+            - link "Product section 7" [ref=e44] [cursor=pointer]:
+              - /url: "#check-6"
+            - link "Product section 8" [ref=e45] [cursor=pointer]:
+              - /url: "#check-7"
+            - link "Product section 9" [ref=e46] [cursor=pointer]:
+              - /url: "#check-8"
+            - link "Product section 10" [ref=e47] [cursor=pointer]:
+              - /url: "#check-9"
+          - button "Next sections" [ref=e48] [cursor=pointer]
+      - generic [ref=e53]:
+        - heading "Fixture tabs" [level=2] [ref=e55]
+        - generic [ref=e56]:
+          - generic [ref=e57]:
+            - button "Previous tab" [disabled] [ref=e58]: ←
+            - tablist "Fixture tabs" [ref=e59]:
+              - tab "First tab" [selected] [ref=e60] [cursor=pointer]
+              - tab "Second tab" [ref=e61] [cursor=pointer]
+            - button "Next tab" [ref=e63] [cursor=pointer]: →
+          - tabpanel "First tab" [ref=e65]
+      - generic [ref=e72]:
+        - heading "Fixture accordion" [level=2] [ref=e75]
+        - generic [ref=e76]:
+          - heading [level=3] [ref=e77]:
+            - button "First item" [expanded] [ref=e78] [cursor=pointer]:
+              - text: First item
+              - generic [aria-hidden] [ref=e79]: +
+          - region "First item" [ref=e80]
+        - heading [level=3] [ref=e83]:
+          - button "Second item" [ref=e84] [cursor=pointer]:
+            - text: Second item
+            - generic [aria-hidden] [ref=e85]: +
+      - iframe [ref=e92]:
+        - generic [ref=f1e1]: Code frame content
+      - generic [ref=e94]:
+        - heading "Fixture cards" [level=2] [ref=e97]
+        - generic [ref=e98]:
+          - region "Fixture cards" [ref=e99]:
+            - link [ref=e101] [cursor=pointer]:
+              - /url: /products/fixture/fixture-0
+              - heading "Fixture card 1" [level=3] [ref=e104]
+            - link [ref=e106] [cursor=pointer]:
+              - /url: /products/fixture/fixture-1
+              - heading "Fixture card 2" [level=3] [ref=e109]
+            - link [ref=e111] [cursor=pointer]:
+              - /url: /products/fixture/fixture-2
+              - heading "Fixture card 3" [level=3] [ref=e114]
+            - link [ref=e116] [cursor=pointer]:
+              - /url: /products/fixture/fixture-3
+              - heading "Fixture card 4" [level=3] [ref=e119]
+            - link [ref=e121] [cursor=pointer]:
+              - /url: /products/fixture/fixture-4
+              - heading "Fixture card 5" [level=3] [ref=e124]
+            - link [ref=e126] [cursor=pointer]:
+              - /url: /products/fixture/fixture-5
+              - heading "Fixture card 6" [level=3] [ref=e129]
+            - link [ref=e131] [cursor=pointer]:
+              - /url: /products/fixture/fixture-6
+              - heading "Fixture card 7" [level=3] [ref=e134]
+            - link [ref=e136] [cursor=pointer]:
+              - /url: /products/fixture/fixture-7
+              - heading "Fixture card 8" [level=3] [ref=e139]
+          - button "Next items" [ref=e140] [cursor=pointer]
+      - generic [ref=e143]: Product section 5
+      - generic [ref=e144]: Product section 6
+      - generic [ref=e145]: Product section 7
+      - generic [ref=e146]: Product section 8
+      - generic [ref=e147]: Product section 9
+      - generic [ref=e148]: Product section 10
+  - contentinfo [ref=e149]:
+    - generic [ref=e150]:
+      - generic [ref=e151]:
+        - region "Brand" [ref=e152]:
+          - link [ref=e153] [cursor=pointer]:
+            - /url: /
+            - img "ecolitea-logo-dark" [ref=e154]
+          - paragraph [ref=e155]: Ecolitea is a B2B company providing reliable products and tailored solutions to customers worldwide.
+          - list "Social media" [ref=e156]:
+            - listitem [ref=e157]:
+              - link "LinkedIn" [ref=e158] [cursor=pointer]:
+                - /url: https://example.com/ecolitea/linkedin
+            - listitem [ref=e159]:
+              - link "YouTube" [ref=e160] [cursor=pointer]:
+                - /url: https://example.com/ecolitea/youtube
+            - listitem [ref=e161]:
+              - link "Facebook" [ref=e162] [cursor=pointer]:
+                - /url: https://example.com/ecolitea/facebook
+            - listitem [ref=e163]:
+              - link "Instagram" [ref=e164] [cursor=pointer]:
+                - /url: https://example.com/ecolitea/instagram
+            - listitem [ref=e165]:
+              - link "X" [ref=e166] [cursor=pointer]:
+                - /url: https://example.com/ecolitea/x
+        - navigation "Footer" [ref=e167]:
+          - generic [ref=e168]:
+            - heading "Products" [level=2] [ref=e169]
+            - list [ref=e171]:
+              - listitem [ref=e172]:
+                - link "Product 01" [ref=e173] [cursor=pointer]:
+                  - /url: /placeholder/products/category-01
+              - listitem [ref=e174]:
+                - link "Product 02" [ref=e175] [cursor=pointer]:
+                  - /url: /placeholder/products/category-02
+              - listitem [ref=e176]:
+                - link "Product 03" [ref=e177] [cursor=pointer]:
+                  - /url: /placeholder/products/category-03
+              - listitem [ref=e178]:
+                - link "Product 04" [ref=e179] [cursor=pointer]:
+                  - /url: /placeholder/products/category-04
+              - listitem [ref=e180]:
+                - link "Product 05" [ref=e181] [cursor=pointer]:
+                  - /url: /placeholder/products/category-05
+              - listitem [ref=e182]:
+                - link "Product 06" [ref=e183] [cursor=pointer]:
+                  - /url: /placeholder/products/category-06
+              - listitem [ref=e184]:
+                - link "Product 07" [ref=e185] [cursor=pointer]:
+                  - /url: /placeholder/products/category-07
+              - listitem [ref=e186]:
+                - link "Product 08" [ref=e187] [cursor=pointer]:
+                  - /url: /placeholder/products/category-08
+          - generic [ref=e188]:
+            - heading "Solutions" [level=2] [ref=e189]
+            - list [ref=e191]:
+              - listitem [ref=e192]:
+                - link "Hospitality" [ref=e193] [cursor=pointer]:
+                  - /url: /placeholder/solutions/hospitality
+              - listitem [ref=e194]:
+                - link "Commercial" [ref=e195] [cursor=pointer]:
+                  - /url: /placeholder/solutions/commercial
+              - listitem [ref=e196]:
+                - link "Residential" [ref=e197] [cursor=pointer]:
+                  - /url: /placeholder/solutions/residential
+              - listitem [ref=e198]:
+                - link "Custom projects" [ref=e199] [cursor=pointer]:
+                  - /url: /placeholder/solutions/custom-projects
+          - generic [ref=e200]:
+            - heading "Resources" [level=2] [ref=e201]
+            - list [ref=e203]:
+              - listitem [ref=e204]:
+                - link "Downloads" [ref=e205] [cursor=pointer]:
+                  - /url: /placeholder/resources/downloads
+              - listitem [ref=e206]:
+                - link "External resource" [ref=e207] [cursor=pointer]:
+                  - /url: https://example.com/placeholder-resource
+          - generic [ref=e208]:
+            - heading "Company" [level=2] [ref=e209]
+            - list [ref=e211]:
+              - listitem [ref=e212]:
+                - link "About us" [ref=e213] [cursor=pointer]:
+                  - /url: /placeholder/company/about
+              - listitem [ref=e214]:
+                - link "Contact" [ref=e215] [cursor=pointer]:
+                  - /url: /placeholder/company/contact
+              - listitem [ref=e216]:
+                - link "Partner portal" [ref=e217] [cursor=pointer]:
+                  - /url: https://example.com/placeholder-partner-portal
+              - listitem [ref=e218]:
+                - link "Blog" [ref=e219] [cursor=pointer]:
+                  - /url: /blogs
+        - generic [ref=e220]:
+          - region "Newsletter" [ref=e221]:
+            - heading "SUBSCRIBE TO OUR NEWSLETTER" [level=2] [ref=e222]
+            - paragraph [ref=e223]: Unlock savings & perks, members-only offers.
+            - generic [ref=e224]:
+              - textbox "Email address" [disabled] [ref=e225]
+              - button "Subscribe" [disabled] [ref=e226]
+          - list [ref=e228]:
+            - listitem [ref=e229]:
+              - generic [ref=e233]: 5425 Janet Ct, OAK FOREST, IL 60452-3740, United States
+            - listitem [ref=e234]:
+              - link "+86 1234567 8910" [ref=e237] [cursor=pointer]:
+                - /url: tel:+86 1234567 8910
+            - listitem [ref=e238]:
+              - link "sales@ecolitea.com" [ref=e242] [cursor=pointer]:
+                - /url: mailto:sales@ecolitea.com
+      - generic [ref=e243]:
+        - paragraph [ref=e244]: © 2026 Ecolitea. All rights reserved.
+        - navigation "Legal" [ref=e245]:
+          - list [ref=e246]:
+            - listitem [ref=e247]:
+              - link "Privacy Policy" [ref=e248] [cursor=pointer]:
+                - /url: /home
+            - listitem [ref=e249]:
+              - link "Terms" [ref=e250] [cursor=pointer]:
+                - /url: /home
+  - button "Open Next.js Dev Tools" [ref=e256] [cursor=pointer]
+  - alert [ref=e260]

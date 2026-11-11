@@ -29,3 +29,12 @@
     gap: var(--website-space-3);
   }
 }
+
+/* Tablet: let the card width, not the breakpoint, decide the column count. Cards stay between
+   16.25rem and about 25rem wide, and 3 columns start where they still fit (about 56rem),
+   matching the 3-column desktop grid at 64rem without a width jump. */
+@media (48rem <= width < 64rem) {
+  .grid {
+    grid-template-columns: repeat(auto-fill, minmax(16.25rem, 1fr));
+  }
+}

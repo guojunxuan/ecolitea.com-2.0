@@ -1,0 +1,12 @@
+### Result
+{"headers":["","Name","Alt text","Type","Dimensions","Size","Folder","Updated At"],"perPage":10}
+### Ran Playwright code
+```js
+await (async (page) => { await page.goto('http://localhost:3000/admin/collections/media'); await page.getByRole('heading',{name:'Media',exact:true,level:1}).waitFor(); await page.getByRole('button',{name:'Columns',exact:true}).click(); const toggle=page.getByRole('button',{name:'Name',exact:true}).getByRole('checkbox'); if(!(await toggle.isChecked())) await toggle.check(); await page.getByRole('button',{name:'Close',exact:true}).last().click(); await page.getByRole('columnheader',{name:/^Name /}).waitFor(); if(await page.getByRole('button',{name:'50',exact:true}).count()){await page.getByRole('button',{name:'50',exact:true}).click();await page.getByText('10',{exact:true}).click();} await page.getByRole('button',{name:'10',exact:true}).waitFor(); return {headers:await page.getByRole('columnheader').allTextContents(),perPage:10}; })(page);
+```
+### Page
+- Page URL: http://localhost:3000/admin/collections/media?depth=1&columns=%5B%22filename%22%2C%22alt%22%2C%22mimeType%22%2C%22width%22%2C%22filesize%22%2C%22_h_folders%22%2C%22updatedAt%22%2C%22-id%22%2C%22-imageCrop%22%2C%22-usedIn%22%2C%22-durationSeconds%22%2C%22-caption%22%2C%22-prefix%22%2C%22-createdAt%22%2C%22-url%22%2C%22-thumbnailURL%22%2C%22-height%22%5D&limit=10&sort=-alt&page=1
+- Page Title: Media - Payload
+- Console: 2 errors, 0 warnings
+### Events
+- New console entries: .playwright-cli/console-2026-10-25T01-25-34-708Z.log#L364-L367

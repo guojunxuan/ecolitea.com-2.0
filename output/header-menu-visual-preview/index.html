@@ -1,0 +1,380 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Header 菜单视觉对比 · Ecolitea</title>
+  <style>
+    @font-face { font-family: Geist; src: url('./Geist-Variable.woff2') format('woff2'); font-style: normal; font-weight: 100 900; font-display: swap; }
+    :root {
+      --ink: #262629;
+      --muted: #76767f;
+      --subtle: #9a9aa1;
+      --surface: #fff;
+      --soft: #f7f7f8;
+      --soft-hover: #ededee;
+      --line: #e0e0e2;
+      --page: #efeff1;
+      --shadow: 0 20px 40px rgb(38 38 41 / 7%);
+      font-family: Geist, Arial, sans-serif;
+      color: var(--ink);
+      background: var(--page);
+      font-synthesis: none;
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { margin: 0; }
+    button, select { font: inherit; }
+    button { cursor: pointer; }
+    button:focus-visible, select:focus-visible, a:focus-visible { outline: 2px solid #262629; outline-offset: 3px; }
+    .workbench { max-width: 1560px; margin: auto; padding: 26px 32px 60px; }
+    .workbench-head { display: flex; align-items: end; justify-content: space-between; gap: 24px; margin-bottom: 22px; }
+    .kicker { margin: 0 0 8px; color: #62626a; font-size: 11px; font-weight: 650; letter-spacing: .1em; text-transform: uppercase; }
+    .workbench-title { margin: 0; font-size: clamp(24px, 3vw, 36px); line-height: 1.08; letter-spacing: -.04em; font-weight: 700; }
+    .workbench-note { max-width: 650px; margin: 9px 0 0; color: #62626a; font-size: 13px; line-height: 1.55; }
+    .source-pill { flex: none; padding: 8px 11px; border: 1px solid #d4d4d7; border-radius: 999px; color: #62626a; background: #fff; font-size: 11px; font-weight: 600; white-space: nowrap; }
+    .controls { position: sticky; top: 0; z-index: 30; display: flex; flex-wrap: wrap; align-items: center; gap: 16px 22px; padding: 12px 16px; margin-bottom: 24px; border: 1px solid #d4d4d7; border-radius: 12px; background: rgb(255 255 255 / 94%); box-shadow: 0 10px 30px rgb(38 38 41 / 7%); backdrop-filter: blur(16px); }
+    .control-group { display: flex; align-items: center; gap: 9px; }
+    .control-label { color: #76767f; font-size: 11px; font-weight: 650; letter-spacing: .06em; text-transform: uppercase; }
+    .segmented { display: inline-flex; padding: 3px; border: 1px solid var(--line); border-radius: 8px; background: var(--soft); }
+    .segmented button { min-height: 31px; padding: 5px 13px; border: 0; border-radius: 6px; color: #62626a; background: transparent; font-size: 12px; font-weight: 600; }
+    .segmented button[aria-pressed="true"] { color: #fff; background: #262629; box-shadow: 0 2px 6px rgb(0 0 0 / 12%); }
+    .menu-select { min-width: 175px; min-height: 37px; padding: 0 32px 0 11px; border: 1px solid var(--line); border-radius: 7px; color: var(--ink); background: #fff; font-size: 12px; font-weight: 550; }
+    .scroll-control { display: inline-flex; align-items: center; gap: 7px; color: #62626a; font-size: 12px; cursor: pointer; }
+    .scroll-control input { accent-color: #262629; }
+    .control-hint { margin-left: auto; color: #76767f; font-size: 12px; }
+    .section-head { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; margin: 30px 0 11px; }
+    .section-head h2 { margin: 0; font-size: 15px; font-weight: 650; letter-spacing: -.015em; }
+    .section-head span { color: #76767f; font-size: 12px; }
+    .desktop-frame { position: relative; height: 694px; overflow: hidden; border: 1px solid #d4d4d7; border-radius: 12px; background: #fff; box-shadow: 0 16px 42px rgb(38 38 41 / 8%); isolation: isolate; }
+    .site-content { position: absolute; inset: 0; padding: 155px clamp(26px, 4vw, 60px) 0; background: #fff; }
+    .site-content-inner { max-width: 1220px; margin: auto; }
+    .site-content .content-kicker { margin: 0 0 12px; color: var(--muted); font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; }
+    .site-content h2 { margin: 0; font-size: 40px; line-height: 1.1; letter-spacing: -1px; font-weight: 700; }
+    .content-rule { height: 1px; margin-top: 36px; background: var(--line); }
+    .desktop-header { position: absolute; inset: 0 0 auto; z-index: 5; height: 60px; color: var(--ink); background: rgb(255 255 255 / 90%); border-bottom: 1px solid transparent; }
+    .desktop-frame.is-scrolled .desktop-header { background: rgb(255 255 255 / 90%); border-color: rgb(38 38 41 / 10%); box-shadow: 0 4px 16px rgb(0 0 0 / 8%); backdrop-filter: blur(18px) saturate(115%); }
+    .desktop-frame.is-closed:not(.is-scrolled) .desktop-header { background: transparent; }
+    .desktop-header-inner { display: flex; align-items: center; gap: 24px; width: min(calc(100% - 80px), 1220px); height: 100%; margin: auto; }
+    .desktop-brand { display: flex; flex: 0 0 auto; align-items: center; width: 130px; height: 39px; color: currentColor; text-decoration: none; }
+    .desktop-brand img { display: block; width: 130px; height: auto; max-height: 39px; object-fit: contain; }
+    .desktop-brand-name { font-size: 16px; font-weight: 600; letter-spacing: -.025em; }
+    .desktop-nav { display: flex; align-items: stretch; justify-content: flex-end; gap: clamp(14px, 1.2vw, 20px); flex: 1 1 auto; min-width: 0; height: 100%; overflow-x: auto; scrollbar-width: none; white-space: nowrap; }
+    .desktop-nav::-webkit-scrollbar { display: none; }
+    .desktop-nav button { position: relative; flex: 0 0 auto; padding: 0; border: 0; color: inherit; background: transparent; font-size: 15px; line-height: 1.33; font-weight: 400; white-space: nowrap; }
+    .desktop-nav button.is-active::after { position: absolute; right: 0; bottom: 0; left: 0; height: 2px; border-radius: 999px; background: currentColor; content: ''; }
+    .desktop-actions { display: flex; flex: 0 0 auto; align-items: center; gap: 12px; }
+    .search-button { display: grid; place-items: center; width: 40px; height: 40px; padding: 0; border: 0; background: transparent; color: inherit; }
+    .search-button svg { width: 19px; height: 19px; }
+    .desktop-cta { padding: 11px 18px; border: 1px solid currentColor; border-radius: 999px; color: inherit; background: transparent; font-size: 13px; font-weight: 600; line-height: 1.35; white-space: nowrap; }
+    .demo-proposed .desktop-cta { font-size: 14px; line-height: 1.43; }
+    .desktop-overlay { position: absolute; inset: 60px 0 0; z-index: 1; background: rgb(0 0 0 / 7%); }
+    .desktop-frame.is-closed .desktop-overlay, .desktop-frame.is-closed .desktop-mega { display: none; }
+    .desktop-mega { position: absolute; top: 60px; right: 0; left: 0; z-index: 4; max-height: 590px; overflow-y: auto; border-top: 1px solid rgb(38 38 41 / 9%); border-bottom: 1px solid rgb(38 38 41 / 9%); background: rgb(255 255 255 / 82%); box-shadow: var(--shadow); backdrop-filter: blur(28px) saturate(120%); scrollbar-width: thin; }
+    .desktop-mega-inner { width: min(calc(100% - 80px), 1220px); min-height: 265px; margin: auto; padding: 32px 0 40px; }
+    .category-layout { display: grid; grid-template-columns: minmax(180px, 220px) minmax(0, 1fr); align-items: start; gap: 32px; }
+    .category-primary-cta { display: grid; place-items: center; width: 100%; min-height: 40px; margin-top: auto; border: 1px solid rgb(38 38 41 / 16%); border-radius: 8px; color: var(--ink); background: transparent; font-size: 14px; font-weight: 600; }
+    .category-list { display: flex; flex-direction: column; gap: 8px; min-height: 470px; }
+    .category-list button { width: 100%; min-height: 42px; padding: 10px 12px; border: 0; border-radius: 8px; color: var(--ink); background: transparent; font-size: 16px; line-height: 1.33; text-align: left; }
+    .category-list button.is-active, .category-list button:hover { background: rgb(38 38 41 / 6%); }
+    .category-list button.is-active { font-weight: 600; }
+    .product-zone { min-width: 0; }
+    .product-head, .block-head { display: flex; align-items: center; justify-content: space-between; gap: 14px; min-height: 32px; margin-bottom: 16px; }
+    .product-head h3, .block-head h3 { margin: 0; font-size: 16px; line-height: 1.5; font-weight: 600; }
+    .demo-proposed .desktop-mega .product-head h3, .demo-proposed .desktop-mega .block-head h3 { font-size: 20px; line-height: 1.4; letter-spacing: -.125px; }
+    .small-cta { min-height: 32px; padding: 5px 10px; border: 1px solid rgb(38 38 41 / 16%); border-radius: 8px; color: var(--ink); background: transparent; font-size: 14px; line-height: 1.43; font-weight: 600; white-space: nowrap; }
+    .product-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px; }
+    .product-card { display: block; min-width: 0; padding: 12px 12px 14px; border-radius: 12px; color: var(--ink); background: rgb(38 38 41 / 6%); text-align: center; }
+    .product-image { display: grid; place-items: center; width: 100%; aspect-ratio: 4 / 3; overflow: hidden; }
+    .product-image img { display: block; max-width: 82%; max-height: 82%; width: auto; height: auto; object-fit: contain; }
+    .product-card strong { display: -webkit-box; min-height: 2.7em; margin-top: 8px; overflow: hidden; font-size: 14px; line-height: 1.35; font-weight: 600; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+    .demo-proposed .desktop-mega .product-grid { grid-template-columns: minmax(220px, 1.7fr) repeat(4, minmax(0, 1fr)); grid-template-rows: repeat(2, 190px); gap: 12px; }
+    .demo-proposed .desktop-mega .product-grid .product-card { background: #f3f3f2; border: 1px solid #ededeb; border-radius: 8px; padding: 8px 8px 12px; transition: background 180ms ease, transform 180ms ease; }
+    .demo-proposed .desktop-mega .product-grid .product-card:hover { background: #eaeae8; transform: translateY(-2px); }
+    .demo-proposed .desktop-mega .product-grid .product-card:first-child { grid-row: span 2; display: flex; flex-direction: column; padding: 22px 22px 20px; background: #eae9e5; border-color: #e4e2dd; text-align: left; }
+    .demo-proposed .desktop-mega .product-grid .product-card:first-child .product-image { flex: 1 1 auto; min-height: 0; aspect-ratio: auto; }
+    .demo-proposed .desktop-mega .product-grid .product-card:first-child .product-image img { max-width: 100%; max-height: 100%; mix-blend-mode: multiply; }
+    .demo-proposed .desktop-mega .product-grid .product-card:first-child strong { min-height: 0; margin-top: 12px; font-size: 22px; line-height: 1.27; letter-spacing: -.25px; }
+    .demo-proposed .desktop-mega .product-grid .product-card:not(:first-child) .product-image { height: 125px; aspect-ratio: auto; }
+    .demo-proposed .desktop-mega .product-grid .product-card:not(:first-child) strong { min-height: 0; margin-top: 2px; font-size: 13px; line-height: 1.3; }
+    .blocks-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 32px; }
+    .blocks-grid > .category-layout { grid-column: 1 / -1; }
+    .blocks-grid > .card-block { grid-column: 1 / -1; }
+    .blocks-grid > .card-block.two-cards { grid-column: span 2; }
+    .link-block { min-width: 0; }
+    .link-block h3 { margin: 0 0 13px; font-size: 12px; line-height: 1.33; font-weight: 700; }
+    .demo-proposed .link-block h3 { font-size: 15px; font-weight: 600; }
+    .link-block ul { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; }
+    .link-block li { display: flex; align-items: center; min-height: 32px; font-size: 15px; line-height: 1.33; }
+    .visual-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); column-gap: 24px; row-gap: 16px; }
+    .two-cards .visual-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .visual-card { position: relative; display: block; aspect-ratio: 16 / 9; overflow: hidden; border-radius: 12px; background: var(--soft); }
+    .visual-card img { display: block; width: 100%; height: 100%; object-fit: cover; }
+    .visual-card::after { position: absolute; inset: 65% 0 0; background: linear-gradient(transparent, rgb(0 0 0 / 72%)); content: ''; }
+    .visual-card strong { position: absolute; right: 16px; bottom: 15px; left: 16px; z-index: 1; color: #fff; font-size: 16px; line-height: 1.35; font-weight: 600; }
+    .phone-wrap { display: grid; grid-template-columns: minmax(320px, 390px) minmax(220px, 1fr); align-items: start; gap: 30px; }
+    .phone-frame { position: relative; width: 390px; max-width: 100%; height: 720px; overflow: hidden; border: 8px solid #202023; border-radius: 30px; background: #fff; box-shadow: 0 20px 55px rgb(38 38 41 / 14%); isolation: isolate; }
+    .phone-content { position: absolute; inset: 0; padding: 125px 22px 0; background: #fff; }
+    .phone-content h2 { margin: 0; font-size: 32px; line-height: 1.1; letter-spacing: -.8px; }
+    .phone-header { position: absolute; inset: 0 0 auto; z-index: 5; display: grid; grid-template-columns: 44px minmax(0, 1fr) 44px; align-items: center; height: 60px; padding: 0 16px; background: #fff; border-bottom: 1px solid var(--line); }
+    .phone-header button { display: grid; place-items: center; width: 44px; height: 44px; padding: 0; border: 0; color: var(--ink); background: transparent; }
+    .phone-header svg { width: 20px; height: 20px; }
+    .phone-header img { justify-self: center; width: 124px; max-width: 100%; height: auto; max-height: 30px; object-fit: contain; }
+    .phone-menu { position: absolute; inset: 60px 0 0; z-index: 4; display: flex; flex-direction: column; background: #fff; }
+    .phone-frame.is-closed .phone-menu { display: none; }
+    .phone-scroll { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding: 0 16px 20px; scrollbar-width: thin; }
+    .mobile-item { border-bottom: 1px solid var(--line); }
+    .mobile-item:last-child { border-bottom: 0; }
+    .mobile-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; min-height: 64px; padding: 14px 0; border: 0; color: var(--ink); background: transparent; font-size: 20px; line-height: 1.4; letter-spacing: -.125px; font-weight: 600; text-align: left; }
+    .demo-proposed .mobile-row { min-height: 60px; font-size: 18px; line-height: 1.4; letter-spacing: -.125px; font-weight: 600; }
+    .mobile-row svg { flex: 0 0 auto; width: 18px; height: 18px; transition: transform 220ms ease; }
+    .mobile-item.is-open .mobile-row svg { transform: rotate(90deg); }
+    .mobile-sub { padding: 8px 0 20px; }
+    .mobile-cat { display: flex; justify-content: space-between; align-items: center; width: 100%; min-height: 52px; padding: 12px 0; border: 0; border-bottom: 1px solid var(--line); color: var(--ink); background: transparent; font-size: 15px; text-align: left; }
+    .mobile-cat svg { width: 17px; height: 17px; }
+    .mobile-cat.is-active { font-weight: 600; }
+    .mobile-products { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin: 12px 0; }
+    .mobile-products .product-card { padding: 9px 9px 10px; }
+    .mobile-products .product-card strong { font-size: 14px; }
+    .demo-proposed .mobile-products { gap: 10px; }
+    .demo-proposed .mobile-products .product-card { background: #f3f3f2; border: 1px solid #ededeb; border-radius: 8px; }
+    .demo-proposed .mobile-products .product-card:first-child { grid-column: 1 / -1; display: grid; grid-template-columns: 1.2fr 1fr; align-items: center; min-height: 175px; padding: 14px; background: #eae9e5; border-color: #e4e2dd; text-align: left; }
+    .demo-proposed .mobile-products .product-card:first-child .product-image { aspect-ratio: 1; }
+    .demo-proposed .mobile-products .product-card:first-child .product-image img { max-width: 100%; max-height: 100%; mix-blend-mode: multiply; }
+    .demo-proposed .mobile-products .product-card:first-child strong { min-height: 0; margin: 0; font-size: 20px; line-height: 1.3; }
+    .mobile-links { display: grid; gap: 4px; margin-bottom: 18px; }
+    .mobile-links h3 { margin: 6px 0 0; font-size: 12px; font-weight: 700; }
+    .demo-proposed .mobile-links h3 { font-size: 15px; line-height: 1.33; font-weight: 600; }
+    .mobile-links span { display: flex; align-items: center; min-height: 44px; font-size: 15px; line-height: 1.33; }
+    .mobile-view-all { display: flex; align-items: center; justify-content: space-between; min-height: 52px; margin-top: 14px; border-top: 1px solid var(--line); font-size: 15px; font-weight: 600; }
+    .mobile-inline-cta { display: inline-block; margin: 12px 0; padding: 0; border: 0; color: var(--ink); background: none; font-size: 14px; font-weight: 600; text-align: left; }
+    .mobile-cards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin: 10px 0 20px; }
+    .mobile-cards .visual-card strong { right: 9px; bottom: 9px; left: 9px; font-size: 13px; }
+    .mobile-cta-bar { flex: 0 0 auto; padding: 12px 16px 18px; border-top: 1px solid var(--line); background: #fff; }
+    .mobile-cta { display: grid; place-items: center; width: 100%; min-height: 52px; border: 0; border-radius: 999px; color: #fff; background: #0a0a0a; font-size: 15px; line-height: 1.33; font-weight: 600; }
+    .phone-notes { padding: 8px 0; }
+    .phone-notes h3 { margin: 0 0 18px; font-size: 15px; font-weight: 650; }
+    .measure-list { margin: 0; padding: 0; list-style: none; border-top: 1px solid #d4d4d7; }
+    .measure-list li { display: grid; grid-template-columns: minmax(140px, 1fr) auto; gap: 16px; padding: 12px 0; border-bottom: 1px solid #d4d4d7; font-size: 13px; }
+    .measure-list strong { font-weight: 550; }
+    .measure-list span { color: #62626a; text-align: right; }
+    .version-text::after { content: '20px / 600'; }
+    .demo-proposed .version-text::after { content: '18px / 600'; }
+    .height-text::after { content: '64px'; }
+    .demo-proposed .height-text::after { content: '60px'; }
+    .desktop-cta-text::after { content: '13px / 600'; }
+    .demo-proposed .desktop-cta-text::after { content: '14px / 600'; }
+    .group-title-text::after { content: 'eyebrow · 12px / 700'; }
+    .demo-proposed .group-title-text::after { content: 'body-sm · 15px / 600'; }
+    .note-copy { margin: 19px 0 0; max-width: 46ch; color: #62626a; font-size: 13px; line-height: 1.6; }
+    .footer-note { margin-top: 32px; padding-top: 17px; border-top: 1px solid #d4d4d7; color: #76767f; font-size: 12px; line-height: 1.5; }
+    @media (max-width: 850px) {
+      .workbench { padding: 18px 16px 42px; }
+      .workbench-head { align-items: start; flex-direction: column; }
+      .controls { position: static; }
+      .control-hint { width: 100%; margin-left: 0; }
+      .desktop-frame { overflow-x: auto; }
+      .desktop-header, .desktop-overlay, .desktop-mega, .site-content { min-width: 1050px; }
+      .phone-wrap { grid-template-columns: 1fr; }
+      .phone-notes { max-width: 390px; }
+    }
+    @media (max-width: 430px) { .workbench { padding-inline: 10px; } .controls { gap: 12px; } .phone-frame { height: 690px; } .source-pill { white-space: normal; } }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; } }
+  </style>
+</head>
+<body class="demo-proposed">
+  <main class="workbench">
+    <div class="workbench-head">
+      <div>
+        <p class="kicker">Ecolitea · Header / Menu study</p>
+        <h1 class="workbench-title">Header 产品画廊预览</h1>
+        <p class="workbench-note">使用本地 Payload Header 与 Site Settings 的公开内容快照。切换“当前 / 产品画廊”，比较真实菜单在桌面和移动端的产品展示与字体层级。</p>
+      </div>
+      <span class="source-pill">Geist Sans · 系统内容快照</span>
+    </div>
+
+    <div class="controls" aria-label="视觉稿控制">
+      <div class="control-group">
+        <span class="control-label">版本</span>
+        <div class="segmented" role="group" aria-label="切换版本">
+          <button id="currentButton" type="button" aria-pressed="false">当前</button>
+          <button id="proposedButton" type="button" aria-pressed="true">产品画廊</button>
+        </div>
+      </div>
+      <label class="control-group" for="menuSelect"><span class="control-label">展示菜单</span><select class="menu-select" id="menuSelect"></select></label>
+      <label class="scroll-control"><input id="scrolledCheck" type="checkbox"> 模拟滚动后的 Header</label>
+      <span class="control-hint">点击菜单文字与分类，可切换实际内容</span>
+    </div>
+
+    <div class="section-head" id="desktop"><h2>桌面视图</h2><span>60px Header · 真实菜单内容 · 首款产品突出展示</span></div>
+    <section class="desktop-frame" id="desktopFrame" aria-label="桌面 Header 视觉稿">
+      <div class="site-content"><div class="site-content-inner"><p class="content-kicker">Ecolitea</p><h2>Posts</h2><div class="content-rule"></div></div></div>
+      <div class="desktop-overlay" aria-hidden="true"></div>
+      <header class="desktop-header"><div class="desktop-header-inner">
+        <div class="desktop-brand" id="desktopBrand"></div>
+        <nav class="desktop-nav" id="desktopNav" aria-label="视觉稿桌面菜单"></nav>
+        <div class="desktop-actions">
+          <button class="search-button" aria-label="搜索视觉示意" type="button"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="10.7" cy="10.7" r="6.7"></circle><path d="m16 16 5 5"></path></svg></button>
+          <button class="desktop-cta" id="desktopCta" type="button"></button>
+        </div>
+      </div></header>
+      <div class="desktop-mega" id="desktopMega"><div class="desktop-mega-inner" id="desktopMegaInner"></div></div>
+    </section>
+
+    <div class="section-head" id="mobile"><h2>移动视图</h2><span>390px 模拟视口 · 当前全宽菜单结构</span></div>
+    <section class="phone-wrap" aria-label="移动 Header 视觉稿及说明">
+      <div class="phone-frame" id="phoneFrame">
+        <div class="phone-content"><h2>Posts</h2></div>
+        <header class="phone-header">
+          <button id="mobileToggle" type="button" aria-label="切换菜单"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 6h18M3 12h18M3 18h18"></path></svg></button>
+          <img id="mobileLogo" alt="Ecolitea">
+          <button type="button" aria-label="搜索视觉示意"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="10.7" cy="10.7" r="6.7"></circle><path d="m16 16 5 5"></path></svg></button>
+        </header>
+        <div class="phone-menu"><div class="phone-scroll" id="mobileList"></div><div class="mobile-cta-bar"><button class="mobile-cta" id="mobileCta" type="button"></button></div></div>
+      </div>
+      <aside class="phone-notes">
+        <h3>产品画廊的层级</h3>
+        <ul class="measure-list">
+          <li><strong>移动一级菜单</strong><span class="version-text"></span></li>
+          <li><strong>一级行高</strong><span class="height-text"></span></li>
+          <li><strong>桌面导航</strong><span>body-sm · 15px / 400</span></li>
+          <li><strong>桌面 CTA</strong><span class="desktop-cta-text"></span></li>
+          <li><strong>主产品标题</strong><span>title 局部 · 22px / 600</span></li>
+          <li><strong>分组小标题</strong><span class="group-title-text"></span></li>
+        </ul>
+        <p class="note-copy">首款产品使用更大的展示位和图片；其余产品紧凑排列。桌面区块标题使用 <strong>title · 20px / 600</strong>；移动一级菜单使用 <strong>18px / 600</strong>，产品重点在两端保持一致。</p>
+      </aside>
+    </section>
+    <p class="footer-note">本页是视觉讨论稿。菜单文字、卡片图片和 Logo 来自本地公开数据快照；交互仅用于预览，不连接正式导航。图片由当前媒体域名提供。</p>
+  </main>
+  <script>
+    const iconRight = '<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="m9 5 7 7-7 7"></path></svg>';
+    const iconDown = '<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="m5 9 7 7 7-7"></path></svg>';
+    const escapeHTML = (value) => String(value ?? '').replace(/[&<>"']/g, (char) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+    const imageURL = (value) => /^https:\/\//.test(value ?? '') ? escapeHTML(value) : '';
+    let content;
+    let activeIndex = 0;
+    let activeCategory = 0;
+    let currentVersion = 'proposed';
+
+    const productCard = (card) => `<div class="product-card"><div class="product-image">${card.image ? `<img src="${imageURL(card.image)}" alt="" loading="lazy">` : ''}</div><strong>${escapeHTML(card.title)}</strong></div>`;
+    const visualCard = (card) => `<div class="visual-card">${card.image ? `<img src="${imageURL(card.image)}" alt="" loading="lazy">` : ''}<strong>${escapeHTML(card.title)}</strong></div>`;
+
+    function renderDesktopBlock(block) {
+      if (block.type === 'categoryTabs') {
+        const category = block.categories[activeCategory] || block.categories[0];
+        if (!category) return '';
+        return `<div class="category-layout"><div class="category-list">${block.categories.map((item, index) => `<button type="button" class="${index === activeCategory ? 'is-active' : ''}" data-category="${index}">${escapeHTML(item.label)}</button>`).join('')}</div><div class="product-zone"><div class="product-head"><h3>${escapeHTML(category.label)}</h3><button class="small-cta" type="button"></button></div><div class="product-grid">${category.items.map(productCard).join('')}</div></div></div>`;
+      }
+      if (block.type === 'linkGroup') return `<section class="link-block"><h3>${escapeHTML(block.heading)}</h3><ul>${block.links.map((label) => `<li>${escapeHTML(label)}</li>`).join('')}</ul></section>`;
+      if (block.type === 'cardGroup') return `<section class="card-block ${block.items.length <= 2 ? 'two-cards' : ''}"><div class="block-head"><h3>${escapeHTML(block.heading)}</h3><button class="small-cta" type="button"></button></div><div class="visual-grid">${block.items.map(visualCard).join('')}</div></section>`;
+      return '';
+    }
+
+    function renderMobileBlock(block) {
+      if (block.type === 'categoryTabs') return block.categories.map((category, index) => `<div><button type="button" class="mobile-cat ${index === activeCategory ? 'is-active' : ''}" data-category="${index}">${escapeHTML(category.label)}${iconDown}</button>${index === activeCategory ? `<div class="mobile-products">${category.items.map(productCard).join('')}</div>` : ''}</div>`).join('');
+      if (block.type === 'linkGroup') return `<div class="mobile-links"><h3>${escapeHTML(block.heading)}</h3>${block.links.map((label) => `<span>${escapeHTML(label)}</span>`).join('')}</div>`;
+      if (block.type === 'cardGroup') return `<div><div class="block-head"><h3>${escapeHTML(block.heading)}</h3></div><div class="mobile-cards">${block.items.map(visualCard).join('')}</div></div>`;
+      return '';
+    }
+
+    function decorateActions(item) {
+      if (!item) return;
+      const categoryBlock = item.blocks.find((block) => block.type === 'categoryTabs');
+      if (categoryBlock) {
+        const category = categoryBlock.categories[activeCategory] || categoryBlock.categories[0];
+        const activeCTA = document.querySelector('.product-head .small-cta');
+        if (activeCTA && category) {
+          if (category.cta) activeCTA.textContent = category.cta;
+          else activeCTA.remove();
+        }
+        const categoryList = document.querySelector('.category-list');
+        if (categoryList && categoryBlock.cta) {
+          const button = document.createElement('button');
+          button.type = 'button';
+          button.className = 'category-primary-cta';
+          button.textContent = categoryBlock.cta;
+          categoryList.appendChild(button);
+        }
+        const mobileProducts = document.querySelector('.mobile-products');
+        if (mobileProducts && category?.cta) {
+          const button = document.createElement('button');
+          button.type = 'button';
+          button.className = 'mobile-inline-cta';
+          button.textContent = category.cta;
+          mobileProducts.after(button);
+        }
+        const mobileSub = document.querySelector('.mobile-item.is-open .mobile-sub');
+        if (mobileSub && categoryBlock.cta) {
+          const button = document.createElement('button');
+          button.type = 'button';
+          button.className = 'mobile-view-all';
+          button.textContent = categoryBlock.cta;
+          mobileSub.appendChild(button);
+        }
+      }
+      const cardGroups = item.blocks.filter((block) => block.type === 'cardGroup');
+      document.querySelectorAll('.card-block').forEach((element, index) => {
+        const button = element.querySelector('.small-cta');
+        if (!button) return;
+        const label = cardGroups[index]?.cta;
+        if (label) button.textContent = label;
+        else button.remove();
+      });
+      if (item.navigationType === 'directLinkAndDropdown') {
+        const mobileSub = document.querySelector('.mobile-item.is-open .mobile-sub');
+        if (mobileSub) {
+          const viewAll = document.createElement('div');
+          viewAll.className = 'mobile-view-all';
+          viewAll.textContent = 'View all ' + item.label;
+          mobileSub.appendChild(viewAll);
+        }
+      }
+    }
+
+    function render() {
+      const item = content.items[activeIndex];
+      const isClosed = activeIndex < 0;
+      const select = document.getElementById('menuSelect');
+      select.value = String(activeIndex);
+      document.getElementById('desktopFrame').classList.toggle('is-closed', isClosed);
+      document.getElementById('phoneFrame').classList.toggle('is-closed', isClosed);
+      document.getElementById('desktopNav').innerHTML = content.items.map((menu, index) => `<button type="button" class="${index === activeIndex ? 'is-active' : ''}" data-menu="${index}">${escapeHTML(menu.label)}</button>`).join('');
+      document.getElementById('desktopMegaInner').innerHTML = item ? `<div class="blocks-grid">${item.blocks.map(renderDesktopBlock).join('')}</div>` : '';
+      document.getElementById('mobileList').innerHTML = content.items.map((menu, index) => `<div class="mobile-item ${index === activeIndex ? 'is-open' : ''}"><button class="mobile-row" type="button" data-menu="${index}"><span>${escapeHTML(menu.label)}</span>${iconRight}</button>${index === activeIndex ? `<div class="mobile-sub">${menu.blocks.map(renderMobileBlock).join('')}</div>` : ''}</div>`).join('');
+      decorateActions(item);
+      document.querySelectorAll('[data-menu]').forEach((button) => button.addEventListener('click', () => { const next = Number(button.dataset.menu); activeIndex = activeIndex === next ? -1 : next; activeCategory = 0; render(); }));
+      document.querySelectorAll('[data-category]').forEach((button) => button.addEventListener('click', () => { activeCategory = Number(button.dataset.category); render(); }));
+    }
+
+    async function init() {
+      try {
+        content = {"source":"Payload Header Global and Site Settings (local development snapshot)","siteName":"Ecolitea","logo":"https://media-dev.ecolitea.com/ecolitea-logo-dark-2.svg","menuCta":"Request a Qoute","items":[{"label":"Products","navigationType":"dropdown","blocks":[{"type":"categoryTabs","heading":"","items":[],"links":[],"categories":[{"label":"360° cameras","items":[{"title":"Insta360 X6","image":"https://media-dev.ecolitea.com/header-insta360-x6.png"},{"title":"Insta360 X5","image":"https://media-dev.ecolitea.com/header-insta360-x5.jpg"},{"title":"Insta360 X4 Air","image":"https://media-dev.ecolitea.com/header-insta360-x4-air.jpg"},{"title":"Insta360 X4","image":"https://media-dev.ecolitea.com/header-insta360-x4.png"},{"title":"Insta360 X3","image":"https://media-dev.ecolitea.com/header-insta360-x3.png"},{"title":"Insta360 ONE X2","image":"https://media-dev.ecolitea.com/header-insta360-one_x2.png"},{"title":"Insta360 Pro 2","image":"https://media-dev.ecolitea.com/header-insta360-pro_2.png"},{"title":"Insta360 Titan","image":"https://media-dev.ecolitea.com/header-insta360-titan.png"}],"cta":"Compare 360° cameras"},{"label":"Action & everyday","items":[{"title":"Insta360 Ace Pro 2","image":"https://media-dev.ecolitea.com/header-insta360-ace-pro-2.png"},{"title":"Insta360 GO Ultra","image":"https://media-dev.ecolitea.com/header-insta360-go-ultra.png"},{"title":"Insta360 Luna Series","image":"https://media-dev.ecolitea.com/header-insta360-luna-series.png"},{"title":"Insta360 GO 3S","image":"https://media-dev.ecolitea.com/header-insta360-go-3s.png"}],"cta":"Explore action cameras"},{"label":"Mobile filmmaking","items":[{"title":"Insta360 Flow 2 Series","image":"https://media-dev.ecolitea.com/header-insta360-flow-2-pro.png"},{"title":"Insta360 Mic Pro","image":"https://media-dev.ecolitea.com/header-insta360-mic-pro.png"},{"title":"Snap Selfie Screen","image":"https://media-dev.ecolitea.com/header-insta360-snap.png"}],"cta":"Build your creator kit"},{"label":"Webcams & meetings","items":[{"title":"Insta360 Link 2 Pro","image":"https://media-dev.ecolitea.com/header-insta360-link-2-pro.png"},{"title":"Insta360 Connect","image":"https://media-dev.ecolitea.com/header-insta360-connect.jpg"},{"title":"Insta360 Link 2","image":"https://media-dev.ecolitea.com/header-insta360-link-2.png"},{"title":"Insta360 Wave","image":"https://media-dev.ecolitea.com/header-insta360-wave.png"}],"cta":"Explore meeting solutions"}],"cta":"Explore all cameras"}]},{"label":"Accessories","navigationType":"directLinkAndDropdown","blocks":[{"type":"linkGroup","heading":"Complete your kit","items":[],"links":["All accessories","MicroSD cards","Snap Selfie Screen","Luna wide-angle lens","Luna black mist filter","Luna protective case"],"categories":[],"cta":""},{"type":"linkGroup","heading":"Sound & movement","items":[],"links":["Mic Pro","Mic Air","Flow 2 Series","Snap Selfie Screen","Audio for vlogging","Filmmaking essentials"],"categories":[],"cta":""},{"type":"cardGroup","heading":"Bring your story to life","items":[{"title":"Insta360 Mic Pro","image":"https://media-dev.ecolitea.com/header-insta360-mic-pro.png"},{"title":"Insta360 Flow 2 Series","image":"https://media-dev.ecolitea.com/header-insta360-flow-2-pro.png"}],"links":[],"categories":[],"cta":"Explore all accessories"}]},{"label":"Shop by Interest","navigationType":"dropdown","blocks":[{"type":"cardGroup","heading":"Find your next adventure","items":[{"title":"Road Cycling","image":"https://media-dev.ecolitea.com/header-interest-1.jpg"},{"title":"Motorcycling","image":"https://media-dev.ecolitea.com/header-interest-2.jpg"},{"title":"Videography","image":"https://media-dev.ecolitea.com/header-interest-3.jpg"},{"title":"Vlogging","image":"https://media-dev.ecolitea.com/header-interest-4.jpg"},{"title":"Kayaking","image":"https://media-dev.ecolitea.com/header-interest-5.jpg"},{"title":"Snorkeling","image":"https://media-dev.ecolitea.com/header-interest-6.jpg"},{"title":"Mountain Biking","image":"https://media-dev.ecolitea.com/header-interest-7.jpg"},{"title":"Winter Sports","image":"https://media-dev.ecolitea.com/header-interest-8.jpg"}],"links":[],"categories":[],"cta":"view more"}]},{"label":"Professional","navigationType":"dropdown","blocks":[{"type":"cardGroup","heading":"Built for bigger ideas","items":[{"title":"Insta360 Pro 2","image":"https://media-dev.ecolitea.com/header-insta360-pro_2.png"},{"title":"Insta360 Connect","image":"https://media-dev.ecolitea.com/header-insta360-connect.jpg"},{"title":"Link 2 Pro","image":"https://media-dev.ecolitea.com/header-insta360-link-2-pro.png"},{"title":"Wave","image":"https://media-dev.ecolitea.com/header-insta360-wave.png"}],"links":[],"categories":[],"cta":"Explore enterprise solutions"},{"type":"linkGroup","heading":"Immersive production","items":[],"links":["Professional cameras","Insta360 Pro 2","Insta360 Titan"],"categories":[],"cta":""},{"type":"linkGroup","heading":"Work together","items":[],"links":["Enterprise solutions","Insta360 Connect","Link 2 Pro webcams","Wave speakerphone"],"categories":[],"cta":""},{"type":"linkGroup","heading":"Creator workflow","items":[],"links":["Apps & editing software","Mic Pro audio","Flow 2 mobile filmmaking","Insta360+ cloud"],"categories":[],"cta":""},{"type":"linkGroup","heading":"Planning & ownership","items":[],"links":["Shopping questions","Camera coverage","Repair services","After-sales policy"],"categories":[],"cta":""}]},{"label":"Support","navigationType":"dropdown","blocks":[{"type":"linkGroup","heading":"Getting started","items":[],"links":["Apps & software","Shopping FAQ","Find accessories"],"categories":[],"cta":""},{"type":"linkGroup","heading":"Repairs & after-sales","items":[],"links":["Request a repair","After-sales policy","Trade-in program"],"categories":[],"cta":""},{"type":"linkGroup","heading":"Protection plans","items":[],"links":["Compare coverage","FlexiCare","Extended warranty"],"categories":[],"cta":""},{"type":"linkGroup","heading":"More ways to own","items":[],"links":["Insta360 Care","Insta360+ cloud","Certified refurbished"],"categories":[],"cta":""},{"type":"cardGroup","heading":"Keep creating with confidence","items":[{"title":"FlexiCare","image":"https://media-dev.ecolitea.com/header-insta360-flexicare-x5.png"},{"title":"Extended warranty","image":"https://media-dev.ecolitea.com/header-insta360-warranty_service.png"},{"title":"Save your memories","image":"https://media-dev.ecolitea.com/header-interest-14.jpg"},{"title":"Ready for your next trip","image":"https://media-dev.ecolitea.com/header-interest-13.jpg"}],"links":[],"categories":[],"cta":""}]}]};
+        document.getElementById('desktopBrand').innerHTML = content.logo ? `<img src="${imageURL(content.logo)}" alt="${escapeHTML(content.siteName)}">` : `<span class="desktop-brand-name">${escapeHTML(content.siteName)}</span>`;
+        document.getElementById('mobileLogo').src = content.logo || '';
+        document.getElementById('mobileLogo').alt = content.siteName;
+        document.getElementById('desktopCta').textContent = content.menuCta;
+        document.getElementById('mobileCta').textContent = content.menuCta;
+        document.getElementById('menuSelect').innerHTML = '<option value="-1">关闭菜单</option>' + content.items.map((item,index) => `<option value="${index}">${escapeHTML(item.label)}</option>`).join('');
+        document.getElementById('menuSelect').addEventListener('change', (event) => { activeIndex = Number(event.target.value); activeCategory = 0; render(); });
+        document.getElementById('mobileToggle').addEventListener('click', () => { activeIndex = activeIndex < 0 ? 0 : -1; activeCategory = 0; render(); });
+        document.getElementById('scrolledCheck').addEventListener('change', (event) => document.getElementById('desktopFrame').classList.toggle('is-scrolled', event.target.checked));
+        document.getElementById('currentButton').addEventListener('click', () => setVersion('current'));
+        document.getElementById('proposedButton').addEventListener('click', () => setVersion('proposed'));
+        setVersion(new URLSearchParams(location.search).get('version') === 'current' ? 'current' : 'proposed');
+        render();
+      } catch (error) {
+        document.getElementById('desktopMegaInner').textContent = `内容快照加载失败：${error.message}`;
+      }
+    }
+    function setVersion(version) {
+      currentVersion = version;
+      document.body.classList.toggle('demo-current', version === 'current');
+      document.body.classList.toggle('demo-proposed', version === 'proposed');
+      document.getElementById('currentButton').setAttribute('aria-pressed', String(version === 'current'));
+      document.getElementById('proposedButton').setAttribute('aria-pressed', String(version === 'proposed'));
+    }
+    init();
+  </script>
+</body>
+</html>

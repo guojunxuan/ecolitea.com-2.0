@@ -1,0 +1,93 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "footer-preview",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": [
+        "-y",
+        "serve",
+        "-l",
+        "4311",
+        "output/footer-visual-preview"
+      ],
+      "port": 4311
+    },
+    {
+      "name": "header-redesign",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": [
+        "-y",
+        "serve",
+        "-l",
+        "4312",
+        "output/header-redesign"
+      ],
+      "port": 4312
+    },
+    {
+      "name": "web",
+      "runtimeExecutable": "corepack",
+      "runtimeArgs": [
+        "pnpm",
+        "dev",
+        "--port",
+        "3001"
+      ],
+      "port": 3001
+    },
+    {
+      "name": "blog-hero-concept",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": [
+        "-y",
+        "serve",
+        "-l",
+        "4313",
+        "output/blog-listing-hero-concept"
+      ],
+      "port": 4313
+    },
+    {
+      "name": "blog-detail-concept",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": [
+        "-y",
+        "serve",
+        "-l",
+        "4314",
+        "output/blog-detail-concepts/template-a"
+      ],
+      "port": 4314
+    },
+    {
+      "name": "mobile-toc-concept",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": [
+        "-y",
+        "serve",
+        "-l",
+        "4315",
+        "output/blog-detail-concepts"
+      ],
+      "port": 4315
+    },
+    {
+      "name": "dev-3000",
+      "url": "http://localhost:3000",
+      "port": 3000
+    },
+    {
+      "name": "product-detail-draft",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": [
+        "-y",
+        "serve",
+        "-l",
+        "4316",
+        "public"
+      ],
+      "port": 4316
+    }
+  ]
+}

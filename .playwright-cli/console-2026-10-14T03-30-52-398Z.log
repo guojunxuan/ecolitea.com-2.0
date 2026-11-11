@@ -1,0 +1,139 @@
+[    2857ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:3001/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[    2912ms] [LOG] [HMR] connected @ http://localhost:3001/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[    6485ms] [WARNING] The resource http://localhost:3001/_next/static/chunks/src_app_(frontend)_pages_module_20iobdx.css was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3001/blogs/small-details-better-everyday-products:0
+[  312716ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3001/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  312746ms] [LOG] [Fast Refresh] done in 4ms @ http://localhost:3001/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  315725ms] [WARNING] The resource http://localhost:3001/_next/static/chunks/src_app_(frontend)_pages_module_20iobdx.css was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3001/blogs/small-details-better-everyday-products:0
+[  337955ms] [LOG] [Fast Refresh] done in 4ms @ http://localhost:3001/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  338295ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:3001/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  338306ms] [LOG] [HMR] connected @ http://localhost:3001/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  341448ms] [WARNING] The resource http://localhost:3001/_next/static/chunks/src_app_(frontend)_pages_module_20iobdx.css was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3001/blogs/small-details-better-everyday-products#making-the-final-choice:0
+[  384617ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:3001/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  384631ms] [LOG] [HMR] connected @ http://localhost:3001/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  390019ms] [WARNING] The resource https://media-dev.ecolitea.com/cdn-cgi/image/width=640,fit=scale-down,quality=85,format=auto/header-interest-16.jpg?2026-09-16T07%3A41%3A10.034Z was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3001/blogs/small-details-better-everyday-products#making-the-final-choice:0
+[  390019ms] [WARNING] The resource http://localhost:3001/_next/static/chunks/src_app_(frontend)_pages_module_20iobdx.css was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3001/blogs/small-details-better-everyday-products#making-the-final-choice:0
+[  836254ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3001/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  836284ms] [LOG] [Fast Refresh] done in 3ms @ http://localhost:3001/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  839263ms] [WARNING] The resource https://media-dev.ecolitea.com/cdn-cgi/image/width=640,fit=scale-down,quality=85,format=auto/header-interest-16.jpg?2026-09-16T07%3A41%3A10.034Z was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3001/blogs/small-details-better-everyday-products#making-the-final-choice:0
+[  839263ms] [WARNING] The resource http://localhost:3001/_next/static/chunks/src_app_(frontend)_pages_module_20iobdx.css was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3001/blogs/small-details-better-everyday-products#making-the-final-choice:0
+[  865622ms] [LOG] [Fast Refresh] done in 3ms @ http://localhost:3001/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  865919ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:3001/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  865931ms] [LOG] [HMR] connected @ http://localhost:3001/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  866035ms] Error: Hydration failed because the server rendered HTML didn't match the client. As a result this tree will be regenerated on the client. This can happen if a SSR-ed Client Component used:
+
+- A server/client branch `if (typeof window !== 'undefined')`.
+- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+- Date formatting in a user's locale which doesn't match the server.
+- External changing data without sending a snapshot of it along with the HTML.
+- Invalid HTML tag nesting.
+
+It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+
+https://react.dev/link/hydration-mismatch
+
+  ...
+    <ErrorBoundary errorComponent={undefined} errorStyles={undefined} errorScripts={undefined}>
+      <LoadingBoundary name="small-deta..." loading={null}>
+        <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
+          <RedirectBoundary>
+            <RedirectErrorBoundary router={{...}}>
+              <InnerLayoutRouter url="/blogs/sma..." tree={[...]} params={{slug:"smal..."}} cacheNode={{rsc:{...}, ...}} ...>
+                <SegmentViewNode type="page" pagePath="(frontend)...">
+                  <SegmentTrieNode>
+                  <BlogPage>
+                    <article className="page-modul...">
+                      <a>
+                      <nav>
+                      <header>
+                      <div>
+                      <div className="page-modul..." data-slot="blog-artic...">
+                        <TableOfContents items={[...]} sidebar={<section>}>
+                          <aside className="index-modu..." data-slot="blog-artic..." id="table-of-c..." tabIndex={-1}>
+                            <MobileDrawer>
+                            <nav aria-label="Table of c..." className="index-modu...">
+                              <p>
+                              <ol className="index-modu...">
+-                               <li>
+-                               <li>
+-                               <li>
+-                               <li>
+-                               <li>
+-                               <li>
+-                               <li>
+-                               <li>
+-                               <li>
+-                               <li>
+-                               <li>
+-                               <li>
+-                               <li>
+-                               <li>
+-                               <li>
+-                               <li>
+-                               <li>
+-                               <li>
+-                               <li>
+-                               <li>
+-                               <li>
+-                               <li>
+-                               <li>
+-                               <li>
+-                               <li>
+-                               <li>
+-                               <li>
+-                               <li>
+-                               <li>
+-                               <li>
+-                               <li>
+-                               <li>
+-                               <li>
+-                               <li>
+-                               <li>
+-                               <li>
+-                               <li>
+-                               <li>
+-                               <li>
+-                               <li>
+-                               <li>
+-                               <li>
+-                               <li>
+-                               <li>
+-                               <li>
+-                               <li>
+-                               <li>
+-                               <li>
+-                               <li>
+-                               <li>
+-                               <li>
+-                               <li>
+-                               <li>
+-                               <li>
+-                               <li>
+-                               <li>
+-                               <li>
+-                               <li>
+-                               <li>
+-                               <li>
+                            ...
+                          ...
+                      ...
+                ...
+              ...
+    ...
+
+    at throwOnHydrationMismatch (http://localhost:3001/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:3120:56)
+    at popHydrationState (http://localhost:3001/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:3205:13)
+    at completeWork (http://localhost:3001/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:6749:25)
+    at runWithFiberInDEV (http://localhost:3001/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:761:74)
+    at completeUnitOfWork (http://localhost:3001/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:9452:23)
+    at performUnitOfWork (http://localhost:3001/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:9387:28)
+    at workLoopConcurrentByScheduler (http://localhost:3001/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:9381:58)
+    at renderRootConcurrent (http://localhost:3001/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:9364:71)
+    at performWorkOnRoot (http://localhost:3001/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8891:150)
+    at performWorkOnRootViaSchedulerTask (http://localhost:3001/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:10085:9)
+    at MessagePort.performWorkUntilDeadline (http://localhost:3001/_next/static/chunks/0kg6_next_dist_compiled_12ybp_m._.js:2647:64)
+[  866331ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:3001/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  866341ms] [LOG] [HMR] connected @ http://localhost:3001/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  866820ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:3001/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  866835ms] [LOG] [HMR] connected @ http://localhost:3001/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  869875ms] [WARNING] The resource https://media-dev.ecolitea.com/cdn-cgi/image/width=640,fit=scale-down,quality=85,format=auto/header-interest-16.jpg?2026-09-16T07%3A41%3A10.034Z was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3001/blogs/small-details-better-everyday-products:0
+[  869875ms] [WARNING] The resource http://localhost:3001/_next/static/chunks/src_app_(frontend)_pages_module_20iobdx.css was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3001/blogs/small-details-better-everyday-products:0

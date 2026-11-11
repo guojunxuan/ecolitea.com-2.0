@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Media crop — upload-only</title>
+<style>
+  :root {
+    --bg: #fff; --bg-subtle: #f5f5f5; --border: #e6e6e6; --text: #1e1e1e;
+    --muted: #00000080; --primary: #0c8ce9; --warn-bg: #fff4d6; --warn: #8a5a00;
+    --radius: 6px;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 14px/1.45 Inter, -apple-system, "Segoe UI", sans-serif; color: var(--text); background: #ececec; }
+  h1.page { font-size: 22px; margin: 32px 40px 4px; }
+  p.lead { margin: 0 40px 20px; color: var(--muted); max-width: 980px; }
+  .rules { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 0 40px 28px; font-size: 13px; }
+  .rules div { background: #fff; border-radius: 8px; padding: 10px 12px; }
+  .rules b { display: block; margin-bottom: 2px; }
+  .flow { margin: 0 40px 48px; }
+  .flow > h2 { font-size: 17px; margin: 0 0 4px; }
+  .flow > .note { color: var(--muted); margin: 0 0 14px; max-width: 980px; }
+  .screens { display: grid; grid-template-columns: repeat(auto-fit, minmax(560px, 1fr)); gap: 24px; }
+  .screen { background: var(--bg); border-radius: 10px; box-shadow: 0 1px 3px #0002; overflow: hidden; position: relative; }
+  .caption { font-size: 12px; font-weight: 600; letter-spacing: .02em; text-transform: uppercase; color: var(--muted); padding: 10px 16px; border-bottom: 1px solid var(--border); background: #fafafa; }
+  .crumbs { padding: 12px 20px 0; font-size: 12px; color: var(--muted); }
+  .title { font-size: 20px; font-weight: 600; padding: 4px 20px 12px; border-bottom: 1px solid var(--border); }
+  .title.placeholder { color: #00000066; }
+  .bar { display: flex; align-items: center; gap: 10px; padding: 8px 20px; border-bottom: 1px solid var(--border); font-size: 12px; }
+  .pill { border: 1px solid var(--border); border-radius: var(--radius); padding: 3px 8px; }
+  .save { margin-left: auto; background: var(--primary); color: #fff; border-radius: var(--radius); padding: 4px 12px; }
+  .save.off { background: #d9d9d9; }
+  .doc { display: grid; grid-template-columns: 200px 1fr; min-height: 340px; }
+  .left { padding: 14px 16px; border-right: 1px solid var(--border); font-size: 12px; }
+  .left label { display: block; font-weight: 600; margin: 10px 0 4px; }
+  .left label:first-child { margin-top: 0; }
+  .req { color: #dc3412; }
+  .input { border: 1px solid var(--border); border-radius: var(--radius); height: 28px; padding: 4px 8px; }
+  .input.area { height: 60px; }
+  .help { color: var(--muted); margin-top: 4px; font-size: 11px; }
+  .right { background: var(--bg-subtle); display: flex; flex-direction: column; position: relative; }
+  .toolbar { display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; background: var(--bg); border-bottom: 1px solid var(--border); font-size: 12px; }
+  .icons { display: flex; gap: 10px; font-size: 16px; }
+  .icon { width: 28px; height: 28px; display: grid; place-items: center; border-radius: 5px; }
+  .preview { flex: 1; display: grid; place-items: center; padding: 16px; }
+  .img { width: 280px; aspect-ratio: 1356 / 910; background: linear-gradient(#4a9fd4 0 55%, #e8eef2 55% 62%, #3fa7b5 62%); border-radius: 2px; }
+  .img.banner { aspect-ratio: 1000 / 210; background: linear-gradient(90deg, #2d7fb8, #3fa7b5 60%, #e6c27a); }
+  .img.c169 { aspect-ratio: 16 / 9; background: linear-gradient(90deg, #3a95bf, #3fa7b5); }
+  .close { position: absolute; right: 12px; top: 12px; border: 1px solid var(--border); background: #fff; border-radius: 6px; width: 26px; height: 26px; display: grid; place-items: center; font-size: 12px; }
+  .filefield { padding: 0 24px 14px; font-size: 12px; }
+  .filefield .input { background: #fff; }
+  .meta { font-size: 11px; color: var(--muted); padding-top: 4px; }
+  .meta.center { text-align: center; padding: 0 0 10px; }
+  .dropzone { margin: 24px; border: 1px dashed #c9c9c9; border-radius: 8px; flex: 1; display: grid; place-items: center; text-align: center; font-size: 12px; color: var(--muted); }
+  .btn { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--border); background: var(--bg); border-radius: var(--radius); padding: 4px 10px; font-size: 12px; color: var(--text); }
+  .btn.primary { background: var(--primary); color: #fff; border-color: var(--primary); }
+  .menu { position: absolute; left: 12px; top: 40px; background: #fff; border: 1px solid var(--border); border-radius: 6px; box-shadow: 0 4px 14px #0002; font-size: 12px; padding: 4px; }
+  .menu div { padding: 6px 10px; border-radius: 4px; background: #0000000d; }
+  .modal-wrap { position: absolute; inset: 41px 0 0 0; background: #0006; display: grid; place-items: center; padding: 16px; }
+  .modal { background: var(--bg); border-radius: 10px; width: 100%; max-width: 640px; box-shadow: 0 8px 30px #0004; font-size: 12px; }
+  .modal header { display: flex; justify-content: space-between; padding: 12px 16px; border-bottom: 1px solid var(--border); font-weight: 600; font-size: 14px; }
+  .modal .body { padding: 12px 16px; display: grid; gap: 10px; }
+  .modal footer { display: flex; justify-content: flex-end; gap: 8px; padding: 10px 16px; border-top: 1px solid var(--border); }
+  .banner { background: var(--warn-bg); color: var(--warn); border-radius: var(--radius); padding: 8px 10px; }
+  .tabs { display: inline-flex; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+  .tabs span { padding: 4px 10px; border-right: 1px solid var(--border); }
+  .tabs span:last-child { border-right: 0; }
+  .tabs .on { background: var(--text); color: #fff; }
+  .cropbox { position: relative; height: 84px; background: linear-gradient(90deg, #2d7fb8, #3fa7b5 60%, #e6c27a); border-radius: 2px; }
+  .cropbox .shade { position: absolute; inset: 0; background: #0007; clip-path: polygon(0 0,100% 0,100% 100%,0 100%,0 0,31% 0,31% 100%,69% 100%,69% 0,0 0); }
+  .cropbox .sel { position: absolute; left: 31%; right: 31%; top: 0; bottom: 0; border: 1px dashed #fff; }
+  .cropbox .sel::before, .cropbox .sel::after { content: ""; position: absolute; width: 8px; height: 8px; background: #fff; }
+  .cropbox .sel::before { left: -4px; top: -4px; }
+  .cropbox .sel::after { right: -4px; bottom: -4px; }
+  .muted { color: var(--muted); }
+  .result { display: flex; justify-content: space-between; }
+  .toast { position: absolute; right: 14px; bottom: 14px; background: #1e1e1e; color: #fff; border-radius: var(--radius); padding: 8px 12px; font-size: 12px; box-shadow: 0 2px 8px #0003; }
+  .x { text-decoration: line-through; color: #b3261e; }
+</style>
+</head>
+<body>
+<h1 class="page">Media crop — only when an uploaded image has an unsupported ratio</h1>
+<p class="lead">No general crop feature. The dialog appears only for a newly selected image whose ratio is outside 1:1, 4:3, 3:2, 16:9, 9:16, 4:5 (1% tolerance). There is no crop button anywhere; ✂ in the toolbar stays Payload’s native “Edit image” for the focal point.</p>
+
+<div class="rules">
+  <div><b>Unsupported ratio on upload</b>Dialog opens automatically → Apply crop or Choose another file.</div>
+  <div><b>Supported ratio on upload</b>No dialog, no crop entry. Save as uploaded.</div>
+  <div><b>Saved image</b>No crop entry. To change the ratio, use Replace file — the same rules apply.</div>
+</div>
+
+<section class="flow">
+  <h2>Flow 1 — New upload with an unsupported ratio</h2>
+  <p class="note">The dialog uses Payload dialog components. Esc and ✕ behave like “Choose another file”.</p>
+  <div class="screens">
+    <div class="screen">
+      <div class="caption">1 · Select a file</div>
+      <div class="crumbs">Dashboard / Media / Create New</div>
+      <div class="title placeholder">Untitled</div>
+      <div class="bar"><span class="pill">📁 None</span> Creating new Media <span class="save">Save</span></div>
+      <div class="doc">
+        <div class="left"><label>Alt <span class="req">*</span></label><div class="input"></div><label>Caption</label><div class="input area"></div></div>
+        <div class="right">
+          <div class="dropzone"><div><span class="btn">Select a file</span> or <span class="btn">📋</span><br><br>or drag and drop a file</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="screen">
+      <div class="caption">2 · Ratio is 4.76:1 — dialog opens automatically</div>
+      <div class="crumbs">Dashboard / Media / Create New</div>
+      <div class="title placeholder">Untitled</div>
+      <div class="doc"><div class="left"></div><div class="right"></div></div>
+      <div class="modal-wrap">
+        <div class="modal">
+          <header>Crop image to a supported ratio <span>✕</span></header>
+          <div class="body">
+            <div class="banner">This image is 1000 × 210 (4.76:1), which is not a supported ratio. Choose a ratio and adjust the crop.</div>
+            <div class="tabs"><span>1:1</span><span>4:3</span><span>3:2</span><span class="on">16:9</span><span>9:16</span><span>4:5</span></div>
+            <div class="cropbox"><div class="shade"></div><div class="sel"></div></div>
+            <div class="result"><span>Result: 373 × 210 · 16:9</span><span class="muted">Images: JPEG, PNG, WebP, AVIF, GIF</span></div>
+          </div>
+          <footer><span class="btn">Choose another file</span><span class="btn primary">Apply crop</span></footer>
+        </div>
+      </div>
+    </div>
+
+    <div class="screen">
+      <div class="caption">3a · Apply crop — back to the form, ready to save</div>
+      <div class="crumbs">Dashboard / Media / Create New</div>
+      <div class="title">coastal-banner</div>
+      <div class="bar"><span class="pill">📁 None</span> Creating new Media <span class="save">Save</span></div>
+      <div class="doc">
+        <div class="left"><label>Alt <span class="req">*</span></label><div class="input">coastal-banner</div><div class="help">Prefilled from the file name — describe the image.</div><label>Caption</label><div class="input area"></div></div>
+        <div class="right">
+          <span class="close">✕</span>
+          <div class="preview"><div class="img banner"></div></div>
+          <div class="filefield"><b>File Name</b><div class="input">coastal-banner.png</div><div class="meta">1KB – image/png · preview shows the original until saved</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="screen">
+      <div class="caption">3b · After Save — cropped original</div>
+      <div class="crumbs">Dashboard / Media / coastal-banner.png</div>
+      <div class="title">coastal-banner.png</div>
+      <div class="bar"><span class="pill">📁 None</span> Updated just now <span class="save off">Save</span></div>
+      <div class="doc">
+        <div class="left"><label>Alt <span class="req">*</span></label><div class="input">Coastal rocks banner</div><label>Caption</label><div class="input area"></div></div>
+        <div class="right">
+          <div class="toolbar"><span class="pill">coastal-banner.png ▾</span><span class="icons"><span class="icon">🔗</span><span class="icon" title="Edit image (focal point)">✂</span><span class="icon">↗</span><span class="icon">⬇</span></span></div>
+          <div class="preview"><div class="img c169"></div></div>
+          <div class="meta center">Original · 373 × 210 – 1KB – image/png</div>
+        </div>
+      </div>
+      <div class="toast">Media successfully created.</div>
+    </div>
+
+    <div class="screen">
+      <div class="caption">3c · Choose another file / Esc / ✕ — selection cleared</div>
+      <div class="crumbs">Dashboard / Media / Create New</div>
+      <div class="title placeholder">Untitled</div>
+      <div class="bar"><span class="pill">📁 None</span> Creating new Media <span class="save">Save</span></div>
+      <div class="doc">
+        <div class="left"><label>Alt <span class="req">*</span></label><div class="input"></div><label>Caption</label><div class="input area"></div></div>
+        <div class="right">
+          <div class="dropzone"><div><span class="btn">Select a file</span> or <span class="btn">📋</span><br><br>or drag and drop a file</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="flow">
+  <h2>Flow 2 — New upload with a supported ratio</h2>
+  <p class="note">Nothing extra is shown. The form looks exactly like Payload’s native create view.</p>
+  <div class="screens">
+    <div class="screen">
+      <div class="caption">4 · 1356 × 910 (≈3:2) — no dialog</div>
+      <div class="crumbs">Dashboard / Media / Create New</div>
+      <div class="title">coastal-rocks</div>
+      <div class="bar"><span class="pill">📁 None</span> Creating new Media <span class="save">Save</span></div>
+      <div class="doc">
+        <div class="left"><label>Alt <span class="req">*</span></label><div class="input">coastal-rocks</div><label>Caption</label><div class="input area"></div></div>
+        <div class="right">
+          <span class="close">✕</span>
+          <div class="preview"><div class="img"></div></div>
+          <div class="filefield"><b>File Name</b><div class="input">coastal-rocks.png</div><div class="meta">2MB – image/png</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="flow">
+  <h2>Flow 3 — Saved image</h2>
+  <p class="note">No crop entry. The previous “Crop image” button is removed. To change the ratio, replace the file; an unsupported replacement opens the same dialog.</p>
+  <div class="screens">
+    <div class="screen">
+      <div class="caption">5 · Detail page — no crop button</div>
+      <div class="crumbs">Dashboard / Media / coastal-rocks.png</div>
+      <div class="title">coastal-rocks.png</div>
+      <div class="bar"><span class="pill">📁 None</span> Updated 2 hours ago <span class="save off">Save</span></div>
+      <div class="doc">
+        <div class="left"><span class="x">Crop image</span><label style="margin-top:12px">Alt <span class="req">*</span></label><div class="input">Coastal rocks at Lake Tahoe</div><label>Caption</label><div class="input area"></div></div>
+        <div class="right">
+          <div class="toolbar"><span class="pill">coastal-rocks.png ▾</span><span class="icons"><span class="icon">🔗</span><span class="icon" title="Edit image (focal point)">✂</span><span class="icon">↗</span><span class="icon">⬇</span></span></div>
+          <div class="preview"><div class="img"></div></div>
+          <div class="meta center">Original · 1356 × 910 – 2MB – image/png</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="screen">
+      <div class="caption">6 · Replace file → unsupported replacement opens the dialog</div>
+      <div class="crumbs">Dashboard / Media / coastal-rocks.png</div>
+      <div class="title">coastal-rocks.png</div>
+      <div class="bar"><span class="pill">📁 None</span> Updated 2 hours ago <span class="save off">Save</span></div>
+      <div class="doc">
+        <div class="left"><label>Alt <span class="req">*</span></label><div class="input">Coastal rocks at Lake Tahoe</div><label>Caption</label><div class="input area"></div></div>
+        <div class="right">
+          <div class="toolbar"><span class="pill">coastal-rocks.png ▾</span><span class="icons"><span class="icon">🔗</span><span class="icon">✂</span><span class="icon">↗</span><span class="icon">⬇</span></span></div>
+          <div class="menu"><div>⇄ Replace file</div></div>
+          <div class="preview"><div class="img"></div></div>
+          <div class="meta center">Select a new file → same rules as Flow 1 / Flow 2</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+</body>
+</html>

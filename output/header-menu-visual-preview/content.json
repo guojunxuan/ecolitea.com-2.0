@@ -1,0 +1,384 @@
+{
+  "source": "Payload Header Global and Site Settings (local development snapshot)",
+  "siteName": "Ecolitea",
+  "logo": "https://media-dev.ecolitea.com/ecolitea-logo-dark-2.svg",
+  "menuCta": "Request a Qoute",
+  "items": [
+    {
+      "label": "Products",
+      "navigationType": "dropdown",
+      "blocks": [
+        {
+          "type": "categoryTabs",
+          "heading": "",
+          "items": [],
+          "links": [],
+          "categories": [
+            {
+              "label": "360° cameras",
+              "items": [
+                {
+                  "title": "Insta360 X6",
+                  "image": "https://media-dev.ecolitea.com/header-insta360-x6.png"
+                },
+                {
+                  "title": "Insta360 X5",
+                  "image": "https://media-dev.ecolitea.com/header-insta360-x5.jpg"
+                },
+                {
+                  "title": "Insta360 X4 Air",
+                  "image": "https://media-dev.ecolitea.com/header-insta360-x4-air.jpg"
+                },
+                {
+                  "title": "Insta360 X4",
+                  "image": "https://media-dev.ecolitea.com/header-insta360-x4.png"
+                },
+                {
+                  "title": "Insta360 X3",
+                  "image": "https://media-dev.ecolitea.com/header-insta360-x3.png"
+                },
+                {
+                  "title": "Insta360 ONE X2",
+                  "image": "https://media-dev.ecolitea.com/header-insta360-one_x2.png"
+                },
+                {
+                  "title": "Insta360 Pro 2",
+                  "image": "https://media-dev.ecolitea.com/header-insta360-pro_2.png"
+                },
+                {
+                  "title": "Insta360 Titan",
+                  "image": "https://media-dev.ecolitea.com/header-insta360-titan.png"
+                }
+              ],
+              "cta": "Compare 360° cameras"
+            },
+            {
+              "label": "Action & everyday",
+              "items": [
+                {
+                  "title": "Insta360 Ace Pro 2",
+                  "image": "https://media-dev.ecolitea.com/header-insta360-ace-pro-2.png"
+                },
+                {
+                  "title": "Insta360 GO Ultra",
+                  "image": "https://media-dev.ecolitea.com/header-insta360-go-ultra.png"
+                },
+                {
+                  "title": "Insta360 Luna Series",
+                  "image": "https://media-dev.ecolitea.com/header-insta360-luna-series.png"
+                },
+                {
+                  "title": "Insta360 GO 3S",
+                  "image": "https://media-dev.ecolitea.com/header-insta360-go-3s.png"
+                }
+              ],
+              "cta": "Explore action cameras"
+            },
+            {
+              "label": "Mobile filmmaking",
+              "items": [
+                {
+                  "title": "Insta360 Flow 2 Series",
+                  "image": "https://media-dev.ecolitea.com/header-insta360-flow-2-pro.png"
+                },
+                {
+                  "title": "Insta360 Mic Pro",
+                  "image": "https://media-dev.ecolitea.com/header-insta360-mic-pro.png"
+                },
+                {
+                  "title": "Snap Selfie Screen",
+                  "image": "https://media-dev.ecolitea.com/header-insta360-snap.png"
+                }
+              ],
+              "cta": "Build your creator kit"
+            },
+            {
+              "label": "Webcams & meetings",
+              "items": [
+                {
+                  "title": "Insta360 Link 2 Pro",
+                  "image": "https://media-dev.ecolitea.com/header-insta360-link-2-pro.png"
+                },
+                {
+                  "title": "Insta360 Connect",
+                  "image": "https://media-dev.ecolitea.com/header-insta360-connect.jpg"
+                },
+                {
+                  "title": "Insta360 Link 2",
+                  "image": "https://media-dev.ecolitea.com/header-insta360-link-2.png"
+                },
+                {
+                  "title": "Insta360 Wave",
+                  "image": "https://media-dev.ecolitea.com/header-insta360-wave.png"
+                }
+              ],
+              "cta": "Explore meeting solutions"
+            }
+          ],
+          "cta": "Explore all cameras"
+        }
+      ]
+    },
+    {
+      "label": "Accessories",
+      "navigationType": "directLinkAndDropdown",
+      "blocks": [
+        {
+          "type": "linkGroup",
+          "heading": "Complete your kit",
+          "items": [],
+          "links": [
+            "All accessories",
+            "MicroSD cards",
+            "Snap Selfie Screen",
+            "Luna wide-angle lens",
+            "Luna black mist filter",
+            "Luna protective case"
+          ],
+          "categories": [],
+          "cta": ""
+        },
+        {
+          "type": "linkGroup",
+          "heading": "Sound & movement",
+          "items": [],
+          "links": [
+            "Mic Pro",
+            "Mic Air",
+            "Flow 2 Series",
+            "Snap Selfie Screen",
+            "Audio for vlogging",
+            "Filmmaking essentials"
+          ],
+          "categories": [],
+          "cta": ""
+        },
+        {
+          "type": "cardGroup",
+          "heading": "Bring your story to life",
+          "items": [
+            {
+              "title": "Insta360 Mic Pro",
+              "image": "https://media-dev.ecolitea.com/header-insta360-mic-pro.png"
+            },
+            {
+              "title": "Insta360 Flow 2 Series",
+              "image": "https://media-dev.ecolitea.com/header-insta360-flow-2-pro.png"
+            }
+          ],
+          "links": [],
+          "categories": [],
+          "cta": "Explore all accessories"
+        }
+      ]
+    },
+    {
+      "label": "Shop by Interest",
+      "navigationType": "dropdown",
+      "blocks": [
+        {
+          "type": "cardGroup",
+          "heading": "Find your next adventure",
+          "items": [
+            {
+              "title": "Road Cycling",
+              "image": "https://media-dev.ecolitea.com/header-interest-1.jpg"
+            },
+            {
+              "title": "Motorcycling",
+              "image": "https://media-dev.ecolitea.com/header-interest-2.jpg"
+            },
+            {
+              "title": "Videography",
+              "image": "https://media-dev.ecolitea.com/header-interest-3.jpg"
+            },
+            {
+              "title": "Vlogging",
+              "image": "https://media-dev.ecolitea.com/header-interest-4.jpg"
+            },
+            {
+              "title": "Kayaking",
+              "image": "https://media-dev.ecolitea.com/header-interest-5.jpg"
+            },
+            {
+              "title": "Snorkeling",
+              "image": "https://media-dev.ecolitea.com/header-interest-6.jpg"
+            },
+            {
+              "title": "Mountain Biking",
+              "image": "https://media-dev.ecolitea.com/header-interest-7.jpg"
+            },
+            {
+              "title": "Winter Sports",
+              "image": "https://media-dev.ecolitea.com/header-interest-8.jpg"
+            }
+          ],
+          "links": [],
+          "categories": [],
+          "cta": "view more"
+        }
+      ]
+    },
+    {
+      "label": "Professional",
+      "navigationType": "dropdown",
+      "blocks": [
+        {
+          "type": "cardGroup",
+          "heading": "Built for bigger ideas",
+          "items": [
+            {
+              "title": "Insta360 Pro 2",
+              "image": "https://media-dev.ecolitea.com/header-insta360-pro_2.png"
+            },
+            {
+              "title": "Insta360 Connect",
+              "image": "https://media-dev.ecolitea.com/header-insta360-connect.jpg"
+            },
+            {
+              "title": "Link 2 Pro",
+              "image": "https://media-dev.ecolitea.com/header-insta360-link-2-pro.png"
+            },
+            {
+              "title": "Wave",
+              "image": "https://media-dev.ecolitea.com/header-insta360-wave.png"
+            }
+          ],
+          "links": [],
+          "categories": [],
+          "cta": "Explore enterprise solutions"
+        },
+        {
+          "type": "linkGroup",
+          "heading": "Immersive production",
+          "items": [],
+          "links": [
+            "Professional cameras",
+            "Insta360 Pro 2",
+            "Insta360 Titan"
+          ],
+          "categories": [],
+          "cta": ""
+        },
+        {
+          "type": "linkGroup",
+          "heading": "Work together",
+          "items": [],
+          "links": [
+            "Enterprise solutions",
+            "Insta360 Connect",
+            "Link 2 Pro webcams",
+            "Wave speakerphone"
+          ],
+          "categories": [],
+          "cta": ""
+        },
+        {
+          "type": "linkGroup",
+          "heading": "Creator workflow",
+          "items": [],
+          "links": [
+            "Apps & editing software",
+            "Mic Pro audio",
+            "Flow 2 mobile filmmaking",
+            "Insta360+ cloud"
+          ],
+          "categories": [],
+          "cta": ""
+        },
+        {
+          "type": "linkGroup",
+          "heading": "Planning & ownership",
+          "items": [],
+          "links": [
+            "Shopping questions",
+            "Camera coverage",
+            "Repair services",
+            "After-sales policy"
+          ],
+          "categories": [],
+          "cta": ""
+        }
+      ]
+    },
+    {
+      "label": "Support",
+      "navigationType": "dropdown",
+      "blocks": [
+        {
+          "type": "linkGroup",
+          "heading": "Getting started",
+          "items": [],
+          "links": [
+            "Apps & software",
+            "Shopping FAQ",
+            "Find accessories"
+          ],
+          "categories": [],
+          "cta": ""
+        },
+        {
+          "type": "linkGroup",
+          "heading": "Repairs & after-sales",
+          "items": [],
+          "links": [
+            "Request a repair",
+            "After-sales policy",
+            "Trade-in program"
+          ],
+          "categories": [],
+          "cta": ""
+        },
+        {
+          "type": "linkGroup",
+          "heading": "Protection plans",
+          "items": [],
+          "links": [
+            "Compare coverage",
+            "FlexiCare",
+            "Extended warranty"
+          ],
+          "categories": [],
+          "cta": ""
+        },
+        {
+          "type": "linkGroup",
+          "heading": "More ways to own",
+          "items": [],
+          "links": [
+            "Insta360 Care",
+            "Insta360+ cloud",
+            "Certified refurbished"
+          ],
+          "categories": [],
+          "cta": ""
+        },
+        {
+          "type": "cardGroup",
+          "heading": "Keep creating with confidence",
+          "items": [
+            {
+              "title": "FlexiCare",
+              "image": "https://media-dev.ecolitea.com/header-insta360-flexicare-x5.png"
+            },
+            {
+              "title": "Extended warranty",
+              "image": "https://media-dev.ecolitea.com/header-insta360-warranty_service.png"
+            },
+            {
+              "title": "Save your memories",
+              "image": "https://media-dev.ecolitea.com/header-interest-14.jpg"
+            },
+            {
+              "title": "Ready for your next trip",
+              "image": "https://media-dev.ecolitea.com/header-interest-13.jpg"
+            }
+          ],
+          "links": [],
+          "categories": [],
+          "cta": ""
+        }
+      ]
+    }
+  ]
+}

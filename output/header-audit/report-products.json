@@ -1,0 +1,66 @@
+[
+  {
+    "section": "menu: Products",
+    "geom": {
+      "panel": {
+        "w": 1220,
+        "h": 602,
+        "padding": "32px 0px 40px"
+      },
+      "tabsLayout": {
+        "gap": "32px",
+        "gridTemplateColumns": "220px 968px"
+      },
+      "productGrid": {
+        "gap": "24px",
+        "gridTemplateColumns": "224px 224px 224px 224px"
+      },
+      "cards": [
+        {
+          "sel": "[class*=\"navigationCardProduct\"]",
+          "w": 224,
+          "h": 227,
+          "padding": "12px 12px 14px",
+          "borderRadius": "12px",
+          "backgroundColor": "color(srgb 0.948941 0.948941 0.949647)",
+          "gap": "normal"
+        }
+      ],
+      "text": [
+        {
+          "sel": "[class*=\"categoryHeading\"]",
+          "text": "360° cameras",
+          "fontSize": "16px",
+          "fontWeight": "600",
+          "lineHeight": "24px",
+          "letterSpacing": "normal"
+        },
+        {
+          "sel": "[class*=\"navigationCardTitle\"]",
+          "text": "Insta360 X6",
+          "fontSize": "14px",
+          "fontWeight": "600",
+          "lineHeight": "18.9px",
+          "letterSpacing": "normal"
+        },
+        {
+          "sel": "[class*=\"categoryTab\"]",
+          "text": "360° camerasAction & everyda",
+          "fontSize": "16px",
+          "fontWeight": "400",
+          "lineHeight": "24px",
+          "letterSpacing": "normal"
+        }
+      ],
+      "counts": {
+        "tabs": 4,
+        "productCards": 19,
+        "richCards": 0
+      }
+    }
+  },
+  {
+    "section": "mobile accordion triggers",
+    "count": 1
+  }
+]

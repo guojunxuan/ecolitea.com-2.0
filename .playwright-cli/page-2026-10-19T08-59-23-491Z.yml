@@ -1,0 +1,103 @@
+- generic [active] [ref=f40e1]:
+  - generic [ref=f40e3]:
+    - complementary [ref=f40e4]:
+      - navigation [ref=f40e6]:
+        - generic [ref=f40e7]:
+          - tablist [ref=f40e8]:
+            - tab "Collections" [selected] [ref=f40e9] [cursor=pointer]
+            - tab "Folders" [ref=f40e14] [cursor=pointer]
+          - tabpanel [ref=f40e19]:
+            - generic [ref=f40e20]:
+              - generic [ref=f40e21]:
+                - button "Collections" [ref=f40e22] [cursor=pointer]
+                - generic [ref=f40e27]:
+                  - link "Pages" [ref=f40e29] [cursor=pointer]:
+                    - /url: /admin/collections/pages
+                  - link "Posts" [ref=f40e32] [cursor=pointer]:
+                    - /url: /admin/collections/posts
+                  - link "Media" [ref=f40e35] [cursor=pointer]:
+                    - /url: /admin/collections/media
+                  - link "Documents" [ref=f40e38] [cursor=pointer]:
+                    - /url: /admin/collections/documents
+                  - link "Categories" [ref=f40e41] [cursor=pointer]:
+                    - /url: /admin/collections/categories
+                  - link "Case Studies" [ref=f40e44] [cursor=pointer]:
+                    - /url: /admin/collections/case-studies
+                  - link "Users" [ref=f40e47] [cursor=pointer]:
+                    - /url: /admin/collections/users
+                  - link "Redirects" [ref=f40e50] [cursor=pointer]:
+                    - /url: /admin/collections/redirects
+                  - link "Forms" [ref=f40e53] [cursor=pointer]:
+                    - /url: /admin/collections/forms
+                  - link "Form Submissions" [ref=f40e56] [cursor=pointer]:
+                    - /url: /admin/collections/form-submissions
+                  - link "Search Results" [ref=f40e59] [cursor=pointer]:
+                    - /url: /admin/collections/search
+              - generic [ref=f40e61]:
+                - button "Globals" [ref=f40e62] [cursor=pointer]
+                - generic [ref=f40e67]:
+                  - link "Header" [ref=f40e69] [cursor=pointer]:
+                    - /url: /admin/globals/header
+                  - link "Footer" [ref=f40e72] [cursor=pointer]:
+                    - /url: /admin/globals/footer
+                  - link "Site Settings" [ref=f40e75] [cursor=pointer]:
+                    - /url: /admin/globals/site-settings
+                  - link "Settings" [ref=f40e78] [cursor=pointer]:
+                    - /url: /admin/globals/settings
+              - generic [ref=f40e80]:
+                - button "Blog" [ref=f40e81] [cursor=pointer]
+                - generic [ref=f40e86]:
+                  - link "Blogs" [ref=f40e88] [cursor=pointer]:
+                    - /url: /admin/collections/blogs
+                  - link "Blog Categories" [ref=f40e91] [cursor=pointer]:
+                    - /url: /admin/collections/blog-categories
+    - generic [ref=f40e93]:
+      - banner [ref=f40e94]:
+        - generic [ref=f40e96]:
+          - generic [ref=f40e98]:
+            - button "Open Menu" [ref=f40e99] [cursor=pointer]
+            - navigation [ref=f40e101]:
+              - link "Dashboard" [ref=f40e102] [cursor=pointer]:
+                - /url: /admin
+              - generic [ref=f40e103]: /
+              - link "Documents" [ref=f40e104] [cursor=pointer]:
+                - /url: /admin/collections/documents
+              - generic [ref=f40e105]: /
+              - generic [ref=f40e106]: Create New
+          - button "Account" [ref=f40e109] [cursor=pointer]:
+            - img "yas" [ref=f40e110]
+      - generic [ref=f40e111]:
+        - heading "demo-20261019-10-service-process" [level=1] [ref=f40e112]
+        - generic [ref=f40e113]: "Documents: PDF (.pdf), Word (.docx), Excel (.xlsx), PowerPoint (.pptx); maximum 10 MB. Legacy Office formats and documents with macros are not allowed."
+      - main [ref=f40e115]:
+        - generic [ref=f40e116]:
+          - generic [ref=f40e117]:
+            - generic [ref=f40e118]:
+              - button "None" [ref=f40e120] [cursor=pointer]
+              - list [ref=f40e121]:
+                - listitem [ref=f40e122]:
+                  - paragraph [ref=f40e123]: Creating new Document
+            - button "Save" [ref=f40e127] [cursor=pointer]
+          - generic [ref=f40e128]:
+            - generic [ref=f40e133]:
+              - generic [ref=f40e134]:
+                - generic [ref=f40e135]:
+                  - text: Title
+                  - generic [ref=f40e136]: "*"
+                - textbox "Title *" [ref=f40e138]: demo-20261019-10-service-process
+              - generic [ref=f40e139]:
+                - generic [ref=f40e140]: Description
+                - textbox "Description" [ref=f40e143]
+            - generic [ref=f40e147]:
+              - button [ref=f40e148] [cursor=pointer]
+              - iframe [ref=f40e150]
+              - generic [ref=f40e151]:
+                - generic [ref=f40e152]:
+                  - generic [ref=f40e153]: File Name
+                  - textbox "File Name" [ref=f40e155]: demo-20261019-10-service-process.pdf
+                - generic [ref=f40e156]: 2KB – application/pdf
+      - status [ref=f40e157]
+  - status [ref=f40e158]
+  - region "Notifications alt+T"
+  - button "Open Next.js Dev Tools" [ref=f40e164] [cursor=pointer]
+  - alert [ref=f40e168]

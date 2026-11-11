@@ -1,0 +1,378 @@
+- generic [active] [ref=e1]:
+  - iframe [ref=e2]:
+    - generic [ref=f1e1]:
+      - link "Skip to content" [ref=f1e2] [cursor=pointer]:
+        - /url: "#main-content"
+      - banner:
+        - generic [ref=f1e4]:
+          - link [ref=f1e5] [cursor=pointer]:
+            - /url: /
+            - img "ecolitea-logo-dark" [ref=f1e6]
+          - generic [ref=f1e7]:
+            - navigation "Primary" [ref=f1e10]:
+              - generic [ref=f1e11]:
+                - button "Products" [ref=f1e13] [cursor=pointer]
+                - link "Accessories" [ref=f1e15] [cursor=pointer]:
+                  - /url: https://store.insta360.com/accessory
+                - button "Shop by Interest" [ref=f1e17] [cursor=pointer]
+                - button "Professional" [ref=f1e19] [cursor=pointer]
+                - button "Support" [ref=f1e21] [cursor=pointer]
+            - link "Search" [ref=f1e23] [cursor=pointer]:
+              - /url: /search
+      - main [ref=f1e27]:
+        - generic [ref=f1e28]:
+          - heading "Products" [level=1] [ref=f1e29]
+          - region "Featured products" [ref=f1e30]:
+            - group "1 / 4" [ref=f1e31]:
+              - link "View more" [ref=f1e32] [cursor=pointer]:
+                - /url: /products/demo-imaging-equipment/demo-insta360-mic-pro
+            - button "Previous slide"
+            - button "Next slide"
+            - generic [ref=f1e35]:
+              - button "Go to slide 1" [ref=f1e36] [cursor=pointer]
+              - button "Go to slide 2" [ref=f1e39] [cursor=pointer]
+              - button "Go to slide 3" [ref=f1e41] [cursor=pointer]
+              - button "Go to slide 4" [ref=f1e43] [cursor=pointer]
+          - navigation "Product categories" [ref=f1e45]:
+            - generic [ref=f1e47]:
+              - region "Product categories" [ref=f1e48]:
+                - link "Insta360 X6 — product image from Insta360 影像设备 · 示例" [ref=f1e49] [cursor=pointer]:
+                  - /url: /products/demo-imaging-equipment
+                  - img "Insta360 X6 — product image from Insta360" [ref=f1e51]
+                  - generic [ref=f1e52]: 影像设备 · 示例
+                - link "Winter Sports 户外探索 · 示例" [ref=f1e53] [cursor=pointer]:
+                  - /url: /products/demo-outdoor
+                  - img "Winter Sports" [ref=f1e55]
+                  - generic [ref=f1e56]: 户外探索 · 示例
+                - link "Vlogging 创作影像 · 示例" [ref=f1e57] [cursor=pointer]:
+                  - /url: /products/demo-creator
+                  - img "Vlogging" [ref=f1e59]
+                  - generic [ref=f1e60]: 创作影像 · 示例
+                - link "Snap Selfie Screen 专业设备 · 示例" [ref=f1e61] [cursor=pointer]:
+                  - /url: /products/demo-professional
+                  - img "Snap Selfie Screen" [ref=f1e63]
+                  - generic [ref=f1e64]: 专业设备 · 示例
+                - link "Vlogging 旅行装备 · 示例" [ref=f1e65] [cursor=pointer]:
+                  - /url: /products/demo-travel-gear
+                  - img "Vlogging" [ref=f1e67]
+                  - generic [ref=f1e68]: 旅行装备 · 示例
+                - link "Snorkeling 水上运动 · 示例" [ref=f1e69] [cursor=pointer]:
+                  - /url: /products/demo-water-sports
+                  - img "Snorkeling" [ref=f1e71]
+                  - generic [ref=f1e72]: 水上运动 · 示例
+                - link "Snap Selfie Screen 日常随行 · 示例" [ref=f1e73] [cursor=pointer]:
+                  - /url: /products/demo-everyday-carry
+                  - img "Snap Selfie Screen" [ref=f1e75]
+                  - generic [ref=f1e76]: 日常随行 · 示例
+                - link "Skiing 冰雪冒险 · 示例" [ref=f1e77] [cursor=pointer]:
+                  - /url: /products/demo-snow-adventure
+                  - img "Skiing" [ref=f1e79]
+                  - generic [ref=f1e80]: 冰雪冒险 · 示例
+              - button "Next items"
+          - generic [ref=f1e83]:
+            - generic [ref=f1e84]:
+              - link [ref=f1e85] [cursor=pointer]:
+                - /url: /products/demo-imaging-equipment
+                - img "Insta360 X6 — product image from Insta360" [ref=f1e87]
+              - generic [ref=f1e88]:
+                - generic [ref=f1e89]:
+                  - heading "影像设备 · 示例" [level=2] [ref=f1e90]
+                  - paragraph [ref=f1e91]: 复用站内现有影像设备素材的本地演示分类，用于产品内容编辑与 sections 布局演示。
+                - link "View More" [ref=f1e93] [cursor=pointer]:
+                  - /url: /products/demo-imaging-equipment
+            - heading "最新产品" [level=3] [ref=f1e95]
+            - list "影像设备 · 示例最新产品" [ref=f1e96]:
+              - listitem [ref=f1e97]:
+                - link [ref=f1e98] [cursor=pointer]:
+                  - /url: /products/demo-imaging-equipment/demo-insta360-x6
+                  - img "Insta360 X6 — product image from Insta360" [ref=f1e100]
+                  - generic [ref=f1e101]:
+                    - heading "Insta360 X6 · 示例 01" [level=4] [ref=f1e102]
+                    - paragraph [ref=f1e103]: 以现有 X6 素材创建的全景影像设备示例，包含产品展示、使用场景与核心特性 sections，供后台内容编辑与布局演示。
+              - listitem [ref=f1e104]:
+                - link [ref=f1e105] [cursor=pointer]:
+                  - /url: /products/demo-imaging-equipment/demo-insta360-go-ultra
+                  - img "Insta360 GO Ultra — product image from Insta360" [ref=f1e107]
+                  - generic [ref=f1e108]:
+                    - heading "Insta360 GO Ultra · 示例 05" [level=4] [ref=f1e109]
+                    - paragraph [ref=f1e110]: 复用站内 GO Ultra 产品图与场景素材的完整示例，包含图库、卖点、规格及两段产品 sections，用于后台编辑与内容结构演示。
+              - listitem [ref=f1e111]:
+                - link [ref=f1e112] [cursor=pointer]:
+                  - /url: /products/demo-imaging-equipment/demo-insta360-ace-pro-2
+                  - img "Insta360 Ace Pro 2 — product image from Insta360" [ref=f1e114]
+                  - generic [ref=f1e115]:
+                    - heading "Insta360 Ace Pro 2 · 示例 04" [level=4] [ref=f1e116]
+                    - paragraph [ref=f1e117]: 复用站内 Ace Pro 2 产品图与场景素材的完整示例，包含图库、卖点、规格及两段产品 sections，用于后台编辑与内容结构演示。
+              - listitem [ref=f1e118]:
+                - link [ref=f1e119] [cursor=pointer]:
+                  - /url: /products/demo-imaging-equipment/demo-insta360-x4-air
+                  - img "Insta360 X4 Air — product image from Insta360" [ref=f1e121]
+                  - generic [ref=f1e122]:
+                    - heading "Insta360 X4 Air · 示例 03" [level=4] [ref=f1e123]
+                    - paragraph [ref=f1e124]: 复用站内 X4 Air 产品图与场景素材的完整示例，包含图库、卖点、规格及两段产品 sections，用于后台编辑与内容结构演示。
+          - generic [ref=f1e127]:
+            - generic [ref=f1e128]:
+              - link [ref=f1e129] [cursor=pointer]:
+                - /url: /products/demo-outdoor
+                - img "Winter Sports" [ref=f1e131]
+              - generic [ref=f1e132]:
+                - generic [ref=f1e133]:
+                  - heading "户外探索 · 示例" [level=2] [ref=f1e134]
+                  - paragraph [ref=f1e135]: 为山野、旅行与全天候探索打造的示例产品系列。
+                - link "View More" [ref=f1e137] [cursor=pointer]:
+                  - /url: /products/demo-outdoor
+            - heading "最新产品" [level=3] [ref=f1e139]
+            - list "户外探索 · 示例最新产品" [ref=f1e140]:
+              - listitem [ref=f1e141]:
+                - link [ref=f1e142] [cursor=pointer]:
+                  - /url: /products/demo-outdoor/demo-trail-series
+                  - img "Insta360 Pro 2 — product image from Insta360" [ref=f1e144]
+                  - generic [ref=f1e145]:
+                    - heading "Trail 探索系列 · 全 Block 示例" [level=4] [ref=f1e146]
+                    - paragraph [ref=f1e147]: 面向户外探索的示例系列，展示全部六种产品详情模块与多场景媒体。
+          - generic [ref=f1e150]:
+            - generic [ref=f1e151]:
+              - link [ref=f1e152] [cursor=pointer]:
+                - /url: /products/demo-creator
+                - img "Vlogging" [ref=f1e154]
+              - generic [ref=f1e155]:
+                - generic [ref=f1e156]:
+                  - heading "创作影像 · 示例" [level=2] [ref=f1e157]
+                  - paragraph [ref=f1e158]: 从日常记录到旅行短片，探索轻巧易用的影像创作系列。
+                - link "View More" [ref=f1e160] [cursor=pointer]:
+                  - /url: /products/demo-creator
+            - heading "最新产品" [level=3] [ref=f1e162]
+            - list "创作影像 · 示例最新产品" [ref=f1e163]:
+              - listitem [ref=f1e164]:
+                - link [ref=f1e165] [cursor=pointer]:
+                  - /url: /products/demo-creator/demo-creator-series
+                  - img "Insta360 Pro 2 — product image from Insta360" [ref=f1e167]
+                  - generic [ref=f1e168]:
+                    - heading "Creator 创作系列 · 全 Block 示例" [level=4] [ref=f1e169]
+                    - paragraph [ref=f1e170]: 将旅途与日常变为精彩故事的创作系列示例，详情覆盖全部六种产品模块。
+          - generic [ref=f1e173]:
+            - generic [ref=f1e174]:
+              - link [ref=f1e175] [cursor=pointer]:
+                - /url: /products/demo-professional
+                - img "Videography" [ref=f1e177]
+              - generic [ref=f1e178]:
+                - generic [ref=f1e179]:
+                  - heading "专业设备 · 示例" [level=2] [ref=f1e180]
+                  - paragraph [ref=f1e181]: 面向团队与专业制作流程的高性能设备示例。
+                - link "View More" [ref=f1e183] [cursor=pointer]:
+                  - /url: /products/demo-professional
+            - heading "最新产品" [level=3] [ref=f1e185]
+            - list "专业设备 · 示例最新产品" [ref=f1e186]:
+              - listitem [ref=f1e187]:
+                - link [ref=f1e188] [cursor=pointer]:
+                  - /url: /products/demo-professional/demo-studio-series
+                  - img "Insta360 Pro 2 — product image from Insta360" [ref=f1e190]
+                  - generic [ref=f1e191]:
+                    - heading "Studio 专业系列 · 全 Block 示例" [level=4] [ref=f1e192]
+                    - paragraph [ref=f1e193]: 为团队协作与专业内容工作流准备的系列示例，使用全部六种详情模块展示。
+          - generic [ref=f1e196]:
+            - generic [ref=f1e197]:
+              - link [ref=f1e198] [cursor=pointer]:
+                - /url: /products/demo-travel-gear
+                - img "Vlogging" [ref=f1e200]
+              - generic [ref=f1e201]:
+                - generic [ref=f1e202]:
+                  - heading "旅行装备 · 示例" [level=2] [ref=f1e203]
+                  - paragraph [ref=f1e204]: 轻装出发，记录每一次旅途。
+                - link "View More" [ref=f1e206] [cursor=pointer]:
+                  - /url: /products/demo-travel-gear
+            - heading "最新产品" [level=3] [ref=f1e208]
+            - list "旅行装备 · 示例最新产品" [ref=f1e209]:
+              - listitem [ref=f1e210]:
+                - link [ref=f1e211] [cursor=pointer]:
+                  - /url: /products/demo-travel-gear/demo-travel-camera
+                  - img "Vlogging" [ref=f1e213]
+                  - generic [ref=f1e214]:
+                    - heading "Travel 随行相机 · 示例" [level=4] [ref=f1e215]
+                    - paragraph [ref=f1e216]: 为旅行记录准备的轻便影像装备，分类轮播演示产品。
+          - generic [ref=f1e219]:
+            - generic [ref=f1e220]:
+              - link [ref=f1e221] [cursor=pointer]:
+                - /url: /products/demo-water-sports
+                - img "Snorkeling" [ref=f1e223]
+              - generic [ref=f1e224]:
+                - generic [ref=f1e225]:
+                  - heading "水上运动 · 示例" [level=2] [ref=f1e226]
+                  - paragraph [ref=f1e227]: 探索水下世界，留住每一个精彩瞬间。
+                - link "View More" [ref=f1e229] [cursor=pointer]:
+                  - /url: /products/demo-water-sports
+            - heading "最新产品" [level=3] [ref=f1e231]
+            - list "水上运动 · 示例最新产品" [ref=f1e232]:
+              - listitem [ref=f1e233]:
+                - link [ref=f1e234] [cursor=pointer]:
+                  - /url: /products/demo-water-sports/demo-aqua-camera
+                  - img "Snorkeling" [ref=f1e236]
+                  - generic [ref=f1e237]:
+                    - heading "Aqua 水下影像套装 · 示例" [level=4] [ref=f1e238]
+                    - paragraph [ref=f1e239]: 为浮潜与水上探索准备的影像套装，分类轮播演示产品。
+          - generic [ref=f1e242]:
+            - generic [ref=f1e243]:
+              - link [ref=f1e244] [cursor=pointer]:
+                - /url: /products/demo-everyday-carry
+                - img "Snap Selfie Screen" [ref=f1e246]
+              - generic [ref=f1e247]:
+                - generic [ref=f1e248]:
+                  - heading "日常随行 · 示例" [level=2] [ref=f1e249]
+                  - paragraph [ref=f1e250]: 轻巧实用的随身装备，让日常记录更简单。
+                - link "View More" [ref=f1e252] [cursor=pointer]:
+                  - /url: /products/demo-everyday-carry
+            - heading "最新产品" [level=3] [ref=f1e254]
+            - list "日常随行 · 示例最新产品" [ref=f1e255]:
+              - listitem [ref=f1e256]:
+                - link [ref=f1e257] [cursor=pointer]:
+                  - /url: /products/demo-everyday-carry/demo-pocket-screen
+                  - img "Snap Selfie Screen" [ref=f1e259]
+                  - generic [ref=f1e260]:
+                    - heading "Pocket 随身自拍屏 · 示例" [level=4] [ref=f1e261]
+                    - paragraph [ref=f1e262]: 轻巧便携的日常记录配件，分类轮播演示产品。
+          - generic [ref=f1e265]:
+            - generic [ref=f1e266]:
+              - link [ref=f1e267] [cursor=pointer]:
+                - /url: /products/demo-snow-adventure
+                - img "Skiing" [ref=f1e269]
+              - generic [ref=f1e270]:
+                - generic [ref=f1e271]:
+                  - heading "冰雪冒险 · 示例" [level=2] [ref=f1e272]
+                  - paragraph [ref=f1e273]: 走进雪山，记录速度与自由。
+                - link "View More" [ref=f1e275] [cursor=pointer]:
+                  - /url: /products/demo-snow-adventure
+            - heading "最新产品" [level=3] [ref=f1e277]
+            - list "冰雪冒险 · 示例最新产品" [ref=f1e278]:
+              - listitem [ref=f1e279]:
+                - link [ref=f1e280] [cursor=pointer]:
+                  - /url: /products/demo-snow-adventure/demo-snow-camera
+                  - img "Skiing" [ref=f1e282]
+                  - generic [ref=f1e283]:
+                    - heading "Snow 雪地影像套装 · 示例" [level=4] [ref=f1e284]
+                    - paragraph [ref=f1e285]: 为滑雪与雪山探索准备的影像套装，用于轮播溢出演示。
+      - contentinfo [ref=f1e286]:
+        - generic [ref=f1e287]:
+          - generic [ref=f1e288]:
+            - region "Brand" [ref=f1e289]:
+              - link [ref=f1e290] [cursor=pointer]:
+                - /url: /
+                - img "ecolitea-logo-dark" [ref=f1e291]
+              - paragraph [ref=f1e292]: Ecolitea is a B2B company providing reliable products and tailored solutions to customers worldwide.
+              - list "Social media" [ref=f1e293]:
+                - listitem [ref=f1e294]:
+                  - link "LinkedIn" [ref=f1e295] [cursor=pointer]:
+                    - /url: https://example.com/ecolitea/linkedin
+                - listitem [ref=f1e296]:
+                  - link "YouTube" [ref=f1e297] [cursor=pointer]:
+                    - /url: https://example.com/ecolitea/youtube
+                - listitem [ref=f1e298]:
+                  - link "Facebook" [ref=f1e299] [cursor=pointer]:
+                    - /url: https://example.com/ecolitea/facebook
+                - listitem [ref=f1e300]:
+                  - link "Instagram" [ref=f1e301] [cursor=pointer]:
+                    - /url: https://example.com/ecolitea/instagram
+                - listitem [ref=f1e302]:
+                  - link "X" [ref=f1e303] [cursor=pointer]:
+                    - /url: https://example.com/ecolitea/x
+            - navigation "Footer" [ref=f1e304]:
+              - generic [ref=f1e305]:
+                - heading "Products" [level=2] [ref=f1e306]
+                - list [ref=f1e308]:
+                  - listitem [ref=f1e309]:
+                    - link "Product 01" [ref=f1e310] [cursor=pointer]:
+                      - /url: /placeholder/products/category-01
+                  - listitem [ref=f1e311]:
+                    - link "Product 02" [ref=f1e312] [cursor=pointer]:
+                      - /url: /placeholder/products/category-02
+                  - listitem [ref=f1e313]:
+                    - link "Product 03" [ref=f1e314] [cursor=pointer]:
+                      - /url: /placeholder/products/category-03
+                  - listitem [ref=f1e315]:
+                    - link "Product 04" [ref=f1e316] [cursor=pointer]:
+                      - /url: /placeholder/products/category-04
+                  - listitem [ref=f1e317]:
+                    - link "Product 05" [ref=f1e318] [cursor=pointer]:
+                      - /url: /placeholder/products/category-05
+                  - listitem [ref=f1e319]:
+                    - link "Product 06" [ref=f1e320] [cursor=pointer]:
+                      - /url: /placeholder/products/category-06
+                  - listitem [ref=f1e321]:
+                    - link "Product 07" [ref=f1e322] [cursor=pointer]:
+                      - /url: /placeholder/products/category-07
+                  - listitem [ref=f1e323]:
+                    - link "Product 08" [ref=f1e324] [cursor=pointer]:
+                      - /url: /placeholder/products/category-08
+              - generic [ref=f1e325]:
+                - heading "Solutions" [level=2] [ref=f1e326]
+                - list [ref=f1e328]:
+                  - listitem [ref=f1e329]:
+                    - link "Hospitality" [ref=f1e330] [cursor=pointer]:
+                      - /url: /placeholder/solutions/hospitality
+                  - listitem [ref=f1e331]:
+                    - link "Commercial" [ref=f1e332] [cursor=pointer]:
+                      - /url: /placeholder/solutions/commercial
+                  - listitem [ref=f1e333]:
+                    - link "Residential" [ref=f1e334] [cursor=pointer]:
+                      - /url: /placeholder/solutions/residential
+                  - listitem [ref=f1e335]:
+                    - link "Custom projects" [ref=f1e336] [cursor=pointer]:
+                      - /url: /placeholder/solutions/custom-projects
+              - generic [ref=f1e337]:
+                - heading "Resources" [level=2] [ref=f1e338]
+                - list [ref=f1e340]:
+                  - listitem [ref=f1e341]:
+                    - link "Downloads" [ref=f1e342] [cursor=pointer]:
+                      - /url: /placeholder/resources/downloads
+                  - listitem [ref=f1e343]:
+                    - link "External resource" [ref=f1e344] [cursor=pointer]:
+                      - /url: https://example.com/placeholder-resource
+              - generic [ref=f1e345]:
+                - heading "Company" [level=2] [ref=f1e346]
+                - list [ref=f1e348]:
+                  - listitem [ref=f1e349]:
+                    - link "About us" [ref=f1e350] [cursor=pointer]:
+                      - /url: /placeholder/company/about
+                  - listitem [ref=f1e351]:
+                    - link "Contact" [ref=f1e352] [cursor=pointer]:
+                      - /url: /placeholder/company/contact
+                  - listitem [ref=f1e353]:
+                    - link "Partner portal" [ref=f1e354] [cursor=pointer]:
+                      - /url: https://example.com/placeholder-partner-portal
+                  - listitem [ref=f1e355]:
+                    - link "Blog" [ref=f1e356] [cursor=pointer]:
+                      - /url: /blogs
+            - generic [ref=f1e357]:
+              - region "Newsletter" [ref=f1e358]:
+                - heading "SUBSCRIBE TO OUR NEWSLETTER" [level=2] [ref=f1e359]
+                - paragraph [ref=f1e360]: Unlock savings & perks, members-only offers.
+                - generic [ref=f1e361]:
+                  - textbox "Email address" [disabled] [ref=f1e362]
+                  - button "Subscribe" [disabled] [ref=f1e363]
+              - list [ref=f1e365]:
+                - listitem [ref=f1e366]:
+                  - generic [ref=f1e370]: 5425 Janet Ct, OAK FOREST, IL 60452-3740, United States
+                - listitem [ref=f1e371]:
+                  - link "+86 1234567 8910" [ref=f1e374] [cursor=pointer]:
+                    - /url: tel:+86 1234567 8910
+                - listitem [ref=f1e375]:
+                  - link "sales@ecolitea.com" [ref=f1e379] [cursor=pointer]:
+                    - /url: mailto:sales@ecolitea.com
+          - generic [ref=f1e380]:
+            - paragraph [ref=f1e381]: © 2026 Ecolitea. All rights reserved.
+            - navigation "Legal" [ref=f1e382]:
+              - list [ref=f1e383]:
+                - listitem [ref=f1e384]:
+                  - link "Privacy Policy" [ref=f1e385] [cursor=pointer]:
+                    - /url: /home
+                - listitem [ref=f1e386]:
+                  - link "Terms" [ref=f1e387] [cursor=pointer]:
+                    - /url: /home
+      - button "Open Next.js Dev Tools" [ref=f1e393] [cursor=pointer]
+      - alert [ref=f1e397]
+  - complementary "仿真预览工具" [ref=e3]:
+    - paragraph [ref=e4]:
+      - text: 完整页面仿真
+      - status [ref=e5]: 8 个分类 · 当前页面内容
+    - button "AB 仿真" [pressed] [ref=e6] [cursor=pointer]
+    - button "当前原版" [ref=e7] [cursor=pointer]
+    - button "收起预览工具" [expanded] [ref=e8] [cursor=pointer]: 收起

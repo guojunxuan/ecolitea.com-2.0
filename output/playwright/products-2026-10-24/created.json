@@ -1,0 +1,295 @@
+[
+  {
+    "id": "6adcb636f43c3bb2c41ea3f2",
+    "title": "Insta360 X6 · 示例 01",
+    "slug": "demo-insta360-x6",
+    "status": "draft",
+    "gallery": 3,
+    "sections": [
+      {
+        "label": "产品亮点",
+        "anchor": "product-story",
+        "blocks": [
+          "productMediaBanner"
+        ]
+      },
+      {
+        "label": "使用场景",
+        "anchor": "creative-scenes",
+        "blocks": [
+          "productMediaText"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "6add5b7e82afd3ebe2331b22",
+    "title": "Insta360 X5 · 示例 02",
+    "slug": "demo-insta360-x5",
+    "status": "draft",
+    "gallery": 3,
+    "sections": [
+      {
+        "label": "产品亮点",
+        "anchor": "product-story",
+        "blocks": [
+          "productMediaBanner"
+        ]
+      },
+      {
+        "label": "使用场景",
+        "anchor": "creative-scenes",
+        "blocks": [
+          "productMediaText"
+        ]
+      },
+      {
+        "label": "更多视角",
+        "anchor": "media-gallery",
+        "blocks": [
+          "productMediaCarousel"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "6add5c1f82afd3ebe2331b24",
+    "title": "Insta360 X4 Air · 示例 03",
+    "slug": "demo-insta360-x4-air",
+    "status": "draft",
+    "gallery": 3,
+    "sections": [
+      {
+        "label": "产品亮点",
+        "anchor": "product-story",
+        "blocks": [
+          "productMediaBanner"
+        ]
+      },
+      {
+        "label": "使用场景",
+        "anchor": "creative-scenes",
+        "blocks": [
+          "productMediaText"
+        ]
+      },
+      {
+        "label": "场景切换",
+        "anchor": "scene-tabs",
+        "blocks": [
+          "productMediaTabs"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "6add5c3782afd3ebe2331b26",
+    "title": "Insta360 Ace Pro 2 · 示例 04",
+    "slug": "demo-insta360-ace-pro-2",
+    "status": "draft",
+    "gallery": 3,
+    "sections": [
+      {
+        "label": "产品亮点",
+        "anchor": "product-story",
+        "blocks": [
+          "productMediaBanner"
+        ]
+      },
+      {
+        "label": "使用场景",
+        "anchor": "creative-scenes",
+        "blocks": [
+          "productMediaText"
+        ]
+      },
+      {
+        "label": "内容说明",
+        "anchor": "product-notes",
+        "blocks": [
+          "productMediaAccordion"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "6add5c3d82afd3ebe2331b28",
+    "title": "Insta360 GO Ultra · 示例 05",
+    "slug": "demo-insta360-go-ultra",
+    "status": "draft",
+    "gallery": 3,
+    "sections": [
+      {
+        "label": "产品亮点",
+        "anchor": "product-story",
+        "blocks": [
+          "productMediaBanner"
+        ]
+      },
+      {
+        "label": "使用场景",
+        "anchor": "creative-scenes",
+        "blocks": [
+          "productMediaText"
+        ]
+      },
+      {
+        "label": "创作提示",
+        "anchor": "creative-note",
+        "blocks": [
+          "productCode"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "6add5c4582afd3ebe2331b2a",
+    "title": "Insta360 GO 3S · 示例 06",
+    "slug": "demo-insta360-go-3s",
+    "status": "draft",
+    "gallery": 3,
+    "sections": [
+      {
+        "label": "产品亮点",
+        "anchor": "product-story",
+        "blocks": [
+          "productMediaBanner"
+        ]
+      },
+      {
+        "label": "使用场景",
+        "anchor": "creative-scenes",
+        "blocks": [
+          "productMediaText"
+        ]
+      },
+      {
+        "label": "更多视角",
+        "anchor": "media-gallery",
+        "blocks": [
+          "productMediaCarousel"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "6add5c4b82afd3ebe2331b2c",
+    "title": "Insta360 Flow 2 Series · 示例 07",
+    "slug": "demo-insta360-flow-2-series",
+    "status": "draft",
+    "gallery": 3,
+    "sections": [
+      {
+        "label": "产品亮点",
+        "anchor": "product-story",
+        "blocks": [
+          "productMediaBanner"
+        ]
+      },
+      {
+        "label": "使用场景",
+        "anchor": "creative-scenes",
+        "blocks": [
+          "productMediaText"
+        ]
+      },
+      {
+        "label": "场景切换",
+        "anchor": "scene-tabs",
+        "blocks": [
+          "productMediaTabs"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "6add5c5382afd3ebe2331b2e",
+    "title": "Insta360 Link 2 Pro · 示例 08",
+    "slug": "demo-insta360-link-2-pro",
+    "status": "draft",
+    "gallery": 3,
+    "sections": [
+      {
+        "label": "产品亮点",
+        "anchor": "product-story",
+        "blocks": [
+          "productMediaBanner"
+        ]
+      },
+      {
+        "label": "使用场景",
+        "anchor": "creative-scenes",
+        "blocks": [
+          "productMediaText"
+        ]
+      },
+      {
+        "label": "内容说明",
+        "anchor": "product-notes",
+        "blocks": [
+          "productMediaAccordion"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "6add5c5b82afd3ebe2331b30",
+    "title": "Insta360 Mic Pro · 示例 09",
+    "slug": "demo-insta360-mic-pro",
+    "status": "draft",
+    "gallery": 3,
+    "sections": [
+      {
+        "label": "产品亮点",
+        "anchor": "product-story",
+        "blocks": [
+          "productMediaBanner"
+        ]
+      },
+      {
+        "label": "使用场景",
+        "anchor": "creative-scenes",
+        "blocks": [
+          "productMediaText"
+        ]
+      },
+      {
+        "label": "创作提示",
+        "anchor": "creative-note",
+        "blocks": [
+          "productCode"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "6add5c6182afd3ebe2331b32",
+    "title": "Insta360 Pro 2 · 示例 10",
+    "slug": "demo-insta360-pro-2",
+    "status": "draft",
+    "gallery": 3,
+    "sections": [
+      {
+        "label": "产品亮点",
+        "anchor": "product-story",
+        "blocks": [
+          "productMediaBanner"
+        ]
+      },
+      {
+        "label": "使用场景",
+        "anchor": "creative-scenes",
+        "blocks": [
+          "productMediaText"
+        ]
+      },
+      {
+        "label": "更多视角",
+        "anchor": "media-gallery",
+        "blocks": [
+          "productMediaCarousel"
+        ]
+      }
+    ]
+  }
+]

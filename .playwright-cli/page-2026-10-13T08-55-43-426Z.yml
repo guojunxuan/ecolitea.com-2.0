@@ -1,0 +1,182 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e51]:
+    - complementary [ref=e52]:
+      - navigation [ref=e54]:
+        - generic [ref=e55]:
+          - tablist [ref=e56]:
+            - tab "Collections" [selected] [ref=e57] [cursor=pointer]
+            - tab "Folders" [ref=e62] [cursor=pointer]
+          - tabpanel [ref=e67]:
+            - generic [ref=e68]:
+              - generic [ref=e69]:
+                - button "Collections" [ref=e70] [cursor=pointer]
+                - generic [ref=e75]:
+                  - link "Pages" [ref=e77] [cursor=pointer]:
+                    - /url: /admin/collections/pages
+                  - link "Posts" [ref=e80] [cursor=pointer]:
+                    - /url: /admin/collections/posts
+                  - link "Media" [ref=e83] [cursor=pointer]:
+                    - /url: /admin/collections/media
+                  - link "Categories" [ref=e86] [cursor=pointer]:
+                    - /url: /admin/collections/categories
+                  - link "Case Studies" [ref=e89] [cursor=pointer]:
+                    - /url: /admin/collections/case-studies
+                  - link "Users" [ref=e92] [cursor=pointer]:
+                    - /url: /admin/collections/users
+                  - link "Redirects" [ref=e95] [cursor=pointer]:
+                    - /url: /admin/collections/redirects
+                  - link "Forms" [ref=e98] [cursor=pointer]:
+                    - /url: /admin/collections/forms
+                  - link "Form Submissions" [ref=e101] [cursor=pointer]:
+                    - /url: /admin/collections/form-submissions
+                  - link "Search Results" [ref=e104] [cursor=pointer]:
+                    - /url: /admin/collections/search
+              - generic [ref=e106]:
+                - button "Globals" [ref=e107] [cursor=pointer]
+                - generic [ref=e112]:
+                  - link "Header" [ref=e114] [cursor=pointer]:
+                    - /url: /admin/globals/header
+                  - link "Footer" [ref=e117] [cursor=pointer]:
+                    - /url: /admin/globals/footer
+                  - link "Site Settings" [ref=e120] [cursor=pointer]:
+                    - /url: /admin/globals/site-settings
+                  - link "Settings" [ref=e123] [cursor=pointer]:
+                    - /url: /admin/globals/settings
+              - generic [ref=e125]:
+                - button "Blog" [ref=e126] [cursor=pointer]
+                - generic [ref=e131]:
+                  - generic [ref=e132]: Blogs
+                  - link "Blog Categories" [ref=e136] [cursor=pointer]:
+                    - /url: /admin/collections/blog-categories
+    - generic [ref=e138]:
+      - banner [ref=e139]:
+        - generic [ref=e141]:
+          - generic [ref=e143]:
+            - button "Open Menu" [ref=e144] [cursor=pointer]
+            - navigation [ref=e146]:
+              - link "Dashboard" [ref=e147] [cursor=pointer]:
+                - /url: /admin
+              - generic [ref=e148]: /
+              - generic [ref=e149]: Blogs
+          - button "Account" [ref=e152] [cursor=pointer]:
+            - img "yas" [ref=e153]
+      - generic [ref=e154]:
+        - banner [ref=e155]:
+          - heading "Blogs" [level=1] [ref=e158]
+        - generic [ref=e160]:
+          - textbox "Search" [ref=e163]
+          - generic [ref=e165]:
+            - button "Filters" [ref=e166] [cursor=pointer]
+            - button "Group by" [ref=e169] [cursor=pointer]
+            - button "Columns" [ref=e172] [cursor=pointer]
+            - link "Create New" [ref=e173] [cursor=pointer]:
+              - /url: /admin/collections/blogs/create
+        - table [ref=e177]:
+          - rowgroup [ref=e178]:
+            - row [ref=e179]:
+              - columnheader [ref=e180]:
+                - checkbox "Select all rows" [ref=e184]
+              - columnheader "Title Sort by Title Descending Sort by Title Ascending" [ref=e186]:
+                - generic [ref=e187]:
+                  - generic [ref=e188]: Title
+                  - generic [ref=e189]:
+                    - button "Sort by Title Descending" [ref=e190] [cursor=pointer]
+                    - button "Sort by Title Ascending" [ref=e193] [cursor=pointer]
+              - columnheader "Category Sort by Category Descending Sort by Category Ascending" [ref=e196]:
+                - generic [ref=e197]:
+                  - generic [ref=e198]: Category
+                  - generic [ref=e199]:
+                    - button "Sort by Category Descending" [ref=e200] [cursor=pointer]
+                    - button "Sort by Category Ascending" [ref=e203] [cursor=pointer]
+              - columnheader "Published At Sort by Published At Descending Sort by Published At Ascending" [ref=e206]:
+                - generic [ref=e207]:
+                  - generic [ref=e208]: Published At
+                  - generic [ref=e209]:
+                    - button "Sort by Published At Descending" [ref=e210] [cursor=pointer]
+                    - button "Sort by Published At Ascending" [ref=e213] [cursor=pointer]
+              - columnheader "Status Sort by Status Descending Sort by Status Ascending" [ref=e216]:
+                - generic [ref=e217]:
+                  - generic [ref=e218]: Status
+                  - generic [ref=e219]:
+                    - button "Sort by Status Descending" [ref=e220] [cursor=pointer]
+                    - button "Sort by Status Ascending" [ref=e223] [cursor=pointer]
+          - rowgroup [ref=e226]:
+            - row [ref=e227]:
+              - cell [ref=e228]:
+                - checkbox "Select 6aca02277a707c01e16083d6" [ref=e232]
+              - cell [ref=e234]:
+                - link "<No Title>" [ref=e235] [cursor=pointer]:
+                  - /url: /admin/collections/blogs/6aca02277a707c01e16083d6
+              - cell "<No Category>" [ref=e236]
+              - cell "<No Published At>" [ref=e238]
+              - cell "Draft" [ref=e240]
+            - row [ref=e244]:
+              - cell [ref=e245]:
+                - checkbox "Select From first sketch to everyday habit" [ref=e249]
+              - cell [ref=e251]:
+                - link "From first sketch to everyday habit" [ref=e252] [cursor=pointer]:
+                  - /url: /admin/collections/blogs/6ac11c09b97d7788f68937b6
+              - cell "Design & Innovation" [ref=e253]
+              - cell "October 3rd 2026, 11:15 PM" [ref=e256]
+              - cell "Published" [ref=e258]
+            - row [ref=e262]:
+              - cell [ref=e263]:
+                - checkbox "Select Rethinking packaging one layer at a time" [ref=e267]
+              - cell [ref=e269]:
+                - link "Rethinking packaging one layer at a time" [ref=e270] [cursor=pointer]:
+                  - /url: /admin/collections/blogs/6ac11be2b97d7788f68937b0
+              - cell "Sustainability" [ref=e271]
+              - cell "October 3rd 2026, 11:14 PM" [ref=e274]
+              - cell "Published" [ref=e276]
+            - row [ref=e280]:
+              - cell [ref=e281]:
+                - checkbox "Select Built for moments outside" [ref=e285]
+              - cell [ref=e287]:
+                - link "Built for moments outside" [ref=e288] [cursor=pointer]:
+                  - /url: /admin/collections/blogs/6ac11bd8b97d7788f68937aa
+              - cell "Product Insights" [ref=e289]
+              - cell "October 3rd 2026, 11:14 PM" [ref=e292]
+              - cell "Published" [ref=e294]
+            - row [ref=e298]:
+              - cell [ref=e299]:
+                - checkbox "Select The value of a quieter workspace" [ref=e303]
+              - cell [ref=e305]:
+                - link "The value of a quieter workspace" [ref=e306] [cursor=pointer]:
+                  - /url: /admin/collections/blogs/6ac11baab97d7788f68937a4
+              - cell "Design & Innovation" [ref=e307]
+              - cell "October 3rd 2026, 11:13 PM" [ref=e310]
+              - cell "Published" [ref=e312]
+            - row [ref=e316]:
+              - cell [ref=e317]:
+                - checkbox "Select A closer look at materials that last" [ref=e321]
+              - cell [ref=e323]:
+                - link "A closer look at materials that last" [ref=e324] [cursor=pointer]:
+                  - /url: /admin/collections/blogs/6ac11b26b97d7788f689379f
+              - cell "Sustainability" [ref=e325]
+              - cell "October 3rd 2026, 11:12 PM" [ref=e328]
+              - cell "Published" [ref=e330]
+            - row [ref=e334]:
+              - cell [ref=e335]:
+                - checkbox "Select Small details, better everyday products" [ref=e339]
+              - cell [ref=e341]:
+                - link "Small details, better everyday products" [ref=e342] [cursor=pointer]:
+                  - /url: /admin/collections/blogs/6ac11916b97d7788f6893791
+              - cell "Product Insights" [ref=e343]
+              - cell "October 3rd 2026, 11:10 PM" [ref=e346]
+              - cell "Published" [ref=e348]
+        - generic [ref=e353]:
+          - generic [ref=e354]:
+            - button [disabled] [ref=e355]
+            - button [disabled] [ref=e358]
+            - generic [ref=e361]:
+              - textbox "Go to page" [disabled] [ref=e362]: "1"
+              - generic [ref=e363]: of 1
+          - generic [ref=e364]:
+            - generic [ref=e365]: 1-7 of 7
+            - generic [ref=e366]:
+              - generic [ref=e367]: "Per page:"
+              - button "10" [ref=e370] [cursor=pointer]
+  - status [ref=e2]
+  - region "Notifications alt+T"
+  - button "Open Next.js Dev Tools" [ref=e8] [cursor=pointer]
+  - alert [ref=e12]

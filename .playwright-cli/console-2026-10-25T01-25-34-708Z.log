@@ -1,0 +1,430 @@
+[     622ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[     656ms] [LOG] [HMR] connected @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[     829ms] [ERROR] %c%s%c (node:15972) [MONGOOSE] Warning: mongoose: the `new` option for `findOneAndUpdate()` and `findOneAndReplace()` is deprecated. Use `returnDocument: 'after'` instead.
+(Use `node --trace-warnings ...` to show where the warning was created) background: #e6e6e6;background: light-dark(rgba(0,0,0,0.1), rgba(255,255,255,0.25));color: #000000;color: light-dark(#000000, #ffffff);border-radius: 2px  Server   @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:1052
+[    1576ms] TypeError: Converting circular structure to JSON
+    --> starting at object with constructor 'BasePayload'
+    |     property 'db' -> object with constructor 'Object'
+    --- property 'payload' closes the circle
+    at JSON.stringify (<anonymous>)
+    at PreviewComponent.useEffect.getHref (http://localhost:3000/_next/static/chunks/1eis_%40payloadcms_plugin-seo_dist_1wbqmwe._.js:714:36)
+    at PreviewComponent.useEffect (http://localhost:3000/_next/static/chunks/1eis_%40payloadcms_plugin-seo_dist_1wbqmwe._.js:738:22)
+    at Object.react_stack_bottom_frame (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:14944:22)
+    at runWithFiberInDEV (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:761:74)
+    at commitHookEffectListMount (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:7082:167)
+    at commitHookPassiveMountEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:7117:60)
+    at commitPassiveMountOnFiber (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8519:33)
+    at recursivelyTraversePassiveMountEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8506:316)
+    at commitPassiveMountOnFiber (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8518:17)
+    at recursivelyTraversePassiveMountEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8506:316)
+    at commitPassiveMountOnFiber (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8518:17)
+    at recursivelyTraversePassiveMountEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8506:316)
+    at commitPassiveMountOnFiber (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8580:17)
+    at recursivelyTraversePassiveMountEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8506:316)
+    at commitPassiveMountOnFiber (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8580:17)
+    at recursivelyTraversePassiveMountEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8506:316)
+    at commitPassiveMountOnFiber (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8518:17)
+    at recursivelyTraversePassiveMountEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8506:316)
+    at commitPassiveMountOnFiber (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8518:17)
+    at recursivelyTraversePassiveMountEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8506:316)
+    at commitPassiveMountOnFiber (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8580:17)
+    at recursivelyTraversePassiveMountEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8506:316)
+    at commitPassiveMountOnFiber (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8518:17)
+    at recursivelyTraversePassiveMountEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8506:316)
+    at commitPassiveMountOnFiber (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8580:17)
+    at recursivelyTraversePassiveMountEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8506:316)
+    at commitPassiveMountOnFiber (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8580:17)
+    at recursivelyTraversePassiveMountEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8506:316)
+    at commitPassiveMountOnFiber (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8518:17)
+    at recursivelyTraversePassiveMountEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8506:316)
+    at commitPassiveMountOnFiber (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8580:17)
+    at recursivelyTraversePassiveMountEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8506:316)
+    at commitPassiveMountOnFiber (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8518:17)
+    at recursivelyTraversePassiveMountEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8506:316)
+    at commitPassiveMountOnFiber (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8518:17)
+    at recursivelyTraversePassiveMountEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8506:316)
+    at commitPassiveMountOnFiber (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8518:17)
+    at recursivelyTraversePassiveMountEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8506:316)
+    at commitPassiveMountOnFiber (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8518:17)
+    at recursivelyTraversePassiveMountEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8506:316)
+    at commitPassiveMountOnFiber (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8580:17)
+    at recursivelyTraversePassiveMountEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8506:316)
+    at commitPassiveMountOnFiber (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8580:17)
+    at recursivelyTraversePassiveMountEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8506:316)
+    at commitPassiveMountOnFiber (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8518:17)
+    at recursivelyTraversePassiveMountEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8506:316)
+    at commitPassiveMountOnFiber (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8518:17)
+    at recursivelyTraversePassiveMountEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8506:316)
+    at commitPassiveMountOnFiber (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8580:17)
+[    1576ms] TypeError: Converting circular structure to JSON
+    --> starting at object with constructor 'BasePayload'
+    |     property 'db' -> object with constructor 'Object'
+    --- property 'payload' closes the circle
+    at JSON.stringify (<anonymous>)
+    at PreviewComponent.useEffect.getHref (http://localhost:3000/_next/static/chunks/1eis_%40payloadcms_plugin-seo_dist_1wbqmwe._.js:714:36)
+    at PreviewComponent.useEffect (http://localhost:3000/_next/static/chunks/1eis_%40payloadcms_plugin-seo_dist_1wbqmwe._.js:738:22)
+    at Object.react_stack_bottom_frame (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:14944:22)
+    at runWithFiberInDEV (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:761:74)
+    at commitHookEffectListMount (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:7082:167)
+    at commitHookPassiveMountEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:7117:60)
+    at reconnectPassiveEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8609:17)
+    at recursivelyTraverseReconnectPassiveEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8596:13)
+    at reconnectPassiveEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8608:17)
+    at recursivelyTraverseReconnectPassiveEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8596:13)
+    at reconnectPassiveEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8608:17)
+    at recursivelyTraverseReconnectPassiveEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8596:13)
+    at reconnectPassiveEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8623:17)
+    at doubleInvokeEffectsOnFiber (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:9947:189)
+    at runWithFiberInDEV (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:761:74)
+    at recursivelyTraverseAndDoubleInvokeEffectsInDEV (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:9940:79)
+    at recursivelyTraverseAndDoubleInvokeEffectsInDEV (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:9940:147)
+    at recursivelyTraverseAndDoubleInvokeEffectsInDEV (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:9940:147)
+    at recursivelyTraverseAndDoubleInvokeEffectsInDEV (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:9940:147)
+    at recursivelyTraverseAndDoubleInvokeEffectsInDEV (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:9940:147)
+    at recursivelyTraverseAndDoubleInvokeEffectsInDEV (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:9940:147)
+    at recursivelyTraverseAndDoubleInvokeEffectsInDEV (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:9940:147)
+    at recursivelyTraverseAndDoubleInvokeEffectsInDEV (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:9940:147)
+    at recursivelyTraverseAndDoubleInvokeEffectsInDEV (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:9940:147)
+    at recursivelyTraverseAndDoubleInvokeEffectsInDEV (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:9940:147)
+    at recursivelyTraverseAndDoubleInvokeEffectsInDEV (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:9940:147)
+    at recursivelyTraverseAndDoubleInvokeEffectsInDEV (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:9940:147)
+    at recursivelyTraverseAndDoubleInvokeEffectsInDEV (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:9940:147)
+    at recursivelyTraverseAndDoubleInvokeEffectsInDEV (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:9940:147)
+    at recursivelyTraverseAndDoubleInvokeEffectsInDEV (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:9940:147)
+    at recursivelyTraverseAndDoubleInvokeEffectsInDEV (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:9940:147)
+    at recursivelyTraverseAndDoubleInvokeEffectsInDEV (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:9940:147)
+    at recursivelyTraverseAndDoubleInvokeEffectsInDEV (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:9940:147)
+    at recursivelyTraverseAndDoubleInvokeEffectsInDEV (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:9940:147)
+    at recursivelyTraverseAndDoubleInvokeEffectsInDEV (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:9940:147)
+    at recursivelyTraverseAndDoubleInvokeEffectsInDEV (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:9940:147)
+    at recursivelyTraverseAndDoubleInvokeEffectsInDEV (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:9940:147)
+    at recursivelyTraverseAndDoubleInvokeEffectsInDEV (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:9940:147)
+    at recursivelyTraverseAndDoubleInvokeEffectsInDEV (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:9940:147)
+    at recursivelyTraverseAndDoubleInvokeEffectsInDEV (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:9940:147)
+    at recursivelyTraverseAndDoubleInvokeEffectsInDEV (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:9940:147)
+    at recursivelyTraverseAndDoubleInvokeEffectsInDEV (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:9940:147)
+    at recursivelyTraverseAndDoubleInvokeEffectsInDEV (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:9940:147)
+    at recursivelyTraverseAndDoubleInvokeEffectsInDEV (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:9940:147)
+    at recursivelyTraverseAndDoubleInvokeEffectsInDEV (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:9940:147)
+    at recursivelyTraverseAndDoubleInvokeEffectsInDEV (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:9940:147)
+    at recursivelyTraverseAndDoubleInvokeEffectsInDEV (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:9940:147)
+    at recursivelyTraverseAndDoubleInvokeEffectsInDEV (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:9940:147)
+    at recursivelyTraverseAndDoubleInvokeEffectsInDEV (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:9940:147)
+[    1616ms] TypeError: Converting circular structure to JSON
+    --> starting at object with constructor 'BasePayload'
+    |     property 'db' -> object with constructor 'Object'
+    --- property 'payload' closes the circle
+    at JSON.stringify (<anonymous>)
+    at PreviewComponent.useEffect.getHref (http://localhost:3000/_next/static/chunks/1eis_%40payloadcms_plugin-seo_dist_1wbqmwe._.js:714:36)
+    at PreviewComponent.useEffect (http://localhost:3000/_next/static/chunks/1eis_%40payloadcms_plugin-seo_dist_1wbqmwe._.js:738:22)
+    at Object.react_stack_bottom_frame (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:14944:22)
+    at runWithFiberInDEV (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:761:74)
+    at commitHookEffectListMount (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:7082:167)
+    at commitHookPassiveMountEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:7117:60)
+    at commitPassiveMountOnFiber (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8519:33)
+    at recursivelyTraversePassiveMountEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8506:316)
+    at commitPassiveMountOnFiber (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8518:17)
+    at recursivelyTraversePassiveMountEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8506:316)
+    at commitPassiveMountOnFiber (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8518:17)
+    at recursivelyTraversePassiveMountEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8506:316)
+    at commitPassiveMountOnFiber (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8580:17)
+    at recursivelyTraversePassiveMountEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8506:316)
+    at commitPassiveMountOnFiber (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8580:17)
+    at recursivelyTraversePassiveMountEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8506:316)
+    at commitPassiveMountOnFiber (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8518:17)
+    at recursivelyTraversePassiveMountEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8506:316)
+    at commitPassiveMountOnFiber (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8518:17)
+    at recursivelyTraversePassiveMountEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8506:316)
+    at commitPassiveMountOnFiber (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8580:17)
+    at recursivelyTraversePassiveMountEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8506:316)
+    at commitPassiveMountOnFiber (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8518:17)
+    at recursivelyTraversePassiveMountEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8506:316)
+    at commitPassiveMountOnFiber (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8580:17)
+    at recursivelyTraversePassiveMountEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8506:316)
+    at commitPassiveMountOnFiber (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8580:17)
+    at recursivelyTraversePassiveMountEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8506:316)
+    at commitPassiveMountOnFiber (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8518:17)
+    at recursivelyTraversePassiveMountEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8506:316)
+    at commitPassiveMountOnFiber (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8580:17)
+    at recursivelyTraversePassiveMountEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8506:316)
+    at commitPassiveMountOnFiber (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8518:17)
+    at recursivelyTraversePassiveMountEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8506:316)
+    at commitPassiveMountOnFiber (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8518:17)
+    at recursivelyTraversePassiveMountEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8506:316)
+    at commitPassiveMountOnFiber (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8518:17)
+    at recursivelyTraversePassiveMountEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8506:316)
+    at commitPassiveMountOnFiber (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8518:17)
+    at recursivelyTraversePassiveMountEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8506:316)
+    at commitPassiveMountOnFiber (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8580:17)
+    at recursivelyTraversePassiveMountEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8506:316)
+    at commitPassiveMountOnFiber (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8580:17)
+    at recursivelyTraversePassiveMountEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8506:316)
+    at commitPassiveMountOnFiber (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8518:17)
+    at recursivelyTraversePassiveMountEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8506:316)
+    at commitPassiveMountOnFiber (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8518:17)
+    at recursivelyTraversePassiveMountEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8506:316)
+    at commitPassiveMountOnFiber (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8580:17)
+[   56570ms] [ERROR] Failed to load resource: the server responded with a status of 400 (Bad Request) @ http://localhost:3000/api/products/6adcb636f43c3bb2c41ea3f2/duplicate:0
+[  145436ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  145508ms] [LOG] [Fast Refresh] done in 166ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  145823ms] [LOG] [Fast Refresh] done in 166ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  146780ms] [ERROR] %c%s%c (node:15972) [MONGOOSE] Warning: mongoose: the `new` option for `findOneAndUpdate()` and `findOneAndReplace()` is deprecated. Use `returnDocument: 'after'` instead. background: #e6e6e6;background: light-dark(rgba(0,0,0,0.1), rgba(255,255,255,0.25));color: #000000;color: light-dark(#000000, #ffffff);border-radius: 2px  Server   @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:1052
+[  146831ms] [LOG] [Fast Refresh] done in 166ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  147063ms] TypeError: Converting circular structure to JSON
+    --> starting at object with constructor 'BasePayload'
+    |     property 'db' -> object with constructor 'Object'
+    --- property 'payload' closes the circle
+    at JSON.stringify (<anonymous>)
+    at PreviewComponent.useEffect.getHref (http://localhost:3000/_next/static/chunks/1eis_%40payloadcms_plugin-seo_dist_1wbqmwe._.js:714:36)
+    at PreviewComponent.useEffect (http://localhost:3000/_next/static/chunks/1eis_%40payloadcms_plugin-seo_dist_1wbqmwe._.js:738:22)
+    at Object.react_stack_bottom_frame (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:14944:22)
+    at runWithFiberInDEV (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:761:74)
+    at commitHookEffectListMount (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:7082:167)
+    at commitHookPassiveMountEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:7117:60)
+    at commitPassiveMountOnFiber (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8519:33)
+    at recursivelyTraversePassiveMountEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8506:316)
+    at commitPassiveMountOnFiber (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8518:17)
+    at recursivelyTraversePassiveMountEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8506:316)
+    at commitPassiveMountOnFiber (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8518:17)
+    at recursivelyTraversePassiveMountEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8506:316)
+    at commitPassiveMountOnFiber (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8580:17)
+    at recursivelyTraversePassiveMountEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8506:316)
+    at commitPassiveMountOnFiber (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8580:17)
+    at recursivelyTraversePassiveMountEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8506:316)
+    at commitPassiveMountOnFiber (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8518:17)
+    at recursivelyTraversePassiveMountEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8506:316)
+    at commitPassiveMountOnFiber (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8518:17)
+    at recursivelyTraversePassiveMountEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8506:316)
+    at commitPassiveMountOnFiber (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8580:17)
+    at recursivelyTraversePassiveMountEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8506:316)
+    at commitPassiveMountOnFiber (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8518:17)
+    at recursivelyTraversePassiveMountEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8506:316)
+    at commitPassiveMountOnFiber (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8580:17)
+    at recursivelyTraversePassiveMountEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8506:316)
+    at commitPassiveMountOnFiber (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8580:17)
+    at recursivelyTraversePassiveMountEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8506:316)
+    at commitPassiveMountOnFiber (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8518:17)
+    at recursivelyTraversePassiveMountEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8506:316)
+    at commitPassiveMountOnFiber (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8580:17)
+    at recursivelyTraversePassiveMountEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8506:316)
+    at commitPassiveMountOnFiber (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8518:17)
+    at recursivelyTraversePassiveMountEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8506:316)
+    at commitPassiveMountOnFiber (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8518:17)
+    at recursivelyTraversePassiveMountEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8506:316)
+    at commitPassiveMountOnFiber (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8518:17)
+    at recursivelyTraversePassiveMountEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8506:316)
+    at commitPassiveMountOnFiber (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8518:17)
+    at recursivelyTraversePassiveMountEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8506:316)
+    at commitPassiveMountOnFiber (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8580:17)
+    at recursivelyTraversePassiveMountEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8506:316)
+    at commitPassiveMountOnFiber (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8580:17)
+    at recursivelyTraversePassiveMountEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8506:316)
+    at commitPassiveMountOnFiber (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8518:17)
+    at recursivelyTraversePassiveMountEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8506:316)
+    at commitPassiveMountOnFiber (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8518:17)
+    at recursivelyTraversePassiveMountEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8506:316)
+    at commitPassiveMountOnFiber (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8580:17)
+[  147064ms] TypeError: Converting circular structure to JSON
+    --> starting at object with constructor 'BasePayload'
+    |     property 'db' -> object with constructor 'Object'
+    --- property 'payload' closes the circle
+    at JSON.stringify (<anonymous>)
+    at PreviewComponent.useEffect.getHref (http://localhost:3000/_next/static/chunks/1eis_%40payloadcms_plugin-seo_dist_1wbqmwe._.js:714:36)
+    at PreviewComponent.useEffect (http://localhost:3000/_next/static/chunks/1eis_%40payloadcms_plugin-seo_dist_1wbqmwe._.js:738:22)
+    at Object.react_stack_bottom_frame (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:14944:22)
+    at runWithFiberInDEV (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:761:74)
+    at commitHookEffectListMount (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:7082:167)
+    at commitHookPassiveMountEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:7117:60)
+    at commitPassiveMountOnFiber (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8519:33)
+    at recursivelyTraversePassiveMountEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8506:316)
+    at commitPassiveMountOnFiber (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8518:17)
+    at recursivelyTraversePassiveMountEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8506:316)
+    at commitPassiveMountOnFiber (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8518:17)
+    at recursivelyTraversePassiveMountEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8506:316)
+    at commitPassiveMountOnFiber (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8580:17)
+    at recursivelyTraversePassiveMountEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8506:316)
+    at commitPassiveMountOnFiber (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8580:17)
+    at recursivelyTraversePassiveMountEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8506:316)
+    at commitPassiveMountOnFiber (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8518:17)
+    at recursivelyTraversePassiveMountEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8506:316)
+    at commitPassiveMountOnFiber (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8518:17)
+    at recursivelyTraversePassiveMountEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8506:316)
+    at commitPassiveMountOnFiber (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8580:17)
+    at recursivelyTraversePassiveMountEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8506:316)
+    at commitPassiveMountOnFiber (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8518:17)
+    at recursivelyTraversePassiveMountEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8506:316)
+    at commitPassiveMountOnFiber (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8580:17)
+    at recursivelyTraversePassiveMountEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8506:316)
+    at commitPassiveMountOnFiber (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8580:17)
+    at recursivelyTraversePassiveMountEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8506:316)
+    at commitPassiveMountOnFiber (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8518:17)
+    at recursivelyTraversePassiveMountEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8506:316)
+    at commitPassiveMountOnFiber (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8580:17)
+    at recursivelyTraversePassiveMountEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8506:316)
+    at commitPassiveMountOnFiber (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8518:17)
+    at recursivelyTraversePassiveMountEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8506:316)
+    at commitPassiveMountOnFiber (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8518:17)
+    at recursivelyTraversePassiveMountEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8506:316)
+    at commitPassiveMountOnFiber (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8518:17)
+    at recursivelyTraversePassiveMountEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8506:316)
+    at commitPassiveMountOnFiber (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8518:17)
+    at recursivelyTraversePassiveMountEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8506:316)
+    at commitPassiveMountOnFiber (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8580:17)
+    at recursivelyTraversePassiveMountEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8506:316)
+    at commitPassiveMountOnFiber (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8580:17)
+    at recursivelyTraversePassiveMountEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8506:316)
+    at commitPassiveMountOnFiber (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8518:17)
+    at recursivelyTraversePassiveMountEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8506:316)
+    at commitPassiveMountOnFiber (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8518:17)
+    at recursivelyTraversePassiveMountEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8506:316)
+    at commitPassiveMountOnFiber (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8580:17)
+[  147064ms] TypeError: Converting circular structure to JSON
+    --> starting at object with constructor 'BasePayload'
+    |     property 'db' -> object with constructor 'Object'
+    --- property 'payload' closes the circle
+    at JSON.stringify (<anonymous>)
+    at PreviewComponent.useEffect.getHref (http://localhost:3000/_next/static/chunks/1eis_%40payloadcms_plugin-seo_dist_1wbqmwe._.js:714:36)
+    at PreviewComponent.useEffect (http://localhost:3000/_next/static/chunks/1eis_%40payloadcms_plugin-seo_dist_1wbqmwe._.js:738:22)
+    at Object.react_stack_bottom_frame (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:14944:22)
+    at runWithFiberInDEV (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:761:74)
+    at commitHookEffectListMount (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:7082:167)
+    at commitHookPassiveMountEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:7117:60)
+    at commitPassiveMountOnFiber (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8519:33)
+    at recursivelyTraversePassiveMountEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8506:316)
+    at commitPassiveMountOnFiber (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8518:17)
+    at recursivelyTraversePassiveMountEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8506:316)
+    at commitPassiveMountOnFiber (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8518:17)
+    at recursivelyTraversePassiveMountEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8506:316)
+    at commitPassiveMountOnFiber (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8580:17)
+    at recursivelyTraversePassiveMountEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8506:316)
+    at commitPassiveMountOnFiber (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8580:17)
+    at recursivelyTraversePassiveMountEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8506:316)
+    at commitPassiveMountOnFiber (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8518:17)
+    at recursivelyTraversePassiveMountEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8506:316)
+    at commitPassiveMountOnFiber (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8518:17)
+    at recursivelyTraversePassiveMountEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8506:316)
+    at commitPassiveMountOnFiber (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8580:17)
+    at recursivelyTraversePassiveMountEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8506:316)
+    at commitPassiveMountOnFiber (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8518:17)
+    at recursivelyTraversePassiveMountEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8506:316)
+    at commitPassiveMountOnFiber (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8580:17)
+    at recursivelyTraversePassiveMountEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8506:316)
+    at commitPassiveMountOnFiber (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8580:17)
+    at recursivelyTraversePassiveMountEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8506:316)
+    at commitPassiveMountOnFiber (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8518:17)
+    at recursivelyTraversePassiveMountEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8506:316)
+    at commitPassiveMountOnFiber (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8580:17)
+    at recursivelyTraversePassiveMountEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8506:316)
+    at commitPassiveMountOnFiber (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8518:17)
+    at recursivelyTraversePassiveMountEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8506:316)
+    at commitPassiveMountOnFiber (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8518:17)
+    at recursivelyTraversePassiveMountEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8506:316)
+    at commitPassiveMountOnFiber (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8518:17)
+    at recursivelyTraversePassiveMountEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8506:316)
+    at commitPassiveMountOnFiber (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8518:17)
+    at recursivelyTraversePassiveMountEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8506:316)
+    at commitPassiveMountOnFiber (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8580:17)
+    at recursivelyTraversePassiveMountEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8506:316)
+    at commitPassiveMountOnFiber (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8580:17)
+    at recursivelyTraversePassiveMountEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8506:316)
+    at commitPassiveMountOnFiber (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8518:17)
+    at recursivelyTraversePassiveMountEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8506:316)
+    at commitPassiveMountOnFiber (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8518:17)
+    at recursivelyTraversePassiveMountEffects (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8506:316)
+    at commitPassiveMountOnFiber (http://localhost:3000/_next/static/chunks/0kg6_next_dist_compiled_react-dom_0-ew7em._.js:8580:17)
+[  147131ms] [LOG] [Fast Refresh] done in 166ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  239805ms] [LOG] [Fast Refresh] done in 166ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  239870ms] [LOG] [Fast Refresh] done in 166ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  239921ms] [LOG] [Fast Refresh] done in 166ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  239977ms] [LOG] [Fast Refresh] done in 166ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  299183ms] [LOG] [Fast Refresh] done in 166ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  347751ms] [LOG] [Fast Refresh] done in 166ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  400732ms] [LOG] [Fast Refresh] done in 166ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  400790ms] [LOG] [Fast Refresh] done in 166ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  400882ms] [LOG] [Fast Refresh] done in 166ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  400982ms] [LOG] [Fast Refresh] done in 166ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  424583ms] [LOG] [Fast Refresh] done in 166ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  424627ms] [LOG] [Fast Refresh] done in 166ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  431054ms] [LOG] [Fast Refresh] done in 166ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  431121ms] [LOG] [Fast Refresh] done in 166ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  438939ms] [LOG] [Fast Refresh] done in 166ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  438983ms] [LOG] [Fast Refresh] done in 166ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  445297ms] [LOG] [Fast Refresh] done in 166ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  445335ms] [LOG] [Fast Refresh] done in 166ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  452990ms] [LOG] [Fast Refresh] done in 166ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  453035ms] [LOG] [Fast Refresh] done in 166ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  460328ms] [LOG] [Fast Refresh] done in 166ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  460365ms] [LOG] [Fast Refresh] done in 166ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  466983ms] [LOG] [Fast Refresh] done in 166ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  467021ms] [LOG] [Fast Refresh] done in 166ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  558864ms] [LOG] [Fast Refresh] done in 166ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  585453ms] [LOG] [Fast Refresh] done in 166ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  619514ms] [LOG] [Fast Refresh] done in 166ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  619605ms] [LOG] [Fast Refresh] done in 166ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  660043ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  660088ms] [LOG] [HMR] connected @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  661501ms] [ERROR] %c%s%c (node:15972) [MONGOOSE] Warning: mongoose: the `new` option for `findOneAndUpdate()` and `findOneAndReplace()` is deprecated. Use `returnDocument: 'after'` instead. background: #e6e6e6;background: light-dark(rgba(0,0,0,0.1), rgba(255,255,255,0.25));color: #000000;color: light-dark(#000000, #ffffff);border-radius: 2px  Server   @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:1052
+[  662080ms] [ERROR] %c%s%c (node:15972) [MONGOOSE] Warning: mongoose: the `new` option for `findOneAndUpdate()` and `findOneAndReplace()` is deprecated. Use `returnDocument: 'after'` instead. background: #e6e6e6;background: light-dark(rgba(0,0,0,0.1), rgba(255,255,255,0.25));color: #000000;color: light-dark(#000000, #ffffff);border-radius: 2px  Server   @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:1052
+[  712783ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  712807ms] [LOG] [HMR] connected @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  781717ms] [LOG] [HMR] connected @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[11966520ms] [ERROR] WebSocket connection to 'ws://localhost:3000/_next/hmr?id=W-mMFxaMWlPlxjHlKPRBi' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_client_1s_doiy._.js:16348
+[11967523ms] [ERROR] WebSocket connection to 'ws://localhost:3000/_next/hmr?id=W-mMFxaMWlPlxjHlKPRBi' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_client_1s_doiy._.js:16348
+[11968525ms] [ERROR] WebSocket connection to 'ws://localhost:3000/_next/hmr?id=W-mMFxaMWlPlxjHlKPRBi' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_client_1s_doiy._.js:16348
+[11969528ms] [ERROR] WebSocket connection to 'ws://localhost:3000/_next/hmr?id=W-mMFxaMWlPlxjHlKPRBi' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_client_1s_doiy._.js:16348
+[11970553ms] [LOG] [HMR] connected @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[11975156ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[11975361ms] [LOG] [HMR] connected @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[11976686ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[11977003ms] [LOG] [Fast Refresh] done in 419ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[12362397ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[12362464ms] [LOG] [HMR] connected @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[12362638ms] [ERROR] %c%s%c (node:21266) [MONGOOSE] Warning: mongoose: the `new` option for `findOneAndUpdate()` and `findOneAndReplace()` is deprecated. Use `returnDocument: 'after'` instead. background: #e6e6e6;background: light-dark(rgba(0,0,0,0.1), rgba(255,255,255,0.25));color: #000000;color: light-dark(#000000, #ffffff);border-radius: 2px  Server   @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:1052
+[13076185ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[13076500ms] [LOG] [Fast Refresh] done in 374ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[13099163ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[13099624ms] [LOG] [Fast Refresh] done in 563ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[13119621ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[13119727ms] [LOG] [HMR] connected @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[13119876ms] [ERROR] %c%s%c (node:21266) [MONGOOSE] Warning: mongoose: the `new` option for `findOneAndUpdate()` and `findOneAndReplace()` is deprecated. Use `returnDocument: 'after'` instead. background: #e6e6e6;background: light-dark(rgba(0,0,0,0.1), rgba(255,255,255,0.25));color: #000000;color: light-dark(#000000, #ffffff);border-radius: 2px  Server   @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:1052
+[13139984ms] [ERROR] %c%s%c (node:21266) [MONGOOSE] Warning: mongoose: the `new` option for `findOneAndUpdate()` and `findOneAndReplace()` is deprecated. Use `returnDocument: 'after'` instead. background: #e6e6e6;background: light-dark(rgba(0,0,0,0.1), rgba(255,255,255,0.25));color: #000000;color: light-dark(#000000, #ffffff);border-radius: 2px  Server   @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:1052
+[13140529ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[13140560ms] [LOG] [HMR] connected @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[13140741ms] [ERROR] %c%s%c (node:21266) [MONGOOSE] Warning: mongoose: the `new` option for `findOneAndUpdate()` and `findOneAndReplace()` is deprecated. Use `returnDocument: 'after'` instead. background: #e6e6e6;background: light-dark(rgba(0,0,0,0.1), rgba(255,255,255,0.25));color: #000000;color: light-dark(#000000, #ffffff);border-radius: 2px  Server   @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:1052
+[13165415ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[13165445ms] [LOG] [HMR] connected @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[13165898ms] [ERROR] %c%s%c (node:21266) [MONGOOSE] Warning: mongoose: the `new` option for `findOneAndUpdate()` and `findOneAndReplace()` is deprecated. Use `returnDocument: 'after'` instead. background: #e6e6e6;background: light-dark(rgba(0,0,0,0.1), rgba(255,255,255,0.25));color: #000000;color: light-dark(#000000, #ffffff);border-radius: 2px  Server   @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:1052
+[13167315ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[13167333ms] [LOG] [HMR] connected @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[13167583ms] [ERROR] %c%s%c (node:21266) [MONGOOSE] Warning: mongoose: the `new` option for `findOneAndUpdate()` and `findOneAndReplace()` is deprecated. Use `returnDocument: 'after'` instead. background: #e6e6e6;background: light-dark(rgba(0,0,0,0.1), rgba(255,255,255,0.25));color: #000000;color: light-dark(#000000, #ffffff);border-radius: 2px  Server   @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:1052
+[13226438ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[13226589ms] [LOG] [Fast Refresh] done in 223ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[13230335ms] [LOG] [Fast Refresh] done in 223ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[13231576ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[13231596ms] [LOG] [HMR] connected @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[13231691ms] [ERROR] %c%s%c (node:21266) [MONGOOSE] Warning: mongoose: the `new` option for `findOneAndUpdate()` and `findOneAndReplace()` is deprecated. Use `returnDocument: 'after'` instead. background: #e6e6e6;background: light-dark(rgba(0,0,0,0.1), rgba(255,255,255,0.25));color: #000000;color: light-dark(#000000, #ffffff);border-radius: 2px  Server   @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:1052
+[13290633ms] [LOG] [HMR] connected @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[46209833ms] [LOG] [HMR] connected @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[46225077ms] [LOG] [HMR] connected @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[48272249ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[48272304ms] [LOG] [Fast Refresh] done in 16ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[48272614ms] [LOG] [Fast Refresh] done in 16ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[48273295ms] [LOG] [Fast Refresh] done in 16ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[48274416ms] [LOG] [Fast Refresh] done in 16ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[48274531ms] [LOG] [Fast Refresh] done in 16ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[48275546ms] [LOG] [Fast Refresh] done in 16ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[48290836ms] [ERROR] Failed to load resource: the server responded with a status of 403 (Forbidden) @ http://localhost:3000/api/users/refresh-token?refresh:0
+[48290847ms] [LOG] [Fast Refresh] done in 16ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[48291013ms] [LOG] [Fast Refresh] done in 16ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[48850667ms] [ERROR] WebSocket connection to 'ws://localhost:3000/_next/hmr?id=sUGzOV6A1qIPdmlLKVfS1' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_client_1s_doiy._.js:16348
+[48851670ms] [ERROR] WebSocket connection to 'ws://localhost:3000/_next/hmr?id=sUGzOV6A1qIPdmlLKVfS1' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_client_1s_doiy._.js:16348
+[48852674ms] [ERROR] WebSocket connection to 'ws://localhost:3000/_next/hmr?id=sUGzOV6A1qIPdmlLKVfS1' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_client_1s_doiy._.js:16348
+[48853678ms] [ERROR] WebSocket connection to 'ws://localhost:3000/_next/hmr?id=sUGzOV6A1qIPdmlLKVfS1' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_client_1s_doiy._.js:16348
+[48854683ms] [ERROR] WebSocket connection to 'ws://localhost:3000/_next/hmr?id=sUGzOV6A1qIPdmlLKVfS1' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_client_1s_doiy._.js:16348
+[48859691ms] [ERROR] WebSocket connection to 'ws://localhost:3000/_next/hmr?id=sUGzOV6A1qIPdmlLKVfS1' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_client_1s_doiy._.js:16348
+[48864698ms] [ERROR] WebSocket connection to 'ws://localhost:3000/_next/hmr?id=sUGzOV6A1qIPdmlLKVfS1' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_client_1s_doiy._.js:16348
+[48869720ms] [ERROR] WebSocket connection to 'ws://localhost:3000/_next/hmr?id=sUGzOV6A1qIPdmlLKVfS1' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_client_1s_doiy._.js:16348
+[48874764ms] [ERROR] WebSocket connection to 'ws://localhost:3000/_next/hmr?id=sUGzOV6A1qIPdmlLKVfS1' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_client_1s_doiy._.js:16348
+[48879836ms] [ERROR] WebSocket connection to 'ws://localhost:3000/_next/hmr?id=sUGzOV6A1qIPdmlLKVfS1' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_client_1s_doiy._.js:16348
+[48884960ms] [ERROR] WebSocket connection to 'ws://localhost:3000/_next/hmr?id=sUGzOV6A1qIPdmlLKVfS1' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_client_1s_doiy._.js:16348
+[48890159ms] [ERROR] WebSocket connection to 'ws://localhost:3000/_next/hmr?id=sUGzOV6A1qIPdmlLKVfS1' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_client_1s_doiy._.js:16348

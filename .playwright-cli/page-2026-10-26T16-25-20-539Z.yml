@@ -1,0 +1,168 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e3]: D+ v2 · 可选 Hero · 全局询盘按钮 · 最多 2×3
+    - list [ref=e4]:
+      - listitem [ref=e5]:
+        - generic [ref=e6]: 页头
+        - text: ：Settings → Product Listing 可选 Hero（与 Blog Listing Hero 同组件）；未配置时退回简洁标题区。
+      - listitem [ref=e7]:
+        - generic [ref=e8]: 吸顶分类导航
+        - text: ：Header 下方吸附，点击锚点滚动到分类，滚动时自动高亮当前分类（与详情页 sections 导航同一组件模式）。
+      - listitem [ref=e9]:
+        - generic [ref=e10]: 分类横幅
+        - text: ：用
+        - generic [ref=e11]: 必填的分类封面
+        - text: 作通栏背景，左侧深色渐变 + 分类名 / 描述 + 按钮（View all N products；可选询盘按钮）。
+      - listitem [ref=e12]:
+        - generic [ref=e13]: 产品卡
+        - text: ：浅灰底上的白卡，主图 1:1 居中，产品名 + summary 两行截断；每类（横幅不显示产品数）最多 2 行 × 3 列。≤6 个全部显示；>6 个时显示前 5 个，第 6 格为"更多"卡（+N 与 View all，链接到分类列表页）。第二个分类示例为 4 个产品（不足一行时自然留空）。
+      - listitem [ref=e14]:
+        - generic [ref=e15]: 询盘按钮
+        - text: ：横幅中的按钮取 Settings → Product 全局 inquiry.buttons；未配置时只显示 View all。
+  - generic [ref=e16]:
+    - generic [ref=e17]:
+      - generic [ref=e18]: ECOLITEA
+      - generic [ref=e19]: Products
+      - generic [ref=e20]: Blogs
+      - generic [ref=e21]: About
+      - generic [ref=e22]: Contact
+    - generic [ref=e26]:
+      - generic [ref=e27]: Products
+      - heading "Sustainable tea packaging" [level=1] [ref=e28]
+      - paragraph [ref=e29]: Plant-based tea bags, filters and packaging, built for brands at scale.
+    - navigation [ref=e30]:
+      - generic [ref=e32]:
+        - link "Pyramid Tea Bags" [ref=e33] [cursor=pointer]:
+          - /url: "#c1"
+        - link "Flat Tea Bags" [ref=e34] [cursor=pointer]:
+          - /url: "#c2"
+        - link "Drip Coffee Filters" [ref=e35] [cursor=pointer]:
+          - /url: "#c3"
+        - generic [ref=e36]: Cold Brew Bags
+        - generic [ref=e37]: Filter Rolls
+        - generic [ref=e38]: Outer Packaging
+    - generic [ref=e39]:
+      - generic [ref=e43]:
+        - heading "Pyramid Tea Bags" [level=2] [ref=e44]
+        - paragraph [ref=e45]: Biodegradable PLA mesh pyramids for whole-leaf blends, in multiple sizes and string options.
+        - generic [ref=e46]:
+          - generic [ref=e47]: View all products
+          - generic [ref=e48]: Get a Quote
+      - generic [ref=e51]:
+        - generic [ref=e55]:
+          - heading "PLA Pyramid Bag 58×60" [level=4] [ref=e56]
+          - paragraph [ref=e57]: Corn-fibre mesh with cotton string and custom paper tag.
+        - generic [ref=e61]:
+          - heading "Pyramid Bag 65×80" [level=4] [ref=e62]
+          - paragraph [ref=e63]: Larger size for blooming teas and herbal blends.
+        - generic [ref=e67]:
+          - heading "Stringless Pyramid" [level=4] [ref=e68]
+          - paragraph [ref=e69]: For pouch and tin packing lines.
+        - generic [ref=e73]:
+          - heading "Pyramid with Tag" [level=4] [ref=e74]
+          - paragraph [ref=e75]: Custom-printed paper tags.
+        - generic [ref=e79]:
+          - heading "Pyramid Mini 50×55" [level=4] [ref=e80]
+          - paragraph [ref=e81]: Single-serve portion.
+        - generic [ref=e82]:
+          - generic [ref=e87]: "+7"
+          - generic [ref=e88]: more Pyramid Tea Bags
+          - generic [ref=e89]: View all 12 →
+    - generic [ref=e90]:
+      - generic [ref=e94]:
+        - heading "Flat Tea Bags" [level=2] [ref=e95]
+        - paragraph [ref=e96]: Heat-seal and non-heat-seal filter papers for fannings and herbal blends.
+        - generic [ref=e97]:
+          - generic [ref=e98]: View all products
+          - generic [ref=e99]: Get a Quote
+      - generic [ref=e102]:
+        - generic [ref=e106]:
+          - heading "Heat-seal Filter Bag" [level=4] [ref=e107]
+          - paragraph [ref=e108]: For automatic packing machines.
+        - generic [ref=e112]:
+          - heading "Drawstring Bag" [level=4] [ref=e113]
+          - paragraph [ref=e114]: Loose leaf, refillable.
+        - generic [ref=e118]:
+          - heading "Double-chamber Bag" [level=4] [ref=e119]
+          - paragraph [ref=e120]: Faster, more even infusion.
+        - generic [ref=e124]:
+          - heading "Round Tea Bag" [level=4] [ref=e125]
+          - paragraph [ref=e126]: Fits standard mugs.
+  - generic [ref=e128]:
+    - generic [ref=e129]: 移动端（优化）
+    - list [ref=e130]:
+      - listitem [ref=e131]:
+        - generic [ref=e132]: Hero
+        - text: ：高度收敛为 340px，底部浅色渐变，H1 32px。
+      - listitem [ref=e133]:
+        - generic [ref=e134]: 分类导航
+        - text: ：吸顶，溢出时两端箭头 + 渐隐（与详情页同组件）。
+      - listitem [ref=e135]:
+        - generic [ref=e136]: 分类横幅
+        - text: ：固定 360px 高，底部渐变；描述最多 2 行；按钮并排等宽（View all 实心 / 询盘描边，44px）。
+      - listitem [ref=e137]:
+        - generic [ref=e138]: 产品
+        - text: ：横滑卡片宽 68% 露出下一张；>6 个时最后一张为"更多"卡；底部细线分段进度（与图集/轮播指示器同款）。
+  - generic [ref=e141]:
+    - generic [ref=e142]:
+      - generic [ref=e143]: ECOLITEA
+      - generic [ref=e144]: ☰
+    - generic [ref=e148]:
+      - generic [ref=e149]: Products
+      - heading "Sustainable tea packaging" [level=1] [ref=e150]
+      - paragraph [ref=e151]: Plant-based tea bags and filters, built for brands at scale.
+    - navigation [ref=e152]:
+      - generic [ref=e153]:
+        - generic [ref=e154]: Pyramid Tea Bags
+        - generic [ref=e155]: Flat Tea Bags
+        - generic [ref=e156]: Drip Coffee Filters
+        - generic [ref=e157]: Cold Brew Bags
+        - generic [ref=e158]: Filter Rolls
+      - button "Scroll right" [ref=e159] [cursor=pointer]
+    - generic [ref=e162]:
+      - generic [ref=e166]:
+        - heading "Pyramid Tea Bags" [level=2] [ref=e167]
+        - paragraph [ref=e168]: Biodegradable PLA mesh pyramids for whole-leaf blends, in multiple sizes and string options.
+        - generic [ref=e169]:
+          - generic [ref=e170]: View all
+          - generic [ref=e171]: Get a Quote
+      - generic [ref=e173]:
+        - generic [ref=e177]:
+          - heading "PLA Pyramid 58×60" [level=4] [ref=e178]
+          - paragraph [ref=e179]: Corn-fibre mesh with cotton string.
+        - generic [ref=e183]:
+          - heading "Pyramid 65×80" [level=4] [ref=e184]
+          - paragraph [ref=e185]: For blooming teas.
+        - generic [ref=e189]:
+          - heading "Stringless Pyramid" [level=4] [ref=e190]
+          - paragraph [ref=e191]: For pouch packing.
+        - generic [ref=e195]:
+          - heading "Pyramid with Tag" [level=4] [ref=e196]
+          - paragraph [ref=e197]: Custom-printed tags.
+        - generic [ref=e201]:
+          - heading "Pyramid Mini" [level=4] [ref=e202]
+          - paragraph [ref=e203]: Single-serve portion.
+        - generic [ref=e204]:
+          - generic [ref=e209]: "+7"
+          - generic [ref=e210]: more Pyramid Tea Bags
+          - generic [ref=e211]: View all →
+    - generic [ref=e219]:
+      - generic [ref=e223]:
+        - heading "Flat Tea Bags" [level=2] [ref=e224]
+        - paragraph [ref=e225]: Heat-seal and non-heat-seal filter papers for fannings and herbal blends.
+        - generic [ref=e226]:
+          - generic [ref=e227]: View all
+          - generic [ref=e228]: Get a Quote
+      - generic [ref=e230]:
+        - generic [ref=e234]:
+          - heading "Heat-seal Filter Bag" [level=4] [ref=e235]
+          - paragraph [ref=e236]: For automatic machines.
+        - generic [ref=e240]:
+          - heading "Drawstring Bag" [level=4] [ref=e241]
+          - paragraph [ref=e242]: Loose leaf, refillable.
+        - generic [ref=e246]:
+          - heading "Double-chamber Bag" [level=4] [ref=e247]
+          - paragraph [ref=e248]: Faster infusion.
+        - generic [ref=e252]:
+          - heading "Round Tea Bag" [level=4] [ref=e253]
+          - paragraph [ref=e254]: Fits standard mugs.

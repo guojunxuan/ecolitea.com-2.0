@@ -1,0 +1,173 @@
+[
+  {
+    "title": "Insta360 X5 · 示例 02",
+    "slug": "demo-insta360-x5",
+    "media": "Insta360 X5 — product image from Insta360",
+    "scenes": [
+      "Road Cycling",
+      "Coastal Rides"
+    ],
+    "use": "骑行与旅行内容演示",
+    "summary": "复用站内 X5 产品图与场景素材的完整示例，包含图库、卖点、规格及两段产品 sections，用于后台编辑与内容结构演示。",
+    "highlights": [
+      "X5 产品外观与真实场景素材组合展示",
+      "以现有 Product Blocks 组织可重复编辑的详情内容"
+    ],
+    "banner": "X5，让创作成为日常",
+    "bannerCopy": "围绕 X5 建立从产品展示到应用场景的内容叙事，所有图片均复用站内素材。此为本地演示内容。",
+    "sceneTitle": "骑行途中，记录每一次出发",
+    "body": "通过 Road Cycling 与 Coastal Rides 两类现有场景素材，展示 X5 产品内容的图文组合方式。编辑者可以调整章节名称、媒体位置和段落内容。此为本地演示文案，具体技术参数以正式产品资料为准。"
+  },
+  {
+    "title": "Insta360 X4 Air · 示例 03",
+    "slug": "demo-insta360-x4-air",
+    "media": "Insta360 X4 Air — product image from Insta360",
+    "scenes": [
+      "Hiking",
+      "Kayaking"
+    ],
+    "use": "轻量旅行内容演示",
+    "summary": "复用站内 X4 Air 产品图与场景素材的完整示例，包含图库、卖点、规格及两段产品 sections，用于后台编辑与内容结构演示。",
+    "highlights": [
+      "X4 Air 产品外观与真实场景素材组合展示",
+      "以现有 Product Blocks 组织可重复编辑的详情内容"
+    ],
+    "banner": "X4 Air，让创作成为日常",
+    "bannerCopy": "围绕 X4 Air 建立从产品展示到应用场景的内容叙事，所有图片均复用站内素材。此为本地演示内容。",
+    "sceneTitle": "把旅途中的轻快瞬间留下来",
+    "body": "通过 Hiking 与 Kayaking 两类现有场景素材，展示 X4 Air 产品内容的图文组合方式。编辑者可以调整章节名称、媒体位置和段落内容。此为本地演示文案，具体技术参数以正式产品资料为准。"
+  },
+  {
+    "title": "Insta360 Ace Pro 2 · 示例 04",
+    "slug": "demo-insta360-ace-pro-2",
+    "media": "Insta360 Ace Pro 2 — product image from Insta360",
+    "scenes": [
+      "Motorcycling",
+      "Mountain Biking"
+    ],
+    "use": "户外运动内容演示",
+    "summary": "复用站内 Ace Pro 2 产品图与场景素材的完整示例，包含图库、卖点、规格及两段产品 sections，用于后台编辑与内容结构演示。",
+    "highlights": [
+      "Ace Pro 2 产品外观与真实场景素材组合展示",
+      "以现有 Product Blocks 组织可重复编辑的详情内容"
+    ],
+    "banner": "Ace Pro 2，让创作成为日常",
+    "bannerCopy": "围绕 Ace Pro 2 建立从产品展示到应用场景的内容叙事，所有图片均复用站内素材。此为本地演示内容。",
+    "sceneTitle": "进入运动场景，让镜头跟上节奏",
+    "body": "通过 Motorcycling 与 Mountain Biking 两类现有场景素材，展示 Ace Pro 2 产品内容的图文组合方式。编辑者可以调整章节名称、媒体位置和段落内容。此为本地演示文案，具体技术参数以正式产品资料为准。"
+  },
+  {
+    "title": "Insta360 GO Ultra · 示例 05",
+    "slug": "demo-insta360-go-ultra",
+    "media": "Insta360 GO Ultra — product image from Insta360",
+    "scenes": [
+      "Family Moments",
+      "Vlogging"
+    ],
+    "use": "日常生活内容演示",
+    "summary": "复用站内 GO Ultra 产品图与场景素材的完整示例，包含图库、卖点、规格及两段产品 sections，用于后台编辑与内容结构演示。",
+    "highlights": [
+      "GO Ultra 产品外观与真实场景素材组合展示",
+      "以现有 Product Blocks 组织可重复编辑的详情内容"
+    ],
+    "banner": "GO Ultra，让创作成为日常",
+    "bannerCopy": "围绕 GO Ultra 建立从产品展示到应用场景的内容叙事，所有图片均复用站内素材。此为本地演示内容。",
+    "sceneTitle": "让日常记录更加自然",
+    "body": "通过 Family Moments 与 Vlogging 两类现有场景素材，展示 GO Ultra 产品内容的图文组合方式。编辑者可以调整章节名称、媒体位置和段落内容。此为本地演示文案，具体技术参数以正式产品资料为准。"
+  },
+  {
+    "title": "Insta360 GO 3S · 示例 06",
+    "slug": "demo-insta360-go-3s",
+    "media": "Insta360 GO 3S",
+    "scenes": [
+      "Vlogging",
+      "Hiking"
+    ],
+    "use": "随身记录内容演示",
+    "summary": "复用站内 GO 3S 产品图与场景素材的完整示例，包含图库、卖点、规格及两段产品 sections，用于后台编辑与内容结构演示。",
+    "highlights": [
+      "GO 3S 产品外观与真实场景素材组合展示",
+      "以现有 Product Blocks 组织可重复编辑的详情内容"
+    ],
+    "banner": "GO 3S，让创作成为日常",
+    "bannerCopy": "围绕 GO 3S 建立从产品展示到应用场景的内容叙事，所有图片均复用站内素材。此为本地演示内容。",
+    "sceneTitle": "发现平凡日常里的新视角",
+    "body": "通过 Vlogging 与 Hiking 两类现有场景素材，展示 GO 3S 产品内容的图文组合方式。编辑者可以调整章节名称、媒体位置和段落内容。此为本地演示文案，具体技术参数以正式产品资料为准。"
+  },
+  {
+    "title": "Insta360 Flow 2 Series · 示例 07",
+    "slug": "demo-insta360-flow-2-series",
+    "media": "Insta360 Flow 2 Series — product image from Insta360",
+    "scenes": [
+      "Vlogging",
+      "Family Moments"
+    ],
+    "use": "移动创作内容演示",
+    "summary": "复用站内 Flow 2 Series 产品图与场景素材的完整示例，包含图库、卖点、规格及两段产品 sections，用于后台编辑与内容结构演示。",
+    "highlights": [
+      "Flow 2 Series 产品外观与真实场景素材组合展示",
+      "以现有 Product Blocks 组织可重复编辑的详情内容"
+    ],
+    "banner": "Flow 2 Series，让创作成为日常",
+    "bannerCopy": "围绕 Flow 2 Series 建立从产品展示到应用场景的内容叙事，所有图片均复用站内素材。此为本地演示内容。",
+    "sceneTitle": "把故事从构思带到画面",
+    "body": "通过 Vlogging 与 Family Moments 两类现有场景素材，展示 Flow 2 Series 产品内容的图文组合方式。编辑者可以调整章节名称、媒体位置和段落内容。此为本地演示文案，具体技术参数以正式产品资料为准。"
+  },
+  {
+    "title": "Insta360 Link 2 Pro · 示例 08",
+    "slug": "demo-insta360-link-2-pro",
+    "media": "Insta360 Link 2 Pro — product image from Insta360",
+    "scenes": [
+      "Videography",
+      "Vlogging"
+    ],
+    "use": "桌面影像内容演示",
+    "summary": "复用站内 Link 2 Pro 产品图与场景素材的完整示例，包含图库、卖点、规格及两段产品 sections，用于后台编辑与内容结构演示。",
+    "highlights": [
+      "Link 2 Pro 产品外观与真实场景素材组合展示",
+      "以现有 Product Blocks 组织可重复编辑的详情内容"
+    ],
+    "banner": "Link 2 Pro，让创作成为日常",
+    "bannerCopy": "围绕 Link 2 Pro 建立从产品展示到应用场景的内容叙事，所有图片均复用站内素材。此为本地演示内容。",
+    "sceneTitle": "为桌面内容建立清晰的表达",
+    "body": "通过 Videography 与 Vlogging 两类现有场景素材，展示 Link 2 Pro 产品内容的图文组合方式。编辑者可以调整章节名称、媒体位置和段落内容。此为本地演示文案，具体技术参数以正式产品资料为准。"
+  },
+  {
+    "title": "Insta360 Mic Pro · 示例 09",
+    "slug": "demo-insta360-mic-pro",
+    "media": "Insta360 Mic Pro — product image from Insta360",
+    "scenes": [
+      "Videography",
+      "Family Moments"
+    ],
+    "use": "声音与影像内容演示",
+    "summary": "复用站内 Mic Pro 产品图与场景素材的完整示例，包含图库、卖点、规格及两段产品 sections，用于后台编辑与内容结构演示。",
+    "highlights": [
+      "Mic Pro 产品外观与真实场景素材组合展示",
+      "以现有 Product Blocks 组织可重复编辑的详情内容"
+    ],
+    "banner": "Mic Pro，让创作成为日常",
+    "bannerCopy": "围绕 Mic Pro 建立从产品展示到应用场景的内容叙事，所有图片均复用站内素材。此为本地演示内容。",
+    "sceneTitle": "用声音补全每一段故事",
+    "body": "通过 Videography 与 Family Moments 两类现有场景素材，展示 Mic Pro 产品内容的图文组合方式。编辑者可以调整章节名称、媒体位置和段落内容。此为本地演示文案，具体技术参数以正式产品资料为准。"
+  },
+  {
+    "title": "Insta360 Pro 2 · 示例 10",
+    "slug": "demo-insta360-pro-2",
+    "media": "Insta360 Pro 2 — product image from Insta360",
+    "scenes": [
+      "Hiking",
+      "Kayaking"
+    ],
+    "use": "专业内容工作流演示",
+    "summary": "复用站内 Pro 2 产品图与场景素材的完整示例，包含图库、卖点、规格及两段产品 sections，用于后台编辑与内容结构演示。",
+    "highlights": [
+      "Pro 2 产品外观与真实场景素材组合展示",
+      "以现有 Product Blocks 组织可重复编辑的详情内容"
+    ],
+    "banner": "Pro 2，让创作成为日常",
+    "bannerCopy": "围绕 Pro 2 建立从产品展示到应用场景的内容叙事，所有图片均复用站内素材。此为本地演示内容。",
+    "sceneTitle": "把创作场景扩展到更大空间",
+    "body": "通过 Hiking 与 Kayaking 两类现有场景素材，展示 Pro 2 产品内容的图文组合方式。编辑者可以调整章节名称、媒体位置和段落内容。此为本地演示文案，具体技术参数以正式产品资料为准。"
+  }
+]

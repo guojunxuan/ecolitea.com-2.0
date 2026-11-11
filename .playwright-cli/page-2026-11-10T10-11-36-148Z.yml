@@ -1,0 +1,270 @@
+- generic [active] [ref=f2e1]:
+  - link "Skip to content" [ref=f2e2] [cursor=pointer]:
+    - /url: "#main-content"
+  - banner:
+    - generic [ref=f2e4]:
+      - link [ref=f2e5] [cursor=pointer]:
+        - /url: /
+        - img "ecolitea-logo-dark" [ref=f2e6]
+      - generic [ref=f2e7]:
+        - navigation "Primary" [ref=f2e10]:
+          - generic [ref=f2e11]:
+            - button "Products" [ref=f2e13] [cursor=pointer]
+            - link "Accessories" [ref=f2e15] [cursor=pointer]:
+              - /url: https://store.insta360.com/accessory
+            - button "Shop by Interest" [ref=f2e17] [cursor=pointer]
+            - button "Professional" [ref=f2e19] [cursor=pointer]
+            - button "Support" [ref=f2e21] [cursor=pointer]
+        - link "Search" [ref=f2e23] [cursor=pointer]:
+          - /url: /search
+  - main [ref=f2e27]:
+    - article [ref=f2e28]:
+      - navigation "Breadcrumb" [ref=f2e29]:
+        - link "Products" [ref=f2e30] [cursor=pointer]:
+          - /url: /products
+        - generic [aria-hidden] [ref=f2e31]: /
+        - link "影像设备 · 示例" [ref=f2e32] [cursor=pointer]:
+          - /url: /products/demo-imaging-equipment
+        - generic [aria-hidden] [ref=f2e33]: /
+        - generic [ref=f2e34]: Insta360 Flow 2 Series · 示例 07
+      - generic [ref=f2e35]:
+        - generic [ref=f2e36]:
+          - generic [ref=f2e37]:
+            - button "Show image 1 of 3" [ref=f2e38] [cursor=pointer]:
+              - img "Insta360 Flow 2 Series — product image from Insta360" [ref=f2e39]
+            - button "Show image 2 of 3" [ref=f2e40] [cursor=pointer]:
+              - img "Vlogging" [ref=f2e41]
+            - button "Show image 3 of 3" [ref=f2e42] [cursor=pointer]:
+              - img "Family Moments" [ref=f2e43]
+          - generic [ref=f2e44]:
+            - region "Product images" [ref=f2e45]:
+              - img "Insta360 Flow 2 Series — product image from Insta360" [ref=f2e47]
+            - generic [ref=f2e48]: 1 / 3
+        - generic [ref=f2e49]:
+          - paragraph [ref=f2e50]: 影像设备 · 示例
+          - heading "Insta360 Flow 2 Series · 示例 07" [level=1] [ref=f2e51]
+          - tablist "Product information" [ref=f2e52]:
+            - tab "Overview" [selected] [ref=f2e53] [cursor=pointer]
+            - tab "Specifications" [ref=f2e54] [cursor=pointer]
+          - tabpanel "Overview" [ref=f2e56]:
+            - generic [ref=f2e58]:
+              - paragraph [ref=f2e59]: Insta360 Flow 2 Series · 示例 07是影像设备分类的产品展示样例。围绕取景、安装与素材交付展示一套基础影像流程。可用来演示如何通过产品图、应用图和配置说明组织选型页面。
+              - paragraph [ref=f2e60]: 适用于渠道产品培训、展会讲解和项目初选。本文为站点演示内容。
+          - generic [ref=f2e61]:
+            - button "Request a quote" [disabled]
+            - button "Download" [ref=f2e62]
+      - navigation "Product sections" [ref=f2e63]:
+        - generic [ref=f2e66]:
+          - link "Overview" [ref=f2e67] [cursor=pointer]:
+            - /url: "#overview"
+          - link "产品亮点" [ref=f2e68] [cursor=pointer]:
+            - /url: "#product-story"
+          - link "使用场景" [ref=f2e69] [cursor=pointer]:
+            - /url: "#creative-scenes"
+          - link "场景切换" [ref=f2e70] [cursor=pointer]:
+            - /url: "#scene-tabs"
+          - link "Related" [ref=f2e71] [cursor=pointer]:
+            - /url: "#related-products"
+      - generic [ref=f2e73]:
+        - img "Insta360 Flow 2 Series — product image from Insta360" [ref=f2e77]
+        - generic [ref=f2e78]:
+          - heading "Flow 2 Series，让创作成为日常" [level=2] [ref=f2e80]
+          - paragraph [ref=f2e81]: 围绕 Flow 2 Series 建立从产品展示到应用场景的内容叙事，所有图片均复用站内素材。此为本地演示内容。
+      - generic [ref=f2e84]:
+        - generic [ref=f2e85]:
+          - generic [ref=f2e86]:
+            - paragraph [ref=f2e87]: CREATIVE SCENES
+            - heading "把故事从构思带到画面" [level=2] [ref=f2e88]
+          - paragraph [ref=f2e90]: 通过 Vlogging 与 Family Moments 两类现有场景素材，展示 Flow 2 Series 产品内容的图文组合方式。编辑者可以调整章节名称、媒体位置和段落内容。此为本地演示文案，具体技术参数以正式产品资料为准。
+        - img "Vlogging" [ref=f2e95]
+      - generic [ref=f2e98]:
+        - heading "选择你的创作场景" [level=2] [ref=f2e100]
+        - generic [ref=f2e101]:
+          - generic [ref=f2e102]:
+            - button "Previous tab" [disabled] [ref=f2e103]: ←
+            - tablist "选择你的创作场景" [ref=f2e104]:
+              - tab "产品外观" [selected] [ref=f2e105] [cursor=pointer]
+              - tab "使用场景" [ref=f2e106] [cursor=pointer]
+            - button "Next tab" [ref=f2e107] [cursor=pointer]: →
+          - tabpanel "产品外观" [ref=f2e109]:
+            - img "Insta360 Flow 2 Series — product image from Insta360" [ref=f2e113]
+      - generic [ref=f2e115]:
+        - generic [ref=f2e116]:
+          - heading "You may also need" [level=2] [ref=f2e118]
+          - link "View more" [ref=f2e119] [cursor=pointer]:
+            - /url: /products/demo-imaging-equipment
+        - region "You may also need" [ref=f2e123]:
+          - link "Insta360 X6 — product image from Insta360 Insta360 X6 · 示例 01 以现有 X6 素材创建的全景影像设备示例，包含产品展示、使用场景与核心特性 sections，供后台内容编辑与布局演示。 View More" [ref=f2e125] [cursor=pointer]:
+            - /url: /products/demo-imaging-equipment/demo-insta360-x6
+            - img "Insta360 X6 — product image from Insta360" [ref=f2e127]
+            - generic [ref=f2e128]:
+              - heading "Insta360 X6 · 示例 01" [level=3] [ref=f2e129]
+              - paragraph [ref=f2e130]: 以现有 X6 素材创建的全景影像设备示例，包含产品展示、使用场景与核心特性 sections，供后台内容编辑与布局演示。
+              - generic [ref=f2e131]: View More
+          - link "Insta360 GO Ultra — product image from Insta360 Insta360 GO Ultra · 示例 05 复用站内 GO Ultra 产品图与场景素材的完整示例，包含图库、卖点、规格及两段产品 sections，用于后台编辑与内容结构演示。 View More" [ref=f2e134] [cursor=pointer]:
+            - /url: /products/demo-imaging-equipment/demo-insta360-go-ultra
+            - img "Insta360 GO Ultra — product image from Insta360" [ref=f2e136]
+            - generic [ref=f2e137]:
+              - heading "Insta360 GO Ultra · 示例 05" [level=3] [ref=f2e138]
+              - paragraph [ref=f2e139]: 复用站内 GO Ultra 产品图与场景素材的完整示例，包含图库、卖点、规格及两段产品 sections，用于后台编辑与内容结构演示。
+              - generic [ref=f2e140]: View More
+          - link "Insta360 Ace Pro 2 — product image from Insta360 Insta360 Ace Pro 2 · 示例 04 复用站内 Ace Pro 2 产品图与场景素材的完整示例，包含图库、卖点、规格及两段产品 sections，用于后台编辑与内容结构演示。 View More" [ref=f2e143] [cursor=pointer]:
+            - /url: /products/demo-imaging-equipment/demo-insta360-ace-pro-2
+            - img "Insta360 Ace Pro 2 — product image from Insta360" [ref=f2e145]
+            - generic [ref=f2e146]:
+              - heading "Insta360 Ace Pro 2 · 示例 04" [level=3] [ref=f2e147]
+              - paragraph [ref=f2e148]: 复用站内 Ace Pro 2 产品图与场景素材的完整示例，包含图库、卖点、规格及两段产品 sections，用于后台编辑与内容结构演示。
+              - generic [ref=f2e149]: View More
+          - link "Insta360 X4 Air — product image from Insta360 Insta360 X4 Air · 示例 03 复用站内 X4 Air 产品图与场景素材的完整示例，包含图库、卖点、规格及两段产品 sections，用于后台编辑与内容结构演示。 View More" [ref=f2e152] [cursor=pointer]:
+            - /url: /products/demo-imaging-equipment/demo-insta360-x4-air
+            - img "Insta360 X4 Air — product image from Insta360" [ref=f2e154]
+            - generic [ref=f2e155]:
+              - heading "Insta360 X4 Air · 示例 03" [level=3] [ref=f2e156]
+              - paragraph [ref=f2e157]: 复用站内 X4 Air 产品图与场景素材的完整示例，包含图库、卖点、规格及两段产品 sections，用于后台编辑与内容结构演示。
+              - generic [ref=f2e158]: View More
+          - link "Insta360 Mic Pro — product image from Insta360 Insta360 Mic Pro · 示例 09 复用站内 Mic Pro 产品图与场景素材的完整示例，包含图库、卖点、规格及两段产品 sections，用于后台编辑与内容结构演示。 View More" [ref=f2e161] [cursor=pointer]:
+            - /url: /products/demo-imaging-equipment/demo-insta360-mic-pro
+            - img "Insta360 Mic Pro — product image from Insta360" [ref=f2e163]
+            - generic [ref=f2e164]:
+              - heading "Insta360 Mic Pro · 示例 09" [level=3] [ref=f2e165]
+              - paragraph [ref=f2e166]: 复用站内 Mic Pro 产品图与场景素材的完整示例，包含图库、卖点、规格及两段产品 sections，用于后台编辑与内容结构演示。
+              - generic [ref=f2e167]: View More
+          - link "Insta360 Link 2 Pro — product image from Insta360 Insta360 Link 2 Pro · 示例 08 复用站内 Link 2 Pro 产品图与场景素材的完整示例，包含图库、卖点、规格及两段产品 sections，用于后台编辑与内容结构演示。 View More" [ref=f2e170] [cursor=pointer]:
+            - /url: /products/demo-imaging-equipment/demo-insta360-link-2-pro
+            - img "Insta360 Link 2 Pro — product image from Insta360" [ref=f2e172]
+            - generic [ref=f2e173]:
+              - heading "Insta360 Link 2 Pro · 示例 08" [level=3] [ref=f2e174]
+              - paragraph [ref=f2e175]: 复用站内 Link 2 Pro 产品图与场景素材的完整示例，包含图库、卖点、规格及两段产品 sections，用于后台编辑与内容结构演示。
+              - generic [ref=f2e176]: View More
+          - link "Insta360 GO 3S Insta360 GO 3S · 示例 06 复用站内 GO 3S 产品图与场景素材的完整示例，包含图库、卖点、规格及两段产品 sections，用于后台编辑与内容结构演示。 View More" [ref=f2e179] [cursor=pointer]:
+            - /url: /products/demo-imaging-equipment/demo-insta360-go-3s
+            - img "Insta360 GO 3S" [ref=f2e181]
+            - generic [ref=f2e182]:
+              - heading "Insta360 GO 3S · 示例 06" [level=3] [ref=f2e183]
+              - paragraph [ref=f2e184]: 复用站内 GO 3S 产品图与场景素材的完整示例，包含图库、卖点、规格及两段产品 sections，用于后台编辑与内容结构演示。
+              - generic [ref=f2e185]: View More
+          - link "Insta360 Pro 2 — product image from Insta360 Insta360 Pro 2 · 示例 10 复用站内 Pro 2 产品图与场景素材的完整示例，包含图库、卖点、规格及两段产品 sections，用于后台编辑与内容结构演示。 View More" [ref=f2e188] [cursor=pointer]:
+            - /url: /products/demo-imaging-equipment/demo-insta360-pro-2
+            - img "Insta360 Pro 2 — product image from Insta360" [ref=f2e190]
+            - generic [ref=f2e191]:
+              - heading "Insta360 Pro 2 · 示例 10" [level=3] [ref=f2e192]
+              - paragraph [ref=f2e193]: 复用站内 Pro 2 产品图与场景素材的完整示例，包含图库、卖点、规格及两段产品 sections，用于后台编辑与内容结构演示。
+              - generic [ref=f2e194]: View More
+  - contentinfo [ref=f2e196]:
+    - generic [ref=f2e197]:
+      - generic [ref=f2e198]:
+        - region "Brand" [ref=f2e199]:
+          - link [ref=f2e200] [cursor=pointer]:
+            - /url: /
+            - img "ecolitea-logo-dark" [ref=f2e201]
+          - paragraph [ref=f2e202]: Ecolitea is a B2B company providing reliable products and tailored solutions to customers worldwide.
+          - list "Social media" [ref=f2e203]:
+            - listitem [ref=f2e204]:
+              - link "LinkedIn" [ref=f2e205] [cursor=pointer]:
+                - /url: https://example.com/ecolitea/linkedin
+            - listitem [ref=f2e206]:
+              - link "YouTube" [ref=f2e207] [cursor=pointer]:
+                - /url: https://example.com/ecolitea/youtube
+            - listitem [ref=f2e208]:
+              - link "Facebook" [ref=f2e209] [cursor=pointer]:
+                - /url: https://example.com/ecolitea/facebook
+            - listitem [ref=f2e210]:
+              - link "Instagram" [ref=f2e211] [cursor=pointer]:
+                - /url: https://example.com/ecolitea/instagram
+            - listitem [ref=f2e212]:
+              - link "X" [ref=f2e213] [cursor=pointer]:
+                - /url: https://example.com/ecolitea/x
+        - navigation "Footer" [ref=f2e214]:
+          - generic [ref=f2e215]:
+            - heading "Products" [level=2] [ref=f2e216]
+            - list [ref=f2e218]:
+              - listitem [ref=f2e219]:
+                - link "Product 01" [ref=f2e220] [cursor=pointer]:
+                  - /url: /placeholder/products/category-01
+              - listitem [ref=f2e221]:
+                - link "Product 02" [ref=f2e222] [cursor=pointer]:
+                  - /url: /placeholder/products/category-02
+              - listitem [ref=f2e223]:
+                - link "Product 03" [ref=f2e224] [cursor=pointer]:
+                  - /url: /placeholder/products/category-03
+              - listitem [ref=f2e225]:
+                - link "Product 04" [ref=f2e226] [cursor=pointer]:
+                  - /url: /placeholder/products/category-04
+              - listitem [ref=f2e227]:
+                - link "Product 05" [ref=f2e228] [cursor=pointer]:
+                  - /url: /placeholder/products/category-05
+              - listitem [ref=f2e229]:
+                - link "Product 06" [ref=f2e230] [cursor=pointer]:
+                  - /url: /placeholder/products/category-06
+              - listitem [ref=f2e231]:
+                - link "Product 07" [ref=f2e232] [cursor=pointer]:
+                  - /url: /placeholder/products/category-07
+              - listitem [ref=f2e233]:
+                - link "Product 08" [ref=f2e234] [cursor=pointer]:
+                  - /url: /placeholder/products/category-08
+          - generic [ref=f2e235]:
+            - heading "Solutions" [level=2] [ref=f2e236]
+            - list [ref=f2e238]:
+              - listitem [ref=f2e239]:
+                - link "Hospitality" [ref=f2e240] [cursor=pointer]:
+                  - /url: /placeholder/solutions/hospitality
+              - listitem [ref=f2e241]:
+                - link "Commercial" [ref=f2e242] [cursor=pointer]:
+                  - /url: /placeholder/solutions/commercial
+              - listitem [ref=f2e243]:
+                - link "Residential" [ref=f2e244] [cursor=pointer]:
+                  - /url: /placeholder/solutions/residential
+              - listitem [ref=f2e245]:
+                - link "Custom projects" [ref=f2e246] [cursor=pointer]:
+                  - /url: /placeholder/solutions/custom-projects
+          - generic [ref=f2e247]:
+            - heading "Resources" [level=2] [ref=f2e248]
+            - list [ref=f2e250]:
+              - listitem [ref=f2e251]:
+                - link "Downloads" [ref=f2e252] [cursor=pointer]:
+                  - /url: /placeholder/resources/downloads
+              - listitem [ref=f2e253]:
+                - link "External resource" [ref=f2e254] [cursor=pointer]:
+                  - /url: https://example.com/placeholder-resource
+          - generic [ref=f2e255]:
+            - heading "Company" [level=2] [ref=f2e256]
+            - list [ref=f2e258]:
+              - listitem [ref=f2e259]:
+                - link "About us" [ref=f2e260] [cursor=pointer]:
+                  - /url: /placeholder/company/about
+              - listitem [ref=f2e261]:
+                - link "Contact" [ref=f2e262] [cursor=pointer]:
+                  - /url: /placeholder/company/contact
+              - listitem [ref=f2e263]:
+                - link "Partner portal" [ref=f2e264] [cursor=pointer]:
+                  - /url: https://example.com/placeholder-partner-portal
+              - listitem [ref=f2e265]:
+                - link "Blog" [ref=f2e266] [cursor=pointer]:
+                  - /url: /blogs
+        - generic [ref=f2e267]:
+          - region "Newsletter" [ref=f2e268]:
+            - heading "SUBSCRIBE TO OUR NEWSLETTER" [level=2] [ref=f2e269]
+            - paragraph [ref=f2e270]: Unlock savings & perks, members-only offers.
+            - generic [ref=f2e271]:
+              - textbox "Email address" [disabled] [ref=f2e272]
+              - button "Subscribe" [disabled] [ref=f2e273]
+          - list [ref=f2e275]:
+            - listitem [ref=f2e276]:
+              - generic [ref=f2e280]: 5425 Janet Ct, OAK FOREST, IL 60452-3740, United States
+            - listitem [ref=f2e281]:
+              - link "+86 1234567 8910" [ref=f2e284] [cursor=pointer]:
+                - /url: tel:+86 1234567 8910
+            - listitem [ref=f2e285]:
+              - link "sales@ecolitea.com" [ref=f2e289] [cursor=pointer]:
+                - /url: mailto:sales@ecolitea.com
+      - generic [ref=f2e290]:
+        - paragraph [ref=f2e291]: © 2026 Ecolitea. All rights reserved.
+        - navigation "Legal" [ref=f2e292]:
+          - list [ref=f2e293]:
+            - listitem [ref=f2e294]:
+              - link "Privacy Policy" [ref=f2e295] [cursor=pointer]:
+                - /url: /home
+            - listitem [ref=f2e296]:
+              - link "Terms" [ref=f2e297] [cursor=pointer]:
+                - /url: /home
+  - button "Open Next.js Dev Tools" [ref=f2e303] [cursor=pointer]

@@ -1,0 +1,66 @@
+- generic [active] [ref=f3e1]:
+  - generic [ref=f3e4]:
+    - banner [ref=f3e5]:
+      - generic [ref=f3e7]:
+        - generic [ref=f3e9]:
+          - button "Close Menu" [ref=f3e10] [cursor=pointer]
+          - navigation [ref=f3e12]:
+            - link "Dashboard" [ref=f3e13] [cursor=pointer]:
+              - /url: /admin
+        - button "Account" [ref=f3e16] [cursor=pointer]:
+          - img "yas" [ref=f3e17]
+    - generic [ref=f3e18]:
+      - heading "截屏2026-08-06 14.03.23.png" [level=1] [ref=f3e19]
+      - list [ref=f3e22]:
+        - link "Edit" [ref=f3e23] [cursor=pointer]:
+          - /url: /admin/collections/media/6ad3753e4c57280026ccbf2a
+        - generic "Versions" [ref=f3e24]:
+          - generic:
+            - generic:
+              - generic:
+                - text: Versions
+                - generic: "2"
+        - link "API" [ref=f3e25] [cursor=pointer]:
+          - /url: /admin/collections/media/6ad3753e4c57280026ccbf2a/api
+    - main [ref=f3e26]:
+      - generic [ref=f3e27]:
+        - table [ref=f3e29]:
+          - rowgroup [ref=f3e30]:
+            - row [ref=f3e31]:
+              - 'columnheader "Updated At Sort by {{label}} Descending Sort by {{label}} Ascending" [ref=f3e32]':
+                - generic [ref=f3e33]:
+                  - generic [ref=f3e34]: Updated At
+                  - generic [ref=f3e35]:
+                    - 'button "Sort by {{label}} Descending" [ref=f3e36] [cursor=pointer]'
+                    - 'button "Sort by {{label}} Ascending" [ref=f3e39] [cursor=pointer]'
+              - 'columnheader "Version ID Sort by {{label}} Descending Sort by {{label}} Ascending" [ref=f3e42]':
+                - generic [ref=f3e43]:
+                  - generic [ref=f3e44]: Version ID
+                  - generic [ref=f3e45]:
+                    - 'button "Sort by {{label}} Descending" [ref=f3e46] [cursor=pointer]'
+                    - 'button "Sort by {{label}} Ascending" [ref=f3e49] [cursor=pointer]'
+          - rowgroup [ref=f3e52]:
+            - row [ref=f3e53]:
+              - cell [ref=f3e54]:
+                - link "Loading..." [ref=f3e55] [cursor=pointer]:
+                  - /url: /admin/collections/media/6ad3753e4c57280026ccbf2a/versions/6ad375404c57280026ccbf2c
+              - cell "6ad375404c57280026ccbf2c" [ref=f3e56]
+            - row [ref=f3e57]:
+              - cell [ref=f3e58]:
+                - link "Loading..." [ref=f3e59] [cursor=pointer]:
+                  - /url: /admin/collections/media/6ad3753e4c57280026ccbf2a/versions/6ad3753e4c57280026ccbf2b
+              - cell "6ad3753e4c57280026ccbf2b" [ref=f3e60]
+        - generic [ref=f3e62]:
+          - generic [ref=f3e63]:
+            - button [disabled] [ref=f3e64]
+            - button [disabled] [ref=f3e67]
+            - generic [ref=f3e70]:
+              - textbox "Go to page" [disabled] [ref=f3e71]: "1"
+              - generic [ref=f3e72]: of 1
+          - generic [ref=f3e73]:
+            - generic [ref=f3e74]: 1-2 of 2
+            - generic [ref=f3e75]:
+              - generic [ref=f3e76]: "Per page:"
+              - button "10" [ref=f3e79] [cursor=pointer]
+  - region "Notifications alt+T"
+  - button "Open Next.js Dev Tools" [ref=f3e85] [cursor=pointer]

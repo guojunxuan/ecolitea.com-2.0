@@ -1,0 +1,293 @@
+### Page
+- Page URL: http://localhost:3000/admin/collections/products/6adcb636f43c3bb2c41ea3f2
+- Page Title: Editing - Product - Payload
+- Console: 3 errors, 0 warnings
+### Snapshot
+```yaml
+- generic [ref=e1]:
+  - generic [ref=e243]:
+    - complementary [ref=e244]:
+      - navigation [ref=e246]:
+        - generic [ref=e247]:
+          - tablist [ref=e248]:
+            - tab "Collections" [selected] [ref=e249] [cursor=pointer]
+            - tab "Folders" [ref=e254] [cursor=pointer]
+          - tabpanel [ref=e259]:
+            - generic [ref=e260]:
+              - generic [ref=e261]:
+                - button "Collections" [ref=e262] [cursor=pointer]
+                - generic [ref=e267]:
+                  - link "Pages" [ref=e269] [cursor=pointer]:
+                    - /url: /admin/collections/pages
+                  - link "Posts" [ref=e272] [cursor=pointer]:
+                    - /url: /admin/collections/posts
+                  - link "Media" [ref=e275] [cursor=pointer]:
+                    - /url: /admin/collections/media
+                  - link "Documents" [ref=e278] [cursor=pointer]:
+                    - /url: /admin/collections/documents
+                  - link "Categories" [ref=e281] [cursor=pointer]:
+                    - /url: /admin/collections/categories
+                  - link "Case Studies" [ref=e284] [cursor=pointer]:
+                    - /url: /admin/collections/case-studies
+                  - link "Users" [ref=e287] [cursor=pointer]:
+                    - /url: /admin/collections/users
+                  - link "Redirects" [ref=e290] [cursor=pointer]:
+                    - /url: /admin/collections/redirects
+                  - link "Forms" [ref=e293] [cursor=pointer]:
+                    - /url: /admin/collections/forms
+                  - link "Form Submissions" [ref=e296] [cursor=pointer]:
+                    - /url: /admin/collections/form-submissions
+                  - link "Search Results" [ref=e299] [cursor=pointer]:
+                    - /url: /admin/collections/search
+              - generic [ref=e301]:
+                - button "Globals" [ref=e302] [cursor=pointer]
+                - generic [ref=e307]:
+                  - link "Header" [ref=e309] [cursor=pointer]:
+                    - /url: /admin/globals/header
+                  - link "Footer" [ref=e312] [cursor=pointer]:
+                    - /url: /admin/globals/footer
+                  - link "Site Settings" [ref=e315] [cursor=pointer]:
+                    - /url: /admin/globals/site-settings
+                  - link "Settings" [ref=e318] [cursor=pointer]:
+                    - /url: /admin/globals/settings
+              - generic [ref=e320]:
+                - button "Blog" [ref=e321] [cursor=pointer]
+                - generic [ref=e326]:
+                  - link "Blogs" [ref=e328] [cursor=pointer]:
+                    - /url: /admin/collections/blogs
+                  - link "Blog Categories" [ref=e331] [cursor=pointer]:
+                    - /url: /admin/collections/blog-categories
+              - generic [ref=e333]:
+                - button "Product" [ref=e334] [cursor=pointer]
+                - generic [ref=e339]:
+                  - link "Product Categories" [ref=e341] [cursor=pointer]:
+                    - /url: /admin/collections/product-categories
+                  - link "Products" [ref=e344] [cursor=pointer]:
+                    - /url: /admin/collections/products
+    - generic [ref=e346]:
+      - banner [ref=e347]:
+        - generic [ref=e349]:
+          - generic [ref=e351]:
+            - button "Open Menu" [ref=e352] [cursor=pointer]
+            - navigation [ref=e354]:
+              - link "Dashboard" [ref=e355] [cursor=pointer]:
+                - /url: /admin
+              - generic [ref=e356]: /
+              - link "Products" [ref=e357] [cursor=pointer]:
+                - /url: /admin/collections/products
+              - generic [ref=e358]: /
+              - link "Insta360 X6 · 示例 01" [ref=e2780] [cursor=pointer]:
+                - /url: /admin/collections/products/6adcb636f43c3bb2c41ea3f2
+          - button "Account" [ref=e362] [cursor=pointer]:
+            - img "yas" [ref=e363]
+      - generic [ref=e364]:
+        - heading "Insta360 X6 · 示例 01" [level=1] [ref=e2781]
+        - list [ref=e371]:
+          - generic "Edit" [ref=e372]
+          - link "Versions" [ref=e373] [cursor=pointer]:
+            - /url: /admin/collections/products/6adcb636f43c3bb2c41ea3f2/versions
+            - generic:
+              - generic:
+                - generic:
+                  - text: Versions
+                  - generic: "2"
+          - link "API" [ref=e374] [cursor=pointer]:
+            - /url: /admin/collections/products/6adcb636f43c3bb2c41ea3f2/api
+      - main [ref=e375]:
+        - generic [ref=e376]:
+          - generic [ref=e377]:
+            - list [ref=e379]:
+              - listitem [ref=e380]:
+                - 'generic "Status: Draft" [ref=e381]': Draft
+              - listitem "October 24th 2026, 10:01 PM" [ref=e2782]:
+                - paragraph [ref=e385]: Updated less than a minute ago
+            - generic [ref=e386]:
+              - generic [ref=e387]:
+                - generic [ref=e388]:
+                  - button "Live Preview" [ref=e2783] [cursor=pointer]
+                  - button [ref=e2785] [cursor=pointer]
+                  - button [ref=e390] [cursor=pointer]
+                - button "Publish changes" [ref=e392] [cursor=pointer]
+              - button "More options" [ref=e395] [cursor=pointer]
+          - generic [ref=e398]:
+            - generic [ref=e401]:
+              - generic [ref=e402]:
+                - generic [ref=e403]:
+                  - text: Title
+                  - generic [ref=e404]: "*"
+                - textbox "Title *" [ref=e406]: Insta360 X6 · 示例 01
+              - generic [ref=e407]:
+                - tablist [ref=e410]:
+                  - tab "Overview" [selected] [ref=e411] [cursor=pointer]
+                  - tab "Options" [ref=e412] [cursor=pointer]
+                  - tab "Details" [ref=e413] [cursor=pointer]
+                  - tab "SEO" [ref=e414] [cursor=pointer]
+                - generic [ref=e417]:
+                  - generic [ref=e418]:
+                    - generic [ref=e419]:
+                      - text: Gallery
+                      - generic [ref=e420]: "*"
+                    - generic [ref=e422]:
+                      - generic [ref=e2786]:
+                        - generic [ref=e2787]:
+                          - generic [ref=e2789]:
+                            - button [ref=e2790]
+                            - generic [ref=e2793]:
+                              - generic [ref=e2794]:
+                                - img "Insta360 X6 — product image from Insta360" [ref=e2796]
+                                - paragraph [ref=e2798]:
+                                  - link "header-insta360-x6.png" [ref=e2799] [cursor=pointer]:
+                                    - /url: https://media-dev.ecolitea.com/media/header-insta360-x6.png
+                              - generic [ref=e2800]:
+                                - button "Edit" [ref=e2801] [cursor=pointer]
+                                - button "Remove" [ref=e2802] [cursor=pointer]
+                          - generic [ref=e2804]:
+                            - button [ref=e2805]
+                            - generic [ref=e2808]:
+                              - generic [ref=e2809]:
+                                - img "Hiking" [ref=e2811]
+                                - paragraph [ref=e2813]:
+                                  - link "header-interest-13.jpg" [ref=e2814] [cursor=pointer]:
+                                    - /url: https://media-dev.ecolitea.com/media/header-interest-13.jpg
+                              - generic [ref=e2815]:
+                                - button "Edit" [ref=e2816] [cursor=pointer]
+                                - button "Remove" [ref=e2817] [cursor=pointer]
+                          - generic [ref=e2819]:
+                            - button [ref=e2820]
+                            - generic [ref=e2823]:
+                              - generic [ref=e2824]:
+                                - img "Family Moments" [ref=e2826]
+                                - paragraph [ref=e2828]:
+                                  - link "header-interest-14.jpg" [ref=e2829] [cursor=pointer]:
+                                    - /url: https://media-dev.ecolitea.com/media/header-interest-14.jpg
+                              - generic [ref=e2830]:
+                                - button "Edit" [ref=e2831] [cursor=pointer]
+                                - button "Remove" [ref=e2832] [cursor=pointer]
+                        - status [ref=e2833]
+                      - generic [ref=e424]:
+                        - generic [ref=e425]:
+                          - button "Create New" [ref=e426] [cursor=pointer]
+                          - generic [ref=e427]: Or
+                          - button "Choose from existing" [ref=e428] [cursor=pointer]
+                          - generic [ref=e429]: Or
+                          - button [ref=e430] [cursor=pointer]
+                        - paragraph [ref=e431]: Or Drag and drop a file
+                  - generic [ref=e432]:
+                    - generic [ref=e433]:
+                      - text: Summary
+                      - generic [ref=e434]: "*"
+                    - textbox "Summary *" [ref=e437]: 以现有 X6 素材创建的全景影像设备示例，包含产品展示、使用场景与核心特性 sections，供后台内容编辑与布局演示。
+                  - generic [ref=e438]:
+                    - generic [ref=e440]:
+                      - heading "Highlights" [level=3] [ref=e442]
+                      - list [ref=e443]:
+                        - listitem [ref=e2834]:
+                          - button "Collapse All" [ref=e2835] [cursor=pointer]
+                        - listitem [ref=e2836]:
+                          - button "Show All" [ref=e2837] [cursor=pointer]
+                        - listitem [ref=e444]:
+                          - button "More options" [ref=e447] [cursor=pointer]
+                    - generic [ref=e2841] [cursor=pointer]:
+                      - button "Toggle block" [ref=e2842]
+                      - button "Drag to reorder" [ref=e2843]
+                      - generic: Highlight 1
+                      - generic:
+                        - button "More options" [ref=e2849]
+                        - button "Expand" [ref=e2852]
+                    - status [ref=e2855]
+                    - button "Add Highlight" [ref=e450] [cursor=pointer]
+                  - generic [ref=e451]:
+                    - generic [ref=e453]:
+                      - heading "Specifications" [level=3] [ref=e455]
+                      - list [ref=e456]:
+                        - listitem [ref=e2856]:
+                          - button "Collapse All" [ref=e2857] [cursor=pointer]
+                        - listitem [ref=e2858]:
+                          - button "Show All" [ref=e2859] [cursor=pointer]
+                        - listitem [ref=e457]:
+                          - button "More options" [ref=e460] [cursor=pointer]
+                    - generic [ref=e2863] [cursor=pointer]:
+                      - button "Toggle block" [ref=e2864]
+                      - button "Drag to reorder" [ref=e2865]
+                      - generic: Specification 1
+                      - generic:
+                        - button "More options" [ref=e2871]
+                        - button "Expand" [ref=e2874]
+                    - status [ref=e2877]
+                    - button "Add Specification" [active] [ref=e463] [cursor=pointer]
+                  - generic [ref=e465]:
+                    - heading "Inquiry" [level=3] [ref=e468]
+                    - generic [ref=e470]:
+                      - generic [ref=e471]: Mode
+                      - list [ref=e474]:
+                        - listitem [ref=e475]:
+                          - generic [ref=e477] [cursor=pointer]:
+                            - radio "default" [checked] [ref=e478]
+                            - generic [ref=e480]: default
+                        - listitem [ref=e481]:
+                          - generic [ref=e483] [cursor=pointer]:
+                            - radio "custom" [ref=e484]
+                            - generic [ref=e486]: custom
+                        - listitem [ref=e487]:
+                          - generic [ref=e489] [cursor=pointer]:
+                            - radio "hidden" [ref=e490]
+                            - generic [ref=e492]: hidden
+            - generic [ref=e496]:
+              - generic [ref=e497]:
+                - generic [ref=e498]:
+                  - text: Slug
+                  - generic [ref=e499]: "*"
+                - generic [ref=e501]:
+                  - textbox "Slug" [ref=e502]: demo-insta360-x6
+                  - generic [ref=e503]:
+                    - button "Generate" [ref=e2878] [cursor=pointer]
+                    - button "Lock" [ref=e2879] [cursor=pointer]
+              - generic [ref=e505]:
+                - generic [ref=e506]:
+                  - text: Category
+                  - generic [ref=e507]: "*"
+                - generic [ref=e509]:
+                  - generic [ref=e512]:
+                    - log [ref=e514]
+                    - generic [ref=e515]:
+                      - generic "影像设备 · 示例" [ref=e2880]:
+                        - generic [ref=e517]:
+                          - generic "影像设备 · 示例" [ref=e2882]:
+                            - generic [ref=e2883]:
+                              - generic [ref=e2884]: 影像设备 · 示例
+                              - button "Edit 影像设备 · 示例" [ref=e2885] [cursor=pointer]
+                          - combobox "Category" [ref=e520]
+                      - generic [ref=e521]:
+                        - button [aria-hidden] [ref=e2888] [cursor=pointer]
+                        - button [aria-hidden] [ref=e522] [cursor=pointer]
+                  - button "Add new Product Category" [ref=e526] [cursor=pointer]
+              - generic [ref=e527]:
+                - generic [ref=e528]: Published At
+                - textbox [ref=e534]
+              - generic [ref=e535]:
+                - generic [ref=e536]: Related Products
+                - generic [ref=e538]:
+                  - generic [ref=e539]:
+                    - generic [ref=e542]:
+                      - log [ref=e544]
+                      - generic [ref=e545]:
+                        - generic [ref=e547]:
+                          - generic [ref=e548]: Select a value
+                          - combobox "Related Products" [ref=e550]
+                        - button [aria-hidden] [ref=e552] [cursor=pointer]
+                    - status [ref=e555]
+                  - button "Add new Product" [ref=e557] [cursor=pointer]
+      - status [ref=e558]
+  - status [ref=e241]
+  - region "Notifications alt+T"
+  - generic [ref=e6] [cursor=pointer]:
+    - button "Open Next.js Dev Tools" [ref=e7]
+    - generic [ref=e559]:
+      - button "Open issues overlay" [ref=e560]:
+        - generic [ref=e561]:
+          - generic [aria-hidden] [ref=e562]: "0"
+          - generic [ref=e563]: "1"
+        - generic [ref=e564]: Issue
+      - button "Collapse issues badge" [ref=e565]
+  - alert [ref=e11]
+```

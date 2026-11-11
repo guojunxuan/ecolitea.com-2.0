@@ -1,0 +1,487 @@
+- generic [ref=e1]:
+  - generic [ref=e372]:
+    - complementary [ref=e373]:
+      - navigation [ref=e375]:
+        - generic [ref=e376]:
+          - tablist [ref=e377]:
+            - tab "Collections" [selected] [ref=e378] [cursor=pointer]
+            - tab "Folders" [ref=e383] [cursor=pointer]
+          - tabpanel [ref=e388]:
+            - generic [ref=e389]:
+              - generic [ref=e390]:
+                - button "Collections" [ref=e391] [cursor=pointer]
+                - generic [ref=e396]:
+                  - link "Pages" [ref=e398] [cursor=pointer]:
+                    - /url: /admin/collections/pages
+                  - link "Posts" [ref=e401] [cursor=pointer]:
+                    - /url: /admin/collections/posts
+                  - link "Media" [ref=e404] [cursor=pointer]:
+                    - /url: /admin/collections/media
+                  - link "Categories" [ref=e407] [cursor=pointer]:
+                    - /url: /admin/collections/categories
+                  - link "Case Studies" [ref=e410] [cursor=pointer]:
+                    - /url: /admin/collections/case-studies
+                  - link "Users" [ref=e413] [cursor=pointer]:
+                    - /url: /admin/collections/users
+                  - link "Redirects" [ref=e416] [cursor=pointer]:
+                    - /url: /admin/collections/redirects
+                  - link "Forms" [ref=e419] [cursor=pointer]:
+                    - /url: /admin/collections/forms
+                  - link "Form Submissions" [ref=e422] [cursor=pointer]:
+                    - /url: /admin/collections/form-submissions
+                  - link "Search Results" [ref=e425] [cursor=pointer]:
+                    - /url: /admin/collections/search
+              - generic [ref=e427]:
+                - button "Globals" [ref=e428] [cursor=pointer]
+                - generic [ref=e433]:
+                  - link "Header" [ref=e435] [cursor=pointer]:
+                    - /url: /admin/globals/header
+                  - link "Footer" [ref=e438] [cursor=pointer]:
+                    - /url: /admin/globals/footer
+                  - link "Site Settings" [ref=e441] [cursor=pointer]:
+                    - /url: /admin/globals/site-settings
+                  - link "Settings" [ref=e444] [cursor=pointer]:
+                    - /url: /admin/globals/settings
+              - generic [ref=e446]:
+                - button "Blog" [ref=e447] [cursor=pointer]
+                - generic [ref=e452]:
+                  - link "Blogs" [ref=e454] [cursor=pointer]:
+                    - /url: /admin/collections/blogs
+                  - link "Blog Categories" [ref=e457] [cursor=pointer]:
+                    - /url: /admin/collections/blog-categories
+    - generic [ref=e459]:
+      - banner [ref=e460]:
+        - generic [ref=e462]:
+          - generic [ref=e464]:
+            - button "Open Menu" [ref=e465] [cursor=pointer]
+            - navigation [ref=e467]:
+              - link "Dashboard" [ref=e468] [cursor=pointer]:
+                - /url: /admin
+              - generic [ref=e469]: /
+              - link "Blogs" [ref=e470] [cursor=pointer]:
+                - /url: /admin/collections/blogs
+              - generic [ref=e471]: /
+              - link "Small details, better everyday products" [ref=e472] [cursor=pointer]:
+                - /url: /admin/collections/blogs/6ac11916b97d7788f6893791
+          - button "Account" [ref=e475] [cursor=pointer]:
+            - img "yas" [ref=e476]
+      - generic [ref=e477]:
+        - heading "Small details, better everyday products" [level=1] [ref=e478]
+        - list [ref=e481]:
+          - generic "Edit" [ref=e482]
+          - link "Versions" [ref=e483] [cursor=pointer]:
+            - /url: /admin/collections/blogs/6ac11916b97d7788f6893791/versions
+            - generic:
+              - generic:
+                - generic:
+                  - text: Versions
+                  - generic: "10"
+          - link "API" [ref=e484] [cursor=pointer]:
+            - /url: /admin/collections/blogs/6ac11916b97d7788f6893791/api
+      - main [ref=e485]:
+        - generic [ref=e486]:
+          - generic [ref=e487]:
+            - list [ref=e489]:
+              - listitem [ref=e490]:
+                - 'generic "Status: Changed" [ref=e1279]':
+                  - generic [ref=e492]:
+                    - generic [ref=e493]: Changed
+                    - text: —
+                    - button "Revert to published" [ref=e1280] [cursor=pointer]
+              - listitem "October 13th 2026, 4:56 PM" [ref=e1288]:
+                - paragraph [ref=e495]: Updated less than a minute ago
+            - generic [ref=e496]:
+              - generic [ref=e497]:
+                - generic [ref=e498]:
+                  - button "Live Preview" [ref=e499] [cursor=pointer]
+                  - button [ref=e501] [cursor=pointer]
+                  - button [ref=e503] [cursor=pointer]
+                - button "Publish changes" [ref=e505] [cursor=pointer]
+              - button "More options" [ref=e508] [cursor=pointer]
+          - generic [ref=e511]:
+            - generic [ref=e514]:
+              - generic [ref=e515]:
+                - generic [ref=e516]:
+                  - text: Title
+                  - generic [ref=e517]: "*"
+                - textbox "Title *" [ref=e519]: Small details, better everyday products
+              - generic [ref=e520]:
+                - tablist [ref=e523]:
+                  - tab "Content" [selected] [ref=e524] [cursor=pointer]
+                  - tab "SEO" [ref=e525] [cursor=pointer]
+                - generic [ref=e528]:
+                  - generic [ref=e529]:
+                    - generic [ref=e530]:
+                      - text: Hero Image
+                      - generic [ref=e531]: "*"
+                    - generic [ref=e535]:
+                      - generic [ref=e536]:
+                        - img "Coastal Rides" [ref=e1283]
+                        - generic [ref=e540]:
+                          - paragraph [ref=e541]:
+                            - link "header-interest-16.jpg" [ref=e542] [cursor=pointer]:
+                              - /url: https://media-dev.ecolitea.com/header-interest-16.jpg
+                          - paragraph [ref=e543]: 119KB — 960x540 — image/jpeg
+                      - generic [ref=e544]:
+                        - button "Edit" [ref=e545] [cursor=pointer]
+                        - button "Remove" [ref=e546] [cursor=pointer]
+                  - generic [ref=e547]:
+                    - generic [ref=e548]:
+                      - text: Excerpt
+                      - generic [ref=e549]: "*"
+                    - textbox "Excerpt *" [ref=e552]: Explore how careful material choices and practical design turn familiar products into reliable companions for everyday life.
+                  - generic [ref=e553]:
+                    - generic [ref=e555]:
+                      - text: Content
+                      - generic [ref=e556]: "*"
+                    - generic [ref=e558]:
+                      - generic [ref=e560]:
+                        - button "add dropdown" [ref=e562] [cursor=pointer]
+                        - button "blocks dropdown" [ref=e568] [cursor=pointer]
+                        - button "text dropdown" [ref=e574] [cursor=pointer]:
+                          - generic [ref=e1284]: Normal Text
+                        - generic [ref=e579]:
+                          - button "Bold" [ref=e580] [cursor=pointer]
+                          - button "Italic" [ref=e583] [cursor=pointer]
+                          - button "Underline" [ref=e586] [cursor=pointer]
+                          - button "Strikethrough" [ref=e589] [cursor=pointer]
+                          - button "Subscript" [ref=e592] [cursor=pointer]
+                          - button "Superscript" [ref=e595] [cursor=pointer]
+                          - button "Inline Code" [ref=e598] [cursor=pointer]
+                        - button "Link" [disabled] [ref=e603]
+                      - generic [ref=e606]:
+                        - generic [ref=e608]:
+                          - textbox [ref=e609]:
+                            - generic [ref=e614]:
+                              - generic [ref=e615] [cursor=pointer]:
+                                - button "Toggle block" [ref=e616]
+                                - button "Drag to reorder" [ref=e617]
+                                - generic: "Block: A note from the editor"
+                                - generic:
+                                  - button [ref=e624]
+                                  - button "Collapse" [ref=e627]
+                              - generic [ref=e633]:
+                                - generic [ref=e634]:
+                                  - generic [ref=e635]:
+                                    - text: Style
+                                    - generic [ref=e636]: "*"
+                                  - generic [ref=e639]:
+                                    - log [ref=e641]
+                                    - generic [ref=e642]:
+                                      - generic "Info" [ref=e643]:
+                                        - generic [ref=e644]:
+                                          - generic [ref=e645]: Info
+                                          - combobox "Style" [ref=e647]
+                                      - generic [ref=e648]:
+                                        - button [aria-hidden] [ref=e649] [cursor=pointer]
+                                        - button [aria-hidden] [ref=e652] [cursor=pointer]
+                                - generic [ref=e655]:
+                                  - generic [ref=e656]: Title
+                                  - textbox [ref=e658]: A note from the editor
+                                - generic [ref=e659]:
+                                  - generic [ref=e661]:
+                                    - text: Content
+                                    - generic [ref=e662]: "*"
+                                  - generic [ref=e664]:
+                                    - generic [ref=e666]:
+                                      - button "text dropdown" [ref=e668] [cursor=pointer]
+                                      - generic [ref=e673]:
+                                        - button "Bold" [ref=e674] [cursor=pointer]
+                                        - button "Italic" [ref=e677] [cursor=pointer]
+                                        - button "Underline" [ref=e680] [cursor=pointer]
+                                        - button "Strikethrough" [ref=e683] [cursor=pointer]
+                                        - button "Subscript" [ref=e686] [cursor=pointer]
+                                        - button "Superscript" [ref=e689] [cursor=pointer]
+                                        - button "Inline Code" [ref=e692] [cursor=pointer]
+                                      - button "Link" [ref=e697] [cursor=pointer]
+                                    - generic [ref=e700]:
+                                      - generic [ref=e702]:
+                                        - textbox [ref=e703]:
+                                          - paragraph [ref=e704]: This is a sample article created to explore the journal layout. The ideas and examples are illustrative.
+                                        - button "Drag to move" [ref=e705]
+                                        - button "Add block" [ref=e707] [cursor=pointer]
+                                        - generic [ref=e713]:
+                                          - button "Edit link" [ref=e714] [cursor=pointer]
+                                          - button "Remove link" [ref=e717] [cursor=pointer]
+                                      - button "Insert Paragraph" [ref=e720]
+                            - generic [ref=e728]:
+                              - generic [ref=e729] [cursor=pointer]:
+                                - button "Toggle block" [ref=e730]
+                                - button "Drag to reorder" [ref=e731]
+                                - generic: "Block: At a Glance"
+                                - generic:
+                                  - button [ref=e738]
+                                  - button "Collapse" [ref=e741]
+                              - generic [ref=e747]:
+                                - generic [ref=e748]:
+                                  - generic [ref=e749]: Label
+                                  - textbox [ref=e751]: At a Glance
+                                - generic [ref=e752]:
+                                  - generic [ref=e754]:
+                                    - text: Content
+                                    - generic [ref=e755]: "*"
+                                  - generic [ref=e757]:
+                                    - generic [ref=e759]:
+                                      - button "text dropdown" [ref=e761] [cursor=pointer]
+                                      - generic [ref=e766]:
+                                        - button "Bold" [ref=e767] [cursor=pointer]
+                                        - button "Italic" [ref=e770] [cursor=pointer]
+                                        - button "Underline" [ref=e773] [cursor=pointer]
+                                        - button "Strikethrough" [ref=e776] [cursor=pointer]
+                                        - button "Subscript" [ref=e779] [cursor=pointer]
+                                        - button "Superscript" [ref=e782] [cursor=pointer]
+                                        - button "Inline Code" [ref=e785] [cursor=pointer]
+                                      - button "Link" [ref=e790] [cursor=pointer]
+                                    - generic [ref=e793]:
+                                      - generic [ref=e795]:
+                                        - textbox [ref=e796]:
+                                          - list [ref=e797]:
+                                            - listitem [ref=e798]: Start with the task people repeat most often.
+                                            - listitem [ref=e799]: Use materials that support comfort and durability.
+                                            - listitem [ref=e800]: Test small details before making final design choices.
+                                        - button "Drag to move" [ref=e801]
+                                        - button "Add block" [ref=e803] [cursor=pointer]
+                                        - generic [ref=e809]:
+                                          - button "Edit link" [ref=e810] [cursor=pointer]
+                                          - button "Remove link" [ref=e813] [cursor=pointer]
+                                      - button "Insert Paragraph" [ref=e816]
+                            - heading "Designed around real routines" [level=2] [ref=e820]
+                            - paragraph [ref=e821]: "A useful product earns its place by making a familiar task feel easier. The difference often comes from quiet details: a comfortable grip, a clear control, or a surface that is simple to clean."
+                            - paragraph [ref=e822]: Imagine a small team testing early prototypes around the office. Each person notices something different, and those observations become the next round of improvements.
+                            - generic [ref=e827]:
+                              - generic [ref=e828] [cursor=pointer]:
+                                - button "Toggle block" [ref=e829]
+                                - button "Drag to reorder" [ref=e830]
+                                - generic: "Block: An outdoor moment, selected from the existing media library for this layout prev"
+                                - generic:
+                                  - button [ref=e837]
+                                  - button "Collapse" [ref=e840]
+                              - generic [ref=e846]:
+                                - generic [ref=e847]:
+                                  - generic [ref=e848]:
+                                    - text: Media
+                                    - generic [ref=e849]: "*"
+                                  - generic [ref=e853]:
+                                    - generic [ref=e854]:
+                                      - img "Hiking" [ref=e1285]
+                                      - generic [ref=e858]:
+                                        - paragraph [ref=e859]:
+                                          - link "header-interest-13.jpg" [ref=e860] [cursor=pointer]:
+                                            - /url: https://media-dev.ecolitea.com/header-interest-13.jpg
+                                        - paragraph [ref=e861]: 97KB — 960x540 — image/jpeg
+                                    - generic [ref=e862]:
+                                      - button "Edit" [ref=e863] [cursor=pointer]
+                                      - button "Remove" [ref=e864] [cursor=pointer]
+                                - generic [ref=e865]:
+                                  - generic [ref=e866]: Caption
+                                  - generic [ref=e869]:
+                                    - generic [ref=e871]:
+                                      - button "text dropdown" [ref=e873] [cursor=pointer]
+                                      - generic [ref=e878]:
+                                        - button "Bold" [ref=e879] [cursor=pointer]
+                                        - button "Italic" [ref=e882] [cursor=pointer]
+                                        - button "Underline" [ref=e885] [cursor=pointer]
+                                        - button "Strikethrough" [ref=e888] [cursor=pointer]
+                                        - button "Subscript" [ref=e891] [cursor=pointer]
+                                        - button "Superscript" [ref=e894] [cursor=pointer]
+                                        - button "Inline Code" [ref=e897] [cursor=pointer]
+                                      - button "Link" [ref=e902] [cursor=pointer]
+                                    - generic [ref=e905]:
+                                      - generic [ref=e907]:
+                                        - textbox [ref=e908]:
+                                          - paragraph [ref=e909]: An outdoor moment, selected from the existing media library for this layout preview.
+                                        - button "Drag to move" [ref=e910]
+                                        - button "Add block" [ref=e912] [cursor=pointer]
+                                        - generic [ref=e918]:
+                                          - button "Edit link" [ref=e919] [cursor=pointer]
+                                          - button "Remove link" [ref=e922] [cursor=pointer]
+                                      - button "Insert Paragraph" [ref=e925]
+                                - generic [ref=e929]:
+                                  - generic [ref=e930]: Width
+                                  - generic [ref=e933]:
+                                    - log [ref=e935]
+                                    - generic [ref=e936]:
+                                      - generic "Wide" [ref=e937]:
+                                        - generic [ref=e938]:
+                                          - generic [ref=e939]: Wide
+                                          - combobox "Width" [ref=e941]
+                                      - generic [ref=e942]:
+                                        - button [aria-hidden] [ref=e943] [cursor=pointer]
+                                        - button [aria-hidden] [ref=e946] [cursor=pointer]
+                            - heading "Materials that feel right" [level=2] [ref=e949]
+                            - paragraph [ref=e950]: Texture, weight, and finish shape the first impression. A balanced material palette can make a product feel approachable while supporting the way it will be used every day.
+                            - heading "Making the final choice" [level=2] [ref=e951]
+                            - paragraph [ref=e952]: The best design decisions connect appearance with purpose. Start with the everyday task, test the details, and keep the experience clear from the first use.
+                            - generic [ref=e957]:
+                              - generic [ref=e958] [cursor=pointer]:
+                                - button "Toggle block" [ref=e959]
+                                - button "Drag to reorder" [ref=e960]
+                                - generic: "Block: Find ideas for your next project"
+                                - generic:
+                                  - button [ref=e967]
+                                  - button "Collapse" [ref=e970]
+                              - generic [ref=e976]:
+                                - generic [ref=e977]:
+                                  - generic [ref=e978]:
+                                    - text: Heading
+                                    - generic [ref=e979]: "*"
+                                  - textbox [ref=e981]: Find ideas for your next project
+                                - generic [ref=e982]:
+                                  - generic [ref=e983]: Description
+                                  - generic [ref=e986]:
+                                    - generic [ref=e988]:
+                                      - button "text dropdown" [ref=e990] [cursor=pointer]
+                                      - generic [ref=e995]:
+                                        - button "Bold" [ref=e996] [cursor=pointer]
+                                        - button "Italic" [ref=e999] [cursor=pointer]
+                                        - button "Underline" [ref=e1002] [cursor=pointer]
+                                        - button "Strikethrough" [ref=e1005] [cursor=pointer]
+                                        - button "Subscript" [ref=e1008] [cursor=pointer]
+                                        - button "Superscript" [ref=e1011] [cursor=pointer]
+                                        - button "Inline Code" [ref=e1014] [cursor=pointer]
+                                      - button "Link" [ref=e1019] [cursor=pointer]
+                                    - generic [ref=e1022]:
+                                      - generic [ref=e1024]:
+                                        - textbox [ref=e1025]:
+                                          - paragraph [ref=e1026]: Discover more product stories, practical guides, and thoughtful design ideas from the Ecolitea journal.
+                                        - button "Drag to move" [ref=e1027]
+                                        - button "Add block" [ref=e1029] [cursor=pointer]
+                                        - generic [ref=e1035]:
+                                          - button "Edit link" [ref=e1036] [cursor=pointer]
+                                          - button "Remove link" [ref=e1039] [cursor=pointer]
+                                      - button "Insert Paragraph" [ref=e1042]
+                                - generic [ref=e1046]:
+                                  - generic [ref=e1047]: Media
+                                  - generic [ref=e1051]:
+                                    - generic [ref=e1052]:
+                                      - img "Family Moments" [ref=e1286]
+                                      - generic [ref=e1056]:
+                                        - paragraph [ref=e1057]:
+                                          - link "header-interest-14.jpg" [ref=e1058] [cursor=pointer]:
+                                            - /url: https://media-dev.ecolitea.com/header-interest-14.jpg
+                                        - paragraph [ref=e1059]: 82KB — 960x540 — image/jpeg
+                                    - generic [ref=e1060]:
+                                      - button "Edit" [ref=e1061] [cursor=pointer]
+                                      - button "Remove" [ref=e1062] [cursor=pointer]
+                                - generic [ref=e1063]:
+                                  - generic [ref=e1065]:
+                                    - heading "Links" [level=3] [ref=e1067]
+                                    - list [ref=e1068]:
+                                      - listitem [ref=e1069]:
+                                        - button "Collapse All" [ref=e1070] [cursor=pointer]
+                                      - listitem [ref=e1071]:
+                                        - button "Show All" [ref=e1072] [cursor=pointer]
+                                      - listitem [ref=e1073]:
+                                        - button "More options" [ref=e1076] [cursor=pointer]
+                                  - generic [ref=e1082] [cursor=pointer]:
+                                    - button "Toggle block" [ref=e1083]
+                                    - button "Drag to reorder" [ref=e1084]
+                                    - generic: Link 01
+                                    - generic:
+                                      - button "More options" [ref=e1090]
+                                      - button "Expand" [ref=e1093]
+                                  - status [ref=e1096]
+                                  - button "Add Link" [ref=e1097] [cursor=pointer]
+                                - generic [ref=e1098]:
+                                  - generic [ref=e1099]: Theme
+                                  - generic [ref=e1102]:
+                                    - log [ref=e1104]
+                                    - generic [ref=e1105]:
+                                      - generic "Default" [ref=e1106]:
+                                        - generic [ref=e1107]:
+                                          - generic [ref=e1108]: Default
+                                          - combobox "Theme" [ref=e1110]
+                                      - generic [ref=e1111]:
+                                        - button [aria-hidden] [ref=e1112] [cursor=pointer]
+                                        - button [aria-hidden] [ref=e1115] [cursor=pointer]
+                            - paragraph [ref=e1287]
+                          - button "Drag to move" [ref=e1118]
+                          - button "Add block" [ref=e1120] [cursor=pointer]
+                          - generic [ref=e1126]:
+                            - button "Edit link" [ref=e1127] [cursor=pointer]
+                            - button "Remove link" [ref=e1130] [cursor=pointer]
+                        - button "Insert Paragraph" [ref=e1133]
+            - generic [ref=e1140]:
+              - generic [ref=e1141]:
+                - generic [ref=e1142]:
+                  - text: Slug
+                  - generic [ref=e1143]: "*"
+                - generic [ref=e1145]:
+                  - textbox "Slug" [disabled] [ref=e1146]: small-details-better-everyday-products
+                  - button "Unlock" [ref=e1148] [cursor=pointer]
+              - generic [ref=e1149]:
+                - generic [ref=e1150]:
+                  - text: Category
+                  - generic [ref=e1151]: "*"
+                - generic [ref=e1153]:
+                  - generic [ref=e1156]:
+                    - log [ref=e1158]
+                    - generic [ref=e1159]:
+                      - generic "Product Insights" [ref=e1160]:
+                        - generic [ref=e1161]:
+                          - generic "Product Insights" [ref=e1163]:
+                            - generic [ref=e1164]:
+                              - generic [ref=e1165]: Product Insights
+                              - button "Edit Product Insights" [ref=e1166] [cursor=pointer]
+                          - combobox "Category" [ref=e1170]
+                      - generic [ref=e1171]:
+                        - button [aria-hidden] [ref=e1172] [cursor=pointer]
+                        - button [aria-hidden] [ref=e1175] [cursor=pointer]
+                  - button "Add new Blog Category" [ref=e1179] [cursor=pointer]
+              - generic [ref=e1180]:
+                - generic [ref=e1181]: Published At
+                - textbox [ref=e1187]: Oct 3, 2026 11:10 PM
+              - generic [ref=e1188]:
+                - generic [ref=e1189]: Authors
+                - generic [ref=e1191]:
+                  - generic [ref=e1192]:
+                    - generic [ref=e1195]:
+                      - log [ref=e1197]
+                      - generic [ref=e1198]:
+                        - generic [ref=e1200]:
+                          - button "admin Edit admin Remove" [ref=e1201]:
+                            - generic "admin" [ref=e1202]:
+                              - button "Edit admin" [ref=e1205] [cursor=pointer]
+                            - button "Remove" [ref=e1208] [cursor=pointer]
+                          - combobox "Authors" [ref=e1212]
+                        - generic [ref=e1213]:
+                          - button [aria-hidden] [ref=e1214] [cursor=pointer]
+                          - button [aria-hidden] [ref=e1217] [cursor=pointer]
+                    - status [ref=e1220]
+                  - button "Add new User" [ref=e1222] [cursor=pointer]
+              - generic [ref=e1223]:
+                - generic [ref=e1224]: Related Blogs
+                - generic [ref=e1226]:
+                  - generic [ref=e1227]:
+                    - generic [ref=e1230]:
+                      - log [ref=e1232]
+                      - generic [ref=e1233]:
+                        - generic [ref=e1235]:
+                          - button "Built for moments outside Edit Built for moments outside Remove" [ref=e1236]:
+                            - generic "Built for moments outside" [ref=e1237]:
+                              - button "Edit Built for moments outside" [ref=e1240] [cursor=pointer]
+                            - button "Remove" [ref=e1243] [cursor=pointer]
+                          - button "A closer look at materials that last Edit A closer look at materials that last Remove" [ref=e1246]:
+                            - generic "A closer look at materials that last" [ref=e1247]:
+                              - button "Edit A closer look at materials that last" [ref=e1250] [cursor=pointer]
+                            - button "Remove" [ref=e1253] [cursor=pointer]
+                          - button "From first sketch to everyday habit Edit From first sketch to everyday habit Remove" [ref=e1256]:
+                            - generic "From first sketch to everyday habit" [ref=e1257]:
+                              - button "Edit From first sketch to everyday habit" [ref=e1260] [cursor=pointer]
+                            - button "Remove" [ref=e1263] [cursor=pointer]
+                          - combobox "Related Blogs" [ref=e1267]
+                        - generic [ref=e1268]:
+                          - button [aria-hidden] [ref=e1269] [cursor=pointer]
+                          - button [aria-hidden] [ref=e1272] [cursor=pointer]
+                    - status [ref=e1275]
+                  - button "Add new Blog" [ref=e1277] [cursor=pointer]
+      - status [ref=e1278]
+  - status [ref=e2]
+  - region "Notifications alt+T"
+  - button "Open Next.js Dev Tools" [ref=e8] [cursor=pointer]
+  - alert [ref=e12]
+  - generic [ref=e1289]:
+    - button "Key Takeaways" [active] [ref=e1290] [cursor=pointer]
+    - button "Call to Action" [ref=e1291] [cursor=pointer]
+    - button "Banner" [ref=e1292] [cursor=pointer]
+    - button "Media" [ref=e1293] [cursor=pointer]

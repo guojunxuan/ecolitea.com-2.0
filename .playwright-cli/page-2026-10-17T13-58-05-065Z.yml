@@ -1,0 +1,83 @@
+- generic [active] [ref=f5e1]:
+  - generic [ref=f5e4]:
+    - banner [ref=f5e5]:
+      - generic [ref=f5e7]:
+        - generic [ref=f5e9]:
+          - button "Close Menu" [ref=f5e10] [cursor=pointer]
+          - navigation [ref=f5e12]:
+            - link "Dashboard" [ref=f5e13] [cursor=pointer]:
+              - /url: /admin
+        - button "Account" [ref=f5e16] [cursor=pointer]:
+          - img "yas" [ref=f5e17]
+    - generic [ref=f5e18]:
+      - heading "ID 6aca02277a707c01e16083d6" [level=1] [ref=f5e19]:
+        - generic "6aca02277a707c01e16083d6" [ref=f5e20]: ID
+      - list [ref=f5e25]:
+        - generic "Edit" [ref=f5e26]
+        - link "Versions" [ref=f5e27] [cursor=pointer]:
+          - /url: /admin/collections/blogs/6aca02277a707c01e16083d6/versions
+          - generic:
+            - generic:
+              - generic:
+                - text: Versions
+                - generic: "1"
+        - link "API" [ref=f5e28] [cursor=pointer]:
+          - /url: /admin/collections/blogs/6aca02277a707c01e16083d6/api
+    - main [ref=f5e29]:
+      - generic [ref=f5e30]:
+        - generic [ref=f5e31]:
+          - list [ref=f5e33]:
+            - listitem [ref=f5e34]:
+              - 'generic "Status: Draft" [ref=f5e35]': Draft
+            - listitem [ref=f5e38]:
+              - paragraph [ref=f5e39]: Loading...
+          - generic [ref=f5e40]:
+            - generic [ref=f5e41]:
+              - generic [ref=f5e42]:
+                - button [ref=f5e44] [cursor=pointer]
+                - button [ref=f5e46] [cursor=pointer]
+              - button "Publish changes" [disabled] [ref=f5e48]
+            - button "More options" [ref=f5e51] [cursor=pointer]
+        - generic [ref=f5e54]:
+          - generic [ref=f5e57]:
+            - generic [ref=f5e58]:
+              - generic [ref=f5e59]:
+                - text: Title
+                - generic [ref=f5e60]: "*"
+              - textbox "Title *" [disabled] [ref=f5e62]
+            - generic [ref=f5e63]:
+              - tablist [ref=f5e66]:
+                - tab "Content" [disabled] [selected] [ref=f5e67] [cursor=pointer]
+                - tab "SEO" [disabled] [ref=f5e68] [cursor=pointer]
+              - generic [ref=f5e71]:
+                - generic [ref=f5e72]:
+                  - generic [ref=f5e73]:
+                    - text: Hero Image
+                    - generic [ref=f5e74]: "*"
+                  - generic [ref=f5e79]:
+                    - button "Create New" [disabled] [ref=f5e80]
+                    - generic [ref=f5e81]: Or
+                    - button "Choose from existing" [disabled] [ref=f5e82]
+                - generic [ref=f5e83]:
+                  - generic [ref=f5e84]:
+                    - text: Excerpt
+                    - generic [ref=f5e85]: "*"
+                  - textbox "Excerpt *" [disabled] [ref=f5e88]
+          - generic [ref=f5e92]:
+            - generic [ref=f5e93]:
+              - generic [ref=f5e94]:
+                - text: Slug
+                - generic [ref=f5e95]: "*"
+              - generic [ref=f5e97]:
+                - textbox "Slug" [disabled] [ref=f5e98]: blog-1
+                - button "Unlock" [ref=f5e100] [cursor=pointer]
+            - generic [ref=f5e102]:
+              - text: Category
+              - generic [ref=f5e103]: "*"
+            - generic [ref=f5e109]:
+              - generic [ref=f5e110]: Published At
+              - textbox [disabled] [ref=f5e116]
+            - generic [ref=f5e117]: Authors
+            - generic [ref=f5e125]: Related Blogs
+  - region "Notifications alt+T"
+  - button "Open Next.js Dev Tools" [ref=f5e138] [cursor=pointer]

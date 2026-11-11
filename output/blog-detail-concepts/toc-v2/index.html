@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>TOC v2 · desktop + mobile mockup</title>
+<link rel="stylesheet" href="./styles.css" />
+<link rel="stylesheet" href="./toc.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <div class="logo"><strong>ECOLITEA</strong><span>ILLUMINATE THE FUTURE</span></div>
+      <nav class="site-nav" aria-label="Main">
+        <a href="#">Products</a><a href="#">Accessories</a><a href="#">Shop by Interest</a><a href="#">Professional</a><a href="#">Support</a>
+      </nav>
+      <div class="icons">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <svg class="menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+      </div>
+    </div>
+  </header>
+  <div class="spacer"></div>
+
+  <main class="container">
+    <p class="breadcrumb">Home / Blogs / Product Insights / Small details, better everyday products</p>
+    <h1>Small details, better everyday products</h1>
+    <p class="byline">By <strong>admin</strong> · October 3, 2026</p>
+    <p class="dek">Explore how careful material choices and practical design turn familiar products into reliable companions for everyday life.</p>
+    <div class="hero" role="img" aria-label="Coastal Rides"></div>
+
+    <div class="mobile" id="mobile-toc">
+      <div class="bar">
+        <button class="trigger" type="button" id="trigger" aria-label="Table of contents" aria-controls="panel" aria-expanded="false">
+          <span class="eyebrow">On this page</span>
+          <span class="current" id="current"></span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+      </div>
+      <nav class="panel" id="panel" aria-label="Table of contents" hidden>
+        <div class="track" data-track><span class="indicator" aria-hidden="true"></span><ol class="list" data-list></ol></div>
+      </nav>
+      <div class="scrim" id="scrim"></div>
+    </div>
+
+    <div class="body">
+      <article id="article"></article>
+      <aside class="toc-column">
+        <nav class="desktop" aria-label="Table of contents">
+          <p class="eyebrow">On this page</p>
+          <div class="scroll" data-scroll>
+            <div class="track" data-track><span class="indicator" aria-hidden="true"></span><ol class="list" data-list></ol></div>
+          </div>
+        </nav>
+      </aside>
+    </div>
+    <div class="end"></div>
+  </main>
+
+  <script type="module" src="./toc.js"></script>
+</body>
+</html>

@@ -1,0 +1,39 @@
+[     114ms] [LOG] [Fast Refresh] done in 2ms @ http://localhost:3001/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[     604ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:3001/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[     641ms] [LOG] [HMR] connected @ http://localhost:3001/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[    3709ms] [WARNING] The resource http://localhost:3001/_next/static/chunks/src_app_(frontend)_pages_module_20iobdx.css was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3001/blogs/small-details-better-everyday-products:0
+[   34449ms] [WARNING] The resource http://localhost:3001/_next/static/chunks/src_app_(frontend)_pages_module_20iobdx.css was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3001/blogs/small-details-better-everyday-products:0
+[   85850ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3001/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[   85972ms] [LOG] [Fast Refresh] done in 7ms @ http://localhost:3001/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[   88976ms] [WARNING] The resource http://localhost:3001/_next/static/chunks/src_app_(frontend)_pages_module_20iobdx.css was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3001/blogs/small-details-better-everyday-products:0
+[  114718ms] [LOG] [Fast Refresh] done in 7ms @ http://localhost:3001/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  116275ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:3001/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  116296ms] [LOG] [HMR] connected @ http://localhost:3001/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  119691ms] [WARNING] The resource http://localhost:3001/_next/static/chunks/src_app_(frontend)_pages_module_20iobdx.css was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3001/blogs/small-details-better-everyday-products:0
+[  822204ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3001/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  822244ms] [LOG] [Fast Refresh] done in 2ms @ http://localhost:3001/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[  825213ms] [WARNING] The resource http://localhost:3001/_next/static/chunks/src_app_(frontend)_pages_module_20iobdx.css was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3001/blogs/small-details-better-everyday-products:0
+[ 1274165ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3001/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[ 1274212ms] [LOG] [Fast Refresh] done in 4ms @ http://localhost:3001/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[ 1277189ms] [WARNING] The resource http://localhost:3001/_next/static/chunks/src_app_(frontend)_pages_module_20iobdx.css was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3001/blogs/small-details-better-everyday-products:0
+[ 1324122ms] [LOG] [Fast Refresh] done in 4ms @ http://localhost:3001/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[ 1325890ms] [LOG] [Fast Refresh] done in 4ms @ http://localhost:3001/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[ 1407748ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3001/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[ 1407803ms] [LOG] [Fast Refresh] done in 2ms @ http://localhost:3001/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[ 1410757ms] [WARNING] The resource http://localhost:3001/_next/static/chunks/src_app_(frontend)_pages_module_20iobdx.css was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3001/blogs/small-details-better-everyday-products:0
+[ 1490849ms] [LOG] [Fast Refresh] done in 2ms @ http://localhost:3001/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[ 1491305ms] [LOG] [Fast Refresh] done in 2ms @ http://localhost:3001/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[ 1909627ms] [LOG] [Fast Refresh] done in 2ms @ http://localhost:3001/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[ 1925676ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3001/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[ 1925706ms] [LOG] [Fast Refresh] done in 8ms @ http://localhost:3001/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[ 1928712ms] [WARNING] The resource http://localhost:3001/_next/static/chunks/src_app_(frontend)_pages_module_20iobdx.css was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3001/blogs/small-details-better-everyday-products:0
+[ 2132966ms] [LOG] [Fast Refresh] done in 8ms @ http://localhost:3001/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[ 2133843ms] [LOG] [Fast Refresh] done in 8ms @ http://localhost:3001/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[ 2134972ms] [LOG] [Fast Refresh] done in 8ms @ http://localhost:3001/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[ 2453707ms] [LOG] [Fast Refresh] done in 8ms @ http://localhost:3001/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[ 2454523ms] [LOG] [Fast Refresh] done in 8ms @ http://localhost:3001/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[ 2455478ms] [LOG] [Fast Refresh] done in 8ms @ http://localhost:3001/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[ 2458803ms] [LOG] [Fast Refresh] done in 8ms @ http://localhost:3001/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[ 2459500ms] [LOG] [Fast Refresh] done in 8ms @ http://localhost:3001/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[ 2461612ms] [LOG] [Fast Refresh] done in 8ms @ http://localhost:3001/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[ 2754680ms] [LOG] [Fast Refresh] done in 8ms @ http://localhost:3001/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776

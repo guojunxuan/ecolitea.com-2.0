@@ -1,0 +1,102 @@
+- generic [active] [ref=f11e1]:
+  - generic [ref=f11e3]:
+    - complementary [ref=f11e71]:
+      - navigation [ref=f11e73]:
+        - generic [ref=f11e74]:
+          - tablist [ref=f11e75]:
+            - tab "Collections" [selected] [ref=f11e76] [cursor=pointer]
+            - tab "Folders" [ref=f11e81] [cursor=pointer]
+          - tabpanel [ref=f11e86]:
+            - generic [ref=f11e87]:
+              - generic [ref=f11e88]:
+                - button "Collections" [ref=f11e89] [cursor=pointer]
+                - generic [ref=f11e94]:
+                  - link "Pages" [ref=f11e96] [cursor=pointer]:
+                    - /url: /admin/collections/pages
+                  - link "Posts" [ref=f11e99] [cursor=pointer]:
+                    - /url: /admin/collections/posts
+                  - link "Media" [ref=f11e102] [cursor=pointer]:
+                    - /url: /admin/collections/media
+                  - link "Documents" [ref=f11e105] [cursor=pointer]:
+                    - /url: /admin/collections/documents
+                  - link "Categories" [ref=f11e108] [cursor=pointer]:
+                    - /url: /admin/collections/categories
+                  - link "Case Studies" [ref=f11e111] [cursor=pointer]:
+                    - /url: /admin/collections/case-studies
+                  - link "Users" [ref=f11e114] [cursor=pointer]:
+                    - /url: /admin/collections/users
+                  - link "Redirects" [ref=f11e117] [cursor=pointer]:
+                    - /url: /admin/collections/redirects
+                  - link "Forms" [ref=f11e120] [cursor=pointer]:
+                    - /url: /admin/collections/forms
+                  - link "Form Submissions" [ref=f11e123] [cursor=pointer]:
+                    - /url: /admin/collections/form-submissions
+                  - link "Search Results" [ref=f11e126] [cursor=pointer]:
+                    - /url: /admin/collections/search
+              - generic [ref=f11e128]:
+                - button "Globals" [ref=f11e129] [cursor=pointer]
+                - generic [ref=f11e134]:
+                  - link "Header" [ref=f11e136] [cursor=pointer]:
+                    - /url: /admin/globals/header
+                  - link "Footer" [ref=f11e139] [cursor=pointer]:
+                    - /url: /admin/globals/footer
+                  - link "Site Settings" [ref=f11e142] [cursor=pointer]:
+                    - /url: /admin/globals/site-settings
+                  - link "Settings" [ref=f11e145] [cursor=pointer]:
+                    - /url: /admin/globals/settings
+              - generic [ref=f11e147]:
+                - button "Blog" [ref=f11e148] [cursor=pointer]
+                - generic [ref=f11e153]:
+                  - link "Blogs" [ref=f11e155] [cursor=pointer]:
+                    - /url: /admin/collections/blogs
+                  - link "Blog Categories" [ref=f11e158] [cursor=pointer]:
+                    - /url: /admin/collections/blog-categories
+    - generic [ref=f11e4]:
+      - banner [ref=f11e5]:
+        - generic [ref=f11e7]:
+          - generic [ref=f11e9]:
+            - button "Open Menu" [ref=f11e160] [cursor=pointer]
+            - navigation [ref=f11e12]:
+              - link "Dashboard" [ref=f11e13] [cursor=pointer]:
+                - /url: /admin
+              - generic [ref=f11e161]: /
+              - link "Documents" [ref=f11e162] [cursor=pointer]:
+                - /url: /admin/collections/documents
+              - generic [ref=f11e163]: /
+              - generic [ref=f11e164]: Create New
+          - button "Account" [ref=f11e16] [cursor=pointer]:
+            - img "yas" [ref=f11e17]
+      - generic [ref=f11e18]:
+        - heading "fake-spec-sheet" [level=1] [ref=f11e169]
+        - generic [ref=f11e20]: "Documents: PDF (.pdf), Word (.docx), Excel (.xlsx), PowerPoint (.pptx); maximum 10 MB. Legacy Office formats and documents with macros are not allowed."
+      - main [ref=f11e22]:
+        - generic [ref=f11e23]:
+          - generic [ref=f11e24]:
+            - generic [ref=f11e25]:
+              - button "None" [ref=f11e165] [cursor=pointer]
+              - list [ref=f11e28]:
+                - listitem [ref=f11e29]:
+                  - paragraph [ref=f11e30]: Creating new Document
+            - button "Save" [ref=f11e34] [cursor=pointer]
+          - generic [ref=f11e35]:
+            - generic [ref=f11e40]:
+              - generic [ref=f11e41]:
+                - generic [ref=f11e42]:
+                  - text: Title
+                  - generic [ref=f11e43]: "*"
+                - textbox "Title *" [ref=f11e45]: fake-spec-sheet
+              - generic [ref=f11e46]:
+                - generic [ref=f11e47]: Description
+                - textbox "Description" [ref=f11e50]
+            - generic [ref=f11e54]:
+              - button [ref=f11e170] [cursor=pointer]
+              - generic [ref=f11e176]:
+                - generic [ref=f11e177]:
+                  - generic [ref=f11e178]: File Name
+                  - textbox "File Name" [ref=f11e180]: fake-spec-sheet.docx
+                - generic [ref=f11e181]: 26 bytes – application/vnd.openxmlformats-officedocument.wordprocessingml.document
+      - status [ref=f11e166]
+  - status [ref=f11e167]
+  - region "Notifications alt+T"
+  - button "Open Next.js Dev Tools" [ref=f11e67] [cursor=pointer]
+  - alert [ref=f11e168]

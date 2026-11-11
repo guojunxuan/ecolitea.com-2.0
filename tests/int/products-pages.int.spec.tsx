@@ -177,22 +177,24 @@ describe('Products routes', () => {
       expect(more.querySelector('svg')).toBeNull()
       const list = within(section).getByRole('list')
       const items = within(list).getAllByRole('listitem')
-      expect(items).toHaveLength(Math.min(count, 4) + 1)
+      expect(items).toHaveLength(Math.min(count, 4) + (count > 3 ? 1 : 0))
       expect(
-        items.slice(0, -1).map((item) => within(item).getByRole('heading').textContent),
+        items
+          .slice(0, Math.min(count, 4))
+          .map((item) => within(item).getByRole('heading').textContent),
       ).toEqual(cards.slice(0, Math.min(count, 4)).map((card) => card.title))
       expect(within(items[0]).getByRole('link').getAttribute('href')).toBe('/products/tea/bag-0')
       expect(within(list).getAllByRole('link')).toHaveLength(items.length)
-      for (const item of items.slice(0, -1)) {
+      for (const item of items.slice(0, Math.min(count, 4))) {
         const productLink = within(item).getByRole('link')
         expect(within(productLink).getByText('View More')).toBeTruthy()
         expect(productLink.querySelector('a, button')).toBeNull()
       }
-      const categoryEntry = within(items.at(-1)!).getByRole('link', {
-        name: 'View More · Tea bags',
-      })
-      expect(categoryEntry.getAttribute('href')).toBe('/products/tea')
-      expect(categoryEntry.textContent).toBe('View More')
+      const categoryEntry = within(list).queryByRole('link', { name: 'View More · Tea bags' })
+      if (count > 3) {
+        expect(categoryEntry?.getAttribute('href')).toBe('/products/tea')
+        expect(categoryEntry?.textContent).toBe('View More')
+      } else expect(categoryEntry).toBeNull()
       expect(screen.queryByText(/^View all/)).toBeNull()
       expect(screen.queryByText(/^\+\d+$/)).toBeNull()
       expect(screen.queryByRole('heading', { name: 'Bag 4' })).toBeNull()
@@ -246,7 +248,7 @@ describe('Products routes', () => {
       '/products/coffee',
     )
     expect(within(coffee).queryByRole('img')).toBeNull()
-    expect(within(coffee).getAllByRole('listitem')).toHaveLength(2)
+    expect(within(coffee).getAllByRole('listitem')).toHaveLength(1)
     expect(within(tea).queryByText('Coffee filter')).toBeNull()
     expect(within(coffee).queryByRole('heading', { name: 'Bag 0' })).toBeNull()
   })
@@ -414,75 +416,78 @@ describe('Products routes', () => {
     act(() => measure?.([], {} as ResizeObserver))
     expect(screen.queryByRole('button', { name: 'Read more' })).toBeNull()
   })
-  it('opens one download from a panel and keeps file details out of the button', async () => {
-    mocks.product.mockResolvedValue({
-      ...detail,
-      downloads: [
-        {
-          id: 'spec',
-          title: 'Specification sheet',
-          url: 'https://files.example.test/spec.pdf',
-          mimeType: 'application/pdf',
-          filesize: 2_400_000,
-        },
-      ],
+  describe('Download dialog', () => {
+    // jsdom has no modal dialog support, so model the open attribute and close event.
+    beforeEach(() => {
+      HTMLDialogElement.prototype.showModal = function showModal() {
+        this.setAttribute('open', '')
+      }
+      HTMLDialogElement.prototype.close = function close() {
+        this.removeAttribute('open')
+        this.dispatchEvent(new Event('close'))
+      }
     })
-    render(await Detail({ params: Promise.resolve({ category: 'tea', product: 'bag' }) }))
-    const trigger = screen.getByRole('button', { name: 'Download' })
-    expect(trigger.textContent).toBe('Download')
-    const panel = document.getElementById(trigger.getAttribute('aria-controls')!)!
-    expect(trigger.getAttribute('aria-expanded')).toBe('false')
-    expect(panel.hasAttribute('inert')).toBe(true)
-    expect(panel.hasAttribute('data-open')).toBe(false)
+    const files = [
+      {
+        id: 'spec',
+        title: 'Specification sheet',
+        url: 'https://files.example.test/spec.pdf',
+        mimeType: 'application/pdf',
+        filesize: 2_400_000,
+      },
+      { id: 'sizes', title: 'Size chart', url: '/sizes.xlsx', mimeType: null, filesize: 5_000 },
+    ]
+    const dialogOf = () => document.querySelector('dialog')!
 
-    fireEvent.click(trigger)
-    expect(trigger.getAttribute('aria-expanded')).toBe('true')
-    expect(panel.hasAttribute('inert')).toBe(false)
-    expect(panel.hasAttribute('data-open')).toBe(true)
-    const link = within(panel).getByRole('link')
-    expect(link.getAttribute('href')).toBe('https://files.example.test/spec.pdf')
-    expect(link.getAttribute('target')).toBe('_blank')
-    expect(link.textContent).toContain('Specification sheet')
-    expect(link.textContent).toContain('PDF · 2.4 MB')
+    it('keeps file details out of the button and lists them in a labelled dialog', async () => {
+      mocks.product.mockResolvedValue({ ...detail, downloads: files.slice(0, 1) })
+      render(await Detail({ params: Promise.resolve({ category: 'tea', product: 'bag' }) }))
+      const trigger = screen.getByRole('button', { name: 'Download' })
+      expect(trigger.textContent).toBe('Download')
+      expect(trigger.getAttribute('aria-haspopup')).toBe('dialog')
+      expect(dialogOf().hasAttribute('open')).toBe(false)
 
-    link.focus()
-    fireEvent.keyDown(document, { key: 'Escape' })
-    expect(trigger.getAttribute('aria-expanded')).toBe('false')
-    expect(document.activeElement).toBe(trigger)
-  })
-  it('lists every download in the panel and closes on an outside pointer press', async () => {
-    mocks.product.mockResolvedValue({
-      ...detail,
-      downloads: [
-        {
-          id: 'spec',
-          title: 'Specification sheet',
-          url: '/spec.pdf',
-          mimeType: null,
-          filesize: null,
-        },
-        {
-          id: 'sizes',
-          title: 'Size chart',
-          url: '/sizes.xlsx',
-          mimeType: null,
-          filesize: 5_000,
-        },
-      ],
+      fireEvent.click(trigger)
+      const dialog = dialogOf()
+      expect(dialog.hasAttribute('open')).toBe(true)
+      expect(document.documentElement.style.overflow).toBe('hidden')
+      expect(dialog.getAttribute('aria-labelledby')).toBe(
+        within(dialog).getByRole('heading', { name: 'Resources', hidden: true }).id,
+      )
+      const link = within(dialog).getByRole('link', { hidden: true })
+      expect(link.getAttribute('href')).toBe('https://files.example.test/spec.pdf')
+      expect(link.getAttribute('target')).toBe('_blank')
+      expect(link.textContent).toContain('Specification sheet')
+      expect(link.textContent).toContain('PDF · 2.4 MB')
     })
-    render(await Detail({ params: Promise.resolve({ category: 'tea', product: 'bag' }) }))
-    const trigger = screen.getByRole('button', { name: 'Download' })
-    fireEvent.click(trigger)
-    const panel = document.getElementById(trigger.getAttribute('aria-controls')!)!
-    const links = within(panel).getAllByRole('link')
-    expect(links.map((link) => link.getAttribute('href'))).toEqual(['/spec.pdf', '/sizes.xlsx'])
-    expect(links[0].textContent).toContain('Specification sheet')
-    expect(links[1].textContent).toContain('XLSX · 5 KB')
-    expect(links[1].getAttribute('target')).toBe('_blank')
+    it('lists every file and closes from the Close button, releasing scroll and focus', async () => {
+      mocks.product.mockResolvedValue({ ...detail, downloads: files })
+      render(await Detail({ params: Promise.resolve({ category: 'tea', product: 'bag' }) }))
+      const trigger = screen.getByRole('button', { name: 'Download' })
+      fireEvent.click(trigger)
+      const dialog = dialogOf()
+      const links = within(dialog).getAllByRole('link', { hidden: true })
+      expect(links.map((link) => link.getAttribute('href'))).toEqual([
+        'https://files.example.test/spec.pdf',
+        '/sizes.xlsx',
+      ])
+      expect(links[1].textContent).toContain('XLSX · 5 KB')
 
-    fireEvent.pointerDown(document.body)
-    expect(trigger.getAttribute('aria-expanded')).toBe('false')
-    expect(panel.hasAttribute('inert')).toBe(true)
+      fireEvent.click(within(dialog).getByRole('button', { name: 'Close', hidden: true }))
+      expect(dialog.hasAttribute('open')).toBe(false)
+      expect(document.documentElement.style.overflow).toBe('')
+      expect(document.activeElement).toBe(trigger)
+    })
+    it('closes on a backdrop click but not on a click inside the panel', async () => {
+      mocks.product.mockResolvedValue({ ...detail, downloads: files })
+      render(await Detail({ params: Promise.resolve({ category: 'tea', product: 'bag' }) }))
+      fireEvent.click(screen.getByRole('button', { name: 'Download' }))
+      const dialog = dialogOf()
+      fireEvent.click(within(dialog).getByRole('heading', { name: 'Resources', hidden: true }))
+      expect(dialog.hasAttribute('open')).toBe(true)
+      fireEvent.click(dialog)
+      expect(dialog.hasAttribute('open')).toBe(false)
+    })
   })
   it('switches gallery images by thumbnail, keyboard and touch scrolling without changing the URL', async () => {
     const url = window.location.href

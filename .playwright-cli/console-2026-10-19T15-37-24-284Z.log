@@ -1,0 +1,469 @@
+[     743ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[     805ms] [LOG] [HMR] connected @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[     940ms] [ERROR] %c%s%c (node:11590) [MONGOOSE] Warning: mongoose: the `new` option for `findOneAndUpdate()` and `findOneAndReplace()` is deprecated. Use `returnDocument: 'after'` instead. background: #e6e6e6;background: light-dark(rgba(0,0,0,0.1), rgba(255,255,255,0.25));color: #000000;color: light-dark(#000000, #ffffff);border-radius: 2px  Server   @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:1052
+[    6710ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[    6757ms] [LOG] [HMR] connected @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[   10989ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/api/documents/6ad5dbebe38dfe7d41151551/file?2026-10-19T08%3A59%3A24.319Z:0
+[   11038ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/api/documents/6ad5dbe7e38dfe7d41151550/file?2026-10-19T08%3A59%3A20.422Z:0
+[   11039ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/api/documents/6ad5dbe4e38dfe7d4115154f/file?2026-10-19T08%3A59%3A16.637Z:0
+[   11039ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/api/documents/6ad5dbd2e38dfe7d4115154e/file?2026-10-19T08%3A58%3A58.951Z:0
+[   11039ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/api/documents/6ad5dbcee38dfe7d4115154d/file?2026-10-19T08%3A58%3A55.095Z:0
+[   11039ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/api/documents/6ad5dbcae38dfe7d4115154c/file?2026-10-19T08%3A58%3A51.155Z:0
+[   11070ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/api/documents/6ad5db0be38dfe7d4115154b/file?2026-10-19T08%3A55%3A39.885Z:0
+[   11070ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/api/documents/6ad5db08e38dfe7d4115154a/file?2026-10-19T08%3A55%3A36.875Z:0
+[   11070ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/api/documents/6ad5db04e38dfe7d41151549/file?2026-10-19T08%3A55%3A33.417Z:0
+[   11071ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/api/documents/6ad5dad7e38dfe7d41151548/file?2026-10-19T08%3A54%3A48.448Z:0
+[  102522ms] [ERROR] %c%s%c (node:11590) [MONGOOSE] Warning: mongoose: the `new` option for `findOneAndUpdate()` and `findOneAndReplace()` is deprecated. Use `returnDocument: 'after'` instead. background: #e6e6e6;background: light-dark(rgba(0,0,0,0.1), rgba(255,255,255,0.25));color: #000000;color: light-dark(#000000, #ffffff);border-radius: 2px  Server   @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:1052
+[  111584ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/api/documents/6ad5dbe7e38dfe7d41151550/file?2026-10-19T08%3A59%3A20.422Z:0
+[  111585ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/api/documents/6ad5dbebe38dfe7d41151551/file?2026-10-19T08%3A59%3A24.319Z:0
+[  111596ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/api/documents/6ad5dbe4e38dfe7d4115154f/file?2026-10-19T08%3A59%3A16.637Z:0
+[  111596ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/api/documents/6ad5dbd2e38dfe7d4115154e/file?2026-10-19T08%3A58%3A58.951Z:0
+[  111596ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/api/documents/6ad5dbcee38dfe7d4115154d/file?2026-10-19T08%3A58%3A55.095Z:0
+[  111597ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/api/documents/6ad5dbcae38dfe7d4115154c/file?2026-10-19T08%3A58%3A51.155Z:0
+[  111772ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/api/documents/6ad5db0be38dfe7d4115154b/file?2026-10-19T08%3A55%3A39.885Z:0
+[  111798ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/api/documents/6ad5db08e38dfe7d4115154a/file?2026-10-19T08%3A55%3A36.875Z:0
+[  111799ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/api/documents/6ad5db04e38dfe7d41151549/file?2026-10-19T08%3A55%3A33.417Z:0
+[  111826ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/api/documents/6ad5dad7e38dfe7d41151548/file?2026-10-19T08%3A54%3A48.448Z:0
+[  171063ms] [ERROR] %c%s%c (node:11590) [MONGOOSE] Warning: mongoose: the `new` option for `findOneAndUpdate()` and `findOneAndReplace()` is deprecated. Use `returnDocument: 'after'` instead. background: #e6e6e6;background: light-dark(rgba(0,0,0,0.1), rgba(255,255,255,0.25));color: #000000;color: light-dark(#000000, #ffffff);border-radius: 2px  Server   @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:1052
+[  176511ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/api/documents/6ad5dbebe38dfe7d41151551/file?2026-10-19T08%3A59%3A24.319Z:0
+[  176511ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/api/documents/6ad5dbe7e38dfe7d41151550/file?2026-10-19T08%3A59%3A20.422Z:0
+[  176522ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/api/documents/6ad5dbe4e38dfe7d4115154f/file?2026-10-19T08%3A59%3A16.637Z:0
+[  176525ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/api/documents/6ad5dbd2e38dfe7d4115154e/file?2026-10-19T08%3A58%3A58.951Z:0
+[  176528ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/api/documents/6ad5dbcee38dfe7d4115154d/file?2026-10-19T08%3A58%3A55.095Z:0
+[  176540ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/api/documents/6ad5dbcae38dfe7d4115154c/file?2026-10-19T08%3A58%3A51.155Z:0
+[  176609ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/api/documents/6ad5db0be38dfe7d4115154b/file?2026-10-19T08%3A55%3A39.885Z:0
+[  176611ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/api/documents/6ad5db08e38dfe7d4115154a/file?2026-10-19T08%3A55%3A36.875Z:0
+[  176613ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/api/documents/6ad5db04e38dfe7d41151549/file?2026-10-19T08%3A55%3A33.417Z:0
+[  176631ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/api/documents/6ad5dad7e38dfe7d41151548/file?2026-10-19T08%3A54%3A48.448Z:0
+[  178786ms] [ERROR] %c%s%c (node:11590) [MONGOOSE] Warning: mongoose: the `new` option for `findOneAndUpdate()` and `findOneAndReplace()` is deprecated. Use `returnDocument: 'after'` instead. background: #e6e6e6;background: light-dark(rgba(0,0,0,0.1), rgba(255,255,255,0.25));color: #000000;color: light-dark(#000000, #ffffff);border-radius: 2px  Server   @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:1052
+[  181853ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/api/documents/6ad5dbebe38dfe7d41151551/file?2026-10-19T08%3A59%3A24.319Z:0
+[  181853ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/api/documents/6ad5dbe7e38dfe7d41151550/file?2026-10-19T08%3A59%3A20.422Z:0
+[  181853ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/api/documents/6ad5dbe4e38dfe7d4115154f/file?2026-10-19T08%3A59%3A16.637Z:0
+[  181853ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/api/documents/6ad5dbd2e38dfe7d4115154e/file?2026-10-19T08%3A58%3A58.951Z:0
+[  181853ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/api/documents/6ad5dbcee38dfe7d4115154d/file?2026-10-19T08%3A58%3A55.095Z:0
+[  181863ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/api/documents/6ad5dbcae38dfe7d4115154c/file?2026-10-19T08%3A58%3A51.155Z:0
+[  181908ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/api/documents/6ad5db0be38dfe7d4115154b/file?2026-10-19T08%3A55%3A39.885Z:0
+[  181997ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/api/documents/6ad5db08e38dfe7d4115154a/file?2026-10-19T08%3A55%3A36.875Z:0
+[  182058ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/api/documents/6ad5db04e38dfe7d41151549/file?2026-10-19T08%3A55%3A33.417Z:0
+[  182060ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/api/documents/6ad5dad7e38dfe7d41151548/file?2026-10-19T08%3A54%3A48.448Z:0
+[  219957ms] [ERROR] %c%s%c (node:11590) [MONGOOSE] Warning: mongoose: the `new` option for `findOneAndUpdate()` and `findOneAndReplace()` is deprecated. Use `returnDocument: 'after'` instead. background: #e6e6e6;background: light-dark(rgba(0,0,0,0.1), rgba(255,255,255,0.25));color: #000000;color: light-dark(#000000, #ffffff);border-radius: 2px  Server   @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:1052
+[  220676ms] [ERROR] %c%s%c (node:11590) [MONGOOSE] Warning: mongoose: the `new` option for `findOneAndUpdate()` and `findOneAndReplace()` is deprecated. Use `returnDocument: 'after'` instead. background: #e6e6e6;background: light-dark(rgba(0,0,0,0.1), rgba(255,255,255,0.25));color: #000000;color: light-dark(#000000, #ffffff);border-radius: 2px  Server   @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:1052
+[  222785ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/api/documents/6ad5dbebe38dfe7d41151551/file?2026-10-19T08%3A59%3A24.319Z:0
+[  222786ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/api/documents/6ad5dbe7e38dfe7d41151550/file?2026-10-19T08%3A59%3A20.422Z:0
+[  222797ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/api/documents/6ad5dbe4e38dfe7d4115154f/file?2026-10-19T08%3A59%3A16.637Z:0
+[  222802ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/api/documents/6ad5dbd2e38dfe7d4115154e/file?2026-10-19T08%3A58%3A58.951Z:0
+[  222806ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/api/documents/6ad5dbcee38dfe7d4115154d/file?2026-10-19T08%3A58%3A55.095Z:0
+[  222817ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/api/documents/6ad5dbcae38dfe7d4115154c/file?2026-10-19T08%3A58%3A51.155Z:0
+[  222859ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/api/documents/6ad5db0be38dfe7d4115154b/file?2026-10-19T08%3A55%3A39.885Z:0
+[  222872ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/api/documents/6ad5db08e38dfe7d4115154a/file?2026-10-19T08%3A55%3A36.875Z:0
+[  222872ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/api/documents/6ad5db04e38dfe7d41151549/file?2026-10-19T08%3A55%3A33.417Z:0
+[  223005ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/api/documents/6ad5dad7e38dfe7d41151548/file?2026-10-19T08%3A54%3A48.448Z:0
+[ 1241249ms] [ERROR] %c%s%c (node:11590) [MONGOOSE] Warning: mongoose: the `new` option for `findOneAndUpdate()` and `findOneAndReplace()` is deprecated. Use `returnDocument: 'after'` instead. background: #e6e6e6;background: light-dark(rgba(0,0,0,0.1), rgba(255,255,255,0.25));color: #000000;color: light-dark(#000000, #ffffff);border-radius: 2px  Server   @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:1052
+[ 1578544ms] [LOG] [HMR] connected @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[33661877ms] [ERROR] Failed to load resource: the server responded with a status of 400 (Bad Request) @ http://localhost:3000/api/users/logout:0
+[35117463ms] [ERROR] WebSocket connection to 'ws://localhost:3000/_next/hmr?id=e0ORJgtBMruzYuTncAVvx' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_client_1s_doiy._.js:16348
+[35118467ms] [ERROR] WebSocket connection to 'ws://localhost:3000/_next/hmr?id=e0ORJgtBMruzYuTncAVvx' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_client_1s_doiy._.js:16348
+[35119470ms] [ERROR] WebSocket connection to 'ws://localhost:3000/_next/hmr?id=e0ORJgtBMruzYuTncAVvx' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_client_1s_doiy._.js:16348
+[35120475ms] [ERROR] WebSocket connection to 'ws://localhost:3000/_next/hmr?id=e0ORJgtBMruzYuTncAVvx' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_client_1s_doiy._.js:16348
+[35121480ms] [ERROR] WebSocket connection to 'ws://localhost:3000/_next/hmr?id=e0ORJgtBMruzYuTncAVvx' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_client_1s_doiy._.js:16348
+[35126489ms] [ERROR] WebSocket connection to 'ws://localhost:3000/_next/hmr?id=e0ORJgtBMruzYuTncAVvx' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_client_1s_doiy._.js:16348
+[35131504ms] [ERROR] WebSocket connection to 'ws://localhost:3000/_next/hmr?id=e0ORJgtBMruzYuTncAVvx' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_client_1s_doiy._.js:16348
+[35136521ms] [ERROR] WebSocket connection to 'ws://localhost:3000/_next/hmr?id=e0ORJgtBMruzYuTncAVvx' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_client_1s_doiy._.js:16348
+[35141555ms] [ERROR] WebSocket connection to 'ws://localhost:3000/_next/hmr?id=e0ORJgtBMruzYuTncAVvx' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_client_1s_doiy._.js:16348
+[35146622ms] [ERROR] WebSocket connection to 'ws://localhost:3000/_next/hmr?id=e0ORJgtBMruzYuTncAVvx' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_client_1s_doiy._.js:16348
+[35151776ms] [ERROR] WebSocket connection to 'ws://localhost:3000/_next/hmr?id=e0ORJgtBMruzYuTncAVvx' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_client_1s_doiy._.js:16348
+[35156942ms] [ERROR] WebSocket connection to 'ws://localhost:3000/_next/hmr?id=e0ORJgtBMruzYuTncAVvx' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_client_1s_doiy._.js:16348
+[63153383ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[63153475ms] [LOG] [HMR] connected @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[63447684ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[63447726ms] [LOG] [Fast Refresh] done in 37ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[63448034ms] [LOG] [Fast Refresh] done in 37ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[63449028ms] [LOG] [Fast Refresh] done in 37ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[63449442ms] [LOG] [Fast Refresh] done in 37ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[63528486ms] [LOG] [Fast Refresh] done in 37ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[63557702ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[63557742ms] [LOG] [Fast Refresh] done in 133ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[63558140ms] [LOG] [Fast Refresh] done in 133ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[63558494ms] [LOG] [Fast Refresh] done in 133ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[63559888ms] [LOG] [Fast Refresh] done in 133ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[63560341ms] [LOG] [Fast Refresh] done in 133ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[63568104ms] [LOG] [Fast Refresh] done in 10499ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[63568378ms] [LOG] [Fast Refresh] done in 10499ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[63569249ms] [LOG] [Fast Refresh] done in 10499ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[63570101ms] [LOG] [Fast Refresh] done in 10499ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[63576874ms] [LOG] [Fast Refresh] done in 19271ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[63577375ms] [LOG] [Fast Refresh] done in 19271ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[63577689ms] [LOG] [Fast Refresh] done in 19271ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[63578933ms] [LOG] [Fast Refresh] done in 19271ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[63579328ms] [LOG] [Fast Refresh] done in 19271ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[63617805ms] [LOG] [Fast Refresh] done in 60201ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[63618139ms] [LOG] [Fast Refresh] done in 60201ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[63618526ms] [LOG] [Fast Refresh] done in 60201ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[63619648ms] [LOG] [Fast Refresh] done in 60201ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[63620316ms] [LOG] [Fast Refresh] done in 60201ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[63624194ms] [LOG] [Fast Refresh] done in 60201ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[64027296ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[64028215ms] [LOG] [Fast Refresh] done in 1010ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[64029054ms] [LOG] [Fast Refresh] done in 1010ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[64069218ms] [LOG] [Fast Refresh] done in 1010ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[64143016ms] [LOG] [Fast Refresh] done in 1010ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[64621942ms] [LOG] [Fast Refresh] done in 1010ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[64622493ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[64623034ms] [LOG] [Fast Refresh] done in 643ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[64624217ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[64624707ms] [LOG] [Fast Refresh] done in 592ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[65024881ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[65025078ms] [LOG] [Fast Refresh] done in 274ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[65095689ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[65095692ms] [LOG] [Fast Refresh] done in 35ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[65096130ms] [LOG] [Fast Refresh] done in 474ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[65096130ms] [LOG] [Fast Refresh] done in 474ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[65096130ms] [LOG] [Fast Refresh] done in 474ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[65097317ms] [LOG] [Fast Refresh] done in 1660ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[65097317ms] [LOG] [Fast Refresh] done in 1660ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[65098537ms] [LOG] [Fast Refresh] done in 1666ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[65165081ms] [LOG] [Fast Refresh] done in 66340ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[65165429ms] [LOG] [Fast Refresh] done in 66340ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[65165625ms] [LOG] [Fast Refresh] done in 66340ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[65286086ms] [LOG] [Fast Refresh] done in 66340ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[65358924ms] [LOG] [Fast Refresh] done in 66340ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[65388618ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[65388732ms] [LOG] [Fast Refresh] done in 217ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[65669669ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[65669674ms] [LOG] [Fast Refresh] done in 32ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[65720311ms] [LOG] [Fast Refresh] done in 32ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[65792399ms] [LOG] [Fast Refresh] done in 32ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[65855872ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[65855891ms] [LOG] [Fast Refresh] done in 20ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[65867106ms] [LOG] [Fast Refresh] done in 20ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[65939014ms] [LOG] [Fast Refresh] done in 20ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[65979715ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[65980681ms] [LOG] [Fast Refresh] done in 1069ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[66713212ms] [LOG] [Fast Refresh] done in 72645ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[66714089ms] [LOG] [Fast Refresh] done in 72645ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[66714822ms] [LOG] [Fast Refresh] done in 72645ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[66745148ms] [LOG] [Fast Refresh] done in 72645ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[66818092ms] [LOG] [Fast Refresh] done in 72645ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[66877638ms] [LOG] [Fast Refresh] done in 72645ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[66879747ms] [LOG] [Fast Refresh] done in 72645ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[66880512ms] [LOG] [Fast Refresh] done in 72645ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[66880562ms] [LOG] [Fast Refresh] done in 72645ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[66880931ms] [LOG] [Fast Refresh] done in 72645ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[66881239ms] [LOG] [Fast Refresh] done in 72645ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[66881375ms] [LOG] [Fast Refresh] done in 72645ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[66881520ms] [LOG] [Fast Refresh] done in 72645ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[66884432ms] [LOG] [Fast Refresh] done in 72645ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[66884628ms] [LOG] [Fast Refresh] done in 72645ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[66884701ms] [LOG] [Fast Refresh] done in 72645ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[73170767ms] [LOG] [HMR] connected @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[78221013ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[78221213ms] [LOG] [Fast Refresh] done in 299ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[78221781ms] [LOG] [Fast Refresh] done in 299ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[78258702ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[78258932ms] [ERROR] ./src/app/(payload)/admin/importMap.js:43:1
+Error: Module not found: Can't resolve '@/collections/Documents/admin/ModifiedCell'
+  41 | ...ill as TitlePrefill_f95324218d1a9f56a6faf266850561af } from '@/collections/Documents/ad...
+  42 | ...l as FolderCell_7e7599984a4d6bc814918223e1480561 } from '@/collections/Documents/admin/...
+> 43 | ...ell as ModifiedCell_d983b381264a7d967f594fbfd4edb92a } from '@/collections/Documents/ad...
+     |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  44 | ...as TypeCell_1644fe13ef6dfd5c471797956c6e130e } from '@/collections/Documents/admin/Type...
+  45 | ...ell as FilesizeCell_597c400895e53c1ba930cc53925f77c6 } from '@/collections/Documents/ad...
+  46 | ...tformNameField as SocialPlatformNameField_57cfda3ee93492850d81f1adf8296638 } from '@/Si...
+
+Import map: aliased to relative './src/collections/Documents/admin/ModifiedCell' inside of [project]/
+
+Import traces:
+  #1 [Server Component]:
+    ./src/app/(payload)/admin/importMap.js
+    ./src/app/(payload)/admin/[[...segments]]/not-found.tsx
+
+  #2 [Server Component]:
+    ./src/app/(payload)/admin/importMap.js
+    ./src/app/(payload)/admin/[[...segments]]/page.tsx
+
+  #3 [Server Component]:
+    ./src/app/(payload)/admin/importMap.js
+    ./src/app/(payload)/layout.tsx
+
+https://nextjs.org/docs/messages/module-not-found @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:1052
+[78258933ms] [ERROR] ./src/app/(payload)/admin/importMap.js:35:1
+Error: Module not found: Can't resolve '@/collections/mediaAdmin/ModifiedCell'
+  33 | ...fill as AltPrefill_0723c172e948fbb481376dc84e2f708c } from '@/collections/mediaAdmin/Al...
+  34 | ...Cell as FolderCell_4be3115d3de16f087143785186be6187 } from '@/collections/mediaAdmin/Fo...
+> 35 | ...edCell as ModifiedCell_48091d70c6432df70e9b4622fc2e37bf } from '@/collections/mediaAdmi...
+     |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  36 | ...meCell as FilenameCell_3d231aca1eef2c75f54cfc956cce307a } from '@/collections/mediaAdmi...
+  37 | ...ll as TypeCell_fa4f997e085f12ecc0525014de6372d8 } from '@/collections/mediaAdmin/TypeCell'
+  38 | ...zeCell as FilesizeCell_e4d477bf4c10c20dfb3e3841bcb8bbde } from '@/collections/mediaAdmi...
+
+Import map: aliased to relative './src/collections/mediaAdmin/ModifiedCell' inside of [project]/
+
+Import traces:
+  #1 [Server Component]:
+    ./src/app/(payload)/admin/importMap.js
+    ./src/app/(payload)/admin/[[...segments]]/not-found.tsx
+
+  #2 [Server Component]:
+    ./src/app/(payload)/admin/importMap.js
+    ./src/app/(payload)/admin/[[...segments]]/page.tsx
+
+  #3 [Server Component]:
+    ./src/app/(payload)/admin/importMap.js
+    ./src/app/(payload)/layout.tsx
+
+https://nextjs.org/docs/messages/module-not-found @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:1052
+[78259099ms] [ERROR] ./src/app/(payload)/admin/importMap.js:43:1
+Error: Module not found: Can't resolve '@/collections/Documents/admin/ModifiedCell'
+  41 | ...ill as TitlePrefill_f95324218d1a9f56a6faf266850561af } from '@/collections/Documents/ad...
+  42 | ...l as FolderCell_7e7599984a4d6bc814918223e1480561 } from '@/collections/Documents/admin/...
+> 43 | ...ell as ModifiedCell_d983b381264a7d967f594fbfd4edb92a } from '@/collections/Documents/ad...
+     |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  44 | ...as TypeCell_1644fe13ef6dfd5c471797956c6e130e } from '@/collections/Documents/admin/Type...
+  45 | ...ell as FilesizeCell_597c400895e53c1ba930cc53925f77c6 } from '@/collections/Documents/ad...
+  46 | ...tformNameField as SocialPlatformNameField_57cfda3ee93492850d81f1adf8296638 } from '@/Si...
+
+Import map: aliased to relative './src/collections/Documents/admin/ModifiedCell' inside of [project]/
+
+Import traces:
+  #1 [Server Component]:
+    ./src/app/(payload)/admin/importMap.js
+    ./src/app/(payload)/admin/[[...segments]]/not-found.tsx
+
+  #2 [Server Component]:
+    ./src/app/(payload)/admin/importMap.js
+    ./src/app/(payload)/admin/[[...segments]]/page.tsx
+
+  #3 [Server Component]:
+    ./src/app/(payload)/admin/importMap.js
+    ./src/app/(payload)/layout.tsx
+
+https://nextjs.org/docs/messages/module-not-found @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:1052
+[78259100ms] [ERROR] ./src/app/(payload)/admin/importMap.js:35:1
+Error: Module not found: Can't resolve '@/collections/mediaAdmin/ModifiedCell'
+  33 | ...fill as AltPrefill_0723c172e948fbb481376dc84e2f708c } from '@/collections/mediaAdmin/Al...
+  34 | ...Cell as FolderCell_4be3115d3de16f087143785186be6187 } from '@/collections/mediaAdmin/Fo...
+> 35 | ...edCell as ModifiedCell_48091d70c6432df70e9b4622fc2e37bf } from '@/collections/mediaAdmi...
+     |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  36 | ...meCell as FilenameCell_3d231aca1eef2c75f54cfc956cce307a } from '@/collections/mediaAdmi...
+  37 | ...ll as TypeCell_fa4f997e085f12ecc0525014de6372d8 } from '@/collections/mediaAdmin/TypeCell'
+  38 | ...zeCell as FilesizeCell_e4d477bf4c10c20dfb3e3841bcb8bbde } from '@/collections/mediaAdmi...
+
+Import map: aliased to relative './src/collections/mediaAdmin/ModifiedCell' inside of [project]/
+
+Import traces:
+  #1 [Server Component]:
+    ./src/app/(payload)/admin/importMap.js
+    ./src/app/(payload)/admin/[[...segments]]/not-found.tsx
+
+  #2 [Server Component]:
+    ./src/app/(payload)/admin/importMap.js
+    ./src/app/(payload)/admin/[[...segments]]/page.tsx
+
+  #3 [Server Component]:
+    ./src/app/(payload)/admin/importMap.js
+    ./src/app/(payload)/layout.tsx
+
+https://nextjs.org/docs/messages/module-not-found @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:1052
+[78259180ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[78259223ms] [ERROR] ./src/app/(payload)/admin/importMap.js:43:1
+Error: Module not found: Can't resolve '@/collections/Documents/admin/ModifiedCell'
+  41 | ...ill as TitlePrefill_f95324218d1a9f56a6faf266850561af } from '@/collections/Documents/ad...
+  42 | ...l as FolderCell_7e7599984a4d6bc814918223e1480561 } from '@/collections/Documents/admin/...
+> 43 | ...ell as ModifiedCell_d983b381264a7d967f594fbfd4edb92a } from '@/collections/Documents/ad...
+     |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  44 | ...as TypeCell_1644fe13ef6dfd5c471797956c6e130e } from '@/collections/Documents/admin/Type...
+  45 | ...ell as FilesizeCell_597c400895e53c1ba930cc53925f77c6 } from '@/collections/Documents/ad...
+  46 | ...tformNameField as SocialPlatformNameField_57cfda3ee93492850d81f1adf8296638 } from '@/Si...
+
+Import map: aliased to relative './src/collections/Documents/admin/ModifiedCell' inside of [project]/
+
+Import traces:
+  #1 [Server Component]:
+    ./src/app/(payload)/admin/importMap.js
+    ./src/app/(payload)/admin/[[...segments]]/not-found.tsx
+
+  #2 [Server Component]:
+    ./src/app/(payload)/admin/importMap.js
+    ./src/app/(payload)/admin/[[...segments]]/page.tsx
+
+  #3 [Server Component]:
+    ./src/app/(payload)/admin/importMap.js
+    ./src/app/(payload)/layout.tsx
+
+https://nextjs.org/docs/messages/module-not-found @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:1052
+[78259224ms] [ERROR] ./src/app/(payload)/admin/importMap.js:35:1
+Error: Module not found: Can't resolve '@/collections/mediaAdmin/ModifiedCell'
+  33 | ...fill as AltPrefill_0723c172e948fbb481376dc84e2f708c } from '@/collections/mediaAdmin/Al...
+  34 | ...Cell as FolderCell_4be3115d3de16f087143785186be6187 } from '@/collections/mediaAdmin/Fo...
+> 35 | ...edCell as ModifiedCell_48091d70c6432df70e9b4622fc2e37bf } from '@/collections/mediaAdmi...
+     |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  36 | ...meCell as FilenameCell_3d231aca1eef2c75f54cfc956cce307a } from '@/collections/mediaAdmi...
+  37 | ...ll as TypeCell_fa4f997e085f12ecc0525014de6372d8 } from '@/collections/mediaAdmin/TypeCell'
+  38 | ...zeCell as FilesizeCell_e4d477bf4c10c20dfb3e3841bcb8bbde } from '@/collections/mediaAdmi...
+
+Import map: aliased to relative './src/collections/mediaAdmin/ModifiedCell' inside of [project]/
+
+Import traces:
+  #1 [Server Component]:
+    ./src/app/(payload)/admin/importMap.js
+    ./src/app/(payload)/admin/[[...segments]]/not-found.tsx
+
+  #2 [Server Component]:
+    ./src/app/(payload)/admin/importMap.js
+    ./src/app/(payload)/admin/[[...segments]]/page.tsx
+
+  #3 [Server Component]:
+    ./src/app/(payload)/admin/importMap.js
+    ./src/app/(payload)/layout.tsx
+
+https://nextjs.org/docs/messages/module-not-found @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:1052
+[78259282ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[78302095ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[78302115ms] [LOG] [Fast Refresh] done in 45ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[78302526ms] [LOG] [Fast Refresh] done in 45ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[78368616ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[78368721ms] [LOG] [Fast Refresh] done in 201ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[78369199ms] [LOG] [Fast Refresh] done in 201ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[78404673ms] [LOG] [Fast Refresh] done in 201ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[78430792ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[78430817ms] [LOG] [Fast Refresh] done in 11ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[78431539ms] [LOG] [Fast Refresh] done in 11ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[78451404ms] [LOG] [Fast Refresh] done in 11ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[78548568ms] [LOG] [Fast Refresh] done in 11ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[78626218ms] [LOG] [Fast Refresh] done in 11ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[78861851ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[78861878ms] [LOG] [Fast Refresh] done in 70ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[78862161ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[78862191ms] [LOG] [Fast Refresh] done in 9ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[79024172ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[79024201ms] [LOG] [Fast Refresh] done in 10ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[79064522ms] [LOG] [Fast Refresh] done in 10ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[79142573ms] [LOG] [Fast Refresh] done in 10ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[79581210ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[79581667ms] [LOG] [Fast Refresh] done in 559ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[79779036ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[79779280ms] [LOG] [Fast Refresh] done in 347ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[79857221ms] [LOG] [Fast Refresh] done in 24758ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[79857221ms] [LOG] [Fast Refresh] done in 24758ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[79857794ms] [LOG] [Fast Refresh] done in 24758ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[79858284ms] [LOG] [Fast Refresh] done in 24758ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[79860087ms] [LOG] [Fast Refresh] done in 24758ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[79860178ms] [LOG] [Fast Refresh] done in 24758ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[79941728ms] [LOG] [Fast Refresh] done in 24758ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[79942048ms] [LOG] [Fast Refresh] done in 24758ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[79942148ms] [LOG] [Fast Refresh] done in 24758ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[79942222ms] [LOG] [Fast Refresh] done in 24758ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[79944347ms] [LOG] [Fast Refresh] done in 24758ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[79944549ms] [LOG] [Fast Refresh] done in 24758ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[79944591ms] [LOG] [Fast Refresh] done in 24758ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[79973481ms] [LOG] [Fast Refresh] done in 24758ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[80430074ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[80430718ms] [ERROR] ./src/app/(payload)/admin/importMap.js:42:1
+Error: Module not found: Can't resolve '@/collections/Documents/admin/FolderCell'
+  40 | ...Panel as UsedInPanel_e1fb4acb26bb636743c0392dfef3033e } from '@/collections/Documents/a...
+  41 | ...refill as TitlePrefill_f95324218d1a9f56a6faf266850561af } from '@/collections/Documents...
+> 42 | ...Cell as FolderCell_7e7599984a4d6bc814918223e1480561 } from '@/collections/Documents/adm...
+     |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  43 | ...dAtCell as UpdatedAtCell_30512e5cac6a4a6ee3f69505af4d712f } from '@/collections/Documen...
+  44 | ...ll as TypeCell_1644fe13ef6dfd5c471797956c6e130e } from '@/collections/Documents/admin/T...
+  45 | ...zeCell as FilesizeCell_597c400895e53c1ba930cc53925f77c6 } from '@/collections/Documents...
+
+Import map: aliased to relative './src/collections/Documents/admin/FolderCell' inside of [project]/
+
+Import traces:
+  #1 [Server Component]:
+    ./src/app/(payload)/admin/importMap.js
+    ./src/app/(payload)/admin/[[...segments]]/not-found.tsx
+
+  #2 [Server Component]:
+    ./src/app/(payload)/admin/importMap.js
+    ./src/app/(payload)/admin/[[...segments]]/page.tsx
+
+  #3 [Server Component]:
+    ./src/app/(payload)/admin/importMap.js
+    ./src/app/(payload)/layout.tsx
+
+https://nextjs.org/docs/messages/module-not-found @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:1052
+[80430718ms] [ERROR] ./src/app/(payload)/admin/importMap.js:34:1
+Error: Module not found: Can't resolve '@/collections/mediaAdmin/FolderCell'
+  32 | ...dInPanel as UsedInPanel_465fcf04887261c29f77ab01f3d2132c } from '@/collections/mediaAdm...
+  33 | ...Prefill as AltPrefill_0723c172e948fbb481376dc84e2f708c } from '@/collections/mediaAdmin...
+> 34 | ...derCell as FolderCell_4be3115d3de16f087143785186be6187 } from '@/collections/mediaAdmin...
+     |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  35 | ...atedAtCell as UpdatedAtCell_15ae72ae659ab5de403d241b4bbfc565 } from '@/collections/medi...
+  36 | ...enameCell as FilenameCell_3d231aca1eef2c75f54cfc956cce307a } from '@/collections/mediaA...
+  37 | ...eCell as TypeCell_fa4f997e085f12ecc0525014de6372d8 } from '@/collections/mediaAdmin/Typ...
+
+Import map: aliased to relative './src/collections/mediaAdmin/FolderCell' inside of [project]/
+
+Import traces:
+  #1 [Server Component]:
+    ./src/app/(payload)/admin/importMap.js
+    ./src/app/(payload)/admin/[[...segments]]/not-found.tsx
+
+  #2 [Server Component]:
+    ./src/app/(payload)/admin/importMap.js
+    ./src/app/(payload)/admin/[[...segments]]/page.tsx
+
+  #3 [Server Component]:
+    ./src/app/(payload)/admin/importMap.js
+    ./src/app/(payload)/layout.tsx
+
+https://nextjs.org/docs/messages/module-not-found @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:1052
+[80433557ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[80433568ms] [LOG] [Fast Refresh] done in 113ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[80434106ms] [LOG] [Fast Refresh] done in 113ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[80436345ms] [LOG] [Fast Refresh] done in 113ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[80452766ms] [LOG] [Fast Refresh] done in 113ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[80467692ms] [LOG] [Fast Refresh] done in 113ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[80468038ms] [LOG] [Fast Refresh] done in 113ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[80468076ms] [LOG] [Fast Refresh] done in 113ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[80468217ms] [LOG] [Fast Refresh] done in 113ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[80470463ms] [LOG] [Fast Refresh] done in 113ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[80470641ms] [LOG] [Fast Refresh] done in 113ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[80470673ms] [LOG] [Fast Refresh] done in 113ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[80470783ms] [LOG] [Fast Refresh] done in 113ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[80532025ms] [LOG] [Fast Refresh] done in 113ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[80544765ms] [LOG] [Fast Refresh] done in 113ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[80545365ms] [LOG] [Fast Refresh] done in 113ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[80620717ms] [LOG] [Fast Refresh] done in 113ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[80659856ms] [LOG] [Fast Refresh] done in 113ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[80660358ms] [LOG] [Fast Refresh] done in 113ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[80660427ms] [LOG] [Fast Refresh] done in 113ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[80660486ms] [LOG] [Fast Refresh] done in 113ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[80660577ms] [LOG] [Fast Refresh] done in 113ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[80662587ms] [LOG] [Fast Refresh] done in 113ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[80662856ms] [LOG] [Fast Refresh] done in 113ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[80663020ms] [LOG] [Fast Refresh] done in 113ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[80679734ms] [LOG] [Fast Refresh] done in 113ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[80680150ms] [LOG] [Fast Refresh] done in 113ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[80680213ms] [LOG] [Fast Refresh] done in 113ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[80680260ms] [LOG] [Fast Refresh] done in 113ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[80687305ms] [LOG] [Fast Refresh] done in 113ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[80687621ms] [LOG] [Fast Refresh] done in 113ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[80817653ms] [LOG] [Fast Refresh] done in 129909ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[80818098ms] [LOG] [Fast Refresh] done in 129909ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[80818099ms] [LOG] [Fast Refresh] done in 129909ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[80819927ms] [LOG] [Fast Refresh] done in 129909ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[80819963ms] [LOG] [Fast Refresh] done in 129909ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[80821031ms] [LOG] [Fast Refresh] done in 129909ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[80828789ms] [LOG] [Fast Refresh] done in 129909ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[80829076ms] [LOG] [Fast Refresh] done in 129909ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[80829114ms] [LOG] [Fast Refresh] done in 129909ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[80829271ms] [LOG] [Fast Refresh] done in 129909ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[80830032ms] [LOG] [Fast Refresh] done in 129909ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[80830355ms] [LOG] [Fast Refresh] done in 129909ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[80830408ms] [LOG] [Fast Refresh] done in 129909ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[80830601ms] [LOG] [Fast Refresh] done in 129909ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[80866332ms] [LOG] [Fast Refresh] done in 129909ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[80866669ms] [LOG] [Fast Refresh] done in 129909ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[80866778ms] [LOG] [Fast Refresh] done in 129909ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[80872737ms] [LOG] [Fast Refresh] done in 129909ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[80873891ms] [LOG] [Fast Refresh] done in 129909ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[80874125ms] [LOG] [Fast Refresh] done in 129909ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[80874169ms] [LOG] [Fast Refresh] done in 129909ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[84965864ms] [LOG] [HMR] connected @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[84974677ms] [LOG] [HMR] connected @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[84982471ms] [LOG] [HMR] connected @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[98021043ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776
+[98021502ms] [LOG] [Fast Refresh] done in 561ms @ http://localhost:3000/_next/static/chunks/0kg6_next_dist_0vnha2u._.js:776

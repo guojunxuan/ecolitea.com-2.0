@@ -1,0 +1,151 @@
+- generic [active] [ref=f10e1]:
+  - link "Skip to content" [ref=f10e2] [cursor=pointer]:
+    - /url: "#main-content"
+  - banner:
+    - generic [ref=f10e6]:
+      - button "Open navigation" [ref=f10e7] [cursor=pointer]
+      - link "ecolitea-logo-dark" [ref=f10e11] [cursor=pointer]:
+        - /url: /
+        - img "ecolitea-logo-dark" [ref=f10e12]
+      - link "Search" [ref=f10e13] [cursor=pointer]:
+        - /url: /search
+  - main [ref=f10e17]:
+    - generic [ref=f10e18]:
+      - generic [ref=f10e19]:
+        - paragraph [ref=f10e20]: Products
+        - heading "Products" [level=1] [ref=f10e21]
+      - navigation "Product categories" [ref=f10e22]:
+        - link "影像设备 · 示例" [ref=f10e26] [cursor=pointer]:
+          - /url: "#demo-imaging-equipment"
+      - generic [ref=f10e27]:
+        - generic [ref=f10e28]:
+          - img "Insta360 X6 — product image from Insta360" [ref=f10e30]
+          - generic [ref=f10e32]:
+            - heading "影像设备 · 示例" [level=2] [ref=f10e33]
+            - paragraph [ref=f10e34]: 复用站内现有影像设备素材的本地演示分类，用于产品内容编辑与 sections 布局演示。
+            - link "View all products" [ref=f10e36] [cursor=pointer]:
+              - /url: /products/demo-imaging-equipment
+        - link [ref=f10e39] [cursor=pointer]:
+          - /url: /products/demo-imaging-equipment/demo-insta360-x5
+          - img "Insta360 X5 — product image from Insta360" [ref=f10e41]
+          - generic [ref=f10e42]:
+            - heading "Insta360 X5 · 示例 02" [level=3] [ref=f10e43]
+            - paragraph [ref=f10e44]: 复用站内 X5 产品图与场景素材的完整示例，包含图库、卖点、规格及两段产品 sections，用于后台编辑与内容结构演示。
+  - contentinfo [ref=f10e46]:
+    - generic [ref=f10e47]:
+      - generic [ref=f10e48]:
+        - region "Brand" [ref=f10e49]:
+          - link [ref=f10e50] [cursor=pointer]:
+            - /url: /
+            - img "ecolitea-logo-dark" [ref=f10e51]
+          - paragraph [ref=f10e52]: Ecolitea is a B2B company providing reliable products and tailored solutions to customers worldwide.
+          - list "Social media" [ref=f10e53]:
+            - listitem [ref=f10e54]:
+              - link "LinkedIn" [ref=f10e55] [cursor=pointer]:
+                - /url: https://example.com/ecolitea/linkedin
+            - listitem [ref=f10e56]:
+              - link "YouTube" [ref=f10e57] [cursor=pointer]:
+                - /url: https://example.com/ecolitea/youtube
+            - listitem [ref=f10e58]:
+              - link "Facebook" [ref=f10e59] [cursor=pointer]:
+                - /url: https://example.com/ecolitea/facebook
+            - listitem [ref=f10e60]:
+              - link "Instagram" [ref=f10e61] [cursor=pointer]:
+                - /url: https://example.com/ecolitea/instagram
+            - listitem [ref=f10e62]:
+              - link "X" [ref=f10e63] [cursor=pointer]:
+                - /url: https://example.com/ecolitea/x
+        - navigation "Footer" [ref=f10e64]:
+          - generic [ref=f10e65]:
+            - heading "Products" [level=2] [ref=f10e66]
+            - list [ref=f10e68]:
+              - listitem [ref=f10e69]:
+                - link "Product 01" [ref=f10e70] [cursor=pointer]:
+                  - /url: /placeholder/products/category-01
+              - listitem [ref=f10e71]:
+                - link "Product 02" [ref=f10e72] [cursor=pointer]:
+                  - /url: /placeholder/products/category-02
+              - listitem [ref=f10e73]:
+                - link "Product 03" [ref=f10e74] [cursor=pointer]:
+                  - /url: /placeholder/products/category-03
+              - listitem [ref=f10e75]:
+                - link "Product 04" [ref=f10e76] [cursor=pointer]:
+                  - /url: /placeholder/products/category-04
+              - listitem [ref=f10e77]:
+                - link "Product 05" [ref=f10e78] [cursor=pointer]:
+                  - /url: /placeholder/products/category-05
+              - listitem [ref=f10e79]:
+                - link "Product 06" [ref=f10e80] [cursor=pointer]:
+                  - /url: /placeholder/products/category-06
+              - listitem [ref=f10e81]:
+                - link "Product 07" [ref=f10e82] [cursor=pointer]:
+                  - /url: /placeholder/products/category-07
+              - listitem [ref=f10e83]:
+                - link "Product 08" [ref=f10e84] [cursor=pointer]:
+                  - /url: /placeholder/products/category-08
+          - generic [ref=f10e85]:
+            - heading "Solutions" [level=2] [ref=f10e86]
+            - list [ref=f10e88]:
+              - listitem [ref=f10e89]:
+                - link "Hospitality" [ref=f10e90] [cursor=pointer]:
+                  - /url: /placeholder/solutions/hospitality
+              - listitem [ref=f10e91]:
+                - link "Commercial" [ref=f10e92] [cursor=pointer]:
+                  - /url: /placeholder/solutions/commercial
+              - listitem [ref=f10e93]:
+                - link "Residential" [ref=f10e94] [cursor=pointer]:
+                  - /url: /placeholder/solutions/residential
+              - listitem [ref=f10e95]:
+                - link "Custom projects" [ref=f10e96] [cursor=pointer]:
+                  - /url: /placeholder/solutions/custom-projects
+          - generic [ref=f10e97]:
+            - heading "Resources" [level=2] [ref=f10e98]
+            - list [ref=f10e100]:
+              - listitem [ref=f10e101]:
+                - link "Downloads" [ref=f10e102] [cursor=pointer]:
+                  - /url: /placeholder/resources/downloads
+              - listitem [ref=f10e103]:
+                - link "External resource" [ref=f10e104] [cursor=pointer]:
+                  - /url: https://example.com/placeholder-resource
+          - generic [ref=f10e105]:
+            - heading "Company" [level=2] [ref=f10e106]
+            - list [ref=f10e108]:
+              - listitem [ref=f10e109]:
+                - link "About us" [ref=f10e110] [cursor=pointer]:
+                  - /url: /placeholder/company/about
+              - listitem [ref=f10e111]:
+                - link "Contact" [ref=f10e112] [cursor=pointer]:
+                  - /url: /placeholder/company/contact
+              - listitem [ref=f10e113]:
+                - link "Partner portal" [ref=f10e114] [cursor=pointer]:
+                  - /url: https://example.com/placeholder-partner-portal
+              - listitem [ref=f10e115]:
+                - link "Blog" [ref=f10e116] [cursor=pointer]:
+                  - /url: /blogs
+        - generic [ref=f10e117]:
+          - region "Newsletter" [ref=f10e118]:
+            - heading "SUBSCRIBE TO OUR NEWSLETTER" [level=2] [ref=f10e119]
+            - paragraph [ref=f10e120]: Unlock savings & perks, members-only offers.
+            - generic [ref=f10e121]:
+              - textbox "Email address" [disabled] [ref=f10e122]
+              - button "Subscribe" [disabled] [ref=f10e123]
+          - list [ref=f10e125]:
+            - listitem [ref=f10e126]:
+              - generic [ref=f10e130]: 5425 Janet Ct, OAK FOREST, IL 60452-3740, United States
+            - listitem [ref=f10e131]:
+              - link "+86 1234567 8910" [ref=f10e134] [cursor=pointer]:
+                - /url: tel:+86 1234567 8910
+            - listitem [ref=f10e135]:
+              - link "sales@ecolitea.com" [ref=f10e139] [cursor=pointer]:
+                - /url: mailto:sales@ecolitea.com
+      - generic [ref=f10e140]:
+        - paragraph [ref=f10e141]: © 2026 Ecolitea. All rights reserved.
+        - navigation "Legal" [ref=f10e142]:
+          - list [ref=f10e143]:
+            - listitem [ref=f10e144]:
+              - link "Privacy Policy" [ref=f10e145] [cursor=pointer]:
+                - /url: /home
+            - listitem [ref=f10e146]:
+              - link "Terms" [ref=f10e147] [cursor=pointer]:
+                - /url: /home
+  - button "Open Next.js Dev Tools" [ref=f10e153] [cursor=pointer]

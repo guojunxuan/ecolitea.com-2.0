@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Used in panel — states</title>
+<style>
+  :root { --border: #e6e6e6; --text: #1e1e1e; --muted: #00000080; --primary: #0c8ce9; --pill: #f0f0f0; --err-bg: #ffe2e0; --err: #b3261e; --radius: 6px; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 14px/1.45 Inter, -apple-system, "Segoe UI", sans-serif; color: var(--text); background: #ececec; }
+  h1 { font-size: 22px; margin: 32px 40px 4px; }
+  p.lead { margin: 0 40px 24px; color: var(--muted); max-width: 900px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(330px, 1fr)); gap: 20px; margin: 0 40px 40px; }
+  .card { background: #fff; border-radius: 10px; box-shadow: 0 1px 3px #0002; overflow: hidden; }
+  .caption { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .02em; color: var(--muted); padding: 10px 16px; border-bottom: 1px solid var(--border); background: #fafafa; }
+  .col { padding: 20px 24px 24px; }
+  .label { font-weight: 600; font-size: 13px; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+  .count { font-weight: 500; font-size: 11px; background: var(--pill); border-radius: 999px; padding: 0 7px; }
+  .input { border: 1px solid var(--border); border-radius: var(--radius); height: 34px; padding: 6px 10px; font-size: 13px; }
+  .area { height: 70px; }
+  .desc { color: var(--muted); font-size: 12px; margin-top: 6px; }
+  .field { margin-bottom: 18px; }
+  .divider { border-top: 1px solid var(--border); margin: 20px 0 16px; }
+  ul { list-style: none; margin: 0; padding: 0; border: 1px solid var(--border); border-radius: var(--radius); }
+  li { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-top: 1px solid var(--border); font-size: 13px; }
+  li:first-child { border-top: 0; }
+  li a { color: var(--text); text-decoration: none; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
+  li a:hover { text-decoration: underline; }
+  li .arrow { color: var(--muted); }
+  .pill { font-size: 11px; background: var(--pill); border-radius: 999px; padding: 1px 8px; white-space: nowrap; }
+  .more { display: inline-block; margin-top: 8px; font-size: 12px; color: var(--primary); }
+  .shimmer { height: 34px; border-radius: var(--radius); background: linear-gradient(90deg, #f0f0f0 25%, #e6e6e6 50%, #f0f0f0 75%); margin-bottom: 6px; }
+  .shimmer.short { width: 60%; }
+  .banner { background: var(--err-bg); color: var(--err); border-radius: var(--radius); padding: 8px 10px; font-size: 12px; }
+  .banner u { cursor: pointer; }
+  .before { font-size: 13px; line-height: 1.5; }
+</style>
+</head>
+<body>
+<h1>“Used in” panel</h1>
+<p class="lead">Matches the other fields in the left column: same label style, same borders, Payload components only (<code>FieldLabel</code>, <code>FieldDescription</code>, <code>Pill</code>, <code>Link</code>, <code>ShimmerEffect</code>, <code>Banner</code>). One row per document, not per field path. Historical references are mentioned only when there are any.</p>
+
+<div class="grid">
+  <div class="card">
+    <div class="caption">Current</div>
+    <div class="col">
+      <div class="field"><div class="label">Alt *</div><div class="input">blog page details</div></div>
+      <div class="before"><br>Used in<br>No current references.<br>0 historical references. Historical references do not prevent deletion.</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="caption">1 · Not used</div>
+    <div class="col">
+      <div class="field"><div class="label">Alt *</div><div class="input">blog page details</div></div>
+      <div class="divider"></div>
+      <div class="label">Used in</div>
+      <div class="desc" style="margin-top:0">Not used anywhere. It can be deleted.</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="caption">2 · Used in a few places</div>
+    <div class="col">
+      <div class="field"><div class="label">Alt *</div><div class="input">Insta360 X4</div></div>
+      <div class="divider"></div>
+      <div class="label">Used in <span class="count">3</span></div>
+      <ul>
+        <li><span class="pill">Blog</span><a href="#">How to Choose the Right LED Bathroom Mirror</a><span class="arrow">↗</span></li>
+        <li><span class="pill">Page</span><a href="#">Home</a><span class="arrow">↗</span></li>
+        <li><span class="pill">Global</span><a href="#">Header</a><span class="arrow">↗</span></li>
+      </ul>
+      <div class="desc">Remove it from these places before deleting.</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="caption">3 · Many places + older versions</div>
+    <div class="col">
+      <div class="label">Used in <span class="count">8</span></div>
+      <ul>
+        <li><span class="pill">Blog</span><a href="#">How to Choose the Right LED Bathroom Mirror</a><span class="arrow">↗</span></li>
+        <li><span class="pill">Blog</span><a href="#">Hardwired vs. Plug-In Security Lights</a><span class="arrow">↗</span></li>
+        <li><span class="pill">Page</span><a href="#">Home</a><span class="arrow">↗</span></li>
+        <li><span class="pill">Case Study</span><a href="#">Hotel Lobby Retrofit</a><span class="arrow">↗</span></li>
+        <li><span class="pill">Global</span><a href="#">Header</a><span class="arrow">↗</span></li>
+      </ul>
+      <span class="more">Show all 8</span>
+      <div class="desc">Remove it from these places before deleting. Also in 4 older versions — these don’t block deletion.</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="caption">4 · Only in older versions</div>
+    <div class="col">
+      <div class="label">Used in</div>
+      <div class="desc" style="margin-top:0">Not used anywhere. It can be deleted.<br>Also in 2 older versions — these don’t block deletion.</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="caption">5 · Loading</div>
+    <div class="col">
+      <div class="label">Used in</div>
+      <div class="shimmer"></div>
+      <div class="shimmer short"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="caption">6 · Error</div>
+    <div class="col">
+      <div class="label">Used in</div>
+      <div class="banner">Couldn’t load where this is used. <u>Try again</u></div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

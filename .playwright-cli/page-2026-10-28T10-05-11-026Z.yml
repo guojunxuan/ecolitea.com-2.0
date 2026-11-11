@@ -1,0 +1,557 @@
+- generic [active] [ref=f2e1]:
+  - generic [ref=f2e3]:
+    - complementary [ref=f2e4]:
+      - navigation [ref=f2e6]:
+        - generic [ref=f2e7]:
+          - tablist [ref=f2e8]:
+            - tab "Collections" [selected] [ref=f2e9] [cursor=pointer]
+            - tab "Folders" [ref=f2e14] [cursor=pointer]
+          - tabpanel [ref=f2e19]:
+            - generic [ref=f2e20]:
+              - generic [ref=f2e21]:
+                - button "Collections" [ref=f2e22] [cursor=pointer]
+                - generic [ref=f2e27]:
+                  - link "Pages" [ref=f2e29] [cursor=pointer]:
+                    - /url: /admin/collections/pages
+                  - link "Posts" [ref=f2e32] [cursor=pointer]:
+                    - /url: /admin/collections/posts
+                  - link "Media" [ref=f2e35] [cursor=pointer]:
+                    - /url: /admin/collections/media
+                  - link "Documents" [ref=f2e38] [cursor=pointer]:
+                    - /url: /admin/collections/documents
+                  - link "Categories" [ref=f2e41] [cursor=pointer]:
+                    - /url: /admin/collections/categories
+                  - link "Case Studies" [ref=f2e44] [cursor=pointer]:
+                    - /url: /admin/collections/case-studies
+                  - link "Users" [ref=f2e47] [cursor=pointer]:
+                    - /url: /admin/collections/users
+                  - link "Redirects" [ref=f2e50] [cursor=pointer]:
+                    - /url: /admin/collections/redirects
+                  - link "Forms" [ref=f2e53] [cursor=pointer]:
+                    - /url: /admin/collections/forms
+                  - link "Form Submissions" [ref=f2e56] [cursor=pointer]:
+                    - /url: /admin/collections/form-submissions
+                  - link "Search Results" [ref=f2e59] [cursor=pointer]:
+                    - /url: /admin/collections/search
+              - generic [ref=f2e61]:
+                - button "Globals" [ref=f2e62] [cursor=pointer]
+                - generic [ref=f2e67]:
+                  - link "Header" [ref=f2e69] [cursor=pointer]:
+                    - /url: /admin/globals/header
+                  - link "Footer" [ref=f2e72] [cursor=pointer]:
+                    - /url: /admin/globals/footer
+                  - link "Site Settings" [ref=f2e75] [cursor=pointer]:
+                    - /url: /admin/globals/site-settings
+                  - link "Settings" [ref=f2e78] [cursor=pointer]:
+                    - /url: /admin/globals/settings
+              - generic [ref=f2e80]:
+                - button "Blog" [ref=f2e81] [cursor=pointer]
+                - generic [ref=f2e86]:
+                  - link "Blogs" [ref=f2e88] [cursor=pointer]:
+                    - /url: /admin/collections/blogs
+                  - link "Blog Categories" [ref=f2e91] [cursor=pointer]:
+                    - /url: /admin/collections/blog-categories
+              - generic [ref=f2e93]:
+                - button "Product" [ref=f2e94] [cursor=pointer]
+                - generic [ref=f2e99]:
+                  - link "Product Categories" [ref=f2e101] [cursor=pointer]:
+                    - /url: /admin/collections/product-categories
+                  - link "Products" [ref=f2e104] [cursor=pointer]:
+                    - /url: /admin/collections/products
+    - generic [ref=f2e106]:
+      - banner [ref=f2e107]:
+        - generic [ref=f2e109]:
+          - generic [ref=f2e111]:
+            - button "Open Menu" [ref=f2e112] [cursor=pointer]
+            - navigation [ref=f2e114]:
+              - link "Dashboard" [ref=f2e115] [cursor=pointer]:
+                - /url: /admin
+              - generic [ref=f2e116]: /
+              - link "Forms" [ref=f2e117] [cursor=pointer]:
+                - /url: /admin/collections/forms
+              - generic [ref=f2e118]: /
+              - link "全字段示例表单" [ref=f2e119] [cursor=pointer]:
+                - /url: /admin/collections/forms/6ae1c8bc9b6fd0c2ea7e2f60
+          - button "Account" [ref=f2e122] [cursor=pointer]:
+            - img "yas" [ref=f2e123]
+      - generic [ref=f2e124]:
+        - heading "全字段示例表单" [level=1] [ref=f2e125]
+        - list [ref=f2e128]:
+          - generic "Edit" [ref=f2e129]
+          - link "Versions" [ref=f2e130] [cursor=pointer]:
+            - /url: /admin/collections/forms/6ae1c8bc9b6fd0c2ea7e2f60/versions
+            - generic:
+              - generic:
+                - generic:
+                  - text: Versions
+                  - generic: "1"
+          - link "API" [ref=f2e131] [cursor=pointer]:
+            - /url: /admin/collections/forms/6ae1c8bc9b6fd0c2ea7e2f60/api
+      - main [ref=f2e132]:
+        - generic [ref=f2e133]:
+          - generic [ref=f2e134]:
+            - list [ref=f2e136]:
+              - listitem "October 28th 2026, 6:04 PM" [ref=f2e137]:
+                - paragraph [ref=f2e138]: Updated less than a minute ago
+            - generic [ref=f2e139]:
+              - button "Save" [disabled] [ref=f2e142]
+              - button "More options" [ref=f2e145] [cursor=pointer]
+          - generic [ref=f2e151]:
+            - generic [ref=f2e152]:
+              - generic [ref=f2e153]:
+                - text: Title
+                - generic [ref=f2e154]: "*"
+              - textbox "Title *" [ref=f2e156]: 全字段示例表单
+            - generic [ref=f2e157]:
+              - generic [ref=f2e159]:
+                - heading "Fields" [level=3] [ref=f2e161]
+                - list [ref=f2e162]:
+                  - listitem [ref=f2e163]:
+                    - button "Collapse All" [ref=f2e164] [cursor=pointer]
+                  - listitem [ref=f2e165]:
+                    - button "Show All" [ref=f2e166] [cursor=pointer]
+                  - listitem [ref=f2e167]:
+                    - button "More options" [ref=f2e170] [cursor=pointer]
+              - generic [ref=f2e173]:
+                - generic [ref=f2e175]:
+                  - generic [ref=f2e176] [cursor=pointer]:
+                    - button "Toggle block" [ref=f2e177]
+                    - button "Drag to reorder" [ref=f2e178]
+                    - generic:
+                      - generic:
+                        - generic: "01"
+                        - generic: Text
+                        - textbox "Block name" [ref=f2e182]:
+                          - /placeholder: Untitled
+                    - generic:
+                      - button "More options" [ref=f2e186]
+                      - button "Collapse" [ref=f2e189]
+                  - generic [ref=f2e195]:
+                    - generic [ref=f2e197]:
+                      - generic [ref=f2e198]:
+                        - generic [ref=f2e199]:
+                          - text: Name (lowercase, no special characters)
+                          - generic [ref=f2e200]: "*"
+                        - textbox "Name (lowercase, no special characters) *" [ref=f2e202]: name
+                      - generic [ref=f2e203]:
+                        - generic [ref=f2e204]: Label
+                        - textbox "Label" [ref=f2e206]: 姓名
+                    - generic [ref=f2e208]:
+                      - generic [ref=f2e209]:
+                        - generic [ref=f2e210]: Field Width (percentage)
+                        - generic [ref=f2e212]:
+                          - spinbutton "Field Width (percentage)" [ref=f2e213]: "100"
+                          - generic [ref=f2e214]:
+                            - button "Increment" [ref=f2e215] [cursor=pointer]
+                            - button "Decrement" [ref=f2e218] [cursor=pointer]
+                      - generic [ref=f2e221]:
+                        - generic [ref=f2e222]: Default Value
+                        - textbox "Default Value" [ref=f2e224]
+                    - generic [ref=f2e227]:
+                      - checkbox "Required" [checked] [ref=f2e229]
+                      - generic [ref=f2e233]: Required
+                - generic [ref=f2e235]:
+                  - generic [ref=f2e236] [cursor=pointer]:
+                    - button "Toggle block" [ref=f2e237]
+                    - button "Drag to reorder" [ref=f2e238]
+                    - generic:
+                      - generic:
+                        - generic: "02"
+                        - generic: Email
+                        - textbox "Block name" [ref=f2e242]:
+                          - /placeholder: Untitled
+                    - generic:
+                      - button "More options" [ref=f2e246]
+                      - button "Collapse" [ref=f2e249]
+                  - generic [ref=f2e255]:
+                    - generic [ref=f2e257]:
+                      - generic [ref=f2e258]:
+                        - generic [ref=f2e259]:
+                          - text: Name (lowercase, no special characters)
+                          - generic [ref=f2e260]: "*"
+                        - textbox "Name (lowercase, no special characters) *" [ref=f2e262]: email
+                      - generic [ref=f2e263]:
+                        - generic [ref=f2e264]: Label
+                        - textbox "Label" [ref=f2e266]: 邮箱
+                    - generic [ref=f2e267]:
+                      - generic [ref=f2e268]: Field Width (percentage)
+                      - generic [ref=f2e270]:
+                        - spinbutton "Field Width (percentage)" [ref=f2e271]: "100"
+                        - generic [ref=f2e272]:
+                          - button "Increment" [ref=f2e273] [cursor=pointer]
+                          - button "Decrement" [ref=f2e276] [cursor=pointer]
+                    - generic [ref=f2e281]:
+                      - checkbox "Required" [checked] [ref=f2e283]
+                      - generic [ref=f2e287]: Required
+                - generic [ref=f2e289]:
+                  - generic [ref=f2e290] [cursor=pointer]:
+                    - button "Toggle block" [ref=f2e291]
+                    - button "Drag to reorder" [ref=f2e292]
+                    - generic:
+                      - generic:
+                        - generic: "03"
+                        - generic: Message
+                        - textbox "Block name" [ref=f2e296]:
+                          - /placeholder: Untitled
+                    - generic:
+                      - button "More options" [ref=f2e300]
+                      - button "Collapse" [ref=f2e303]
+                  - generic [ref=f2e310]:
+                    - generic [ref=f2e311]: Message
+                    - generic [ref=f2e314]:
+                      - generic [ref=f2e316]:
+                        - button "add dropdown" [ref=f2e318] [cursor=pointer]
+                        - button "text dropdown" [ref=f2e324] [cursor=pointer]
+                        - generic [ref=f2e329]:
+                          - button "Bold" [ref=f2e330] [cursor=pointer]
+                          - button "Italic" [ref=f2e333] [cursor=pointer]
+                          - button "Underline" [ref=f2e336] [cursor=pointer]
+                          - button "Strikethrough" [ref=f2e339] [cursor=pointer]
+                          - button "Subscript" [ref=f2e342] [cursor=pointer]
+                          - button "Superscript" [ref=f2e345] [cursor=pointer]
+                          - button "Inline Code" [ref=f2e348] [cursor=pointer]
+                        - button "Link" [ref=f2e353] [cursor=pointer]
+                      - generic [ref=f2e356]:
+                        - generic [ref=f2e358]:
+                          - textbox [ref=f2e359]:
+                            - paragraph [ref=f2e360]: 这是全字段示例表单，包含当前启用的所有字段类型，供预览和体验使用。
+                          - button "Drag to move" [ref=f2e361]
+                          - button "Add block" [ref=f2e363] [cursor=pointer]
+                          - generic [ref=f2e369]:
+                            - button "Edit link" [ref=f2e370] [cursor=pointer]
+                            - button "Remove link" [ref=f2e373] [cursor=pointer]
+                        - button "Insert Paragraph" [ref=f2e376]
+                - generic [ref=f2e381]:
+                  - generic [ref=f2e382] [cursor=pointer]:
+                    - button "Toggle block" [ref=f2e383]
+                    - button "Drag to reorder" [ref=f2e384]
+                    - generic:
+                      - generic:
+                        - generic: "04"
+                        - generic: Text Area
+                        - textbox "Block name" [ref=f2e388]:
+                          - /placeholder: Untitled
+                    - generic:
+                      - button "More options" [ref=f2e392]
+                      - button "Collapse" [ref=f2e395]
+                  - generic [ref=f2e401]:
+                    - generic [ref=f2e403]:
+                      - generic [ref=f2e404]:
+                        - generic [ref=f2e405]:
+                          - text: Name (lowercase, no special characters)
+                          - generic [ref=f2e406]: "*"
+                        - textbox "Name (lowercase, no special characters) *" [ref=f2e408]: message
+                      - generic [ref=f2e409]:
+                        - generic [ref=f2e410]: Label
+                        - textbox "Label" [ref=f2e412]: 留言
+                    - generic [ref=f2e414]:
+                      - generic [ref=f2e415]:
+                        - generic [ref=f2e416]: Field Width (percentage)
+                        - generic [ref=f2e418]:
+                          - spinbutton "Field Width (percentage)" [ref=f2e419]: "100"
+                          - generic [ref=f2e420]:
+                            - button "Increment" [ref=f2e421] [cursor=pointer]
+                            - button "Decrement" [ref=f2e424] [cursor=pointer]
+                      - generic [ref=f2e427]:
+                        - generic [ref=f2e428]: Default Value
+                        - textbox "Default Value" [ref=f2e430]
+                    - generic [ref=f2e433]:
+                      - checkbox "Required" [checked] [ref=f2e435]
+                      - generic [ref=f2e439]: Required
+                - generic [ref=f2e441]:
+                  - generic [ref=f2e442] [cursor=pointer]:
+                    - button "Toggle block" [ref=f2e443]
+                    - button "Drag to reorder" [ref=f2e444]
+                    - generic:
+                      - generic:
+                        - generic: "05"
+                        - generic: Number
+                        - textbox "Block name" [ref=f2e448]:
+                          - /placeholder: Untitled
+                    - generic:
+                      - button "More options" [ref=f2e452]
+                      - button "Collapse" [ref=f2e455]
+                  - generic [ref=f2e461]:
+                    - generic [ref=f2e463]:
+                      - generic [ref=f2e464]:
+                        - generic [ref=f2e465]:
+                          - text: Name (lowercase, no special characters)
+                          - generic [ref=f2e466]: "*"
+                        - textbox "Name (lowercase, no special characters) *" [ref=f2e468]: quantity
+                      - generic [ref=f2e469]:
+                        - generic [ref=f2e470]: Label
+                        - textbox "Label" [ref=f2e472]: 数量
+                    - generic [ref=f2e474]:
+                      - generic [ref=f2e475]:
+                        - generic [ref=f2e476]: Field Width (percentage)
+                        - generic [ref=f2e478]:
+                          - spinbutton "Field Width (percentage)" [ref=f2e479]: "100"
+                          - generic [ref=f2e480]:
+                            - button "Increment" [ref=f2e481] [cursor=pointer]
+                            - button "Decrement" [ref=f2e484] [cursor=pointer]
+                      - generic [ref=f2e487]:
+                        - generic [ref=f2e488]: Default Value
+                        - generic [ref=f2e490]:
+                          - spinbutton "Default Value" [ref=f2e491]
+                          - generic [ref=f2e492]:
+                            - button "Increment" [ref=f2e493] [cursor=pointer]
+                            - button "Decrement" [ref=f2e496] [cursor=pointer]
+                    - generic [ref=f2e501]:
+                      - checkbox "Required" [ref=f2e503]
+                      - generic [ref=f2e505]: Required
+                - generic [ref=f2e507]:
+                  - generic [ref=f2e508] [cursor=pointer]:
+                    - button "Toggle block" [ref=f2e509]
+                    - button "Drag to reorder" [ref=f2e510]
+                    - generic:
+                      - generic:
+                        - generic: "06"
+                        - generic: Select
+                        - textbox "Block name" [ref=f2e514]:
+                          - /placeholder: Untitled
+                    - generic:
+                      - button "More options" [ref=f2e518]
+                      - button "Collapse" [ref=f2e521]
+                  - generic [ref=f2e527]:
+                    - generic [ref=f2e529]:
+                      - generic [ref=f2e530]:
+                        - generic [ref=f2e531]:
+                          - text: Name (lowercase, no special characters)
+                          - generic [ref=f2e532]: "*"
+                        - textbox "Name (lowercase, no special characters) *" [ref=f2e534]: topic
+                      - generic [ref=f2e535]:
+                        - generic [ref=f2e536]: Label
+                        - textbox "Label" [ref=f2e538]: 咨询类型
+                    - generic [ref=f2e540]:
+                      - generic [ref=f2e541]:
+                        - generic [ref=f2e542]: Field Width (percentage)
+                        - generic [ref=f2e544]:
+                          - spinbutton "Field Width (percentage)" [ref=f2e545]: "100"
+                          - generic [ref=f2e546]:
+                            - button "Increment" [ref=f2e547] [cursor=pointer]
+                            - button "Decrement" [ref=f2e550] [cursor=pointer]
+                      - generic [ref=f2e553]:
+                        - generic [ref=f2e554]: Default Value
+                        - textbox "Default Value" [ref=f2e556]
+                    - generic [ref=f2e559]:
+                      - generic [ref=f2e560]: Placeholder
+                      - textbox "Placeholder" [ref=f2e562]: 请选择咨询类型
+                    - generic [ref=f2e563]:
+                      - generic [ref=f2e565]:
+                        - heading "Select Attribute Options" [level=3] [ref=f2e567]
+                        - list [ref=f2e568]:
+                          - listitem [ref=f2e569]:
+                            - button "Collapse All" [ref=f2e570] [cursor=pointer]
+                          - listitem [ref=f2e571]:
+                            - button "Show All" [ref=f2e572] [cursor=pointer]
+                          - listitem [ref=f2e573]:
+                            - button "More options" [ref=f2e576] [cursor=pointer]
+                      - generic [ref=f2e579]:
+                        - generic [ref=f2e581]:
+                          - generic [ref=f2e582] [cursor=pointer]:
+                            - button "Toggle block" [ref=f2e583]
+                            - button "Drag to reorder" [ref=f2e584]
+                            - generic: Option 01
+                            - generic:
+                              - button "More options" [ref=f2e590]
+                              - button "Collapse" [ref=f2e593]
+                          - generic [ref=f2e601]:
+                            - generic [ref=f2e602]:
+                              - generic [ref=f2e603]:
+                                - text: Label
+                                - generic [ref=f2e604]: "*"
+                              - textbox "Label *" [ref=f2e606]: 产品咨询
+                            - generic [ref=f2e607]:
+                              - generic [ref=f2e608]:
+                                - text: Value
+                                - generic [ref=f2e609]: "*"
+                              - textbox "Value *" [ref=f2e611]: product
+                        - generic [ref=f2e614] [cursor=pointer]:
+                          - button "Toggle block" [ref=f2e615]
+                          - button "Drag to reorder" [ref=f2e616]
+                          - generic: Option 02
+                          - generic:
+                            - button "More options" [ref=f2e622]
+                            - button "Collapse" [ref=f2e625]
+                        - generic [ref=f2e633] [cursor=pointer]:
+                          - button "Toggle block" [ref=f2e634]
+                          - button "Drag to reorder" [ref=f2e635]
+                          - generic: Option 03
+                          - generic:
+                            - button "More options" [ref=f2e641]
+                            - button "Collapse" [ref=f2e644]
+                      - status [ref=f2e650]
+                      - button "Add Option" [ref=f2e651] [cursor=pointer]
+                    - generic [ref=f2e654]:
+                      - checkbox "Required" [ref=f2e656]
+                      - generic [ref=f2e658]: Required
+                - generic [ref=f2e660]:
+                  - generic [ref=f2e661] [cursor=pointer]:
+                    - button "Toggle block" [ref=f2e662]
+                    - button "Drag to reorder" [ref=f2e663]
+                    - generic:
+                      - generic:
+                        - generic: "07"
+                        - generic: Checkbox
+                        - textbox "Block name" [ref=f2e667]:
+                          - /placeholder: Untitled
+                    - generic:
+                      - button "More options" [ref=f2e671]
+                      - button "Collapse" [ref=f2e674]
+                  - generic [ref=f2e680]:
+                    - generic [ref=f2e682]:
+                      - generic [ref=f2e683]:
+                        - generic [ref=f2e684]:
+                          - text: Name (lowercase, no special characters)
+                          - generic [ref=f2e685]: "*"
+                        - textbox "Name (lowercase, no special characters) *" [ref=f2e687]: updates
+                      - generic [ref=f2e688]:
+                        - generic [ref=f2e689]: Label
+                        - textbox "Label" [ref=f2e691]: 订阅产品更新（可选）
+                    - generic [ref=f2e693]:
+                      - generic [ref=f2e694]:
+                        - generic [ref=f2e695]: Field Width (percentage)
+                        - generic [ref=f2e697]:
+                          - spinbutton "Field Width (percentage)" [ref=f2e698]: "100"
+                          - generic [ref=f2e699]:
+                            - button "Increment" [ref=f2e700] [cursor=pointer]
+                            - button "Decrement" [ref=f2e703] [cursor=pointer]
+                      - generic [ref=f2e708]:
+                        - checkbox "Required" [ref=f2e710]
+                        - generic [ref=f2e712]: Required
+                    - generic [ref=f2e715]:
+                      - checkbox "Checked by default" [ref=f2e717]
+                      - generic [ref=f2e719]: Checked by default
+                - generic [ref=f2e721]:
+                  - generic [ref=f2e722] [cursor=pointer]:
+                    - button "Toggle block" [ref=f2e723]
+                    - button "Drag to reorder" [ref=f2e724]
+                    - generic:
+                      - generic:
+                        - generic: "08"
+                        - generic: Country
+                        - textbox "Block name" [ref=f2e728]:
+                          - /placeholder: Untitled
+                    - generic:
+                      - button "More options" [ref=f2e732]
+                      - button "Collapse" [ref=f2e735]
+                  - generic [ref=f2e741]:
+                    - generic [ref=f2e743]:
+                      - generic [ref=f2e744]:
+                        - generic [ref=f2e745]:
+                          - text: Name (lowercase, no special characters)
+                          - generic [ref=f2e746]: "*"
+                        - textbox "Name (lowercase, no special characters) *" [ref=f2e748]: country
+                      - generic [ref=f2e749]:
+                        - generic [ref=f2e750]: Label
+                        - textbox "Label" [ref=f2e752]: 国家或地区
+                    - generic [ref=f2e753]:
+                      - generic [ref=f2e754]: Field Width (percentage)
+                      - generic [ref=f2e756]:
+                        - spinbutton "Field Width (percentage)" [ref=f2e757]: "100"
+                        - generic [ref=f2e758]:
+                          - button "Increment" [ref=f2e759] [cursor=pointer]
+                          - button "Decrement" [ref=f2e762] [cursor=pointer]
+                    - generic [ref=f2e767]:
+                      - checkbox "Required" [ref=f2e769]
+                      - generic [ref=f2e771]: Required
+                - generic [ref=f2e773]:
+                  - generic [ref=f2e774] [cursor=pointer]:
+                    - button "Toggle block" [ref=f2e775]
+                    - button "Drag to reorder" [ref=f2e776]
+                    - generic:
+                      - generic:
+                        - generic: "09"
+                        - generic: State
+                        - textbox "Block name" [ref=f2e780]:
+                          - /placeholder: Untitled
+                    - generic:
+                      - button "More options" [ref=f2e784]
+                      - button "Collapse" [ref=f2e787]
+                  - generic [ref=f2e793]:
+                    - generic [ref=f2e795]:
+                      - generic [ref=f2e796]:
+                        - generic [ref=f2e797]:
+                          - text: Name (lowercase, no special characters)
+                          - generic [ref=f2e798]: "*"
+                        - textbox "Name (lowercase, no special characters) *" [ref=f2e800]: state
+                      - generic [ref=f2e801]:
+                        - generic [ref=f2e802]: Label
+                        - textbox "Label" [ref=f2e804]: 州（美国）
+                    - generic [ref=f2e805]:
+                      - generic [ref=f2e806]: Field Width (percentage)
+                      - generic [ref=f2e808]:
+                        - spinbutton "Field Width (percentage)" [ref=f2e809]: "100"
+                        - generic [ref=f2e810]:
+                          - button "Increment" [ref=f2e811] [cursor=pointer]
+                          - button "Decrement" [ref=f2e814] [cursor=pointer]
+                    - generic [ref=f2e819]:
+                      - checkbox "Required" [ref=f2e821]
+                      - generic [ref=f2e823]: Required
+              - status [ref=f2e824]
+              - button "Add Field" [ref=f2e825]
+            - generic [ref=f2e827]:
+              - generic [ref=f2e828]: Submit Button Label
+              - textbox "Submit Button Label" [ref=f2e830]: 提交表单
+            - generic [ref=f2e831]:
+              - generic [ref=f2e832]: Confirmation Type
+              - generic [ref=f2e834]:
+                - list [ref=f2e835]:
+                  - listitem [ref=f2e836]:
+                    - generic [ref=f2e838] [cursor=pointer]:
+                      - radio "Message" [checked] [ref=f2e839]
+                      - generic [ref=f2e841]: Message
+                  - listitem [ref=f2e842]:
+                    - generic [ref=f2e844] [cursor=pointer]:
+                      - radio "Redirect" [ref=f2e845]
+                      - generic [ref=f2e847]: Redirect
+                - generic [ref=f2e848]: Choose whether to display an on-page message or redirect to a different page after they submit the form.
+            - generic [ref=f2e849]:
+              - generic [ref=f2e851]:
+                - text: Confirmation Message
+                - generic [ref=f2e852]: "*"
+              - generic [ref=f2e854]:
+                - generic [ref=f2e856]:
+                  - button "add dropdown" [ref=f2e858] [cursor=pointer]
+                  - button "text dropdown" [ref=f2e864] [cursor=pointer]
+                  - generic [ref=f2e869]:
+                    - button "Bold" [ref=f2e870] [cursor=pointer]
+                    - button "Italic" [ref=f2e873] [cursor=pointer]
+                    - button "Underline" [ref=f2e876] [cursor=pointer]
+                    - button "Strikethrough" [ref=f2e879] [cursor=pointer]
+                    - button "Subscript" [ref=f2e882] [cursor=pointer]
+                    - button "Superscript" [ref=f2e885] [cursor=pointer]
+                    - button "Inline Code" [ref=f2e888] [cursor=pointer]
+                  - button "Link" [ref=f2e893] [cursor=pointer]
+                - generic [ref=f2e896]:
+                  - generic [ref=f2e898]:
+                    - textbox [ref=f2e899]:
+                      - paragraph [ref=f2e900]: 感谢您的留言，我们会尽快与您联系。
+                    - button "Drag to move" [ref=f2e901]
+                    - button "Add block" [ref=f2e903] [cursor=pointer]
+                    - generic [ref=f2e909]:
+                      - button "Edit link" [ref=f2e910] [cursor=pointer]
+                      - button "Remove link" [ref=f2e913] [cursor=pointer]
+                  - button "Insert Paragraph" [ref=f2e916]
+            - generic [ref=f2e920]:
+              - generic [ref=f2e921]:
+                - generic [ref=f2e922]:
+                  - heading "Emails" [level=3] [ref=f2e924]
+                  - list [ref=f2e925]:
+                    - listitem [ref=f2e926]:
+                      - button "More options" [ref=f2e929] [cursor=pointer]
+                - generic [ref=f2e932]: "Send custom emails when the form submits. Use comma separated lists to send the same email to multiple recipients. To reference a value from this form, wrap that field's name with double curly brackets, i.e. {{firstName}}. You can use a wildcard {{*}} to output all data and {{*:table}} to format it as an HTML table in the email."
+              - button "Add Email" [ref=f2e933] [cursor=pointer]
+      - status [ref=f2e934]
+  - status [ref=f2e935]
+  - region "Notifications alt+T"
+  - generic [ref=f2e940] [cursor=pointer]:
+    - button "Open Next.js Dev Tools" [ref=f2e941]
+    - generic [ref=f2e945]:
+      - button "Open issues overlay" [ref=f2e946]:
+        - generic [ref=f2e947]:
+          - generic [aria-hidden] [ref=f2e948]: "0"
+          - generic [ref=f2e949]: "1"
+        - generic [ref=f2e950]: Issue
+      - button "Collapse issues badge" [ref=f2e951]
+  - alert [ref=f2e954]

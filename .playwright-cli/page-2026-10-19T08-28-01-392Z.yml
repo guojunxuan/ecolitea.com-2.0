@@ -1,0 +1,347 @@
+- generic [active] [ref=f3e1]:
+  - generic [ref=f3e4]:
+    - banner [ref=f3e5]:
+      - generic [ref=f3e7]:
+        - generic [ref=f3e9]:
+          - button "Close Menu" [ref=f3e10] [cursor=pointer]
+          - navigation [ref=f3e12]:
+            - link "Dashboard" [ref=f3e13] [cursor=pointer]:
+              - /url: /admin
+        - button "Account" [ref=f3e16] [cursor=pointer]:
+          - img "yas" [ref=f3e17]
+    - generic [ref=f3e18]:
+      - banner [ref=f3e19]:
+        - generic [ref=f3e21]:
+          - heading "Media" [level=1] [ref=f3e22]
+          - button "Bulk Upload" [ref=f3e24] [cursor=pointer]
+        - generic [ref=f3e25]: "Images: JPEG, PNG, WebP, AVIF, GIF; ratios 1:1, 4:3, 3:2, 16:9, 9:16, 4:5 (1% tolerance). Video: MP4, H.264, AAC or MP3 audio; maximum 100 MB and 10 minutes; ratios 16:9, 9:16, 1:1, 4:5 (1% tolerance). Enable Fast Start / Web Optimized when exporting video."
+      - generic [ref=f3e29]:
+        - textbox "Search" [ref=f3e32]
+        - generic [ref=f3e34]:
+          - button "Filters" [ref=f3e35] [cursor=pointer]
+          - button "Group by" [ref=f3e38] [cursor=pointer]
+          - button "Columns" [ref=f3e41] [cursor=pointer]
+          - link "Create New" [ref=f3e42] [cursor=pointer]:
+            - /url: /admin/collections/media/create
+      - table [ref=f3e46]:
+        - rowgroup [ref=f3e47]:
+          - row [ref=f3e48]:
+            - columnheader [ref=f3e49]:
+              - checkbox "Select all rows" [disabled] [ref=f3e53]
+            - columnheader "File Name Sort by File Name Descending Sort by File Name Ascending" [ref=f3e55]:
+              - generic [ref=f3e56]:
+                - generic [ref=f3e57]: File Name
+                - generic [ref=f3e58]:
+                  - button "Sort by File Name Descending" [ref=f3e59] [cursor=pointer]
+                  - button "Sort by File Name Ascending" [ref=f3e62] [cursor=pointer]
+            - columnheader "Alt Sort by Alt Descending Sort by Alt Ascending" [ref=f3e65]:
+              - generic [ref=f3e66]:
+                - generic [ref=f3e67]: Alt
+                - generic [ref=f3e68]:
+                  - button "Sort by Alt Descending" [ref=f3e69] [cursor=pointer]
+                  - button "Sort by Alt Ascending" [ref=f3e72] [cursor=pointer]
+            - columnheader "MIME Type Sort by MIME Type Descending Sort by MIME Type Ascending" [ref=f3e75]:
+              - generic [ref=f3e76]:
+                - generic [ref=f3e77]: MIME Type
+                - generic [ref=f3e78]:
+                  - button "Sort by MIME Type Descending" [ref=f3e79] [cursor=pointer]
+                  - button "Sort by MIME Type Ascending" [ref=f3e82] [cursor=pointer]
+            - columnheader "Width Sort by Width Descending Sort by Width Ascending" [ref=f3e85]:
+              - generic [ref=f3e86]:
+                - generic [ref=f3e87]: Width
+                - generic [ref=f3e88]:
+                  - button "Sort by Width Descending" [ref=f3e89] [cursor=pointer]
+                  - button "Sort by Width Ascending" [ref=f3e92] [cursor=pointer]
+            - columnheader "Filesize Sort by Filesize Descending Sort by Filesize Ascending" [ref=f3e95]:
+              - generic [ref=f3e96]:
+                - generic [ref=f3e97]: Filesize
+                - generic [ref=f3e98]:
+                  - button "Sort by Filesize Descending" [ref=f3e99] [cursor=pointer]
+                  - button "Sort by Filesize Ascending" [ref=f3e102] [cursor=pointer]
+            - columnheader "Folder Sort by Folder Descending Sort by Folder Ascending" [ref=f3e105]:
+              - generic [ref=f3e106]:
+                - generic [ref=f3e107]: Folder
+                - generic [ref=f3e108]:
+                  - button "Sort by Folder Descending" [ref=f3e109] [cursor=pointer]
+                  - button "Sort by Folder Ascending" [ref=f3e112] [cursor=pointer]
+            - columnheader "Updated At Sort by Updated At Descending Sort by Updated At Ascending" [ref=f3e115]:
+              - generic [ref=f3e116]:
+                - generic [ref=f3e117]: Updated At
+                - generic [ref=f3e118]:
+                  - button "Sort by Updated At Descending" [ref=f3e119] [cursor=pointer]
+                  - button "Sort by Updated At Ascending" [ref=f3e122] [cursor=pointer]
+        - rowgroup [ref=f3e125]:
+          - row [ref=f3e126]:
+            - cell [ref=f3e127]:
+              - checkbox "Select 灯具logo.jpg" [disabled] [ref=f3e131]
+            - cell [ref=f3e133]:
+              - link "灯具logo.jpg" [ref=f3e134] [cursor=pointer]:
+                - /url: /admin/collections/media/6ad5d0b58b78f8f81ef64a4e
+            - cell "image-ic" [ref=f3e140]
+            - cell "image/jpeg" [ref=f3e142]
+            - cell "260 × 259" [ref=f3e144]
+            - cell "21KB" [ref=f3e146]
+            - cell [ref=f3e148]:
+              - button "None" [ref=f3e150] [cursor=pointer]
+            - cell "Loading..." [ref=f3e151]
+          - row [ref=f3e153]:
+            - cell [ref=f3e154]:
+              - checkbox "Select header-interest-8.jpg" [disabled] [ref=f3e158]
+            - cell [ref=f3e160]:
+              - link "header-interest-8.jpg" [ref=f3e161] [cursor=pointer]:
+                - /url: /admin/collections/media/6aaa480e3b01909772704a51
+            - cell "Winter Sports" [ref=f3e167]
+            - cell "image/jpeg" [ref=f3e169]
+            - cell "960 × 540" [ref=f3e171]
+            - cell "56KB" [ref=f3e173]
+            - cell [ref=f3e175]:
+              - button "None" [ref=f3e177] [cursor=pointer]
+            - cell "Loading..." [ref=f3e178]
+          - row [ref=f3e180]:
+            - cell [ref=f3e181]:
+              - checkbox "Select header-interest-4.jpg" [disabled] [ref=f3e185]
+            - cell [ref=f3e187]:
+              - link "header-interest-4.jpg" [ref=f3e188] [cursor=pointer]:
+                - /url: /admin/collections/media/6aaa480c3b01909772704a45
+            - cell "Vlogging" [ref=f3e194]
+            - cell "image/jpeg" [ref=f3e196]
+            - cell "960 × 540" [ref=f3e198]
+            - cell "72KB" [ref=f3e200]
+            - cell [ref=f3e202]:
+              - button "None" [ref=f3e204] [cursor=pointer]
+            - cell "Loading..." [ref=f3e205]
+          - row [ref=f3e207]:
+            - cell [ref=f3e208]:
+              - checkbox "Select header-interest-3.jpg" [disabled] [ref=f3e212]
+            - cell [ref=f3e214]:
+              - link "header-interest-3.jpg" [ref=f3e215] [cursor=pointer]:
+                - /url: /admin/collections/media/6aaa480b3b01909772704a42
+            - cell "Videography" [ref=f3e221]
+            - cell "image/jpeg" [ref=f3e223]
+            - cell "960 × 540" [ref=f3e225]
+            - cell "95KB" [ref=f3e227]
+            - cell [ref=f3e229]:
+              - button "None" [ref=f3e231] [cursor=pointer]
+            - cell "Loading..." [ref=f3e232]
+          - row [ref=f3e234]:
+            - cell [ref=f3e235]:
+              - checkbox "Select header-interest-11.jpg" [disabled] [ref=f3e239]
+            - cell [ref=f3e241]:
+              - link "header-interest-11.jpg" [ref=f3e242] [cursor=pointer]:
+                - /url: /admin/collections/media/6aaa48103b01909772704a5a
+            - cell "Snowboarding" [ref=f3e248]
+            - cell "image/jpeg" [ref=f3e250]
+            - cell "960 × 540" [ref=f3e252]
+            - cell "77KB" [ref=f3e254]
+            - cell [ref=f3e256]:
+              - button "None" [ref=f3e258] [cursor=pointer]
+            - cell "Loading..." [ref=f3e259]
+          - row [ref=f3e261]:
+            - cell [ref=f3e262]:
+              - checkbox "Select header-interest-6.jpg" [disabled] [ref=f3e266]
+            - cell [ref=f3e268]:
+              - link "header-interest-6.jpg" [ref=f3e269] [cursor=pointer]:
+                - /url: /admin/collections/media/6aaa480d3b01909772704a4b
+            - cell "Snorkeling" [ref=f3e275]
+            - cell "image/jpeg" [ref=f3e277]
+            - cell "960 × 540" [ref=f3e279]
+            - cell "125KB" [ref=f3e281]
+            - cell [ref=f3e283]:
+              - button "None" [ref=f3e285] [cursor=pointer]
+            - cell "Loading..." [ref=f3e286]
+          - row [ref=f3e288]:
+            - cell [ref=f3e289]:
+              - checkbox "Select header-insta360-snap.png" [disabled] [ref=f3e293]
+            - cell [ref=f3e295]:
+              - link "header-insta360-snap.png" [ref=f3e296] [cursor=pointer]:
+                - /url: /admin/collections/media/6aaa4aacc8097c5b8498306f
+            - cell "Snap Selfie Screen" [ref=f3e302]
+            - cell "image/png" [ref=f3e304]
+            - cell "800 × 800" [ref=f3e306]
+            - cell "268KB" [ref=f3e308]
+            - cell [ref=f3e310]:
+              - button "None" [ref=f3e312] [cursor=pointer]
+            - cell "Loading..." [ref=f3e313]
+          - row [ref=f3e315]:
+            - cell [ref=f3e316]:
+              - checkbox "Select header-interest-12.jpg" [disabled] [ref=f3e320]
+            - cell [ref=f3e322]:
+              - link "header-interest-12.jpg" [ref=f3e323] [cursor=pointer]:
+                - /url: /admin/collections/media/6aaa48113b01909772704a5d
+            - cell "Skiing" [ref=f3e329]
+            - cell "image/jpeg" [ref=f3e331]
+            - cell "960 × 540" [ref=f3e333]
+            - cell "99KB" [ref=f3e335]
+            - cell [ref=f3e337]:
+              - button "None" [ref=f3e339] [cursor=pointer]
+            - cell "Loading..." [ref=f3e340]
+          - row [ref=f3e342]:
+            - cell [ref=f3e343]:
+              - checkbox "Select header-interest-10.jpg" [disabled] [ref=f3e347]
+            - cell [ref=f3e349]:
+              - link "header-interest-10.jpg" [ref=f3e350] [cursor=pointer]:
+                - /url: /admin/collections/media/6aaa480f3b01909772704a57
+            - cell "Scuba Diving" [ref=f3e356]
+            - cell "image/jpeg" [ref=f3e358]
+            - cell "960 × 540" [ref=f3e360]
+            - cell "46KB" [ref=f3e362]
+            - cell [ref=f3e364]:
+              - button "None" [ref=f3e366] [cursor=pointer]
+            - cell "Loading..." [ref=f3e367]
+          - row [ref=f3e369]:
+            - cell [ref=f3e370]:
+              - checkbox "Select header-interest-1.jpg" [disabled] [ref=f3e374]
+            - cell [ref=f3e376]:
+              - link "header-interest-1.jpg" [ref=f3e377] [cursor=pointer]:
+                - /url: /admin/collections/media/6aaa48093b01909772704a3c
+            - cell "Road Cycling" [ref=f3e383]
+            - cell "image/jpeg" [ref=f3e385]
+            - cell "960 × 540" [ref=f3e387]
+            - cell "87KB" [ref=f3e389]
+            - cell [ref=f3e391]:
+              - button "None" [ref=f3e393] [cursor=pointer]
+            - cell "Loading..." [ref=f3e394]
+          - row [ref=f3e396]:
+            - cell [ref=f3e397]:
+              - checkbox "Select header-interest-7.jpg" [disabled] [ref=f3e401]
+            - cell [ref=f3e403]:
+              - link "header-interest-7.jpg" [ref=f3e404] [cursor=pointer]:
+                - /url: /admin/collections/media/6aaa480d3b01909772704a4e
+            - cell "Mountain Biking" [ref=f3e410]
+            - cell "image/jpeg" [ref=f3e412]
+            - cell "960 × 540" [ref=f3e414]
+            - cell "116KB" [ref=f3e416]
+            - cell [ref=f3e418]:
+              - button "None" [ref=f3e420] [cursor=pointer]
+            - cell "Loading..." [ref=f3e421]
+          - row [ref=f3e423]:
+            - cell [ref=f3e424]:
+              - checkbox "Select header-interest-2.jpg" [disabled] [ref=f3e428]
+            - cell [ref=f3e430]:
+              - link "header-interest-2.jpg" [ref=f3e431] [cursor=pointer]:
+                - /url: /admin/collections/media/6aaa480a3b01909772704a3f
+            - cell "Motorcycling" [ref=f3e437]
+            - cell "image/jpeg" [ref=f3e439]
+            - cell "960 × 540" [ref=f3e441]
+            - cell "149KB" [ref=f3e443]
+            - cell [ref=f3e445]:
+              - button "None" [ref=f3e447] [cursor=pointer]
+            - cell "Loading..." [ref=f3e448]
+          - row [ref=f3e450]:
+            - cell [ref=f3e451]:
+              - checkbox "Select header-interest-5.jpg" [disabled] [ref=f3e455]
+            - cell [ref=f3e457]:
+              - link "header-interest-5.jpg" [ref=f3e458] [cursor=pointer]:
+                - /url: /admin/collections/media/6aaa480c3b01909772704a48
+            - cell "Kayaking" [ref=f3e464]
+            - cell "image/jpeg" [ref=f3e466]
+            - cell "960 × 540" [ref=f3e468]
+            - cell "94KB" [ref=f3e470]
+            - cell [ref=f3e472]:
+              - button "None" [ref=f3e474] [cursor=pointer]
+            - cell "Loading..." [ref=f3e475]
+          - row [ref=f3e477]:
+            - cell [ref=f3e478]:
+              - checkbox "Select header-insta360-x6.png" [disabled] [ref=f3e482]
+            - cell [ref=f3e484]:
+              - link "header-insta360-x6.png" [ref=f3e485] [cursor=pointer]:
+                - /url: /admin/collections/media/6aaa3f06ff9f7b9617bdb626
+            - cell "Insta360 X6 — product image from Insta360" [ref=f3e491]
+            - cell "image/png" [ref=f3e493]
+            - cell "1560 × 1560" [ref=f3e495]
+            - cell "1MB" [ref=f3e497]
+            - cell [ref=f3e499]:
+              - button "None" [ref=f3e501] [cursor=pointer]
+            - cell "Loading..." [ref=f3e502]
+          - row [ref=f3e504]:
+            - cell [ref=f3e505]:
+              - checkbox "Select header-insta360-x5.jpg" [disabled] [ref=f3e509]
+            - cell [ref=f3e511]:
+              - link "header-insta360-x5.jpg" [ref=f3e512] [cursor=pointer]:
+                - /url: /admin/collections/media/6aaa3f09ff9f7b9617bdb629
+            - cell "Insta360 X5 — product image from Insta360" [ref=f3e518]
+            - cell "image/jpeg" [ref=f3e520]
+            - cell "780 × 780" [ref=f3e522]
+            - cell "218KB" [ref=f3e524]
+            - cell [ref=f3e526]:
+              - button "None" [ref=f3e528] [cursor=pointer]
+            - cell "Loading..." [ref=f3e529]
+          - row [ref=f3e531]:
+            - cell [ref=f3e532]:
+              - checkbox "Select header-insta360-x4-air.jpg" [disabled] [ref=f3e536]
+            - cell [ref=f3e538]:
+              - link "header-insta360-x4-air.jpg" [ref=f3e539] [cursor=pointer]:
+                - /url: /admin/collections/media/6aaa3f0aff9f7b9617bdb62c
+            - cell "Insta360 X4 Air — product image from Insta360" [ref=f3e545]
+            - cell "image/jpeg" [ref=f3e547]
+            - cell "780 × 780" [ref=f3e549]
+            - cell "200KB" [ref=f3e551]
+            - cell [ref=f3e553]:
+              - button "None" [ref=f3e555] [cursor=pointer]
+            - cell "Loading..." [ref=f3e556]
+          - row [ref=f3e558]:
+            - cell [ref=f3e559]:
+              - checkbox "Select header-insta360-x4.png" [disabled] [ref=f3e563]
+            - cell [ref=f3e565]:
+              - link "header-insta360-x4.png" [ref=f3e566] [cursor=pointer]:
+                - /url: /admin/collections/media/6aaa4aa6c8097c5b84983069
+            - cell "Insta360 X4" [ref=f3e572]
+            - cell "image/png" [ref=f3e574]
+            - cell "800 × 800" [ref=f3e576]
+            - cell "368KB" [ref=f3e578]
+            - cell [ref=f3e580]:
+              - button "None" [ref=f3e582] [cursor=pointer]
+            - cell "Loading..." [ref=f3e583]
+          - row [ref=f3e585]:
+            - cell [ref=f3e586]:
+              - checkbox "Select header-insta360-x3.png" [disabled] [ref=f3e590]
+            - cell [ref=f3e592]:
+              - link "header-insta360-x3.png" [ref=f3e593] [cursor=pointer]:
+                - /url: /admin/collections/media/6aaa4e879c7a39c3b5917b7f
+            - cell "Insta360 X3" [ref=f3e599]
+            - cell "image/png" [ref=f3e601]
+            - cell "800 × 800" [ref=f3e603]
+            - cell "360KB" [ref=f3e605]
+            - cell [ref=f3e607]:
+              - button "None" [ref=f3e609] [cursor=pointer]
+            - cell "Loading..." [ref=f3e610]
+          - row [ref=f3e612]:
+            - cell [ref=f3e613]:
+              - checkbox "Select header-insta360-wave-1.png" [disabled] [ref=f3e617]
+            - cell [ref=f3e619]:
+              - link "header-insta360-wave-1.png" [ref=f3e620] [cursor=pointer]:
+                - /url: /admin/collections/media/6ad373084c57280026ccbf22
+            - cell "Insta360 Wave" [ref=f3e626]
+            - cell "image/png" [ref=f3e628]
+            - cell "800 × 800" [ref=f3e630]
+            - cell "240KB" [ref=f3e632]
+            - cell [ref=f3e634]:
+              - button "None" [ref=f3e636] [cursor=pointer]
+            - cell "Loading..." [ref=f3e637]
+          - row [ref=f3e639]:
+            - cell [ref=f3e640]:
+              - checkbox "Select header-insta360-wave.png" [disabled] [ref=f3e644]
+            - cell [ref=f3e646]:
+              - link "header-insta360-wave.png" [ref=f3e647] [cursor=pointer]:
+                - /url: /admin/collections/media/6aaa4aaec8097c5b84983075
+            - cell "Insta360 Wave" [ref=f3e653]
+            - cell "image/png" [ref=f3e655]
+            - cell "800 × 800" [ref=f3e657]
+            - cell "240KB" [ref=f3e659]
+            - cell [ref=f3e661]:
+              - button "None" [ref=f3e663] [cursor=pointer]
+            - cell "Loading..." [ref=f3e664]
+      - generic [ref=f3e667]:
+        - generic [ref=f3e668]:
+          - button [disabled] [ref=f3e669]
+          - button [ref=f3e672] [cursor=pointer]
+          - generic [ref=f3e675]:
+            - textbox "Go to page" [ref=f3e676]: "1"
+            - generic [ref=f3e677]: of 3
+        - generic [ref=f3e678]:
+          - generic [ref=f3e679]: 1-20 of 41
+          - generic [ref=f3e680]:
+            - generic [ref=f3e681]: "Per page:"
+            - button "20" [ref=f3e684] [cursor=pointer]
+  - region "Notifications alt+T"
+  - button "Open Next.js Dev Tools" [ref=f3e690] [cursor=pointer]

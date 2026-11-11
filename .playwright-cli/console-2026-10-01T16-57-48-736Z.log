@@ -1,0 +1,9 @@
+[     832ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:3015/node_modules/.vite/deps/react-dom_client.js?v=14a73b59:20102
+[   56425ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:3015/node_modules/.vite/deps/react-dom_client.js?v=14a73b59:20102
+[   56470ms] [WARNING] Image with src "/website-template-OG.webp?2026-10-02T00%3A00%3A00Z" has a "loader" property that does not implement width. Please implement it or use the "unoptimized" property instead.
+Read more: https://nextjs.org/docs/messages/next-image-missing-loader-width @ http://127.0.0.1:3015/node_modules/.vite/deps/next_image.js?v=ad05579d:197
+[   56491ms] [WARNING] Image with src "http://127.0.0.1:3015/website-template-OG.webp?2026-10-02T00%3A00%3A00Z" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio. @ http://127.0.0.1:3015/node_modules/.vite/deps/next_image.js?v=ad05579d:197
+[  105501ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:3015/node_modules/.vite/deps/react-dom_client.js?v=14a73b59:20102
+[  105528ms] [WARNING] Image with src "/website-template-OG.webp?2026-10-02T00%3A00%3A00Z" has a "loader" property that does not implement width. Please implement it or use the "unoptimized" property instead.
+Read more: https://nextjs.org/docs/messages/next-image-missing-loader-width @ http://127.0.0.1:3015/node_modules/.vite/deps/next_image.js?v=ad05579d:197
+[  286087ms] [LOG] [vite] server connection lost. Polling for restart... @ http://127.0.0.1:3015/@vite/client:864

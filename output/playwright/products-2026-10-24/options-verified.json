@@ -1,0 +1,336 @@
+{
+  "products": [
+    {
+      "id": "6adcb636f43c3bb2c41ea3f2",
+      "title": "Insta360 X6 · 示例 01",
+      "status": "draft",
+      "groups": [
+        {
+          "name": "演示配色",
+          "display": "swatch",
+          "values": [
+            "曜石黑（演示）",
+            "云雾白（演示）"
+          ]
+        },
+        {
+          "name": "展示方案",
+          "display": "text",
+          "values": [
+            "标准展示",
+            "场景展示"
+          ]
+        },
+        {
+          "name": "展示场景",
+          "display": "image",
+          "values": [
+            "产品外观",
+            "场景特写"
+          ]
+        }
+      ],
+      "otherFieldsPreserved": true,
+      "sections": 2
+    },
+    {
+      "id": "6add5b7e82afd3ebe2331b22",
+      "title": "Insta360 X5 · 示例 02",
+      "status": "draft",
+      "groups": [
+        {
+          "name": "演示配色",
+          "display": "swatch",
+          "values": [
+            "曜石黑（演示）",
+            "云雾白（演示）"
+          ]
+        },
+        {
+          "name": "展示方案",
+          "display": "text",
+          "values": [
+            "标准展示",
+            "场景展示"
+          ]
+        },
+        {
+          "name": "展示场景",
+          "display": "image",
+          "values": [
+            "产品外观",
+            "场景特写"
+          ]
+        }
+      ],
+      "otherFieldsPreserved": true,
+      "sections": 3
+    },
+    {
+      "id": "6add5c1f82afd3ebe2331b24",
+      "title": "Insta360 X4 Air · 示例 03",
+      "status": "draft",
+      "groups": [
+        {
+          "name": "演示配色",
+          "display": "swatch",
+          "values": [
+            "曜石黑（演示）",
+            "云雾白（演示）"
+          ]
+        },
+        {
+          "name": "展示方案",
+          "display": "text",
+          "values": [
+            "标准展示",
+            "场景展示"
+          ]
+        },
+        {
+          "name": "展示场景",
+          "display": "image",
+          "values": [
+            "产品外观",
+            "场景特写"
+          ]
+        }
+      ],
+      "otherFieldsPreserved": true,
+      "sections": 3
+    },
+    {
+      "id": "6add5c3782afd3ebe2331b26",
+      "title": "Insta360 Ace Pro 2 · 示例 04",
+      "status": "draft",
+      "groups": [
+        {
+          "name": "演示配色",
+          "display": "swatch",
+          "values": [
+            "曜石黑（演示）",
+            "云雾白（演示）"
+          ]
+        },
+        {
+          "name": "展示方案",
+          "display": "text",
+          "values": [
+            "标准展示",
+            "场景展示"
+          ]
+        },
+        {
+          "name": "展示场景",
+          "display": "image",
+          "values": [
+            "产品外观",
+            "场景特写"
+          ]
+        }
+      ],
+      "otherFieldsPreserved": true,
+      "sections": 3
+    },
+    {
+      "id": "6add5c3d82afd3ebe2331b28",
+      "title": "Insta360 GO Ultra · 示例 05",
+      "status": "draft",
+      "groups": [
+        {
+          "name": "演示配色",
+          "display": "swatch",
+          "values": [
+            "曜石黑（演示）",
+            "云雾白（演示）"
+          ]
+        },
+        {
+          "name": "展示方案",
+          "display": "text",
+          "values": [
+            "标准展示",
+            "场景展示"
+          ]
+        },
+        {
+          "name": "展示场景",
+          "display": "image",
+          "values": [
+            "产品外观",
+            "场景特写"
+          ]
+        }
+      ],
+      "otherFieldsPreserved": true,
+      "sections": 3
+    },
+    {
+      "id": "6add5c4582afd3ebe2331b2a",
+      "title": "Insta360 GO 3S · 示例 06",
+      "status": "draft",
+      "groups": [
+        {
+          "name": "演示配色",
+          "display": "swatch",
+          "values": [
+            "曜石黑（演示）",
+            "云雾白（演示）"
+          ]
+        },
+        {
+          "name": "展示方案",
+          "display": "text",
+          "values": [
+            "标准展示",
+            "场景展示"
+          ]
+        },
+        {
+          "name": "展示场景",
+          "display": "image",
+          "values": [
+            "产品外观",
+            "场景特写"
+          ]
+        }
+      ],
+      "otherFieldsPreserved": true,
+      "sections": 3
+    },
+    {
+      "id": "6add5c4b82afd3ebe2331b2c",
+      "title": "Insta360 Flow 2 Series · 示例 07",
+      "status": "draft",
+      "groups": [
+        {
+          "name": "演示配色",
+          "display": "swatch",
+          "values": [
+            "曜石黑（演示）",
+            "云雾白（演示）"
+          ]
+        },
+        {
+          "name": "展示方案",
+          "display": "text",
+          "values": [
+            "标准展示",
+            "场景展示"
+          ]
+        },
+        {
+          "name": "展示场景",
+          "display": "image",
+          "values": [
+            "产品外观",
+            "场景特写"
+          ]
+        }
+      ],
+      "otherFieldsPreserved": true,
+      "sections": 3
+    },
+    {
+      "id": "6add5c5382afd3ebe2331b2e",
+      "title": "Insta360 Link 2 Pro · 示例 08",
+      "status": "draft",
+      "groups": [
+        {
+          "name": "演示配色",
+          "display": "swatch",
+          "values": [
+            "曜石黑（演示）",
+            "云雾白（演示）"
+          ]
+        },
+        {
+          "name": "展示方案",
+          "display": "text",
+          "values": [
+            "标准展示",
+            "场景展示"
+          ]
+        },
+        {
+          "name": "展示场景",
+          "display": "image",
+          "values": [
+            "产品外观",
+            "场景特写"
+          ]
+        }
+      ],
+      "otherFieldsPreserved": true,
+      "sections": 3
+    },
+    {
+      "id": "6add5c5b82afd3ebe2331b30",
+      "title": "Insta360 Mic Pro · 示例 09",
+      "status": "draft",
+      "groups": [
+        {
+          "name": "演示配色",
+          "display": "swatch",
+          "values": [
+            "曜石黑（演示）",
+            "云雾白（演示）"
+          ]
+        },
+        {
+          "name": "展示方案",
+          "display": "text",
+          "values": [
+            "标准展示",
+            "场景展示"
+          ]
+        },
+        {
+          "name": "展示场景",
+          "display": "image",
+          "values": [
+            "产品外观",
+            "场景特写"
+          ]
+        }
+      ],
+      "otherFieldsPreserved": true,
+      "sections": 3
+    },
+    {
+      "id": "6add5c6182afd3ebe2331b32",
+      "title": "Insta360 Pro 2 · 示例 10",
+      "status": "draft",
+      "groups": [
+        {
+          "name": "演示配色",
+          "display": "swatch",
+          "values": [
+            "曜石黑（演示）",
+            "云雾白（演示）"
+          ]
+        },
+        {
+          "name": "展示方案",
+          "display": "text",
+          "values": [
+            "标准展示",
+            "场景展示"
+          ]
+        },
+        {
+          "name": "展示场景",
+          "display": "image",
+          "values": [
+            "产品外观",
+            "场景特写"
+          ]
+        }
+      ],
+      "otherFieldsPreserved": true,
+      "sections": 3
+    }
+  ],
+  "groups": 30,
+  "values": 60
+}

@@ -2,7 +2,7 @@ import { DOCUMENT_UPLOAD_POLICY } from '@/collections/Documents/uploadPolicy'
 import { Button } from '@/components/ui/button'
 import type { ProductDownload } from '@/utilities/products/models'
 
-import { DownloadMenu } from './DownloadMenu'
+import { DownloadDialog } from './DownloadDialog'
 import styles from './index.module.css'
 
 const fileSizeFormat = new Intl.NumberFormat('en', { maximumFractionDigits: 1 })
@@ -31,7 +31,7 @@ export function ProductActions({ downloads }: { downloads: ProductDownload[] }) 
         Request a quote
       </Button>
       {downloads.length > 0 && (
-        <DownloadMenu
+        <DownloadDialog
           files={downloads.map((file) => ({
             id: file.id,
             title: file.title,

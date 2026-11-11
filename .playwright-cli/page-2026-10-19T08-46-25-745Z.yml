@@ -1,0 +1,41 @@
+- generic [active] [ref=f11e1]:
+  - generic [ref=f11e4]:
+    - banner [ref=f11e5]:
+      - generic [ref=f11e7]:
+        - generic [ref=f11e9]:
+          - button "Close Menu" [ref=f11e10] [cursor=pointer]
+          - navigation [ref=f11e12]:
+            - link "Dashboard" [ref=f11e13] [cursor=pointer]:
+              - /url: /admin
+        - button "Account" [ref=f11e16] [cursor=pointer]:
+          - img "yas" [ref=f11e17]
+    - generic [ref=f11e18]:
+      - heading "Untitled" [level=1] [ref=f11e19]
+      - generic [ref=f11e20]: "Documents: PDF (.pdf), Word (.docx), Excel (.xlsx), PowerPoint (.pptx); maximum 10 MB. Legacy Office formats and documents with macros are not allowed."
+    - main [ref=f11e22]:
+      - generic [ref=f11e23]:
+        - generic [ref=f11e24]:
+          - generic [ref=f11e25]:
+            - button "Loading..." [ref=f11e27] [cursor=pointer]
+            - list [ref=f11e28]:
+              - listitem [ref=f11e29]:
+                - paragraph [ref=f11e30]: Creating new Document
+          - button "Save" [disabled] [ref=f11e34]
+        - generic [ref=f11e35]:
+          - generic [ref=f11e40]:
+            - generic [ref=f11e41]:
+              - generic [ref=f11e42]:
+                - text: Title
+                - generic [ref=f11e43]: "*"
+              - textbox "Title *" [disabled] [ref=f11e45]
+            - generic [ref=f11e46]:
+              - generic [ref=f11e47]: Description
+              - textbox "Description" [disabled] [ref=f11e50]
+          - generic [ref=f11e56]:
+            - generic [ref=f11e57]:
+              - button "Select a file" [ref=f11e58] [cursor=pointer]
+              - generic [ref=f11e59]: Or
+              - button [ref=f11e60] [cursor=pointer]
+            - paragraph [ref=f11e61]: Or Drag and drop a file
+  - region "Notifications alt+T"
+  - button "Open Next.js Dev Tools" [ref=f11e67] [cursor=pointer]

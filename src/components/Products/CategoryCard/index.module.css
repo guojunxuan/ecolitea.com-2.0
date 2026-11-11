@@ -1,4 +1,5 @@
 .card {
+  container-type: inline-size;
   display: block;
   color: var(--website-color-foreground);
   text-decoration: none;
@@ -51,6 +52,15 @@
   .caption {
     --category-caption-fade: var(--website-space-8);
     padding: var(--website-space-8) var(--website-space-4) var(--website-space-4);
+  }
+}
+/* Narrow cards keep the photo subject visible: a shorter scrim zone than the roomy default. */
+@media (width >= 48rem) {
+  @container (width < 21.25rem) {
+    .caption {
+      --category-caption-fade: var(--website-space-8);
+      padding-top: var(--website-space-8);
+    }
   }
 }
 @media (prefers-reduced-motion: reduce) {

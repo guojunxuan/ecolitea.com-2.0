@@ -1,0 +1,154 @@
+- generic [ref=f5e1]:
+  - generic [ref=f5e3]:
+    - complementary [ref=f5e103]:
+      - navigation [ref=f5e105]:
+        - generic [ref=f5e106]:
+          - tablist [ref=f5e107]:
+            - tab "Collections" [selected] [ref=f5e108] [cursor=pointer]
+            - tab "Folders" [ref=f5e113] [cursor=pointer]
+          - tabpanel [ref=f5e118]:
+            - generic [ref=f5e119]:
+              - generic [ref=f5e120]:
+                - button "Collections" [ref=f5e121] [cursor=pointer]
+                - generic [ref=f5e126]:
+                  - link "Pages" [ref=f5e128] [cursor=pointer]:
+                    - /url: /admin/collections/pages
+                  - link "Posts" [ref=f5e131] [cursor=pointer]:
+                    - /url: /admin/collections/posts
+                  - link "Media" [ref=f5e134] [cursor=pointer]:
+                    - /url: /admin/collections/media
+                  - link "Documents" [ref=f5e137] [cursor=pointer]:
+                    - /url: /admin/collections/documents
+                  - link "Categories" [ref=f5e140] [cursor=pointer]:
+                    - /url: /admin/collections/categories
+                  - link "Case Studies" [ref=f5e143] [cursor=pointer]:
+                    - /url: /admin/collections/case-studies
+                  - link "Users" [ref=f5e146] [cursor=pointer]:
+                    - /url: /admin/collections/users
+                  - link "Redirects" [ref=f5e149] [cursor=pointer]:
+                    - /url: /admin/collections/redirects
+                  - link "Forms" [ref=f5e152] [cursor=pointer]:
+                    - /url: /admin/collections/forms
+                  - link "Form Submissions" [ref=f5e155] [cursor=pointer]:
+                    - /url: /admin/collections/form-submissions
+                  - link "Search Results" [ref=f5e158] [cursor=pointer]:
+                    - /url: /admin/collections/search
+              - generic [ref=f5e160]:
+                - button "Globals" [ref=f5e161] [cursor=pointer]
+                - generic [ref=f5e166]:
+                  - link "Header" [ref=f5e168] [cursor=pointer]:
+                    - /url: /admin/globals/header
+                  - link "Footer" [ref=f5e171] [cursor=pointer]:
+                    - /url: /admin/globals/footer
+                  - link "Site Settings" [ref=f5e174] [cursor=pointer]:
+                    - /url: /admin/globals/site-settings
+                  - link "Settings" [ref=f5e177] [cursor=pointer]:
+                    - /url: /admin/globals/settings
+              - generic [ref=f5e179]:
+                - button "Blog" [ref=f5e180] [cursor=pointer]
+                - generic [ref=f5e185]:
+                  - link "Blogs" [ref=f5e187] [cursor=pointer]:
+                    - /url: /admin/collections/blogs
+                  - link "Blog Categories" [ref=f5e190] [cursor=pointer]:
+                    - /url: /admin/collections/blog-categories
+    - generic [ref=f5e4]:
+      - banner [ref=f5e5]:
+        - generic [ref=f5e7]:
+          - generic [ref=f5e9]:
+            - button "Open Menu" [ref=f5e192] [cursor=pointer]
+            - navigation [ref=f5e12]:
+              - link "Dashboard" [ref=f5e13] [cursor=pointer]:
+                - /url: /admin
+              - generic [ref=f5e193]: /
+              - link "Media" [ref=f5e194] [cursor=pointer]:
+                - /url: /admin/collections/media
+              - generic [ref=f5e195]: /
+              - link "截屏2026-08-06 14.03.23.png" [ref=f5e196] [cursor=pointer]:
+                - /url: /admin/collections/media/6ad3753e4c57280026ccbf2a
+          - button "Account" [ref=f5e16] [cursor=pointer]:
+            - img "yas" [ref=f5e17]
+      - generic [ref=f5e18]:
+        - heading "截屏2026-08-06 14.03.23.png" [level=1] [ref=f5e19]
+        - list [ref=f5e22]:
+          - generic "Edit" [ref=f5e23]
+          - link "API" [ref=f5e24] [cursor=pointer]:
+            - /url: /admin/collections/media/6ad3753e4c57280026ccbf2a/api
+        - generic [ref=f5e25]: "Images: JPEG, PNG, WebP, AVIF, GIF; ratios 1:1, 4:3, 3:2, 16:9, 9:16, 4:5 (1% tolerance). Video: MP4, H.264, AAC or MP3 audio; maximum 100 MB and 10 minutes; ratios 16:9, 9:16, 1:1, 4:5 (1% tolerance). Enable Fast Start / Web Optimized when exporting video."
+      - main [ref=f5e27]:
+        - generic [ref=f5e28]:
+          - generic [ref=f5e29]:
+            - generic [ref=f5e30]:
+              - button "None" [ref=f5e197] [cursor=pointer]
+              - list [ref=f5e33]:
+                - listitem "October 18th 2026, 7:27 PM" [ref=f5e198]:
+                  - paragraph [ref=f5e35]: Updated about 21 hours ago
+            - generic [ref=f5e36]:
+              - button "Save" [disabled] [ref=f5e39]
+              - button "More options" [ref=f5e42] [cursor=pointer]
+          - generic [ref=f5e43]:
+            - generic [ref=f5e45]:
+              - generic [ref=f5e48]:
+                - button "Crop image" [disabled] [ref=f5e50]
+                - generic [ref=f5e51]:
+                  - generic [ref=f5e52]: Alt
+                  - textbox "Alt" [ref=f5e54]
+                - generic [ref=f5e199]:
+                  - generic [ref=f5e200]: Caption
+                  - generic [ref=f5e202]:
+                    - generic [ref=f5e203]:
+                      - generic [ref=f5e205]:
+                        - button "add dropdown" [ref=f5e207] [cursor=pointer]
+                        - button "text dropdown" [ref=f5e213] [cursor=pointer]
+                        - generic [ref=f5e218]:
+                          - button "Bold" [ref=f5e219] [cursor=pointer]
+                          - button "Italic" [ref=f5e222] [cursor=pointer]
+                          - button "Underline" [ref=f5e225] [cursor=pointer]
+                          - button "Strikethrough" [ref=f5e228] [cursor=pointer]
+                          - button "Subscript" [ref=f5e231] [cursor=pointer]
+                          - button "Superscript" [ref=f5e234] [cursor=pointer]
+                          - button "Inline Code" [ref=f5e237] [cursor=pointer]
+                        - button "Link" [ref=f5e242] [cursor=pointer]
+                      - generic [ref=f5e245]:
+                        - generic [ref=f5e247]:
+                          - textbox [ref=f5e248]:
+                            - paragraph [ref=f5e249]
+                          - paragraph: Start typing, or press '/' for commands...
+                          - button "Drag to move" [ref=f5e250]
+                          - button "Add block" [ref=f5e252] [cursor=pointer]
+                          - generic [ref=f5e258]:
+                            - button "Edit link" [ref=f5e259] [cursor=pointer]
+                            - button "Remove link" [ref=f5e262] [cursor=pointer]
+                        - button "Insert Paragraph" [ref=f5e265]
+                    - generic [ref=f5e269]: Default caption shown when this media is used in a Media block. A caption set on the block overrides it.
+              - region "Used in" [ref=f5e59]:
+                - heading "Used in" [level=3] [ref=f5e60]
+                - paragraph [ref=f5e270]: No current references.
+                - paragraph [ref=f5e271]: 0 historical references. Historical references do not prevent deletion.
+            - generic [ref=f5e63]:
+              - generic [ref=f5e64]:
+                - button "截屏2026-08-06 14.03.23.png" [ref=f5e68] [cursor=pointer]
+                - generic [ref=f5e73]:
+                  - button [ref=f5e74] [cursor=pointer]
+                  - button "Edit Image" [ref=f5e77] [cursor=pointer]
+                  - link "Open in new tab" [ref=f5e78] [cursor=pointer]:
+                    - /url: http://localhost:3000/api/media/6ad3753e4c57280026ccbf2a/file
+                  - link "Download" [active] [ref=f5e81] [cursor=pointer]:
+                    - /url: http://localhost:3000/api/media/6ad3753e4c57280026ccbf2a/file
+              - generic [ref=f5e86]:
+                - img "截屏2026-08-06 14.03.23.png" [ref=f5e272]
+                - generic [ref=f5e91]:
+                  - generic [ref=f5e92]: Original
+                  - generic [ref=f5e93]: 1356 × 910 – 2MB – image/png
+      - status [ref=f5e273]
+  - status [ref=f5e274]
+  - region "Notifications alt+T"
+  - generic [ref=f5e98] [cursor=pointer]:
+    - button "Open Next.js Dev Tools" [ref=f5e99]
+    - generic [ref=f5e275]:
+      - button "Open issues overlay" [ref=f5e276]:
+        - generic [ref=f5e277]:
+          - generic [aria-hidden] [ref=f5e278]: "0"
+          - generic [ref=f5e279]: "1"
+        - generic [ref=f5e280]: Issue
+      - button "Collapse issues badge" [ref=f5e281]
+  - alert [ref=f5e284]

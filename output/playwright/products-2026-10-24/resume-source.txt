@@ -1,0 +1,12 @@
+### Ran Playwright code
+```js
+await page.goto('http://localhost:3000/admin/collections/products/6adcb636f43c3bb2c41ea3f2');
+```
+### Page
+- Page URL: http://localhost:3000/admin/collections/products/6adcb636f43c3bb2c41ea3f2
+- Page Title: Editing - Product - Payload
+- Console: 1 errors, 0 warnings
+### Snapshot
+- [Snapshot](.playwright-cli/page-2026-10-25T01-25-35-609Z.yml)
+### Events
+- New console entries: .playwright-cli/console-2026-10-25T01-25-34-708Z.log#L1-L4

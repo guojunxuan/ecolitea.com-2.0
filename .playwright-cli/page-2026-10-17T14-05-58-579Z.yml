@@ -1,0 +1,131 @@
+- generic [active] [ref=f6e1]:
+  - generic [ref=f6e3]:
+    - complementary [ref=f6e4]:
+      - navigation [ref=f6e6]:
+        - generic [ref=f6e7]:
+          - tablist [ref=f6e8]:
+            - tab "Collections" [selected] [ref=f6e9] [cursor=pointer]
+            - tab "Folders" [ref=f6e14] [cursor=pointer]
+          - tabpanel [ref=f6e19]:
+            - generic [ref=f6e20]:
+              - generic [ref=f6e21]:
+                - button "Collections" [ref=f6e22] [cursor=pointer]
+                - generic [ref=f6e27]:
+                  - link "Pages" [ref=f6e29] [cursor=pointer]:
+                    - /url: /admin/collections/pages
+                  - link "Posts" [ref=f6e32] [cursor=pointer]:
+                    - /url: /admin/collections/posts
+                  - link "Media" [ref=f6e35] [cursor=pointer]:
+                    - /url: /admin/collections/media
+                  - link "Categories" [ref=f6e38] [cursor=pointer]:
+                    - /url: /admin/collections/categories
+                  - link "Case Studies" [ref=f6e41] [cursor=pointer]:
+                    - /url: /admin/collections/case-studies
+                  - link "Users" [ref=f6e44] [cursor=pointer]:
+                    - /url: /admin/collections/users
+                  - link "Redirects" [ref=f6e47] [cursor=pointer]:
+                    - /url: /admin/collections/redirects
+                  - link "Forms" [ref=f6e50] [cursor=pointer]:
+                    - /url: /admin/collections/forms
+                  - link "Form Submissions" [ref=f6e53] [cursor=pointer]:
+                    - /url: /admin/collections/form-submissions
+                  - link "Search Results" [ref=f6e56] [cursor=pointer]:
+                    - /url: /admin/collections/search
+              - generic [ref=f6e58]:
+                - button "Globals" [ref=f6e59] [cursor=pointer]
+                - generic [ref=f6e64]:
+                  - link "Header" [ref=f6e66] [cursor=pointer]:
+                    - /url: /admin/globals/header
+                  - link "Footer" [ref=f6e69] [cursor=pointer]:
+                    - /url: /admin/globals/footer
+                  - link "Site Settings" [ref=f6e72] [cursor=pointer]:
+                    - /url: /admin/globals/site-settings
+                  - link "Settings" [ref=f6e75] [cursor=pointer]:
+                    - /url: /admin/globals/settings
+              - generic [ref=f6e77]:
+                - button "Blog" [ref=f6e78] [cursor=pointer]
+                - generic [ref=f6e83]:
+                  - link "Blogs" [ref=f6e85] [cursor=pointer]:
+                    - /url: /admin/collections/blogs
+                  - link "Blog Categories" [ref=f6e88] [cursor=pointer]:
+                    - /url: /admin/collections/blog-categories
+    - generic [ref=f6e90]:
+      - banner [ref=f6e91]:
+        - generic [ref=f6e93]:
+          - generic [ref=f6e95]:
+            - button "Open Menu" [ref=f6e96] [cursor=pointer]
+            - navigation [ref=f6e98]:
+              - link "Dashboard" [ref=f6e99] [cursor=pointer]:
+                - /url: /admin
+              - generic [ref=f6e100]: /
+              - link "Media" [ref=f6e101] [cursor=pointer]:
+                - /url: /admin/collections/media
+              - generic [ref=f6e102]: /
+              - generic [ref=f6e103]: Create New
+          - button "Account" [ref=f6e106] [cursor=pointer]:
+            - img "yas" [ref=f6e107]
+      - heading "Untitled" [level=1] [ref=f6e109]
+      - main [ref=f6e110]:
+        - generic [ref=f6e111]:
+          - generic [ref=f6e112]:
+            - generic [ref=f6e113]:
+              - button "None" [ref=f6e115] [cursor=pointer]
+              - list [ref=f6e116]:
+                - listitem [ref=f6e117]:
+                  - paragraph [ref=f6e118]: Creating new Media
+            - button "Save" [ref=f6e122] [cursor=pointer]
+          - generic [ref=f6e123]:
+            - generic [ref=f6e128]:
+              - generic [ref=f6e129]:
+                - generic [ref=f6e130]: Alt
+                - textbox "Alt" [ref=f6e132]
+              - generic [ref=f6e133]:
+                - generic [ref=f6e134]: Caption
+                - generic [ref=f6e137]:
+                  - generic [ref=f6e139]:
+                    - button "add dropdown" [ref=f6e141] [cursor=pointer]
+                    - button "text dropdown" [ref=f6e147] [cursor=pointer]
+                    - generic [ref=f6e152]:
+                      - button "Bold" [ref=f6e153] [cursor=pointer]
+                      - button "Italic" [ref=f6e156] [cursor=pointer]
+                      - button "Underline" [ref=f6e159] [cursor=pointer]
+                      - button "Strikethrough" [ref=f6e162] [cursor=pointer]
+                      - button "Subscript" [ref=f6e165] [cursor=pointer]
+                      - button "Superscript" [ref=f6e168] [cursor=pointer]
+                      - button "Inline Code" [ref=f6e171] [cursor=pointer]
+                    - button "Link" [ref=f6e176] [cursor=pointer]
+                  - generic [ref=f6e179]:
+                    - generic [ref=f6e181]:
+                      - textbox [ref=f6e182]:
+                        - paragraph [ref=f6e183]
+                      - paragraph: Start typing, or press '/' for commands...
+                      - button "Drag to move" [ref=f6e184]
+                      - button "Add block" [ref=f6e186] [cursor=pointer]
+                      - generic [ref=f6e192]:
+                        - button "Edit link" [ref=f6e193] [cursor=pointer]
+                        - button "Remove link" [ref=f6e196] [cursor=pointer]
+                    - button "Insert Paragraph" [ref=f6e199]
+            - generic [ref=f6e206]:
+              - button [ref=f6e226] [cursor=pointer]
+              - generic [ref=f6e230]:
+                - generic [ref=f6e231]:
+                  - generic [ref=f6e232]: File Name
+                  - textbox "File Name" [ref=f6e234]: audit-bad-ratio.png
+                - generic [ref=f6e235]: 1KB – image/png
+      - status [ref=f6e214]
+  - status [ref=f6e215]
+  - region "Notifications alt+T":
+    - list:
+      - listitem [ref=f6e268]:
+        - button "Close toast" [ref=f6e269] [cursor=pointer]
+        - generic [ref=f6e276]:
+          - text: "Image is 1000×210. Accepted ratios (6):"
+          - list [ref=f6e277]:
+            - listitem [ref=f6e278]: 1:1
+            - listitem [ref=f6e279]: 4:3
+            - listitem [ref=f6e280]: 3:2
+            - listitem [ref=f6e281]: 16:9
+            - listitem [ref=f6e282]: 9:16
+            - listitem [ref=f6e283]: 4:5.
+  - button "Open Next.js Dev Tools" [ref=f6e221] [cursor=pointer]
+  - alert [ref=f6e225]

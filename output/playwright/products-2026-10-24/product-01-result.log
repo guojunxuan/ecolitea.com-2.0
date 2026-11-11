@@ -1,0 +1,6 @@
+### Result
+{"id":"6adcb636f43c3bb2c41ea3f2","title":"Insta360 X6 · 示例 01","slug":"demo-insta360-x6","status":"draft","gallery":3,"sections":[{"label":"产品亮点","anchor":"product-story","blocks":["productMediaBanner"]},{"label":"使用场景","anchor":"creative-scenes","blocks":["productMediaText"]}]}
+### Ran Playwright code
+```js
+await (async (page) => { await page.getByRole('main').getByRole('button',{name:'More options',exact:true}).first().click(); const id=page.url().split('/').pop(); let doc; for(let i=0;i<30;i++){const r=await page.request.get('http://localhost:3000/api/products/'+id+'?draft=true&depth=0'); doc=await r.json(); if(JSON.stringify(doc.sections).includes('具体配置与技术参数')) break; await page.waitForTimeout(300);} if(!JSON.stringify(doc.sections).includes('具体配置与技术参数')) throw new Error('First draft latest section body not saved'); return {id:doc.id,title:doc.title,slug:doc.slug,status:doc._status,gallery:doc.gallery.length,sections:doc.sections.map(s=>({label:s.label,anchor:s.anchor,blocks:s.blocks.map(b=>b.blockType)}))}; })(page);
+```

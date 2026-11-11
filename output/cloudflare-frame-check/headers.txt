@@ -1,0 +1,20 @@
+HTTP/2 200 
+date: Mon, 19 Oct 2026 14:06:55 GMT
+content-type: image/jpeg
+content-length: 3837
+cf-ray: a4d05890ae402ad7-LAX
+cf-cache-status: MISS
+accept-ranges: bytes
+cache-control: public, max-age=1728000
+content-disposition: inline; filename=media-demo-slideshow-10s.jpg
+last-modified: Mon, 19 Oct 2026 14:06:55 GMT
+server: cloudflare
+vary: origin, referer
+access-control-allow-headers: range
+access-control-expose-headers: cf-ray
+core-cache-status: MISS
+stream-dwg-version: 25c66cd6-c1b5-4bc8-8458-778d355115ef
+strict-transport-security: max-age=15552000
+report-to: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=%2BGl9WQ7lTFpwBuSctz%2ByPiR%2BH75oqP7Em6%2FnZb3IL3IpVUqFc0sN9z7cEvpMqFvGw0cKB0wmcEn3utXmAreKGq%2Fe3fcfgcUYDED%2BaWcIV6TsaVPClZcDq8kMIFhjrIXrVUGEhlhAIGpBFDzesOXGet5foZE1"}]}
+nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+

@@ -9,12 +9,15 @@ export function ProductPreviewGrid({
   children,
   href,
   categoryTitle,
+  totalProducts,
 }: {
   children: ReactNode
   href: string
   categoryTitle: string
+  totalProducts?: number
 }) {
   const products = Children.toArray(children)
+  const count = totalProducts ?? products.length
   if (!products.length) return null
 
   return (
@@ -38,19 +41,24 @@ export function ProductPreviewGrid({
               {child}
             </li>
           ))}
-          <li className={`${styles.item} ${styles.moreItem}`}>
-            <Link
-              href={href}
-              className={styles.moreCard}
-              aria-label={`View More · ${categoryTitle}`}
-              data-product-view-more
+          {count > 3 && (
+            <li
+              className={`${styles.item} ${styles.moreItem}`}
+              data-mobile-only={count <= 4 || undefined}
             >
-              <span className={styles.moreIcon} aria-hidden="true">
-                <ChevronRight />
-              </span>
-              <span className={`website-type-title ${styles.moreLabel}`}>View More</span>
-            </Link>
-          </li>
+              <Link
+                href={href}
+                className={styles.moreCard}
+                aria-label={`View More · ${categoryTitle}`}
+                data-product-view-more
+              >
+                <span className={styles.moreIcon} aria-hidden="true">
+                  <ChevronRight />
+                </span>
+                <span className={`website-type-title ${styles.moreLabel}`}>View More</span>
+              </Link>
+            </li>
+          )}
         </ul>
       </OverflowTrack>
     </div>

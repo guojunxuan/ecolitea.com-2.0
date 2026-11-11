@@ -1,0 +1,419 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>概念图 · Settings › Blog › Listing Hero</title>
+<style>
+  @font-face { font-family: Geist; src: url(./Geist-Variable.woff2) format('woff2'); font-weight: 100 900; }
+
+  /* ---------- Website tokens (copied from src/styles/tokens.css) ---------- */
+  :root {
+    --w-black: #0a0a0a; --w-white: #fff;
+    --w-n900: #262629; --w-n600: #76767f; --w-n500: #9a9aa1;
+    --w-n100: #f7f7f8; --w-n200: #ededee; --w-n300: #e0e0e2; --w-n400: #d4d4d7;
+    --w-radius-control: 8px; --w-radius-content: 12px; --w-radius-panel: 16px; --w-radius-pill: 999px;
+    --w-scrim-subtle: 24%; --w-scrim-standard: 48%; --w-scrim-strong: 72%;
+    --w-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+    --header-height: 60px; --w-container: 1220px; --w-gutter: 32px;
+
+    /* concept chrome */
+    --c-bg: #eceae6; --c-ink: #1d1d1f; --c-mute: #6e6e73; --c-line: #d8d6d1; --c-accent: #2f6b4f;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body { font-family: Geist, system-ui, sans-serif; background: var(--c-bg); color: var(--c-ink); -webkit-font-smoothing: antialiased; }
+
+  /* ---------- Concept page chrome ---------- */
+  .intro { padding: 40px 48px 24px; max-width: 1600px; margin: 0 auto; display: flex; gap: 48px; align-items: end; justify-content: space-between; flex-wrap: wrap; }
+  .intro h1 { font-size: 30px; letter-spacing: -0.6px; margin: 0 0 8px; }
+  .intro p { margin: 0; color: var(--c-mute); max-width: 720px; line-height: 1.6; font-size: 14px; }
+  .principle { display: flex; gap: 12px; font-size: 13px; }
+  .principle div { background: #fff; border: 1px solid var(--c-line); border-radius: 10px; padding: 10px 14px; line-height: 1.5; }
+  .principle b { display: block; font-size: 12px; color: var(--c-accent); letter-spacing: .4px; text-transform: uppercase; }
+
+  .presets { max-width: 1600px; margin: 0 auto; padding: 0 48px 16px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; font-size: 13px; }
+  .presets span { color: var(--c-mute); margin-right: 4px; }
+  .presets button, .viewport button { font: inherit; border: 1px solid var(--c-line); background: #fff; border-radius: 999px; padding: 7px 14px; cursor: pointer; }
+  .presets button[aria-pressed='true'], .viewport button[aria-pressed='true'] { background: var(--c-ink); color: #fff; border-color: var(--c-ink); }
+
+  .stage { max-width: 1600px; margin: 0 auto; padding: 0 48px 48px; display: grid; grid-template-columns: 440px 1fr; gap: 24px; align-items: start; }
+  .stage > div { min-width: 0; }
+  .label { font-size: 11px; letter-spacing: .8px; text-transform: uppercase; color: var(--c-mute); margin: 0 0 8px; display: flex; justify-content: space-between; align-items: center; }
+
+  /* ---------- Payload Admin mock ---------- */
+  .admin { background: #fff; border: 1px solid var(--c-line); border-radius: 14px; overflow: hidden; display: grid; grid-template-columns: 140px 1fr; font-size: 13px; position: sticky; top: 16px; }
+  .admin nav { background: #f6f6f6; border-right: 1px solid #ececec; padding: 16px 0; font-size: 12px; }
+  .admin nav h6 { margin: 14px 14px 6px; font-size: 10px; color: #999; letter-spacing: .6px; text-transform: uppercase; font-weight: 600; }
+  .admin nav a { display: block; padding: 5px 14px; color: #444; text-decoration: none; }
+  .admin nav a.active { background: #e9e9e9; color: #000; font-weight: 600; box-shadow: inset 2px 0 0 #000; }
+  .admin main { padding: 18px 20px 20px; min-width: 0; }
+  .admin .crumb { color: #999; font-size: 11px; }
+  .admin .title-row { display: flex; justify-content: space-between; align-items: center; margin: 4px 0 14px; }
+  .admin .title-row h2 { margin: 0; font-size: 22px; letter-spacing: -.4px; }
+  .admin .save { background: #000; color: #fff; border: 0; border-radius: 4px; padding: 7px 14px; font: inherit; font-size: 12px; }
+  .admin .tabs { display: flex; gap: 16px; border-bottom: 1px solid #e6e6e6; margin-bottom: 16px; }
+  .admin .tabs span { padding: 8px 0; color: #999; }
+  .admin .tabs span.on { color: #000; font-weight: 600; box-shadow: inset 0 -2px 0 #000; }
+  .admin .tabs span.future { font-style: italic; }
+  .group { border: 1px solid #e6e6e6; border-radius: 6px; margin-bottom: 12px; }
+  .group > header { padding: 9px 12px; font-weight: 600; background: #fafafa; border-bottom: 1px solid #eee; border-radius: 6px 6px 0 0; display: flex; justify-content: space-between; }
+  .group > header small { font-weight: 400; color: #999; }
+  .group .body { padding: 12px; }
+  .group.inner { margin: 0; }
+  .group.ghost { border-style: dashed; color: #aaa; }
+  .group.ghost > header { background: transparent; border-bottom: 0; font-weight: 500; }
+  .desc { color: #888; font-size: 11.5px; margin: -2px 0 12px; line-height: 1.5; }
+  .field { margin-bottom: 12px; }
+  .field:last-child { margin-bottom: 0; }
+  .field > label { display: block; font-size: 12px; margin-bottom: 5px; color: #333; }
+  .field > label i { color: #d92d20; font-style: normal; }
+  .field input[type='text'], .field textarea, .field select { width: 100%; font: inherit; font-size: 13px; padding: 8px 10px; border: 1px solid #ddd; border-radius: 4px; background: #fff; color: #111; }
+  .field textarea { min-height: 64px; resize: vertical; }
+  .field.invalid input { border-color: #d92d20; background: #fef3f2; }
+  .err { color: #d92d20; font-size: 11px; margin-top: 4px; display: none; }
+  .field.invalid .err { display: block; }
+  .check { display: flex; gap: 8px; align-items: center; }
+  .check input { width: 16px; height: 16px; accent-color: #000; }
+  .upload { display: flex; gap: 10px; align-items: center; border: 1px solid #ddd; border-radius: 4px; padding: 8px; }
+  .upload .thumb { width: 54px; height: 36px; border-radius: 3px; background: url(./hero.webp) center/cover; flex: none; }
+  .upload .meta { flex: 1; min-width: 0; font-size: 12px; }
+  .upload .meta small { display: block; color: #999; }
+  .upload button { font: inherit; font-size: 11px; border: 1px solid #ddd; background: #fff; border-radius: 4px; padding: 4px 8px; cursor: pointer; }
+  .upload.empty .thumb { background: repeating-linear-gradient(45deg, #f2f2f2 0 6px, #fafafa 6px 12px); }
+  .radios { display: flex; gap: 6px; }
+  .radios label { flex: 1; border: 1px solid #ddd; border-radius: 4px; padding: 7px 10px; display: flex; gap: 6px; align-items: center; cursor: pointer; }
+  .radios label:has(input:checked) { border-color: #000; background: #f6f6f6; }
+  .hero-fields { transition: opacity .2s; }
+  .hero-fields.off { opacity: .45; }
+  .datapath { font-family: ui-monospace, Menlo, monospace; font-size: 11px; background: #f6f6f6; border-radius: 4px; padding: 6px 8px; color: #555; margin-top: 12px; }
+
+  /* ---------- Browser frame ---------- */
+  .viewport { display: flex; gap: 6px; }
+  .viewport button { padding: 4px 10px; font-size: 11px; text-transform: none; letter-spacing: 0; }
+  .browser { background: #fff; border: 1px solid var(--c-line); border-radius: 14px; overflow: hidden; box-shadow: 0 24px 64px rgb(0 0 0 / 10%); }
+  .browser .bar { height: 38px; background: #f4f3f1; border-bottom: 1px solid var(--c-line); display: flex; align-items: center; gap: 8px; padding: 0 14px; }
+  .browser .bar i { width: 10px; height: 10px; border-radius: 50%; background: #d6d3ce; }
+  .browser .url { margin-left: 12px; flex: 1; max-width: 420px; background: #fff; border: 1px solid var(--c-line); border-radius: 6px; font-size: 12px; padding: 4px 10px; color: var(--c-mute); }
+  .scaler { overflow: hidden; background: #fff; }
+  .site { transform-origin: top left; width: 1280px; }
+
+  /* ---------- Website mock (uses token values) ---------- */
+  .site { font-family: Geist, system-ui, sans-serif; color: var(--w-n900); background: #fff; font-feature-settings: 'lnum', 'locl'; position: relative; }
+  .wrap { width: min(100% - 2 * var(--w-gutter), var(--w-container)); margin-inline: auto; }
+
+  .s-header { position: absolute; inset: 0 0 auto; z-index: 5; height: var(--header-height); color: var(--w-n900); transition: color .24s var(--w-ease), background .24s var(--w-ease); }
+  .s-header .wrap { height: 100%; display: flex; align-items: center; justify-content: space-between; }
+  .s-header .logo { font-weight: 700; font-size: 19px; letter-spacing: -.5px; }
+  .s-header nav { display: flex; gap: 28px; font-size: 14px; }
+  .s-header .cta { font-size: 13px; font-weight: 500; padding: 8px 16px; border-radius: var(--w-radius-control); background: var(--w-black); color: #fff; }
+  .s-header .burger { display: none; width: 22px; height: 14px; border-block: 2px solid currentColor; position: relative; }
+  .s-header .burger::after { content: ''; position: absolute; left: 0; right: 0; top: 4px; border-top: 2px solid currentColor; }
+  .site[data-header-theme='dark'] .s-header { color: #fff; }
+  .site[data-header-theme='dark'] .s-header .cta { background: #fff; color: var(--w-black); }
+  .site[data-header-theme='light'] .s-header { background: rgb(255 255 255 / 90%); border-bottom: 1px solid rgb(38 38 41 / 8%); }
+  .site[data-header-theme='dark'][data-image='false'] .s-header { background: transparent; }
+
+  /* Hero template — layout is owned by code */
+  .hero { position: relative; isolation: isolate; display: none; }
+  .site[data-hero='on'] .hero { display: flex; }
+  .hero { min-height: 520px; align-items: flex-end; padding: calc(var(--header-height) + 80px) 0 72px; }
+  .hero .media { position: absolute; inset: 0; z-index: -2; background: url(./hero.webp) center/cover; }
+  .hero::before { content: ''; position: absolute; inset: 0; z-index: -1; background: linear-gradient(90deg, rgb(0 0 0 / var(--w-scrim-strong)) 0%, rgb(0 0 0 / var(--w-scrim-subtle)) 60%, transparent 100%), linear-gradient(to top, rgb(0 0 0 / var(--w-scrim-standard)), transparent 55%); }
+  .hero .copy { max-width: 640px; }
+  .hero h1 { font-size: 54px; line-height: 1.04; letter-spacing: -1.875px; font-weight: 700; margin: 0; text-wrap: balance; }
+  .hero p { font-size: 18px; line-height: 1.55; margin: 20px 0 0; max-width: 34rem; text-wrap: pretty; }
+  /* theme on image: dark = light text over dark scrim */
+  .site[data-image='true'] .hero { color: #fff; }
+  .site[data-image='true'] .hero p { color: rgb(255 255 255 / 78%); }
+  .site[data-image='true'][data-header-theme='light'] .hero::before { background: linear-gradient(90deg, rgb(255 255 255 / 92%) 0%, rgb(255 255 255 / 60%) 55%, transparent 100%); }
+  .site[data-image='true'][data-header-theme='light'] .hero { color: var(--w-n900); }
+  .site[data-image='true'][data-header-theme='light'] .hero p { color: var(--w-n600); }
+  /* no image: text banner */
+  .site[data-image='false'] .hero { min-height: 0; padding: calc(var(--header-height) + 72px) 0 56px; }
+  .site[data-image='false'] .hero .media, .site[data-image='false'] .hero::before { display: none; }
+  .site[data-image='false'][data-header-theme='light'] .hero { background: var(--w-n100); }
+  .site[data-image='false'][data-header-theme='dark'] .hero { background: var(--w-black); color: #fff; }
+  .site[data-image='false'][data-header-theme='dark'] .hero p { color: rgb(255 255 255 / 68%); }
+  .site[data-image='false'] .hero p { color: var(--w-n600); }
+
+  /* default header — shown when hero is off (today's page) */
+  .fallback { padding: calc(var(--header-height) + 80px) 0 0; }
+  .fallback h1 { font-size: 40px; line-height: 1.1; letter-spacing: -1px; font-weight: 700; margin: 0 0 64px; }
+  .site[data-hero='on'] .fallback { display: none; }
+
+  .list { padding: 40px 0 96px; }
+  .site[data-hero='off'] .list { padding-top: 0; }
+  .cats { display: flex; gap: 8px; margin-bottom: 32px; flex-wrap: wrap; }
+  .cats span { font-size: 14px; padding: 9px 14px; border-radius: var(--w-radius-control); background: var(--w-n100); }
+  .cats span.on { background: var(--w-black); color: #fff; }
+  .cats em { font-style: normal; opacity: .55; margin-left: 6px; font-size: 12px; }
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px 24px; }
+  .card .img { aspect-ratio: 16 / 10; border-radius: var(--w-radius-content); background: var(--w-n200); position: relative; overflow: hidden; }
+  .card .img::after { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, transparent 40%, rgb(255 255 255 / 40%)); }
+  .card:nth-child(2) .img { background: #dfe3dd; } .card:nth-child(3) .img { background: #e5e0d8; }
+  .card:nth-child(4) .img { background: #dcdfe4; } .card:nth-child(5) .img { background: #e7e3df; } .card:nth-child(6) .img { background: #dde1dc; }
+  .card .tag { display: inline-block; margin-top: 14px; font-size: 12px; padding: 4px 8px; border-radius: var(--w-radius-control); background: var(--w-n100); }
+  .card h3 { font-size: 20px; line-height: 1.3; letter-spacing: -.25px; margin: 10px 0 6px; }
+  .card p { font-size: 14px; color: var(--w-n600); margin: 0; line-height: 1.5; }
+  .card.featured { grid-column: 1 / -1; display: grid; grid-template-columns: 1.4fr 1fr; gap: 32px; align-items: center; }
+  .card.featured h3 { font-size: 30px; letter-spacing: -.6px; }
+
+  /* mobile viewport */
+  .site.mobile { width: 390px; --w-gutter: 20px; }
+  .site.mobile .s-header nav, .site.mobile .s-header .cta { display: none; }
+  .site.mobile .s-header .burger { display: block; }
+  .site.mobile .hero { min-height: 460px; padding: calc(var(--header-height) + 64px) 0 40px; }
+  .site.mobile .hero h1 { font-size: 42px; letter-spacing: -1.5px; }
+  .site.mobile .hero p { font-size: 16px; }
+  .site.mobile[data-image='true'] .hero::before { background: linear-gradient(to top, rgb(0 0 0 / 82%), rgb(0 0 0 / 30%) 70%, rgb(0 0 0 / 20%)); }
+  .site.mobile[data-image='true'][data-header-theme='light'] .hero::before { background: linear-gradient(to top, rgb(255 255 255 / 95%), rgb(255 255 255 / 60%) 70%, rgb(255 255 255 / 30%)); }
+  .site.mobile[data-image='false'] .hero { padding: calc(var(--header-height) + 48px) 0 40px; }
+  .site.mobile .fallback h1 { font-size: 32px; margin-bottom: 40px; }
+  .site.mobile .grid { grid-template-columns: 1fr; }
+  .site.mobile .card.featured { grid-template-columns: 1fr; gap: 0; }
+  .site.mobile .card.featured h3 { font-size: 22px; }
+  .site.mobile .cats { flex-wrap: nowrap; overflow: hidden; }
+  .site.mobile .card:nth-child(n+4) { display: none; }
+
+  @media (width < 1100px) {
+    .intro, .presets, .stage, .notes { padding-inline: 20px; }
+    .stage { grid-template-columns: 1fr; }
+    .admin { position: static; }
+    .notes { grid-template-columns: 1fr; }
+  }
+
+  /* annotations */
+  .notes { max-width: 1600px; margin: 0 auto; padding: 0 48px 64px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .notes article { background: #fff; border: 1px solid var(--c-line); border-radius: 12px; padding: 18px 20px; font-size: 13px; line-height: 1.65; }
+  .notes h4 { margin: 0 0 8px; font-size: 14px; }
+  .notes code { font-family: ui-monospace, Menlo, monospace; font-size: 12px; background: #f3f2ef; padding: 1px 5px; border-radius: 4px; }
+  .notes ul { margin: 0; padding-left: 18px; }
+  .flow { font-family: ui-monospace, Menlo, monospace; font-size: 12px; line-height: 1.9; white-space: pre; margin: 0; color: #444; }
+</style>
+</head>
+<body>
+
+<section class="intro">
+  <div>
+    <h1>概念图 · Blog 模板内容槽位</h1>
+    <p>左侧为 Payload Admin 中 <b>Settings › Blog › Listing page › Hero</b> 的编辑界面，右侧为前端 <b>/blogs</b> 的实时预览。修改左侧字段，右侧随之变化。模板布局固定；编辑只填内容。</p>
+  </div>
+  <div class="principle">
+    <div><b>代码 · 模板</b>布局、层级、样式、<br/>槽位在哪里出现</div>
+    <div><b>CMS · 槽位内容</b>标题、描述、图片、<br/>Header 主题</div>
+  </div>
+</section>
+
+<div class="presets" role="group" aria-label="预设场景">
+  <span>预设场景：</span>
+  <button data-preset="image-dark" aria-pressed="true">带图 · 深色</button>
+  <button data-preset="image-light">带图 · 浅色</button>
+  <button data-preset="text-light">无图 · 浅色</button>
+  <button data-preset="text-dark">无图 · 深色</button>
+  <button data-preset="off">未启用（= 当前页面）</button>
+</div>
+
+<div class="stage">
+  <!-- ================= Admin ================= -->
+  <div>
+    <p class="label">Payload Admin</p>
+    <div class="admin">
+      <nav>
+        <h6>Collections</h6>
+        <a>Pages</a><a>Media</a>
+        <h6>Blog</h6>
+        <a>Blogs</a><a>Blog Categories</a>
+        <h6>Globals</h6>
+        <a>Header</a><a>Footer</a><a>Site Settings</a>
+        <a class="active">Settings</a>
+      </nav>
+      <main>
+        <div class="crumb">Dashboard / Settings</div>
+        <div class="title-row"><h2>Settings</h2><button class="save" type="button">Save</button></div>
+        <div class="tabs"><span class="on">Blog</span><span class="future">Case Studies（未来）</span></div>
+
+        <section class="group">
+          <header>Listing page <small>/blogs</small></header>
+          <div class="body">
+            <p class="desc">Blog 主列表页模板中可管理的内容。未来新增的列表页配置排在 Hero 之后。</p>
+            <section class="group inner">
+              <header>Hero</header>
+              <div class="body">
+                <div class="field check"><input id="f-enabled" type="checkbox" checked /><label for="f-enabled" style="margin:0">Enabled</label></div>
+                <p class="desc" style="margin-top:4px">关闭后隐藏 Hero，保留已填写的内容。</p>
+                <div class="hero-fields" id="heroFields">
+                  <div class="field" id="headingField">
+                    <label for="f-heading">Heading <i>*</i></label>
+                    <input id="f-heading" type="text" value="Notes from the tea garden" />
+                    <div class="err">启用 Hero 时必须填写标题。</div>
+                  </div>
+                  <div class="field">
+                    <label for="f-desc">Description</label>
+                    <textarea id="f-desc">Stories, brewing guides, and sourcing insights from the people who grow and blend our teas.</textarea>
+                  </div>
+                  <div class="field">
+                    <label>Image</label>
+                    <div class="upload" id="upload">
+                      <span class="thumb"></span>
+                      <span class="meta" id="uploadMeta">hero.webp<small>1920 × 1080 · Media</small></span>
+                      <button type="button" id="toggleImage">移除</button>
+                    </div>
+                  </div>
+                  <div class="field">
+                    <label>Header theme</label>
+                    <div class="radios">
+                      <label><input type="radio" name="theme" value="light" /> Light</label>
+                      <label><input type="radio" name="theme" value="dark" checked /> Dark</label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+          </div>
+        </section>
+        <section class="group ghost"><header>Article page（预留，有真实槽位时再加）</header></section>
+        <div class="datapath">settings.blog.listing.hero</div>
+      </main>
+    </div>
+  </div>
+
+  <!-- ================= Frontend preview ================= -->
+  <div>
+    <p class="label">前端预览 · /blogs
+      <span class="viewport" role="group" aria-label="视口">
+        <button data-vp="desktop" aria-pressed="true">Desktop 1280</button>
+        <button data-vp="mobile">Mobile 390</button>
+      </span>
+    </p>
+    <div class="browser">
+      <div class="bar"><i></i><i></i><i></i><span class="url">ecolitea.com/blogs</span></div>
+      <div class="scaler" id="scaler">
+        <div class="site" id="site" data-hero="on" data-image="true" data-header-theme="dark">
+          <header class="s-header"><div class="wrap">
+            <span class="logo">ecolitea</span>
+            <nav><span>Teas</span><span>Solutions</span><span>Case Studies</span><span>Blogs</span><span>About</span></nav>
+            <span class="cta">Contact us</span><span class="burger"></span>
+          </div></header>
+
+          <section class="hero" aria-label="Blog hero">
+            <div class="media"></div>
+            <div class="wrap"><div class="copy">
+              <h1 id="p-heading">Notes from the tea garden</h1>
+              <p id="p-desc">Stories, brewing guides, and sourcing insights from the people who grow and blend our teas.</p>
+            </div></div>
+          </section>
+
+          <div class="wrap fallback"><h1>Blogs</h1></div>
+
+          <div class="wrap list">
+            <div class="cats"><span class="on">All<em>24</em></span><span>Brewing<em>8</em></span><span>Sourcing<em>6</em></span><span>Wellness<em>5</em></span><span>Industry<em>5</em></span></div>
+            <div class="grid">
+              <article class="card featured"><div class="img"></div><div><span class="tag">Sourcing</span><h3>How high-altitude gardens shape the flavor of oolong</h3><p>A look at elevation, mist, and slow growth in the gardens we partner with.</p></div></article>
+              <article class="card"><div class="img"></div><span class="tag">Brewing</span><h3>The right water temperature for every tea</h3><p>A practical chart for green, white, oolong, and black teas.</p></article>
+              <article class="card"><div class="img"></div><span class="tag">Wellness</span><h3>What the research says about L-theanine</h3><p>Calm focus, explained without the hype.</p></article>
+              <article class="card"><div class="img"></div><span class="tag">Industry</span><h3>Traceability from leaf to cup</h3><p>Why origin data matters to modern tea buyers.</p></article>
+              <article class="card"><div class="img"></div><span class="tag">Brewing</span><h3>Cold brew, step by step</h3><p>Smooth, low-bitterness tea for warm days.</p></article>
+              <article class="card"><div class="img"></div><span class="tag">Sourcing</span><h3>Meeting the growers behind our jasmine</h3><p>Night-time scenting and the craft that goes into it.</p></article>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<section class="notes">
+  <article>
+    <h4>渲染规则</h4>
+    <ul>
+      <li>Hero 只在 <code>/blogs</code> 与 <code>/blogs/page/N</code> 出现；分类页不读取。</li>
+      <li>启用且有标题 → 渲染 Hero，替代默认 <code>&lt;h1&gt;Blogs&lt;/h1&gt;</code>。</li>
+      <li>未启用、无标题、Global 未保存 → 保持当前页面。</li>
+      <li>无图时退化为文字横幅；Header theme 同时决定横幅底色与 Header 前景色。</li>
+    </ul>
+  </article>
+  <article>
+    <h4>数据流</h4>
+<pre class="flow">Settings (Global, tag: global_settings)
+ └ blog.listing.hero
+     ↓ getCachedSettings()      depth 1
+     ↓ getBlogListingHero()     → model | null
+     ↓ &lt;BlogListingHero /&gt;      固定模板 + HeaderThemeSync
+保存 → revalidateTag('global_settings')</pre>
+  </article>
+  <article>
+    <h4>扩展方式</h4>
+    <ul>
+      <li>新的列表页内容：在 <code>blog.listing</code> 中 Hero 之后追加字段组。</li>
+      <li>详情页内容：新增 <code>blog.article</code> 分组（如 “More to read” 标题）。</li>
+      <li>其他业务：在 Settings 中新增 tab（如 Case Studies）。</li>
+    </ul>
+  </article>
+</section>
+
+<script>
+  const $ = (s) => document.querySelector(s)
+  const site = $('#site'), scaler = $('#scaler')
+  const f = { enabled: $('#f-enabled'), heading: $('#f-heading'), desc: $('#f-desc') }
+  let hasImage = true, vp = 'desktop'
+
+  function render() {
+    const heading = f.heading.value.trim()
+    const theme = document.querySelector('input[name=theme]:checked').value
+    const on = f.enabled.checked && heading.length > 0
+    site.dataset.hero = on ? 'on' : 'off'
+    site.dataset.image = String(hasImage)
+    // Header theme follows the hero only when it renders; otherwise default light
+    site.dataset.headerTheme = on ? theme : 'light'
+    $('#p-heading').textContent = heading
+    const d = f.desc.value.trim()
+    $('#p-desc').textContent = d
+    $('#p-desc').hidden = !d
+    $('#heroFields').classList.toggle('off', !f.enabled.checked)
+    $('#headingField').classList.toggle('invalid', f.enabled.checked && !heading)
+    $('#upload').classList.toggle('empty', !hasImage)
+    $('#uploadMeta').innerHTML = hasImage ? 'hero.webp<small>1920 × 1080 · Media</small>' : '未选择图片<small>可选</small>'
+    $('#toggleImage').textContent = hasImage ? '移除' : '选择图片'
+    fit()
+  }
+
+  function fit() {
+    site.classList.toggle('mobile', vp === 'mobile')
+    const w = vp === 'mobile' ? 390 : 1280
+    const avail = scaler.clientWidth
+    const scale = Math.min(1, avail / w)
+    site.style.transform = `scale(${scale})`
+    site.style.marginLeft = vp === 'mobile' ? `${Math.max(0, (avail - w * scale) / 2)}px` : '0'
+    scaler.style.height = `${site.offsetHeight * scale}px`
+    scaler.style.background = vp === 'mobile' ? '#f4f3f1' : '#fff'
+  }
+
+  const presets = {
+    'image-dark': { enabled: true, image: true, theme: 'dark' },
+    'image-light': { enabled: true, image: true, theme: 'light' },
+    'text-light': { enabled: true, image: false, theme: 'light' },
+    'text-dark': { enabled: true, image: false, theme: 'dark' },
+    off: { enabled: false, image: true, theme: 'dark' },
+  }
+  document.querySelectorAll('[data-preset]').forEach((b) => b.addEventListener('click', () => {
+    const p = presets[b.dataset.preset]
+    f.enabled.checked = p.enabled; hasImage = p.image
+    if (!f.heading.value.trim()) f.heading.value = 'Notes from the tea garden'
+    document.querySelector(`input[name=theme][value=${p.theme}]`).checked = true
+    document.querySelectorAll('[data-preset]').forEach((x) => x.setAttribute('aria-pressed', String(x === b)))
+    render()
+  }))
+  document.querySelectorAll('[data-vp]').forEach((b) => b.addEventListener('click', () => {
+    vp = b.dataset.vp
+    document.querySelectorAll('[data-vp]').forEach((x) => x.setAttribute('aria-pressed', String(x === b)))
+    render()
+  }))
+  $('#toggleImage').addEventListener('click', () => { hasImage = !hasImage; render() })
+  ;[f.enabled, f.heading, f.desc].forEach((el) => el.addEventListener('input', render))
+  document.querySelectorAll('input[name=theme]').forEach((el) => el.addEventListener('change', render))
+  window.addEventListener('resize', fit)
+  render()
+</script>
+</body>
+</html>

@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Media crop — option comparison</title>
+<style>
+  :root {
+    --bg: #fff; --bg-subtle: #f5f5f5; --border: #e6e6e6; --text: #1e1e1e;
+    --muted: #00000080; --primary: #0c8ce9; --warn-bg: #fff4d6; --warn: #8a5a00;
+    --danger-bg: #ffe2e0; --danger: #b3261e; --radius: 6px;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 14px/1.45 Inter, -apple-system, "Segoe UI", sans-serif; color: var(--text); background: #ececec; }
+  h1.page { font-size: 22px; margin: 32px 40px 4px; }
+  p.lead { margin: 0 40px 24px; color: var(--muted); max-width: 900px; }
+  .option { margin: 0 40px 56px; }
+  .option > h2 { font-size: 18px; margin: 0 0 4px; }
+  .option > .note { color: var(--muted); margin: 0 0 16px; }
+  .screens { display: grid; grid-template-columns: repeat(auto-fit, minmax(560px, 1fr)); gap: 24px; }
+  .screen { background: var(--bg); border-radius: 10px; box-shadow: 0 1px 3px #0002; overflow: hidden; position: relative; }
+  .caption { font-size: 12px; font-weight: 600; letter-spacing: .02em; text-transform: uppercase; color: var(--muted); padding: 10px 16px; border-bottom: 1px solid var(--border); background: #fafafa; }
+  .crumbs { padding: 12px 20px 0; font-size: 12px; color: var(--muted); }
+  .title { font-size: 20px; font-weight: 600; padding: 4px 20px 12px; border-bottom: 1px solid var(--border); }
+  .bar { display: flex; align-items: center; gap: 10px; padding: 8px 20px; border-bottom: 1px solid var(--border); font-size: 12px; }
+  .pill { border: 1px solid var(--border); border-radius: var(--radius); padding: 3px 8px; }
+  .save { margin-left: auto; background: var(--primary); color: #fff; border-radius: var(--radius); padding: 4px 12px; }
+  .save.off { background: #d9d9d9; }
+  .doc { display: grid; grid-template-columns: 200px 1fr; min-height: 340px; }
+  .left { padding: 14px 16px; border-right: 1px solid var(--border); font-size: 12px; }
+  .left label { display: block; font-weight: 600; margin: 10px 0 4px; }
+  .input { border: 1px solid var(--border); border-radius: var(--radius); height: 28px; padding: 4px 8px; color: var(--muted); }
+  .right { background: var(--bg-subtle); display: flex; flex-direction: column; }
+  .toolbar { display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; background: var(--bg); border-bottom: 1px solid var(--border); font-size: 12px; }
+  .icons { display: flex; gap: 12px; font-size: 15px; }
+  .icons span { width: 26px; height: 26px; display: grid; place-items: center; border-radius: 5px; }
+  .icons .hl { outline: 2px solid var(--primary); background: #e5f4ff; }
+  .preview { flex: 1; display: grid; place-items: center; padding: 16px; position: relative; }
+  .img { width: 260px; aspect-ratio: 1356 / 910; background: linear-gradient(#4a9fd4 0 55%, #e8eef2 55% 62%, #3fa7b5 62%); border-radius: 2px; position: relative; overflow: hidden; }
+  .img.cropped { aspect-ratio: 16 / 9; background: linear-gradient(#4a9fd4 0 50%, #e8eef2 50% 58%, #3fa7b5 58%); }
+  .meta { font-size: 11px; color: var(--muted); text-align: center; padding-bottom: 10px; }
+  .btn { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--border); background: var(--bg); border-radius: var(--radius); padding: 4px 10px; font-size: 12px; }
+  .btn.primary { background: var(--primary); color: #fff; border-color: var(--primary); }
+  .overlay-btn { position: absolute; top: 12px; right: 12px; box-shadow: 0 1px 2px #0002; }
+  .badge { position: absolute; left: 12px; top: 12px; font-size: 11px; background: #fff; border: 1px solid var(--border); border-radius: 999px; padding: 3px 10px; }
+  .badge b { color: var(--primary); }
+  .modal-wrap { position: absolute; inset: 0; background: #0006; display: grid; place-items: center; padding: 16px; }
+  .modal { background: var(--bg); border-radius: 10px; width: 100%; max-width: 640px; box-shadow: 0 8px 30px #0004; font-size: 12px; }
+  .modal header { display: flex; justify-content: space-between; padding: 12px 16px; border-bottom: 1px solid var(--border); font-weight: 600; font-size: 14px; }
+  .modal .body { padding: 12px 16px; display: grid; gap: 10px; }
+  .modal footer { display: flex; justify-content: flex-end; gap: 8px; padding: 10px 16px; border-top: 1px solid var(--border); }
+  .banner { background: var(--warn-bg); color: var(--warn); border-radius: var(--radius); padding: 8px 10px; }
+  .tabs { display: inline-flex; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+  .tabs span { padding: 4px 10px; border-right: 1px solid var(--border); }
+  .tabs span:last-child { border-right: 0; }
+  .tabs .on { background: var(--text); color: #fff; }
+  .cropbox { position: relative; height: 150px; background: linear-gradient(#4a9fd4 0 55%, #e8eef2 55% 62%, #3fa7b5 62%); border-radius: 2px; }
+  .cropbox .shade { position: absolute; inset: 0; background: #0007; clip-path: polygon(0 0,100% 0,100% 100%,0 100%,0 10%,18% 10%,18% 92%,82% 92%,82% 10%,0 10%); }
+  .cropbox .sel { position: absolute; left: 18%; right: 18%; top: 10%; bottom: 8%; border: 1px dashed #fff; }
+  .cropbox.free .sel { left: 8%; right: 30%; top: 18%; bottom: 14%; }
+  .cropbox.free .shade { clip-path: polygon(0 0,100% 0,100% 100%,0 100%,0 18%,8% 18%,8% 86%,70% 86%,70% 18%,0 18%); }
+  .focal { position: absolute; left: 45%; top: 48%; width: 18px; height: 18px; border-radius: 50%; background: #fff; display: grid; place-items: center; font-weight: 700; color: var(--text); font-size: 13px; }
+  .split { display: grid; grid-template-columns: 1fr 150px; gap: 12px; }
+  .side h4 { margin: 0 0 6px; font-size: 12px; }
+  .row2 { display: flex; gap: 6px; margin-bottom: 12px; }
+  .row2 .input { flex: 1; height: 26px; color: var(--text); }
+  .toast { position: absolute; right: 14px; bottom: 14px; width: 290px; background: var(--danger-bg); color: var(--danger); border-radius: var(--radius); padding: 8px 10px; font-size: 12px; box-shadow: 0 2px 8px #0002; }
+  .mini { margin-top: 10px; border: 1px solid var(--border); border-radius: var(--radius); padding: 8px; background: #fff; }
+  .mini .img { width: 100%; }
+  .muted { color: var(--muted); }
+  .verdict { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 16px; font-size: 13px; }
+  .verdict div { background: #fff; border-radius: 8px; padding: 12px 14px; }
+  .good::before { content: "✓ "; color: #008043; font-weight: 700; }
+  .bad::before { content: "✕ "; color: var(--danger); font-weight: 700; }
+  ul { margin: 6px 0 0; padding-left: 18px; }
+</style>
+</head>
+<body>
+<h1 class="page">Media crop — option comparison</h1>
+<p class="lead">Static mockups for discussion. Both options use only public Payload APIs. Colours and spacing approximate the Payload 4 admin; real implementation uses <code>@payloadcms/ui</code> components.</p>
+
+<!-- OPTION 1 -->
+<section class="option">
+  <h2>Option 1 — Native “Edit image” (crop + focal point)</h2>
+  <p class="note">Enable <code>upload.crop: true</code>. The ✂ toolbar icon becomes the only manual entry. Our ratio dialog stays only for the automatic pop-up on upload.</p>
+  <div class="screens">
+    <div class="screen">
+      <div class="caption">1a · Detail page — click ✂ in toolbar</div>
+      <div class="crumbs">Dashboard / Media / coastal-rocks.png</div>
+      <div class="title">coastal-rocks.png</div>
+      <div class="bar"><span class="pill">📁 None</span> Updated 2 hours ago <span class="save off">Save</span></div>
+      <div class="doc">
+        <div class="left"><label>Alt *</label><div class="input">Coastal rocks at Lake Tahoe</div><label>Caption</label><div class="input" style="height:60px"></div></div>
+        <div class="right">
+          <div class="toolbar"><span class="pill">coastal-rocks.png ▾</span><span class="icons"><span>🔗</span><span class="hl">✂</span><span>↗</span><span>⬇</span></span></div>
+          <div class="preview"><div class="img"></div></div>
+          <div class="meta">Original · 1356 × 910 – 2MB – image/png</div>
+        </div>
+      </div>
+      <div class="modal-wrap">
+        <div class="modal">
+          <header>Editing coastal-rocks.png <span>✕</span></header>
+          <div class="body">
+            <div class="split">
+              <div class="cropbox free"><div class="shade"></div><div class="sel"></div><div class="focal">+</div></div>
+              <div class="side">
+                <h4>Crop ↺</h4>
+                <div class="row2"><div class="input">W 840</div><div class="input">H 618</div></div>
+                <h4>Focal point ↺</h4>
+                <div class="row2"><div class="input">X 45%</div><div class="input">Y 48%</div></div>
+                <div class="muted">Free-form selection — no ratio lock</div>
+              </div>
+            </div>
+          </div>
+          <footer><span class="btn">Cancel</span><span class="btn primary">Apply changes</span></footer>
+        </div>
+      </div>
+    </div>
+
+    <div class="screen">
+      <div class="caption">1b · After Save with a non-supported crop</div>
+      <div class="crumbs">Dashboard / Media / coastal-rocks.png</div>
+      <div class="title">coastal-rocks.png</div>
+      <div class="bar"><span class="pill">📁 None</span> Unsaved changes <span class="save">Save</span></div>
+      <div class="doc">
+        <div class="left"><label>Alt *</label><div class="input">Coastal rocks at Lake Tahoe</div><label>Caption</label><div class="input" style="height:60px"></div></div>
+        <div class="right">
+          <div class="toolbar"><span class="pill">coastal-rocks.png ▾</span><span class="icons"><span>🔗</span><span>✂</span><span>↗</span><span>⬇</span></span></div>
+          <div class="preview"><div class="img"></div></div>
+          <div class="meta">Original · 1356 × 910 – 2MB – image/png</div>
+        </div>
+      </div>
+      <div class="toast"><b>Image is 840×618.</b> Accepted ratios: 1:1, 4:3, 3:2, 16:9, 9:16, 4:5.</div>
+    </div>
+  </div>
+  <div class="verdict">
+    <div><b>Pros</b><ul><li class="good">Single entry in the toolbar, fully native</li><li class="good">Crop and focal point in one dialog</li><li class="good">Least code</li></ul></div>
+    <div><b>Cons</b><ul><li class="bad">No ratio lock — editors must type exact W/H</li><li class="bad">Mistakes are found only on Save (toast)</li><li class="bad">Two different crop UIs (upload pop-up vs native)</li><li class="bad">Preview still shows the original until saved</li></ul></div>
+  </div>
+</section>
+
+<!-- OPTION 2 -->
+<section class="option">
+  <h2>Option 2 — Our ratio-locked dialog for all cropping</h2>
+  <p class="note">✂ stays native for focal point only. A “Crop to ratio” button sits on the preview (detail page, via public <code>filePreview</code> slot) or in the left column (create page, where the preview cannot be replaced). Pending crops are previewed before Save.</p>
+  <div class="screens">
+    <div class="screen">
+      <div class="caption">2a · Detail page — entry on preview, pending crop shown</div>
+      <div class="crumbs">Dashboard / Media / coastal-rocks.png</div>
+      <div class="title">coastal-rocks.png</div>
+      <div class="bar"><span class="pill">📁 None</span> Unsaved changes <span class="save">Save</span></div>
+      <div class="doc">
+        <div class="left"><label>Alt *</label><div class="input">Coastal rocks at Lake Tahoe</div><label>Caption</label><div class="input" style="height:60px"></div></div>
+        <div class="right">
+          <div class="toolbar"><span class="pill">coastal-rocks.png ▾</span><span class="icons"><span>🔗</span><span title="Focal point">✂</span><span>↗</span><span>⬇</span></span></div>
+          <div class="preview">
+            <span class="badge">Cropped to <b>16:9</b> · 1356 × 763 — applied on save · <u>Reset</u></span>
+            <span class="btn overlay-btn">⧉ Crop to ratio</span>
+            <div class="img cropped"></div>
+          </div>
+          <div class="meta">Original · 1356 × 910 – 2MB – image/png</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="screen">
+      <div class="caption">2b · Ratio dialog (manual or automatic)</div>
+      <div class="crumbs">Dashboard / Media / Create New</div>
+      <div class="title">Untitled</div>
+      <div class="bar"><span class="pill">📁 None</span> Creating new Media <span class="save">Save</span></div>
+      <div class="doc"><div class="left"></div><div class="right"></div></div>
+      <div class="modal-wrap">
+        <div class="modal">
+          <header>Crop image to a supported ratio <span>✕</span></header>
+          <div class="body">
+            <div class="banner">This image is 1000 × 210 (4.76:1), which is not a supported ratio. Choose a ratio and adjust the crop.</div>
+            <div class="tabs"><span>1:1</span><span>4:3</span><span>3:2</span><span class="on">16:9</span><span>9:16</span><span>4:5</span></div>
+            <div class="cropbox"><div class="shade"></div><div class="sel"></div></div>
+            <div>Result: 373 × 210 · 16:9</div>
+            <div class="muted">Images: JPEG, PNG, WebP, AVIF, GIF</div>
+          </div>
+          <footer><span class="btn">Choose another file</span><span class="btn primary">Apply crop</span></footer>
+        </div>
+      </div>
+    </div>
+
+    <div class="screen">
+      <div class="caption">2c · Create page — entry and crop preview in left column</div>
+      <div class="crumbs">Dashboard / Media / Create New</div>
+      <div class="title">Untitled</div>
+      <div class="bar"><span class="pill">📁 None</span> Creating new Media <span class="save">Save</span></div>
+      <div class="doc">
+        <div class="left">
+          <span class="btn">⧉ Crop to ratio</span>
+          <div class="mini"><div class="img cropped"></div><div class="muted" style="margin-top:6px">Crop preview · 16:9 · 373 × 210<br>Applied on save · <u>Reset</u></div></div>
+          <label>Alt *</label><div class="input">banner-coastal</div>
+        </div>
+        <div class="right">
+          <div class="preview"><div class="img" style="aspect-ratio:1000/210"></div></div>
+          <div class="meta">banner-coastal.png · 1KB – image/png (original, Payload preview)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="verdict">
+    <div><b>Pros</b><ul><li class="good">Ratio always valid — no failed saves</li><li class="good">One crop UI for upload and later edits</li><li class="good">Pending crop visible before Save</li><li class="good">Public APIs only (<code>filePreview</code>, <code>controls</code>, <code>ui</code> field)</li></ul></div>
+    <div><b>Cons</b><ul><li class="bad">Entry is not in the toolbar row (toolbar has no public slot)</li><li class="bad">Create page shows the crop preview in the left column, not the main preview</li><li class="bad">More code to maintain</li></ul></div>
+  </div>
+</section>
+</body>
+</html>

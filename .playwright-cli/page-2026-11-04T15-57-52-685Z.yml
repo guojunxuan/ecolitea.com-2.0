@@ -1,0 +1,178 @@
+- generic [ref=f9e1]:
+  - generic [ref=f9e3]:
+    - complementary:
+      - generic:
+        - navigation:
+          - generic:
+            - tablist:
+              - tab [selected]:
+                - generic: Collections
+              - tab:
+                - generic: Folders
+            - tabpanel:
+              - generic:
+                - generic:
+                  - button:
+                    - generic: Collections
+                  - generic:
+                    - generic:
+                      - link:
+                        - /url: /admin/collections/pages
+                        - generic: Pages
+                    - generic:
+                      - link:
+                        - /url: /admin/collections/posts
+                        - generic: Posts
+                    - generic:
+                      - link:
+                        - /url: /admin/collections/media
+                        - generic: Media
+                    - generic:
+                      - link:
+                        - /url: /admin/collections/documents
+                        - generic: Documents
+                    - generic:
+                      - link:
+                        - /url: /admin/collections/categories
+                        - generic: Categories
+                    - generic:
+                      - link:
+                        - /url: /admin/collections/case-studies
+                        - generic: Case Studies
+                    - generic:
+                      - link:
+                        - /url: /admin/collections/users
+                        - generic: Users
+                    - generic:
+                      - link:
+                        - /url: /admin/collections/redirects
+                        - generic: Redirects
+                    - generic:
+                      - link:
+                        - /url: /admin/collections/forms
+                        - generic: Forms
+                    - generic:
+                      - link:
+                        - /url: /admin/collections/form-submissions
+                        - generic: Form Submissions
+                    - generic:
+                      - link:
+                        - /url: /admin/collections/search
+                        - generic: Search Results
+                - generic:
+                  - button:
+                    - generic: Globals
+                  - generic:
+                    - generic:
+                      - link:
+                        - /url: /admin/globals/header
+                        - generic: Header
+                    - generic:
+                      - link:
+                        - /url: /admin/globals/footer
+                        - generic: Footer
+                    - generic:
+                      - link:
+                        - /url: /admin/globals/site-settings
+                        - generic: Site Settings
+                    - generic: Settings
+                - generic:
+                  - button:
+                    - generic: Blog
+                  - generic:
+                    - generic:
+                      - link:
+                        - /url: /admin/collections/blogs
+                        - generic: Blogs
+                    - generic:
+                      - link:
+                        - /url: /admin/collections/blog-categories
+                        - generic: Blog Categories
+                - generic:
+                  - button:
+                    - generic: Product
+                  - generic:
+                    - generic:
+                      - link:
+                        - /url: /admin/collections/product-categories
+                        - generic: Product Categories
+                    - generic:
+                      - link:
+                        - /url: /admin/collections/products
+                        - generic: Products
+    - generic [ref=f9e4]:
+      - banner [ref=f9e5]:
+        - generic [ref=f9e7]:
+          - generic [ref=f9e9]:
+            - button "Open Menu" [ref=f9e10] [cursor=pointer]
+            - navigation [ref=f9e12]:
+              - link "Dashboard" [ref=f9e13] [cursor=pointer]:
+                - /url: /admin
+              - generic [ref=f9e14]: /
+              - link "Settings" [ref=f9e15] [cursor=pointer]:
+                - /url: /admin/globals/settings
+          - button "Account" [ref=f9e18] [cursor=pointer]:
+            - img "yas" [ref=f9e19]
+      - generic [ref=f9e20]:
+        - heading "Settings" [level=1] [ref=f9e21]
+        - list [ref=f9e24]:
+          - generic "Edit" [ref=f9e25]
+          - link "Versions" [ref=f9e26] [cursor=pointer]:
+            - /url: /admin/globals/settings/versions
+          - link "API" [ref=f9e27] [cursor=pointer]:
+            - /url: /admin/globals/settings/api
+      - main [ref=f9e28]:
+        - generic [ref=f9e29]:
+          - generic [ref=f9e30]:
+            - generic [ref=f9e31]:
+              - list
+            - button "Save" [disabled] [ref=f9e35]
+          - generic [ref=f9e42]:
+            - tablist [ref=f9e45]:
+              - tab "Blog" [ref=f9e46] [cursor=pointer]
+              - tab "Product" [active] [selected] [ref=f9e47] [cursor=pointer]
+            - generic [ref=f9e104]:
+              - generic [ref=f9e105]:
+                - heading "Overview" [level=3] [ref=f9e107]
+                - generic [ref=f9e108]: Content and search settings for the products overview page (/products).
+              - generic [ref=f9e109]:
+                - generic [ref=f9e111]:
+                  - generic [ref=f9e112] [cursor=pointer]:
+                    - button "Toggle block" [ref=f9e113]
+                    - generic: Hero
+                    - button "Collapse" [ref=f9e114]
+                  - generic [ref=f9e121]:
+                    - generic [ref=f9e122]:
+                      - generic [ref=f9e123]:
+                        - heading "Slides" [level=3] [ref=f9e125]
+                        - list [ref=f9e126]:
+                          - listitem [ref=f9e127]:
+                            - button "More options" [ref=f9e130] [cursor=pointer]
+                      - generic [ref=f9e133]: Slides rotate every 4 seconds. Include all visible text in the media. Enable a CTA link to make the whole image or video clickable. Drag rows to reorder. With no slides, the previous Hero is used when configured.
+                    - button "Add Hero Slide" [ref=f9e134] [cursor=pointer]
+                - generic [ref=f9e136]:
+                  - generic [ref=f9e137] [cursor=pointer]:
+                    - button "Toggle block" [ref=f9e138]
+                    - generic: Category Carousel
+                    - button "Collapse" [ref=f9e139]
+                  - generic [ref=f9e148]:
+                    - generic [ref=f9e151]:
+                      - checkbox "Enabled" [checked] [ref=f9e153]
+                      - generic [ref=f9e157]: Enabled
+                    - generic [ref=f9e158]:
+                      - generic [ref=f9e159]:
+                        - generic [ref=f9e160]:
+                          - heading "Items" [level=3] [ref=f9e162]
+                          - list [ref=f9e163]:
+                            - listitem [ref=f9e164]:
+                              - button "More options" [ref=f9e167] [cursor=pointer]
+                        - generic [ref=f9e170]: Only categories with public products appear on the site. Drag to reorder. Leave empty for all public categories. The previous category selection must be selected again in this list.
+                      - button "Add Item" [ref=f9e171] [cursor=pointer]
+                - generic [ref=f9e174] [cursor=pointer]:
+                  - button "Toggle block" [ref=f9e175]
+                  - generic: SEO
+                  - button "Expand" [ref=f9e176]
+      - status [ref=f9e100]
+  - status [ref=f9e101]
+  - region "Notifications alt+T"
+  - alert [ref=f9e102]

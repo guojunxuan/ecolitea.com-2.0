@@ -1,0 +1,54 @@
+- generic [active] [ref=f5e1]:
+  - generic [ref=f5e4]:
+    - banner [ref=f5e5]:
+      - generic [ref=f5e7]:
+        - generic [ref=f5e9]:
+          - button "Close Menu" [ref=f5e10] [cursor=pointer]
+          - navigation [ref=f5e12]:
+            - link "Dashboard" [ref=f5e13] [cursor=pointer]:
+              - /url: /admin
+        - button "Account" [ref=f5e16] [cursor=pointer]:
+          - img "yas" [ref=f5e17]
+    - generic [ref=f5e18]:
+      - heading "截屏2026-08-06 14.03.23.png" [level=1] [ref=f5e19]
+      - list [ref=f5e22]:
+        - generic "Edit" [ref=f5e23]
+        - link "API" [ref=f5e24] [cursor=pointer]:
+          - /url: /admin/collections/media/6ad3753e4c57280026ccbf2a/api
+      - generic [ref=f5e25]: "Images: JPEG, PNG, WebP, AVIF, GIF; ratios 1:1, 4:3, 3:2, 16:9, 9:16, 4:5 (1% tolerance). Video: MP4, H.264, AAC or MP3 audio; maximum 100 MB and 10 minutes; ratios 16:9, 9:16, 1:1, 4:5 (1% tolerance). Enable Fast Start / Web Optimized when exporting video."
+    - main [ref=f5e27]:
+      - generic [ref=f5e28]:
+        - generic [ref=f5e29]:
+          - generic [ref=f5e30]:
+            - button "Loading..." [ref=f5e32] [cursor=pointer]
+            - list [ref=f5e33]:
+              - listitem [ref=f5e34]:
+                - paragraph [ref=f5e35]: Loading...
+          - generic [ref=f5e36]:
+            - button "Save" [disabled] [ref=f5e39]
+            - button "More options" [ref=f5e42] [cursor=pointer]
+        - generic [ref=f5e43]:
+          - generic [ref=f5e45]:
+            - generic [ref=f5e48]:
+              - button "Crop image" [disabled] [ref=f5e50]
+              - generic [ref=f5e51]:
+                - generic [ref=f5e52]: Alt
+                - textbox "Alt" [disabled] [ref=f5e54]
+            - region "Used in" [ref=f5e59]:
+              - heading "Used in" [level=3] [ref=f5e60]
+              - paragraph [ref=f5e61]: Loading references…
+          - generic [ref=f5e63]:
+            - generic [ref=f5e64]:
+              - button "截屏2026-08-06 14.03.23.png" [ref=f5e68] [cursor=pointer]
+              - generic [ref=f5e73]:
+                - button [ref=f5e74] [cursor=pointer]
+                - button "Edit Image" [ref=f5e77] [cursor=pointer]
+                - link "Open in new tab" [ref=f5e78] [cursor=pointer]:
+                  - /url: http://localhost:3000/api/media/6ad3753e4c57280026ccbf2a/file
+                - link "Download" [ref=f5e81] [cursor=pointer]:
+                  - /url: http://localhost:3000/api/media/6ad3753e4c57280026ccbf2a/file
+            - generic [ref=f5e91]:
+              - generic [ref=f5e92]: Original
+              - generic [ref=f5e93]: 1356 × 910 – 2MB – image/png
+  - region "Notifications alt+T"
+  - button "Open Next.js Dev Tools" [ref=f5e99] [cursor=pointer]

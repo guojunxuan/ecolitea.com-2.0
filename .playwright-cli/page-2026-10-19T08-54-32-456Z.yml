@@ -1,0 +1,103 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e188]:
+    - complementary [ref=e189]:
+      - navigation [ref=e191]:
+        - generic [ref=e192]:
+          - tablist [ref=e193]:
+            - tab "Collections" [selected] [ref=e194] [cursor=pointer]
+            - tab "Folders" [ref=e199] [cursor=pointer]
+          - tabpanel [ref=e204]:
+            - generic [ref=e205]:
+              - generic [ref=e206]:
+                - button "Collections" [ref=e207] [cursor=pointer]
+                - generic [ref=e212]:
+                  - link "Pages" [ref=e214] [cursor=pointer]:
+                    - /url: /admin/collections/pages
+                  - link "Posts" [ref=e217] [cursor=pointer]:
+                    - /url: /admin/collections/posts
+                  - link "Media" [ref=e220] [cursor=pointer]:
+                    - /url: /admin/collections/media
+                  - link "Documents" [ref=e223] [cursor=pointer]:
+                    - /url: /admin/collections/documents
+                  - link "Categories" [ref=e226] [cursor=pointer]:
+                    - /url: /admin/collections/categories
+                  - link "Case Studies" [ref=e229] [cursor=pointer]:
+                    - /url: /admin/collections/case-studies
+                  - link "Users" [ref=e232] [cursor=pointer]:
+                    - /url: /admin/collections/users
+                  - link "Redirects" [ref=e235] [cursor=pointer]:
+                    - /url: /admin/collections/redirects
+                  - link "Forms" [ref=e238] [cursor=pointer]:
+                    - /url: /admin/collections/forms
+                  - link "Form Submissions" [ref=e241] [cursor=pointer]:
+                    - /url: /admin/collections/form-submissions
+                  - link "Search Results" [ref=e244] [cursor=pointer]:
+                    - /url: /admin/collections/search
+              - generic [ref=e246]:
+                - button "Globals" [ref=e247] [cursor=pointer]
+                - generic [ref=e252]:
+                  - link "Header" [ref=e254] [cursor=pointer]:
+                    - /url: /admin/globals/header
+                  - link "Footer" [ref=e257] [cursor=pointer]:
+                    - /url: /admin/globals/footer
+                  - link "Site Settings" [ref=e260] [cursor=pointer]:
+                    - /url: /admin/globals/site-settings
+                  - link "Settings" [ref=e263] [cursor=pointer]:
+                    - /url: /admin/globals/settings
+              - generic [ref=e265]:
+                - button "Blog" [ref=e266] [cursor=pointer]
+                - generic [ref=e271]:
+                  - link "Blogs" [ref=e273] [cursor=pointer]:
+                    - /url: /admin/collections/blogs
+                  - link "Blog Categories" [ref=e276] [cursor=pointer]:
+                    - /url: /admin/collections/blog-categories
+    - generic [ref=e278]:
+      - banner [ref=e279]:
+        - generic [ref=e281]:
+          - generic [ref=e283]:
+            - button "Open Menu" [ref=e284] [cursor=pointer]
+            - navigation [ref=e286]:
+              - link "Dashboard" [ref=e287] [cursor=pointer]:
+                - /url: /admin
+              - generic [ref=e288]: /
+              - link "Documents" [ref=e289] [cursor=pointer]:
+                - /url: /admin/collections/documents
+              - generic [ref=e290]: /
+              - generic [ref=e291]: Create New
+          - button "Account" [ref=e294] [cursor=pointer]:
+            - img "yas" [ref=e295]
+      - generic [ref=e296]:
+        - heading "demo-20261019-01-product-specifications" [level=1] [ref=e341]
+        - generic [ref=e298]: "Documents: PDF (.pdf), Word (.docx), Excel (.xlsx), PowerPoint (.pptx); maximum 10 MB. Legacy Office formats and documents with macros are not allowed."
+      - main [ref=e300]:
+        - generic [ref=e301]:
+          - generic [ref=e302]:
+            - generic [ref=e303]:
+              - button "None" [ref=e305] [cursor=pointer]
+              - list [ref=e306]:
+                - listitem [ref=e307]:
+                  - paragraph [ref=e308]: Creating new Document
+            - button "Save" [ref=e312] [cursor=pointer]
+          - generic [ref=e313]:
+            - generic [ref=e318]:
+              - generic [ref=e319]:
+                - generic [ref=e320]:
+                  - text: Title
+                  - generic [ref=e321]: "*"
+                - textbox "Title *" [ref=e323]: demo-20261019-01-product-specifications
+              - generic [ref=e324]:
+                - generic [ref=e325]: Description
+                - textbox "Description" [ref=e328]
+            - generic [ref=e332]:
+              - button [ref=e342] [cursor=pointer]
+              - iframe [ref=e344]
+              - generic [ref=e345]:
+                - generic [ref=e346]:
+                  - generic [ref=e347]: File Name
+                  - textbox "File Name" [ref=e349]: demo-20261019-01-product-specifications.pdf
+                - generic [ref=e350]: 2KB – application/pdf
+      - status [ref=e340]
+  - status [ref=e2]
+  - region "Notifications alt+T"
+  - button "Open Next.js Dev Tools" [ref=e8] [cursor=pointer]
+  - alert [ref=e12]

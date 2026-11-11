@@ -25,10 +25,15 @@
   );
   --carousel-media-center: calc(var(--product-row-card) / 2);
 }
+/* Tablet rail: two full cards plus a short peek, capped at the category carousel's card
+   width so a card never grows into a poster; below 64rem the row stays a scrolling rail. */
 @media (width < 64rem) {
   .root {
-    --product-row-card: calc(
-      (var(--product-row-content) - var(--website-space-16) - 2 * var(--product-row-gap)) / 2
+    --product-row-peek: var(--website-space-8);
+    --product-row-card: clamp(
+      16.25rem,
+      calc((var(--product-row-content) - var(--product-row-gap) - var(--product-row-peek)) / 2),
+      22.5rem
     );
   }
 }

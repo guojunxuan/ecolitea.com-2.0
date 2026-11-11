@@ -1,0 +1,23 @@
+- main [ref=e3]:
+  - paragraph [ref=e6]: A practical guide to choosing and brewing tea. This text stays in a comfortable reading column.
+  - complementary "At a Glance" [ref=e7]:
+    - heading "At a Glance" [level=2] [ref=e8]
+    - paragraph [ref=e10]: Start with fresh water. Adjust time and temperature to taste.
+  - note "Brewing temperature" [ref=e12]:
+    - heading "Brewing temperature" [level=2] [ref=e15]
+    - paragraph [ref=e17]: Let boiling water cool before pouring over green tea.
+  - figure [ref=e18]:
+    - link "Media preview" [ref=e20] [cursor=pointer]:
+      - /url: /block-previews/media.svg?2026-10-02T00%3A00%3A00Z
+    - paragraph [ref=e23]: A wide media block with an editorial caption.
+  - generic [ref=e26]:
+    - heading "Discover your daily tea" [level=2] [ref=e27]
+    - paragraph [ref=e29]: Find a blend for every moment.
+    - link "Explore tea" [ref=e31] [cursor=pointer]:
+      - /url: /tea
+  - generic [ref=e33]:
+    - link "Media preview" [ref=e35] [cursor=pointer]:
+      - /url: /block-previews/media.svg?2026-10-02T00%3A00%3A00Z
+    - generic [ref=e36]:
+      - heading "A tea for slower mornings" [level=2] [ref=e37]
+      - paragraph [ref=e39]: Carefully chosen leaves and a simple daily ritual.

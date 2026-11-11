@@ -1,0 +1,114 @@
+- generic [active] [ref=f1e1]:
+  - banner [ref=f1e2]:
+    - generic [ref=f1e3]:
+      - generic [ref=f1e4]:
+        - heading "Products · B2B 产品展示" [level=1] [ref=f1e5]
+        - paragraph [ref=f1e6]: 三套布局草稿 / 范围：分类图片轮播下方的内容
+      - link "独立打开" [ref=f1e7] [cursor=pointer]:
+        - /url: a-catalog.html
+    - generic [ref=f1e8]:
+      - tablist "设计方案" [ref=f1e9]:
+        - tab "A · 系列目录" [selected] [ref=f1e10] [cursor=pointer]
+        - tab "B · 应用展示" [ref=f1e11] [cursor=pointer]
+        - tab "C · 选型目录" [ref=f1e12] [cursor=pointer]
+      - generic "预览宽度" [ref=f1e13]:
+        - button "桌面" [pressed] [ref=f1e14] [cursor=pointer]
+        - button "手机" [ref=f1e15] [cursor=pointer]
+    - paragraph [ref=f1e16]: A · 推荐。紧凑分类标题 + 产品网格，快速看清整个系列。适合型号较多、以产品目录为主的 B2B 官网。
+  - tabpanel "A · 系列目录" [ref=f1e17]:
+    - iframe [ref=f1e18]:
+      - generic [ref=f2e1]:
+        - navigation "分类定位" [ref=f2e2]:
+          - generic [ref=f2e3]:
+            - link "影像设备" [ref=f2e4] [cursor=pointer]:
+              - /url: "#imaging"
+            - link "户外探索" [ref=f2e5] [cursor=pointer]:
+              - /url: "#outdoor"
+            - link "创作影像" [ref=f2e6] [cursor=pointer]:
+              - /url: /products/demo-creator
+            - link "专业设备" [ref=f2e7] [cursor=pointer]:
+              - /url: /products/demo-professional
+        - main [ref=f2e8]:
+          - generic [ref=f2e10]:
+            - generic [ref=f2e11]:
+              - generic [ref=f2e12]:
+                - heading "影像设备" [level=1] [ref=f2e13]
+                - paragraph [ref=f2e14]: 浏览产品系列，找到适合业务需求的设备。
+              - link "查看全部 10 款" [ref=f2e15] [cursor=pointer]:
+                - /url: /products/demo-imaging-equipment
+            - generic [ref=f2e18]:
+              - article [ref=f2e19]:
+                - link [ref=f2e20] [cursor=pointer]:
+                  - /url: /products/demo-imaging-equipment/demo-insta360-x6
+                  - img "Insta360 X6" [ref=f2e21]
+                - generic [ref=f2e22]:
+                  - heading [level=2] [ref=f2e23]:
+                    - link "Insta360 X6" [ref=f2e24] [cursor=pointer]:
+                      - /url: /products/demo-imaging-equipment/demo-insta360-x6
+                  - paragraph [ref=f2e25]: 全景影像设备
+                  - link "产品详情" [ref=f2e26] [cursor=pointer]:
+                    - /url: /products/demo-imaging-equipment/demo-insta360-x6
+              - article [ref=f2e29]:
+                - link [ref=f2e30] [cursor=pointer]:
+                  - /url: /products/demo-imaging-equipment/demo-insta360-go-ultra
+                  - img "Insta360 GO Ultra" [ref=f2e31]
+                - generic [ref=f2e32]:
+                  - heading [level=2] [ref=f2e33]:
+                    - link "Insta360 GO Ultra" [ref=f2e34] [cursor=pointer]:
+                      - /url: /products/demo-imaging-equipment/demo-insta360-go-ultra
+                  - paragraph [ref=f2e35]: 便携影像设备
+                  - link "产品详情" [ref=f2e36] [cursor=pointer]:
+                    - /url: /products/demo-imaging-equipment/demo-insta360-go-ultra
+              - article [ref=f2e39]:
+                - link [ref=f2e40] [cursor=pointer]:
+                  - /url: /products/demo-imaging-equipment/demo-insta360-ace-pro-2
+                  - img "Insta360 Ace Pro 2" [ref=f2e41]
+                - generic [ref=f2e42]:
+                  - heading [level=2] [ref=f2e43]:
+                    - link "Insta360 Ace Pro 2" [ref=f2e44] [cursor=pointer]:
+                      - /url: /products/demo-imaging-equipment/demo-insta360-ace-pro-2
+                  - paragraph [ref=f2e45]: 运动影像设备
+                  - link "产品详情" [ref=f2e46] [cursor=pointer]:
+                    - /url: /products/demo-imaging-equipment/demo-insta360-ace-pro-2
+              - article [ref=f2e49]:
+                - link [ref=f2e50] [cursor=pointer]:
+                  - /url: /products/demo-imaging-equipment/demo-insta360-x4-air
+                  - img "Insta360 X4 Air" [ref=f2e51]
+                - generic [ref=f2e52]:
+                  - heading [level=2] [ref=f2e53]:
+                    - link "Insta360 X4 Air" [ref=f2e54] [cursor=pointer]:
+                      - /url: /products/demo-imaging-equipment/demo-insta360-x4-air
+                  - paragraph [ref=f2e55]: 全景影像设备
+                  - link "产品详情" [ref=f2e56] [cursor=pointer]:
+                    - /url: /products/demo-imaging-equipment/demo-insta360-x4-air
+              - article [ref=f2e59]:
+                - link [ref=f2e60] [cursor=pointer]:
+                  - /url: /products/demo-imaging-equipment/demo-insta360-flow-2-series
+                  - img "Insta360 Flow 2 Series" [ref=f2e61]
+                - generic [ref=f2e62]:
+                  - heading [level=2] [ref=f2e63]:
+                    - link "Insta360 Flow 2 Series" [ref=f2e64] [cursor=pointer]:
+                      - /url: /products/demo-imaging-equipment/demo-insta360-flow-2-series
+                  - paragraph [ref=f2e65]: 影像配件系列
+                  - link "产品详情" [ref=f2e66] [cursor=pointer]:
+                    - /url: /products/demo-imaging-equipment/demo-insta360-flow-2-series
+              - link "更多影像设备 查看完整系列 全部 10 款产品" [ref=f2e69] [cursor=pointer]:
+                - /url: /products/demo-imaging-equipment
+                - generic [ref=f2e70]: 更多影像设备
+                - strong [ref=f2e71]: 查看完整系列
+                - generic [ref=f2e74]: 全部 10 款产品
+          - generic [ref=f2e75]:
+            - generic [ref=f2e76]:
+              - generic [ref=f2e77]:
+                - heading "户外探索" [level=2] [ref=f2e78]
+                - paragraph [ref=f2e79]: 按使用场景了解其他产品系列。
+              - link "查看系列" [ref=f2e80] [cursor=pointer]:
+                - /url: /products/demo-outdoor
+            - link [ref=f2e83] [cursor=pointer]:
+              - /url: /products/demo-outdoor
+              - img "户外探索系列示例" [ref=f2e84]
+              - generic [ref=f2e85]:
+                - heading "面向户外应用的设备系列" [level=3] [ref=f2e86]
+                - generic [ref=f2e87]: 产品与规格
+        - contentinfo [ref=f2e90]: 布局草稿 · 使用当前站点的示例产品素材，产品文案仅作排版演示。
+  - paragraph [ref=f1e19]: 预览内可滚动；产品链接会在新标签页打开现有详情。当前使用示例素材，未改动正式 /products 页面。

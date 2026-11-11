@@ -1,0 +1,168 @@
+- generic [active] [ref=f4e1]:
+  - generic [ref=f4e4]:
+    - banner [ref=f4e5]:
+      - generic [ref=f4e7]:
+        - generic [ref=f4e9]:
+          - button "Close Menu" [ref=f4e10] [cursor=pointer]
+          - navigation [ref=f4e12]:
+            - link "Dashboard" [ref=f4e13] [cursor=pointer]:
+              - /url: /admin
+        - button "Account" [ref=f4e16] [cursor=pointer]:
+          - img "yas" [ref=f4e17]
+    - generic [ref=f4e18]:
+      - heading "Insta360 X6 · 示例 01" [level=1] [ref=f4e19]
+      - list [ref=f4e22]:
+        - generic "Edit" [ref=f4e23]
+        - link "Versions" [ref=f4e24] [cursor=pointer]:
+          - /url: /admin/collections/products/6adcb636f43c3bb2c41ea3f2/versions
+          - generic:
+            - generic:
+              - generic:
+                - text: Versions
+                - generic: "2"
+        - link "API" [ref=f4e25] [cursor=pointer]:
+          - /url: /admin/collections/products/6adcb636f43c3bb2c41ea3f2/api
+    - main [ref=f4e26]:
+      - generic [ref=f4e27]:
+        - generic [ref=f4e28]:
+          - list [ref=f4e30]:
+            - listitem [ref=f4e31]:
+              - 'generic "Status: Draft" [ref=f4e32]': Draft
+            - listitem [ref=f4e35]:
+              - paragraph [ref=f4e36]: Loading...
+          - generic [ref=f4e37]:
+            - generic [ref=f4e38]:
+              - generic [ref=f4e39]:
+                - button [ref=f4e41] [cursor=pointer]
+                - button [ref=f4e43] [cursor=pointer]
+              - button "Publish changes" [disabled] [ref=f4e45]
+            - button "More options" [ref=f4e48] [cursor=pointer]
+        - generic [ref=f4e51]:
+          - generic [ref=f4e54]:
+            - generic [ref=f4e55]:
+              - generic [ref=f4e56]:
+                - text: Title
+                - generic [ref=f4e57]: "*"
+              - textbox "Title *" [disabled] [ref=f4e59]: Insta360 X6 · 示例 01
+            - generic [ref=f4e60]:
+              - tablist [ref=f4e63]:
+                - tab "Overview" [disabled] [selected] [ref=f4e64] [cursor=pointer]
+                - tab "Options" [disabled] [ref=f4e65] [cursor=pointer]
+                - tab "Details" [disabled] [ref=f4e66] [cursor=pointer]
+                - tab "SEO" [disabled] [ref=f4e67] [cursor=pointer]
+              - generic [ref=f4e70]:
+                - generic [ref=f4e71]:
+                  - generic [ref=f4e72]:
+                    - text: Gallery
+                    - generic [ref=f4e73]: "*"
+                  - generic [ref=f4e85]:
+                    - button "Create New" [disabled] [ref=f4e86]
+                    - generic [ref=f4e87]: Or
+                    - button "Choose from existing" [disabled] [ref=f4e88]
+                - generic [ref=f4e89]:
+                  - generic [ref=f4e90]:
+                    - text: Summary
+                    - generic [ref=f4e91]: "*"
+                  - textbox "Summary *" [disabled] [ref=f4e94]: 以现有 X6 素材创建的全景影像设备示例，包含产品展示、使用场景与核心特性 sections，供后台内容编辑与布局演示。
+                - generic [ref=f4e95]:
+                  - generic [ref=f4e97]:
+                    - heading "Highlights" [level=3] [ref=f4e99]
+                    - list [ref=f4e100]:
+                      - listitem [ref=f4e101]:
+                        - button "Collapse All" [ref=f4e102] [cursor=pointer]
+                      - listitem [ref=f4e103]:
+                        - button "Show All" [ref=f4e104] [cursor=pointer]
+                      - listitem [ref=f4e105]:
+                        - button "More options" [disabled] [ref=f4e108]
+                  - generic [ref=f4e111]:
+                    - generic [ref=f4e113]:
+                      - generic [ref=f4e114] [cursor=pointer]:
+                        - button "Toggle block" [ref=f4e115]
+                        - button "Drag to reorder" [disabled] [ref=f4e116]
+                        - generic: 复用现有产品与场景素材，便于检查图文展示效果
+                        - button "Collapse" [ref=f4e119]
+                      - generic [ref=f4e126]:
+                        - generic [ref=f4e127]:
+                          - text: Text
+                          - generic [ref=f4e128]: "*"
+                        - textbox "Text *" [disabled] [ref=f4e130]: 复用现有产品与场景素材，便于检查图文展示效果
+                    - generic [ref=f4e132]:
+                      - generic [ref=f4e133] [cursor=pointer]:
+                        - button "Toggle block" [ref=f4e134]
+                        - button "Drag to reorder" [disabled] [ref=f4e135]
+                        - generic: 产品详情使用现有 sections 与 Product Blocks
+                        - button "Collapse" [ref=f4e138]
+                      - generic [ref=f4e145]:
+                        - generic [ref=f4e146]:
+                          - text: Text
+                          - generic [ref=f4e147]: "*"
+                        - textbox "Text *" [disabled] [ref=f4e149]: 产品详情使用现有 sections 与 Product Blocks
+                  - button "Add Highlight" [disabled] [ref=f4e150]
+                - generic [ref=f4e151]:
+                  - generic [ref=f4e153]:
+                    - heading "Specifications" [level=3] [ref=f4e155]
+                    - list [ref=f4e156]:
+                      - listitem [ref=f4e157]:
+                        - button "Collapse All" [ref=f4e158] [cursor=pointer]
+                      - listitem [ref=f4e159]:
+                        - button "Show All" [ref=f4e160] [cursor=pointer]
+                      - listitem [ref=f4e161]:
+                        - button "More options" [disabled] [ref=f4e164]
+                  - generic [ref=f4e167]:
+                    - generic [ref=f4e169]:
+                      - generic [ref=f4e170] [cursor=pointer]:
+                        - button "Toggle block" [ref=f4e171]
+                        - button "Drag to reorder" [disabled] [ref=f4e172]
+                        - generic: "内容用途: 后台编辑与版式演示"
+                        - button "Collapse" [ref=f4e175]
+                      - generic [ref=f4e181]:
+                        - generic [ref=f4e182]:
+                          - generic [ref=f4e183]: Group
+                          - textbox "Group" [disabled] [ref=f4e185]: 演示信息
+                        - generic [ref=f4e186]:
+                          - generic [ref=f4e187]:
+                            - text: Label
+                            - generic [ref=f4e188]: "*"
+                          - textbox "Label *" [disabled] [ref=f4e190]: 内容用途
+                        - generic [ref=f4e191]:
+                          - generic [ref=f4e192]:
+                            - text: Value
+                            - generic [ref=f4e193]: "*"
+                          - textbox "Value *" [disabled] [ref=f4e195]: 后台编辑与版式演示
+                    - generic [ref=f4e197]:
+                      - generic [ref=f4e198] [cursor=pointer]:
+                        - button "Toggle block" [ref=f4e199]
+                        - button "Drag to reorder" [disabled] [ref=f4e200]
+                        - generic: "素材来源: 站内已有 Media"
+                        - button "Collapse" [ref=f4e203]
+                      - generic [ref=f4e209]:
+                        - generic [ref=f4e210]:
+                          - generic [ref=f4e211]: Group
+                          - textbox "Group" [disabled] [ref=f4e213]: 展示配置
+                        - generic [ref=f4e214]:
+                          - generic [ref=f4e215]:
+                            - text: Label
+                            - generic [ref=f4e216]: "*"
+                          - textbox "Label *" [disabled] [ref=f4e218]: 素材来源
+                        - generic [ref=f4e219]:
+                          - generic [ref=f4e220]:
+                            - text: Value
+                            - generic [ref=f4e221]: "*"
+                          - textbox "Value *" [disabled] [ref=f4e223]: 站内已有 Media
+                  - button "Add Specification" [disabled] [ref=f4e224]
+                - heading "Inquiry" [level=3] [ref=f4e229]
+          - generic [ref=f4e233]:
+            - generic [ref=f4e234]:
+              - generic [ref=f4e235]:
+                - text: Slug
+                - generic [ref=f4e236]: "*"
+              - generic [ref=f4e238]:
+                - textbox "Slug" [disabled] [ref=f4e239]: demo-insta360-x6
+                - button "Unlock" [ref=f4e241] [cursor=pointer]
+            - generic [ref=f4e243]:
+              - text: Category
+              - generic [ref=f4e244]: "*"
+            - generic [ref=f4e250]: Published At
+            - generic [ref=f4e255]: Related Products
+  - region "Notifications alt+T"
+  - button "Open Next.js Dev Tools" [ref=f4e268] [cursor=pointer]

@@ -1,0 +1,52 @@
+[
+  {
+    "title": "模拟资料｜春茶产品规格说明",
+    "description": "用于 Documents 后台演示的春茶产品规格说明示例，仅供测试，不作为正式业务文件。",
+    "path": "/Users/jason/ecolitea.com 2.0/output/documents-manual-simulation-2026-10-19/demo-20261019-01-product-specifications.pdf"
+  },
+  {
+    "title": "模拟资料｜红茶冲泡指南",
+    "description": "用于 Documents 后台演示的红茶冲泡指南示例，仅供测试，不作为正式业务文件。",
+    "path": "/Users/jason/ecolitea.com 2.0/output/documents-manual-simulation-2026-10-19/demo-20261019-02-brewing-guide.pdf"
+  },
+  {
+    "title": "模拟资料｜绿茶储存与运输说明",
+    "description": "用于 Documents 后台演示的绿茶储存与运输说明示例，仅供测试，不作为正式业务文件。",
+    "path": "/Users/jason/ecolitea.com 2.0/output/documents-manual-simulation-2026-10-19/demo-20261019-03-storage-transport.pdf"
+  },
+  {
+    "title": "模拟资料｜茶叶包装尺寸手册",
+    "description": "用于 Documents 后台演示的茶叶包装尺寸手册示例，仅供测试，不作为正式业务文件。",
+    "path": "/Users/jason/ecolitea.com 2.0/output/documents-manual-simulation-2026-10-19/demo-20261019-04-packaging-guide.pdf"
+  },
+  {
+    "title": "模拟资料｜产品样品目录",
+    "description": "用于 Documents 后台演示的产品样品目录示例，仅供测试，不作为正式业务文件。",
+    "path": "/Users/jason/ecolitea.com 2.0/output/documents-manual-simulation-2026-10-19/demo-20261019-05-sample-catalog.pdf"
+  },
+  {
+    "title": "模拟资料｜采购验收检查清单",
+    "description": "用于 Documents 后台演示的采购验收检查清单示例，仅供测试，不作为正式业务文件。",
+    "path": "/Users/jason/ecolitea.com 2.0/output/documents-manual-simulation-2026-10-19/demo-20261019-06-receiving-checklist.pdf"
+  },
+  {
+    "title": "模拟资料｜批次追溯流程说明",
+    "description": "用于 Documents 后台演示的批次追溯流程说明示例，仅供测试，不作为正式业务文件。",
+    "path": "/Users/jason/ecolitea.com 2.0/output/documents-manual-simulation-2026-10-19/demo-20261019-07-traceability-process.pdf"
+  },
+  {
+    "title": "模拟资料｜品牌视觉应用指南",
+    "description": "用于 Documents 后台演示的品牌视觉应用指南示例，仅供测试，不作为正式业务文件。",
+    "path": "/Users/jason/ecolitea.com 2.0/output/documents-manual-simulation-2026-10-19/demo-20261019-08-brand-guide.pdf"
+  },
+  {
+    "title": "模拟资料｜展会资料准备清单",
+    "description": "用于 Documents 后台演示的展会资料准备清单示例，仅供测试，不作为正式业务文件。",
+    "path": "/Users/jason/ecolitea.com 2.0/output/documents-manual-simulation-2026-10-19/demo-20261019-09-exhibition-checklist.pdf"
+  },
+  {
+    "title": "模拟资料｜售后服务流程说明",
+    "description": "用于 Documents 后台演示的售后服务流程说明示例，仅供测试，不作为正式业务文件。",
+    "path": "/Users/jason/ecolitea.com 2.0/output/documents-manual-simulation-2026-10-19/demo-20261019-10-service-process.pdf"
+  }
+]

@@ -1,0 +1,54 @@
+- generic [active] [ref=e1]:
+  - link "Skip to content" [ref=e2] [cursor=pointer]:
+    - /url: "#main-content"
+  - banner:
+    - generic [ref=e4]:
+      - link:
+        - /url: /
+      - generic [ref=e5]:
+        - generic:
+          - generic:
+            - navigation "Primary"
+        - link "Search" [ref=e7] [cursor=pointer]:
+          - /url: /search
+  - main [ref=e11]:
+    - generic [ref=e12]:
+      - generic [ref=e13]:
+        - paragraph [ref=e14]: Products
+        - heading "Products" [level=1] [ref=e15]
+      - navigation "Product categories" [ref=e16]:
+        - region "Product categories" [ref=e19]:
+          - link "Inquiry removal test product Test Tea Bags" [ref=e20] [cursor=pointer]:
+            - /url: /products/test-tea-bags
+            - img "Inquiry removal test product" [ref=e22]
+            - generic [ref=e23]: Test Tea Bags
+      - generic [ref=e24]:
+        - generic [ref=e25]:
+          - img "Inquiry removal test product" [ref=e27]
+          - generic [ref=e29]:
+            - heading "Test Tea Bags" [level=2] [ref=e30]
+            - paragraph [ref=e31]: Local browser verification
+            - link "View all products" [ref=e33] [cursor=pointer]:
+              - /url: /products/test-tea-bags
+        - link [ref=e36] [cursor=pointer]:
+          - /url: /products/test-tea-bags/test-tea-bag
+          - img "Inquiry removal test product" [ref=e38]
+          - generic [ref=e39]:
+            - heading "Test Tea Bag" [level=3] [ref=e40]
+            - paragraph [ref=e41]: A product for checking product navigation after inquiry removal.
+  - contentinfo [ref=e42]:
+    - generic [ref=e43]:
+      - generic [ref=e44]:
+        - region "Brand" [ref=e45]
+        - navigation "Footer" [ref=e46]
+        - generic [ref=e47]:
+          - region "Newsletter" [ref=e48]:
+            - heading "Stay informed" [level=2] [ref=e49]
+            - paragraph [ref=e50]: Product updates and practical insights.
+            - generic [ref=e51]:
+              - textbox "Email address" [disabled] [ref=e52]
+              - button "Subscribe" [disabled] [ref=e53]
+          - generic:
+            - list
+      - paragraph [ref=e55]: © Ecolitea
+  - alert [ref=e56]

@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Media crop — Option A (preview icon)</title>
+<style>
+  :root {
+    --bg: #fff; --bg-subtle: #f5f5f5; --border: #e6e6e6; --text: #1e1e1e;
+    --muted: #00000080; --primary: #0c8ce9; --warn-bg: #fff4d6; --warn: #8a5a00;
+    --radius: 6px;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 14px/1.45 Inter, -apple-system, "Segoe UI", sans-serif; color: var(--text); background: #ececec; }
+  h1.page { font-size: 22px; margin: 32px 40px 4px; }
+  p.lead { margin: 0 40px 24px; color: var(--muted); max-width: 980px; }
+  .flow { margin: 0 40px 48px; }
+  .flow > h2 { font-size: 17px; margin: 0 0 4px; }
+  .flow > .note { color: var(--muted); margin: 0 0 14px; max-width: 980px; }
+  .screens { display: grid; grid-template-columns: repeat(auto-fit, minmax(560px, 1fr)); gap: 24px; }
+  .screen { background: var(--bg); border-radius: 10px; box-shadow: 0 1px 3px #0002; overflow: hidden; position: relative; }
+  .caption { font-size: 12px; font-weight: 600; letter-spacing: .02em; text-transform: uppercase; color: var(--muted); padding: 10px 16px; border-bottom: 1px solid var(--border); background: #fafafa; }
+  .crumbs { padding: 12px 20px 0; font-size: 12px; color: var(--muted); }
+  .title { font-size: 20px; font-weight: 600; padding: 4px 20px 12px; border-bottom: 1px solid var(--border); }
+  .bar { display: flex; align-items: center; gap: 10px; padding: 8px 20px; border-bottom: 1px solid var(--border); font-size: 12px; }
+  .pill { border: 1px solid var(--border); border-radius: var(--radius); padding: 3px 8px; }
+  .save { margin-left: auto; background: var(--primary); color: #fff; border-radius: var(--radius); padding: 4px 12px; }
+  .save.off { background: #d9d9d9; }
+  .doc { display: grid; grid-template-columns: 200px 1fr; min-height: 360px; }
+  .left { padding: 14px 16px; border-right: 1px solid var(--border); font-size: 12px; }
+  .left label { display: block; font-weight: 600; margin: 10px 0 4px; }
+  .input { border: 1px solid var(--border); border-radius: var(--radius); height: 28px; padding: 4px 8px; color: var(--text); }
+  .input.area { height: 60px; }
+  .right { background: var(--bg-subtle); display: flex; flex-direction: column; }
+  .toolbar { display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; background: var(--bg); border-bottom: 1px solid var(--border); font-size: 12px; }
+  .icons { display: flex; gap: 10px; font-size: 16px; }
+  .icon { width: 28px; height: 28px; display: grid; place-items: center; border-radius: 5px; color: var(--text); }
+  .icon.ours { background: var(--bg); }
+  .icon.hover { background: #0000000d; }
+  .tag { font-size: 10px; color: var(--primary); font-weight: 600; }
+  .subbar { display: flex; align-items: center; justify-content: space-between; padding: 6px 12px; min-height: 40px; font-size: 12px; }
+  .chip { background: #fff; border: 1px solid var(--border); border-radius: 999px; padding: 3px 10px; }
+  .chip b { color: var(--primary); }
+  .chip u { cursor: pointer; }
+  .tooltip { position: absolute; right: 2px; top: 34px; background: var(--text); color: #fff; font-size: 11px; padding: 3px 8px; border-radius: 4px; white-space: nowrap; }
+  .ourwrap { position: relative; }
+  .ring { outline: 2px dashed var(--primary); outline-offset: 2px; }
+  .preview { flex: 1; display: grid; place-items: center; padding: 8px 16px 16px; }
+  .img { width: 280px; aspect-ratio: 1356 / 910; background: linear-gradient(#4a9fd4 0 55%, #e8eef2 55% 62%, #3fa7b5 62%); border-radius: 2px; }
+  .img.cropped { aspect-ratio: 16 / 9; background: linear-gradient(#4a9fd4 0 50%, #e8eef2 50% 58%, #3fa7b5 58%); }
+  .img.banner { aspect-ratio: 1000 / 210; }
+  .meta { font-size: 11px; color: var(--muted); text-align: center; padding-bottom: 10px; }
+  .btn { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--border); background: var(--bg); border-radius: var(--radius); padding: 4px 10px; font-size: 12px; }
+  .btn.primary { background: var(--primary); color: #fff; border-color: var(--primary); }
+  .modal-wrap { position: absolute; inset: 41px 0 0 0; background: #0006; display: grid; place-items: center; padding: 16px; }
+  .modal { background: var(--bg); border-radius: 10px; width: 100%; max-width: 640px; box-shadow: 0 8px 30px #0004; font-size: 12px; }
+  .modal header { display: flex; justify-content: space-between; padding: 12px 16px; border-bottom: 1px solid var(--border); font-weight: 600; font-size: 14px; }
+  .modal .body { padding: 12px 16px; display: grid; gap: 10px; }
+  .modal footer { display: flex; justify-content: flex-end; gap: 8px; padding: 10px 16px; border-top: 1px solid var(--border); }
+  .banner { background: var(--warn-bg); color: var(--warn); border-radius: var(--radius); padding: 8px 10px; }
+  .tabs { display: inline-flex; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+  .tabs span { padding: 4px 10px; border-right: 1px solid var(--border); }
+  .tabs span:last-child { border-right: 0; }
+  .tabs .on { background: var(--text); color: #fff; }
+  .cropbox { position: relative; height: 160px; background: linear-gradient(#4a9fd4 0 55%, #e8eef2 55% 62%, #3fa7b5 62%); border-radius: 2px; }
+  .cropbox .shade { position: absolute; inset: 0; background: #0007; clip-path: polygon(0 0,100% 0,100% 100%,0 100%,0 8%,6% 8%,6% 92%,94% 92%,94% 8%,0 8%); }
+  .cropbox .sel { position: absolute; left: 6%; right: 6%; top: 8%; bottom: 8%; border: 1px dashed #fff; }
+  .cropbox.wide { height: 70px; }
+  .cropbox.wide .shade { clip-path: polygon(0 0,100% 0,100% 100%,0 100%,0 0,40% 0,40% 100%,60% 100%,60% 0,0 0); }
+  .cropbox.wide .sel { left: 40%; right: 40%; top: 0; bottom: 0; }
+  .muted { color: var(--muted); }
+  .steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 0 40px 28px; font-size: 13px; }
+  .steps div { background: #fff; border-radius: 8px; padding: 10px 12px; }
+  .steps b { display: block; margin-bottom: 2px; }
+  .legend { margin: 0 40px 28px; background: #fff; border-radius: 8px; padding: 12px 16px; font-size: 13px; }
+  .legend ul { margin: 6px 0 0; padding-left: 18px; }
+</style>
+</head>
+<body>
+<h1 class="page">Media crop — Option A: crop icon on the preview</h1>
+<p class="lead">The toolbar row stays native (🔗 ✂ ↗ ⬇). Our “Crop to ratio” icon sits on the preview header, directly below and right-aligned with the toolbar, using the same icon button style, tooltip and dialog flow. It is available for every saved image, including images that already have a supported ratio. The manual crop button in the left column is removed.</p>
+
+<div class="steps">
+  <div><b>1 · Click ⧉</b>Same icon style and tooltip as the toolbar icons.</div>
+  <div><b>2 · Dialog</b>Ratio tabs, locked crop, live result — Payload dialog components.</div>
+  <div><b>3 · Apply crop</b>Preview switches to the cropped view; a status chip appears; Save becomes active.</div>
+  <div><b>4 · Save</b>Payload crops the original on the server; chip disappears; meta shows new size.</div>
+</div>
+
+<!-- FLOW 1: saved image -->
+<section class="flow">
+  <h2>Flow 1 — Saved image (any ratio, including already-supported)</h2>
+  <p class="note">Rendered through the public <code>upload.admin.components.filePreview</code> slot for <code>image/*</code>.</p>
+  <div class="screens">
+    <div class="screen">
+      <div class="caption">1 · Idle — hover on the crop icon</div>
+      <div class="crumbs">Dashboard / Media / coastal-rocks.png</div>
+      <div class="title">coastal-rocks.png</div>
+      <div class="bar"><span class="pill">📁 None</span> Updated 2 hours ago <span class="save off">Save</span></div>
+      <div class="doc">
+        <div class="left"><label>Alt *</label><div class="input">Coastal rocks at Lake Tahoe</div><label>Caption</label><div class="input area"></div></div>
+        <div class="right">
+          <div class="toolbar"><span class="pill">coastal-rocks.png ▾</span><span class="icons"><span class="icon">🔗</span><span class="icon" title="Edit image (focal point)">✂</span><span class="icon">↗</span><span class="icon">⬇</span></span></div>
+          <div class="subbar"><span class="muted">&nbsp;</span><span class="ourwrap"><span class="icon ours hover ring">⧉</span><span class="tooltip">Crop to ratio</span></span></div>
+          <div class="preview"><div class="img"></div></div>
+          <div class="meta">Original · 1356 × 910 – 2MB – image/png</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="screen">
+      <div class="caption">2 · Dialog opened from the icon</div>
+      <div class="crumbs">Dashboard / Media / coastal-rocks.png</div>
+      <div class="title">coastal-rocks.png</div>
+      <div class="doc"><div class="left"></div><div class="right"></div></div>
+      <div class="modal-wrap">
+        <div class="modal">
+          <header>Crop image <span>✕</span></header>
+          <div class="body">
+            <div class="tabs"><span>1:1</span><span>4:3</span><span class="on">3:2</span><span>16:9</span><span>9:16</span><span>4:5</span></div>
+            <div class="cropbox"><div class="shade"></div><div class="sel"></div></div>
+            <div>Result: 1356 × 904 · 3:2</div>
+            <div class="muted">Images: JPEG, PNG, WebP, AVIF, GIF</div>
+          </div>
+          <footer><span class="btn">Cancel</span><span class="btn primary">Apply crop</span></footer>
+        </div>
+      </div>
+    </div>
+
+    <div class="screen">
+      <div class="caption">3 · After Apply crop — pending, before Save</div>
+      <div class="crumbs">Dashboard / Media / coastal-rocks.png</div>
+      <div class="title">coastal-rocks.png</div>
+      <div class="bar"><span class="pill">📁 None</span> Unsaved changes <span class="save">Save</span></div>
+      <div class="doc">
+        <div class="left"><label>Alt *</label><div class="input">Coastal rocks at Lake Tahoe</div><label>Caption</label><div class="input area"></div></div>
+        <div class="right">
+          <div class="toolbar"><span class="pill">coastal-rocks.png ▾</span><span class="icons"><span class="icon">🔗</span><span class="icon">✂</span><span class="icon">↗</span><span class="icon">⬇</span></span></div>
+          <div class="subbar"><span class="chip">Cropped to <b>16:9</b> · 1356 × 763 — applied on save · <u>Reset</u></span><span class="icon ours">⧉</span></div>
+          <div class="preview"><div class="img cropped"></div></div>
+          <div class="meta">Original · 1356 × 910 – 2MB – image/png</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="screen">
+      <div class="caption">4 · After Save</div>
+      <div class="crumbs">Dashboard / Media / coastal-rocks.png</div>
+      <div class="title">coastal-rocks.png</div>
+      <div class="bar"><span class="pill">📁 None</span> Updated just now <span class="save off">Save</span></div>
+      <div class="doc">
+        <div class="left"><label>Alt *</label><div class="input">Coastal rocks at Lake Tahoe</div><label>Caption</label><div class="input area"></div></div>
+        <div class="right">
+          <div class="toolbar"><span class="pill">coastal-rocks.png ▾</span><span class="icons"><span class="icon">🔗</span><span class="icon">✂</span><span class="icon">↗</span><span class="icon">⬇</span></span></div>
+          <div class="subbar"><span class="muted">&nbsp;</span><span class="icon ours">⧉</span></div>
+          <div class="preview"><div class="img cropped"></div></div>
+          <div class="meta">Original · 1356 × 763 – 1.7MB – image/png</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FLOW 2: new upload -->
+<section class="flow">
+  <h2>Flow 2 — New upload (create page)</h2>
+  <p class="note">The selected-file preview cannot be replaced, so there is no icon here and no left-column button. Unsupported ratios open the dialog automatically; supported images are saved as uploaded and can be re-cropped later with the icon.</p>
+  <div class="screens">
+    <div class="screen">
+      <div class="caption">5 · Unsupported ratio — automatic dialog</div>
+      <div class="crumbs">Dashboard / Media / Create New</div>
+      <div class="title">Untitled</div>
+      <div class="doc"><div class="left"></div><div class="right"></div></div>
+      <div class="modal-wrap">
+        <div class="modal">
+          <header>Crop image to a supported ratio <span>✕</span></header>
+          <div class="body">
+            <div class="banner">This image is 1000 × 210 (4.76:1), which is not a supported ratio. Choose a ratio and adjust the crop.</div>
+            <div class="tabs"><span>1:1</span><span>4:3</span><span>3:2</span><span class="on">16:9</span><span>9:16</span><span>4:5</span></div>
+            <div class="cropbox wide"><div class="shade"></div><div class="sel"></div></div>
+            <div>Result: 373 × 210 · 16:9</div>
+            <div class="muted">Images: JPEG, PNG, WebP, AVIF, GIF</div>
+          </div>
+          <footer><span class="btn">Choose another file</span><span class="btn primary">Apply crop</span></footer>
+        </div>
+      </div>
+    </div>
+
+    <div class="screen">
+      <div class="caption">6 · Supported ratio — no dialog, no crop entry</div>
+      <div class="crumbs">Dashboard / Media / Create New</div>
+      <div class="title">Untitled</div>
+      <div class="bar"><span class="pill">📁 None</span> Creating new Media <span class="save">Save</span></div>
+      <div class="doc">
+        <div class="left"><label>Alt *</label><div class="input">coastal-rocks</div><label>Caption</label><div class="input area"></div></div>
+        <div class="right">
+          <div class="preview" style="padding-top:40px"><div class="img"></div></div>
+          <div class="meta">File Name: coastal-rocks.png · 2MB – image/png</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="legend">
+  <b>Notes</b>
+  <ul>
+    <li>✂ remains Payload’s native “Edit image” and only edits the focal point; ⧉ is the ratio crop. Both use the same icon button look.</li>
+    <li>After an automatic crop on the create page, the large preview still shows the original until Save (Payload limitation); the dialog result line confirms the crop.</li>
+    <li>If Payload later exposes a toolbar actions slot, ⧉ moves into the toolbar row with no behaviour change.</li>
+  </ul>
+</div>
+</body>
+</html>

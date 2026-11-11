@@ -1,0 +1,35 @@
+- generic [active] [ref=f6e1]:
+  - generic [ref=f6e4]:
+    - banner [ref=f6e5]:
+      - generic [ref=f6e7]:
+        - generic [ref=f6e9]:
+          - button "Close Menu" [ref=f6e10] [cursor=pointer]
+          - navigation [ref=f6e12]:
+            - link "Dashboard" [ref=f6e13] [cursor=pointer]:
+              - /url: /admin
+        - button "Account" [ref=f6e16] [cursor=pointer]:
+          - img "yas" [ref=f6e17]
+    - generic [ref=f6e18]:
+      - heading "Untitled" [level=1] [ref=f6e19]
+      - generic [ref=f6e20]: "Images: JPEG, PNG, WebP, AVIF, GIF; ratios 1:1, 4:3, 3:2, 16:9, 9:16, 4:5 (1% tolerance). Video: MP4, H.264, AAC or MP3 audio; maximum 100 MB and 10 minutes; ratios 16:9, 9:16, 1:1, 4:5 (1% tolerance). Enable Fast Start / Web Optimized when exporting video."
+    - main [ref=f6e22]:
+      - generic [ref=f6e23]:
+        - generic [ref=f6e24]:
+          - generic [ref=f6e25]:
+            - button "Loading..." [ref=f6e27] [cursor=pointer]
+            - list [ref=f6e28]:
+              - listitem [ref=f6e29]:
+                - paragraph [ref=f6e30]: Creating new Media
+          - button "Save" [disabled] [ref=f6e34]
+        - generic [ref=f6e35]:
+          - generic [ref=f6e41]:
+            - generic [ref=f6e42]: Alt
+            - textbox "Alt" [disabled] [ref=f6e44]
+          - generic [ref=f6e50]:
+            - generic [ref=f6e51]:
+              - button "Select a file" [ref=f6e52] [cursor=pointer]
+              - generic [ref=f6e53]: Or
+              - button [ref=f6e54] [cursor=pointer]
+            - paragraph [ref=f6e55]: Or Drag and drop a file
+  - region "Notifications alt+T"
+  - button "Open Next.js Dev Tools" [ref=f6e61] [cursor=pointer]

@@ -1,0 +1,32 @@
+- generic [active] [ref=f10e1]:
+  - generic [ref=f10e4]:
+    - banner [ref=f10e5]:
+      - generic [ref=f10e7]:
+        - generic [ref=f10e9]:
+          - button "Close Menu" [ref=f10e10] [cursor=pointer]
+          - navigation [ref=f10e12]:
+            - link "Dashboard" [ref=f10e13] [cursor=pointer]:
+              - /url: /admin
+        - button "Account" [ref=f10e16] [cursor=pointer]:
+          - img "yas" [ref=f10e17]
+    - generic [ref=f10e18]:
+      - banner [ref=f10e19]:
+        - generic [ref=f10e21]:
+          - heading "Documents" [level=1] [ref=f10e22]
+          - button "Bulk Upload" [ref=f10e24] [cursor=pointer]
+        - generic [ref=f10e25]: "Documents: PDF (.pdf), Word (.docx), Excel (.xlsx), PowerPoint (.pptx); maximum 10 MB. Legacy Office formats and documents with macros are not allowed."
+      - generic [ref=f10e29]:
+        - textbox "Search" [ref=f10e32]
+        - generic [ref=f10e34]:
+          - button "Filters" [ref=f10e35] [cursor=pointer]
+          - button "Group by" [ref=f10e38] [cursor=pointer]
+          - button "Columns" [ref=f10e41] [cursor=pointer]
+          - link "Create New" [ref=f10e42] [cursor=pointer]:
+            - /url: /admin/collections/documents/create
+      - generic [ref=f10e43]:
+        - generic [ref=f10e44]: No Results.
+        - paragraph [ref=f10e45]: Either none exist or none match the filters you've specified above.
+        - link "Create new Document" [ref=f10e47] [cursor=pointer]:
+          - /url: /admin/collections/documents/create
+  - region "Notifications alt+T"
+  - button "Open Next.js Dev Tools" [ref=f10e53] [cursor=pointer]

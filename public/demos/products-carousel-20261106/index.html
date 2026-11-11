@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="robots" content="noindex,nofollow" />
+    <title>Products · 产品轮播与 View More 卡片</title>
+    <link rel="stylesheet" href="/demos/products-b2b-concepts-20261104/tokens.css" />
+    <style>
+      @font-face {
+        font-family: Geist;
+        src: url('/demos/products-b2b-concepts-20261104/Geist-Regular.woff2') format('woff2');
+        font-display: swap;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font:
+          13px/1.4 Geist,
+          sans-serif;
+        background: var(--website-color-background);
+        color: var(--website-color-foreground);
+      }
+      iframe {
+        display: block;
+        width: 100%;
+        height: 100dvh;
+        border: 0;
+      }
+      .tools {
+        position: fixed;
+        right: 16px;
+        bottom: 16px;
+        z-index: 100;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px;
+        border: 1px solid var(--website-color-border);
+        border-radius: var(--website-radius-content);
+        background: var(--website-color-surface);
+        box-shadow: var(--website-shadow-subtle);
+        flex-wrap: wrap;
+        max-width: calc(100vw - 32px);
+      }
+      .tools p {
+        margin: 0 8px;
+      }
+      .tools p span {
+        display: block;
+        margin-top: 2px;
+        font-size: 11px;
+        color: var(--website-color-muted-foreground);
+      }
+      button {
+        font: inherit;
+        min-height: 44px;
+        padding: 8px 12px;
+        border: 1px solid var(--website-color-border);
+        border-radius: var(--website-radius-control);
+        color: var(--website-color-foreground);
+        background: var(--website-color-surface);
+        cursor: pointer;
+      }
+      button[aria-pressed='true'] {
+        color: var(--website-color-action-foreground);
+        background: var(--website-color-action);
+        border-color: var(--website-color-action);
+      }
+      button:disabled {
+        opacity: 0.5;
+        cursor: default;
+      }
+      button:focus-visible {
+        outline: 2px solid var(--website-color-focus);
+        outline-offset: 3px;
+      }
+      .scenario {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      select {
+        min-height: 44px;
+        padding: 8px;
+        font: inherit;
+        color: var(--website-color-foreground);
+        background: var(--website-color-surface);
+        border: 1px solid var(--website-color-border);
+        border-radius: var(--website-radius-control);
+      }
+      #restore {
+        display: none;
+      }
+      .tools.compact {
+        padding: 4px;
+      }
+      .tools.compact > :not(#collapse) {
+        display: none;
+      }
+      @media (width < 48rem) {
+        .tools {
+          left: 8px;
+          right: 8px;
+          bottom: 8px;
+          justify-content: space-between;
+        }
+        .tools p {
+          margin: 0;
+          font-size: 11px;
+          flex-basis: 100%;
+        }
+        .tools p span {
+          font-size: 10px;
+        }
+        button {
+          padding-inline: 8px;
+          font-size: 12px;
+        }
+        .scenario > span {
+          display: none;
+        }
+        .tools.compact {
+          left: auto;
+        }
+      }
+    </style>
+    <script src="preview.js?revision=fewer-products" defer></script>
+  </head>
+  <body>
+    <iframe id="page" title="产品卡片轮播交互预览"></iframe>
+    <aside class="tools" aria-label="UI 稿预览工具">
+      <p>产品轮播 UI 稿<span id="status" role="status">正在读取当前页面…</span></p>
+      <button id="preview" type="button" aria-pressed="true" disabled>轮播方案</button>
+      <button id="original" type="button" aria-pressed="false" disabled>当前正式版</button>
+      <label class="scenario">
+        <span>首分类布局</span>
+        <select id="scenario" aria-label="首分类产品数量预览" disabled>
+          <option value="actual">实际数量</option>
+          <option value="1">最多 1 款</option>
+          <option value="2">最多 2 款</option>
+          <option value="3">最多 3 款</option>
+          <option value="4">最多 4 款</option>
+        </select>
+      </label>
+      <button id="restore" type="button">返回 UI 稿</button>
+      <button id="collapse" type="button" aria-label="收起预览工具" aria-expanded="true">
+        收起
+      </button>
+    </aside>
+  </body>
+</html>

@@ -1,0 +1,183 @@
+- generic [ref=f1e1]:
+  - generic [ref=f1e160]:
+    - complementary [ref=f1e161]:
+      - navigation [ref=f1e163]:
+        - generic [ref=f1e164]:
+          - tablist [ref=f1e165]:
+            - tab "Collections" [selected] [ref=f1e166] [cursor=pointer]
+            - tab "Folders" [ref=f1e171] [cursor=pointer]
+          - tabpanel [ref=f1e176]:
+            - generic [ref=f1e177]:
+              - generic [ref=f1e178]:
+                - button "Collections" [ref=f1e179] [cursor=pointer]
+                - generic [ref=f1e184]:
+                  - link "Pages" [ref=f1e186] [cursor=pointer]:
+                    - /url: /admin/collections/pages
+                  - link "Posts" [ref=f1e189] [cursor=pointer]:
+                    - /url: /admin/collections/posts
+                  - link "Media" [ref=f1e192] [cursor=pointer]:
+                    - /url: /admin/collections/media
+                  - link "Documents" [ref=f1e195] [cursor=pointer]:
+                    - /url: /admin/collections/documents
+                  - link "Categories" [ref=f1e198] [cursor=pointer]:
+                    - /url: /admin/collections/categories
+                  - link "Case Studies" [ref=f1e201] [cursor=pointer]:
+                    - /url: /admin/collections/case-studies
+                  - link "Users" [ref=f1e204] [cursor=pointer]:
+                    - /url: /admin/collections/users
+                  - link "Redirects" [ref=f1e207] [cursor=pointer]:
+                    - /url: /admin/collections/redirects
+                  - link "Forms" [ref=f1e210] [cursor=pointer]:
+                    - /url: /admin/collections/forms
+                  - link "Form Submissions" [ref=f1e213] [cursor=pointer]:
+                    - /url: /admin/collections/form-submissions
+                  - link "Search Results" [ref=f1e216] [cursor=pointer]:
+                    - /url: /admin/collections/search
+              - generic [ref=f1e218]:
+                - button "Globals" [ref=f1e219] [cursor=pointer]
+                - generic [ref=f1e224]:
+                  - link "Header" [ref=f1e226] [cursor=pointer]:
+                    - /url: /admin/globals/header
+                  - link "Footer" [ref=f1e229] [cursor=pointer]:
+                    - /url: /admin/globals/footer
+                  - link "Site Settings" [ref=f1e232] [cursor=pointer]:
+                    - /url: /admin/globals/site-settings
+                  - link "Settings" [ref=f1e235] [cursor=pointer]:
+                    - /url: /admin/globals/settings
+              - generic [ref=f1e237]:
+                - button "Blog" [ref=f1e238] [cursor=pointer]
+                - generic [ref=f1e243]:
+                  - link "Blogs" [ref=f1e245] [cursor=pointer]:
+                    - /url: /admin/collections/blogs
+                  - link "Blog Categories" [ref=f1e248] [cursor=pointer]:
+                    - /url: /admin/collections/blog-categories
+              - generic [ref=f1e250]:
+                - button "Product" [ref=f1e251] [cursor=pointer]
+                - generic [ref=f1e256]:
+                  - link "Product Categories" [ref=f1e258] [cursor=pointer]:
+                    - /url: /admin/collections/product-categories
+                  - link "Products" [ref=f1e261] [cursor=pointer]:
+                    - /url: /admin/collections/products
+    - generic [ref=f1e263]:
+      - banner [ref=f1e264]:
+        - generic [ref=f1e266]:
+          - generic [ref=f1e268]:
+            - button "Open Menu" [ref=f1e269] [cursor=pointer]
+            - navigation [ref=f1e271]:
+              - link "Dashboard" [ref=f1e272] [cursor=pointer]:
+                - /url: /admin
+              - generic [ref=f1e273]: /
+              - link "Forms" [ref=f1e274] [cursor=pointer]:
+                - /url: /admin/collections/forms
+              - generic [ref=f1e275]: /
+              - generic [ref=f1e276]: Create New
+          - button "Account" [ref=f1e279] [cursor=pointer]:
+            - img "yas" [ref=f1e280]
+      - heading "联系询盘" [level=1] [ref=f1e427]
+      - main [ref=f1e283]:
+        - generic [ref=f1e284]:
+          - generic [ref=f1e285]:
+            - list [ref=f1e287]:
+              - listitem [ref=f1e288]:
+                - paragraph [ref=f1e289]: Creating new Form
+            - button "Save" [ref=f1e293] [cursor=pointer]
+          - generic [ref=f1e299]:
+            - generic [ref=f1e300]:
+              - generic [ref=f1e301]:
+                - text: Title
+                - generic [ref=f1e302]: "*"
+              - textbox "Title *" [ref=f1e304]: 联系询盘
+            - generic [ref=f1e305]:
+              - generic [ref=f1e307]:
+                - heading "Fields" [level=3] [ref=f1e309]
+                - list [ref=f1e310]:
+                  - listitem [ref=f1e311]:
+                    - button "More options" [ref=f1e314] [cursor=pointer]
+              - button "Add Field" [ref=f1e317]
+            - generic [ref=f1e319]:
+              - generic [ref=f1e320]: Submit Button Label
+              - textbox "Submit Button Label" [ref=f1e322]: 提交询盘
+            - generic [ref=f1e323]:
+              - generic [ref=f1e324]: Confirmation Type
+              - generic [ref=f1e326]:
+                - list [ref=f1e327]:
+                  - listitem [ref=f1e328]:
+                    - generic [ref=f1e330] [cursor=pointer]:
+                      - radio "Message" [checked] [ref=f1e331]
+                      - generic [ref=f1e333]: Message
+                  - listitem [ref=f1e334]:
+                    - generic [ref=f1e336] [cursor=pointer]:
+                      - radio "Redirect" [ref=f1e337]
+                      - generic [ref=f1e339]: Redirect
+                - generic [ref=f1e340]: Choose whether to display an on-page message or redirect to a different page after they submit the form.
+            - generic [ref=f1e341]:
+              - generic [ref=f1e343]:
+                - text: Confirmation Message
+                - generic [ref=f1e344]: "*"
+              - generic [ref=f1e346]:
+                - generic [ref=f1e348]:
+                  - button "add dropdown" [ref=f1e350] [cursor=pointer]
+                  - button "text dropdown" [ref=f1e356] [cursor=pointer]:
+                    - generic [ref=f1e428]: Normal Text
+                  - generic [ref=f1e361]:
+                    - button "Bold" [ref=f1e362] [cursor=pointer]
+                    - button "Italic" [ref=f1e365] [cursor=pointer]
+                    - button "Underline" [ref=f1e368] [cursor=pointer]
+                    - button "Strikethrough" [ref=f1e371] [cursor=pointer]
+                    - button "Subscript" [ref=f1e374] [cursor=pointer]
+                    - button "Superscript" [ref=f1e377] [cursor=pointer]
+                    - button "Inline Code" [ref=f1e380] [cursor=pointer]
+                  - button "Link" [disabled] [ref=f1e385]
+                - generic [ref=f1e388]:
+                  - generic [ref=f1e390]:
+                    - textbox [ref=f1e391]:
+                      - paragraph [ref=f1e392]: 感谢您的留言，我们会尽快与您联系。
+                    - button "Drag to move" [ref=f1e393]
+                    - button "Add block" [ref=f1e395] [cursor=pointer]
+                    - generic [ref=f1e401]:
+                      - button "Edit link" [ref=f1e402] [cursor=pointer]
+                      - button "Remove link" [ref=f1e405] [cursor=pointer]
+                  - button "Insert Paragraph" [ref=f1e408]
+            - generic [ref=f1e412]:
+              - generic [ref=f1e413]:
+                - generic [ref=f1e414]:
+                  - heading "Emails" [level=3] [ref=f1e416]
+                  - list [ref=f1e417]:
+                    - listitem [ref=f1e418]:
+                      - button "More options" [ref=f1e421] [cursor=pointer]
+                - generic [ref=f1e424]: "Send custom emails when the form submits. Use comma separated lists to send the same email to multiple recipients. To reference a value from this form, wrap that field's name with double curly brackets, i.e. {{firstName}}. You can use a wildcard {{*}} to output all data and {{*:table}} to format it as an HTML table in the email."
+              - button "Add Email" [ref=f1e425] [cursor=pointer]
+      - status [ref=f1e426]
+  - status [ref=f1e157]
+  - dialog "drawer_1_blocks-drawer-_r_u_" [ref=f1e430]:
+    - button "Close" [ref=f1e432] [cursor=pointer]
+    - generic [ref=f1e434]:
+      - generic [ref=f1e435]:
+        - button "Close" [ref=f1e436] [cursor=pointer]
+        - heading "Add Field" [level=2] [ref=f1e437]
+        - button "Insert" [ref=f1e439] [cursor=pointer]
+      - textbox "Search for a block" [ref=f1e442]
+      - list [ref=f1e444]:
+        - listitem [ref=f1e445]:
+          - list [ref=f1e446]:
+            - listitem [ref=f1e447]:
+              - button "Checkbox" [ref=f1e448] [cursor=pointer]
+            - listitem [ref=f1e460]:
+              - button "Country" [ref=f1e461] [cursor=pointer]
+            - listitem [ref=f1e473]:
+              - button "Email" [ref=f1e474] [cursor=pointer]
+            - listitem [ref=f1e486]:
+              - button "Message" [ref=f1e487] [cursor=pointer]
+            - listitem [ref=f1e499]:
+              - button "Number" [ref=f1e500] [cursor=pointer]
+            - listitem [ref=f1e512]:
+              - button "Select" [ref=f1e513] [cursor=pointer]
+            - listitem [ref=f1e525]:
+              - button "State" [ref=f1e526] [cursor=pointer]
+            - listitem [ref=f1e538]:
+              - button "Text" [active] [ref=f1e539] [cursor=pointer]
+            - listitem [ref=f1e551]:
+              - button "Text Area" [ref=f1e552] [cursor=pointer]
+  - region "Notifications alt+T"
+  - button "Open Next.js Dev Tools" [ref=f1e48] [cursor=pointer]
+  - alert [ref=f1e158]: Untitled

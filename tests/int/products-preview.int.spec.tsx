@@ -13,9 +13,9 @@ const scrollBy = vi.fn()
 const capture = vi.fn()
 const release = vi.fn()
 
-function preview(count: number) {
+function preview(count: number, totalProducts = 5) {
   return (
-    <ProductPreviewGrid href="/products/tea" categoryTitle="Tea bags">
+    <ProductPreviewGrid href="/products/tea" categoryTitle="Tea bags" totalProducts={totalProducts}>
       {Array.from({ length: count }, (_, index) => (
         <a key={index} href={`/products/tea/bag-${index}`} data-product-card>
           <h3>Bag {index}</h3>
@@ -91,6 +91,16 @@ describe('product category previews', () => {
         .getAttribute('href'),
     ).toBe('/products/tea')
     expect(within(items.at(-1)!).queryByRole('heading')).toBeNull()
+  })
+
+  it.each([1, 2, 3, 4, 5])('uses category total %s for the responsive more entry', (total) => {
+    render(preview(Math.min(total, 4), total))
+    const link = screen.queryByRole('link', { name: 'View More · Tea bags' })
+    if (total <= 3) expect(link).toBeNull()
+    else {
+      expect(link).not.toBeNull()
+      expect(link?.parentElement?.hasAttribute('data-mobile-only')).toBe(total === 4)
+    }
   })
 
   it('removes arrows and an extra Tab stop when all cards fit', () => {

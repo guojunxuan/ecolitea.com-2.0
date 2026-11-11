@@ -1,0 +1,690 @@
+{
+  "menus": [
+    {
+      "label": "Products",
+      "data": {
+        "tabs": [
+          "360° cameras",
+          "Action & everyday",
+          "Mobile filmmaking",
+          "Webcams & meetings"
+        ],
+        "headings": [
+          {
+            "text": "360° cameras",
+            "linkGroup": false
+          }
+        ],
+        "linkGroups": [],
+        "visualCards": [],
+        "productCards": [
+          {
+            "title": "Insta360 X6",
+            "desc": "",
+            "img": "https://media-dev.ecolitea.com/cdn-cgi/image/width=3840,height=2880,fit=contain,quality=85,format=auto/header-insta360-x6.png?2026-09-16T07%3A02%3A33.154Z"
+          },
+          {
+            "title": "Insta360 X5",
+            "desc": "",
+            "img": "https://media-dev.ecolitea.com/cdn-cgi/image/width=3840,height=2880,fit=contain,quality=85,format=auto/header-insta360-x5.jpg?2026-09-16T07%3A02%3A34.524Z"
+          },
+          {
+            "title": "Insta360 X4 Air",
+            "desc": "",
+            "img": "https://media-dev.ecolitea.com/cdn-cgi/image/width=3840,height=2880,fit=contain,quality=85,format=auto/header-insta360-x4-air.jpg?2026-09-16T07%3A02%3A35.575Z"
+          },
+          {
+            "title": "Insta360 X4",
+            "desc": "",
+            "img": "https://media-dev.ecolitea.com/cdn-cgi/image/width=3840,height=2880,fit=contain,quality=85,format=auto/header-insta360-x4.png?2026-09-16T07%3A52%3A08.010Z"
+          },
+          {
+            "title": "Insta360 X3",
+            "desc": "",
+            "img": "https://media-dev.ecolitea.com/cdn-cgi/image/width=3840,height=2880,fit=contain,quality=85,format=auto/header-insta360-x3.png?2026-09-16T08%3A08%3A40.866Z"
+          },
+          {
+            "title": "Insta360 ONE X2",
+            "desc": "",
+            "img": "https://media-dev.ecolitea.com/cdn-cgi/image/width=3840,height=2880,fit=contain,quality=85,format=auto/header-insta360-one_x2.png?2026-09-16T08%3A08%3A42.008Z"
+          },
+          {
+            "title": "Insta360 Pro 2",
+            "desc": "",
+            "img": "https://media-dev.ecolitea.com/cdn-cgi/image/width=3840,height=2880,fit=contain,quality=85,format=auto/header-insta360-pro_2.png?2026-09-16T07%3A03%3A48.024Z"
+          },
+          {
+            "title": "Insta360 Titan",
+            "desc": "",
+            "img": "https://media-dev.ecolitea.com/cdn-cgi/image/width=3840,height=2880,fit=contain,quality=85,format=auto/header-insta360-titan.png?2026-09-16T08%3A08%3A43.004Z"
+          },
+          {
+            "title": "Insta360 Ace Pro 2",
+            "desc": "",
+            "img": "https://media-dev.ecolitea.com/cdn-cgi/image/width=3840,height=2880,fit=contain,quality=85,format=auto/header-insta360-ace-pro-2.png?2026-09-16T07%3A02%3A36.618Z"
+          },
+          {
+            "title": "Insta360 GO Ultra",
+            "desc": "",
+            "img": "https://media-dev.ecolitea.com/cdn-cgi/image/width=3840,height=2880,fit=contain,quality=85,format=auto/header-insta360-go-ultra.png?2026-09-16T07%3A02%3A37.593Z"
+          },
+          {
+            "title": "Insta360 Luna Series",
+            "desc": "",
+            "img": "https://media-dev.ecolitea.com/cdn-cgi/image/width=3840,height=2880,fit=contain,quality=85,format=auto/header-insta360-luna-series.png?2026-09-16T07%3A02%3A38.710Z"
+          },
+          {
+            "title": "Insta360 GO 3S",
+            "desc": "",
+            "img": "https://media-dev.ecolitea.com/cdn-cgi/image/width=3840,height=2880,fit=contain,quality=85,format=auto/header-insta360-go-3s.png?2026-09-16T07%3A52%3A11.067Z"
+          },
+          {
+            "title": "Insta360 Flow 2 Series",
+            "desc": "",
+            "img": "https://media-dev.ecolitea.com/cdn-cgi/image/width=3840,height=2880,fit=contain,quality=85,format=auto/header-insta360-flow-2-pro.png?2026-09-16T07%3A03%3A42.713Z"
+          },
+          {
+            "title": "Insta360 Mic Pro",
+            "desc": "",
+            "img": "https://media-dev.ecolitea.com/cdn-cgi/image/width=3840,height=2880,fit=contain,quality=85,format=auto/header-insta360-mic-pro.png?2026-09-16T07%3A03%3A47.112Z"
+          },
+          {
+            "title": "Snap Selfie Screen",
+            "desc": "",
+            "img": "https://media-dev.ecolitea.com/cdn-cgi/image/width=3840,height=2880,fit=contain,quality=85,format=auto/header-insta360-snap.png?2026-09-16T07%3A52%3A12.960Z"
+          },
+          {
+            "title": "Insta360 Link 2 Pro",
+            "desc": "",
+            "img": "https://media-dev.ecolitea.com/cdn-cgi/image/width=3840,height=2880,fit=contain,quality=85,format=auto/header-insta360-link-2-pro.png?2026-09-16T07%3A03%3A44.904Z"
+          },
+          {
+            "title": "Insta360 Connect",
+            "desc": "",
+            "img": "https://media-dev.ecolitea.com/cdn-cgi/image/width=3840,height=2880,fit=contain,quality=85,format=auto/header-insta360-connect.jpg?2026-09-16T07%3A03%3A45.881Z"
+          },
+          {
+            "title": "Insta360 Link 2",
+            "desc": "",
+            "img": "https://media-dev.ecolitea.com/cdn-cgi/image/width=3840,height=2880,fit=contain,quality=85,format=auto/header-insta360-link-2.png?2026-09-16T07%3A52%3A13.821Z"
+          },
+          {
+            "title": "Insta360 Wave",
+            "desc": "",
+            "img": "https://media-dev.ecolitea.com/cdn-cgi/image/width=3840,height=2880,fit=contain,quality=85,format=auto/header-insta360-wave.png?2026-09-16T07%3A52%3A14.674Z"
+          }
+        ],
+        "richCards": [],
+        "ctas": [
+          "Explore all cameras",
+          "Compare 360° cameras"
+        ]
+      }
+    },
+    {
+      "label": "Shop by Interest",
+      "data": {
+        "tabs": [],
+        "headings": [
+          {
+            "text": "Find your next adventure",
+            "linkGroup": false
+          }
+        ],
+        "linkGroups": [],
+        "visualCards": [
+          {
+            "title": "Road Cycling",
+            "desc": "",
+            "img": "https://media-dev.ecolitea.com/cdn-cgi/image/width=3840,height=2160,fit=cover,quality=85,format=auto/header-interest-1.jpg?2026-09-16T07%3A40%3A58.752Z"
+          },
+          {
+            "title": "Motorcycling",
+            "desc": "",
+            "img": "https://media-dev.ecolitea.com/cdn-cgi/image/width=3840,height=2160,fit=cover,quality=85,format=auto/header-interest-2.jpg?2026-09-16T07%3A40%3A59.489Z"
+          },
+          {
+            "title": "Videography",
+            "desc": "",
+            "img": "https://media-dev.ecolitea.com/cdn-cgi/image/width=3840,height=2160,fit=cover,quality=85,format=auto/header-interest-3.jpg?2026-09-16T07%3A41%3A00.099Z"
+          },
+          {
+            "title": "Vlogging",
+            "desc": "",
+            "img": "https://media-dev.ecolitea.com/cdn-cgi/image/width=3840,height=2160,fit=cover,quality=85,format=auto/header-interest-4.jpg?2026-09-16T07%3A41%3A00.645Z"
+          },
+          {
+            "title": "Kayaking",
+            "desc": "",
+            "img": "https://media-dev.ecolitea.com/cdn-cgi/image/width=3840,height=2160,fit=cover,quality=85,format=auto/header-interest-5.jpg?2026-09-16T07%3A41%3A01.216Z"
+          },
+          {
+            "title": "Snorkeling",
+            "desc": "",
+            "img": "https://media-dev.ecolitea.com/cdn-cgi/image/width=3840,height=2160,fit=cover,quality=85,format=auto/header-interest-6.jpg?2026-09-16T07%3A41%3A01.799Z"
+          },
+          {
+            "title": "Mountain Biking",
+            "desc": "",
+            "img": "https://media-dev.ecolitea.com/cdn-cgi/image/width=3840,height=2160,fit=cover,quality=85,format=auto/header-interest-7.jpg?2026-09-16T07%3A41%3A02.436Z"
+          },
+          {
+            "title": "Winter Sports",
+            "desc": "",
+            "img": "https://media-dev.ecolitea.com/cdn-cgi/image/width=3840,height=2160,fit=cover,quality=85,format=auto/header-interest-8.jpg?2026-09-16T07%3A41%3A03.060Z"
+          }
+        ],
+        "productCards": [],
+        "richCards": [],
+        "ctas": [
+          "view more"
+        ]
+      }
+    },
+    {
+      "label": "Professional",
+      "data": {
+        "tabs": [],
+        "headings": [
+          {
+            "text": "Built for bigger ideas",
+            "linkGroup": false
+          },
+          {
+            "text": "Immersive production",
+            "linkGroup": true
+          },
+          {
+            "text": "Work together",
+            "linkGroup": true
+          },
+          {
+            "text": "Creator workflow",
+            "linkGroup": true
+          },
+          {
+            "text": "Planning & ownership",
+            "linkGroup": true
+          }
+        ],
+        "linkGroups": [
+          {
+            "heading": "Immersive production",
+            "links": [
+              "Professional cameras",
+              "Insta360 Pro 2",
+              "Insta360 Titan"
+            ]
+          },
+          {
+            "heading": "Work together",
+            "links": [
+              "Enterprise solutions",
+              "Insta360 Connect",
+              "Link 2 Pro webcams",
+              "Wave speakerphone"
+            ]
+          },
+          {
+            "heading": "Creator workflow",
+            "links": [
+              "Apps & editing software",
+              "Mic Pro audio",
+              "Flow 2 mobile filmmaking",
+              "Insta360+ cloud"
+            ]
+          },
+          {
+            "heading": "Planning & ownership",
+            "links": [
+              "Shopping questions",
+              "Camera coverage",
+              "Repair services",
+              "After-sales policy"
+            ]
+          }
+        ],
+        "visualCards": [
+          {
+            "title": "Insta360 Pro 2",
+            "desc": "",
+            "img": "https://media-dev.ecolitea.com/cdn-cgi/image/width=3840,height=2160,fit=cover,quality=85,format=auto/header-insta360-pro_2.png?2026-09-16T07%3A03%3A48.024Z"
+          },
+          {
+            "title": "Insta360 Connect",
+            "desc": "",
+            "img": "https://media-dev.ecolitea.com/cdn-cgi/image/width=3840,height=2160,fit=cover,quality=85,format=auto/header-insta360-connect.jpg?2026-09-16T07%3A03%3A45.881Z"
+          },
+          {
+            "title": "Link 2 Pro",
+            "desc": "",
+            "img": "https://media-dev.ecolitea.com/cdn-cgi/image/width=3840,height=2160,fit=cover,quality=85,format=auto/header-insta360-link-2-pro.png?2026-09-16T07%3A03%3A44.904Z"
+          },
+          {
+            "title": "Wave",
+            "desc": "",
+            "img": "https://media-dev.ecolitea.com/cdn-cgi/image/width=3840,height=2160,fit=cover,quality=85,format=auto/header-insta360-wave.png?2026-09-16T07%3A52%3A14.674Z"
+          }
+        ],
+        "productCards": [],
+        "richCards": [],
+        "ctas": [
+          "Explore enterprise solutions"
+        ]
+      }
+    },
+    {
+      "label": "Support",
+      "data": {
+        "tabs": [],
+        "headings": [
+          {
+            "text": "Getting started",
+            "linkGroup": true
+          },
+          {
+            "text": "Repairs & after-sales",
+            "linkGroup": true
+          },
+          {
+            "text": "Protection plans",
+            "linkGroup": true
+          },
+          {
+            "text": "More ways to own",
+            "linkGroup": true
+          },
+          {
+            "text": "Keep creating with confidence",
+            "linkGroup": false
+          }
+        ],
+        "linkGroups": [
+          {
+            "heading": "Getting started",
+            "links": [
+              "Apps & software",
+              "Shopping FAQ",
+              "Find accessories"
+            ]
+          },
+          {
+            "heading": "Repairs & after-sales",
+            "links": [
+              "Request a repair",
+              "After-sales policy",
+              "Trade-in program"
+            ]
+          },
+          {
+            "heading": "Protection plans",
+            "links": [
+              "Compare coverage",
+              "FlexiCare",
+              "Extended warranty"
+            ]
+          },
+          {
+            "heading": "More ways to own",
+            "links": [
+              "Insta360 Care",
+              "Insta360+ cloud",
+              "Certified refurbished"
+            ]
+          }
+        ],
+        "visualCards": [
+          {
+            "title": "FlexiCare",
+            "desc": "",
+            "img": "https://media-dev.ecolitea.com/cdn-cgi/image/width=3840,height=2160,fit=cover,quality=85,format=auto/header-insta360-flexicare-x5.png?2026-09-16T07%3A13%3A17.249Z"
+          },
+          {
+            "title": "Extended warranty",
+            "desc": "",
+            "img": "https://media-dev.ecolitea.com/cdn-cgi/image/width=3840,height=2160,fit=cover,quality=85,format=auto/header-insta360-warranty_service.png?2026-09-16T07%3A13%3A18.215Z"
+          },
+          {
+            "title": "Save your memories",
+            "desc": "",
+            "img": "https://media-dev.ecolitea.com/cdn-cgi/image/width=3840,height=2160,fit=cover,quality=85,format=auto/header-interest-14.jpg?2026-09-16T07%3A41%3A08.524Z"
+          },
+          {
+            "title": "Ready for your next trip",
+            "desc": "",
+            "img": "https://media-dev.ecolitea.com/cdn-cgi/image/width=3840,height=2160,fit=cover,quality=85,format=auto/header-interest-13.jpg?2026-09-16T07%3A41%3A06.922Z"
+          }
+        ],
+        "productCards": [],
+        "richCards": [],
+        "ctas": []
+      }
+    }
+  ],
+  "productTabs": [
+    {
+      "heading": "360° cameras",
+      "cards": [
+        {
+          "title": "Insta360 X6",
+          "img": "https://media-dev.ecolitea.com/cdn-cgi/image/width=3840,height=2880,fit=contain,quality=85,format=auto/header-insta360-x6.png?2026-09-16T07%3A02%3A33.154Z"
+        },
+        {
+          "title": "Insta360 X5",
+          "img": "https://media-dev.ecolitea.com/cdn-cgi/image/width=3840,height=2880,fit=contain,quality=85,format=auto/header-insta360-x5.jpg?2026-09-16T07%3A02%3A34.524Z"
+        },
+        {
+          "title": "Insta360 X4 Air",
+          "img": "https://media-dev.ecolitea.com/cdn-cgi/image/width=384,height=288,fit=contain,quality=85,format=auto/header-insta360-x4-air.jpg?2026-09-16T07%3A02%3A35.575Z"
+        },
+        {
+          "title": "Insta360 X4",
+          "img": "https://media-dev.ecolitea.com/cdn-cgi/image/width=384,height=288,fit=contain,quality=85,format=auto/header-insta360-x4.png?2026-09-16T07%3A52%3A08.010Z"
+        },
+        {
+          "title": "Insta360 X3",
+          "img": "https://media-dev.ecolitea.com/cdn-cgi/image/width=384,height=288,fit=contain,quality=85,format=auto/header-insta360-x3.png?2026-09-16T08%3A08%3A40.866Z"
+        },
+        {
+          "title": "Insta360 ONE X2",
+          "img": "https://media-dev.ecolitea.com/cdn-cgi/image/width=3840,height=2880,fit=contain,quality=85,format=auto/header-insta360-one_x2.png?2026-09-16T08%3A08%3A42.008Z"
+        },
+        {
+          "title": "Insta360 Pro 2",
+          "img": "https://media-dev.ecolitea.com/cdn-cgi/image/width=384,height=288,fit=contain,quality=85,format=auto/header-insta360-pro_2.png?2026-09-16T07%3A03%3A48.024Z"
+        },
+        {
+          "title": "Insta360 Titan",
+          "img": "https://media-dev.ecolitea.com/cdn-cgi/image/width=384,height=288,fit=contain,quality=85,format=auto/header-insta360-titan.png?2026-09-16T08%3A08%3A43.004Z"
+        },
+        {
+          "title": "Insta360 Ace Pro 2",
+          "img": "https://media-dev.ecolitea.com/cdn-cgi/image/width=3840,height=2880,fit=contain,quality=85,format=auto/header-insta360-ace-pro-2.png?2026-09-16T07%3A02%3A36.618Z"
+        },
+        {
+          "title": "Insta360 GO Ultra",
+          "img": "https://media-dev.ecolitea.com/cdn-cgi/image/width=384,height=288,fit=contain,quality=85,format=auto/header-insta360-go-ultra.png?2026-09-16T07%3A02%3A37.593Z"
+        },
+        {
+          "title": "Insta360 Luna Series",
+          "img": "https://media-dev.ecolitea.com/cdn-cgi/image/width=3840,height=2880,fit=contain,quality=85,format=auto/header-insta360-luna-series.png?2026-09-16T07%3A02%3A38.710Z"
+        },
+        {
+          "title": "Insta360 GO 3S",
+          "img": "https://media-dev.ecolitea.com/cdn-cgi/image/width=3840,height=2880,fit=contain,quality=85,format=auto/header-insta360-go-3s.png?2026-09-16T07%3A52%3A11.067Z"
+        },
+        {
+          "title": "Insta360 Flow 2 Series",
+          "img": "https://media-dev.ecolitea.com/cdn-cgi/image/width=3840,height=2880,fit=contain,quality=85,format=auto/header-insta360-flow-2-pro.png?2026-09-16T07%3A03%3A42.713Z"
+        },
+        {
+          "title": "Insta360 Mic Pro",
+          "img": "https://media-dev.ecolitea.com/cdn-cgi/image/width=3840,height=2880,fit=contain,quality=85,format=auto/header-insta360-mic-pro.png?2026-09-16T07%3A03%3A47.112Z"
+        },
+        {
+          "title": "Snap Selfie Screen",
+          "img": "https://media-dev.ecolitea.com/cdn-cgi/image/width=3840,height=2880,fit=contain,quality=85,format=auto/header-insta360-snap.png?2026-09-16T07%3A52%3A12.960Z"
+        },
+        {
+          "title": "Insta360 Link 2 Pro",
+          "img": "https://media-dev.ecolitea.com/cdn-cgi/image/width=384,height=288,fit=contain,quality=85,format=auto/header-insta360-link-2-pro.png?2026-09-16T07%3A03%3A44.904Z"
+        },
+        {
+          "title": "Insta360 Connect",
+          "img": "https://media-dev.ecolitea.com/cdn-cgi/image/width=3840,height=2880,fit=contain,quality=85,format=auto/header-insta360-connect.jpg?2026-09-16T07%3A03%3A45.881Z"
+        },
+        {
+          "title": "Insta360 Link 2",
+          "img": "https://media-dev.ecolitea.com/cdn-cgi/image/width=384,height=288,fit=contain,quality=85,format=auto/header-insta360-link-2.png?2026-09-16T07%3A52%3A13.821Z"
+        },
+        {
+          "title": "Insta360 Wave",
+          "img": "https://media-dev.ecolitea.com/cdn-cgi/image/width=384,height=288,fit=contain,quality=85,format=auto/header-insta360-wave.png?2026-09-16T07%3A52%3A14.674Z"
+        }
+      ]
+    },
+    {
+      "heading": "Action & everyday",
+      "cards": [
+        {
+          "title": "Insta360 X6",
+          "img": "https://media-dev.ecolitea.com/cdn-cgi/image/width=3840,height=2880,fit=contain,quality=85,format=auto/header-insta360-x6.png?2026-09-16T07%3A02%3A33.154Z"
+        },
+        {
+          "title": "Insta360 X5",
+          "img": "https://media-dev.ecolitea.com/cdn-cgi/image/width=384,height=288,fit=contain,quality=85,format=auto/header-insta360-x5.jpg?2026-09-16T07%3A02%3A34.524Z"
+        },
+        {
+          "title": "Insta360 X4 Air",
+          "img": "https://media-dev.ecolitea.com/cdn-cgi/image/width=384,height=288,fit=contain,quality=85,format=auto/header-insta360-x4-air.jpg?2026-09-16T07%3A02%3A35.575Z"
+        },
+        {
+          "title": "Insta360 X4",
+          "img": "https://media-dev.ecolitea.com/cdn-cgi/image/width=384,height=288,fit=contain,quality=85,format=auto/header-insta360-x4.png?2026-09-16T07%3A52%3A08.010Z"
+        },
+        {
+          "title": "Insta360 X3",
+          "img": "https://media-dev.ecolitea.com/cdn-cgi/image/width=384,height=288,fit=contain,quality=85,format=auto/header-insta360-x3.png?2026-09-16T08%3A08%3A40.866Z"
+        },
+        {
+          "title": "Insta360 ONE X2",
+          "img": "https://media-dev.ecolitea.com/cdn-cgi/image/width=384,height=288,fit=contain,quality=85,format=auto/header-insta360-one_x2.png?2026-09-16T08%3A08%3A42.008Z"
+        },
+        {
+          "title": "Insta360 Pro 2",
+          "img": "https://media-dev.ecolitea.com/cdn-cgi/image/width=384,height=288,fit=contain,quality=85,format=auto/header-insta360-pro_2.png?2026-09-16T07%3A03%3A48.024Z"
+        },
+        {
+          "title": "Insta360 Titan",
+          "img": "https://media-dev.ecolitea.com/cdn-cgi/image/width=384,height=288,fit=contain,quality=85,format=auto/header-insta360-titan.png?2026-09-16T08%3A08%3A43.004Z"
+        },
+        {
+          "title": "Insta360 Ace Pro 2",
+          "img": "https://media-dev.ecolitea.com/cdn-cgi/image/width=3840,height=2880,fit=contain,quality=85,format=auto/header-insta360-ace-pro-2.png?2026-09-16T07%3A02%3A36.618Z"
+        },
+        {
+          "title": "Insta360 GO Ultra",
+          "img": "https://media-dev.ecolitea.com/cdn-cgi/image/width=384,height=288,fit=contain,quality=85,format=auto/header-insta360-go-ultra.png?2026-09-16T07%3A02%3A37.593Z"
+        },
+        {
+          "title": "Insta360 Luna Series",
+          "img": "https://media-dev.ecolitea.com/cdn-cgi/image/width=3840,height=2880,fit=contain,quality=85,format=auto/header-insta360-luna-series.png?2026-09-16T07%3A02%3A38.710Z"
+        },
+        {
+          "title": "Insta360 GO 3S",
+          "img": "https://media-dev.ecolitea.com/cdn-cgi/image/width=3840,height=2880,fit=contain,quality=85,format=auto/header-insta360-go-3s.png?2026-09-16T07%3A52%3A11.067Z"
+        },
+        {
+          "title": "Insta360 Flow 2 Series",
+          "img": "https://media-dev.ecolitea.com/cdn-cgi/image/width=3840,height=2880,fit=contain,quality=85,format=auto/header-insta360-flow-2-pro.png?2026-09-16T07%3A03%3A42.713Z"
+        },
+        {
+          "title": "Insta360 Mic Pro",
+          "img": "https://media-dev.ecolitea.com/cdn-cgi/image/width=3840,height=2880,fit=contain,quality=85,format=auto/header-insta360-mic-pro.png?2026-09-16T07%3A03%3A47.112Z"
+        },
+        {
+          "title": "Snap Selfie Screen",
+          "img": "https://media-dev.ecolitea.com/cdn-cgi/image/width=384,height=288,fit=contain,quality=85,format=auto/header-insta360-snap.png?2026-09-16T07%3A52%3A12.960Z"
+        },
+        {
+          "title": "Insta360 Link 2 Pro",
+          "img": "https://media-dev.ecolitea.com/cdn-cgi/image/width=384,height=288,fit=contain,quality=85,format=auto/header-insta360-link-2-pro.png?2026-09-16T07%3A03%3A44.904Z"
+        },
+        {
+          "title": "Insta360 Connect",
+          "img": "https://media-dev.ecolitea.com/cdn-cgi/image/width=3840,height=2880,fit=contain,quality=85,format=auto/header-insta360-connect.jpg?2026-09-16T07%3A03%3A45.881Z"
+        },
+        {
+          "title": "Insta360 Link 2",
+          "img": "https://media-dev.ecolitea.com/cdn-cgi/image/width=384,height=288,fit=contain,quality=85,format=auto/header-insta360-link-2.png?2026-09-16T07%3A52%3A13.821Z"
+        },
+        {
+          "title": "Insta360 Wave",
+          "img": "https://media-dev.ecolitea.com/cdn-cgi/image/width=384,height=288,fit=contain,quality=85,format=auto/header-insta360-wave.png?2026-09-16T07%3A52%3A14.674Z"
+        }
+      ]
+    },
+    {
+      "heading": "Mobile filmmaking",
+      "cards": [
+        {
+          "title": "Insta360 X6",
+          "img": "https://media-dev.ecolitea.com/cdn-cgi/image/width=3840,height=2880,fit=contain,quality=85,format=auto/header-insta360-x6.png?2026-09-16T07%3A02%3A33.154Z"
+        },
+        {
+          "title": "Insta360 X5",
+          "img": "https://media-dev.ecolitea.com/cdn-cgi/image/width=384,height=288,fit=contain,quality=85,format=auto/header-insta360-x5.jpg?2026-09-16T07%3A02%3A34.524Z"
+        },
+        {
+          "title": "Insta360 X4 Air",
+          "img": "https://media-dev.ecolitea.com/cdn-cgi/image/width=384,height=288,fit=contain,quality=85,format=auto/header-insta360-x4-air.jpg?2026-09-16T07%3A02%3A35.575Z"
+        },
+        {
+          "title": "Insta360 X4",
+          "img": "https://media-dev.ecolitea.com/cdn-cgi/image/width=384,height=288,fit=contain,quality=85,format=auto/header-insta360-x4.png?2026-09-16T07%3A52%3A08.010Z"
+        },
+        {
+          "title": "Insta360 X3",
+          "img": "https://media-dev.ecolitea.com/cdn-cgi/image/width=384,height=288,fit=contain,quality=85,format=auto/header-insta360-x3.png?2026-09-16T08%3A08%3A40.866Z"
+        },
+        {
+          "title": "Insta360 ONE X2",
+          "img": "https://media-dev.ecolitea.com/cdn-cgi/image/width=384,height=288,fit=contain,quality=85,format=auto/header-insta360-one_x2.png?2026-09-16T08%3A08%3A42.008Z"
+        },
+        {
+          "title": "Insta360 Pro 2",
+          "img": "https://media-dev.ecolitea.com/cdn-cgi/image/width=384,height=288,fit=contain,quality=85,format=auto/header-insta360-pro_2.png?2026-09-16T07%3A03%3A48.024Z"
+        },
+        {
+          "title": "Insta360 Titan",
+          "img": "https://media-dev.ecolitea.com/cdn-cgi/image/width=384,height=288,fit=contain,quality=85,format=auto/header-insta360-titan.png?2026-09-16T08%3A08%3A43.004Z"
+        },
+        {
+          "title": "Insta360 Ace Pro 2",
+          "img": "https://media-dev.ecolitea.com/cdn-cgi/image/width=384,height=288,fit=contain,quality=85,format=auto/header-insta360-ace-pro-2.png?2026-09-16T07%3A02%3A36.618Z"
+        },
+        {
+          "title": "Insta360 GO Ultra",
+          "img": "https://media-dev.ecolitea.com/cdn-cgi/image/width=384,height=288,fit=contain,quality=85,format=auto/header-insta360-go-ultra.png?2026-09-16T07%3A02%3A37.593Z"
+        },
+        {
+          "title": "Insta360 Luna Series",
+          "img": "https://media-dev.ecolitea.com/cdn-cgi/image/width=3840,height=2880,fit=contain,quality=85,format=auto/header-insta360-luna-series.png?2026-09-16T07%3A02%3A38.710Z"
+        },
+        {
+          "title": "Insta360 GO 3S",
+          "img": "https://media-dev.ecolitea.com/cdn-cgi/image/width=384,height=288,fit=contain,quality=85,format=auto/header-insta360-go-3s.png?2026-09-16T07%3A52%3A11.067Z"
+        },
+        {
+          "title": "Insta360 Flow 2 Series",
+          "img": "https://media-dev.ecolitea.com/cdn-cgi/image/width=384,height=288,fit=contain,quality=85,format=auto/header-insta360-flow-2-pro.png?2026-09-16T07%3A03%3A42.713Z"
+        },
+        {
+          "title": "Insta360 Mic Pro",
+          "img": "https://media-dev.ecolitea.com/cdn-cgi/image/width=384,height=288,fit=contain,quality=85,format=auto/header-insta360-mic-pro.png?2026-09-16T07%3A03%3A47.112Z"
+        },
+        {
+          "title": "Snap Selfie Screen",
+          "img": "https://media-dev.ecolitea.com/cdn-cgi/image/width=384,height=288,fit=contain,quality=85,format=auto/header-insta360-snap.png?2026-09-16T07%3A52%3A12.960Z"
+        },
+        {
+          "title": "Insta360 Link 2 Pro",
+          "img": "https://media-dev.ecolitea.com/cdn-cgi/image/width=384,height=288,fit=contain,quality=85,format=auto/header-insta360-link-2-pro.png?2026-09-16T07%3A03%3A44.904Z"
+        },
+        {
+          "title": "Insta360 Connect",
+          "img": "https://media-dev.ecolitea.com/cdn-cgi/image/width=3840,height=2880,fit=contain,quality=85,format=auto/header-insta360-connect.jpg?2026-09-16T07%3A03%3A45.881Z"
+        },
+        {
+          "title": "Insta360 Link 2",
+          "img": "https://media-dev.ecolitea.com/cdn-cgi/image/width=384,height=288,fit=contain,quality=85,format=auto/header-insta360-link-2.png?2026-09-16T07%3A52%3A13.821Z"
+        },
+        {
+          "title": "Insta360 Wave",
+          "img": "https://media-dev.ecolitea.com/cdn-cgi/image/width=384,height=288,fit=contain,quality=85,format=auto/header-insta360-wave.png?2026-09-16T07%3A52%3A14.674Z"
+        }
+      ]
+    },
+    {
+      "heading": "Webcams & meetings",
+      "cards": [
+        {
+          "title": "Insta360 X6",
+          "img": "https://media-dev.ecolitea.com/cdn-cgi/image/width=384,height=288,fit=contain,quality=85,format=auto/header-insta360-x6.png?2026-09-16T07%3A02%3A33.154Z"
+        },
+        {
+          "title": "Insta360 X5",
+          "img": "https://media-dev.ecolitea.com/cdn-cgi/image/width=384,height=288,fit=contain,quality=85,format=auto/header-insta360-x5.jpg?2026-09-16T07%3A02%3A34.524Z"
+        },
+        {
+          "title": "Insta360 X4 Air",
+          "img": "https://media-dev.ecolitea.com/cdn-cgi/image/width=384,height=288,fit=contain,quality=85,format=auto/header-insta360-x4-air.jpg?2026-09-16T07%3A02%3A35.575Z"
+        },
+        {
+          "title": "Insta360 X4",
+          "img": "https://media-dev.ecolitea.com/cdn-cgi/image/width=384,height=288,fit=contain,quality=85,format=auto/header-insta360-x4.png?2026-09-16T07%3A52%3A08.010Z"
+        },
+        {
+          "title": "Insta360 X3",
+          "img": "https://media-dev.ecolitea.com/cdn-cgi/image/width=384,height=288,fit=contain,quality=85,format=auto/header-insta360-x3.png?2026-09-16T08%3A08%3A40.866Z"
+        },
+        {
+          "title": "Insta360 ONE X2",
+          "img": "https://media-dev.ecolitea.com/cdn-cgi/image/width=384,height=288,fit=contain,quality=85,format=auto/header-insta360-one_x2.png?2026-09-16T08%3A08%3A42.008Z"
+        },
+        {
+          "title": "Insta360 Pro 2",
+          "img": "https://media-dev.ecolitea.com/cdn-cgi/image/width=384,height=288,fit=contain,quality=85,format=auto/header-insta360-pro_2.png?2026-09-16T07%3A03%3A48.024Z"
+        },
+        {
+          "title": "Insta360 Titan",
+          "img": "https://media-dev.ecolitea.com/cdn-cgi/image/width=384,height=288,fit=contain,quality=85,format=auto/header-insta360-titan.png?2026-09-16T08%3A08%3A43.004Z"
+        },
+        {
+          "title": "Insta360 Ace Pro 2",
+          "img": "https://media-dev.ecolitea.com/cdn-cgi/image/width=384,height=288,fit=contain,quality=85,format=auto/header-insta360-ace-pro-2.png?2026-09-16T07%3A02%3A36.618Z"
+        },
+        {
+          "title": "Insta360 GO Ultra",
+          "img": "https://media-dev.ecolitea.com/cdn-cgi/image/width=384,height=288,fit=contain,quality=85,format=auto/header-insta360-go-ultra.png?2026-09-16T07%3A02%3A37.593Z"
+        },
+        {
+          "title": "Insta360 Luna Series",
+          "img": "https://media-dev.ecolitea.com/cdn-cgi/image/width=384,height=288,fit=contain,quality=85,format=auto/header-insta360-luna-series.png?2026-09-16T07%3A02%3A38.710Z"
+        },
+        {
+          "title": "Insta360 GO 3S",
+          "img": "https://media-dev.ecolitea.com/cdn-cgi/image/width=384,height=288,fit=contain,quality=85,format=auto/header-insta360-go-3s.png?2026-09-16T07%3A52%3A11.067Z"
+        },
+        {
+          "title": "Insta360 Flow 2 Series",
+          "img": "https://media-dev.ecolitea.com/cdn-cgi/image/width=384,height=288,fit=contain,quality=85,format=auto/header-insta360-flow-2-pro.png?2026-09-16T07%3A03%3A42.713Z"
+        },
+        {
+          "title": "Insta360 Mic Pro",
+          "img": "https://media-dev.ecolitea.com/cdn-cgi/image/width=384,height=288,fit=contain,quality=85,format=auto/header-insta360-mic-pro.png?2026-09-16T07%3A03%3A47.112Z"
+        },
+        {
+          "title": "Snap Selfie Screen",
+          "img": "https://media-dev.ecolitea.com/cdn-cgi/image/width=384,height=288,fit=contain,quality=85,format=auto/header-insta360-snap.png?2026-09-16T07%3A52%3A12.960Z"
+        },
+        {
+          "title": "Insta360 Link 2 Pro",
+          "img": "https://media-dev.ecolitea.com/cdn-cgi/image/width=384,height=288,fit=contain,quality=85,format=auto/header-insta360-link-2-pro.png?2026-09-16T07%3A03%3A44.904Z"
+        },
+        {
+          "title": "Insta360 Connect",
+          "img": "https://media-dev.ecolitea.com/cdn-cgi/image/width=3840,height=2880,fit=contain,quality=85,format=auto/header-insta360-connect.jpg?2026-09-16T07%3A03%3A45.881Z"
+        },
+        {
+          "title": "Insta360 Link 2",
+          "img": "https://media-dev.ecolitea.com/cdn-cgi/image/width=384,height=288,fit=contain,quality=85,format=auto/header-insta360-link-2.png?2026-09-16T07%3A52%3A13.821Z"
+        },
+        {
+          "title": "Insta360 Wave",
+          "img": "https://media-dev.ecolitea.com/cdn-cgi/image/width=384,height=288,fit=contain,quality=85,format=auto/header-insta360-wave.png?2026-09-16T07%3A52%3A14.674Z"
+        }
+      ]
+    }
+  ]
+}

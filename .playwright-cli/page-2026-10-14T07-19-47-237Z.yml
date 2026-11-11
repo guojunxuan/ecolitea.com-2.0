@@ -1,0 +1,182 @@
+- generic [active] [ref=f3e1]:
+  - link "Skip to content" [ref=f3e2] [cursor=pointer]:
+    - /url: "#main-content"
+  - banner:
+    - generic [ref=f3e6]:
+      - button "Open navigation" [ref=f3e7] [cursor=pointer]
+      - link "ecolitea-logo-dark" [ref=f3e11] [cursor=pointer]:
+        - /url: /
+        - img "ecolitea-logo-dark" [ref=f3e12]
+      - link "Search" [ref=f3e13] [cursor=pointer]:
+        - /url: /search
+  - main [ref=f3e17]:
+    - article [ref=f3e18]:
+      - link "Skip to table of contents" [ref=f3e19] [cursor=pointer]:
+        - /url: "#table-of-contents"
+      - navigation "Breadcrumb" [ref=f3e20]:
+        - list [ref=f3e21]:
+          - listitem [ref=f3e22]:
+            - link "Home" [ref=f3e23] [cursor=pointer]:
+              - /url: /
+          - listitem [aria-hidden] [ref=f3e24]: /
+          - listitem [ref=f3e25]:
+            - link "Blogs" [ref=f3e26] [cursor=pointer]:
+              - /url: /blogs
+          - listitem [aria-hidden] [ref=f3e27]: /
+          - listitem [ref=f3e28]:
+            - link "Product Insights" [ref=f3e29] [cursor=pointer]:
+              - /url: /blogs/category/product-insights
+          - listitem [aria-hidden] [ref=f3e30]: /
+          - listitem [ref=f3e31]: Small details, better everyday products
+      - generic [ref=f3e32]:
+        - heading "Small details, better everyday products" [level=1] [ref=f3e33]
+        - generic [ref=f3e34]:
+          - generic [ref=f3e35]:
+            - text: By
+            - strong [ref=f3e36]: admin
+          - generic [aria-hidden] [ref=f3e37]: ·
+          - time [ref=f3e38]: October 3, 2026
+        - paragraph [ref=f3e39]: Explore how careful material choices and practical design turn familiar products into reliable companions for everyday life.
+      - img "Coastal Rides" [ref=f3e43]
+      - generic [ref=f3e44]:
+        - complementary [ref=f3e45]:
+          - button "Open table of contents" [ref=f3e47] [cursor=pointer]:
+            - generic [ref=f3e48]: On this page
+            - generic [ref=f3e49]: Designed around real routines
+        - generic [ref=f3e52]:
+          - generic [ref=f3e53]:
+            - note "A note from the editor" [ref=f3e56]:
+              - heading "A note from the editor" [level=2] [ref=f3e59]
+              - paragraph [ref=f3e61]: This is a sample article created to explore the journal layout. The ideas and examples are illustrative.
+            - complementary "At a Glance" [ref=f3e63]:
+              - heading "At a Glance" [level=2] [ref=f3e64]
+              - list [ref=f3e66]:
+                - listitem [ref=f3e67]: Start with the task people repeat most often.
+                - listitem [ref=f3e68]: Use materials that support comfort and durability.
+                - listitem [ref=f3e69]: Test small details before making final design choices.
+            - heading "Designed around real routines" [level=2] [ref=f3e70]
+            - paragraph [ref=f3e71]: "A useful product earns its place by making a familiar task feel easier. The difference often comes from quiet details: a comfortable grip, a clear control, or a surface that is simple to clean."
+            - paragraph [ref=f3e72]: Imagine a small team testing early prototypes around the office. Each person notices something different, and those observations become the next round of improvements.
+            - figure [ref=f3e74]:
+              - img "Hiking" [ref=f3e77]
+              - paragraph [ref=f3e80]: An outdoor moment, selected from the existing media library for this layout preview.
+            - heading "Materials that feel right" [level=2] [ref=f3e81]
+            - paragraph [ref=f3e82]: Texture, weight, and finish shape the first impression. A balanced material palette can make a product feel approachable while supporting the way it will be used every day.
+            - heading "Making the final choice" [level=2] [ref=f3e83]
+            - paragraph [ref=f3e84]: The best design decisions connect appearance with purpose. Start with the everyday task, test the details, and keep the experience clear from the first use.
+            - generic [ref=f3e87]:
+              - img "Family Moments" [ref=f3e90]
+              - generic [ref=f3e91]:
+                - heading "Find ideas for your next project" [level=2] [ref=f3e92]
+                - paragraph [ref=f3e94]: Discover more product stories, practical guides, and thoughtful design ideas from the Ecolitea journal.
+                - link "Explore the journal" [ref=f3e96] [cursor=pointer]:
+                  - /url: /blogs
+          - region "Share this article" [ref=f3e98]:
+            - paragraph [ref=f3e99]: Share this article
+            - generic [ref=f3e100]:
+              - link "Share on x" [ref=f3e101] [cursor=pointer]:
+                - /url: https://www.x.com/share?url=http%3A%2F%2Flocalhost%3A3000%2Fblogs%2Fsmall-details-better-everyday-products&title=Small%20details%2C%20better%20everyday%20products
+              - link "Share on linkedin" [ref=f3e102] [cursor=pointer]:
+                - /url: https://www.linkedin.com/share?url=http%3A%2F%2Flocalhost%3A3000%2Fblogs%2Fsmall-details-better-everyday-products&title=Small%20details%2C%20better%20everyday%20products
+              - link "Share on Facebook" [ref=f3e103] [cursor=pointer]:
+                - /url: https://www.facebook.com/share?url=http%3A%2F%2Flocalhost%3A3000%2Fblogs%2Fsmall-details-better-everyday-products&title=Small%20details%2C%20better%20everyday%20products
+              - generic [ref=f3e104]:
+                - button "Copy link" [ref=f3e105] [cursor=pointer]
+                - status
+      - region "More to read" [ref=f3e109]:
+        - heading "More to read" [level=2] [ref=f3e110]
+        - generic [ref=f3e111]:
+          - article [ref=f3e112]:
+            - link "Read Built for moments outside" [ref=f3e113] [cursor=pointer]:
+              - /url: /blogs/built-for-moments-outside
+              - img "Hiking" [ref=f3e116]
+            - generic [ref=f3e117]:
+              - link "Product Insights" [ref=f3e118] [cursor=pointer]:
+                - /url: /blogs/category/product-insights
+              - heading [level=3] [ref=f3e119]:
+                - link "Built for moments outside" [ref=f3e120] [cursor=pointer]:
+                  - /url: /blogs/built-for-moments-outside
+              - paragraph [ref=f3e121]: A field-note style story about simple gear, open spaces, and products that fit naturally into an active day.
+          - article [ref=f3e122]:
+            - link "Read A closer look at materials that last" [ref=f3e123] [cursor=pointer]:
+              - /url: /blogs/a-closer-look-at-materials-that-last
+              - img "Cycling POV" [ref=f3e126]
+            - generic [ref=f3e127]:
+              - link "Sustainability" [ref=f3e128] [cursor=pointer]:
+                - /url: /blogs/category/sustainability
+              - heading [level=3] [ref=f3e129]:
+                - link "A closer look at materials that last" [ref=f3e130] [cursor=pointer]:
+                  - /url: /blogs/a-closer-look-at-materials-that-last
+              - paragraph [ref=f3e131]: A practical look at texture, durability, and the material decisions that help products stay useful for longer.
+          - article [ref=f3e132]:
+            - link "Read From first sketch to everyday habit" [ref=f3e133] [cursor=pointer]:
+              - /url: /blogs/from-first-sketch-to-everyday-habit
+              - img "Scuba Diving" [ref=f3e136]
+            - generic [ref=f3e137]:
+              - link "Design & Innovation" [ref=f3e138] [cursor=pointer]:
+                - /url: /blogs/category/design--innovation
+              - heading [level=3] [ref=f3e139]:
+                - link "From first sketch to everyday habit" [ref=f3e140] [cursor=pointer]:
+                  - /url: /blogs/from-first-sketch-to-everyday-habit
+              - paragraph [ref=f3e141]: Follow an illustrative design journey from an early idea to a product that feels at home in a daily routine.
+  - contentinfo [ref=f3e142]:
+    - generic [ref=f3e143]:
+      - generic [ref=f3e144]:
+        - region "Brand" [ref=f3e145]:
+          - link [ref=f3e146] [cursor=pointer]:
+            - /url: /
+            - img "ecolitea-logo-dark" [ref=f3e147]
+          - paragraph [ref=f3e148]: Ecolitea is a B2B company providing reliable products and tailored solutions to customers worldwide.
+          - list "Social media" [ref=f3e149]:
+            - listitem [ref=f3e150]:
+              - link "LinkedIn" [ref=f3e151] [cursor=pointer]:
+                - /url: https://example.com/ecolitea/linkedin
+            - listitem [ref=f3e152]:
+              - link "YouTube" [ref=f3e153] [cursor=pointer]:
+                - /url: https://example.com/ecolitea/youtube
+            - listitem [ref=f3e154]:
+              - link "Facebook" [ref=f3e155] [cursor=pointer]:
+                - /url: https://example.com/ecolitea/facebook
+            - listitem [ref=f3e156]:
+              - link "Instagram" [ref=f3e157] [cursor=pointer]:
+                - /url: https://example.com/ecolitea/instagram
+            - listitem [ref=f3e158]:
+              - link "X" [ref=f3e159] [cursor=pointer]:
+                - /url: https://example.com/ecolitea/x
+        - navigation "Footer" [ref=f3e160]:
+          - button "Products" [ref=f3e162]:
+            - generic [aria-hidden] [ref=f3e164]: +
+          - button "Solutions" [ref=f3e166]:
+            - generic [aria-hidden] [ref=f3e168]: +
+          - button "Resources" [ref=f3e170]:
+            - generic [aria-hidden] [ref=f3e172]: +
+          - button "Company" [ref=f3e174]:
+            - generic [aria-hidden] [ref=f3e176]: +
+        - generic [ref=f3e177]:
+          - region "Newsletter" [ref=f3e178]:
+            - heading "SUBSCRIBE TO OUR NEWSLETTER" [level=2] [ref=f3e179]
+            - paragraph [ref=f3e180]: Unlock savings & perks, members-only offers.
+            - generic [ref=f3e181]:
+              - textbox "Email address" [disabled] [ref=f3e182]
+              - button "Subscribe" [disabled] [ref=f3e183]
+          - list [ref=f3e185]:
+            - listitem [ref=f3e186]:
+              - generic [ref=f3e190]: 5425 Janet Ct, OAK FOREST, IL 60452-3740, United States
+            - listitem [ref=f3e191]:
+              - link "+86 1234567 8910" [ref=f3e194] [cursor=pointer]:
+                - /url: tel:+86 1234567 8910
+            - listitem [ref=f3e195]:
+              - link "sales@ecolitea.com" [ref=f3e199] [cursor=pointer]:
+                - /url: mailto:sales@ecolitea.com
+      - generic [ref=f3e200]:
+        - paragraph [ref=f3e201]: © 2026 Ecolitea. All rights reserved.
+        - navigation "Legal" [ref=f3e202]:
+          - list [ref=f3e203]:
+            - listitem [ref=f3e204]:
+              - link "Privacy Policy" [ref=f3e205] [cursor=pointer]:
+                - /url: /home
+            - listitem [ref=f3e206]:
+              - link "Terms" [ref=f3e207] [cursor=pointer]:
+                - /url: /home
+  - button "Open Next.js Dev Tools" [ref=f3e213] [cursor=pointer]
+  - alert [ref=f3e217]

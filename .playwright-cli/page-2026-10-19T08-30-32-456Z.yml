@@ -1,0 +1,168 @@
+- generic [active] [ref=f4e1]:
+  - generic [ref=f4e3]:
+    - complementary [ref=f4e4]:
+      - navigation [ref=f4e6]:
+        - generic [ref=f4e7]:
+          - tablist [ref=f4e8]:
+            - tab "Collections" [selected] [ref=f4e9] [cursor=pointer]
+            - tab "Folders" [ref=f4e14] [cursor=pointer]
+          - tabpanel [ref=f4e19]:
+            - generic [ref=f4e20]:
+              - generic [ref=f4e21]:
+                - button "Collections" [ref=f4e22] [cursor=pointer]
+                - generic [ref=f4e27]:
+                  - link "Pages" [ref=f4e29] [cursor=pointer]:
+                    - /url: /admin/collections/pages
+                  - link "Posts" [ref=f4e32] [cursor=pointer]:
+                    - /url: /admin/collections/posts
+                  - generic [ref=f4e34]: Media
+                  - link "Documents" [ref=f4e38] [cursor=pointer]:
+                    - /url: /admin/collections/documents
+                  - link "Categories" [ref=f4e41] [cursor=pointer]:
+                    - /url: /admin/collections/categories
+                  - link "Case Studies" [ref=f4e44] [cursor=pointer]:
+                    - /url: /admin/collections/case-studies
+                  - link "Users" [ref=f4e47] [cursor=pointer]:
+                    - /url: /admin/collections/users
+                  - link "Redirects" [ref=f4e50] [cursor=pointer]:
+                    - /url: /admin/collections/redirects
+                  - link "Forms" [ref=f4e53] [cursor=pointer]:
+                    - /url: /admin/collections/forms
+                  - link "Form Submissions" [ref=f4e56] [cursor=pointer]:
+                    - /url: /admin/collections/form-submissions
+                  - link "Search Results" [ref=f4e59] [cursor=pointer]:
+                    - /url: /admin/collections/search
+              - generic [ref=f4e61]:
+                - button "Globals" [ref=f4e62] [cursor=pointer]
+                - generic [ref=f4e67]:
+                  - link "Header" [ref=f4e69] [cursor=pointer]:
+                    - /url: /admin/globals/header
+                  - link "Footer" [ref=f4e72] [cursor=pointer]:
+                    - /url: /admin/globals/footer
+                  - link "Site Settings" [ref=f4e75] [cursor=pointer]:
+                    - /url: /admin/globals/site-settings
+                  - link "Settings" [ref=f4e78] [cursor=pointer]:
+                    - /url: /admin/globals/settings
+              - generic [ref=f4e80]:
+                - button "Blog" [ref=f4e81] [cursor=pointer]
+                - generic [ref=f4e86]:
+                  - link "Blogs" [ref=f4e88] [cursor=pointer]:
+                    - /url: /admin/collections/blogs
+                  - link "Blog Categories" [ref=f4e91] [cursor=pointer]:
+                    - /url: /admin/collections/blog-categories
+    - generic [ref=f4e93]:
+      - banner [ref=f4e94]:
+        - generic [ref=f4e96]:
+          - generic [ref=f4e98]:
+            - button "Open Menu" [ref=f4e99] [cursor=pointer]
+            - navigation [ref=f4e101]:
+              - link "Dashboard" [ref=f4e102] [cursor=pointer]:
+                - /url: /admin
+              - generic [ref=f4e103]: /
+              - generic [ref=f4e104]: Media
+          - button "Account" [ref=f4e107] [cursor=pointer]:
+            - img "yas" [ref=f4e108]
+      - generic [ref=f4e109]:
+        - banner [ref=f4e110]:
+          - generic [ref=f4e112]:
+            - heading "Media" [level=1] [ref=f4e113]
+            - button "Bulk Upload" [ref=f4e115] [cursor=pointer]
+          - generic [ref=f4e116]: "Images: JPEG, PNG, WebP, AVIF, GIF; ratios 1:1, 4:3, 3:2, 16:9, 9:16, 4:5 (1% tolerance). Video: MP4, H.264, AAC or MP3 audio; maximum 100 MB and 10 minutes; ratios 16:9, 9:16, 1:1, 4:5 (1% tolerance). Enable Fast Start / Web Optimized when exporting video."
+        - generic [ref=f4e120]:
+          - generic [ref=f4e122]:
+            - textbox "Search" [ref=f4e123]: Coastal
+            - button "Clear" [ref=f4e124] [cursor=pointer]
+          - generic [ref=f4e126]:
+            - button "Filters" [ref=f4e127] [cursor=pointer]
+            - button "Group by" [ref=f4e130] [cursor=pointer]
+            - button "Columns" [ref=f4e133] [cursor=pointer]
+            - link "Create New" [ref=f4e134] [cursor=pointer]:
+              - /url: /admin/collections/media/create
+        - table [ref=f4e138]:
+          - rowgroup [ref=f4e139]:
+            - row [ref=f4e140]:
+              - columnheader [ref=f4e141]:
+                - checkbox "Select all rows" [ref=f4e145]
+              - columnheader "File Name Sort by File Name Descending Sort by File Name Ascending" [ref=f4e147]:
+                - generic [ref=f4e148]:
+                  - generic [ref=f4e149]: File Name
+                  - generic [ref=f4e150]:
+                    - button "Sort by File Name Descending" [ref=f4e151] [cursor=pointer]
+                    - button "Sort by File Name Ascending" [ref=f4e154] [cursor=pointer]
+              - columnheader "Alt Sort by Alt Descending Sort by Alt Ascending" [ref=f4e157]:
+                - generic [ref=f4e158]:
+                  - generic [ref=f4e159]: Alt
+                  - generic [ref=f4e160]:
+                    - button "Sort by Alt Descending" [ref=f4e161] [cursor=pointer]
+                    - button "Sort by Alt Ascending" [ref=f4e164] [cursor=pointer]
+              - columnheader "MIME Type Sort by MIME Type Descending Sort by MIME Type Ascending" [ref=f4e167]:
+                - generic [ref=f4e168]:
+                  - generic [ref=f4e169]: MIME Type
+                  - generic [ref=f4e170]:
+                    - button "Sort by MIME Type Descending" [ref=f4e171] [cursor=pointer]
+                    - button "Sort by MIME Type Ascending" [ref=f4e174] [cursor=pointer]
+              - columnheader "Width Sort by Width Descending Sort by Width Ascending" [ref=f4e177]:
+                - generic [ref=f4e178]:
+                  - generic [ref=f4e179]: Width
+                  - generic [ref=f4e180]:
+                    - button "Sort by Width Descending" [ref=f4e181] [cursor=pointer]
+                    - button "Sort by Width Ascending" [ref=f4e184] [cursor=pointer]
+              - columnheader "Filesize Sort by Filesize Descending Sort by Filesize Ascending" [ref=f4e187]:
+                - generic [ref=f4e188]:
+                  - generic [ref=f4e189]: Filesize
+                  - generic [ref=f4e190]:
+                    - button "Sort by Filesize Descending" [ref=f4e191] [cursor=pointer]
+                    - button "Sort by Filesize Ascending" [ref=f4e194] [cursor=pointer]
+              - columnheader "Folder Sort by Folder Descending Sort by Folder Ascending" [ref=f4e197]:
+                - generic [ref=f4e198]:
+                  - generic [ref=f4e199]: Folder
+                  - generic [ref=f4e200]:
+                    - button "Sort by Folder Descending" [ref=f4e201] [cursor=pointer]
+                    - button "Sort by Folder Ascending" [ref=f4e204] [cursor=pointer]
+              - columnheader "Updated At Sort by Updated At Descending Sort by Updated At Ascending" [ref=f4e207]:
+                - generic [ref=f4e208]:
+                  - generic [ref=f4e209]: Updated At
+                  - generic [ref=f4e210]:
+                    - button "Sort by Updated At Descending" [ref=f4e211] [cursor=pointer]
+                    - button "Sort by Updated At Ascending" [ref=f4e214] [cursor=pointer]
+          - rowgroup [ref=f4e217]:
+            - row [ref=f4e218]:
+              - cell [ref=f4e219]:
+                - checkbox "Select header-interest-16.jpg" [ref=f4e223]
+              - cell [ref=f4e225]:
+                - link "header-interest-16.jpg header-interest-16.jpg" [ref=f4e226] [cursor=pointer]:
+                  - /url: /admin/collections/media/6aaa48153b01909772704a69
+                  - generic [ref=f4e227]:
+                    - img "header-interest-16.jpg" [ref=f4e229]
+                    - generic [ref=f4e230]: header-interest-16.jpg
+              - cell "Coastal Rides" [ref=f4e231]
+              - cell "image/jpeg" [ref=f4e233]
+              - cell "960 × 540" [ref=f4e235]
+              - cell "119KB" [ref=f4e237]
+              - cell [ref=f4e239]:
+                - button "None" [ref=f4e241] [cursor=pointer]
+              - cell "October 18th 2026, 7:27 PM" [ref=f4e242]
+        - generic [ref=f4e245]:
+          - generic [ref=f4e246]:
+            - button [disabled] [ref=f4e247]
+            - button [disabled] [ref=f4e250]
+            - generic [ref=f4e253]:
+              - textbox "Go to page" [disabled] [ref=f4e254]: "1"
+              - generic [ref=f4e255]: of 1
+          - generic [ref=f4e256]:
+            - generic [ref=f4e257]: 1-1 of 1
+            - generic [ref=f4e258]:
+              - generic [ref=f4e259]: "Per page:"
+              - button "20" [ref=f4e262] [cursor=pointer]
+  - status [ref=f4e263]
+  - region "Notifications alt+T"
+  - generic [ref=f4e268] [cursor=pointer]:
+    - button "Open Next.js Dev Tools" [ref=f4e269]
+    - generic [ref=f4e273]:
+      - button "Open issues overlay" [ref=f4e274]:
+        - generic [ref=f4e275]:
+          - generic [aria-hidden] [ref=f4e276]: "0"
+          - generic [ref=f4e277]: "1"
+        - generic [ref=f4e278]: Issue
+      - button "Collapse issues badge" [ref=f4e279]
+  - alert [ref=f4e282]

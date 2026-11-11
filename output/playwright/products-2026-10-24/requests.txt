@@ -1,0 +1,12 @@
+### Result
+61. [POST] http://localhost:3000/api/media => [FAILED] net::ERR_ABORTED
+62. [GET] http://localhost:3000/api/payload-preferences/collection-products-6adcb636f43c3bb2c41ea3f2 => [200] OK
+63. [POST] http://localhost:3000/api/media => [200] OK
+64. [GET] http://localhost:3000/api/payload-preferences/collection-products => [200] OK
+65. [POST] http://localhost:3000/api/product-categories => [200] OK
+66. [GET] http://localhost:3000/api/users/me => [200] OK
+67. [POST] http://localhost:3000/__nextjs_original-stack-frames => [200] OK
+68. [POST] http://localhost:3000/__nextjs_original-stack-frames => [200] OK
+69. [POST] http://localhost:3000/api/products/6adcb636f43c3bb2c41ea3f2/duplicate => [400] Bad Request
+
+Note: 60 static requests not shown, run with --static option to see them.

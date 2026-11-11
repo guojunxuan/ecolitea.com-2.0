@@ -1,0 +1,168 @@
+- generic [ref=f4e1]:
+  - generic [ref=f4e3]:
+    - complementary [ref=f4e4]:
+      - navigation [ref=f4e6]:
+        - generic [ref=f4e7]:
+          - tablist [ref=f4e8]:
+            - tab "Collections" [selected] [ref=f4e9] [cursor=pointer]
+            - tab "Folders" [ref=f4e14] [cursor=pointer]
+          - tabpanel [ref=f4e19]:
+            - generic [ref=f4e20]:
+              - generic [ref=f4e21]:
+                - button "Collections" [ref=f4e22] [cursor=pointer]
+                - generic [ref=f4e27]:
+                  - link "Pages" [ref=f4e29] [cursor=pointer]:
+                    - /url: /admin/collections/pages
+                  - link "Posts" [ref=f4e32] [cursor=pointer]:
+                    - /url: /admin/collections/posts
+                  - link "Media" [ref=f4e35] [cursor=pointer]:
+                    - /url: /admin/collections/media
+                  - link "Categories" [ref=f4e38] [cursor=pointer]:
+                    - /url: /admin/collections/categories
+                  - link "Case Studies" [ref=f4e41] [cursor=pointer]:
+                    - /url: /admin/collections/case-studies
+                  - link "Users" [ref=f4e44] [cursor=pointer]:
+                    - /url: /admin/collections/users
+                  - link "Redirects" [ref=f4e47] [cursor=pointer]:
+                    - /url: /admin/collections/redirects
+                  - link "Forms" [ref=f4e50] [cursor=pointer]:
+                    - /url: /admin/collections/forms
+                  - link "Form Submissions" [ref=f4e53] [cursor=pointer]:
+                    - /url: /admin/collections/form-submissions
+                  - link "Search Results" [ref=f4e56] [cursor=pointer]:
+                    - /url: /admin/collections/search
+              - generic [ref=f4e58]:
+                - button "Globals" [ref=f4e59] [cursor=pointer]
+                - generic [ref=f4e64]:
+                  - link "Header" [ref=f4e66] [cursor=pointer]:
+                    - /url: /admin/globals/header
+                  - link "Footer" [ref=f4e69] [cursor=pointer]:
+                    - /url: /admin/globals/footer
+                  - link "Site Settings" [ref=f4e72] [cursor=pointer]:
+                    - /url: /admin/globals/site-settings
+                  - link "Settings" [ref=f4e75] [cursor=pointer]:
+                    - /url: /admin/globals/settings
+              - generic [ref=f4e77]:
+                - button "Blog" [ref=f4e78] [cursor=pointer]
+                - generic [ref=f4e83]:
+                  - link "Blogs" [ref=f4e85] [cursor=pointer]:
+                    - /url: /admin/collections/blogs
+                  - link "Blog Categories" [ref=f4e88] [cursor=pointer]:
+                    - /url: /admin/collections/blog-categories
+    - generic [ref=f4e90]:
+      - banner [ref=f4e91]:
+        - generic [ref=f4e93]:
+          - generic [ref=f4e95]:
+            - button "Open Menu" [ref=f4e96] [cursor=pointer]
+            - navigation [ref=f4e98]:
+              - link "Dashboard" [ref=f4e99] [cursor=pointer]:
+                - /url: /admin
+              - generic [ref=f4e100]: /
+              - link "Media" [ref=f4e101] [cursor=pointer]:
+                - /url: /admin/collections/media
+              - generic [ref=f4e102]: /
+              - link "截屏2026-08-06 14.03.23.png" [ref=f4e103] [cursor=pointer]:
+                - /url: /admin/collections/media/6ad3753e4c57280026ccbf2a
+          - button "Account" [ref=f4e106] [cursor=pointer]:
+            - img "yas" [ref=f4e107]
+      - generic [ref=f4e108]:
+        - heading "截屏2026-08-06 14.03.23.png" [level=1] [ref=f4e109]
+        - list [ref=f4e112]:
+          - generic "Edit" [ref=f4e113]
+          - link "Versions" [ref=f4e114] [cursor=pointer]:
+            - /url: /admin/collections/media/6ad3753e4c57280026ccbf2a/versions
+            - generic:
+              - generic:
+                - generic:
+                  - text: Versions
+                  - generic: "2"
+          - link "API" [ref=f4e115] [cursor=pointer]:
+            - /url: /admin/collections/media/6ad3753e4c57280026ccbf2a/api
+      - main [ref=f4e116]:
+        - generic [ref=f4e117]:
+          - generic [ref=f4e118]:
+            - generic [ref=f4e119]:
+              - button "None" [ref=f4e121] [cursor=pointer]
+              - list [ref=f4e122]:
+                - listitem "October 17th 2026, 9:16 PM" [ref=f4e123]:
+                  - paragraph [ref=f4e124]: Updated 40 minutes ago
+            - generic [ref=f4e125]:
+              - button "Save" [disabled] [ref=f4e128]
+              - button "More options" [ref=f4e131] [cursor=pointer]
+          - generic [ref=f4e132]:
+            - generic [ref=f4e137]:
+              - generic [ref=f4e138]:
+                - generic [ref=f4e139]: Alt
+                - textbox "Alt" [ref=f4e141]
+              - generic [ref=f4e142]:
+                - generic [ref=f4e143]: Caption
+                - generic [ref=f4e146]:
+                  - generic [ref=f4e148]:
+                    - button "add dropdown" [ref=f4e150] [cursor=pointer]
+                    - button "text dropdown" [ref=f4e156] [cursor=pointer]
+                    - generic [ref=f4e161]:
+                      - button "Bold" [ref=f4e162] [cursor=pointer]
+                      - button "Italic" [ref=f4e165] [cursor=pointer]
+                      - button "Underline" [ref=f4e168] [cursor=pointer]
+                      - button "Strikethrough" [ref=f4e171] [cursor=pointer]
+                      - button "Subscript" [ref=f4e174] [cursor=pointer]
+                      - button "Superscript" [ref=f4e177] [cursor=pointer]
+                      - button "Inline Code" [ref=f4e180] [cursor=pointer]
+                    - button "Link" [ref=f4e185] [cursor=pointer]
+                  - generic [ref=f4e188]:
+                    - generic [ref=f4e190]:
+                      - textbox [ref=f4e191]:
+                        - paragraph [ref=f4e192]
+                      - paragraph: Start typing, or press '/' for commands...
+                      - button "Drag to move" [ref=f4e193]
+                      - button "Add block" [ref=f4e195] [cursor=pointer]
+                      - generic [ref=f4e201]:
+                        - button "Edit link" [ref=f4e202] [cursor=pointer]
+                        - button "Remove link" [ref=f4e205] [cursor=pointer]
+                    - button "Insert Paragraph" [ref=f4e208]
+            - generic [ref=f4e213]:
+              - generic [ref=f4e214]:
+                - button "截屏2026-08-06 14.03.23.png" [ref=f4e218] [cursor=pointer]
+                - generic [ref=f4e223]:
+                  - button [ref=f4e224] [cursor=pointer]
+                  - button "Edit Image" [ref=f4e227] [cursor=pointer]
+                  - link "Open in new tab" [ref=f4e228] [cursor=pointer]:
+                    - /url: https://media-dev.ecolitea.com/截屏2026-08-06 14.03.23.png
+                  - link "Download" [ref=f4e231] [cursor=pointer]:
+                    - /url: https://media-dev.ecolitea.com/截屏2026-08-06 14.03.23.png
+              - generic [ref=f4e236]:
+                - img "截屏2026-08-06 14.03.23.png" [ref=f4e239]
+                - generic [ref=f4e240]:
+                  - generic [ref=f4e241]: Original
+                  - generic [ref=f4e242]: 1356 × 910 – 2MB – image/png
+      - status [ref=f4e243]
+  - status [ref=f4e244]
+  - dialog "hierarchy-modal_1__R_35hlqjeatpesneb6jd9etb_" [ref=f4e265]:
+    - document [ref=f4e266]:
+      - generic [ref=f4e267]:
+        - generic [ref=f4e268]:
+          - heading "Select a value" [level=4] [ref=f4e269]
+          - generic [ref=f4e272]:
+            - button "Cancel" [active] [ref=f4e273] [cursor=pointer]
+            - button "Select" [ref=f4e274] [cursor=pointer]
+        - generic [ref=f4e275]:
+          - heading "Folders" [level=4] [ref=f4e280]
+          - generic [ref=f4e284]:
+            - generic [ref=f4e285]:
+              - generic [ref=f4e286]: All
+              - button "New Folder" [ref=f4e287] [cursor=pointer]
+            - generic [ref=f4e288]:
+              - button "led bathroom mirror" [ref=f4e289] [cursor=pointer]:
+                - checkbox [ref=f4e294]
+              - paragraph [ref=f4e301]: Showing 1 of 1
+  - region "Notifications alt+T"
+  - generic [ref=f4e249] [cursor=pointer]:
+    - button "Open Next.js Dev Tools" [ref=f4e250]
+    - generic [ref=f4e254]:
+      - button "Open issues overlay" [ref=f4e255]:
+        - generic [ref=f4e256]:
+          - generic [aria-hidden] [ref=f4e257]: "0"
+          - generic [ref=f4e258]: "1"
+        - generic [ref=f4e259]: Issue
+      - button "Collapse issues badge" [ref=f4e260]
+  - alert [ref=f4e263]
