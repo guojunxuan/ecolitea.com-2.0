@@ -55,7 +55,10 @@ export default async function ProductPage({ params }: Args) {
             specifications={product.specifications}
             overview={product.overview}
           />
-          <ProductActions downloads={product.downloads} />
+          <ProductActions
+            downloads={product.downloads}
+            product={{ title: product.title, slug: product.slug }}
+          />
         </div>
       </header>
       <ProductDetailNav
