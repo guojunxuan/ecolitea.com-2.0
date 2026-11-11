@@ -207,6 +207,7 @@ Copy `.env.example` to `.env` and replace its placeholders. The main configurati
 - Application: `DATABASE_URI`, `PAYLOAD_SECRET`, `NEXT_PUBLIC_SERVER_URL`
 - Payload operations: `CRON_SECRET`, `PREVIEW_SECRET`
 - R2 storage: `R2_BUCKET`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_ENDPOINT`, `R2_PUBLIC_URL`
+- Request a quote: `NEXT_PUBLIC_TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY`, `QUOTE_IP_HASH_SALT` (use Cloudflare's test keys locally; separate keys per environment; the proxy must overwrite `X-Forwarded-For`)
 - Public URLs and optional integrations: see `.env.example`
 
 Never commit `.env`, database credentials, Payload secrets, or R2 access keys.
