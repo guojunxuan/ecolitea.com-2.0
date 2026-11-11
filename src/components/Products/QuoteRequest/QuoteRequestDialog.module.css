@@ -1,0 +1,46 @@
+.dialog {
+  composes: dialog from '../ProductActions/DownloadDialog.module.css';
+}
+.surface {
+  composes: surface from '../ProductActions/DownloadDialog.module.css';
+}
+.header {
+  flex-shrink: 0;
+  composes: header from '../ProductActions/DownloadDialog.module.css';
+}
+.title {
+  composes: title from '../ProductActions/DownloadDialog.module.css';
+}
+.trigger:not(:disabled) {
+  color: var(--website-color-action-foreground);
+  border-color: transparent;
+  background: var(--website-color-action);
+}
+.body {
+  display: flex;
+  min-height: 0;
+  overflow: hidden;
+}
+.done {
+  padding: var(--website-space-6);
+  overflow-y: auto;
+  display: grid;
+  gap: var(--website-space-4);
+  justify-items: start;
+  composes: website-type-body-md from global;
+}
+.product {
+  composes: website-type-body-md from global;
+  margin: 0;
+  color: var(--website-color-muted-foreground);
+}
+
+@media (width < 48rem) {
+  .dialog {
+    width: 100%;
+    max-width: 100%;
+    max-height: 100svh;
+    margin: auto 0 0;
+    border-radius: var(--website-radius-panel) var(--website-radius-panel) 0 0;
+  }
+}
