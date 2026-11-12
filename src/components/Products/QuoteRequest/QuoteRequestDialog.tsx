@@ -1,6 +1,6 @@
 'use client'
 
-import { X } from 'lucide-react'
+import { Check, X } from 'lucide-react'
 import { useEffect, useId, useRef, useState } from 'react'
 
 import { Button } from '@/components/ui/button'
@@ -18,8 +18,14 @@ export function QuoteRequestDialog({ product }: { product: QuoteRequestProduct }
   const dialog = useRef<HTMLDialogElement>(null)
   const titleId = useId()
   const title = useRef<HTMLHeadingElement>(null)
+  const successTitle = useRef<HTMLHeadingElement>(null)
   const trigger = useRef<HTMLButtonElement>(null)
   const [view, setView] = useState<View>('closed')
+  const [submittedName, setSubmittedName] = useState('')
+
+  useEffect(() => {
+    if (view === 'done') successTitle.current?.focus()
+  }, [view])
 
   useEffect(
     () => () => {
@@ -37,6 +43,7 @@ export function QuoteRequestDialog({ product }: { product: QuoteRequestProduct }
         aria-haspopup="dialog"
         onClick={() => {
           setView('form')
+          setSubmittedName('')
           document.documentElement.style.overflow = 'hidden'
           dialog.current?.showModal()
           title.current?.focus()
@@ -59,13 +66,22 @@ export function QuoteRequestDialog({ product }: { product: QuoteRequestProduct }
       >
         <div className={styles.surface}>
           <header className={styles.header}>
-            <h2 ref={title} id={titleId} tabIndex={-1} className={styles.title}>
-              Request a quote
-            </h2>
+            {view !== 'done' && (
+              <div className={styles.intro}>
+                <p className={styles.eyebrow}>Get pricing</p>
+                <h2 ref={title} id={titleId} tabIndex={-1} className={styles.title}>
+                  Request a quote
+                </h2>
+                <p className={styles.description}>
+                  Tell us what you need and our team will reply with pricing and lead times.
+                </p>
+              </div>
+            )}
             <Button
               type="button"
               variant="ghost"
               size="icon"
+              className={styles.close}
               aria-label="Close"
               onClick={() => dialog.current?.close()}
             >
@@ -74,13 +90,31 @@ export function QuoteRequestDialog({ product }: { product: QuoteRequestProduct }
           </header>
           <div className={styles.body}>
             {view === 'form' && (
-              <QuoteRequestForm product={product} onSuccess={() => setView('done')} />
+              <QuoteRequestForm
+                product={product}
+                onSuccess={(name) => {
+                  setSubmittedName(name)
+                  setView('done')
+                }}
+              />
             )}
             {view === 'done' && (
               <div className={styles.done}>
-                <p className={styles.product}>{product.title}</p>
-                <p>We&apos;ve received your request and will get back to you shortly.</p>
-                <Button type="button" variant="outline" onClick={() => dialog.current?.close()}>
+                <div className={styles.successIcon}>
+                  <Check aria-hidden="true" />
+                </div>
+                <h2 ref={successTitle} id={titleId} tabIndex={-1} className={styles.title}>
+                  Thank you, {submittedName}!
+                </h2>
+                <p className={styles.confirmation}>
+                  We&apos;ve received your request for <strong>{product.title}</strong> and will get
+                  back to you shortly.
+                </p>
+                <Button
+                  type="button"
+                  className={styles.doneClose}
+                  onClick={() => dialog.current?.close()}
+                >
                   Close
                 </Button>
               </div>

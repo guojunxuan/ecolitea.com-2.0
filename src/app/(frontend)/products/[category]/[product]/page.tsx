@@ -57,7 +57,12 @@ export default async function ProductPage({ params }: Args) {
           />
           <ProductActions
             downloads={product.downloads}
-            product={{ title: product.title, slug: product.slug }}
+            product={{
+              title: product.title,
+              slug: product.slug,
+              categoryTitle: product.category?.title,
+              thumbnail: product.gallery[0],
+            }}
           />
         </div>
       </header>
