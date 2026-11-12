@@ -1,7 +1,10 @@
 'use client'
 
 import { useEffect, useId, useRef, useState, type FormEvent } from 'react'
+import { ArrowRight, CircleAlert } from 'lucide-react'
 
+import { Media } from '@/components/Media'
+import type { ProductDetail } from '@/utilities/products/models'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -16,7 +19,12 @@ import {
 import styles from './QuoteRequestForm.module.css'
 import { TurnstileWidget } from './TurnstileWidget'
 
-export type QuoteRequestProduct = { title: string; slug: string }
+export type QuoteRequestProduct = {
+  title: string
+  slug: string
+  categoryTitle?: string
+  thumbnail?: ProductDetail['gallery'][number]
+}
 
 const emptyValues: Record<QuoteField, string> = { name: '', email: '', company: '', message: '' }
 const messages = {
@@ -32,7 +40,7 @@ export function QuoteRequestForm({
   onSuccess,
 }: {
   product: QuoteRequestProduct
-  onSuccess: () => void
+  onSuccess: (name: string) => void
 }) {
   const id = useId()
   const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY
@@ -101,7 +109,7 @@ export function QuoteRequestForm({
       } | null
       if (!active.current) return
       if (response.ok && result?.ok) {
-        onSuccess()
+        onSuccess(values.name.trim())
         return
       }
       refreshVerification()
@@ -123,7 +131,13 @@ export function QuoteRequestForm({
     }
   }
 
-  const field = (name: QuoteField, label: string, control: 'input' | 'textarea', type?: string) => {
+  const field = (
+    name: QuoteField,
+    label: string,
+    placeholder: string,
+    control: 'input' | 'textarea',
+    type?: string,
+  ) => {
     const fieldId = `${id}-${name}`
     const error = errors[name]
     const shared = {
@@ -131,14 +145,18 @@ export function QuoteRequestForm({
       name,
       value: values[name],
       maxLength: QUOTE_LIMITS[name],
+      placeholder,
       readOnly: submitting,
+      'aria-required': true as const,
       'aria-invalid': error ? true : undefined,
       'aria-describedby': error ? `${fieldId}-error` : undefined,
       onBlur: () => checkField(name),
     }
     return (
       <div className={styles.field}>
-        <Label htmlFor={fieldId}>{label}</Label>
+        <Label htmlFor={fieldId}>
+          {label} <span aria-hidden="true">*</span>
+        </Label>
         {control === 'input' ? (
           <Input
             {...shared}
@@ -154,6 +172,11 @@ export function QuoteRequestForm({
             {error}
           </p>
         )}
+        {name === 'message' && (
+          <p className={styles.count}>
+            {values.message.length} / {QUOTE_LIMITS.message}
+          </p>
+        )}
       </div>
     )
   }
@@ -161,11 +184,28 @@ export function QuoteRequestForm({
   return (
     <form className={styles.form} onSubmit={handleSubmit} noValidate>
       <div className={styles.fields}>
-        <p className={styles.product}>{product.title}</p>
-        {field('name', 'Name', 'input', 'text')}
-        {field('email', 'Email', 'input', 'email')}
-        {field('company', 'Company', 'input', 'text')}
-        {field('message', 'Message', 'textarea')}
+        <div className={styles.product}>
+          {product.thumbnail && (
+            <Media
+              className={styles.thumbnail}
+              imgClassName={styles.thumbnailImage}
+              resource={product.thumbnail}
+              fill
+              size="48px"
+              presentation={{ image: { fit: 'contain' } }}
+            />
+          )}
+          <div className={styles.productText}>
+            {product.categoryTitle && <p className={styles.category}>{product.categoryTitle}</p>}
+            <p className={styles.productTitle}>{product.title}</p>
+          </div>
+        </div>
+        <div className={styles.row}>
+          {field('name', 'Name', 'Your full name', 'input', 'text')}
+          {field('company', 'Company', 'Company name', 'input', 'text')}
+        </div>
+        {field('email', 'Work email', 'name@company.com', 'input', 'email')}
+        {field('message', 'Message', 'Quantity, customization, target delivery date…', 'textarea')}
         {siteKey && (
           <TurnstileWidget
             siteKey={siteKey}
@@ -184,12 +224,15 @@ export function QuoteRequestForm({
       <div className={styles.footer}>
         {banner && (
           <p role="alert" className={styles.notice}>
-            {banner}
+            <CircleAlert aria-hidden="true" />
+            <span>{banner}</span>
           </p>
         )}
         <Button type="submit" disabled={submitting}>
-          {submitting ? 'Sending…' : 'Submit request'}
+          {submitting ? 'Sending…' : 'Send request'}
+          {!submitting && <ArrowRight aria-hidden="true" />}
         </Button>
+        <p className={styles.privacy}>We only use your details to respond to this request.</p>
       </div>
     </form>
   )

@@ -1,5 +1,6 @@
 import { DOCUMENT_UPLOAD_POLICY } from '@/collections/Documents/uploadPolicy'
 import { QuoteRequestDialog } from '@/components/Products/QuoteRequest/QuoteRequestDialog'
+import type { QuoteRequestProduct } from '@/components/Products/QuoteRequest/QuoteRequestForm'
 import type { ProductDownload } from '@/utilities/products/models'
 
 import { DownloadDialog } from './DownloadDialog'
@@ -29,7 +30,7 @@ export function ProductActions({
   product,
 }: {
   downloads: ProductDownload[]
-  product: { title: string; slug: string }
+  product: QuoteRequestProduct
 }) {
   return (
     <div className={styles.actions}>

@@ -4,6 +4,8 @@ import { act, cleanup, fireEvent, render, screen, waitFor, within } from '@testi
 
 import { QuoteRequestDialog } from '@/components/Products/QuoteRequest/QuoteRequestDialog'
 import { QuoteRequestForm } from '@/components/Products/QuoteRequest/QuoteRequestForm'
+import type { Media } from '@/payload-types'
+import { QUOTE_LIMITS } from '@/utilities/quoteRequests/validate'
 
 // The real widget loads Cloudflare's script. This stand-in exposes the same contract.
 vi.mock('@/components/Products/QuoteRequest/TurnstileWidget', () => ({
@@ -30,10 +32,16 @@ vi.mock('@/components/Products/QuoteRequest/TurnstileWidget', () => ({
 const product = { title: 'Paper Bag', slug: 'bag' }
 
 const fillValid = () => {
-  fireEvent.change(screen.getByLabelText('Name'), { target: { value: 'Ada' } })
-  fireEvent.change(screen.getByLabelText('Email'), { target: { value: 'ada@example.com' } })
-  fireEvent.change(screen.getByLabelText('Company'), { target: { value: 'Lovelace Ltd' } })
-  fireEvent.change(screen.getByLabelText('Message'), { target: { value: 'Need 500 units' } })
+  fireEvent.change(screen.getByRole('textbox', { name: 'Name' }), { target: { value: 'Ada' } })
+  fireEvent.change(screen.getByRole('textbox', { name: 'Work email' }), {
+    target: { value: 'ada@example.com' },
+  })
+  fireEvent.change(screen.getByRole('textbox', { name: 'Company' }), {
+    target: { value: 'Lovelace Ltd' },
+  })
+  fireEvent.change(screen.getByRole('textbox', { name: 'Message' }), {
+    target: { value: 'Need 500 units' },
+  })
 }
 
 const reply = (status: number, json: unknown) =>
@@ -49,17 +57,95 @@ describe('QuoteRequestForm', () => {
     vi.unstubAllEnvs()
   })
 
+  it('provides accessible required fields, placeholders and a live message count', () => {
+    render(<QuoteRequestForm product={product} onSuccess={vi.fn()} />)
+    const controls = [
+      ['Name', 'Your full name'],
+      ['Company', 'Company name'],
+      ['Work email', 'name@company.com'],
+      ['Message', 'Quantity, customization, target delivery date…'],
+    ]
+    for (const [label, placeholder] of controls) {
+      const control = screen.getByRole('textbox', { name: label })
+      expect(control.getAttribute('aria-required')).toBe('true')
+      expect(control.getAttribute('placeholder')).toBe(placeholder)
+      expect(
+        document.querySelector(`label[for="${control.id}"] [aria-hidden="true"]`)?.textContent,
+      ).toBe('*')
+    }
+    expect(document.querySelector('form')?.noValidate).toBe(true)
+    expect(screen.getByText(`0 / ${QUOTE_LIMITS.message}`)).toBeTruthy()
+    fireEvent.change(screen.getByRole('textbox', { name: 'Message' }), {
+      target: { value: 'Hello' },
+    })
+    expect(screen.getByText(`5 / ${QUOTE_LIMITS.message}`)).toBeTruthy()
+    expect(screen.getByRole('textbox', { name: 'Message' }).getAttribute('maxLength')).toBe(
+      String(QUOTE_LIMITS.message),
+    )
+    fireEvent.blur(screen.getByRole('textbox', { name: 'Name' }))
+    const errorId = screen.getByRole('textbox', { name: 'Name' }).getAttribute('aria-describedby')!
+    expect(document.getElementById(errorId)?.textContent).toBe('Name is required.')
+    expect(screen.getByText('We only use your details to respond to this request.')).toBeTruthy()
+    expect(
+      screen
+        .getByRole('button', { name: 'Send request' })
+        .querySelector('svg')
+        ?.getAttribute('aria-hidden'),
+    ).toBe('true')
+  })
+
+  it('renders a populated product thumbnail through Media alongside its category', () => {
+    const thumbnail = {
+      id: 'image',
+      url: '/bag.jpg',
+      alt: 'Paper bag thumbnail',
+      mimeType: 'image/jpeg',
+      width: 800,
+      height: 600,
+      updatedAt: '2026-11-12T00:00:00Z',
+      createdAt: '2026-11-12T00:00:00Z',
+    } as Media
+    render(
+      <QuoteRequestForm
+        product={{ ...product, categoryTitle: 'Packaging', thumbnail }}
+        onSuccess={vi.fn()}
+      />,
+    )
+    expect(screen.getByText('Packaging')).toBeTruthy()
+    const image = screen.getByRole('img', { name: 'Paper bag thumbnail' })
+    expect(image.getAttribute('data-media-kind')).toBe('image')
+    expect(image.getAttribute('sizes')).toBe('48px')
+    expect(screen.getByText('Paper Bag')).toBeTruthy()
+  })
+
+  it('omits the thumbnail and category when unavailable', () => {
+    render(<QuoteRequestForm product={product} onSuccess={vi.fn()} />)
+    expect(screen.queryByRole('img')).toBeNull()
+    expect(screen.queryByText('Packaging')).toBeNull()
+    expect(screen.getByText('Paper Bag')).toBeTruthy()
+  })
+
+  it('keeps the category without reserving a missing thumbnail', () => {
+    render(
+      <QuoteRequestForm product={{ ...product, categoryTitle: 'Packaging' }} onSuccess={vi.fn()} />,
+    )
+    expect(screen.getByText('Packaging')).toBeTruthy()
+    expect(screen.queryByRole('img')).toBeNull()
+  })
+
   it('shows the product read-only and validates fields before sending', () => {
     const fetchSpy = vi.fn()
     vi.stubGlobal('fetch', fetchSpy)
     render(<QuoteRequestForm product={product} onSuccess={vi.fn()} />)
     expect(screen.getByText('Paper Bag')).toBeTruthy()
     fireEvent.click(screen.getByRole('button', { name: 'Pass verification' }))
-    fireEvent.click(screen.getByRole('button', { name: 'Submit request' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Send request' }))
     expect(screen.getByText('Name is required.')).toBeTruthy()
     expect(screen.getByText('Message is required.')).toBeTruthy()
-    fireEvent.change(screen.getByLabelText('Email'), { target: { value: 'nope' } })
-    fireEvent.blur(screen.getByLabelText('Email'))
+    fireEvent.change(screen.getByRole('textbox', { name: 'Work email' }), {
+      target: { value: 'nope' },
+    })
+    fireEvent.blur(screen.getByRole('textbox', { name: 'Work email' }))
     expect(screen.getByText('Enter a valid email address.')).toBeTruthy()
     expect(fetchSpy).not.toHaveBeenCalled()
   })
@@ -69,8 +155,9 @@ describe('QuoteRequestForm', () => {
     vi.stubGlobal('fetch', fetchSpy)
     render(<QuoteRequestForm product={product} onSuccess={vi.fn()} />)
     fillValid()
-    fireEvent.click(screen.getByRole('button', { name: 'Submit request' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Send request' }))
     expect(screen.getByRole('alert').textContent).toContain('complete the verification')
+    expect(screen.getByRole('alert').querySelector('svg')?.getAttribute('aria-hidden')).toBe('true')
     expect(fetchSpy).not.toHaveBeenCalled()
   })
 
@@ -81,9 +168,9 @@ describe('QuoteRequestForm', () => {
     render(<QuoteRequestForm product={product} onSuccess={onSuccess} />)
     fillValid()
     fireEvent.click(screen.getByRole('button', { name: 'Pass verification' }))
-    fireEvent.click(screen.getByRole('button', { name: 'Submit request' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Send request' }))
     expect(screen.getByRole<HTMLButtonElement>('button', { name: 'Sending…' }).disabled).toBe(true)
-    await waitFor(() => expect(onSuccess).toHaveBeenCalledTimes(1))
+    await waitFor(() => expect(onSuccess).toHaveBeenCalledWith('Ada'))
     const [url, init] = fetchSpy.mock.calls[0] as unknown as [string, RequestInit]
     expect(url).toBe('/api/quote-requests/submit')
     expect(JSON.parse(String(init.body))).toEqual({
@@ -106,14 +193,16 @@ describe('QuoteRequestForm', () => {
     render(<QuoteRequestForm product={product} onSuccess={onSuccess} />)
     fillValid()
     fireEvent.click(screen.getByRole('button', { name: 'Pass verification' }))
-    fireEvent.click(screen.getByRole('button', { name: 'Submit request' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Send request' }))
     await waitFor(() => expect(screen.getByRole('alert').textContent).toBe(message))
-    expect((screen.getByLabelText('Name') as HTMLInputElement).value).toBe('Ada')
-    expect((screen.getByLabelText('Message') as HTMLTextAreaElement).value).toBe('Need 500 units')
+    expect((screen.getByRole('textbox', { name: 'Name' }) as HTMLInputElement).value).toBe('Ada')
+    expect((screen.getByRole('textbox', { name: 'Message' }) as HTMLTextAreaElement).value).toBe(
+      'Need 500 units',
+    )
     expect(screen.getByTestId('turnstile').getAttribute('data-reset-key')).toBe('1')
     expect(onSuccess).not.toHaveBeenCalled()
     // The single-use token was consumed, so submitting again requires a fresh one.
-    fireEvent.click(screen.getByRole('button', { name: 'Submit request' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Send request' }))
     expect(screen.getByRole('alert').textContent).toContain('complete the verification')
   })
 
@@ -129,9 +218,11 @@ describe('QuoteRequestForm', () => {
     render(<QuoteRequestForm product={product} onSuccess={vi.fn()} />)
     fillValid()
     fireEvent.click(screen.getByRole('button', { name: 'Pass verification' }))
-    fireEvent.click(screen.getByRole('button', { name: 'Submit request' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Send request' }))
     await waitFor(() => expect(screen.getByText('Enter a valid email address.')).toBeTruthy())
-    expect(screen.getByLabelText('Email').getAttribute('aria-invalid')).toBe('true')
+    expect(screen.getByRole('textbox', { name: 'Work email' }).getAttribute('aria-invalid')).toBe(
+      'true',
+    )
   })
 
   it('shows a server product error even though the product is read-only', async () => {
@@ -146,7 +237,7 @@ describe('QuoteRequestForm', () => {
     render(<QuoteRequestForm product={product} onSuccess={vi.fn()} />)
     fillValid()
     fireEvent.click(screen.getByRole('button', { name: 'Pass verification' }))
-    fireEvent.click(screen.getByRole('button', { name: 'Submit request' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Send request' }))
     await waitFor(() => expect(screen.getByRole('alert').textContent).toBe('Product not found.'))
   })
 
@@ -157,7 +248,7 @@ describe('QuoteRequestForm', () => {
     fillValid()
     fireEvent.click(screen.getByRole('button', { name: 'Pass verification' }))
     fireEvent.click(screen.getByRole('button', { name: 'Break verification' }))
-    fireEvent.click(screen.getByRole('button', { name: 'Submit request' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Send request' }))
     expect(fetchSpy).not.toHaveBeenCalled()
     expect(screen.getByRole('alert').textContent).toContain('Verification is unavailable')
   })
@@ -170,11 +261,11 @@ describe('QuoteRequestForm', () => {
     render(<QuoteRequestForm product={product} onSuccess={vi.fn()} />)
     fillValid()
     fireEvent.click(screen.getByRole('button', { name: 'Pass verification' }))
-    fireEvent.click(screen.getByRole('button', { name: 'Submit request' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Send request' }))
     await waitFor(() =>
       expect(screen.getByRole('alert').textContent).toBe('Something went wrong. Please try again.'),
     )
-    expect(screen.getByRole<HTMLButtonElement>('button', { name: 'Submit request' }).disabled).toBe(
+    expect(screen.getByRole<HTMLButtonElement>('button', { name: 'Send request' }).disabled).toBe(
       false,
     )
   })
@@ -226,6 +317,15 @@ describe('QuoteRequestDialog', () => {
     )
     expect(within(dialog).getByText('Paper Bag')).toBeTruthy()
     expect(screen.getByTestId('turnstile')).toBeTruthy()
+    expect(screen.getByText('Get pricing')).toBeTruthy()
+    expect(
+      screen.getByText(
+        'Tell us what you need and our team will reply with pricing and lead times.',
+      ),
+    ).toBeTruthy()
+    expect(document.activeElement).toBe(
+      within(dialog).getByRole('heading', { name: 'Request a quote' }),
+    )
 
     fireEvent.click(within(dialog).getByRole('button', { name: 'Close', hidden: true }))
     expect(dialog.hasAttribute('open')).toBe(false)
@@ -260,40 +360,47 @@ describe('QuoteRequestDialog', () => {
     fireEvent.click(trigger)
     fillValid()
     fireEvent.click(screen.getByRole('button', { name: 'Pass verification' }))
-    fireEvent.click(screen.getByRole('button', { name: 'Submit request' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Send request' }))
     fireEvent.click(within(dialogOf()).getByRole('button', { name: 'Close', hidden: true }))
     fireEvent.click(trigger)
     await act(async () => {
       resolveResponse(Response.json({ ok: true }))
     })
-    expect(screen.getByLabelText('Name')).toBeTruthy()
+    expect(screen.getByRole('textbox', { name: 'Name' })).toBeTruthy()
     expect(screen.queryByText(/We've received your request/)).toBeNull()
   })
 
-  it('swaps the form for a confirmation after a successful submission', async () => {
-    vi.stubGlobal('fetch', reply(200, { ok: true }))
-    render(<QuoteRequestDialog product={product} />)
-    fireEvent.click(screen.getByRole('button', { name: 'Request a quote' }))
-    fillValid()
-    fireEvent.click(screen.getByRole('button', { name: 'Pass verification' }))
-    fireEvent.click(screen.getByRole('button', { name: 'Submit request' }))
-    await waitFor(() =>
-      expect(
-        within(dialogOf()).getByText(
-          /We've received your request and will get back to you shortly/,
-          {
-            selector: 'p',
-          },
-        ),
-      ).toBeTruthy(),
-    )
-    expect(screen.queryByLabelText('Name')).toBeNull()
-    fireEvent.click(within(dialogOf()).getAllByRole('button', { name: 'Close', hidden: true })[0])
-    expect(dialogOf().hasAttribute('open')).toBe(false)
-    // Reopening starts from a clean form.
-    fireEvent.click(screen.getByRole('button', { name: 'Request a quote' }))
-    expect((screen.getByLabelText('Name') as HTMLInputElement).value).toBe('')
-  })
+  it.each(['Ada Lovelace', 'A'.repeat(100)])(
+    'confirms success with the full trimmed name (%s)',
+    async (name) => {
+      vi.stubGlobal('fetch', reply(200, { ok: true }))
+      render(<QuoteRequestDialog product={product} />)
+      fireEvent.click(screen.getByRole('button', { name: 'Request a quote' }))
+      fillValid()
+      fireEvent.change(screen.getByRole('textbox', { name: 'Name' }), {
+        target: { value: `  ${name}  ` },
+      })
+      fireEvent.click(screen.getByRole('button', { name: 'Pass verification' }))
+      fireEvent.click(screen.getByRole('button', { name: 'Send request' }))
+      await waitFor(() =>
+        expect(
+          within(dialogOf()).getByText(/We've received your request for/, { selector: 'p' })
+            .textContent,
+        ).toBe("We've received your request for Paper Bag and will get back to you shortly."),
+      )
+      const heading = screen.getByRole('heading', { name: `Thank you, ${name}!` })
+      expect(document.activeElement).toBe(heading)
+      expect(dialogOf().getAttribute('aria-labelledby')).toBe(heading.id)
+      expect(screen.getByText('Paper Bag').tagName).toBe('STRONG')
+      expect(screen.queryByText('ada@example.com')).toBeNull()
+      expect(screen.queryByRole('textbox', { name: 'Name' })).toBeNull()
+      fireEvent.click(within(dialogOf()).getAllByRole('button', { name: 'Close', hidden: true })[0])
+      expect(dialogOf().hasAttribute('open')).toBe(false)
+      // Reopening starts from a clean form.
+      fireEvent.click(screen.getByRole('button', { name: 'Request a quote' }))
+      expect((screen.getByRole('textbox', { name: 'Name' }) as HTMLInputElement).value).toBe('')
+    },
+  )
 })
 
 // Exercise the actual integration separately from the form's controlled widget stand-in.
