@@ -11,7 +11,11 @@ import { ProductCard } from '@/components/Products/ProductCard'
 import { ProductGallery } from '@/components/Products/ProductGallery'
 import { ProductTabs } from '@/components/Products/ProductTabs'
 import { ProductActions } from '@/components/Products/ProductActions'
-import { RenderProductBlocks } from '@/collections/Products/blocks/RenderProductBlocks'
+import {
+  RenderProductBlocks,
+  type ProductBlock,
+} from '@/collections/Products/blocks/RenderProductBlocks'
+import { Entrance } from '@/collections/Products/blocks/shared/Entrance'
 import { getProductBySlug } from '@/utilities/products/getProductBySlug'
 import { getRelatedProducts } from '@/utilities/products/getRelatedProducts'
 import { getProductStaticParams } from '@/utilities/products/getProductStaticParams'
@@ -21,6 +25,10 @@ import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
 import styles from './page.module.css'
 
 type Args = { params: Promise<{ category: string; product: string }> }
+/** Full-bleed blocks sit flush against the section edge instead of inside its padding. */
+const isFullBleed = (block?: ProductBlock) =>
+  block?.blockType === 'productMediaBanner' ||
+  (block?.blockType === 'productCode' && block.width === 'full')
 export async function generateStaticParams() {
   return (await getProductStaticParams()).products
 }
@@ -73,11 +81,40 @@ export default async function ProductPage({ params }: Args) {
         }))}
         hasRelated={related.length > 0}
       />
-      {product.sections.map((section) => (
-        <section key={section.anchor} id={section.anchor} className={styles.section}>
-          <RenderProductBlocks blocks={section.blocks} />
-        </section>
-      ))}
+      {product.sections.map((section) => {
+        const titleId = `product-section:${section.anchor}:title`
+        const hasHeader = Boolean(section.title || section.description)
+        return (
+          <section
+            key={section.anchor}
+            id={section.anchor}
+            className={styles.section}
+            data-website-theme={section.theme}
+            data-flush-start={(!hasHeader && isFullBleed(section.blocks[0])) || undefined}
+            data-flush-end={isFullBleed(section.blocks.at(-1)) || undefined}
+            aria-labelledby={section.title ? titleId : undefined}
+            aria-label={section.title ? undefined : section.label}
+          >
+            {(section.title || section.description) && (
+              <Entrance as="header" className={`${styles.sectionHeader} site-container`}>
+                {section.title && (
+                  <h2 id={titleId} className="website-type-heading-1">
+                    {section.title}
+                  </h2>
+                )}
+                {section.description && (
+                  <p className="website-type-excerpt">{section.description}</p>
+                )}
+              </Entrance>
+            )}
+            {section.blocks.length > 0 && (
+              <div className={styles.sectionBlocks}>
+                <RenderProductBlocks blocks={section.blocks} />
+              </div>
+            )}
+          </section>
+        )
+      })}
       {related.length > 0 && (
         <section id="related-products" className={styles.related}>
           <OverflowCarousel
@@ -100,8 +137,8 @@ export async function generateMetadata({ params }: Args): Promise<Metadata> {
   const product = await getProductBySlug(slug, { draft })
   if (!product) return { robots: { index: false, follow: false } }
   if (product.categorySlug !== category) notFound()
-  const title = product.meta.title ?? product.title
-  const description = product.meta.description ?? product.summary
+  const title = product.meta.title?.trim() || product.title
+  const description = product.meta.description?.trim() || product.summary
   const canonical = productPath(category, product.slug)
   const image = product.meta.image?.url
   return {

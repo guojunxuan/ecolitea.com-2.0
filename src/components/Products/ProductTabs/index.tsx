@@ -11,8 +11,8 @@ import { ProductSpecifications } from '../ProductSpecifications'
 import styles from './index.module.css'
 
 const tabs = [
-  { key: 'overview', label: 'Overview', panelId: 'product-tab-overview' },
-  { key: 'specifications', label: 'Specifications', panelId: 'product-tab-specifications' },
+  { key: 'overview', label: 'Overview' },
+  { key: 'specifications', label: 'Specifications' },
 ] as const
 
 // Runs before paint on the client; falls back to useEffect during server rendering.
@@ -31,6 +31,8 @@ export function ProductTabs({
   const activeIndex = availableTabs.findIndex(({ key }) => key === active)
   const list = useRef<HTMLDivElement>(null)
   const tabId = useId()
+  const panelId = (key: string) => `product-tabs:${tabId}:panel:${key}`
+  const triggerId = (key: string) => `product-tabs:${tabId}:tab:${key}`
   const [indicator, setIndicator] = useState<{ left: number; width: number } | null>(null)
   const [animate, setAnimate] = useState(false)
 
@@ -96,15 +98,15 @@ export function ProductTabs({
             : undefined
         }
       >
-        {availableTabs.map(({ key, label, panelId }, index) => (
+        {availableTabs.map(({ key, label }, index) => (
           <button
             key={key}
-            id={`${tabId}-${key}`}
+            id={triggerId(key)}
             type="button"
             role="tab"
             className={styles.tab}
             aria-selected={active === key}
-            aria-controls={panelId}
+            aria-controls={panelId(key)}
             tabIndex={active === key ? 0 : -1}
             onClick={() => setSelected(key)}
             onKeyDown={(event) => onTabKeyDown(event, index)}
@@ -115,16 +117,16 @@ export function ProductTabs({
         <span className={styles.indicator} aria-hidden="true" />
       </div>
       <div className={styles.panels}>
-        {availableTabs.map(({ key, panelId }, index) => (
+        {availableTabs.map(({ key }, index) => (
           <div
             key={key}
-            id={panelId}
+            id={panelId(key)}
             role="tabpanel"
             className={styles.panel}
             data-position={
               index === activeIndex ? 'current' : index < activeIndex ? 'before' : 'after'
             }
-            aria-labelledby={`${tabId}-${key}`}
+            aria-labelledby={triggerId(key)}
             aria-hidden={active !== key || undefined}
             inert={active !== key}
             tabIndex={active === key ? 0 : -1}

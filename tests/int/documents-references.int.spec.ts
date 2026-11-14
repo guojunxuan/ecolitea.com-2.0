@@ -315,6 +315,12 @@ describe('Documents protection through the real Payload API', () => {
         localization: { locales: ['en', 'zh'], defaultLocale: 'en' },
         collections: [
           {
+            slug: 'products',
+            fields: [
+              { name: 'resources', type: 'relationship', relationTo: 'documents', hasMany: true },
+            ],
+          },
+          {
             slug: 'users',
             auth: {
               strategies: [

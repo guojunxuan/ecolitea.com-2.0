@@ -28,12 +28,11 @@ describe('Product section block references', () => {
             sections: [
               {
                 blocks: [
-                  { blockType: 'productMediaBanner', media: 'image' },
+                  { blockType: 'productMediaBanner', media: 'image', mobileMedia: 'image' },
                   { blockType: 'productMediaCarousel', slides: [{ media: 'image' }] },
                   { blockType: 'productMediaTabs', tabs: [{ media: 'image' }] },
                   {
                     blockType: 'productMediaAccordion',
-                    defaultMedia: 'image',
                     items: [
                       {
                         media: 'image',
@@ -60,17 +59,15 @@ describe('Product section block references', () => {
       ),
     }
     const media = await findMediaReferences(payload as unknown as Payload, ['image'])
-    expect(media.map(({ path }) => path)).toEqual(
-      expect.arrayContaining([
-        'sections[0].blocks[0].media',
-        'sections[0].blocks[1].slides[0].media',
-        'sections[0].blocks[2].tabs[0].media',
-        'sections[0].blocks[3].defaultMedia',
-        'sections[0].blocks[3].items[0].media',
-        'sections[0].blocks[4].media',
-        'sections[0].blocks[5].assets[0]',
-      ]),
-    )
+    expect(media.map(({ path }) => path)).toEqual([
+      'sections[0].blocks[0].media',
+      'sections[0].blocks[0].mobileMedia',
+      'sections[0].blocks[1].slides[0].media',
+      'sections[0].blocks[2].tabs[0].media',
+      'sections[0].blocks[3].items[0].media',
+      'sections[0].blocks[4].media',
+      'sections[0].blocks[5].assets[0]',
+    ])
     const documents = await findDocumentReferences(payload as unknown as Payload, ['document'])
     expect(documents).toContainEqual(
       expect.objectContaining({

@@ -7,12 +7,7 @@ import {
 import { array } from 'payload/shared'
 
 type Section = { id?: string; label?: string; anchor?: string | null }
-const reserved = new Set([
-  'overview',
-  'related-products',
-  'product-tab-specifications',
-  'product-tab-overview',
-])
+const reserved = new Set(['overview', 'related-products'])
 const sectionAnchor = (label: string) =>
   label
     .toLowerCase()

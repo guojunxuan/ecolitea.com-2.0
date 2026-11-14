@@ -53,25 +53,26 @@ describe('anchored product sections', () => {
     ).toBe('old')
     expect(await normalizeSections({ title: 'Partial' }, old)).toEqual({ title: 'Partial' })
   })
-  it.each([
-    'overview',
-    'product-tab-specifications',
-    'product-tab-overview',
-    'related-products',
-    '9-start',
-    'Upper',
-    'bad space',
-  ])('rejects invalid/reserved anchor %s with a child field path', (anchor) => {
-    try {
-      sectionValidation([{ label: 'Section', anchor }])
-      expect.fail('Expected field error')
-    } catch (error) {
-      expect(error).toBeInstanceOf(ValidationError)
-      expect((error as ValidationError).data?.errors).toContainEqual(
-        expect.objectContaining({ path: 'sections.0.anchor' }),
-      )
-    }
-  })
+  it.each(['overview', 'related-products', '9-start', 'Upper', 'bad space'])(
+    'rejects invalid/reserved anchor %s with a child field path',
+    (anchor) => {
+      try {
+        sectionValidation([{ label: 'Section', anchor }])
+        expect.fail('Expected field error')
+      } catch (error) {
+        expect(error).toBeInstanceOf(ValidationError)
+        expect((error as ValidationError).data?.errors).toContainEqual(
+          expect.objectContaining({ path: 'sections.0.anchor' }),
+        )
+      }
+    },
+  )
+  it.each(['product-tab-overview', 'product-tab-specifications'])(
+    'accepts author anchors formerly used by internal tabs: %s',
+    (anchor) => {
+      expect(sectionValidation([{ label: 'Section', anchor }])).toBe(true)
+    },
+  )
   it('assigns unique ordinal fallbacks to labels without Latin slugs', async () => {
     const data = {
       sections: [{ label: '规格' }, { label: '其他' }, { label: 'Manual', anchor: 'section-1' }],

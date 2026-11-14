@@ -6,7 +6,7 @@ import {
   resolveProductAspectRatio,
 } from '@/collections/Products/blocks/shared/aspectRatio'
 import { playbackField } from '@/collections/Products/blocks/shared/playbackField'
-import { themeField } from '@/collections/Products/blocks/shared/themeField'
+import { productBlocks } from '@/collections/Products/blocks'
 
 describe('Products block shared fields', () => {
   it('keeps shared media ratios at the pre-Products baseline', () => {
@@ -45,7 +45,7 @@ describe('Products block shared fields', () => {
   it('creates required select fields in caller order and rejects unknown values eagerly', () => {
     expect(
       productAspectRatioField({
-        values: ['full-screen', '21:9', 'original'],
+        values: ['full-screen', '21:9', '16:9'],
         defaultValue: '21:9',
       }),
     ).toEqual({
@@ -57,7 +57,7 @@ describe('Products block shared fields', () => {
       options: [
         { label: 'Full Screen', value: 'full-screen' },
         { label: '21:9', value: '21:9' },
-        { label: 'Original', value: 'original' },
+        { label: '16:9', value: '16:9' },
       ],
     })
     expect(() =>
@@ -66,6 +66,9 @@ describe('Products block shared fields', () => {
     expect(() =>
       productAspectRatioField({ values: ['1:1'], defaultValue: 'unsupported' as never }),
     ).toThrow(/unsupported/)
+    expect(() =>
+      productAspectRatioField({ values: ['original'] as never, defaultValue: '1:1' }),
+    ).toThrow(/original/)
   })
   it('always exposes required playback even for upload IDs', () => {
     expect(playbackField).toEqual({
@@ -85,15 +88,10 @@ describe('Products block shared fields', () => {
     })
     expect(playbackField.admin).not.toHaveProperty('condition')
   })
-  it('declares the clearable inherited theme field without a default', () => {
-    expect(themeField).toEqual({
-      name: 'theme',
-      type: 'select',
-      options: [
-        { label: 'Default', value: 'default' },
-        { label: 'Inverse', value: 'inverse' },
-      ],
-      admin: { isClearable: true, placeholder: 'Inherit surrounding theme' },
-    })
+  it('inherits Section themes without exposing a Block theme field', () => {
+    for (const block of productBlocks) {
+      const fields = block.fields.flatMap((field) => ('fields' in field ? field.fields : [field]))
+      expect(fields.some((field) => 'name' in field && field.name === 'theme')).toBe(false)
+    }
   })
 })

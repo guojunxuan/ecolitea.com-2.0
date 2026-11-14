@@ -168,7 +168,15 @@ describe('Blogs through the isolated Payload Local API', () => {
         },
         BlogCategories,
         Users,
-        ...(['pages', 'posts', 'case-studies', 'categories', 'forms'] as const).map((slug) => ({
+        ...([
+          'pages',
+          'posts',
+          'case-studies',
+          'categories',
+          'forms',
+          'products',
+          'product-categories',
+        ] as const).map((slug) => ({
           slug,
           fields: [{ name: 'title', type: 'text' as const }],
         })),

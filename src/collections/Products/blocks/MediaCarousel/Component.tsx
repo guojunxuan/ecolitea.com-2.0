@@ -6,19 +6,13 @@ import blockStyles from '../shared/Block.module.css'
 import { Carousel } from './Carousel'
 import styles from './Component.module.css'
 
-export function Component({
-  theme,
-  eyebrow,
-  title,
-  slides,
-  aspectRatio,
-}: ProductMediaCarouselBlock) {
+export function Component({ title, slides, aspectRatio }: ProductMediaCarouselBlock) {
   if (!slides?.length) return null
   return (
-    <div className={blockStyles.root} data-website-theme={theme ?? undefined}>
-      <Entrance>
+    <div className={blockStyles.root}>
+      <Entrance blockType="productMediaCarousel">
         <div className={styles.header}>
-          <ProductBlockHeader title={title} eyebrow={eyebrow} />
+          <ProductBlockHeader title={title} />
         </div>
         <Carousel
           slides={slides}

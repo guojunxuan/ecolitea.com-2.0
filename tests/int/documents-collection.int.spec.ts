@@ -83,6 +83,12 @@ describe('Documents uploads through real Payload Local API', () => {
       }),
       collections: [
         {
+          slug: 'products',
+          fields: [
+            { name: 'resources', type: 'relationship', relationTo: 'documents', hasMany: true },
+          ],
+        },
+        {
           slug: 'folders',
           folders: true,
           fields: [{ name: 'name', type: 'text', required: true }],

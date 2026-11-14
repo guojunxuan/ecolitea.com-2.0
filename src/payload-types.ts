@@ -971,11 +971,20 @@ export interface Product {
       }[]
     | null;
   /**
-   * Each section becomes a tab in the sticky section nav on the product page, in this order. Sections without blocks are hidden.
+   * Every section appears in the sticky section nav on the product page, in this order.
    */
   sections?:
     | {
+        /**
+         * Only displayed in the sticky section navigation.
+         */
         label: string;
+        theme: 'default' | 'inverse';
+        title?: string | null;
+        description?: string | null;
+        /**
+         * Generated from the label when empty. Keep it stable after publishing.
+         */
         anchor?: string | null;
         blocks?:
           | (
@@ -1043,15 +1052,15 @@ export interface ProductMediaBannerBlock {
   /**
    * A wide media banner with an overlaid title and short centered copy.
    */
-  title: string;
+  title?: string | null;
   body?: string | null;
   media: string | Media;
+  mobileMedia?: (string | null) | Media;
   /**
    * Video only. Ambient plays muted on loop; Player shows controls. Ignored for images and GIFs.
    */
   playback: 'ambient' | 'player';
-  aspectRatio: 'full-screen' | '21:9' | '16:9' | 'original';
-  theme?: ('default' | 'inverse') | null;
+  aspectRatio: 'full-screen' | '21:9' | '16:9';
   id?: string | null;
   blockName?: string | null;
   blockType: 'productMediaBanner';
@@ -1061,10 +1070,6 @@ export interface ProductMediaBannerBlock {
  * via the `definition` "ProductMediaCarouselBlock".
  */
 export interface ProductMediaCarouselBlock {
-  /**
-   * Optional short label shown above the title.
-   */
-  eyebrow?: string | null;
   title?: string | null;
   slides?:
     | {
@@ -1078,7 +1083,6 @@ export interface ProductMediaCarouselBlock {
       }[]
     | null;
   aspectRatio: '21:9' | '16:9' | '4:3';
-  theme?: ('default' | 'inverse') | null;
   id?: string | null;
   blockName?: string | null;
   blockType: 'productMediaCarousel';
@@ -1088,14 +1092,11 @@ export interface ProductMediaCarouselBlock {
  * via the `definition` "ProductMediaTabsBlock".
  */
 export interface ProductMediaTabsBlock {
-  /**
-   * Optional short label shown above the title.
-   */
-  eyebrow?: string | null;
   title?: string | null;
   tabs?:
     | {
         title: string;
+        description?: string | null;
         media: string | Media;
         /**
          * Video only. Ambient plays muted on loop; Player shows controls. Ignored for images and GIFs.
@@ -1105,7 +1106,6 @@ export interface ProductMediaTabsBlock {
       }[]
     | null;
   aspectRatio: '21:9' | '16:9' | '4:3' | '1:1';
-  theme?: ('default' | 'inverse') | null;
   id?: string | null;
   blockName?: string | null;
   blockType: 'productMediaTabs';
@@ -1115,16 +1115,12 @@ export interface ProductMediaTabsBlock {
  * via the `definition` "ProductMediaAccordionBlock".
  */
 export interface ProductMediaAccordionBlock {
-  /**
-   * Optional short label shown above the title.
-   */
-  eyebrow?: string | null;
   title?: string | null;
   items?:
     | {
         title: string;
         body?: LexicalRichText<LexicalNodes_47D10C91> | null;
-        media?: (string | null) | Media;
+        media: string | Media;
         /**
          * Video only. Ambient plays muted on loop; Player shows controls. Ignored for images and GIFs.
          */
@@ -1132,10 +1128,8 @@ export interface ProductMediaAccordionBlock {
         id?: string | null;
       }[]
     | null;
-  defaultMedia: string | Media;
   mediaPosition: 'right' | 'left';
   aspectRatio: '4:5' | '1:1' | '4:3';
-  theme?: ('default' | 'inverse') | null;
   id?: string | null;
   blockName?: string | null;
   blockType: 'productMediaAccordion';
@@ -1145,10 +1139,6 @@ export interface ProductMediaAccordionBlock {
  * via the `definition` "ProductMediaTextBlock".
  */
 export interface ProductMediaTextBlock {
-  /**
-   * Optional short label shown above the title.
-   */
-  eyebrow?: string | null;
   title: string;
   body?: LexicalRichText<LexicalNodes_47D10C91> | null;
   media: string | Media;
@@ -1157,8 +1147,7 @@ export interface ProductMediaTextBlock {
    */
   playback: 'ambient' | 'player';
   mediaPosition: 'right' | 'left';
-  aspectRatio: '4:5' | '1:1' | '4:3' | '16:9' | 'original';
-  theme?: ('default' | 'inverse') | null;
+  aspectRatio: '4:5' | '1:1' | '4:3' | '16:9';
   id?: string | null;
   blockName?: string | null;
   blockType: 'productMediaText';
@@ -1172,12 +1161,13 @@ export interface ProductCodeBlock {
    * Identifies this block in the Admin list. Not shown on the live site.
    */
   label: string;
+  title?: string | null;
   /**
    * Custom HTML content. Use {{asset:0}}, {{asset:1}}, etc. to reference assets below.
    */
   html: string;
   /**
-   * Optional inline styles. Use var(--color-foreground) and other tokens for theme-aware colors.
+   * Use --website-* tokens and .website-type-* classes. Legacy --color-* aliases remain supported.
    */
   css?: string | null;
   /**
@@ -1193,7 +1183,6 @@ export interface ProductCodeBlock {
    */
   minHeight: number;
   width: 'standard' | 'full';
-  theme?: ('default' | 'inverse') | null;
   id?: string | null;
   blockName?: string | null;
   blockType: 'productCode';
@@ -2051,6 +2040,9 @@ export interface ProductsSelect<T extends boolean = true> {
     | T
     | {
         label?: T;
+        theme?: T;
+        title?: T;
+        description?: T;
         anchor?: T;
         blocks?:
           | T
@@ -2088,9 +2080,9 @@ export interface ProductMediaBannerBlockSelect<T extends boolean = true> {
   title?: T;
   body?: T;
   media?: T;
+  mobileMedia?: T;
   playback?: T;
   aspectRatio?: T;
-  theme?: T;
   id?: T;
   blockName?: T;
 }
@@ -2099,7 +2091,6 @@ export interface ProductMediaBannerBlockSelect<T extends boolean = true> {
  * via the `definition` "ProductMediaCarouselBlock_select".
  */
 export interface ProductMediaCarouselBlockSelect<T extends boolean = true> {
-  eyebrow?: T;
   title?: T;
   slides?:
     | T
@@ -2110,7 +2101,6 @@ export interface ProductMediaCarouselBlockSelect<T extends boolean = true> {
         id?: T;
       };
   aspectRatio?: T;
-  theme?: T;
   id?: T;
   blockName?: T;
 }
@@ -2119,18 +2109,17 @@ export interface ProductMediaCarouselBlockSelect<T extends boolean = true> {
  * via the `definition` "ProductMediaTabsBlock_select".
  */
 export interface ProductMediaTabsBlockSelect<T extends boolean = true> {
-  eyebrow?: T;
   title?: T;
   tabs?:
     | T
     | {
         title?: T;
+        description?: T;
         media?: T;
         playback?: T;
         id?: T;
       };
   aspectRatio?: T;
-  theme?: T;
   id?: T;
   blockName?: T;
 }
@@ -2139,7 +2128,6 @@ export interface ProductMediaTabsBlockSelect<T extends boolean = true> {
  * via the `definition` "ProductMediaAccordionBlock_select".
  */
 export interface ProductMediaAccordionBlockSelect<T extends boolean = true> {
-  eyebrow?: T;
   title?: T;
   items?:
     | T
@@ -2150,10 +2138,8 @@ export interface ProductMediaAccordionBlockSelect<T extends boolean = true> {
         playback?: T;
         id?: T;
       };
-  defaultMedia?: T;
   mediaPosition?: T;
   aspectRatio?: T;
-  theme?: T;
   id?: T;
   blockName?: T;
 }
@@ -2162,14 +2148,12 @@ export interface ProductMediaAccordionBlockSelect<T extends boolean = true> {
  * via the `definition` "ProductMediaTextBlock_select".
  */
 export interface ProductMediaTextBlockSelect<T extends boolean = true> {
-  eyebrow?: T;
   title?: T;
   body?: T;
   media?: T;
   playback?: T;
   mediaPosition?: T;
   aspectRatio?: T;
-  theme?: T;
   id?: T;
   blockName?: T;
 }
@@ -2179,13 +2163,13 @@ export interface ProductMediaTextBlockSelect<T extends boolean = true> {
  */
 export interface ProductCodeBlockSelect<T extends boolean = true> {
   label?: T;
+  title?: T;
   html?: T;
   css?: T;
   js?: T;
   assets?: T;
   minHeight?: T;
   width?: T;
-  theme?: T;
   id?: T;
   blockName?: T;
 }

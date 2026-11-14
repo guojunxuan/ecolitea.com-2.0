@@ -28,6 +28,7 @@ const eslintConfig = [
       '.next/',
       '.next-e2e/',
       '.worktrees/',
+      '.superpowers/',
       'playwright-report/',
       'test-results/',
       // Local browser bundles and archived reports are verification artifacts.

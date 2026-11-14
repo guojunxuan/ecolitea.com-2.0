@@ -2,12 +2,40 @@
   display: flex;
   gap: var(--website-space-1);
   width: 100%;
+  align-items: center;
 }
 .segment {
+  position: relative;
+  min-width: 0;
   height: 2px;
   flex: 1;
+  border: 0;
+  padding: 0;
   background: var(--website-color-border);
 }
-.segment[data-active] {
+button.segment {
+  height: var(--website-control-default);
+  background: transparent;
+  cursor: pointer;
+}
+button.segment::before {
+  content: '';
+  position: absolute;
+  inset: calc(50% - 1px) 0 auto;
+  height: 2px;
+  background: var(--website-color-border);
+}
+.fill {
+  position: absolute;
+  inset: 0;
+  display: block;
+  height: 2px;
+  background: transparent;
+  transform-origin: left;
+}
+button.segment .fill {
+  top: calc(50% - 1px);
+}
+.segment[data-active] .fill {
   background: var(--website-color-action);
 }

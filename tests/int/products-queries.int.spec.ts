@@ -32,7 +32,9 @@ const product = (id: string) => ({
   summary: 'text',
   specifications: [{ label: 'Origin', value: 'China' }],
   gallery: ['raw', { id: 'image', url: '/image.jpg' }],
-  content: [{ id: 'doc', title: 'Guide', filesize: 100, filename: 'guide.pdf', url: '/guide.pdf' }],
+  resources: [
+    { id: 'doc', title: 'Guide', filesize: 100, filename: 'guide.pdf', url: '/guide.pdf' },
+  ],
   relatedProducts: ['b', 'a', 'b', 'self', 'hidden'],
 })
 beforeEach(() => {
@@ -147,7 +149,7 @@ describe('public product queries', () => {
             { group: 'Empty', items: [] },
             { group: ' ', items: [{ label: 'Size', value: '2' }] },
           ],
-          content: [
+          resources: [
             'unpopulated',
             { id: 'empty', url: null },
             {
@@ -407,19 +409,17 @@ it('normalizes incomplete native drafts using the same population as published r
   expect(mocks.find.mock.calls.at(-1)![0].populate).toEqual(lookupDetail.populate)
 })
 
-it('filters empty sections and preserves real product block data and order', async () => {
+it('keeps all sections and preserves real product block data and order', async () => {
   const blocks = [
     {
       id: 'text',
       blockType: 'productMediaText',
-      eyebrow: 'Harvest',
       title: 'Fresh tea',
       body: { root: { type: 'root', children: [] } },
       media: { id: 'video', url: '/tea.mp4', mimeType: 'video/mp4' },
       playback: 'player',
       mediaPosition: 'left',
       aspectRatio: '4:5',
-      theme: 'inverse',
     },
     {
       id: 'code',
@@ -431,7 +431,6 @@ it('filters empty sections and preserves real product block data and order', asy
       assets: [{ id: 'asset', url: '/tea.gif', mimeType: 'image/gif' }],
       minHeight: 720,
       width: 'full',
-      theme: 'default',
     },
   ]
   mocks.find.mockResolvedValue({
@@ -442,7 +441,14 @@ it('filters empty sections and preserves real product block data and order', asy
         faqs: [],
         sections: [
           { label: 'Empty', anchor: 'empty', blocks: [] },
-          { label: 'First', anchor: 'first', blocks },
+          {
+            label: 'First',
+            anchor: 'first',
+            theme: 'inverse',
+            title: '  A chapter title  ',
+            description: '  Chapter introduction  ',
+            blocks,
+          },
           { label: 'Missing', anchor: 'missing' },
           { label: 'Second', anchor: 'second', blocks },
         ],
@@ -451,8 +457,38 @@ it('filters empty sections and preserves real product block data and order', asy
   })
   const detail = await getProductBySlug('self')
   expect(detail?.sections).toEqual([
-    { label: 'First', anchor: 'first', blocks },
-    { label: 'Second', anchor: 'second', blocks },
+    {
+      label: 'Empty',
+      anchor: 'empty',
+      theme: 'default',
+      title: null,
+      description: null,
+      blocks: [],
+    },
+    {
+      label: 'First',
+      anchor: 'first',
+      theme: 'inverse',
+      title: 'A chapter title',
+      description: 'Chapter introduction',
+      blocks,
+    },
+    {
+      label: 'Missing',
+      anchor: 'missing',
+      theme: 'default',
+      title: null,
+      description: null,
+      blocks: [],
+    },
+    {
+      label: 'Second',
+      anchor: 'second',
+      theme: 'default',
+      title: null,
+      description: null,
+      blocks,
+    },
   ])
   for (const field of ['layout', 'content', 'faqs', 'highlights', 'options'])
     expect(detail).not.toHaveProperty(field)

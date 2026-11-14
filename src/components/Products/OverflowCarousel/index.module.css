@@ -1,5 +1,5 @@
 .carousel {
-  --carousel-link-chevron-color: #0052d1;
+  --carousel-link-chevron-color: var(--website-color-link);
 }
 .products {
   composes: root from './productRow.module.css';
@@ -137,8 +137,8 @@
   mask-image: linear-gradient(
     to right,
     transparent,
-    #000 var(--carousel-fade-start),
-    #000 calc(100% - var(--carousel-fade-end)),
+    currentColor var(--carousel-fade-start),
+    currentColor calc(100% - var(--carousel-fade-end)),
     transparent
   );
 }

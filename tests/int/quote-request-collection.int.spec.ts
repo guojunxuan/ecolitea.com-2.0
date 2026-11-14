@@ -270,3 +270,10 @@ describe('quote-requests collection', () => {
     ).rejects.toThrow()
   })
 })
+
+describe('quote-requests admin presentation', () => {
+  it('is listed as Quote Requests in the Product admin group', () => {
+    expect(QuoteRequests.admin?.group).toBe('Product')
+    expect(QuoteRequests.labels).toEqual({ singular: 'Quote Request', plural: 'Quote Requests' })
+  })
+})

@@ -1,7 +1,6 @@
 import type { Block } from 'payload'
 
 import { imageOrVideo } from '@/collections/mediaUploadPolicy'
-import { themeField } from '../shared/themeField'
 
 export const Code: Block = {
   slug: 'productCode',
@@ -31,6 +30,7 @@ export const Code: Block = {
         description: 'Identifies this block in the Admin list. Not shown on the live site.',
       },
     },
+    { name: 'title', type: 'text', maxLength: 80 },
     {
       name: 'html',
       type: 'code',
@@ -47,7 +47,7 @@ export const Code: Block = {
       admin: {
         language: 'css',
         description:
-          'Optional inline styles. Use var(--color-foreground) and other tokens for theme-aware colors.',
+          'Use --website-* tokens and .website-type-* classes. Legacy --color-* aliases remain supported.',
       },
     },
     {
@@ -77,7 +77,7 @@ export const Code: Block = {
           name: 'minHeight',
           type: 'number',
           required: true,
-          defaultValue: 400,
+          defaultValue: 240,
           min: 100,
           max: 2000,
           admin: {
@@ -94,7 +94,6 @@ export const Code: Block = {
           defaultValue: 'standard',
           required: true,
         },
-        themeField,
       ],
     },
   ],

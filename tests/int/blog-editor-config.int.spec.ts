@@ -34,7 +34,7 @@ describe('blog Lexical presets', () => {
       enabledHeadingSizes: ['h2', 'h3', 'h4'],
     })
     expect(features.find((feature) => feature.key === 'link')?.serverFeatureProps).toMatchObject({
-      enabledCollections: ['pages', 'posts', 'blogs', 'blog-categories', 'case-studies'],
+      enabledCollections: ['pages', 'posts', 'blogs', 'blog-categories', 'case-studies', 'products', 'product-categories'],
     })
   }, 15_000)
 
@@ -95,7 +95,7 @@ describe('blog Lexical presets', () => {
       expect(keys).not.toContain(key)
     }
     expect(features.find((feature) => feature.key === 'link')?.serverFeatureProps).toMatchObject({
-      enabledCollections: ['pages', 'posts', 'blogs', 'blog-categories', 'case-studies'],
+      enabledCollections: ['pages', 'posts', 'blogs', 'blog-categories', 'case-studies', 'products', 'product-categories'],
     })
   }, 15_000)
 })

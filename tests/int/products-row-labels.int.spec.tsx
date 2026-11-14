@@ -2,6 +2,7 @@ import { cleanup, render, screen } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { SpecificationGroupRowLabel } from '@/collections/Products/admin/SpecificationGroupRowLabel'
 import { SpecificationRowLabel } from '@/collections/Products/admin/SpecificationRowLabel'
+import { SectionRowLabel } from '@/collections/Products/admin/SectionRowLabel'
 
 const state = vi.hoisted(() => ({
   row: { data: {} as Record<string, unknown>, rowNumber: undefined as number | undefined },
@@ -9,6 +10,32 @@ const state = vi.hoisted(() => ({
 vi.mock('@payloadcms/ui', () => ({ useRowLabel: () => state.row }))
 
 afterEach(cleanup)
+
+describe('Product Section row labels', () => {
+  it('keeps the navigation label primary and shows the anchor and zero Block count', () => {
+    state.row = {
+      data: {
+        label: '  Brewing  ',
+        title: 'A different chapter title',
+        anchor: 'brewing',
+        blocks: [],
+      },
+      rowNumber: 0,
+    }
+    const { rerender } = render(<SectionRowLabel path="sections.0" />)
+    expect(screen.getByText('Brewing')).toBeTruthy()
+    expect(screen.getByText('#brewing · 0 blocks')).toBeTruthy()
+    expect(screen.queryByText('A different chapter title')).toBeNull()
+    state.row.data = {
+      title: 'A title without a navigation label',
+      anchor: 'brewing',
+      blocks: [{}],
+    }
+    rerender(<SectionRowLabel path="sections.0" />)
+    expect(screen.getByText('Section 1')).toBeTruthy()
+    expect(screen.getByText('#brewing · 1 blocks')).toBeTruthy()
+  })
+})
 
 describe('Product specification row labels', () => {
   it('uses the group name or counts rows for an unnamed group', () => {

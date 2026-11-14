@@ -10,7 +10,7 @@ export const productAspectRatios = {
 } as const satisfies Record<string, AspectRatio>
 
 export type ProductAspectRatio = keyof typeof productAspectRatios
-type ProductAspectRatioValue = ProductAspectRatio | 'original' | 'full-screen'
+type ProductAspectRatioValue = ProductAspectRatio | 'full-screen'
 
 export function resolveProductAspectRatio(value?: string | null): AspectRatio | undefined {
   return value && Object.hasOwn(productAspectRatios, value)
@@ -23,7 +23,6 @@ export function productAspectRatioField(options: {
   defaultValue: ProductAspectRatioValue
 }): Field {
   const label = (value: ProductAspectRatioValue): string => {
-    if (value === 'original') return 'Original'
     if (value === 'full-screen') return 'Full Screen'
     if (!Object.hasOwn(productAspectRatios, value)) {
       throw new Error(`Unsupported Product aspect ratio: ${value}`)

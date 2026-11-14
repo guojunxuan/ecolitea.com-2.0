@@ -170,6 +170,70 @@ To roll back, pause writes, back up, inspect the `--direction=down` report and r
 to the old code and clear the cache before restarting. No production execution is
 authorized as part of this task.
 
+### Product section themes and block fields (20261111)
+
+`20261111_product_sections_blocks_redesign` scans every document in `products` and
+`_products_versions`, including drafts, autosaves and trash, before any writes. It moves
+the first explicit block theme (`default` counts; missing/null does not) to its section,
+or sets the section to `default` when no block has a theme. An existing valid section
+theme is preserved when recovering or rerunning mixed data. Every differing block
+theme is logged as a conflict with the chosen section theme; these resolved conflicts
+do not block migration.
+
+The migration removes block `eyebrow` and `theme`, fills only absent/null Accordion
+item media from the original `defaultMedia`, then removes `defaultMedia`. It changes
+Banner `original` ratios to `16:9` and MediaText `original` ratios to `4:3`. It does not
+generate section titles/descriptions or invent media. Unknown structures, invalid
+values, or an Accordion item without usable item/default media abort all writes after
+both collections have been scanned. BSON relationships, row IDs, order, timestamps
+and unrelated metadata are preserved; no content hooks, uploads or storage operations run.
+
+Execution is restricted to non-production `127.0.0.1:27017/ecolitea2` or
+`127.0.0.1:27017/ecolitea2-test`. Resolve and report the exact host, port, database and
+storage environment first; use the development content database for content migration.
+Pause `next dev` and Admin editing/autosave, back up that same local database, and keep
+writes paused through verification. Keep backups and logs outside Git. Run with an
+explicit URI and `DISABLE_R2_STORAGE=true`:
+
+```bash
+DATABASE_URI=mongodb://127.0.0.1:27017/ecolitea2 DISABLE_R2_STORAGE=true corepack pnpm payload migrate:status
+DATABASE_URI=mongodb://127.0.0.1:27017/ecolitea2 DISABLE_R2_STORAGE=true corepack pnpm payload migrate
+```
+
+The installed CLI discovers migration files in `src/migrations` without a registry.
+Its `migrate` command runs all pending migrations and does not support selecting one
+by name. Run it only when this migration is the sole pending migration; stop if any
+unrelated migration is pending. The installed public adapter also supports
+`payload.db.migrate({ migrations: [{ name: '20261111_product_sections_blocks_redesign', up, down }] })`.
+Use that selective API in a local operational runner when historical migrations are pending;
+retain the same target checks, disabled storage, paused writers and pre-migration BSON backup.
+It records this migration through Payload's migration collection and leaves other pending
+migrations untouched. Preflight runs inside `up`; this migration does not
+require the separate confirmation workflow described for the older block-slug migration.
+
+Logs identify the target and `storage: not accessed` before reads, then list each
+`planned` change with its collection, original `_id`, full field path, kind and
+before/after values. `{ absent: true }` and `{ removed: true }` preserve missing values
+in serialized logs. A change is marked `applied` only after its entire batch matches;
+when a session exists, `transaction: pending commit` means the CLI must still commit
+the transaction. Preserve the CLI outcome and verify the database rather than treating
+these events as proof of a committed transaction.
+
+Updates use the complete original sections snapshot (`sections` or `version.sections`)
+as an optimistic guard, in batches of 250. A concurrent edit or unmatched batch stops
+execution; earlier batches and the failed batch may be partially applied without a
+transaction. Rerun the exported read-only `scanProductSectionsBlocksRedesign` against
+the same adapter/target before retrying. Reruns preserve existing section themes and
+filled media. After success, require both collections to report
+`toChangeDocuments: 0`, `unknown: []` and `changes: []`, and confirm `migrate:status`
+records the migration before resuming application writes.
+
+`down` deliberately refuses to read or write documents: removed eyebrows, conflicting
+block themes, default-media provenance and original ratios cannot be reconstructed.
+Restore the pre-migration local database backup together with the matching application
+revision to roll back. This migration is irreversible; do not use `migrate:down`,
+`migrate:refresh` or `migrate:reset` expecting it to restore the old content.
+
 ## Styling ownership
 
 The public website uses native CSS custom properties and CSS Modules; it does not use Tailwind.
