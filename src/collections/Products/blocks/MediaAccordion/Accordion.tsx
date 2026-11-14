@@ -3,27 +3,27 @@
 import React, { useId, useRef, useState } from 'react'
 import type { ProductMediaAccordionBlock } from '@/payload-types'
 import { ActiveMedia } from '../shared/ActiveMedia'
+import { useMediaQuery } from '../shared/useMediaQuery'
 import styles from './Component.module.css'
+import splitStyles from '../shared/SplitMedia.module.css'
 
 type Item = Omit<NonNullable<ProductMediaAccordionBlock['items']>[number], 'body'> & {
   body: React.ReactNode
 }
-type Props = Pick<ProductMediaAccordionBlock, 'defaultMedia' | 'aspectRatio' | 'mediaPosition'> & {
-  items: Item[]
-  header: React.ReactNode
-}
+type Props = Pick<ProductMediaAccordionBlock, 'aspectRatio' | 'mediaPosition'> & { items: Item[] }
 
-export function Accordion({ items, defaultMedia, aspectRatio, mediaPosition, header }: Props) {
-  const [active, setActive] = useState<number | null>(0)
+export function Accordion({ items, aspectRatio, mediaPosition }: Props) {
+  const [selectedIndex, setActive] = useState(0)
+  const active = Math.max(0, Math.min(selectedIndex, items.length - 1))
+  const mobile = useMediaQuery('(width < 48rem)')
   const id = useId()
   const triggers = useRef<(HTMLButtonElement | null)[]>([])
   return (
     <div className={styles.layout} data-position={mediaPosition}>
       <div className={styles.copy}>
-        {header}
         {items.map((item, index) => (
-          <div key={item.id || index} className={styles.item}>
-            <h3>
+          <div key={item.id || index} className={styles.item} data-open={active === index}>
+            <h4 className="website-type-title">
               <button
                 ref={(element) => {
                   triggers.current[index] = element
@@ -32,7 +32,7 @@ export function Accordion({ items, defaultMedia, aspectRatio, mediaPosition, hea
                 id={`${id}-trigger-${index}`}
                 aria-expanded={active === index}
                 aria-controls={`${id}-body-${index}`}
-                onClick={() => setActive(active === index ? null : index)}
+                onClick={() => setActive(index)}
                 onKeyDown={(event) => {
                   const next =
                     event.key === 'ArrowDown'
@@ -50,11 +50,9 @@ export function Accordion({ items, defaultMedia, aspectRatio, mediaPosition, hea
                 }}
               >
                 {item.title}
-                <span aria-hidden="true" className={styles.icon}>
-                  +
-                </span>
+                <span aria-hidden="true" className={styles.icon} />
               </button>
-            </h3>
+            </h4>
             <div
               className={styles.body}
               data-open={active === index}
@@ -64,39 +62,45 @@ export function Accordion({ items, defaultMedia, aspectRatio, mediaPosition, hea
               aria-hidden={active !== index}
               inert={active !== index}
             >
-              <div>{item.body}</div>
+              <div>
+                {item.body}
+                {mobile && active === index && (
+                  <div className={styles.inlineMedia}>
+                    <ActiveMedia
+                      className={splitStyles.frame}
+                      active
+                      resource={item.media}
+                      playback={item.playback}
+                      aspectRatio={aspectRatio}
+                    />
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         ))}
       </div>
-      <div className={styles.visual}>
-        {items.map((item, index) => (
-          <div
-            key={item.id || index}
-            className={styles.panel}
-            data-active={active === index}
-            aria-hidden={active !== index}
-            inert={active !== index}
-          >
-            <ActiveMedia
-              active={active === index}
-              resource={typeof item.media === 'object' && item.media ? item.media : defaultMedia}
-              playback={item.playback}
-              aspectRatio={aspectRatio}
-            />
-          </div>
-        ))}
-        {active === null && (
-          <div className={`${styles.panel} ${styles.defaultPanel}`} data-active>
-            <ActiveMedia
-              active
-              resource={defaultMedia}
-              playback="ambient"
-              aspectRatio={aspectRatio}
-            />
-          </div>
-        )}
-      </div>
+      {!mobile && (
+        <div className={styles.visual}>
+          {items.map((item, index) => (
+            <div
+              key={item.id || index}
+              className={styles.panel}
+              data-active={active === index}
+              aria-hidden={active !== index}
+              inert={active !== index}
+            >
+              <ActiveMedia
+                className={splitStyles.frame}
+                active={active === index}
+                resource={item.media}
+                playback={item.playback}
+                aspectRatio={aspectRatio}
+              />
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   )
 }

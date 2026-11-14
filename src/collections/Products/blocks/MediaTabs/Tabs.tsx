@@ -3,6 +3,7 @@
 import React, { useEffect, useId, useRef, useState } from 'react'
 import type { ProductMediaTabsBlock } from '@/payload-types'
 import { ActiveMedia } from '../shared/ActiveMedia'
+import { MediaArrow } from '../shared/MediaArrow'
 import styles from './Component.module.css'
 
 export function Tabs({
@@ -14,8 +15,10 @@ export function Tabs({
   aspectRatio: string
   label: string
 }) {
-  const [active, setActive] = useState(0)
-  const [line, setLine] = useState({ left: 0, width: 0 })
+  const [selectedIndex, setActive] = useState(0)
+  const active = Math.max(0, Math.min(selectedIndex, tabs.length - 1))
+  const [visited, setVisited] = useState(() => new Set([0]))
+  const [line, setLine] = useState<{ left: number; width: number } | null>(null)
   const list = useRef<HTMLDivElement>(null)
   const id = useId()
   useEffect(() => {
@@ -30,30 +33,74 @@ export function Tabs({
     return () => observer.disconnect()
   }, [active])
   const select = (index: number, focus = false) => {
-    const next = Math.max(0, Math.min(tabs.length - 1, index))
+    const next = (index + tabs.length) % tabs.length
+    setVisited((previous) => new Set(previous).add(next))
     setActive(next)
     const button = list.current?.querySelectorAll<HTMLButtonElement>('[role="tab"]')[next]
     if (focus) button?.focus()
     button?.scrollIntoView?.({ block: 'nearest', inline: 'nearest', behavior: 'auto' })
   }
+  const hasDescriptions = tabs.some((tab) => Boolean(tab.description?.trim()))
   return (
     <div>
+      <div className={styles.mediaArea}>
+        <div className={styles.panels}>
+          {tabs.map((tab, index) => (
+            <div
+              key={tab.id || index}
+              id={`${id}-panel-${index}`}
+              role="tabpanel"
+              aria-labelledby={`${id}-tab-${index}`}
+              aria-hidden={index !== active}
+              inert={index !== active}
+              tabIndex={index === active ? 0 : -1}
+              className={styles.panel}
+              data-active={index === active}
+            >
+              {(index === active || visited.has(index)) && (
+                <ActiveMedia
+                  resource={tab.media}
+                  className={styles.media}
+                  playback={tab.playback}
+                  aspectRatio={aspectRatio}
+                  mobileAspectRatio={aspectRatio === '21:9' ? '16:9' : undefined}
+                  active={index === active}
+                />
+              )}
+            </div>
+          ))}
+        </div>
+        {tabs.length > 1 && (
+          <div className={styles.arrows}>
+            <MediaArrow
+              direction="previous"
+              overlay
+              aria-label="Previous tab"
+              onClick={() => select(active - 1)}
+            />
+            <MediaArrow
+              direction="next"
+              overlay
+              aria-label="Next tab"
+              onClick={() => select(active + 1)}
+            />
+          </div>
+        )}
+      </div>
       <div className={styles.navigation}>
-        <button
-          type="button"
-          className={styles.arrow}
-          aria-label="Previous tab"
-          disabled={active === 0}
-          onClick={() => select(active - 1)}
+        <div
+          className={styles.tablist}
+          ref={list}
+          role="tablist"
+          aria-label={label}
+          data-measured={Boolean(line)}
         >
-          ←
-        </button>
-        <div className={styles.tablist} ref={list} role="tablist" aria-label={label}>
           {tabs.map((tab, index) => (
             <button
               key={tab.id || index}
               type="button"
               role="tab"
+              className="website-type-button"
               id={`${id}-tab-${index}`}
               aria-controls={`${id}-panel-${index}`}
               aria-selected={active === index}
@@ -78,44 +125,29 @@ export function Tabs({
               {tab.title}
             </button>
           ))}
-          <span
-            aria-hidden="true"
-            className={styles.line}
-            style={{ width: line.width, transform: `translateX(${line.left}px)` }}
-          />
-        </div>
-        <button
-          type="button"
-          className={styles.arrow}
-          aria-label="Next tab"
-          disabled={active === tabs.length - 1}
-          onClick={() => select(active + 1)}
-        >
-          →
-        </button>
-      </div>
-      <div className={styles.panels}>
-        {tabs.map((tab, index) => (
-          <div
-            key={tab.id || index}
-            id={`${id}-panel-${index}`}
-            role="tabpanel"
-            aria-labelledby={`${id}-tab-${index}`}
-            aria-hidden={index !== active}
-            inert={index !== active}
-            tabIndex={index === active ? 0 : -1}
-            className={styles.panel}
-            data-active={index === active}
-          >
-            <ActiveMedia
-              resource={tab.media}
-              playback={tab.playback}
-              aspectRatio={aspectRatio}
-              active={index === active}
+          {line && (
+            <span
+              aria-hidden="true"
+              className={styles.line}
+              style={{ width: line.width, transform: `translateX(${line.left}px)` }}
             />
-          </div>
-        ))}
+          )}
+        </div>
       </div>
+      {hasDescriptions && (
+        <div className={styles.descriptions} data-tab-description>
+          {tabs.map((tab, index) => (
+            <p
+              key={tab.id || index}
+              className="website-type-body-md"
+              data-active={index === active}
+              aria-hidden={index !== active}
+            >
+              {tab.description || '\u00a0'}
+            </p>
+          ))}
+        </div>
+      )}
     </div>
   )
 }

@@ -4,7 +4,6 @@ import { imageOrVideo } from '@/collections/mediaUploadPolicy'
 import { compactLexical } from '@/fields/compactLexical'
 import { productAspectRatioField } from '../shared/aspectRatio'
 import { playbackField } from '../shared/playbackField'
-import { themeField } from '../shared/themeField'
 
 export const MediaAccordion: Block = {
   slug: 'productMediaAccordion',
@@ -25,14 +24,6 @@ export const MediaAccordion: Block = {
     },
   },
   fields: [
-    {
-      name: 'eyebrow',
-      type: 'text',
-      maxLength: 40,
-      admin: {
-        description: 'Optional short label shown above the title.',
-      },
-    },
     { name: 'title', type: 'text', maxLength: 80 },
     {
       name: 'items',
@@ -43,17 +34,15 @@ export const MediaAccordion: Block = {
       fields: [
         { name: 'title', type: 'text', required: true, maxLength: 80 },
         { name: 'body', type: 'richText', editor: compactLexical },
-        { name: 'media', type: 'upload', relationTo: 'media', filterOptions: imageOrVideo },
+        {
+          name: 'media',
+          type: 'upload',
+          relationTo: 'media',
+          filterOptions: imageOrVideo,
+          required: true,
+        },
         playbackField,
       ],
-    },
-    {
-      name: 'defaultMedia',
-      label: 'Default Media',
-      type: 'upload',
-      relationTo: 'media',
-      filterOptions: imageOrVideo,
-      required: true,
     },
     {
       type: 'row',
@@ -69,8 +58,7 @@ export const MediaAccordion: Block = {
           defaultValue: 'right',
           required: true,
         },
-        productAspectRatioField({ values: ['4:5', '1:1', '4:3'], defaultValue: '1:1' }),
-        themeField,
+        productAspectRatioField({ values: ['4:5', '1:1', '4:3'], defaultValue: '4:3' }),
       ],
     },
   ],

@@ -202,7 +202,7 @@ describe('shared product presentation', () => {
         <SegmentIndicator count={3} active={1} />
       </>,
     )
-    expect(screen.getByRole('heading', { level: 2 }).textContent).toBe('Made for tea')
+    expect(screen.getByRole('heading', { level: 3 }).textContent).toBe('Made for tea')
     expect(container.querySelectorAll('[data-active]')).toHaveLength(1)
     expect(container.querySelector('[data-active]')?.getAttribute('data-active')).toBe('true')
   })
@@ -468,7 +468,7 @@ it('updates scrollspy when a section top crosses the activation line without ano
   expect(screen.getByRole('link', { name: 'Overview' }).getAttribute('aria-current')).toBe(
     'location',
   )
-  detailTop = 70
+  detailTop = 115
   await act(async () => {
     fireEvent.scroll(window)
     await new Promise((resolve) => setTimeout(resolve, 30))
@@ -478,7 +478,7 @@ it('updates scrollspy when a section top crosses the activation line without ano
   )
 })
 
-it('uses resolved navigation top and height pixels for observer margins instead of parsing header custom-property units', () => {
+it('uses resolved Header offset and navigation height instead of parsing Header custom-property units', () => {
   const readStyle = actualComputedStyle
   vi.spyOn(window, 'getComputedStyle').mockImplementation((element) => {
     const style = readStyle(element)

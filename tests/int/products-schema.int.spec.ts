@@ -1,7 +1,12 @@
 import { describe, expect, it } from 'vitest'
+import type { Field } from 'payload'
 import { ProductCategories } from '@/collections/ProductCategories'
 import { productBlocks } from '@/collections/Products/blocks'
+import { productSections } from '@/collections/Products/fields/sections'
 import { imageOnly } from '@/collections/mediaUploadPolicy'
+
+const named = (fields: Field[]): Field[] =>
+  fields.flatMap((field) => ('fields' in field ? [field, ...named(field.fields)] : [field]))
 
 describe('Product category configuration', () => {
   it('is an ordered, unversioned Product collection with public reads and authenticated writes', async () => {
@@ -80,6 +85,45 @@ describe('Product category configuration', () => {
 })
 
 describe('Products configuration', () => {
+  it('owns theme and heading data on sections without nesting anchor data', () => {
+    expect(named(productSections.fields)).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          name: 'theme',
+          type: 'select',
+          required: true,
+          defaultValue: 'default',
+          options: [
+            { label: 'Default', value: 'default' },
+            { label: 'Inverse', value: 'inverse' },
+          ],
+        }),
+        expect.objectContaining({ name: 'title', type: 'text' }),
+        expect.objectContaining({ name: 'description', type: 'textarea' }),
+        expect.objectContaining({ name: 'anchor', type: 'text' }),
+      ]),
+    )
+    expect(productSections.fields).toContainEqual(
+      expect.objectContaining({
+        type: 'collapsible',
+        label: 'Advanced',
+        admin: { initCollapsed: true },
+        fields: [
+          expect.objectContaining({
+            name: 'anchor',
+            type: 'text',
+            admin: {
+              description: 'Generated from the label when empty. Keep it stable after publishing.',
+            },
+          }),
+        ],
+      }),
+    )
+    expect(
+      named(productSections.fields).map((field) => 'name' in field && field.name),
+    ).not.toContain('advanced')
+  })
+
   it('registers both Product collections and the required publishing settings', async () => {
     const config = await (await import('@/payload.config')).default
     const products = config.collections.find(({ slug }) => slug === 'products')
@@ -195,14 +239,17 @@ describe('Products configuration', () => {
           admin: {
             initCollapsed: true,
             description:
-              'Each section becomes a tab in the sticky section nav on the product page, in this order. Sections without blocks are hidden.',
+              'Every section appears in the sticky section nav on the product page, in this order.',
             components: {
               RowLabel: '@/collections/Products/admin/SectionRowLabel#SectionRowLabel',
             },
           },
           fields: expect.arrayContaining([
             expect.objectContaining({ name: 'label', type: 'text', required: true, maxLength: 40 }),
-            expect.objectContaining({ name: 'anchor', type: 'text' }),
+            expect.objectContaining({
+              type: 'collapsible',
+              fields: [expect.objectContaining({ name: 'anchor', type: 'text' })],
+            }),
             expect.objectContaining({ name: 'blocks', type: 'blocks', blocks: productBlocks }),
           ]),
         },

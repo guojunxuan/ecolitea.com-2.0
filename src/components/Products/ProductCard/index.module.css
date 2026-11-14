@@ -59,7 +59,7 @@
 }
 @media (width < 48rem) {
   .cover {
-    aspect-ratio: var(--product-card-media-ratio, 1);
+    aspect-ratio: var(--product-card-media-ratio, 5 / 4);
   }
   .actions {
     padding-top: var(--website-space-4);

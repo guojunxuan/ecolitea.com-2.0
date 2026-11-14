@@ -101,7 +101,16 @@ const detail = {
   overview: ['Summary'],
   specifications: [],
   downloads: [],
-  sections: [{ anchor: 'features', label: 'Hidden label', blocks: [] }],
+  sections: [
+    {
+      anchor: 'features',
+      label: 'Hidden label',
+      theme: 'default',
+      title: null,
+      description: null,
+      blocks: [],
+    },
+  ],
   relatedProducts: [],
 }
 beforeEach(() => {
@@ -297,7 +306,7 @@ describe('Products routes', () => {
       overview.getAttribute('aria-controls'),
     )
     expect(screen.getByText('Summary')).toBeTruthy()
-    expect(screen.getByText('Block content')).toBeTruthy()
+    expect(screen.queryByText('Block content')).toBeNull()
     expect(screen.queryByText(/Download/)).toBeNull()
     const quote = screen.getByRole<HTMLButtonElement>('button', { name: 'Request a quote' })
     expect(quote.disabled).toBe(false)
@@ -544,4 +553,124 @@ describe('Products routes', () => {
     expect(metadata.alternates?.canonical).toBe('/products/tea/bag')
     expect(metadata.robots).toEqual({ index: false, follow: false })
   })
+  it.each(['', ' \t\n '])('falls back to product text for blank detail SEO %j', async (blank) => {
+    mocks.product.mockResolvedValue({
+      ...detail,
+      meta: { image: null, title: blank, description: blank },
+    })
+    const metadata = await detailMetadata({
+      params: Promise.resolve({ category: 'tea', product: 'bag' }),
+    })
+    expect(metadata).toMatchObject({ title: detail.title, description: detail.summary })
+    expect(metadata.openGraph).toMatchObject({ title: detail.title, description: detail.summary })
+  })
+  it('uses trimmed detail SEO overrides when provided', async () => {
+    mocks.product.mockResolvedValue({
+      ...detail,
+      meta: { image: null, title: '  Custom title  ', description: '  Custom description  ' },
+    })
+    const metadata = await detailMetadata({
+      params: Promise.resolve({ category: 'tea', product: 'bag' }),
+    })
+    expect(metadata).toMatchObject({ title: 'Custom title', description: 'Custom description' })
+    expect(metadata.openGraph).toMatchObject({
+      title: 'Custom title',
+      description: 'Custom description',
+    })
+  })
+})
+
+it.each([
+  { name: 'title and description', title: 'Made with care', description: 'Everyday use' },
+  { name: 'title only', title: 'Made with care', description: null },
+  { name: 'description only', title: null, description: 'Everyday use' },
+  { name: 'neither title nor description', title: null, description: null },
+])('uses label only as an accessible fallback with $name', async ({ title, description }) => {
+  mocks.product.mockResolvedValue({
+    ...detail,
+    sections: [
+      {
+        label: 'Navigation only',
+        anchor: 'materials',
+        title,
+        description,
+        theme: 'inverse',
+        blocks: [
+          {
+            blockType: 'productCode',
+            label: 'Example',
+            html: '<p>Example</p>',
+            minHeight: 400,
+            width: 'standard',
+          },
+        ],
+      },
+    ],
+  })
+  const { container } = render(
+    await Detail({ params: Promise.resolve({ category: 'tea', product: 'bag' }) }),
+  )
+  const section = screen.getByRole('region', { name: title || 'Navigation only' })
+  expect(section.getAttribute('data-website-theme')).toBe('inverse')
+  expect(screen.queryByText('Navigation only')).toBeNull()
+  expect(section.querySelector('.website-type-eyebrow')).toBeNull()
+  expect(container.querySelectorAll('h1')).toHaveLength(1)
+  if (title) {
+    const heading = within(section).getByRole('heading', { level: 2, name: title })
+    expect(heading.classList.contains('website-type-heading-1')).toBe(true)
+    expect(section.getAttribute('aria-labelledby')).toBe(heading.id)
+    expect(section.hasAttribute('aria-label')).toBe(false)
+  } else {
+    expect(section.getAttribute('aria-label')).toBe('Navigation only')
+    expect(section.hasAttribute('aria-labelledby')).toBe(false)
+    expect(within(section).queryByRole('heading')).toBeNull()
+  }
+  if (description)
+    expect(within(section).getByText(description).classList.contains('website-type-excerpt')).toBe(
+      true,
+    )
+  if (title || description) {
+    expect(section.querySelector('header')).toBeTruthy()
+  } else {
+    expect(section.querySelector('header')).toBeNull()
+    expect(section.firstElementChild?.textContent).toBe('Block content')
+  }
+})
+
+it.each([
+  { name: 'full-bleed block without header', width: 'full', title: null, start: true, end: true },
+  {
+    name: 'full-bleed block after a header',
+    width: 'full',
+    title: 'Made with care',
+    start: false,
+    end: true,
+  },
+  { name: 'contained block', width: 'standard', title: null, start: false, end: false },
+])('marks section edges flush for a $name', async ({ width, title, start, end }) => {
+  mocks.product.mockResolvedValue({
+    ...detail,
+    sections: [
+      {
+        label: 'Edges',
+        anchor: 'edges',
+        title,
+        description: null,
+        theme: 'default',
+        blocks: [
+          {
+            blockType: 'productCode',
+            label: 'Example',
+            html: '<p>Example</p>',
+            minHeight: 400,
+            width,
+          },
+        ],
+      },
+    ],
+  })
+  render(await Detail({ params: Promise.resolve({ category: 'tea', product: 'bag' }) }))
+  const section = screen.getByRole('region', { name: title || 'Edges' })
+  expect(section.hasAttribute('data-flush-start')).toBe(start)
+  expect(section.hasAttribute('data-flush-end')).toBe(end)
 })

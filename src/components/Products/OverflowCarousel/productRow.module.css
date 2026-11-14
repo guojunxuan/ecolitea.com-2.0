@@ -40,6 +40,7 @@
 @media (width < 48rem) {
   .root {
     --product-row-gap: var(--website-space-3);
-    --product-row-card: calc((var(--product-row-content) - var(--product-row-gap)) / 2);
+    --product-row-card: var(--product-row-content);
+    --carousel-media-center: calc(var(--product-row-card) * 0.4 + var(--website-space-1));
   }
 }

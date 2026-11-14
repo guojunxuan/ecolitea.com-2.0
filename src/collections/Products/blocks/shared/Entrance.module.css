@@ -1,10 +1,11 @@
-.entrance[data-entered='true'] {
+.entrance[data-entrance-state='playing'] {
   animation: entrance var(--website-duration-slow) var(--website-easing-standard) both;
+  animation-delay: calc(var(--product-entrance-order, 0) * var(--website-duration-fast) / 2);
 }
 @keyframes entrance {
   from {
     opacity: 0;
-    transform: translateY(16px);
+    transform: translateY(var(--website-space-4));
   }
   to {
     opacity: 1;
@@ -12,7 +13,7 @@
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .entrance[data-entered='true'] {
+  .entrance[data-entrance-state='playing'] {
     animation: none;
   }
 }

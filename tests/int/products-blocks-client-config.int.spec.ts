@@ -40,6 +40,22 @@ describe('Products sanitized Admin client config', () => {
     expect(clientSections.type).toBe('array')
     if (serverSections.type !== 'array' || clientSections.type !== 'array')
       throw new Error('Missing sections array')
+    expect([...fields(clientSections.fields)]).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ name: 'theme', type: 'select', required: true }),
+        expect.objectContaining({ name: 'title', type: 'text' }),
+        expect.objectContaining({ name: 'description', type: 'textarea' }),
+        expect.objectContaining({ name: 'anchor', type: 'text' }),
+      ]),
+    )
+    expect(clientSections.fields).toContainEqual(
+      expect.objectContaining({
+        type: 'collapsible',
+        label: 'Advanced',
+        admin: expect.objectContaining({ initCollapsed: true }),
+        fields: [expect.objectContaining({ name: 'anchor', type: 'text' })],
+      }),
+    )
     const serverBlocks = serverSections.fields.find(
       (field) => 'name' in field && field.name === 'blocks',
     )!
@@ -73,6 +89,7 @@ describe('Products sanitized Admin client config', () => {
         }
       }
       for (const field of fields(block.fields)) {
+        if ('name' in field) expect(['eyebrow', 'theme', 'defaultMedia']).not.toContain(field.name)
         expect(field).not.toHaveProperty('hooks')
         expect(field).not.toHaveProperty('validate')
         expect(field).not.toHaveProperty('admin.condition')

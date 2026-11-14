@@ -11,6 +11,7 @@ export const QuoteRequests: CollectionConfig = {
   labels: { singular: 'Quote Request', plural: 'Quote Requests' },
   defaultSort: '-createdAt',
   admin: {
+    group: 'Product',
     useAsTitle: 'name',
     defaultColumns: ['name', 'email', 'company', 'productTitle', 'status', 'createdAt'],
   },

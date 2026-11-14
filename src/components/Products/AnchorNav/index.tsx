@@ -32,10 +32,6 @@ export const AnchorNav = ({
       return target ? [target] : []
     })
     const previousMargins = targets.map((target) => target.style.scrollMarginTop)
-    targets.forEach((target) => {
-      target.style.scrollMarginTop =
-        'calc(var(--header-height) + var(--website-anchor-nav-height) + var(--website-space-4))'
-    })
     let frame = 0
     let spy = () => {}
     const onScroll = () => {
@@ -54,11 +50,20 @@ export const AnchorNav = ({
       const measured = getComputedStyle(navigation.current)
       const header = Number.parseFloat(measured.top) || 0
       const navHeight = Number.parseFloat(measured.height) || 0
-      const space = Number.parseFloat(measured.getPropertyValue('--website-space-4')) || 0
+      const space =
+        variant === 'detail'
+          ? 0
+          : Number.parseFloat(measured.getPropertyValue('--website-space-4')) || 0
+      targets.forEach((target) => {
+        target.style.scrollMarginTop =
+          variant === 'detail'
+            ? `${header + navHeight}px`
+            : 'calc(var(--header-height) + var(--website-anchor-nav-height) + var(--website-space-4))'
+      })
       const boundaryId = revealAfter ?? (variant === 'detail' ? 'overview' : undefined)
       const boundary = boundaryId ? document.getElementById(boundaryId) : null
-      const updateStuck = () => {
-        if (boundary) setStuck(boundary.getBoundingClientRect().bottom <= header)
+      const updateStuck = (bottom = boundary?.getBoundingClientRect().bottom) => {
+        if (bottom != null) setStuck(bottom <= header + (variant === 'detail' ? 1 : 0))
         else if (revealAfter) setStuck(true)
       }
       updateStuck()
@@ -80,7 +85,7 @@ export const AnchorNav = ({
       if (boundary) {
         boundaryObserver = new IntersectionObserver(
           ([entry]) => {
-            if (entry) setStuck(!entry.isIntersecting && entry.boundingClientRect.bottom <= header)
+            if (entry) updateStuck(entry.boundingClientRect.bottom)
           },
           { rootMargin: `-${header}px 0px 0px 0px`, threshold: 0 },
         )
@@ -104,12 +109,30 @@ export const AnchorNav = ({
 
   useEffect(() => {
     const track = ref.current
-    const link = track?.querySelector<HTMLAnchorElement>('a[aria-current="location"]')
-    if (!track || !link) return
-    const trackBounds = track.getBoundingClientRect()
-    const linkBounds = link.getBoundingClientRect()
-    if (linkBounds.left < trackBounds.left || linkBounds.right > trackBounds.right) {
-      link.scrollIntoView({ inline: 'nearest', block: 'nearest', behavior: scrollBehavior() })
+    if (!track) return
+    const reveal = () => {
+      const link = track.querySelector<HTMLAnchorElement>('a[aria-current="location"]')
+      if (!link) return
+      const trackBounds = track.getBoundingClientRect()
+      const linkBounds = link.getBoundingClientRect()
+      const arrows = navigation.current?.querySelectorAll<HTMLButtonElement>('button')
+      const start = trackBounds.left + (arrows?.[0]?.offsetWidth || 0)
+      const end = trackBounds.right - (arrows?.[1]?.offsetWidth || 0)
+      if (linkBounds.left < start || linkBounds.right > end) {
+        track.scrollBy({
+          left: linkBounds.left < start ? linkBounds.left - start : linkBounds.right - end,
+          behavior: scrollBehavior(),
+        })
+      }
+    }
+    reveal()
+    window.addEventListener('resize', reveal)
+    const observer = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(reveal)
+    observer?.observe(track)
+    Array.from(track.children).forEach((link) => observer?.observe(link))
+    return () => {
+      window.removeEventListener('resize', reveal)
+      observer?.disconnect()
     }
   }, [active, ref])
 
@@ -140,6 +163,7 @@ export const AnchorNav = ({
                   if (!target) return
                   event.preventDefault()
                   setActive(id)
+                  if (variant === 'detail' && id === 'overview') setStuck(false)
                   target.scrollIntoView({ behavior: scrollBehavior(), block: 'start' })
                   window.history.replaceState(
                     window.history.state,

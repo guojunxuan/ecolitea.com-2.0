@@ -151,11 +151,14 @@ export const toProductDetail = (value: Product): ProductDetail => {
         ? toProductCategory(value.category)
         : null,
     gallery: [...gallery.values()],
-    sections: (value.sections ?? []).flatMap((section) =>
-      section.blocks?.length
-        ? [{ label: section.label ?? '', anchor: section.anchor ?? '', blocks: section.blocks }]
-        : [],
-    ),
+    sections: (value.sections ?? []).map((section) => ({
+      label: section.label,
+      anchor: section.anchor ?? '',
+      theme: section.theme === 'inverse' ? 'inverse' : 'default',
+      title: section.title?.trim() || null,
+      description: section.description?.trim() || null,
+      blocks: section.blocks ?? [],
+    })),
     meta: meta(value.meta),
     relatedProducts: (value.relatedProducts ?? []).map((item) =>
       typeof item === 'string' ? item : item.id,

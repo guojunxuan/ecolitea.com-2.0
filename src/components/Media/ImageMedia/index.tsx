@@ -86,9 +86,7 @@ export const ImageMedia: React.FC<MediaProps> = (props) => {
   }
 
   const focalPoint =
-    resource &&
-    typeof resource === 'object' &&
-    (resource.focalX != null || resource.focalY != null)
+    resource && typeof resource === 'object' && (resource.focalX != null || resource.focalY != null)
       ? { x: resource.focalX ?? 50, y: resource.focalY ?? 50 }
       : undefined
   const pictureStyle: React.CSSProperties = useRatioFrame
@@ -117,6 +115,9 @@ export const ImageMedia: React.FC<MediaProps> = (props) => {
   const hasMobileImage = Boolean(
     mobileResource?.url && mobileResource.mimeType?.startsWith('image/'),
   )
+  const mobileImagePresentation = imagePresentation?.mobileAspectRatio
+    ? { ...imagePresentation, aspectRatio: imagePresentation.mobileAspectRatio }
+    : imagePresentation
   const loading =
     loadingFromProps || (hasMobileImage && priority ? 'eager' : !priority ? 'lazy' : undefined)
 
@@ -139,7 +140,7 @@ export const ImageMedia: React.FC<MediaProps> = (props) => {
               source,
               width: requestedWidth,
               quality,
-              presentation: imagePresentation,
+              presentation: mobileImagePresentation,
               focalPoint: { x: mobileResource.focalX ?? 50, y: mobileResource.focalY ?? 50 },
             }),
         }).props

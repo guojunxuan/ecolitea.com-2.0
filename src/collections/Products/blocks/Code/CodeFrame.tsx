@@ -1,14 +1,9 @@
 'use client'
 
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { escapeStyle, inheritedTokenNames } from './tokens'
 
 import styles from './Component.module.css'
-
-const fontFallbacks: Record<string, string> = {
-  '--website-font-sans': 'ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif',
-  '--website-font-mono': 'ui-monospace, SFMono-Regular, Menlo, monospace',
-}
 
 export function CodeFrame({
   title,
@@ -21,44 +16,67 @@ export function CodeFrame({
 }) {
   const container = useRef<HTMLDivElement>(null)
   const frame = useRef<HTMLIFrameElement>(null)
-  const minimum = Number.isFinite(minHeight) ? Math.min(10000, Math.max(0, minHeight)) : 400
-  const [measurement, setMeasurement] = useState({ srcDoc, minimum, height: minimum })
-  const height =
-    measurement.srcDoc === srcDoc && measurement.minimum === minimum ? measurement.height : minimum
-  const [preparedSource, setPreparedSource] = useState<{ input: string; value: string } | null>(
-    null,
-  )
+  const minimum = Number.isFinite(minHeight) ? Math.min(10000, Math.max(0, minHeight)) : 240
+  const [preparedSource, setPreparedSource] = useState<{
+    input: string
+    value: string
+    revision: number
+  } | null>(null)
+  const [measurement, setMeasurement] = useState<{ revision: number; height: number } | null>(null)
+  const revision = preparedSource?.revision
+  const ready = preparedSource?.input === srcDoc && measurement?.revision === revision
+  const height = ready && measurement ? Math.max(minimum, measurement.height) : minimum
   useEffect(() => {
     const element = container.current
     if (!element) return
-    const inheritedTheme = element
-      .closest('[data-website-theme]')
-      ?.getAttribute('data-website-theme')
-    const themedSource =
-      inheritedTheme === 'default' || inheritedTheme === 'inverse'
-        ? srcDoc.replace(
-            /<html data-website-theme="(?:default|inverse)">/,
-            `<html data-website-theme="${inheritedTheme}">`,
-          )
-        : srcDoc
-    const computed = getComputedStyle(element)
-    const values = inheritedTokenNames
-      .map((name) => {
-        const value = computed.getPropertyValue(name).trim()
-        // Site web fonts cannot load in the opaque-origin frame, so keep a generic fallback.
-        const fallback = fontFallbacks[name]
-        return value ? `${name}:${fallback ? `${value}, ${fallback}` : value};` : ''
-      })
-      .join('')
-    setPreparedSource({
-      input: srcDoc,
-      value: themedSource.replace(
-        '<style id="product-code-theme"></style>',
-        `<style id="product-code-theme">:root{${escapeStyle(values)}}</style>`,
-      ),
+    const themeAncestor = element.closest('[data-website-theme]')
+    const readTheme = (): 'default' | 'inverse' =>
+      themeAncestor?.getAttribute('data-website-theme') === 'inverse' ? 'inverse' : 'default'
+    const prepare = (inheritedTheme: 'default' | 'inverse') => {
+      const themedSource = srcDoc.replace(
+        /<html data-website-theme="(?:default|inverse)">/,
+        `<html data-website-theme="${inheritedTheme}">`,
+      )
+      const computed = getComputedStyle(element)
+      const values = inheritedTokenNames
+        .map((name) => {
+          const value = computed.getPropertyValue(name).trim()
+          return value ? `${name}:${value};` : ''
+        })
+        .join('')
+      // Opaque-origin srcdoc frames request these same-site font URLs with Origin:null.
+      // Their scoped CORS headers allow loading without granting allow-same-origin.
+      const sansURL = new URL('/fonts/product-code/Geist-Variable.woff2', window.location.origin)
+        .href
+      const monoURL = new URL(
+        '/fonts/product-code/GeistMono-Variable.woff2',
+        window.location.origin,
+      ).href
+      const fontCSS = `@font-face{font-family:ProductCodeGeist;src:url(${JSON.stringify(sansURL)}) format('woff2');font-style:normal;font-weight:100 900;font-display:swap}@font-face{font-family:ProductCodeGeistMono;src:url(${JSON.stringify(monoURL)}) format('woff2');font-style:normal;font-weight:100 900;font-display:swap}:root{--font-geist-sans:ProductCodeGeist;--font-geist-mono:ProductCodeGeistMono;--website-font-sans:ProductCodeGeist,system-ui,sans-serif;--website-font-mono:ProductCodeGeistMono,ui-monospace,monospace}`
+      setMeasurement(null)
+      setPreparedSource((previous) => ({
+        input: srcDoc,
+        revision: (previous?.revision ?? 0) + 1,
+        value: themedSource.replace(
+          '<style id="product-code-theme"></style>',
+          `<style id="product-code-theme">:root{${escapeStyle(values)}}${escapeStyle(fontCSS)}</style>`,
+        ),
+      }))
+    }
+    let currentTheme = readTheme()
+    prepare(currentTheme)
+    if (!themeAncestor) return
+    const observer = new MutationObserver(() => {
+      const nextTheme = readTheme()
+      if (nextTheme === currentTheme) return
+      currentTheme = nextTheme
+      prepare(nextTheme)
     })
+    observer.observe(themeAncestor, { attributes: true, attributeFilter: ['data-website-theme'] })
+    return () => observer.disconnect()
   }, [srcDoc])
-  useEffect(() => {
+  useLayoutEffect(() => {
+    if (revision === undefined) return
     const receive = (event: MessageEvent) => {
       if (
         !frame.current?.contentWindow ||
@@ -69,18 +87,23 @@ export function CodeFrame({
       )
         return
       setMeasurement({
-        srcDoc,
-        minimum,
-        height: Math.max(minimum, Math.min(10000, event.data.height)),
+        revision,
+        height: Math.max(0, Math.min(10000, event.data.height)),
       })
     }
     window.addEventListener('message', receive)
     return () => window.removeEventListener('message', receive)
-  }, [minimum, srcDoc])
+  }, [revision])
   return (
-    <div ref={container} style={{ minHeight: minimum }}>
+    <div
+      ref={container}
+      className={styles.viewport}
+      data-ready={ready}
+      style={{ minHeight: minimum }}
+    >
       {preparedSource?.input === srcDoc && (
         <iframe
+          key={preparedSource.revision}
           className={styles.frame}
           ref={frame}
           sandbox="allow-scripts"

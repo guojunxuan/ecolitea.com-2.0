@@ -10,7 +10,6 @@ import { MediaTabs } from '@/collections/Products/blocks/MediaTabs/config'
 import { MediaAccordion } from '@/collections/Products/blocks/MediaAccordion/config'
 import { MediaText } from '@/collections/Products/blocks/MediaText/config'
 import { playbackField } from '@/collections/Products/blocks/shared/playbackField'
-import { themeField } from '@/collections/Products/blocks/shared/themeField'
 import { compactLexical } from '@/fields/compactLexical'
 import { productBlocks } from '@/collections/Products/blocks'
 import { pageBlocks } from '@/collections/Pages/blocks'
@@ -22,7 +21,6 @@ import { CardGroup, CategoryTabs, LinkGroup, RichCard } from '@/Header/blocks'
 const media = { name: 'media', type: 'upload', relationTo: 'media', filterOptions: imageOrVideo }
 const requiredMedia = { ...media, required: true }
 const body = { name: 'body', type: 'richText', editor: compactLexical }
-const eyebrow = { name: 'eyebrow', type: 'text', maxLength: 40 }
 const title = { name: 'title', type: 'text', maxLength: 80 }
 const description = { description: expect.any(String) }
 const mediaPosition = {
@@ -43,7 +41,7 @@ const aspectRatio = (values: string[], defaultValue: string) => ({
   required: true,
   defaultValue,
   options: values.map((value) => ({
-    label: value === 'original' ? 'Original' : value === 'full-screen' ? 'Full Screen' : value,
+    label: value === 'full-screen' ? 'Full Screen' : value,
     value,
   })),
 })
@@ -56,13 +54,14 @@ const cases = [
     plural: 'Media Banners',
     purpose: /banner/i,
     fields: [
-      { ...title, required: true, admin: description },
+      { ...title, admin: description },
       { name: 'body', type: 'textarea', maxLength: 200 },
       requiredMedia,
+      { ...media, name: 'mobileMedia' },
       playbackField,
       {
         type: 'row',
-        fields: [aspectRatio(['full-screen', '21:9', '16:9', 'original'], '16:9'), themeField],
+        fields: [aspectRatio(['full-screen', '21:9', '16:9'], '21:9')],
       },
     ],
   },
@@ -71,9 +70,7 @@ const cases = [
     name: 'MediaCarousel',
     singular: 'Media Carousel',
     plural: 'Media Carousels',
-    purpose: /^Optional short label shown above the title\.$/,
     fields: [
-      { ...eyebrow, admin: description },
       title,
       {
         name: 'slides',
@@ -83,7 +80,7 @@ const cases = [
         admin: { initCollapsed: true },
         fields: [requiredMedia, playbackField, { name: 'caption', type: 'text', maxLength: 120 }],
       },
-      { type: 'row', fields: [aspectRatio(['21:9', '16:9', '4:3'], '16:9'), themeField] },
+      { type: 'row', fields: [aspectRatio(['21:9', '16:9', '4:3'], '21:9')] },
     ],
   },
   {
@@ -91,9 +88,7 @@ const cases = [
     name: 'MediaTabs',
     singular: 'Media Tabs',
     plural: 'Media Tabs',
-    purpose: /^Optional short label shown above the title\.$/,
     fields: [
-      { ...eyebrow, admin: description },
       title,
       {
         name: 'tabs',
@@ -103,11 +98,12 @@ const cases = [
         admin: { initCollapsed: true },
         fields: [
           { name: 'title', type: 'text', required: true, maxLength: 40 },
+          { name: 'description', type: 'textarea' },
           requiredMedia,
           playbackField,
         ],
       },
-      { type: 'row', fields: [aspectRatio(['21:9', '16:9', '4:3', '1:1'], '16:9'), themeField] },
+      { type: 'row', fields: [aspectRatio(['21:9', '16:9', '4:3', '1:1'], '21:9')] },
     ],
   },
   {
@@ -115,9 +111,7 @@ const cases = [
     name: 'MediaAccordion',
     singular: 'Media Accordion',
     plural: 'Media Accordions',
-    purpose: /^Optional short label shown above the title\.$/,
     fields: [
-      { ...eyebrow, admin: description },
       title,
       {
         name: 'items',
@@ -128,14 +122,13 @@ const cases = [
         fields: [
           { name: 'title', type: 'text', required: true, maxLength: 80 },
           body,
-          media,
+          requiredMedia,
           playbackField,
         ],
       },
-      { ...requiredMedia, name: 'defaultMedia', label: 'Default Media' },
       {
         type: 'row',
-        fields: [mediaPosition, aspectRatio(['4:5', '1:1', '4:3'], '1:1'), themeField],
+        fields: [mediaPosition, aspectRatio(['4:5', '1:1', '4:3'], '4:3')],
       },
     ],
   },
@@ -144,20 +137,14 @@ const cases = [
     name: 'MediaText',
     singular: 'Media + Text',
     plural: 'Media + Text',
-    purpose: /^Optional short label shown above the title\.$/,
     fields: [
-      { ...eyebrow, admin: description },
       { ...title, required: true },
       body,
       requiredMedia,
       playbackField,
       {
         type: 'row',
-        fields: [
-          mediaPosition,
-          aspectRatio(['4:5', '1:1', '4:3', '16:9', 'original'], '4:3'),
-          themeField,
-        ],
+        fields: [mediaPosition, aspectRatio(['4:5', '1:1', '4:3', '16:9'], '4:3')],
       },
     ],
   },
@@ -185,10 +172,14 @@ describe('Products media block schemas', () => {
         },
       },
     })
-    const firstFieldAdmin = entry.block.fields[0].admin
-    expect(
-      firstFieldAdmin && 'description' in firstFieldAdmin ? firstFieldAdmin.description : undefined,
-    ).toMatch(entry.purpose)
+    if (entry.purpose) {
+      const firstFieldAdmin = entry.block.fields[0].admin
+      expect(
+        firstFieldAdmin && 'description' in firstFieldAdmin
+          ? firstFieldAdmin.description
+          : undefined,
+      ).toMatch(entry.purpose)
+    }
   })
 
   it.each(cases)('$name declares exactly the ordered fields and native constraints', (entry) => {
@@ -208,12 +199,9 @@ describe('Products media block schemas', () => {
 
   it('reuses shared fields directly across schemas', () => {
     const fields = cases.flatMap(({ block }) => allFields(block.fields))
-    for (const name of ['theme', 'playback']) {
-      const sharedFields = fields.filter((field) => 'name' in field && field.name === name)
-      expect(new Set(sharedFields).size).toBe(1)
-      for (const field of sharedFields)
-        expect(field).toBe(name === 'theme' ? themeField : playbackField)
-    }
+    const sharedFields = fields.filter((field) => 'name' in field && field.name === 'playback')
+    expect(new Set(sharedFields).size).toBe(1)
+    for (const field of sharedFields) expect(field).toBe(playbackField)
   })
 })
 
@@ -254,6 +242,7 @@ describe('Products Code block and registry', () => {
           description: 'Identifies this block in the Admin list. Not shown on the live site.',
         },
       },
+      title,
       {
         name: 'html',
         type: 'code',
@@ -270,7 +259,7 @@ describe('Products Code block and registry', () => {
         admin: {
           language: 'css',
           description:
-            'Optional inline styles. Use var(--color-foreground) and other tokens for theme-aware colors.',
+            'Use --website-* tokens and .website-type-* classes. Legacy --color-* aliases remain supported.',
         },
       },
       {
@@ -300,7 +289,7 @@ describe('Products Code block and registry', () => {
             name: 'minHeight',
             type: 'number',
             required: true,
-            defaultValue: 400,
+            defaultValue: 240,
             min: 100,
             max: 2000,
             admin: {
@@ -317,7 +306,6 @@ describe('Products Code block and registry', () => {
             defaultValue: 'standard',
             required: true,
           },
-          themeField,
         ],
       },
     ])
@@ -325,7 +313,9 @@ describe('Products Code block and registry', () => {
       'filterOptions',
       imageOrVideo,
     )
-    expect(allFields(code.fields)).toContain(themeField)
+    expect(allFields(code.fields).some((field) => 'name' in field && field.name === 'theme')).toBe(
+      false,
+    )
   })
 
   it('removes legacy vocabulary and Code heights and provides distinct existing wireframe previews', () => {
@@ -335,6 +325,9 @@ describe('Products Code block and registry', () => {
       )
       expect(names).not.toContain('content')
       expect(names).not.toContain('heading')
+      expect(names).not.toContain('eyebrow')
+      expect(names).not.toContain('theme')
+      expect(names).not.toContain('defaultMedia')
       if (block.slug === 'productMediaTabs') expect(names).not.toContain('label')
       if (block.slug === 'productCode')
         for (const name of ['heightMode', 'aspectRatio', 'height', 'mobileHeight'])

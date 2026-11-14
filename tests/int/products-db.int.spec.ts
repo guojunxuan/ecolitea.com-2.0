@@ -138,8 +138,8 @@ describe('Products through isolated Payload Local API', () => {
       data: {
         ...base,
         sections: [
-          { label: 'Tea & Materials 中文', blocks: [] },
-          { label: 'Custom', anchor: 'chosen-anchor' },
+          { label: 'Tea & Materials 中文', theme: 'default', blocks: [] },
+          { label: 'Custom', theme: 'default', anchor: 'chosen-anchor' },
         ],
       },
     })
@@ -177,15 +177,14 @@ describe('Products through isolated Payload Local API', () => {
       anchor: 'new-custom-label',
     })
     await invalid([{ label: 'Same' }, { label: 'Same' }], 'sections.1.anchor')
-    for (const anchor of [
-      'overview',
-      'product-tab-specifications',
-      'product-tab-overview',
-      'related-products',
-      '9-start',
-      'bad space',
-    ])
+    for (const anchor of ['overview', 'related-products', '9-start', 'bad space'])
       await invalid([{ label: 'Label', anchor }], 'sections.0.anchor')
+    for (const anchor of ['product-tab-specifications', 'product-tab-overview']) {
+      expect(
+        (await update({ sections: [{ label: 'Internal name is available', anchor }] }))
+          .sections?.[0]?.anchor,
+      ).toBe(anchor)
+    }
     expect((await update({ sections: [{ label: '中文!!!' }] })).sections?.[0]?.anchor).toBe(
       'section-1',
     )
@@ -213,7 +212,16 @@ describe('Products through isolated Payload Local API', () => {
     const { toProductDetail } = await import('@/utilities/products/shared')
     expect(
       toProductDetail(await payload.findByID({ collection: 'products', id: product.id })).sections,
-    ).toEqual([])
+    ).toEqual([
+      {
+        label: 'Empty section',
+        anchor: 'empty-section',
+        theme: 'default',
+        title: null,
+        description: null,
+        blocks: [],
+      },
+    ])
     await payload.delete({ collection: 'products', id: product.id })
   })
 

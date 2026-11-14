@@ -3,7 +3,6 @@ import type { Block } from 'payload'
 import { imageOrVideo } from '@/collections/mediaUploadPolicy'
 import { productAspectRatioField } from '../shared/aspectRatio'
 import { playbackField } from '../shared/playbackField'
-import { themeField } from '../shared/themeField'
 
 export const MediaBanner: Block = {
   slug: 'productMediaBanner',
@@ -27,7 +26,6 @@ export const MediaBanner: Block = {
     {
       name: 'title',
       type: 'text',
-      required: true,
       maxLength: 80,
       admin: { description: 'A wide media banner with an overlaid title and short centered copy.' },
     },
@@ -39,15 +37,20 @@ export const MediaBanner: Block = {
       filterOptions: imageOrVideo,
       required: true,
     },
+    {
+      name: 'mobileMedia',
+      type: 'upload',
+      relationTo: 'media',
+      filterOptions: imageOrVideo,
+    },
     playbackField,
     {
       type: 'row',
       fields: [
         productAspectRatioField({
-          values: ['full-screen', '21:9', '16:9', 'original'],
-          defaultValue: '16:9',
+          values: ['full-screen', '21:9', '16:9'],
+          defaultValue: '21:9',
         }),
-        themeField,
       ],
     },
   ],

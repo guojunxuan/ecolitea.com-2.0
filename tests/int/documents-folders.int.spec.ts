@@ -29,6 +29,12 @@ beforeAll(async () => {
       db: mongooseAdapter({ url, connectOptions: { serverSelectionTimeoutMS: 3000 } }),
       collections: [
         {
+          slug: 'products',
+          fields: [
+            { name: 'resources', type: 'relationship', relationTo: 'documents', hasMany: true },
+          ],
+        },
+        {
           slug: 'folders',
           folders: true,
           fields: [{ name: 'name', type: 'text', required: true }],

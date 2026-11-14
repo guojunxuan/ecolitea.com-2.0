@@ -4,7 +4,6 @@ import { imageOrVideo } from '@/collections/mediaUploadPolicy'
 import { compactLexical } from '@/fields/compactLexical'
 import { productAspectRatioField } from '../shared/aspectRatio'
 import { playbackField } from '../shared/playbackField'
-import { themeField } from '../shared/themeField'
 
 export const MediaText: Block = {
   slug: 'productMediaText',
@@ -25,12 +24,6 @@ export const MediaText: Block = {
     },
   },
   fields: [
-    {
-      name: 'eyebrow',
-      type: 'text',
-      maxLength: 40,
-      admin: { description: 'Optional short label shown above the title.' },
-    },
     { name: 'title', type: 'text', required: true, maxLength: 80 },
     { name: 'body', type: 'richText', editor: compactLexical },
     {
@@ -56,10 +49,9 @@ export const MediaText: Block = {
           required: true,
         },
         productAspectRatioField({
-          values: ['4:5', '1:1', '4:3', '16:9', 'original'],
+          values: ['4:5', '1:1', '4:3', '16:9'],
           defaultValue: '4:3',
         }),
-        themeField,
       ],
     },
   ],

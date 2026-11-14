@@ -1,4 +1,5 @@
 import type { Media, Product, ProductCategory } from '@/payload-types'
+import type { ProductBlock } from '@/collections/Products/blocks/RenderProductBlocks'
 
 export type ProductMeta = {
   title?: string | null
@@ -50,7 +51,10 @@ export type ProductDetail = Pick<
   sections: {
     label: string
     anchor: string
-    blocks: NonNullable<NonNullable<Product['sections']>[number]['blocks']>
+    theme: 'default' | 'inverse'
+    title: string | null
+    description: string | null
+    blocks: ProductBlock[]
   }[]
   meta: ProductMeta
   relatedProducts: string[]

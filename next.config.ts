@@ -13,7 +13,14 @@ const NEXT_PUBLIC_SERVER_URL = process.env.VERCEL_PROJECT_PRODUCTION_URL
   : process.env.__NEXT_PRIVATE_ORIGIN || 'http://localhost:3000'
 
 const nextConfig: NextConfig = {
-  allowedDevOrigins: ['127.0.0.1'],
+  // Extra local hostnames (comma-separated) for dev-only features bound to a domain, e.g. Turnstile.
+  allowedDevOrigins: [
+    '127.0.0.1',
+    ...(process.env.NEXT_DEV_ALLOWED_ORIGINS ?? '')
+      .split(',')
+      .map((origin) => origin.trim())
+      .filter(Boolean),
+  ],
   // Keep browser-test builds separate from a developer's active `.next` output.
   distDir: process.env.PLAYWRIGHT_TEST === 'true' ? '.next-e2e' : '.next',
   output: 'standalone',
@@ -54,6 +61,15 @@ const nextConfig: NextConfig = {
     return webpackConfig
   },
   reactStrictMode: true,
+  headers: () => [
+    {
+      source: '/fonts/product-code/:font*',
+      headers: [
+        { key: 'Access-Control-Allow-Origin', value: '*' },
+        { key: 'Access-Control-Allow-Methods', value: 'GET, HEAD' },
+      ],
+    },
+  ],
   redirects,
   turbopack: {
     root: path.resolve(dirname),

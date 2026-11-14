@@ -14,6 +14,8 @@ export type MediaFit = 'cover' | 'contain' | 'scale-down'
 
 export type ImagePresentation = {
   aspectRatio?: AspectRatio
+  /** Crop override for mobileResource below 48rem. */
+  mobileAspectRatio?: AspectRatio
   fit?: MediaFit
   quality?: number
 }

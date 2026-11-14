@@ -3,7 +3,6 @@ import type { Block } from 'payload'
 import { imageOrVideo } from '@/collections/mediaUploadPolicy'
 import { productAspectRatioField } from '../shared/aspectRatio'
 import { playbackField } from '../shared/playbackField'
-import { themeField } from '../shared/themeField'
 
 export const MediaTabs: Block = {
   slug: 'productMediaTabs',
@@ -24,12 +23,6 @@ export const MediaTabs: Block = {
     },
   },
   fields: [
-    {
-      name: 'eyebrow',
-      type: 'text',
-      maxLength: 40,
-      admin: { description: 'Optional short label shown above the title.' },
-    },
     { name: 'title', type: 'text', maxLength: 80 },
     {
       name: 'tabs',
@@ -39,6 +32,7 @@ export const MediaTabs: Block = {
       admin: { initCollapsed: true },
       fields: [
         { name: 'title', type: 'text', required: true, maxLength: 40 },
+        { name: 'description', type: 'textarea' },
         {
           name: 'media',
           type: 'upload',
@@ -52,8 +46,7 @@ export const MediaTabs: Block = {
     {
       type: 'row',
       fields: [
-        productAspectRatioField({ values: ['21:9', '16:9', '4:3', '1:1'], defaultValue: '16:9' }),
-        themeField,
+        productAspectRatioField({ values: ['21:9', '16:9', '4:3', '1:1'], defaultValue: '21:9' }),
       ],
     },
   ],

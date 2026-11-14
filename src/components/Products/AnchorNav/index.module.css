@@ -39,9 +39,6 @@
 .links::-webkit-scrollbar {
   display: none;
 }
-.navigation[data-variant='detail'][data-stuck] .links {
-  justify-content: flex-start;
-}
 .link {
   composes: website-type-body-sm from global;
   display: flex;
@@ -103,6 +100,9 @@
   .links {
     justify-content: flex-start;
     gap: var(--website-space-6);
+  }
+  .navigation[data-variant='detail'] .links {
+    justify-content: safe center;
   }
 }
 @media (prefers-reduced-motion: reduce) {

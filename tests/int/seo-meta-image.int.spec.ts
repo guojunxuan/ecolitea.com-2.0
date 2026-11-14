@@ -10,7 +10,7 @@ import type { Field } from 'payload'
 
 const findImageField = (fields: Field[]): Field | undefined => {
   for (const field of fields) {
-    if ('name' in field && field.name === 'meta' && 'fields' in field) {
+    if ('name' in field && ['meta', 'seo'].includes(field.name ?? '') && 'fields' in field) {
       return field.fields.find((child) => 'name' in child && child.name === 'image')
     }
     if ('fields' in field && Array.isArray(field.fields)) {
@@ -45,12 +45,7 @@ describe('SEO Meta Image auto-generation', () => {
   )
 
   it('enables the Settings Blog Meta Image button', () => {
-    const seoSection = blogTab.fields[1]
-    const seoGroup = seoSection && 'fields' in seoSection && seoSection.fields[0]
-    const image =
-      seoGroup &&
-      'fields' in seoGroup &&
-      seoGroup.fields.find((field) => 'name' in field && field.name === 'image')
+    const image = findImageField(blogTab.fields)
     expect(image && image.admin?.components?.Field).toMatchObject({
       clientProps: { hasGenerateImageFn: true },
     })

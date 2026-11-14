@@ -3,7 +3,6 @@ import type { Block } from 'payload'
 import { imageOrVideo } from '@/collections/mediaUploadPolicy'
 import { productAspectRatioField } from '../shared/aspectRatio'
 import { playbackField } from '../shared/playbackField'
-import { themeField } from '../shared/themeField'
 
 export const MediaCarousel: Block = {
   slug: 'productMediaCarousel',
@@ -24,12 +23,6 @@ export const MediaCarousel: Block = {
     },
   },
   fields: [
-    {
-      name: 'eyebrow',
-      type: 'text',
-      maxLength: 40,
-      admin: { description: 'Optional short label shown above the title.' },
-    },
     { name: 'title', type: 'text', maxLength: 80 },
     {
       name: 'slides',
@@ -51,10 +44,7 @@ export const MediaCarousel: Block = {
     },
     {
       type: 'row',
-      fields: [
-        productAspectRatioField({ values: ['21:9', '16:9', '4:3'], defaultValue: '16:9' }),
-        themeField,
-      ],
+      fields: [productAspectRatioField({ values: ['21:9', '16:9', '4:3'], defaultValue: '21:9' })],
     },
   ],
 }

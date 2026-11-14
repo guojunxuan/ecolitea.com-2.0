@@ -1,9 +1,10 @@
 import { mongooseAdapter, type MongooseAdapter } from '@payloadcms/db-mongodb'
 import { execFile } from 'node:child_process'
+import path from 'node:path'
 import { promisify } from 'node:util'
 import { randomUUID } from 'node:crypto'
 import { buildConfig, getPayload, type Payload } from 'payload'
-import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { up, down } from '@/migrations/20261013_site_assets'
 import { createIsolatedTestDatabaseURI } from '../helpers/isolatedDatabase'
@@ -11,8 +12,10 @@ import { createIsolatedTestDatabaseURI } from '../helpers/isolatedDatabase'
 describe('Site Assets database migration', () => {
   let payload: Payload
   let adapter: MongooseAdapter
-  const databaseName = `ecolitea2-assets-${randomUUID()}`
+  const databaseName = `ecolitea2-test-site-assets-${randomUUID()}`
   const databaseURI = createIsolatedTestDatabaseURI(databaseName)
+  const cliConfigPath = path.resolve(process.cwd(), 'tests/helpers/siteAssetsMigration/payload.config.ts')
+  const asset = { _id: 'asset-id', filename: 'logo.svg', url: 'https://media.example.invalid/logo.svg' }
 
   beforeAll(async () => {
     console.info(`Migration test target: ${databaseURI}; storage: disabled, no uploads`)
@@ -20,6 +23,7 @@ describe('Site Assets database migration', () => {
       collections: [],
       db: mongooseAdapter({ url: databaseURI, connectOptions: { serverSelectionTimeoutMS: 3000 } }),
       secret: 'isolated-site-assets-migration-test-secret',
+      typescript: { autoGenerate: false },
     }) })
     adapter = payload.db as MongooseAdapter
   }, 15000)
@@ -32,9 +36,9 @@ describe('Site Assets database migration', () => {
     }
   })
 
-  it('renames assets, lock references and all preference substrings reversibly, preserving versions and IDs', async () => {
+  beforeEach(async () => {
     const db = adapter.connection.db!
-    const asset = { _id: 'asset-id', filename: 'logo.svg', url: 'https://media.example.invalid/logo.svg' }
+    await adapter.connection.dropDatabase()
     await db.collection<{ _id: string; [key: string]: unknown }>('brand-assets').insertOne(asset)
     await db.collection<{ _id: string; [key: string]: unknown }>('_brand-assets_versions').insertOne({ _id: 'legacy', value: asset })
     await db.collection<{ _id: string; [key: string]: unknown }>('payload-locked-documents').insertMany([
@@ -45,6 +49,10 @@ describe('Site Assets database migration', () => {
       { _id: 'pref', key: 'collection-brand-assets-brand-assets', value: { sort: 'filename' } },
       { _id: 'other', key: 'collection-media', value: {} },
     ])
+  })
+
+  it('renames assets, lock references and all preference substrings reversibly, preserving versions and IDs', async () => {
+    const db = adapter.connection.db!
     const info = vi.spyOn(payload.logger, 'info')
     await up({ payload, req: { payload } as never })
     expect(await db.collection<{ _id: string; [key: string]: unknown }>('site-assets').findOne({ _id: asset._id })).toEqual(asset)
@@ -70,6 +78,7 @@ describe('Site Assets database migration', () => {
       env: {
         ...process.env,
         DATABASE_URI: databaseURI,
+        PAYLOAD_CONFIG_PATH: cliConfigPath,
         DISABLE_R2_STORAGE: 'true',
         NODE_ENV: 'test',
       },
@@ -80,10 +89,12 @@ describe('Site Assets database migration', () => {
     expect(await db.listCollections({ name: 'brand-assets' }).toArray()).toHaveLength(0)
     expect(await db.collection('site-assets').countDocuments()).toBe(1)
     expect(await db.collection('payload-migrations').countDocuments({ name: '20261013_site_assets' })).toBe(1)
+    expect(await db.collection('payload-migrations').countDocuments()).toBe(1)
     await run('migrate:down')
     expect(await db.listCollections({ name: 'site-assets' }).toArray()).toHaveLength(0)
     expect(await db.collection('brand-assets').countDocuments()).toBe(1)
     expect(await db.collection('payload-migrations').countDocuments({ name: '20261013_site_assets' })).toBe(0)
+    expect(await db.collection('payload-migrations').countDocuments()).toBe(0)
   }, 60000)
 
   it('aborts before writes when either direction has an existing destination, including an empty collection', async () => {

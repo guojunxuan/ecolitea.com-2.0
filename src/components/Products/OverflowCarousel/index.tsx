@@ -23,7 +23,7 @@ export const OverflowCarousel = ({
 }) => (
   <div className={`${styles.carousel} ${styles[variant]}`} data-product-carousel={variant}>
     <div className={styles.header}>
-      <ProductBlockHeader eyebrow={eyebrow} title={title} />
+      <ProductBlockHeader eyebrow={eyebrow} title={title} headingLevel={2} alignment="left" />
       {href && linkLabel && (
         <Link href={href} className={styles.link}>
           {linkLabel}
