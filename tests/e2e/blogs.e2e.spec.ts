@@ -249,7 +249,7 @@ test.describe('Blog publishing journeys', () => {
       if (width === 390) {
         const menu = page.locator('[data-slot="blog-mobile-menu"]')
         const trigger = menu.locator('summary')
-        await expect(trigger).toHaveText('All')
+        await expect(trigger).toHaveText('Category: All')
         await trigger.focus()
         await expect(trigger).toBeFocused()
         await page.keyboard.press('Enter')
@@ -260,7 +260,7 @@ test.describe('Blog publishing journeys', () => {
         await culture.press('Enter')
         await expect(page.getByRole('heading', { name: 'Culture Blogs' })).toBeVisible()
         await expect(menu).not.toHaveAttribute('open')
-        await expect(trigger).toHaveText('Culture')
+        await expect(trigger).toHaveText('Category: Culture')
         await trigger.click()
         await expect(menu.locator('a[aria-current="page"]')).toHaveText('Culture')
         await page.goto(`${baseURL}/blogs`)

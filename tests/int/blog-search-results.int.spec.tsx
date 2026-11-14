@@ -64,14 +64,26 @@ describe('site search results', () => {
               or: expect.arrayContaining([{ excerpt: { like: 'oolong' } }]),
             }),
             expect.objectContaining({
-              or: expect.arrayContaining([
+              and: expect.arrayContaining([
                 expect.objectContaining({
-                  and: expect.arrayContaining([
+                  or: expect.arrayContaining([
                     expect.objectContaining({
-                      publishedAt: expect.objectContaining({ less_than_equal: expect.any(String) }),
+                      and: expect.arrayContaining([
+                        expect.objectContaining({
+                          publishedAt: expect.objectContaining({
+                            less_than_equal: expect.any(String),
+                          }),
+                        }),
+                      ]),
                     }),
                   ]),
                 }),
+                {
+                  or: [
+                    { 'doc.relationTo': { equals: 'blogs' } },
+                    { 'doc.relationTo': { equals: 'posts' } },
+                  ],
+                },
               ]),
             }),
           ]),
@@ -185,11 +197,15 @@ describe('site search results', () => {
     expect(find).toHaveBeenCalledWith(
       expect.objectContaining({
         where: expect.objectContaining({
-          or: expect.arrayContaining([
+          and: expect.arrayContaining([
             expect.objectContaining({
-              and: expect.arrayContaining([
+              or: expect.arrayContaining([
                 expect.objectContaining({
-                  publishedAt: expect.objectContaining({ less_than_equal: expect.any(String) }),
+                  and: expect.arrayContaining([
+                    expect.objectContaining({
+                      publishedAt: expect.objectContaining({ less_than_equal: expect.any(String) }),
+                    }),
+                  ]),
                 }),
               ]),
             }),

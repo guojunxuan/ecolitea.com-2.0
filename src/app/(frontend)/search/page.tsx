@@ -1,4 +1,5 @@
 import type { Metadata } from 'next/types'
+import type { Where } from 'payload'
 
 import { CollectionArchive } from '@/components/CollectionArchive'
 import configPromise from '@payload-config'
@@ -21,10 +22,15 @@ export default async function Page({ searchParams: searchParamsPromise }: Args) 
   const { q } = await searchParamsPromise
   const query = normalizeSearchQuery(q)
   const payload = await getPayload({ config: configPromise })
-  const publicWhere = {
-    ...publicSearchVisibility(new Date()),
-    // Constrain before limit: this page currently renders article cards only.
-    'doc.relationTo': { in: ['blogs', 'posts'] },
+  const publicWhere: Where = {
+    and: [
+      publicSearchVisibility(new Date()),
+      // Constrain before limit: this page currently renders article cards only.
+      // Use `equals`: `in` on the polymorphic `doc.relationTo` path matches nothing.
+      {
+        or: [{ 'doc.relationTo': { equals: 'blogs' } }, { 'doc.relationTo': { equals: 'posts' } }],
+      },
+    ],
   }
 
   const results = await payload.find({
