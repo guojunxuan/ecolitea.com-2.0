@@ -13,7 +13,7 @@ concurrency:
 jobs:
   checks:
     name: Test, type-check, and build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     services:
       mongodb:
