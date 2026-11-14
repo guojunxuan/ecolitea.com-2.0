@@ -19,7 +19,7 @@ concurrency:
 jobs:
   checks:
     name: Test, type-check, and build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     services:
       mongodb:
@@ -137,7 +137,7 @@ jobs:
     name: Tag, publish image, and create release
     if: ${{ inputs.version != '' && github.ref == 'refs/heads/main' }}
     needs: checks
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       contents: write
       packages: write
