@@ -10,8 +10,8 @@ export type BlogListingHeroModel = {
   headerTheme: 'light' | 'dark'
 }
 
-export const getBlogListingHero = async (): Promise<BlogListingHeroModel | null> => {
-  const settings: Settings | null = await getCachedSettings()
+export const getBlogListingHero = async (locale = 'en'): Promise<BlogListingHeroModel | null> => {
+  const settings: Settings | null = await getCachedSettings(locale)
   const hero = settings?.blog?.hero
 
   if (hero?.enabled !== true) return null

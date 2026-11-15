@@ -1,3 +1,4 @@
+import { getLocalizedDoc, translationTags } from '../i18n/getLocalized'
 import configPromise from '@payload-config'
 import { unstable_cache } from 'next/cache'
 import { headers } from 'next/headers'
@@ -5,7 +6,7 @@ import { getPayload } from 'payload'
 import type { Blog } from '@/payload-types'
 import { publicBlogVisibility } from './publicVisibility'
 
-export async function getBlogBySlug(slug: string, draft: boolean): Promise<Blog | null> {
+export async function getBlogBySlug(slug: string, draft: boolean, locale = 'en'): Promise<Blog | null> {
   const payload = await getPayload({ config: configPromise })
 
   if (draft) {
@@ -50,10 +51,10 @@ export async function getBlogBySlug(slug: string, draft: boolean): Promise<Blog 
         pagination: false,
         where: { and: [publicBlogVisibility(new Date()), { id: { equals: id } }] },
       })
-      return docs[0] ?? null
+      return getLocalizedDoc(docs[0], 'blogs', locale, cachedPayload)
     },
-    ['blog-detail', id],
-    { tags: [`blog-${id}`, 'blog-categories'], revalidate: 600 },
+    ['blog-detail', id, locale],
+    { tags: [`blog-${id}`, 'blog-categories', ...translationTags('blogs', id, locale)], revalidate: 600 },
   )
   return cached()
 }

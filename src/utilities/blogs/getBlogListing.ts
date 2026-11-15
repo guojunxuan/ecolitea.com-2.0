@@ -1,3 +1,4 @@
+import { getLocalizedList } from '../i18n/getLocalized'
 import configPromise from '@payload-config'
 import { unstable_cache } from 'next/cache'
 import { getPayload, type PaginatedDocs } from 'payload'
@@ -13,11 +14,12 @@ export type BlogListItem = Pick<
 export async function getBlogListing(
   page: number,
   categoryId?: string,
+  locale = 'en',
 ): Promise<PaginatedDocs<BlogListItem>> {
   const cached = unstable_cache(
     async () => {
       const payload = await getPayload({ config: configPromise })
-      return payload.find({
+      const result = await payload.find({
         collection: 'blogs',
         depth: 1,
         draft: false,
@@ -40,10 +42,11 @@ export async function getBlogListing(
           ],
         },
       })
+      return { ...result, docs: await getLocalizedList(result.docs, 'blogs', locale, payload) }
     },
-    ['blogs-list', String(page), categoryId ?? 'all'],
+    ['blogs-list', String(page), categoryId ?? 'all', locale],
     {
-      tags: ['blogs-list', ...(categoryId ? [`blog-category-${categoryId}`] : [])],
+      tags: ['blogs-list', `translations:${locale}`, ...(categoryId ? [`blog-category-${categoryId}`] : [])],
       revalidate: 600,
     },
   )

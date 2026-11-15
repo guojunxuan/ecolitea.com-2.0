@@ -1,9 +1,10 @@
+import { getLocalizedList } from '../i18n/getLocalized'
 import { cached, client, toProductCard, visible } from './shared'
 
-export const getProductListing = (categoryId: string, page: number) =>
+export const getProductListing = (categoryId: string, page: number, locale = 'en') =>
   cached(
-    ['products-list', categoryId, String(page)],
-    ['products-list', `product-category-${categoryId}`],
+    ['products-list', categoryId, String(page), locale],
+    ['products-list', `product-category-${categoryId}`, `translations:${locale}`],
     async () => {
       const payload = await client()
       const result = await payload.find({
@@ -17,7 +18,7 @@ export const getProductListing = (categoryId: string, page: number) =>
         where: visible([{ category: { equals: categoryId } }]),
       })
       return {
-        docs: result.docs.map(toProductCard),
+        docs: (await getLocalizedList(result.docs, 'products', locale, payload)).map(toProductCard),
         page: result.page ?? page,
         totalPages: result.totalPages,
       }

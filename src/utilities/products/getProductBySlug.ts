@@ -1,3 +1,4 @@
+import { getLocalizedDoc, translationTags } from '../i18n/getLocalized'
 import type { PopulateType } from 'payload'
 import { headers } from 'next/headers'
 import type { Product } from '@/payload-types'
@@ -31,7 +32,7 @@ const normalizeDetail = (product: Product | null): ProductDetail | null =>
 
 export async function getProductBySlug(
   slug: string,
-  { draft = false }: { draft?: boolean } = {},
+  { draft = false, locale = 'en' }: { draft?: boolean; locale?: string } = {},
 ): Promise<ProductDetail | null> {
   if (draft) {
     const payload = await client()
@@ -63,8 +64,8 @@ export async function getProductBySlug(
   const id = lookup.docs[0]?.id
   if (!id) return null
   const product = await cached(
-    ['product-detail-v2', id],
-    [`product-${id}`, 'products-list', 'product-categories'],
+    ['product-detail-v2', id, locale],
+    [`product-${id}`, 'products-list', 'product-categories', ...translationTags('products', id, locale)],
     async () => {
       const payload = await client()
       const result = await payload.find({
@@ -76,7 +77,7 @@ export async function getProductBySlug(
         limit: 1,
         where: visible([{ id: { equals: id } }]),
       })
-      return result.docs[0] ?? null
+      return getLocalizedDoc(result.docs[0], 'products', locale, payload)
     },
   )
   return normalizeDetail(product)

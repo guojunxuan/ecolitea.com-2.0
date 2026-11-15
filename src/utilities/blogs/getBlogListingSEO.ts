@@ -18,8 +18,8 @@ function resolveImageURL(url: string): string | undefined {
   }
 }
 
-export async function getBlogListingSEO(): Promise<BlogListingSEOModel> {
-  const settings = await getCachedSettings()
+export async function getBlogListingSEO(locale = 'en'): Promise<BlogListingSEOModel> {
+  const settings = await getCachedSettings(locale)
   const seo = settings?.blog?.seo
   const title = seo?.title?.trim()
   const description = seo?.description?.trim()

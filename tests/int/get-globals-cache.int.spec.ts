@@ -40,31 +40,31 @@ describe('getCachedGlobal', () => {
     expect(unstableCacheMock).toHaveBeenNthCalledWith(
       1,
       expect.any(Function),
-      ['site-settings', '1'],
-      { tags: ['global_site-settings'] },
+      ['site-settings', '1', 'en'],
+      { tags: ['global_site-settings', 'translation:global:site-settings:site-settings:en', 'translations:en'] },
     )
     expect(unstableCacheMock).toHaveBeenNthCalledWith(
       2,
       expect.any(Function),
-      ['site-settings', '2'],
-      { tags: ['global_site-settings'] },
+      ['site-settings', '2', 'en'],
+      { tags: ['global_site-settings', 'translation:global:site-settings:site-settings:en', 'translations:en'] },
     )
   })
 
   it('provides fixed cached readers with stable keys and tags', async () => {
     await Promise.all([getCachedHeader(), getCachedFooter(), getCachedSiteSettings()])
 
-    expect(unstableCacheMock).toHaveBeenNthCalledWith(1, expect.any(Function), ['header', '1'], {
-      tags: ['global_header'],
+    expect(unstableCacheMock).toHaveBeenNthCalledWith(1, expect.any(Function), ['header', '1', 'en'], {
+      tags: ['global_header', 'translation:global:header:header:en', 'translations:en'],
     })
-    expect(unstableCacheMock).toHaveBeenNthCalledWith(2, expect.any(Function), ['footer', '1'], {
-      tags: ['global_footer'],
+    expect(unstableCacheMock).toHaveBeenNthCalledWith(2, expect.any(Function), ['footer', '1', 'en'], {
+      tags: ['global_footer', 'translation:global:footer:footer:en', 'translations:en'],
     })
     expect(unstableCacheMock).toHaveBeenNthCalledWith(
       3,
       expect.any(Function),
-      ['site-settings', '2'],
-      { tags: ['global_site-settings'] },
+      ['site-settings', '2', 'en'],
+      { tags: ['global_site-settings', 'translation:global:site-settings:site-settings:en', 'translations:en'] },
     )
   })
 })

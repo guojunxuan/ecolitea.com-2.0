@@ -2,12 +2,12 @@ import type { Product } from '@/payload-types'
 import type { ProductCategoryOverview } from './models'
 import { allCategories, allProducts, cached, toProductCard, toProductCategory } from './shared'
 
-export const getProductCategoriesOverview = (): Promise<ProductCategoryOverview[]> =>
+export const getProductCategoriesOverview = (locale = 'en'): Promise<ProductCategoryOverview[]> =>
   cached(
-    ['products-overview-v2'],
-    ['products-overview', 'product-categories', 'products-list'],
+    ['products-overview-v2', locale],
+    ['products-overview', 'product-categories', 'products-list', `translations:${locale}`],
     async () => {
-      const [categories, products] = await Promise.all([allCategories(), allProducts()])
+      const [categories, products] = await Promise.all([allCategories(locale), allProducts([], locale)])
       const byCategory = new Map<string, Product[]>()
       for (const product of products) {
         const categoryID =

@@ -1,3 +1,4 @@
+import { getLocalizedList } from '../i18n/getLocalized'
 import type { Payload } from 'payload'
 import type { Blog } from '@/payload-types'
 import { publicBlogVisibility } from './publicVisibility'
@@ -6,6 +7,7 @@ export async function getRelatedBlogs(
   blog: Blog,
   payload: Payload,
   now = new Date(),
+  locale = 'en',
 ): Promise<Blog[]> {
   const selected: Blog[] = []
   const seen = new Set<string>([blog.id])
@@ -70,5 +72,5 @@ export async function getRelatedBlogs(
 
   if (categoryId) await fill(categoryId)
   await fill()
-  return selected
+  return getLocalizedList(selected, 'blogs', locale, payload)
 }

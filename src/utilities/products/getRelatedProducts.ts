@@ -1,17 +1,18 @@
+import { getLocalizedList } from '../i18n/getLocalized'
 import type { Product } from '@/payload-types'
 import type { ProductDetail } from './models'
 import { cached, client, toProductCard, visible } from './shared'
 
-export const getRelatedProducts = (product: ProductDetail) =>
+export const getRelatedProducts = (product: ProductDetail, locale = 'en') =>
   cached(
     [
-      'product-related',
+      'product-related', locale,
       product.id,
       product.category?.id ?? '',
       JSON.stringify(product.relatedProducts),
     ],
     [
-      'products-list',
+      'products-list', `translations:${locale}`,
       `product-${product.id}`,
       ...(product.category ? [`product-category-${product.category.id}`] : []),
     ],
@@ -56,6 +57,6 @@ export const getRelatedProducts = (product: ProductDetail) =>
           )
             selected.push(doc)
       }
-      return selected.map(toProductCard)
+      return (await getLocalizedList(selected, 'products', locale, payload)).map(toProductCard)
     },
   )

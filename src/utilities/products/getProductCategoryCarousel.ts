@@ -14,8 +14,9 @@ type CategorySource = { id: string; title: string; slug: string; image: Media | 
 
 export const getProductCategoryCarousel = async (
   categories: CategorySource[],
+  locale = 'en',
 ): Promise<CategoryCarouselItem[]> => {
-  const settings: Settings | null = await getCachedSettings()
+  const settings: Settings | null = await getCachedSettings(locale)
   const config = settings?.product?.categoryCarousel
   if (config?.enabled === false) return []
   const byID = new Map(categories.map((category) => [category.id, category]))

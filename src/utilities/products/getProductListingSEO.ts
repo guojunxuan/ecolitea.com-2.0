@@ -20,8 +20,8 @@ function resolveImageURL(url: string): string | undefined {
   }
 }
 
-async function readProductListingSEO(): Promise<ProductListingSEOModel> {
-  const settings = await getCachedSettings()
+async function readProductListingSEO(locale = 'en'): Promise<ProductListingSEOModel> {
+  const settings = await getCachedSettings(locale)
   const seo = settings?.product?.seo
   const title = seo?.title?.trim()
   const description = seo?.description?.trim()
@@ -36,8 +36,8 @@ async function readProductListingSEO(): Promise<ProductListingSEOModel> {
   }
 }
 
-export const getProductListingSEO = (): Promise<ProductListingSEOModel> =>
-  unstable_cache(readProductListingSEO, ['products-listing-seo'], {
-    tags: ['global_settings'],
+export const getProductListingSEO = (locale = 'en'): Promise<ProductListingSEOModel> =>
+  unstable_cache(() => readProductListingSEO(locale), ['products-listing-seo', locale], {
+    tags: ['global_settings', `translations:${locale}`],
     revalidate: 600,
   })()

@@ -49,7 +49,7 @@ const toSlide = (slide: RawSlide, index: number): ProductHeroSlide[] => {
   ]
 }
 
-export const getProductListingHero = async (): Promise<ProductHeroSlide[]> => {
-  const settings: Settings | null = await getCachedSettings()
+export const getProductListingHero = async (locale = 'en'): Promise<ProductHeroSlide[]> => {
+  const settings: Settings | null = await getCachedSettings(locale)
   return (settings?.product?.heroSlides ?? []).flatMap(toSlide)
 }

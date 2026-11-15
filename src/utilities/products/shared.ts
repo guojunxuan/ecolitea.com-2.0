@@ -1,3 +1,4 @@
+import { getLocalizedList } from '../i18n/getLocalized'
 import configPromise from '@payload-config'
 import { unstable_cache } from 'next/cache'
 import { getPayload, type Where } from 'payload'
@@ -18,7 +19,7 @@ export const client = () => getPayload({ config: configPromise })
 export const visible = (where: Where[] = []): Where => ({
   and: [publicProductVisibility(new Date()), ...where],
 })
-export async function allProducts(where: Where[] = []): Promise<Product[]> {
+export async function allProducts(where: Where[] = [], locale = 'en'): Promise<Product[]> {
   const payload = await client()
   const docs: Product[] = []
   let page = 1
@@ -33,12 +34,12 @@ export async function allProducts(where: Where[] = []): Promise<Product[]> {
       sort: '-publishedAt',
       where: visible(where),
     })
-    docs.push(...result.docs)
+    docs.push(...await getLocalizedList(result.docs, 'products', locale, payload))
     if (!result.hasNextPage) return docs
     page++
   }
 }
-export async function allCategories(): Promise<ProductCategory[]> {
+export async function allCategories(locale = 'en'): Promise<ProductCategory[]> {
   const payload = await client()
   const docs: ProductCategory[] = []
   let page = 1
@@ -52,7 +53,7 @@ export async function allCategories(): Promise<ProductCategory[]> {
       page,
       sort: '_order',
     })
-    docs.push(...result.docs)
+    docs.push(...await getLocalizedList(result.docs, 'product-categories', locale, payload))
     if (!result.hasNextPage) return docs
     page++
   }
