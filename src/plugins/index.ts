@@ -16,6 +16,7 @@ import { searchFields } from '@/search/fieldOverrides'
 import { beforeSyncWithSearch } from '@/search/beforeSync'
 import { publicBlogVisibility } from '@/utilities/blogs/publicVisibility'
 import { publicSearchVisibility } from '@/search/visibility'
+import { translationPlugin } from './translation'
 
 import {
   Blog,
@@ -308,4 +309,5 @@ export const plugins: Plugin[] = [
       },
     },
   }),
+  translationPlugin(),
 ]

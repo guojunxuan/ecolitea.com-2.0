@@ -306,6 +306,8 @@ export interface Config {
     forms: Form;
     'form-submissions': FormSubmission;
     search: Search;
+    translations: Translation;
+    'translation-search': TranslationSearch;
     'payload-kv': PayloadKv;
     'payload-jobs': PayloadJob;
     'payload-locked-documents': PayloadLockedDocument;
@@ -340,6 +342,8 @@ export interface Config {
     forms: FormsSelect<false> | FormsSelect<true>;
     'form-submissions': FormSubmissionsSelect<false> | FormSubmissionsSelect<true>;
     search: SearchSelect<false> | SearchSelect<true>;
+    translations: TranslationsSelect<false> | TranslationsSelect<true>;
+    'translation-search': TranslationSearchSelect<false> | TranslationSearchSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-jobs': PayloadJobsSelect<false> | PayloadJobsSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
@@ -1507,6 +1511,51 @@ export interface Search {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "translations".
+ */
+export interface Translation {
+  id: string;
+  sourceCollection: string;
+  sourceId: string;
+  locale: string;
+  status: 'pending' | 'waiting_quota' | 'ready' | 'failed';
+  requestedSourceVersion?: string | null;
+  lastReadySourceVersion?: string | null;
+  ruleVersion?: number | null;
+  fields?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  error?: string | null;
+  characters?: number | null;
+  translatedAt?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "translation-search".
+ */
+export interface TranslationSearch {
+  id: string;
+  sourceCollection: string;
+  sourceId: string;
+  locale: string;
+  sourceVersion: string;
+  title: string;
+  excerpt?: string | null;
+  path: string;
+  ready?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
@@ -1714,6 +1763,14 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'search';
         value: string | Search;
+      } | null)
+    | ({
+        relationTo: 'translations';
+        value: string | Translation;
+      } | null)
+    | ({
+        relationTo: 'translation-search';
+        value: string | TranslationSearch;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -2619,6 +2676,41 @@ export interface SearchSelect<T extends boolean = true> {
         title?: T;
         id?: T;
       };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "translations_select".
+ */
+export interface TranslationsSelect<T extends boolean = true> {
+  sourceCollection?: T;
+  sourceId?: T;
+  locale?: T;
+  status?: T;
+  requestedSourceVersion?: T;
+  lastReadySourceVersion?: T;
+  ruleVersion?: T;
+  fields?: T;
+  error?: T;
+  characters?: T;
+  translatedAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "translation-search_select".
+ */
+export interface TranslationSearchSelect<T extends boolean = true> {
+  sourceCollection?: T;
+  sourceId?: T;
+  locale?: T;
+  sourceVersion?: T;
+  title?: T;
+  excerpt?: T;
+  path?: T;
+  ready?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -3660,7 +3752,8 @@ export interface CollectionQueryWidget {
       | 'redirects'
       | 'forms'
       | 'form-submissions'
-      | 'search';
+      | 'search'
+      | 'translations';
     where?:
       | {
           [k: string]: unknown;
@@ -3701,6 +3794,7 @@ export interface ActivityWidget {
           | 'forms'
           | 'form-submissions'
           | 'search'
+          | 'translations'
         )[]
       | null;
   };
