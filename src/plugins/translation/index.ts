@@ -5,6 +5,7 @@ import { translationUsage } from './collections/translationUsage'
 import { createTranslationRuntime, type TranslationOptions } from './task'
 import { createCollectionTranslationHooks, createGlobalTranslationHook } from './hooks'
 import { getTranslationRule } from './rules'
+import { enqueueFrontendDictionary } from './dictionary'
 
 export const translationPlugin =
   (options: TranslationOptions = {}): Plugin =>
@@ -13,6 +14,10 @@ export const translationPlugin =
     return {
       ...config,
       custom: { ...config.custom, translationRuntime: () => runtime },
+      onInit: async (payload) => {
+        await config.onInit?.(payload)
+        await enqueueFrontendDictionary(payload, runtime)
+      },
       collections: [
         ...(config.collections ?? []).map((collection) => {
           if (!getTranslationRule(collection.slug)) return collection

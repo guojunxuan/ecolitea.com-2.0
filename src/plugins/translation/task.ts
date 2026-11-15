@@ -10,6 +10,7 @@ import { QuotaExceededError, type TranslationProvider } from './provider/types'
 import { createQuota } from './quota'
 import { requestRevalidation, type TranslationInvalidation } from './revalidate'
 import { getTranslationRule, RULE_VERSION } from './rules'
+import { getFrontendDictionarySource, validateDictionaryFields } from './dictionary'
 
 export const TRANSLATION_QUEUE = 'translations'
 export type TranslationInput = {
@@ -72,6 +73,10 @@ export function createTranslationRuntime(options: TranslationOptions = {}) {
   const invalidate = options.invalidate ?? requestRevalidation
   const now = options.now ?? (() => new Date())
   const retries = 2
+  const sourceRule = (sourceCollection: string) =>
+    sourceCollection === 'dictionary'
+      ? getFrontendDictionarySource().rule
+      : getTranslationRule(sourceCollection)
 
   const findTranslation = async (req: PayloadRequest, input: TranslationInput) =>
     (
@@ -92,7 +97,11 @@ export function createTranslationRuntime(options: TranslationOptions = {}) {
     withTranslationContext(req, async () => {
       const existing = await findTranslation(req, input)
       if (existing) {
+        // Hashes have no ordering: only the current source hash may replace a dictionary request.
+        if (input.sourceCollection === 'dictionary' && !(await currentSource(req, input)))
+          return existing
         if (
+          input.sourceCollection !== 'dictionary' &&
           existing.requestedSourceVersion &&
           existing.requestedSourceVersion > input.sourceVersion
         )
@@ -123,7 +132,13 @@ export function createTranslationRuntime(options: TranslationOptions = {}) {
         const winner = await findTranslation(req, input)
         if (!winner) throw error
         // Never let an older producer replace a newer queued source generation.
-        if (winner.requestedSourceVersion && winner.requestedSourceVersion > input.sourceVersion)
+        if (input.sourceCollection === 'dictionary' && !(await currentSource(req, input)))
+          return winner
+        if (
+          input.sourceCollection !== 'dictionary' &&
+          winner.requestedSourceVersion &&
+          winner.requestedSourceVersion > input.sourceVersion
+        )
           return winner
         return req.payload.update({
           collection: 'translations',
@@ -139,7 +154,10 @@ export function createTranslationRuntime(options: TranslationOptions = {}) {
     req: PayloadRequest,
     input: TranslationInput,
   ): Promise<SourceDocument | null> => {
-    if (!getTranslationRule(input.sourceCollection)) return null
+    if (input.sourceCollection === 'dictionary') {
+      return input.sourceId === 'frontend' ? getFrontendDictionarySource().doc : null
+    }
+    if (!sourceRule(input.sourceCollection)) return null
     if (input.sourceCollection.startsWith('global:')) {
       const slug = input.sourceCollection.slice(7) as GlobalSlug
       if (
@@ -242,7 +260,7 @@ export function createTranslationRuntime(options: TranslationOptions = {}) {
     // Globals, Forms and Media have no public document URL. Their translations are
     // consumed through owners in Phase 3; never fabricate a searchable landing page.
     if (!path) return
-    const translated = merge(source, fields, getTranslationRule(input.sourceCollection)!)
+    const translated = merge(source, fields, sourceRule(input.sourceCollection)!)
     const title = typeof translated.title === 'string' ? translated.title : ''
     if (!title) return
     const excerpt = [
@@ -343,7 +361,7 @@ export function createTranslationRuntime(options: TranslationOptions = {}) {
         await notify(input)
         return { output: { skipped: false } }
       }
-      const entries = extract(source, getTranslationRule(input.sourceCollection)!)
+      const entries = extract(source, sourceRule(input.sourceCollection)!)
       const groups = new Map<'text' | 'html', Map<string, string>>()
       for (const entry of entries) {
         const format = entry.kind === 'text' ? 'text' : 'html'
@@ -402,6 +420,7 @@ export function createTranslationRuntime(options: TranslationOptions = {}) {
           groups.get(entry.kind === 'text' ? 'text' : 'html')!.get(entry.source)!,
         ]),
       )
+      if (input.sourceCollection === 'dictionary') validateDictionaryFields(fields)
       const saved = await writeTranslation(req, input, {
         status: 'ready',
         requestedSourceVersion: input.sourceVersion,
@@ -426,29 +445,29 @@ export function createTranslationRuntime(options: TranslationOptions = {}) {
         (await currentSource(req, input)) &&
         (!owner?.requestedSourceVersion || owner.requestedSourceVersion === input.sourceVersion)
       ) {
-        // Preserve a successfully stored checkpoint when only notification failed.
+        const message = error instanceof Error ? error.message : 'Translation task failed'
+        // Only provider work can exhaust quota; a stored checkpoint remains reusable.
         if (
-          owner?.lastReadySourceVersion !== input.sourceVersion ||
-          owner.ruleVersion !== RULE_VERSION
+          (owner?.lastReadySourceVersion !== input.sourceVersion ||
+            owner.ruleVersion !== RULE_VERSION) &&
+          error instanceof QuotaExceededError
         ) {
-          const message = error instanceof Error ? error.message : 'Translation task failed'
-          if (error instanceof QuotaExceededError) {
-            await writeTranslation(req, input, {
-              status: 'waiting_quota',
-              requestedSourceVersion: input.sourceVersion,
-              error: message,
-            })
-            return { output: { skipped: false } }
-          }
-          // Installed canary passes the previous attempts into the handler; onFail
-          // fires before its exhaustion decision. 2 retries means 3 executions.
-          if ((job.totalTried ?? 0) >= retries)
-            await writeTranslation(req, input, {
-              status: 'failed',
-              requestedSourceVersion: input.sourceVersion,
-              error: message,
-            })
+          await writeTranslation(req, input, {
+            status: 'waiting_quota',
+            requestedSourceVersion: input.sourceVersion,
+            error: message,
+          })
+          return { output: { skipped: false } }
         }
+        // Installed canary passes prior attempts into the handler; two retries
+        // means three executions. Terminal notification failures also mark failed,
+        // retaining fields/lastReadySourceVersion for reads and checkpoint retries.
+        if ((job.totalTried ?? 0) >= retries)
+          await writeTranslation(req, input, {
+            status: 'failed',
+            requestedSourceVersion: input.sourceVersion,
+            error: message,
+          })
       }
       throw error
     }
