@@ -1,0 +1,16 @@
+.button {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  text-align: inherit;
+}
+.button:hover {
+  text-decoration: underline;
+}
+.button:focus-visible {
+  outline: 2px solid var(--website-color-focus);
+  outline-offset: var(--website-space-1);
+}

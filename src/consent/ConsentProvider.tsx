@@ -23,7 +23,13 @@ type ConsentContextValue = {
 
 const ConsentContext = createContext<ConsentContextValue | null>(null)
 
-export function ConsentProvider({ children, gtmDisabled }: { children: React.ReactNode; gtmDisabled: boolean }) {
+export function ConsentProvider({
+  children,
+  gtmDisabled,
+}: {
+  children: React.ReactNode
+  gtmDisabled: boolean
+}) {
   const [state, setState] = useState<ConsentState | null>(null)
   const [gpc, setGpc] = useState(false)
   const [ready, setReady] = useState(false)
@@ -35,6 +41,8 @@ export function ConsentProvider({ children, gtmDisabled }: { children: React.Rea
     ensureConsentDefaults()
     const signal = detectGpc()
     const saved = applyGpc(readConsent(), signal)
+    // Cookie and browser signals must hydrate after mount to match the server HTML.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setGpc(signal)
     setState(saved)
     setReady(true)
@@ -56,19 +64,26 @@ export function ConsentProvider({ children, gtmDisabled }: { children: React.Rea
   }
 
   return (
-    <ConsentContext.Provider value={{
-      state, gpc, bannerDismissed, bannerVisible: ready && !state && !bannerDismissed,
-      settingsOpen,
-      save,
-      acceptAll: () => save({ analytics: true, marketing: true }),
-      rejectOptional: () => save({ analytics: false, marketing: false }),
-      dismissBanner: () => setBannerDismissed(true),
-      openSettings: (element) => {
-        returnFocus.current = element ?? (document.activeElement instanceof HTMLElement ? document.activeElement : null)
-        setSettingsOpen(true)
-      },
-      closeSettings,
-    }}>
+    <ConsentContext.Provider
+      value={{
+        state,
+        gpc,
+        bannerDismissed,
+        bannerVisible: ready && !state && !bannerDismissed,
+        settingsOpen,
+        save,
+        acceptAll: () => save({ analytics: true, marketing: true }),
+        rejectOptional: () => save({ analytics: false, marketing: false }),
+        dismissBanner: () => setBannerDismissed(true),
+        openSettings: (element) => {
+          returnFocus.current =
+            element ??
+            (document.activeElement instanceof HTMLElement ? document.activeElement : null)
+          setSettingsOpen(true)
+        },
+        closeSettings,
+      }}
+    >
       {children}
     </ConsentContext.Provider>
   )

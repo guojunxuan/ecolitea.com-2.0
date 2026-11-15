@@ -1,0 +1,61 @@
+.banner {
+  position: fixed;
+  inset: auto 0 0;
+  z-index: var(--website-z-overlay);
+  background: var(--website-color-surface);
+  color: var(--website-color-foreground);
+  border-top: 1px solid var(--website-color-border);
+  box-shadow: var(--website-shadow-raised);
+  max-height: 100svh;
+  overflow-y: auto;
+}
+.content {
+  display: flex;
+  align-items: center;
+  gap: var(--website-space-8);
+  padding-block: var(--website-space-6);
+  padding-right: var(--website-space-16);
+}
+.intro {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  gap: var(--website-space-2);
+}
+.intro h2,
+.intro p {
+  margin: 0;
+}
+.policy {
+  text-decoration: underline;
+  text-underline-offset: var(--website-space-1);
+}
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--website-space-3);
+}
+.close {
+  position: absolute;
+  top: var(--website-space-2);
+  right: var(--website-space-2);
+}
+@media (width < 73.125rem) {
+  .content {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--website-space-4);
+  }
+}
+@media (width < 48rem) {
+  .content {
+    padding: var(--website-space-6);
+    padding-top: var(--website-space-12);
+  }
+  .actions {
+    display: grid;
+  }
+  .actions button {
+    width: 100%;
+  }
+}

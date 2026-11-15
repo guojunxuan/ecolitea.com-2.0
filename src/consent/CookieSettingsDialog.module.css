@@ -1,0 +1,116 @@
+.dialog {
+  width: min(var(--website-container-reading), calc(100% - var(--website-space-12)));
+  max-width: none;
+  max-height: calc(100svh - var(--website-space-12));
+  padding: 0;
+  border: 1px solid var(--website-color-border);
+  border-radius: var(--website-radius-panel);
+  background: var(--website-color-surface);
+  color: var(--website-color-foreground);
+  box-shadow: var(--website-shadow-overlay);
+  overflow: hidden;
+}
+.dialog::backdrop {
+  background: color-mix(
+    in srgb,
+    var(--website-color-brand-black) var(--website-scrim-standard),
+    transparent
+  );
+}
+.surface {
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100svh - var(--website-space-12));
+}
+.header,
+.actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--website-space-4);
+  padding: var(--website-space-6);
+  flex-shrink: 0;
+}
+.header h2,
+.category h3,
+.category p {
+  margin: 0;
+}
+.body {
+  overflow-y: auto;
+  min-height: 0;
+  padding: 0 var(--website-space-6);
+}
+.category {
+  padding-block: var(--website-space-6);
+  border-bottom: 1px solid var(--website-color-border);
+  display: grid;
+  gap: var(--website-space-3);
+}
+.category:last-child {
+  border-bottom: 0;
+}
+.category p {
+  color: var(--website-color-muted-foreground);
+}
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--website-space-4);
+}
+.actions {
+  border-top: 1px solid var(--website-color-border);
+  background: var(--website-color-surface);
+}
+.switch {
+  width: var(--website-control-large);
+  min-height: var(--website-control-target-min);
+  border-radius: var(--website-radius-pill);
+  padding: var(--website-space-1);
+  justify-content: flex-start;
+  flex-shrink: 0;
+}
+.switch span {
+  display: block;
+  width: var(--website-icon-large);
+  height: var(--website-icon-large);
+  border-radius: var(--website-radius-circle);
+  background: currentColor;
+}
+.switch[aria-checked='true'] {
+  background: var(--website-color-action);
+  color: var(--website-color-action-foreground);
+  justify-content: flex-end;
+}
+@media (width < 48rem) {
+  .dialog {
+    width: 100%;
+    height: 100dvh;
+    max-height: 100dvh;
+    margin: 0;
+    border: 0;
+    border-radius: var(--website-radius-none);
+  }
+  .surface {
+    height: 100%;
+    max-height: 100%;
+  }
+  .body {
+    flex: 1;
+  }
+  .header,
+  .actions {
+    padding: var(--website-space-4);
+  }
+  .body {
+    padding-inline: var(--website-space-4);
+  }
+  .actions {
+    display: grid;
+    padding-bottom: max(var(--website-space-4), env(safe-area-inset-bottom));
+  }
+  .actions button {
+    width: 100%;
+  }
+}

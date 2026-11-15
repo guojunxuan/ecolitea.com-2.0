@@ -23,6 +23,7 @@ export function ensureConsentDefaults(): void {
   const layer = (window.dataLayer ??= [])
   window.gtag ??= function () {
     // Google's queue consumes the arguments object, matching the gtag bootstrap.
+    // eslint-disable-next-line prefer-rest-params -- preserve Google’s gtag queue format
     window.dataLayer!.push(arguments)
   }
   if (initializedLayers.has(layer)) return

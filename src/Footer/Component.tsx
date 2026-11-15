@@ -3,6 +3,7 @@ import Link from 'next/link'
 import React from 'react'
 
 import { Logo } from '@/components/Logo/Logo'
+import { CookieSettingsButton } from '@/consent/CookieSettingsButton'
 import { adaptFooter } from './adaptFooter'
 import { ContactList } from './ContactList'
 import styles from './index.module.css'
@@ -90,22 +91,23 @@ export async function Footer() {
 
         <div className={styles.bottomBar}>
           <p>{footer.copyrightText}</p>
-          {footer.legalLinks.length > 0 && (
-            <nav aria-label="Legal">
-              <ul className={styles.legalList}>
-                {footer.legalLinks.map((link) => (
-                  <li key={`${link.href}-${link.label}`}>
-                    <Link
-                      href={link.href}
-                      {...(link.newTab ? { rel: 'noopener noreferrer', target: '_blank' } : {})}
-                    >
-                      {link.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </nav>
-          )}
+          <nav aria-label="Legal">
+            <ul className={styles.legalList}>
+              {footer.legalLinks.map((link) => (
+                <li key={`${link.href}-${link.label}`}>
+                  <Link
+                    href={link.href}
+                    {...(link.newTab ? { rel: 'noopener noreferrer', target: '_blank' } : {})}
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+              <li>
+                <CookieSettingsButton />
+              </li>
+            </ul>
+          </nav>
         </div>
       </div>
     </footer>

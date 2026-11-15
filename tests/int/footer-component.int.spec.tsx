@@ -18,6 +18,8 @@ vi.mock('@/utilities/getGlobals', () => ({
 }))
 vi.mock('@/Footer/adaptFooter', () => ({ adaptFooter: adaptFooterMock }))
 
+import { ConsentProvider } from '@/consent/ConsentProvider'
+import { CookieSettingsDialog } from '@/consent/CookieSettingsDialog'
 import { Footer } from '@/Footer/Component'
 import { FooterNavigation } from '@/Footer/Navigation.client'
 
@@ -156,7 +158,7 @@ describe('Footer server boundary', () => {
     getCachedSiteSettingsMock.mockResolvedValue(siteSettings)
     adaptFooterMock.mockReturnValue(footerData)
 
-    const { container } = render(await Footer())
+    const { container } = render(<ConsentProvider gtmDisabled>{await Footer()}</ConsentProvider>)
 
     expect(screen.getByRole('contentinfo')).toBeTruthy()
     expect(screen.getByRole('img', { name: 'Ecolitea' })).toBeTruthy()
@@ -175,7 +177,9 @@ describe('Footer server boundary', () => {
     expect(screen.getByText('Tea notes')).toBeTruthy()
     expect(screen.getByText('Product launches and practical insights.')).toBeTruthy()
     expect(screen.getByPlaceholderText('Work email').hasAttribute('disabled')).toBe(true)
-    expect(screen.getByRole('button', { name: 'Join the list' }).hasAttribute('disabled')).toBe(true)
+    expect(screen.getByRole('button', { name: 'Join the list' }).hasAttribute('disabled')).toBe(
+      true,
+    )
     expect(document.querySelector('form')).toBeNull()
 
     const contact = container.querySelector('[data-footer-content="contact"]')
@@ -191,12 +195,35 @@ describe('Footer server boundary', () => {
     expect(screen.getByRole('link', { name: 'LinkedIn' }).className).toContain('socialLink')
   })
 
+  it('keeps Cookie settings as the final Legal action even without policy pages', async () => {
+    getCachedFooterMock.mockResolvedValue(footerGlobal)
+    getCachedSiteSettingsMock.mockResolvedValue(siteSettings)
+    adaptFooterMock.mockReturnValue({ ...footerData, legalLinks: [] })
+    HTMLDialogElement.prototype.showModal = function () {
+      this.setAttribute('open', '')
+    }
+    HTMLDialogElement.prototype.close = function () {
+      this.removeAttribute('open')
+    }
+    render(
+      <ConsentProvider gtmDisabled>
+        {await Footer()}
+        <CookieSettingsDialog />
+      </ConsentProvider>,
+    )
+    const legal = screen.getByRole('navigation', { name: 'Legal' })
+    const trigger = legal.querySelector('li:last-child button')!
+    expect(trigger.textContent).toBe('Cookie settings')
+    fireEvent.click(trigger)
+    expect(screen.getByRole('dialog', { name: 'Cookie settings' })).toBeTruthy()
+  })
+
   it('omits the complete newsletter section when the adapter disables it', async () => {
     getCachedFooterMock.mockResolvedValue(footerGlobal)
     getCachedSiteSettingsMock.mockResolvedValue(siteSettings)
     adaptFooterMock.mockReturnValue({ ...footerData, newsletter: null })
 
-    const { container } = render(await Footer())
+    const { container } = render(<ConsentProvider gtmDisabled>{await Footer()}</ConsentProvider>)
 
     expect(container.querySelector('[data-footer-content="newsletter"]')).toBeNull()
     expect(screen.queryByRole('heading', { name: 'Tea notes' })).toBeNull()
@@ -263,7 +290,9 @@ describe('FooterNavigation', () => {
     expect(css).toMatch(/\.socialIcon\s*\{[^}]*filter:\s*brightness\(0\) invert\(1\)/s)
     expect(css).toMatch(/\.contactItem\s*\{[^}]*display:\s*grid/s)
     expect(css).toMatch(/\.contactIcon\s*\{[^}]*color:\s*inherit/s)
-    expect(css).toMatch(/\.newsletterControls\s*\{[^}]*grid-template-columns:\s*minmax\(0, 1fr\) auto/s)
+    expect(css).toMatch(
+      /\.newsletterControls\s*\{[^}]*grid-template-columns:\s*minmax\(0, 1fr\) auto/s,
+    )
     expect(css).not.toContain('width < 30rem')
     expect(css).toContain('@media (width >= 73.125rem)')
     expect(css).not.toMatch(/48rem[^}]*grid-template-columns:\s*repeat\(2/s)
@@ -294,12 +323,16 @@ describe('FooterNavigation', () => {
       ['information', 'caption'],
       ['bottomBar', 'caption'],
     ]) {
-      expect(css, selector).toMatch(new RegExp(`\\.${selector}\\s*\\{[^}]*composes: website-type-${role} from global;`, 's'))
+      expect(css, selector).toMatch(
+        new RegExp(`\\.${selector}\\s*\\{[^}]*composes: website-type-${role} from global;`, 's'),
+      )
     }
     expect(css).toMatch(/\.desktopHeading\s*\{[^}]*font-weight:\s*600/s)
     expect(css).toMatch(/\.desktopHeading\s*\{[^}]*letter-spacing:\s*0\.055em/s)
     expect(css).toMatch(/\.accordionTrigger\s*\{[^}]*letter-spacing:\s*0\.055em/s)
-    expect(css).toMatch(/\.newsletterHeading\s*\{[^}]*font-weight:\s*600[^}]*text-transform:\s*uppercase/s)
+    expect(css).toMatch(
+      /\.newsletterHeading\s*\{[^}]*font-weight:\s*600[^}]*text-transform:\s*uppercase/s,
+    )
     expect(css).toMatch(/\.socialIcon\s*\{[^}]*width:\s*var\(--website-icon-medium\)/s)
     expect(css).toMatch(/\.contactIcon\s*\{[^}]*width:\s*var\(--website-icon-small\)/s)
   })
@@ -307,10 +340,7 @@ describe('FooterNavigation', () => {
   it('does not render accordion or desktop headings for empty columns', () => {
     render(
       <FooterNavigation
-        columns={[
-          footerData.columns[0]!,
-          { id: 'empty', label: 'Empty', navItems: [] },
-        ]}
+        columns={[footerData.columns[0]!, { id: 'empty', label: 'Empty', navItems: [] }]}
       />,
     )
 
