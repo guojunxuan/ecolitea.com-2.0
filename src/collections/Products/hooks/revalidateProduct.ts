@@ -1,5 +1,5 @@
 import type { CollectionAfterChangeHook, CollectionAfterDeleteHook } from 'payload'
-import { revalidatePath, revalidateTag } from 'next/cache'
+import { createRevalidation } from '@/plugins/translation/revalidate'
 import type { Product } from '@/payload-types'
 import { productCategoryPath, productPath } from '@/utilities/products/paths'
 import { clearProductPublicTransition, getProductPublicTransition } from './productPublicTransition'
@@ -9,6 +9,8 @@ const relationshipID = (value: Product['category']) =>
   typeof value === 'object' ? value?.id : value
 
 export const invalidateProducts = (docs: Product[]) => {
+  const cache = createRevalidation()
+  const { revalidatePath, revalidateTag } = cache
   const paths = new Set<string>()
   const tags = new Set(['products-list', 'products-overview', 'products-sitemap'])
   for (const doc of docs) {
@@ -20,6 +22,7 @@ export const invalidateProducts = (docs: Product[]) => {
   }
   for (const path of paths) revalidatePath(path)
   for (const tag of tags) revalidateTag(tag, 'max')
+  return cache.flush()
 }
 
 export const revalidateProduct: CollectionAfterChangeHook<Product> = async ({
@@ -27,6 +30,8 @@ export const revalidateProduct: CollectionAfterChangeHook<Product> = async ({
   previousDoc,
   req,
 }) => {
+  const cache = createRevalidation()
+  const { revalidateTag } = cache
   try {
     const translation = getTranslationRuntime(req)
     const transition =
@@ -41,7 +46,7 @@ export const revalidateProduct: CollectionAfterChangeHook<Product> = async ({
       const changed = publicKeys.some((key) => before?.[key] !== after?.[key])
       if (changed) {
         const published = [before, after].filter((item): item is Product => Boolean(item))
-        if (published.length) invalidateProducts(published)
+        if (published.length) await invalidateProducts(published)
         const oldPath =
           before?.slug && before.categorySlug ? productPath(before.categorySlug, before.slug) : null
         const newPath =
@@ -50,6 +55,7 @@ export const revalidateProduct: CollectionAfterChangeHook<Product> = async ({
           revalidateTag('redirects', { expire: 0 })
       }
     }
+    await cache.flush()
   } finally {
     clearProductPublicTransition(req, doc.id)
   }
@@ -57,14 +63,17 @@ export const revalidateProduct: CollectionAfterChangeHook<Product> = async ({
 }
 
 export const revalidateProductDelete: CollectionAfterDeleteHook<Product> = async ({ doc, req }) => {
+  const cache = createRevalidation()
+  const { revalidateTag } = cache
   try {
     if (!req.context.disableRevalidate) {
       const { before } = await getProductPublicTransition(req, doc, doc)
       if (before) {
-        invalidateProducts([before])
+        await invalidateProducts([before])
         revalidateTag('redirects', { expire: 0 })
       }
     }
+    await cache.flush()
   } finally {
     clearProductPublicTransition(req, doc.id)
   }

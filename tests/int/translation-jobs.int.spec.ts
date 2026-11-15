@@ -7,6 +7,8 @@ import { translationPlugin } from '@/plugins/translation'
 import { getTranslationRuntime } from '@/plugins/translation/hooks'
 import { createTranslationRuntime, TRANSLATION_QUEUE } from '@/plugins/translation/task'
 import { stubTranslationProvider } from '@/plugins/translation/provider/stub'
+import { serverEnv } from '@/utilities/env'
+import { revalidatePath, revalidateTag } from 'next/cache'
 import {
   captureProductPublicState,
   captureProductWriteIntent,
@@ -214,6 +216,61 @@ describe('translation lifecycle and real Jobs (isolated MongoDB)', () => {
     await payload.jobs.runByID({ id: unpublish.id, silent: true })
     expect((await rows(doc.id)).totalDocs).toBe(0)
     expect((await searchRows(doc.id)).totalDocs).toBe(0)
+  })
+
+  it('publishes a native scheduled Product through the authenticated cache fallback', async () => {
+    const product = await payload.create({
+      collection: 'products',
+      data: {
+        title: 'Scheduled Product',
+        slug: 'scheduled',
+        categorySlug: 'tea',
+        _status: 'draft',
+      } as never,
+      context: { disableRevalidate: true },
+    })
+    const previousSecret = serverEnv.REVALIDATE_SECRET
+    serverEnv.REVALIDATE_SECRET = 'phase2-scheduled-only'
+    const http = vi.fn(
+      async (_url: string | URL | Request, _init?: RequestInit) =>
+        new Response(null, { status: 204 }),
+    )
+    vi.stubGlobal('fetch', http)
+    const missingStore = () => {
+      throw new Error('Invariant: static generation store missing')
+    }
+    vi.mocked(revalidatePath).mockImplementation(missingStore)
+    vi.mocked(revalidateTag).mockImplementation(missingStore)
+    try {
+      const job = await payload.jobs.queue({
+        task: 'schedulePublish',
+        input: { doc: { relationTo: 'products', value: product.id }, type: 'publish' },
+      })
+      await payload.jobs.runByID({ id: job.id, silent: true })
+      expect(
+        (await payload.findByID({ collection: 'payload-jobs', id: job.id })).completedAt,
+      ).toBeTruthy()
+      expect((await jobs()).totalDocs).toBe(1)
+      const batches = http.mock.calls.map(
+        ([, init]) => JSON.parse(init!.body as string) as { paths: string[]; tags: string[] },
+      )
+      expect(batches.some(({ paths }) => paths.includes('/products/tea/scheduled'))).toBe(true)
+      expect(batches.some(({ tags }) => tags.includes('products-list'))).toBe(true)
+      expect(batches.some(({ tags }) => tags.includes('redirects'))).toBe(true)
+      expect(
+        http.mock.calls.every(
+          ([, init]) =>
+            (init!.headers as Record<string, string>).Authorization ===
+            'Bearer phase2-scheduled-only',
+        ),
+      ).toBe(true)
+    } finally {
+      vi.mocked(revalidatePath).mockReset()
+      vi.mocked(revalidateTag).mockReset()
+      vi.unstubAllGlobals()
+      if (previousSecret === undefined) Reflect.deleteProperty(serverEnv, 'REVALIDATE_SECRET')
+      else serverEnv.REVALIDATE_SECRET = previousSecret
+    }
   })
 
   it('does not let a delayed older producer supersede the current queued generation', async () => {

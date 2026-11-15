@@ -149,7 +149,7 @@ export const propagateCategorySlug: CollectionAfterChangeHook<ProductCategory> =
   await upsertRedirect(req, paths.from, { relationTo: 'product-categories', id: doc.id }, paths.to)
   if (!req.context.disableRevalidate) {
     // Stable ID detail caches must refresh after their derived category slug changes.
-    invalidateProducts([
+    await invalidateProducts([
       ...affectedPublished,
       ...affectedPublished.map((product) => ({ ...product, categorySlug: doc.slug })),
     ])

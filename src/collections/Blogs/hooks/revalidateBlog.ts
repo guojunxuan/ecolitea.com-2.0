@@ -1,8 +1,10 @@
 import type { CollectionAfterChangeHook, CollectionAfterDeleteHook, PayloadRequest } from 'payload'
-import { revalidatePath, revalidateTag } from 'next/cache'
+import { createRevalidation } from '@/plugins/translation/revalidate'
 import type { Blog } from '@/payload-types'
 
 const invalidateBlog = async (docs: Blog[], req: PayloadRequest) => {
+  const cache = createRevalidation()
+  const { revalidatePath, revalidateTag } = cache
   const categoryIDs = new Set<string>()
   for (const doc of docs) {
     revalidatePath(`/blogs/${doc.slug}`)
@@ -27,6 +29,7 @@ const invalidateBlog = async (docs: Blog[], req: PayloadRequest) => {
   // All paginated and category listing queries share this tag.
   revalidateTag('blogs-list', 'max')
   revalidateTag('blogs-sitemap', 'max')
+  await cache.flush()
 }
 
 export const revalidateBlog: CollectionAfterChangeHook<Blog> = async ({
@@ -35,6 +38,8 @@ export const revalidateBlog: CollectionAfterChangeHook<Blog> = async ({
   req,
 }) => {
   if (req.context.disableRevalidate) return doc
+  const cache = createRevalidation()
+  const { revalidateTag } = cache
   const published = [previousDoc, doc].filter((item): item is Blog => item?._status === 'published')
   if (published.length) {
     await invalidateBlog(published, req)
@@ -49,13 +54,17 @@ export const revalidateBlog: CollectionAfterChangeHook<Blog> = async ({
       revalidateTag('redirects', { expire: 0 })
     }
   }
+  await cache.flush()
   return doc
 }
 
 export const revalidateDelete: CollectionAfterDeleteHook<Blog> = async ({ doc, req }) => {
+  const cache = createRevalidation()
+  const { revalidateTag } = cache
   if (!req.context.disableRevalidate && doc._status === 'published') {
     await invalidateBlog([doc], req)
     revalidateTag('redirects', { expire: 0 })
   }
+  await cache.flush()
   return doc
 }
