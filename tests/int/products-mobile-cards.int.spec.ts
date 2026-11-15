@@ -10,7 +10,7 @@ const rowStyles = auditCss(
   readFileSync('src/components/Products/OverflowCarousel/productRow.module.css', 'utf8'),
 ).declarations
 const listingStyles = auditCss(
-  readFileSync('src/app/(frontend)/products/[category]/listing.module.css', 'utf8'),
+  readFileSync('src/app/(frontend)/[lang]/products/[category]/listing.module.css', 'utf8'),
 ).declarations
 
 const mobileValue = (declarations: typeof cardStyles, selector: string, property: string) =>

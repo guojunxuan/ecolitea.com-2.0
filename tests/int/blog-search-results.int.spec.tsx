@@ -14,7 +14,7 @@ vi.mock('@/utilities/useClickableCard', () => ({
   default: () => ({ cardRef: { current: null }, linkRef: { current: null } }),
 }))
 
-import SearchPage from '@/app/(frontend)/search/page'
+import SearchPage from '@/app/(frontend)/[lang]/search/page'
 
 afterEach(cleanup)
 

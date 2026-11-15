@@ -67,7 +67,7 @@ vi.mock('@/components/RichText', () => ({
 import BlogPage, {
   generateMetadata,
   generateStaticParams,
-} from '@/app/(frontend)/blogs/[slug]/page'
+} from '@/app/(frontend)/[lang]/blogs/[slug]/page'
 import { BlogHero } from '@/heros/BlogHero'
 import { RelatedBlogs } from '@/blocks/RelatedBlogs/Component'
 
@@ -105,7 +105,7 @@ const related = [1, 2, 3].map((index) => ({
   slug: `related-${index}`,
   title: `Related ${index}`,
 }))
-const args = { params: Promise.resolve({ slug: blog.slug }) }
+const args = { params: Promise.resolve({ lang: 'en', slug: blog.slug }) }
 
 afterEach(cleanup)
 beforeEach(() => {
@@ -198,7 +198,7 @@ describe('blog detail', () => {
 
   it.each(['missing', 'future', 'unpublished'])('does not expose a %s blog', async () => {
     mockGetBlogBySlug.mockResolvedValue(null)
-    const element = await BlogPage({ params: Promise.resolve({ slug: 'hidden' }) })
+    const element = await BlogPage({ params: Promise.resolve({ lang: 'en', slug: 'hidden' }) })
     expect(() => render(element)).toThrow('NEXT_NOT_FOUND')
     expect(mockGetRelatedBlogs).not.toHaveBeenCalled()
   })
@@ -254,7 +254,7 @@ describe('article components', () => {
 
 describe('article layout contract', () => {
   it('uses a left-aligned main column and keeps the mobile sticky bar within the body', () => {
-    const css = readFileSync('src/app/(frontend)/blogs/[slug]/page.module.css', 'utf8')
+    const css = readFileSync('src/app/(frontend)/[lang]/blogs/[slug]/page.module.css', 'utf8')
     expect(css).toContain('minmax(0, 1fr) 17.5rem')
     expect(css).toContain('clamp(3rem, 6vw, 6rem)')
     expect(css).not.toContain('justify-self: center')

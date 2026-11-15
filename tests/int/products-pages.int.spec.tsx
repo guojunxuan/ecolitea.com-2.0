@@ -63,15 +63,15 @@ vi.mock('@/components/Products/OverflowCarousel', () => ({
     </section>
   ),
 }))
-import Overview, { generateMetadata as overviewMetadata } from '@/app/(frontend)/products/page'
+import Overview, { generateMetadata as overviewMetadata } from '@/app/(frontend)/[lang]/products/page'
 import {
   parsePageNumber,
   renderProductListing,
   productListingMetadata,
-} from '@/app/(frontend)/products/[category]/listing'
+} from '@/app/(frontend)/[lang]/products/[category]/listing'
 import Detail, {
   generateMetadata as detailMetadata,
-} from '@/app/(frontend)/products/[category]/[product]/page'
+} from '@/app/(frontend)/[lang]/products/[category]/[product]/page'
 const category = {
   id: 'tea',
   slug: 'tea',
@@ -277,7 +277,7 @@ describe('Products routes', () => {
   })
   it('uses the same single-link View More action for related product cards', async () => {
     mocks.related.mockResolvedValue([cards[0]])
-    render(await Detail({ params: Promise.resolve({ category: 'tea', product: 'bag' }) }))
+    render(await Detail({ params: Promise.resolve({ lang: 'en', category: 'tea', product: 'bag' }) }))
     const related = document.querySelector('[data-product-card]') as HTMLElement
     expect(related).toBeTruthy()
     expect(within(related).getByText('View More').closest('a')).toBe(related)
@@ -293,11 +293,11 @@ describe('Products routes', () => {
   })
   it('404s detail category mismatches without redirecting', async () => {
     await expect(
-      Detail({ params: Promise.resolve({ category: 'other', product: 'bag' }) }),
+      Detail({ params: Promise.resolve({ lang: 'en', category: 'other', product: 'bag' }) }),
     ).rejects.toThrow('404')
   })
   it('selects Overview when specifications are empty and omits an empty Download action', async () => {
-    render(await Detail({ params: Promise.resolve({ category: 'tea', product: 'bag' }) }))
+    render(await Detail({ params: Promise.resolve({ lang: 'en', category: 'tea', product: 'bag' }) }))
     expect(screen.queryByText('Hidden label')).toBeNull()
     expect(screen.queryByText('You may also need')).toBeNull()
     expect(screen.queryByRole('tab', { name: 'Specifications' })).toBeNull()
@@ -318,7 +318,7 @@ describe('Products routes', () => {
       overview: ['The first paragraph.', 'A second paragraph.'],
       specifications: [{ group: null, items: [{ label: 'Width', value: '60 mm' }] }],
     })
-    render(await Detail({ params: Promise.resolve({ category: 'tea', product: 'bag' }) }))
+    render(await Detail({ params: Promise.resolve({ lang: 'en', category: 'tea', product: 'bag' }) }))
     const tabs = screen.getAllByRole('tab')
     expect(tabs.map((tab) => tab.textContent)).toEqual(['Overview', 'Specifications'])
     const overview = screen.getByRole('tab', { name: 'Overview', selected: true })
@@ -376,7 +376,7 @@ describe('Products routes', () => {
         },
       ],
     })
-    render(await Detail({ params: Promise.resolve({ category: 'tea', product: 'bag' }) }))
+    render(await Detail({ params: Promise.resolve({ lang: 'en', category: 'tea', product: 'bag' }) }))
     fireEvent.click(screen.getByRole('tab', { name: 'Specifications' }))
     const panel = screen.getByRole('tabpanel', { name: 'Specifications' })
     expect(within(panel).getByRole('heading', { name: 'Materials' })).toBeTruthy()
@@ -410,7 +410,7 @@ describe('Products routes', () => {
     )
     vi.spyOn(HTMLElement.prototype, 'scrollHeight', 'get').mockImplementation(() => fullHeight)
 
-    render(await Detail({ params: Promise.resolve({ category: 'tea', product: 'bag' }) }))
+    render(await Detail({ params: Promise.resolve({ lang: 'en', category: 'tea', product: 'bag' }) }))
     expect(screen.queryByRole('button', { name: 'Read more' })).toBeNull()
     fullHeight = 144
     act(() => measure?.([], {} as ResizeObserver))
@@ -451,7 +451,7 @@ describe('Products routes', () => {
 
     it('keeps file details out of the button and lists them in a labelled dialog', async () => {
       mocks.product.mockResolvedValue({ ...detail, downloads: files.slice(0, 1) })
-      render(await Detail({ params: Promise.resolve({ category: 'tea', product: 'bag' }) }))
+      render(await Detail({ params: Promise.resolve({ lang: 'en', category: 'tea', product: 'bag' }) }))
       const trigger = screen.getByRole('button', { name: 'Download' })
       expect(trigger.textContent).toBe('Download')
       expect(trigger.getAttribute('aria-haspopup')).toBe('dialog')
@@ -472,7 +472,7 @@ describe('Products routes', () => {
     })
     it('lists every file and closes from the Close button, releasing scroll and focus', async () => {
       mocks.product.mockResolvedValue({ ...detail, downloads: files })
-      render(await Detail({ params: Promise.resolve({ category: 'tea', product: 'bag' }) }))
+      render(await Detail({ params: Promise.resolve({ lang: 'en', category: 'tea', product: 'bag' }) }))
       const trigger = screen.getByRole('button', { name: 'Download' })
       fireEvent.click(trigger)
       const dialog = dialogOf()
@@ -490,7 +490,7 @@ describe('Products routes', () => {
     })
     it('closes on a backdrop click but not on a click inside the panel', async () => {
       mocks.product.mockResolvedValue({ ...detail, downloads: files })
-      render(await Detail({ params: Promise.resolve({ category: 'tea', product: 'bag' }) }))
+      render(await Detail({ params: Promise.resolve({ lang: 'en', category: 'tea', product: 'bag' }) }))
       fireEvent.click(screen.getByRole('button', { name: 'Download' }))
       const dialog = dialogOf()
       fireEvent.click(within(dialog).getByRole('heading', { name: 'Resources', hidden: true }))
@@ -514,7 +514,7 @@ describe('Products routes', () => {
         { id: 'back', alt: 'Back view' },
       ],
     })
-    render(await Detail({ params: Promise.resolve({ category: 'tea', product: 'bag' }) }))
+    render(await Detail({ params: Promise.resolve({ lang: 'en', category: 'tea', product: 'bag' }) }))
     const gallery = screen.getByRole('region', { name: 'Product images' })
     expect(within(gallery).getByRole('img', { name: 'Front view' })).toBeTruthy()
     fireEvent.click(screen.getByRole('button', { name: 'Show image 2 of 2' }))
@@ -532,7 +532,7 @@ describe('Products routes', () => {
   })
   it('uses draft lookup and live preview listener', async () => {
     mocks.draft.mockResolvedValue({ isEnabled: true })
-    render(await Detail({ params: Promise.resolve({ category: 'tea', product: 'bag' }) }))
+    render(await Detail({ params: Promise.resolve({ lang: 'en', category: 'tea', product: 'bag' }) }))
     expect(mocks.product).toHaveBeenCalledWith('bag', { draft: true })
     expect(screen.getByText('Preview listener')).toBeTruthy()
   })
@@ -547,7 +547,7 @@ describe('Products routes', () => {
   it('provides detail canonical without twitter and draft noindex', async () => {
     mocks.draft.mockResolvedValue({ isEnabled: true })
     const metadata = await detailMetadata({
-      params: Promise.resolve({ category: 'tea', product: 'bag' }),
+      params: Promise.resolve({ lang: 'en', category: 'tea', product: 'bag' }),
     })
     expect(metadata.twitter).toBeNull()
     expect(metadata.alternates?.canonical).toBe('/products/tea/bag')
@@ -559,7 +559,7 @@ describe('Products routes', () => {
       meta: { image: null, title: blank, description: blank },
     })
     const metadata = await detailMetadata({
-      params: Promise.resolve({ category: 'tea', product: 'bag' }),
+      params: Promise.resolve({ lang: 'en', category: 'tea', product: 'bag' }),
     })
     expect(metadata).toMatchObject({ title: detail.title, description: detail.summary })
     expect(metadata.openGraph).toMatchObject({ title: detail.title, description: detail.summary })
@@ -570,7 +570,7 @@ describe('Products routes', () => {
       meta: { image: null, title: '  Custom title  ', description: '  Custom description  ' },
     })
     const metadata = await detailMetadata({
-      params: Promise.resolve({ category: 'tea', product: 'bag' }),
+      params: Promise.resolve({ lang: 'en', category: 'tea', product: 'bag' }),
     })
     expect(metadata).toMatchObject({ title: 'Custom title', description: 'Custom description' })
     expect(metadata.openGraph).toMatchObject({
@@ -608,7 +608,7 @@ it.each([
     ],
   })
   const { container } = render(
-    await Detail({ params: Promise.resolve({ category: 'tea', product: 'bag' }) }),
+    await Detail({ params: Promise.resolve({ lang: 'en', category: 'tea', product: 'bag' }) }),
   )
   const section = screen.getByRole('region', { name: title || 'Navigation only' })
   expect(section.getAttribute('data-website-theme')).toBe('inverse')
@@ -669,7 +669,7 @@ it.each([
       },
     ],
   })
-  render(await Detail({ params: Promise.resolve({ category: 'tea', product: 'bag' }) }))
+  render(await Detail({ params: Promise.resolve({ lang: 'en', category: 'tea', product: 'bag' }) }))
   const section = screen.getByRole('region', { name: title || 'Edges' })
   expect(section.hasAttribute('data-flush-start')).toBe(start)
   expect(section.hasAttribute('data-flush-end')).toBe(end)

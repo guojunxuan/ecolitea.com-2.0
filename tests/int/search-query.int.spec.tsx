@@ -64,7 +64,7 @@ describe('Search query navigation', () => {
 
   it('does not overwrite newer typing when an earlier search response arrives', () => {
     vi.useFakeTimers()
-    expect(fs.readFileSync('src/app/(frontend)/search/page.tsx', 'utf8')).not.toContain(
+    expect(fs.readFileSync('src/app/(frontend)/[lang]/search/page.tsx', 'utf8')).not.toContain(
       '<Search key=',
     )
     const { rerender } = render(<Search initialQuery="" />)

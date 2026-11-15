@@ -28,17 +28,17 @@ vi.mock('@/components/Pagination', () => ({
   ),
 }))
 
-import BlogsPage, { generateMetadata as blogsMetadata } from '@/app/(frontend)/blogs/page'
+import BlogsPage, { generateMetadata as blogsMetadata } from '@/app/(frontend)/[lang]/blogs/page'
 import BlogPage, {
   generateMetadata as pageMetadata,
-} from '@/app/(frontend)/blogs/page/[pageNumber]/page'
+} from '@/app/(frontend)/[lang]/blogs/page/[pageNumber]/page'
 import CategoryPage, {
   generateMetadata as categoryMetadata,
   generateStaticParams,
-} from '@/app/(frontend)/blogs/category/[categorySlug]/page'
+} from '@/app/(frontend)/[lang]/blogs/category/[categorySlug]/page'
 import CategoryPaged, {
   generateMetadata as categoryPagedMetadata,
-} from '@/app/(frontend)/blogs/category/[categorySlug]/page/[pageNumber]/page'
+} from '@/app/(frontend)/[lang]/blogs/category/[categorySlug]/page/[pageNumber]/page'
 
 const categories = [
   { id: 'tea', title: 'Tea Guides', slug: 'tea-guides', description: 'Tea category description' },
@@ -103,10 +103,10 @@ beforeEach(() => {
 describe('blog listing routes', () => {
   it('keeps all four listing routes static with ten-minute revalidation', async () => {
     const routes = await Promise.all([
-      import('@/app/(frontend)/blogs/page'),
-      import('@/app/(frontend)/blogs/page/[pageNumber]/page'),
-      import('@/app/(frontend)/blogs/category/[categorySlug]/page'),
-      import('@/app/(frontend)/blogs/category/[categorySlug]/page/[pageNumber]/page'),
+      import('@/app/(frontend)/[lang]/blogs/page'),
+      import('@/app/(frontend)/[lang]/blogs/page/[pageNumber]/page'),
+      import('@/app/(frontend)/[lang]/blogs/category/[categorySlug]/page'),
+      import('@/app/(frontend)/[lang]/blogs/category/[categorySlug]/page/[pageNumber]/page'),
     ])
     for (const route of routes) {
       expect(route.dynamic).toBe('force-static')
@@ -138,7 +138,7 @@ describe('blog listing routes', () => {
 
   it('renders later unfiltered pages without a featured card', async () => {
     const html = renderToStaticMarkup(
-      await BlogPage({ params: Promise.resolve({ pageNumber: '2' }) }),
+      await BlogPage({ params: Promise.resolve({ lang: 'en', pageNumber: '2' }) }),
     )
     expect(html).not.toContain('data-featured="true"')
     expect(html).not.toContain('Showing ')
@@ -154,7 +154,7 @@ describe('blog listing routes', () => {
     const html = renderToStaticMarkup(
       page === 1
         ? await BlogsPage()
-        : await BlogPage({ params: Promise.resolve({ pageNumber: '2' }) }),
+        : await BlogPage({ params: Promise.resolve({ lang: 'en', pageNumber: '2' }) }),
     )
     expect(html.match(/<h1[^>]*>Stories from our tea community<\/h1>/g) || []).toHaveLength(1)
     expect(html.match(/<h1\b/g) || []).toHaveLength(1)
@@ -174,7 +174,7 @@ describe('blog listing routes', () => {
       const html = renderToStaticMarkup(
         page === 1
           ? await BlogsPage()
-          : await BlogPage({ params: Promise.resolve({ pageNumber: '2' }) }),
+          : await BlogPage({ params: Promise.resolve({ lang: 'en', pageNumber: '2' }) }),
       )
       expect(html).toMatch(/<h1[^>]*>Blogs<\/h1>/)
       expect(html).not.toContain('data-hero="blog-listing"')
@@ -208,7 +208,7 @@ describe('blog listing routes', () => {
 
   it('renders category breadcrumb, description, active tab and category pagination base', async () => {
     const html = renderToStaticMarkup(
-      await CategoryPage({ params: Promise.resolve({ categorySlug: 'tea-guides' }) }),
+      await CategoryPage({ params: Promise.resolve({ lang: 'en', categorySlug: 'tea-guides' }) }),
     )
     expect(html).toContain('Tea Guides')
     expect(html).toContain('Tea category description')
@@ -245,7 +245,7 @@ describe('blog listing routes', () => {
       headerTheme: 'dark',
     })
     const html = renderToStaticMarkup(
-      await CategoryPage({ params: Promise.resolve({ categorySlug: slug }) }),
+      await CategoryPage({ params: Promise.resolve({ lang: 'en', categorySlug: slug }) }),
     )
     expect(html.match(/<h1\b/g) || []).toHaveLength(1)
     expect(html).toMatch(new RegExp(`<h1[^>]*>${title} Blogs</h1>`))
@@ -262,7 +262,7 @@ describe('blog listing routes', () => {
   it('renders a later category page through the same listing flow', async () => {
     const html = renderToStaticMarkup(
       await CategoryPaged({
-        params: Promise.resolve({ categorySlug: 'tea-guides', pageNumber: '2' }),
+        params: Promise.resolve({ lang: 'en', categorySlug: 'tea-guides', pageNumber: '2' }),
       }),
     )
     expect(html).toContain('data-route-base="/blogs/category/tea-guides"')
@@ -275,7 +275,7 @@ describe('blog listing routes', () => {
   it.each(['0', '-1', '1', '2.5', '2e1', '02', 'abc', 'Infinity'])(
     'rejects noncanonical page %s',
     async (pageNumber) => {
-      await expect(BlogPage({ params: Promise.resolve({ pageNumber }) })).rejects.toThrow(
+      await expect(BlogPage({ params: Promise.resolve({ lang: 'en', pageNumber }) })).rejects.toThrow(
         'NEXT_NOT_FOUND',
       )
       expect(getBlogListing).not.toHaveBeenCalled()
@@ -283,37 +283,37 @@ describe('blog listing routes', () => {
   )
 
   it('rejects out-of-range pages and unknown categories', async () => {
-    await expect(BlogPage({ params: Promise.resolve({ pageNumber: '4' }) })).rejects.toThrow(
+    await expect(BlogPage({ params: Promise.resolve({ lang: 'en', pageNumber: '4' }) })).rejects.toThrow(
       'NEXT_NOT_FOUND',
     )
     await expect(
-      CategoryPage({ params: Promise.resolve({ categorySlug: 'missing' }) }),
+      CategoryPage({ params: Promise.resolve({ lang: 'en', categorySlug: 'missing' }) }),
     ).rejects.toThrow('NEXT_NOT_FOUND')
     await expect(
-      CategoryPaged({ params: Promise.resolve({ categorySlug: 'missing', pageNumber: '2' }) }),
+      CategoryPaged({ params: Promise.resolve({ lang: 'en', categorySlug: 'missing', pageNumber: '2' }) }),
     ).rejects.toThrow('NEXT_NOT_FOUND')
     await expect(
-      CategoryPaged({ params: Promise.resolve({ categorySlug: 'tea-guides', pageNumber: '3' }) }),
+      CategoryPaged({ params: Promise.resolve({ lang: 'en', categorySlug: 'tea-guides', pageNumber: '3' }) }),
     ).rejects.toThrow('NEXT_NOT_FOUND')
   })
 
   it('rejects categories without visible blogs, including their page one route', async () => {
     await expect(
-      CategoryPage({ params: Promise.resolve({ categorySlug: 'empty' }) }),
+      CategoryPage({ params: Promise.resolve({ lang: 'en', categorySlug: 'empty' }) }),
     ).rejects.toThrow('NEXT_NOT_FOUND')
     await expect(
-      CategoryPaged({ params: Promise.resolve({ categorySlug: 'empty', pageNumber: '2' }) }),
+      CategoryPaged({ params: Promise.resolve({ lang: 'en', categorySlug: 'empty', pageNumber: '2' }) }),
     ).rejects.toThrow('NEXT_NOT_FOUND')
   })
 
   it('uses distinct metadata and canonical paths for all four routes', async () => {
     const all = await blogsMetadata()
-    const later = await pageMetadata({ params: Promise.resolve({ pageNumber: '2' }) })
+    const later = await pageMetadata({ params: Promise.resolve({ lang: 'en', pageNumber: '2' }) })
     const category = await categoryMetadata({
-      params: Promise.resolve({ categorySlug: 'tea-guides' }),
+      params: Promise.resolve({ lang: 'en', categorySlug: 'tea-guides' }),
     })
     const categoryLater = await categoryPagedMetadata({
-      params: Promise.resolve({ categorySlug: 'tea-guides', pageNumber: '2' }),
+      params: Promise.resolve({ lang: 'en', categorySlug: 'tea-guides', pageNumber: '2' }),
     })
     expect([all, later, category, categoryLater].map(({ title }) => title)).toEqual([
       'Blogs',
@@ -341,7 +341,7 @@ describe('blog listing routes', () => {
       imageURL: 'https://media.example.invalid/blog-share.png',
     })
     const first = await blogsMetadata()
-    const second = await pageMetadata({ params: Promise.resolve({ pageNumber: '2' }) })
+    const second = await pageMetadata({ params: Promise.resolve({ lang: 'en', pageNumber: '2' }) })
     expect(first).toMatchObject({
       title: 'Tea stories',
       description: 'Fresh notes from the tea world.',
@@ -372,7 +372,7 @@ describe('blog listing routes', () => {
   it('keeps category metadata independent from Settings SEO', async () => {
     getBlogListingSEO.mockResolvedValue({ title: 'Settings title' })
     const category = await categoryMetadata({
-      params: Promise.resolve({ categorySlug: 'tea-guides' }),
+      params: Promise.resolve({ lang: 'en', categorySlug: 'tea-guides' }),
     })
     expect(category.title).toBe('Tea Guides Blogs')
     expect(category.description).toBe('Tea category description')
@@ -418,7 +418,7 @@ describe('blog listing routes', () => {
       })
       for (const page of [1, 2]) {
         const result = await (
-          await import('@/app/(frontend)/blogs/listing')
+          await import('@/app/(frontend)/[lang]/blogs/listing')
         ).blogListingMetadata({ page, categorySlug: 'tea-guides' })
         const expectedTitle = page === 1 ? title : `${title} — Page 2`
         const expectedDescription = page === 1 ? description : `${description} Page 2.`
@@ -455,7 +455,7 @@ describe('blog listing routes', () => {
         : defaultFind(args),
     )
     const result = await categoryMetadata({
-      params: Promise.resolve({ categorySlug: 'tea-guides' }),
+      params: Promise.resolve({ lang: 'en', categorySlug: 'tea-guides' }),
     })
     expect(result.description).toBe('Explore tea guides articles and guides.')
     expect(result.openGraph).toMatchObject({
@@ -476,7 +476,7 @@ describe('blog listing routes', () => {
       description: 'New category description',
     })
     const html = renderToStaticMarkup(
-      await CategoryPage({ params: Promise.resolve({ categorySlug: 'new' }) }),
+      await CategoryPage({ params: Promise.resolve({ lang: 'en', categorySlug: 'new' }) }),
     )
     expect(html).toContain('New category description')
     categories.pop()

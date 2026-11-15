@@ -165,7 +165,7 @@ describe('frontend module visual roles', () => {
       ['src/Header/Nav/blocks.module.css', '.navigationCardDescription', 'caption'],
       ['src/Header/Nav/blocks.module.css', '.categoryAccordionButton', 'body-md'],
       ['src/Header/Component.module.css', '.desktopBrandFallback', 'body-md'],
-      ['src/app/(frontend)/pages.module.css', '.pageTitle', 'heading-1'],
+      ['src/app/(frontend)/[lang]/pages.module.css', '.pageTitle', 'heading-1'],
     ]) {
       const typeClass = declarations(file).find(
         (entry) => entry.header === selector && entry.prop === 'composes',
@@ -185,10 +185,10 @@ describe('frontend module visual roles', () => {
       '<h3 className={styles.heading}>',
     )
     for (const file of [
-      'src/app/(frontend)/posts/page.tsx',
-      'src/app/(frontend)/posts/page/[pageNumber]/page.tsx',
-      'src/app/(frontend)/search/page.tsx',
-      'src/app/(frontend)/not-found.tsx',
+      'src/app/(frontend)/[lang]/posts/page.tsx',
+      'src/app/(frontend)/[lang]/posts/page/[pageNumber]/page.tsx',
+      'src/app/(frontend)/[lang]/search/page.tsx',
+      'src/app/(frontend)/[lang]/not-found.tsx',
     ])
       expect(fs.readFileSync(path.join(root, file), 'utf8'), file).toContain(
         '<h1 className={styles.pageTitle}>',

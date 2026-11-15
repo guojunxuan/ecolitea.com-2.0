@@ -49,7 +49,7 @@ const HeroModules = () => (
 
 describe('public website shell', () => {
   it('renders the Header, main content landmark, and Footer without the admin or theme runtime', () => {
-    const source = readSource('src/app/(frontend)/layout.tsx')
+    const source = readSource('src/app/(frontend)/[lang]/layout.tsx')
 
     const headerIndex = source.indexOf('<Header />')
     const skipIndex = source.indexOf('<SkipLink href="#main-content">Skip to content</SkipLink>')

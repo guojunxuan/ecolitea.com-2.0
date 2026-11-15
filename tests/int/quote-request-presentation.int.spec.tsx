@@ -14,7 +14,7 @@ vi.mock('@/components/Products/ProductTabs', () => ({ ProductTabs: () => null })
 vi.mock('@/components/Products/ProductDetailNav', () => ({ ProductDetailNav: () => null }))
 vi.mock('@/components/Products/ProductActions', () => ({ ProductActions: mocks.actions }))
 
-import Detail from '@/app/(frontend)/products/[category]/[product]/page'
+import Detail from '@/app/(frontend)/[lang]/products/[category]/[product]/page'
 
 afterEach(() => {
   cleanup()
@@ -45,7 +45,7 @@ describe('Quote request product presentation boundary', () => {
         sections: [],
       })
       mocks.actions.mockReturnValue(null)
-      render(await Detail({ params: Promise.resolve({ category: 'packaging', product: 'bag' }) }))
+      render(await Detail({ params: Promise.resolve({ lang: 'en', category: 'packaging', product: 'bag' }) }))
       expect(mocks.actions).toHaveBeenCalled()
       expect(mocks.actions.mock.calls[0][0].product).toEqual({
         title: 'Paper Bag',

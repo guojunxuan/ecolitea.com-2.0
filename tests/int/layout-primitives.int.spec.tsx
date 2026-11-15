@@ -16,12 +16,12 @@ const shellFacingFiles = [
   'src/heros/LowImpact/index.tsx',
   'src/heros/MediumImpact/index.tsx',
   'src/heros/PostHero/index.tsx',
-  'src/app/(frontend)/[slug]/page.tsx',
-  'src/app/(frontend)/posts/page.tsx',
-  'src/app/(frontend)/posts/page/[pageNumber]/page.tsx',
-  'src/app/(frontend)/posts/[slug]/page.tsx',
-  'src/app/(frontend)/search/page.tsx',
-  'src/app/(frontend)/not-found.tsx',
+  'src/app/(frontend)/[lang]/[slug]/page.tsx',
+  'src/app/(frontend)/[lang]/posts/page.tsx',
+  'src/app/(frontend)/[lang]/posts/page/[pageNumber]/page.tsx',
+  'src/app/(frontend)/[lang]/posts/[slug]/page.tsx',
+  'src/app/(frontend)/[lang]/search/page.tsx',
+  'src/app/(frontend)/[lang]/not-found.tsx',
 ]
 
 describe('website layout primitives', () => {
@@ -84,11 +84,11 @@ describe('website layout primitives', () => {
     const pagination = readSource('src/components/Pagination/index.tsx')
     const search = readSource('src/search/Component.tsx')
     const pages = [
-      'src/app/(frontend)/posts/page.tsx',
-      'src/app/(frontend)/posts/page/[pageNumber]/page.tsx',
-      'src/app/(frontend)/posts/[slug]/page.tsx',
-      'src/app/(frontend)/search/page.tsx',
-      'src/app/(frontend)/not-found.tsx',
+      'src/app/(frontend)/[lang]/posts/page.tsx',
+      'src/app/(frontend)/[lang]/posts/page/[pageNumber]/page.tsx',
+      'src/app/(frontend)/[lang]/posts/[slug]/page.tsx',
+      'src/app/(frontend)/[lang]/search/page.tsx',
+      'src/app/(frontend)/[lang]/not-found.tsx',
     ].map(readSource)
 
     expect(archive).toContain('styles.archive')
@@ -108,7 +108,7 @@ describe('website layout primitives', () => {
 
   it('keeps shared layout values in module properties instead of utility strings', () => {
     const archiveStyles = readSource('src/components/CollectionArchive/index.module.css')
-    const pageStyles = readSource('src/app/(frontend)/pages.module.css')
+    const pageStyles = readSource('src/app/(frontend)/[lang]/pages.module.css')
 
     expect(archiveStyles).toContain('var(--website-container-site)')
     expect(archiveStyles).toContain('grid-template-columns: repeat(4, minmax(0, 1fr));')
@@ -132,7 +132,7 @@ describe('website layout primitives', () => {
     expect(readSource('src/collections/Pages/blocks/Form/Component.module.css')).toContain(
       'var(--website-container-reading)',
     )
-    expect(readSource('src/app/(frontend)/posts/[slug]/page.tsx')).toContain('styles.postContent')
+    expect(readSource('src/app/(frontend)/[lang]/posts/[slug]/page.tsx')).toContain('styles.postContent')
   })
 
   it('preserves the existing MediumImpact media bleed through the wide container primitive', () => {
