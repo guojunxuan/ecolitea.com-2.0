@@ -272,6 +272,7 @@ Copy `.env.example` to `.env` and replace its placeholders. The main configurati
 - Payload operations: `CRON_SECRET`, `PREVIEW_SECRET`
 - R2 storage: `R2_BUCKET`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_ENDPOINT`, `R2_PUBLIC_URL`
 - Request a quote: `NEXT_PUBLIC_TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY`, `QUOTE_IP_HASH_SALT` (use Cloudflare's test keys locally; separate keys per environment; the proxy must overwrite `X-Forwarded-For`)
+- Cookie consent / GTM: optional `NEXT_PUBLIC_GTM_MEASUREMENT_ID` (`GTM-XXXX`, empty to disable; set at image build time). Configure tags and the emergency switch as described in [deployment](docs/deployment.md#cookie-consent-and-google-tag-manager).
 - Public URLs and optional integrations: see `.env.example`
 
 Never commit `.env`, database credentials, Payload secrets, or R2 access keys.
