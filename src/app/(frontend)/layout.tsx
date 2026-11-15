@@ -21,11 +21,13 @@ export async function generateMetadata(): Promise<Metadata> {
   return buildSiteMetadata(resolveFavicon(siteSettings.favicon))
 }
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const siteSettings = await getCachedSiteSettings()
+
   return (
     <html className={cn(GeistSans.variable, GeistMono.variable)} lang="en">
       <body>
-        <Providers>
+        <Providers gtmDisabled={siteSettings.disableGtm === true}>
           <SkipLink href="#main-content">Skip to content</SkipLink>
           <Header />
           <main id="main-content" tabIndex={-1}>{children}</main>
