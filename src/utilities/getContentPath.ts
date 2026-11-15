@@ -1,3 +1,4 @@
+import { localePath } from '@/i18n/paths'
 import type { CollectionSlug } from 'payload'
 import { productCategoryPath, productPath } from '@/utilities/products/paths'
 
@@ -9,7 +10,7 @@ const contentPrefixes: Partial<Record<CollectionSlug, string>> = {
   'case-studies': '/case-studies',
 }
 
-type ContentPathOptions = { categorySlug?: string | null }
+type ContentPathOptions = { categorySlug?: string | null; locale?: string }
 
 export const getContentPath = (
   relationTo: CollectionSlug,
@@ -17,13 +18,13 @@ export const getContentPath = (
   options: ContentPathOptions = {},
 ): string | null => {
   if (relationTo === 'products') {
-    return slug && options.categorySlug ? productPath(options.categorySlug, slug) : null
+    return slug && options.categorySlug ? localePath(productPath(options.categorySlug, slug), options.locale) : null
   }
 
   if (relationTo === 'product-categories') {
-    return slug ? productCategoryPath(slug) : null
+    return slug ? localePath(productCategoryPath(slug), options.locale) : null
   }
 
   const prefix = contentPrefixes[relationTo]
-  return prefix === undefined || !slug ? null : `${prefix}/${encodeURIComponent(slug)}`
+  return prefix === undefined || !slug ? null : localePath(`${prefix}/${encodeURIComponent(slug)}`, options.locale)
 }

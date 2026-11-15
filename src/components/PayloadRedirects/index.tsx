@@ -10,6 +10,7 @@ import { getPayload } from 'payload'
 import { notFound, permanentRedirect, redirect } from 'next/navigation'
 
 interface Props {
+  locale?: string
   disableNotFound?: boolean
   url: string
 }

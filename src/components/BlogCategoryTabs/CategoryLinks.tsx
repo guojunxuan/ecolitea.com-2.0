@@ -1,6 +1,6 @@
 'use client'
 
-import Link from 'next/link'
+import Link from '@/components/LocaleLink'
 import React, { useCallback, useLayoutEffect, useRef, useState } from 'react'
 
 import styles from './index.module.css'

@@ -1,5 +1,5 @@
 import { Children, type ReactNode } from 'react'
-import Link from 'next/link'
+import Link from '@/components/LocaleLink'
 import { ChevronRight } from 'lucide-react'
 
 import { OverflowTrack } from '../OverflowCarousel/Track'

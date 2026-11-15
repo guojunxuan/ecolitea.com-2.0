@@ -1,3 +1,4 @@
+import { getLocalizedList } from '@/utilities/i18n/getLocalized'
 import type { Metadata } from 'next/types'
 
 import { CollectionArchive } from '@/components/CollectionArchive'
@@ -19,7 +20,7 @@ type Args = {
 }
 
 export default async function Page({ params: paramsPromise }: Args) {
-  const { pageNumber } = await paramsPromise
+  const { pageNumber, lang = 'en' } = await paramsPromise
   const payload = await getPayload({ config: configPromise })
 
   const sanitizedPageNumber = Number(pageNumber)
@@ -49,7 +50,7 @@ export default async function Page({ params: paramsPromise }: Args) {
         />
       </div>
 
-      <CollectionArchive posts={posts.docs} />
+      <CollectionArchive posts={await getLocalizedList(posts.docs, 'posts', lang, payload)} />
 
       <div className={styles.paginationContainer}>
         {posts?.page && posts?.totalPages > 1 && (
@@ -61,7 +62,7 @@ export default async function Page({ params: paramsPromise }: Args) {
 }
 
 export async function generateMetadata({ params: paramsPromise }: Args): Promise<Metadata> {
-  const { pageNumber } = await paramsPromise
+  const { pageNumber, lang = 'en' } = await paramsPromise
   return {
     title: `Payload Website Template Posts Page ${pageNumber || ''}`,
   }

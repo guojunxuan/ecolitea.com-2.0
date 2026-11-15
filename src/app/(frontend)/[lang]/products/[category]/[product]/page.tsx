@@ -1,7 +1,8 @@
+import { fallbackToEnglish } from '@/utilities/i18n/pageAccess'
 import type { Metadata } from 'next'
 import { draftMode } from 'next/headers'
 import { notFound } from 'next/navigation'
-import Link from 'next/link'
+import Link from '@/components/LocaleLink'
 import { PayloadRedirects } from '@/components/PayloadRedirects'
 import { LivePreviewListener } from '@/components/LivePreviewListener'
 import { HeaderThemeSync } from '@/heros/HeaderThemeSync'
@@ -33,18 +34,19 @@ export async function generateStaticParams() {
   return (await getProductStaticParams()).products
 }
 export default async function ProductPage({ params }: Args) {
-  const { category, product: slug } = await params
+  const { category, product: slug, lang = 'en' } = await params
   const { isEnabled: draft } = await draftMode()
-  const product = await getProductBySlug(slug, { draft })
+  const product = await getProductBySlug(slug, { draft, locale: lang })
   const url = productPath(category, slug)
-  if (!product) return <PayloadRedirects url={url} />
+  await fallbackToEnglish(product, lang, url, () => getProductBySlug(slug))
+  if (!product) return <PayloadRedirects locale={lang} url={url} />
   if (product.categorySlug !== category) notFound()
-  const related = await getRelatedProducts(product)
+  const related = await getRelatedProducts(product, lang)
 
   return (
     <article className={styles.root}>
       <HeaderThemeSync theme="light" />
-      <PayloadRedirects disableNotFound url={url} />
+      <PayloadRedirects locale={lang} disableNotFound url={url} />
       {draft && <LivePreviewListener />}
       <nav className={styles.breadcrumb} aria-label="Breadcrumb">
         <Link href="/products">Products</Link>
@@ -132,9 +134,9 @@ export default async function ProductPage({ params }: Args) {
   )
 }
 export async function generateMetadata({ params }: Args): Promise<Metadata> {
-  const { category, product: slug } = await params
+  const { category, product: slug, lang = 'en' } = await params
   const { isEnabled: draft } = await draftMode()
-  const product = await getProductBySlug(slug, { draft })
+  const product = await getProductBySlug(slug, { draft, locale: lang })
   if (!product) return { robots: { index: false, follow: false } }
   if (product.categorySlug !== category) notFound()
   const title = product.meta.title?.trim() || product.title

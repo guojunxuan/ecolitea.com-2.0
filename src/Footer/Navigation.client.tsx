@@ -1,6 +1,6 @@
 'use client'
 
-import Link from 'next/link'
+import Link from '@/components/LocaleLink'
 import React, { useId, useState, useSyncExternalStore } from 'react'
 
 import type { FooterColumnData } from './types'

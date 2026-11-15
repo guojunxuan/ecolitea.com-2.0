@@ -1,4 +1,4 @@
-import Link from 'next/link'
+import Link from '@/components/LocaleLink'
 
 import { Media } from '@/components/Media'
 import { OverflowTrack } from '@/components/Products/OverflowCarousel/Track'

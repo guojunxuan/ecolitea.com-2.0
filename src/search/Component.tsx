@@ -1,4 +1,6 @@
 'use client'
+import { useLocale } from '@/i18n/LocaleProvider'
+import { localePath } from '@/i18n/paths'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import React, { useState, useEffect, useRef } from 'react'
@@ -10,6 +12,7 @@ import styles from './Component.module.css'
 export const Search: React.FC<{ initialQuery: string }> = ({ initialQuery }) => {
   const [value, setValue] = useState(initialQuery)
   const router = useRouter()
+  const locale = useLocale()
   const searchParams = useSearchParams()
   const urlQuery = searchParams.get('q') ?? ''
   const lastUrlQuery = useRef(initialQuery)
@@ -57,8 +60,8 @@ export const Search: React.FC<{ initialQuery: string }> = ({ initialQuery }) => 
 
     pendingQueries.current.push(debouncedValue)
     lastRequestedQuery.current = debouncedValue
-    router.push(`/search${debouncedValue ? `?q=${encodeURIComponent(debouncedValue)}` : ''}`)
-  }, [debouncedValue, router, value])
+    router.push(localePath(`/search${debouncedValue ? `?q=${encodeURIComponent(debouncedValue)}` : ''}`, locale))
+  }, [debouncedValue, router, value, locale])
 
   return (
     <div>

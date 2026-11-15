@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import Link from 'next/link'
+import Link from '@/components/LocaleLink'
 import { CMSLink } from '@/components/Link'
 import { Media } from '@/components/Media'
 import { PayloadRedirects } from '@/components/PayloadRedirects'
@@ -20,16 +20,17 @@ import styles from './page.module.css'
 export const dynamic = 'force-static'
 export const revalidate = 600
 const CATEGORY_CAROUSEL_ID = 'product-category-carousel'
-export default async function ProductsPage() {
+export default async function ProductsPage({ params }: { params?: Promise<{ lang: string }> }) {
+  const { lang = 'en' } = await params ?? {}
   const [categories, hero, seo] = await Promise.all([
-    getProductCategoriesOverview(),
-    getProductListingHero(),
-    getProductListingSEO(),
+    getProductCategoriesOverview(lang),
+    getProductListingHero(lang),
+    getProductListingSEO(lang),
   ])
-  const categoryItems = await getProductCategoryCarousel(categories)
+  const categoryItems = await getProductCategoryCarousel(categories, lang)
   return (
     <div className={styles.root}>
-      <PayloadRedirects disableNotFound url="/products" />
+      <PayloadRedirects locale={lang} disableNotFound url="/products" />
       {hero.length ? (
         <>
           <h1 className={styles.pageTitle}>{seo.title || 'Products'}</h1>

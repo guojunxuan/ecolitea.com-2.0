@@ -1,4 +1,4 @@
-import Link from 'next/link'
+import Link from '@/components/LocaleLink'
 
 import { Media } from '@/components/Media'
 import { Button } from '@/components/ui/button'

@@ -1,4 +1,4 @@
-import Link from 'next/link'
+import Link from '@/components/LocaleLink'
 import type { Blog } from '@/payload-types'
 import { Media } from '@/components/Media'
 import { MEDIA_PRESENTATION } from '@/components/Media/config'

@@ -1,8 +1,8 @@
+import LocaleLink from '@/components/LocaleLink'
 import { SerializedLinkNode } from '@payloadcms/richtext-lexical'
 import type { SerializedEditorState } from '@payloadcms/richtext-lexical/lexical'
 import {
   JSXConvertersFunction,
-  LinkJSXConverter,
   RichText as ConvertRichText,
 } from '@payloadcms/richtext-lexical/react'
 import { cn } from '@/utilities/ui'
@@ -45,7 +45,17 @@ const jsxConverters =
     let headingIndex = 0
     return {
       ...defaultConverters,
-      ...LinkJSXConverter({ internalDocToHref }),
+      link: ({ node, nodesToJSX }) => (
+        <LocaleLink href={node.fields.linkType === 'internal' ? internalDocToHref({ linkNode: node }) : node.fields.url ?? '#'}
+          rel={node.fields.newTab ? 'noopener noreferrer' : undefined} target={node.fields.newTab ? '_blank' : undefined}>
+          {nodesToJSX({ nodes: node.children })}
+        </LocaleLink>
+      ),
+      autolink: ({ node, nodesToJSX }) => (
+        <LocaleLink href={node.fields.url ?? '#'} rel={node.fields.newTab ? 'noopener noreferrer' : undefined} target={node.fields.newTab ? '_blank' : undefined}>
+          {nodesToJSX({ nodes: node.children })}
+        </LocaleLink>
+      ),
       ...(headingIds
         ? ({
             heading: ({ node, nodesToJSX, parent }) => {

@@ -1,3 +1,4 @@
+import { fallbackToEnglish } from '@/utilities/i18n/pageAccess'
 import { blogRichTextBlocks } from '@/collections/Blogs/blocks/richTextBlocks'
 import type { Metadata } from 'next'
 import { draftMode } from 'next/headers'
@@ -48,27 +49,28 @@ export async function generateStaticParams() {
 }
 
 export default async function BlogPage({ params }: Args) {
-  const { slug } = await params
+  const { slug, lang = 'en' } = await params
   const decodedSlug = decodeURIComponent(slug)
   const url = `/blogs/${decodedSlug}`
   const { isEnabled: draft } = await draftMode()
-  const blog = await getBlogBySlug(decodedSlug, draft)
-  if (!blog) return <PayloadRedirects url={url} />
+  const blog = await getBlogBySlug(decodedSlug, draft, lang)
+  await fallbackToEnglish(blog, lang, url, () => getBlogBySlug(decodedSlug, false))
+  if (!blog) return <PayloadRedirects locale={lang} url={url} />
 
   const payload = await getPayload({ config: configPromise })
-  const related = await getRelatedBlogs(blog, payload)
+  const related = await getRelatedBlogs(blog, payload, new Date(), lang)
   const toc = extractTOC(blog.content)
   const canonicalURL = new URL(
     `/blogs/${encodeURIComponent(blog.slug)}`,
     getServerSideURL(),
   ).toString()
-  const share = adaptArticleShare(await getCachedSettings(), canonicalURL, blog.title)
+  const share = adaptArticleShare(await getCachedSettings(lang), canonicalURL, blog.title)
   const hasShare = share.links.length > 0 || share.copyLink
 
   return (
     <article className={styles.article}>
       {toc.length > 0 && <SkipLink href="#table-of-contents">Skip to table of contents</SkipLink>}
-      <PayloadRedirects disableNotFound url={url} />
+      <PayloadRedirects locale={lang} disableNotFound url={url} />
       {draft && <LivePreviewListener />}
       <BlogHero blog={blog} />
       <div className={styles.body} data-slot="blog-article-body">
@@ -97,10 +99,10 @@ export default async function BlogPage({ params }: Args) {
 }
 
 export async function generateMetadata({ params }: Args): Promise<Metadata> {
-  const { slug } = await params
+  const { slug, lang = 'en' } = await params
   const decodedSlug = decodeURIComponent(slug)
   const { isEnabled: draft } = await draftMode()
-  const blog = await getBlogBySlug(decodedSlug, draft)
+  const blog = await getBlogBySlug(decodedSlug, draft, lang)
   if (!blog) return { robots: { index: false, follow: false } }
   const generated = await generateMeta({ doc: blog })
   const canonical = `/blogs/${blog.slug}`

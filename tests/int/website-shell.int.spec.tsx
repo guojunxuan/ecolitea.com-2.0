@@ -51,10 +51,10 @@ describe('public website shell', () => {
   it('renders the Header, main content landmark, and Footer without the admin or theme runtime', () => {
     const source = readSource('src/app/(frontend)/[lang]/layout.tsx')
 
-    const headerIndex = source.indexOf('<Header />')
+    const headerIndex = source.indexOf('<Header locale={lang} />')
     const skipIndex = source.indexOf('<SkipLink href="#main-content">Skip to content</SkipLink>')
     const mainIndex = source.indexOf('<main id="main-content" tabIndex={-1}>{children}</main>')
-    const footerIndex = source.indexOf('<Footer />')
+    const footerIndex = source.indexOf('<Footer locale={lang} />')
 
     expect(skipIndex).toBeGreaterThan(-1)
     expect(headerIndex).toBeGreaterThan(skipIndex)

@@ -142,8 +142,8 @@ describe('blog detail', () => {
       'Related 2',
       'Related 3',
     ])
-    expect(mockGetBlogBySlug).toHaveBeenCalledWith(blog.slug, false)
-    expect(mockGetRelatedBlogs).toHaveBeenCalledWith(blog, expect.anything())
+    expect(mockGetBlogBySlug).toHaveBeenCalledWith(blog.slug, false, 'en')
+    expect(mockGetRelatedBlogs).toHaveBeenCalledWith(blog, expect.anything(), expect.any(Date), 'en')
   })
 
   it('shows a TOC matching rich text headings and hides empty related cards', async () => {
@@ -192,7 +192,7 @@ describe('blog detail', () => {
   it('reads draft content only in draft mode and enables the preview listener', async () => {
     mockDraftMode.mockResolvedValue({ isEnabled: true })
     render(await BlogPage(args))
-    expect(mockGetBlogBySlug).toHaveBeenCalledWith(blog.slug, true)
+    expect(mockGetBlogBySlug).toHaveBeenCalledWith(blog.slug, true, 'en')
     expect(screen.getByTestId('preview-listener')).toBeTruthy()
   })
 
@@ -205,7 +205,7 @@ describe('blog detail', () => {
 
   it('generates metadata for the same visible article and canonical blog URL', async () => {
     const metadata = await generateMetadata(args)
-    expect(mockGetBlogBySlug).toHaveBeenCalledWith(blog.slug, false)
+    expect(mockGetBlogBySlug).toHaveBeenCalledWith(blog.slug, false, 'en')
     expect(mockGenerateMeta).toHaveBeenCalledWith({ doc: blog })
     expect(metadata.alternates?.canonical).toBe('/blogs/organic-tea-guide')
   })

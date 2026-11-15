@@ -1,4 +1,4 @@
-import Link from 'next/link'
+import Link from '@/components/LocaleLink'
 import { Children, type ReactNode } from 'react'
 
 import { ProductBlockHeader } from '@/components/Products/ProductBlockHeader'

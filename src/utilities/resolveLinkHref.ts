@@ -1,3 +1,4 @@
+import { localePath } from '@/i18n/paths'
 import type {
   Blog,
   BlogCategory,
@@ -48,20 +49,20 @@ export type CMSLinkDestination = {
 
 type ResolvableLink = Pick<CMSLinkDestination, 'reference' | 'type' | 'url'>
 
-export const resolveLinkHref = ({ reference, type, url }: ResolvableLink): string | null => {
-  if (type !== 'reference') return url || null
+export const resolveLinkHref = ({ reference, type, url }: ResolvableLink, locale = 'en'): string | null => {
+  if (type !== 'reference') return url ? localePath(url, locale) : null
   if (!reference || !reference.value || typeof reference.value !== 'object') return null
 
   const slug = reference.value.slug
 
   if (!slug) return null
 
-  if (reference.relationTo === 'categories') return `/posts?category=${encodeURIComponent(slug)}`
+  if (reference.relationTo === 'categories') return localePath(`/posts?category=${encodeURIComponent(slug)}`, locale)
   return getContentPath(
     reference.relationTo,
     slug,
     reference.relationTo === 'products'
-      ? { categorySlug: reference.value.categorySlug }
-      : undefined,
+      ? { categorySlug: reference.value.categorySlug, locale }
+      : { locale },
   )
 }

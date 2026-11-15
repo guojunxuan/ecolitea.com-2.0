@@ -4,10 +4,10 @@ import { getCachedHeader, getCachedSiteSettings } from '@/utilities/getGlobals'
 import React from 'react'
 import { adaptHeaderNavigation } from './Nav/adaptNavigation'
 
-export async function Header() {
+export async function Header({ locale = 'en' }: { locale?: string } = {}) {
   const [headerData, siteSettings] = await Promise.all([
-    getCachedHeader(),
-    getCachedSiteSettings(),
+    getCachedHeader(locale),
+    getCachedSiteSettings(locale),
   ])
   const navigation = adaptHeaderNavigation(headerData)
 

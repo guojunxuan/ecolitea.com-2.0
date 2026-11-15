@@ -8,10 +8,10 @@ export async function generateStaticParams() {
   return (await getProductStaticParams()).categories.map((category) => ({ category }))
 }
 export default async function Page({ params }: Args) {
-  const { category } = await params
-  return renderProductListing({ categorySlug: category, page: 1 })
+  const { category, lang = 'en' } = await params
+  return renderProductListing({ locale: lang, categorySlug: category, page: 1 })
 }
 export async function generateMetadata({ params }: Args): Promise<Metadata> {
-  const { category } = await params
-  return productListingMetadata({ categorySlug: category, page: 1 })
+  const { category, lang = 'en' } = await params
+  return productListingMetadata({ locale: lang, categorySlug: category, page: 1 })
 }

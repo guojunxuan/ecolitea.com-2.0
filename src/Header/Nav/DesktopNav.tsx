@@ -1,7 +1,7 @@
 'use client'
 
 import { ChevronLeft, ChevronRight, SearchIcon } from 'lucide-react'
-import Link from 'next/link'
+import Link from '@/components/LocaleLink'
 import { usePathname } from 'next/navigation'
 import React, { useCallback, useEffect, useId, useLayoutEffect, useRef, useState } from 'react'
 

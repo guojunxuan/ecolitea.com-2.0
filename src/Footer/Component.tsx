@@ -1,5 +1,5 @@
 import { getCachedFooter, getCachedSiteSettings } from '@/utilities/getGlobals'
-import Link from 'next/link'
+import Link from '@/components/LocaleLink'
 import React from 'react'
 
 import { Logo } from '@/components/Logo/Logo'
@@ -9,10 +9,10 @@ import { ContactList } from './ContactList'
 import styles from './index.module.css'
 import { FooterNavigation } from './Navigation.client'
 
-export async function Footer() {
+export async function Footer({ locale = 'en' }: { locale?: string } = {}) {
   const [footerGlobal, siteSettings] = await Promise.all([
-    getCachedFooter(),
-    getCachedSiteSettings(),
+    getCachedFooter(locale),
+    getCachedSiteSettings(locale),
   ])
   const footer = adaptFooter(footerGlobal, siteSettings)
 

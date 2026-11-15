@@ -13,14 +13,14 @@ export async function generateStaticParams() {
 }
 
 export default async function Page({ params }: Args) {
-  const { categorySlug, pageNumber } = await params
-  return renderBlogListing({
+  const { categorySlug, pageNumber, lang = 'en' } = await params
+  return renderBlogListing({ locale: lang,
     page: parsePageNumber(pageNumber),
     categorySlug,
   })
 }
 
 export async function generateMetadata({ params }: Args): Promise<Metadata> {
-  const { categorySlug, pageNumber } = await params
-  return blogListingMetadata({ page: parsePageNumber(pageNumber), categorySlug })
+  const { categorySlug, pageNumber, lang = 'en' } = await params
+  return blogListingMetadata({ locale: lang, page: parsePageNumber(pageNumber), categorySlug })
 }

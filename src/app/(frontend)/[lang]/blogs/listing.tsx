@@ -1,7 +1,9 @@
+import { getLocalizedDoc, getLocalizedList } from '@/utilities/i18n/getLocalized'
+import { fallbackToEnglish } from '@/utilities/i18n/pageAccess'
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { unstable_cache } from 'next/cache'
-import Link from 'next/link'
+import Link from '@/components/LocaleLink'
 import React from 'react'
 import { getPayload } from 'payload'
 import configPromise from '@payload-config'
@@ -21,7 +23,7 @@ import type { BlogCategory } from '@/payload-types'
 
 import styles from './listing.module.css'
 
-type ListingArgs = { page: number; categorySlug?: string }
+type ListingArgs = { page: number; categorySlug?: string; locale?: string }
 type Category = Pick<BlogCategory, 'id' | 'title' | 'slug' | 'description' | 'meta'>
 
 const getCategories = unstable_cache(
@@ -83,13 +85,15 @@ const getCategoryCounts = unstable_cache(
   { tags: ['blogs-list', 'blog-categories'], revalidate: 600 },
 )
 
-async function resolveCategory(slug?: string): Promise<Category | undefined> {
+async function resolveCategory(slug?: string, locale = 'en'): Promise<Category | undefined> {
   if (!slug) return undefined
   const category = (await getCategories()).find((item) => item.slug === slug)
   if (!category) notFound()
   const counts = new Map(await getCategoryCounts())
   if (!counts.get(category.id)) notFound()
-  return category
+  const translated = await getLocalizedDoc(category, 'blog-categories', locale)
+  await fallbackToEnglish(translated, locale, `/blogs/category/${slug}`, async () => category)
+  return translated ?? undefined
 }
 
 export function parsePageNumber(value: string): number {
@@ -99,18 +103,19 @@ export function parsePageNumber(value: string): number {
   return page
 }
 
-export async function renderBlogListing({ page, categorySlug }: ListingArgs) {
-  const category = await resolveCategory(categorySlug)
+export async function renderBlogListing({ page, categorySlug, locale = 'en' }: ListingArgs) {
+  const category = await resolveCategory(categorySlug, locale)
   const [categories, countEntries, listing, listingHero] = await Promise.all([
     getCategories(),
     getCategoryCounts(),
-    getBlogListing(page, category?.id),
-    getBlogListingHero(),
+    getBlogListing(page, category?.id, locale),
+    getBlogListingHero(locale),
   ])
   if (page > 1 && (page > listing.totalPages || listing.docs.length === 0)) notFound()
   const counts = new Map(countEntries)
 
-  const tabs: BlogCategoryTab[] = categories.map((item) => ({
+  const localizedCategories = await getLocalizedList(categories, 'blog-categories', locale)
+  const tabs: BlogCategoryTab[] = localizedCategories.map((item) => ({
     id: item.id,
     title: item.title,
     slug: item.slug,
@@ -161,9 +166,9 @@ export async function renderBlogListing({ page, categorySlug }: ListingArgs) {
   )
 }
 
-export async function blogListingMetadata({ page, categorySlug }: ListingArgs): Promise<Metadata> {
-  const category = await resolveCategory(categorySlug)
-  const seo = await getBlogListingSEO()
+export async function blogListingMetadata({ page, categorySlug, locale = 'en' }: ListingArgs): Promise<Metadata> {
+  const category = await resolveCategory(categorySlug, locale)
+  const seo = await getBlogListingSEO(locale)
   const baseTitle = category
     ? category.meta?.title || `${category.title} Blogs`
     : seo?.title || 'Blogs'

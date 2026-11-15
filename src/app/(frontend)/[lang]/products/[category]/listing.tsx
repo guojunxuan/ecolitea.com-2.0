@@ -1,6 +1,7 @@
+import { fallbackToEnglish } from '@/utilities/i18n/pageAccess'
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
-import Link from 'next/link'
+import Link from '@/components/LocaleLink'
 import { Pagination } from '@/components/Pagination'
 import { PayloadRedirects } from '@/components/PayloadRedirects'
 import { CategoryBand } from '@/components/Products/CategoryBand'
@@ -17,27 +18,28 @@ import { getServerSideURL } from '@/utilities/getURL'
 import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
 import styles from './listing.module.css'
 
-type ListingArgs = { categorySlug: string; page: number }
+type ListingArgs = { categorySlug: string; page: number; locale?: string }
 export function parsePageNumber(value: string): number {
   if (!/^[1-9]\d*$/.test(value)) notFound()
   const page = Number(value)
   if (!Number.isSafeInteger(page) || page < 2) notFound()
   return page
 }
-export async function renderProductListing({ categorySlug, page }: ListingArgs) {
-  const category = await getProductCategoryBySlug(categorySlug)
+export async function renderProductListing({ categorySlug, page, locale = 'en' }: ListingArgs) {
+  const category = await getProductCategoryBySlug(categorySlug, locale)
   const url = productCategoryPath(categorySlug, page)
-  if (!category) return <PayloadRedirects url={url} />
+  await fallbackToEnglish(category, locale, url, () => getProductCategoryBySlug(categorySlug))
+  if (!category) return <PayloadRedirects locale={locale} url={url} />
   const [listing, categories] = await Promise.all([
-    getProductListing(category.id, page),
-    getProductCategoriesOverview(),
+    getProductListing(category.id, page, locale),
+    getProductCategoriesOverview(locale),
   ])
   if (page > Math.max(1, listing.totalPages)) notFound()
   const others = categories.filter((item) => item.id !== category.id)
   const base = productCategoryPath(category.slug)
   return (
     <div>
-      <PayloadRedirects disableNotFound url={url} />
+      <PayloadRedirects locale={locale} disableNotFound url={url} />
       <CategoryBand
         category={category}
         headingLevel="h1"
@@ -92,10 +94,11 @@ export async function renderProductListing({ categorySlug, page }: ListingArgs) 
 export async function productListingMetadata({
   categorySlug,
   page,
+  locale = 'en',
 }: ListingArgs): Promise<Metadata> {
-  const category = await getProductCategoryBySlug(categorySlug)
+  const category = await getProductCategoryBySlug(categorySlug, locale)
   if (!category) return { robots: { index: false, follow: false } }
-  const seo = await getProductListingSEO()
+  const seo = await getProductListingSEO(locale)
   const baseTitle = category.meta.title || `${category.title} Products`
   const title = page === 1 ? baseTitle : `${baseTitle} — Page ${page}`
   const baseDescription =

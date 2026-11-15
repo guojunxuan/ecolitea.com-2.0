@@ -1,31 +1,29 @@
+import { getDocumentBySlug } from '@/utilities/i18n/getDocumentBySlug'
+import { fallbackToEnglish } from '@/utilities/i18n/pageAccess'
 import type { Metadata } from 'next'
-import { cache } from 'react'
 import { draftMode } from 'next/headers'
-import { getPayload } from 'payload'
-import configPromise from '@payload-config'
 import { PayloadRedirects } from '@/components/PayloadRedirects'
 import { LivePreviewListener } from '@/components/LivePreviewListener'
 import { generateMeta } from '@/utilities/generateMeta'
 import { RenderCaseStudyBlocks } from '@/collections/CaseStudies/blocks/RenderCaseStudyBlocks'
 
 type Args = { params: Promise<{ lang: string; slug?: string }> }
-const queryCaseStudy = cache(async (slug: string) => {
+const queryCaseStudy = async (slug: string, locale = 'en') => {
   const { isEnabled: draft } = await draftMode()
-  const payload = await getPayload({ config: configPromise })
-  const result = await payload.find({ collection: 'case-studies', draft, overrideAccess: draft, depth: 2, limit: 1, pagination: false, where: { slug: { equals: slug } } })
-  return result.docs?.[0] || null
-})
+  return getDocumentBySlug('case-studies', slug, locale, draft)
+}
 
 export default async function CaseStudy({ params }: Args) {
-  const { slug = '' } = await params
-  const doc = await queryCaseStudy(decodeURIComponent(slug))
+  const { slug = '', lang = 'en' } = await params
+  const doc = await queryCaseStudy(decodeURIComponent(slug), lang)
   const url = `/case-studies/${slug}`
-  if (!doc) return <PayloadRedirects url={url} />
+  await fallbackToEnglish(doc, lang, url, () => queryCaseStudy(decodeURIComponent(slug)))
+  if (!doc) return <PayloadRedirects locale={lang} url={url} />
   const { isEnabled: draft } = await draftMode()
-  return <article><PayloadRedirects disableNotFound url={url} />{draft && <LivePreviewListener />}<h1>{doc.title}</h1>{doc.layout && <RenderCaseStudyBlocks blocks={doc.layout} />}</article>
+  return <article><PayloadRedirects locale={lang} disableNotFound url={url} />{draft && <LivePreviewListener />}<h1>{doc.title}</h1>{doc.layout && <RenderCaseStudyBlocks blocks={doc.layout} />}</article>
 }
 
 export async function generateMetadata({ params }: Args): Promise<Metadata> {
-  const { slug = '' } = await params
-  return generateMeta({ doc: await queryCaseStudy(decodeURIComponent(slug)) })
+  const { slug = '', lang = 'en' } = await params
+  return generateMeta({ doc: await queryCaseStudy(decodeURIComponent(slug), lang) })
 }

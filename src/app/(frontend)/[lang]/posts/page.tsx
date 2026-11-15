@@ -1,3 +1,4 @@
+import { getLocalizedList } from '@/utilities/i18n/getLocalized'
 import type { Metadata } from 'next/types'
 
 import { CollectionArchive } from '@/components/CollectionArchive'
@@ -12,7 +13,8 @@ import styles from '../pages.module.css'
 export const dynamic = 'force-static'
 export const revalidate = 600
 
-export default async function Page() {
+export default async function Page({ params }: { params?: Promise<{ lang: string }> }) {
+  const { lang = 'en' } = await params ?? {}
   const payload = await getPayload({ config: configPromise })
 
   const posts = await payload.find({
@@ -43,7 +45,7 @@ export default async function Page() {
         />
       </div>
 
-      <CollectionArchive posts={posts.docs} />
+      <CollectionArchive posts={await getLocalizedList(posts.docs, 'posts', lang, payload)} />
 
       <div className={styles.paginationContainer}>
         {posts.totalPages > 1 && posts.page && (

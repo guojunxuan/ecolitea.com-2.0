@@ -136,7 +136,7 @@ afterEach(() => {
 })
 describe('Products routes', () => {
   it('renders empty overview without category nav', async () => {
-    render(await Overview())
+    render(await Overview({ params: Promise.resolve({ lang: 'en' }) }))
     expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('Our Products')
     expect(screen.getByText('No products yet.')).toBeTruthy()
   })
@@ -157,7 +157,7 @@ describe('Products routes', () => {
       mocks.carousel.mockResolvedValue([
         { id: 'tea', title: 'Tea bags', href: '/products/tea', image: null },
       ])
-      render(await Overview())
+      render(await Overview({ params: Promise.resolve({ lang: 'en' }) }))
       const headings = screen.getAllByRole('heading', { level: 1 })
       expect(headings).toHaveLength(1)
       expect(headings[0].textContent).toBe(seoTitle || 'Products')
@@ -176,7 +176,7 @@ describe('Products routes', () => {
       mocks.overview.mockResolvedValue([
         { ...category, productCount: count, products: cards.slice(0, count) },
       ])
-      render(await Overview())
+      render(await Overview({ params: Promise.resolve({ lang: 'en' }) }))
       const section = screen.getByRole('region', { name: 'Tea bags' })
       expect(within(section).getByRole('heading', { level: 2 }).textContent).toBe('Tea bags')
       expect(within(section).getByText('Tea packaging')).toBeTruthy()
@@ -228,7 +228,7 @@ describe('Products routes', () => {
         products: cards,
       },
     ])
-    render(await Overview())
+    render(await Overview({ params: Promise.resolve({ lang: 'en' }) }))
     const cover = screen.getByRole('img', { name: 'Tea category cover' })
     expect(cover.getAttribute('data-fit')).toBe(image.fit)
     expect(cover.closest('a')?.getAttribute('href')).toBe('/products/tea')
@@ -248,7 +248,7 @@ describe('Products routes', () => {
         ],
       },
     ])
-    render(await Overview())
+    render(await Overview({ params: Promise.resolve({ lang: 'en' }) }))
     const tea = screen.getByRole('region', { name: 'Tea bags' })
     const coffee = screen.getByRole('region', { name: 'Coffee bags' })
     expect(tea.id).toBe('tea')
@@ -533,7 +533,7 @@ describe('Products routes', () => {
   it('uses draft lookup and live preview listener', async () => {
     mocks.draft.mockResolvedValue({ isEnabled: true })
     render(await Detail({ params: Promise.resolve({ lang: 'en', category: 'tea', product: 'bag' }) }))
-    expect(mocks.product).toHaveBeenCalledWith('bag', { draft: true })
+    expect(mocks.product).toHaveBeenCalledWith('bag', { draft: true, locale: 'en' })
     expect(screen.getByText('Preview listener')).toBeTruthy()
   })
   it('provides overview twitter and paginated category canonicals without twitter', async () => {

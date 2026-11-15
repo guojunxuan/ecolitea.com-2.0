@@ -1,6 +1,6 @@
 'use client'
 
-import Link from 'next/link'
+import Link from '@/components/LocaleLink'
 import React, { useEffect, useId, useRef } from 'react'
 
 import type { CategoryLink } from './CategoryLinks'

@@ -1,3 +1,5 @@
+import { LocaleProvider } from '@/i18n/LocaleProvider'
+import { legalPagePaths } from '@/utilities/i18n/pageAccess'
 import type { Metadata } from 'next'
 
 import { cn } from '@/utilities/ui'
@@ -33,16 +35,18 @@ export function generateStaticParams() {
 export default async function RootLayout({ children, params }: { children: React.ReactNode; params: Promise<{ lang: string }> }) {
   const { lang } = await params
   if (!publicLocales.some(({ code }) => code === lang)) notFound()
-  const siteSettings = await getCachedSiteSettings()
+  const siteSettings = await getCachedSiteSettings(lang)
+  const legalPaths = await legalPagePaths()
 
   return (
     <html className={cn(GeistSans.variable, GeistMono.variable)} lang={lang}>
       <body>
+        <LocaleProvider locale={lang} legalPaths={legalPaths} englishLabel="(English)">
         <Providers gtmDisabled={siteSettings.disableGtm === true}>
           <SkipLink href="#main-content">Skip to content</SkipLink>
-          <Header />
+          <Header locale={lang} />
           <main id="main-content" tabIndex={-1}>{children}</main>
-          <Footer />
+          <Footer locale={lang} />
           <CookieBanner
             cookiePolicyHref={
               siteSettings.cookiePolicyPage
@@ -55,6 +59,7 @@ export default async function RootLayout({ children, params }: { children: React
           />
           <CookieSettingsDialog />
         </Providers>
+        </LocaleProvider>
       </body>
     </html>
   )

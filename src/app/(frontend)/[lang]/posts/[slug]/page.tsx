@@ -1,3 +1,5 @@
+import { getDocumentBySlug } from '@/utilities/i18n/getDocumentBySlug'
+import { enforceLegalLocale, fallbackToEnglish } from '@/utilities/i18n/pageAccess'
 import { postRichTextBlocks } from '@/collections/Posts/blocks/richTextBlocks'
 import type { Metadata } from 'next'
 
@@ -6,7 +8,7 @@ import { PayloadRedirects } from '@/components/PayloadRedirects'
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 import { draftMode } from 'next/headers'
-import React, { cache } from 'react'
+import React from 'react'
 import RichText from '@/components/RichText'
 
 import type { Post } from '@/payload-types'
@@ -45,18 +47,19 @@ type Args = {
 
 export default async function Post({ params: paramsPromise }: Args) {
   const { isEnabled: draft } = await draftMode()
-  const { slug = '' } = await paramsPromise
+  const { slug = '', lang = 'en' } = await paramsPromise
   // Decode to support slugs with special characters
   const decodedSlug = decodeURIComponent(slug)
   const url = '/posts/' + decodedSlug
-  const post = await queryPostBySlug({ slug: decodedSlug })
+  const post = await queryPostBySlug({ slug: decodedSlug, locale: lang })
 
-  if (!post) return <PayloadRedirects url={url} />
+  await fallbackToEnglish(post, lang, url, () => queryPostBySlug({ slug: decodedSlug }))
+  if (!post) return <PayloadRedirects locale={lang} url={url} />
 
   return (
     <article className={styles.post}>
       {/* Allows redirects for valid pages too */}
-      <PayloadRedirects disableNotFound url={url} />
+      <PayloadRedirects locale={lang} disableNotFound url={url} />
 
       {draft && <LivePreviewListener />}
 
@@ -76,32 +79,15 @@ export default async function Post({ params: paramsPromise }: Args) {
 }
 
 export async function generateMetadata({ params: paramsPromise }: Args): Promise<Metadata> {
-  const { slug = '' } = await paramsPromise
+  const { slug = '', lang = 'en' } = await paramsPromise
   // Decode to support slugs with special characters
   const decodedSlug = decodeURIComponent(slug)
-  const post = await queryPostBySlug({ slug: decodedSlug })
+  const post = await queryPostBySlug({ slug: decodedSlug, locale: lang })
 
   return generateMeta({ doc: post })
 }
 
-const queryPostBySlug = cache(async ({ slug }: { slug: string }) => {
+const queryPostBySlug = async ({ slug, locale = 'en' }: { slug: string; locale?: string }) => {
   const { isEnabled: draft } = await draftMode()
-
-  const payload = await getPayload({ config: configPromise })
-
-  const result = await payload.find({
-    collection: 'posts',
-    depth: 2,
-    draft,
-    limit: 1,
-    overrideAccess: draft,
-    pagination: false,
-    where: {
-      slug: {
-        equals: slug,
-      },
-    },
-  })
-
-  return result.docs?.[0] || null
-})
+  return getDocumentBySlug('posts', slug, locale, draft)
+}

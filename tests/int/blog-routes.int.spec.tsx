@@ -114,7 +114,7 @@ describe('blog listing routes', () => {
     }
   })
   it('renders ordered populated category links and 12 uniform cards on page one', async () => {
-    const html = renderToStaticMarkup(await BlogsPage())
+    const html = renderToStaticMarkup(await BlogsPage({ params: Promise.resolve({ lang: 'en' }) }))
     expect(html).toContain('<h1')
     expect(html).toContain('Blogs')
     expect(html).not.toContain('Showing ')
@@ -142,7 +142,7 @@ describe('blog listing routes', () => {
     )
     expect(html).not.toContain('data-featured="true"')
     expect(html).not.toContain('Showing ')
-    expect(getBlogListing).toHaveBeenCalledWith(2, undefined)
+    expect(getBlogListing).toHaveBeenCalledWith(2, undefined, 'en')
   })
 
   it.each([1, 2])('renders the managed Hero on unfiltered page %s', async (page) => {
@@ -153,7 +153,7 @@ describe('blog listing routes', () => {
     })
     const html = renderToStaticMarkup(
       page === 1
-        ? await BlogsPage()
+        ? await BlogsPage({ params: Promise.resolve({ lang: 'en' }) })
         : await BlogPage({ params: Promise.resolve({ lang: 'en', pageNumber: '2' }) }),
     )
     expect(html.match(/<h1[^>]*>Stories from our tea community<\/h1>/g) || []).toHaveLength(1)
@@ -173,7 +173,7 @@ describe('blog listing routes', () => {
     async (page) => {
       const html = renderToStaticMarkup(
         page === 1
-          ? await BlogsPage()
+          ? await BlogsPage({ params: Promise.resolve({ lang: 'en' }) })
           : await BlogPage({ params: Promise.resolve({ lang: 'en', pageNumber: '2' }) }),
       )
       expect(html).toMatch(/<h1[^>]*>Blogs<\/h1>/)
@@ -195,7 +195,7 @@ describe('blog listing routes', () => {
         }
       throw new Error(`Unexpected collection ${collection}`)
     })
-    const html = renderToStaticMarkup(await BlogsPage())
+    const html = renderToStaticMarkup(await BlogsPage({ params: Promise.resolve({ lang: 'en' }) }))
     expect(html).toContain('href="/blogs/category/tea-guides"')
     expect(html).toContain('href="/blogs/category/lifestyle"')
     expect(html).not.toContain('href="/blogs/category/empty"')
@@ -217,7 +217,7 @@ describe('blog listing routes', () => {
     expect(html).toContain('data-route-base="/blogs/category/tea-guides"')
     expect(html).toContain('data-first-page-href="/blogs/category/tea-guides"')
     expect(html).not.toContain('data-featured="true"')
-    expect(getBlogListing).toHaveBeenCalledWith(1, 'tea')
+    expect(getBlogListing).toHaveBeenCalledWith(1, 'tea', 'en')
     expect(html).toContain('aria-label="Breadcrumb"')
     expect(html).toMatch(/<h1[^>]*>Tea Guides Blogs<\/h1>/)
     expect(html).not.toContain('data-hero="blog-listing"')
@@ -266,7 +266,7 @@ describe('blog listing routes', () => {
       }),
     )
     expect(html).toContain('data-route-base="/blogs/category/tea-guides"')
-    expect(getBlogListing).toHaveBeenCalledWith(2, 'tea')
+    expect(getBlogListing).toHaveBeenCalledWith(2, 'tea', 'en')
     expect(html).toContain('aria-label="Breadcrumb"')
     expect(html).toMatch(/<h1[^>]*>Tea Guides Blogs<\/h1>/)
     expect(getBlogListingHero).toHaveBeenCalledTimes(1)
@@ -307,7 +307,7 @@ describe('blog listing routes', () => {
   })
 
   it('uses distinct metadata and canonical paths for all four routes', async () => {
-    const all = await blogsMetadata()
+    const all = await blogsMetadata({ params: Promise.resolve({ lang: 'en' }) })
     const later = await pageMetadata({ params: Promise.resolve({ lang: 'en', pageNumber: '2' }) })
     const category = await categoryMetadata({
       params: Promise.resolve({ lang: 'en', categorySlug: 'tea-guides' }),
@@ -340,7 +340,7 @@ describe('blog listing routes', () => {
       description: 'Fresh notes from the tea world.',
       imageURL: 'https://media.example.invalid/blog-share.png',
     })
-    const first = await blogsMetadata()
+    const first = await blogsMetadata({ params: Promise.resolve({ lang: 'en' }) })
     const second = await pageMetadata({ params: Promise.resolve({ lang: 'en', pageNumber: '2' }) })
     expect(first).toMatchObject({
       title: 'Tea stories',

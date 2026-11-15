@@ -5,7 +5,7 @@ import { MEDIA_PRESENTATION } from '@/components/Media/config'
 import type { Blog, Post } from '@/payload-types'
 import useClickableCard from '@/utilities/useClickableCard'
 import { cn } from '@/utilities/ui'
-import Link from 'next/link'
+import Link from '@/components/LocaleLink'
 import React, { Fragment } from 'react'
 
 import styles from './index.module.css'
