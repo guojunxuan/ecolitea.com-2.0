@@ -23,10 +23,26 @@ export const legalTab: Tab = {
       label: 'Privacy Policy Page',
     },
     {
+      name: 'cookiePolicyPage',
+      type: 'relationship',
+      relationTo: 'pages',
+      label: 'Cookie Policy Page',
+    },
+    {
       name: 'termsPage',
       type: 'relationship',
       relationTo: 'pages',
       label: 'Terms Page',
+    },
+    {
+      name: 'disableGtm',
+      type: 'checkbox',
+      defaultValue: false,
+      label: 'Disable Google Tag Manager',
+      admin: {
+        description:
+          'Emergency switch. When enabled, Google Tag Manager is never loaded, regardless of visitor consent.',
+      },
     },
   ],
 }

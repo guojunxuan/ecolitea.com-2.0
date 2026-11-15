@@ -292,3 +292,18 @@ describe('adaptFooter', () => {
     expect(result.copyrightText).toBe('© 2026 Ecolitea. All rights reserved.')
   })
 })
+
+describe('consent legal configuration', () => {
+  it('exposes the Cookie Policy relationship and an opt-in emergency disable switch', async () => {
+    const { legalTab } = await import('@/SiteSettings/fields/legal')
+    expect(legalTab.fields).toEqual(expect.arrayContaining([
+      expect.objectContaining({ name: 'cookiePolicyPage', type: 'relationship', relationTo: 'pages', label: 'Cookie Policy Page' }),
+      expect.objectContaining({ name: 'disableGtm', type: 'checkbox', defaultValue: false, label: 'Disable Google Tag Manager', admin: { description: 'Emergency switch. When enabled, Google Tag Manager is never loaded, regardless of visitor consent.' } }),
+    ]))
+  })
+  it('orders configured legal links and omits absent Cookie Policy pages', () => {
+    const settings = { id: 'site-settings', privacyPolicyPage: page('privacy', 'Privacy'), cookiePolicyPage: page('cookies', 'Cookies'), termsPage: page('terms', 'Terms') }
+    expect(adaptFooter({ id: 'footer' } as never, settings as never).legalLinks.map(({ label }) => label)).toEqual(['Privacy Policy', 'Cookie Policy', 'Terms'])
+    expect(adaptFooter({ id: 'footer' } as never, { ...settings, cookiePolicyPage: undefined } as never).legalLinks.map(({ label }) => label)).toEqual(['Privacy Policy', 'Terms'])
+  })
+})

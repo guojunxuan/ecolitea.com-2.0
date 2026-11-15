@@ -110,6 +110,7 @@ export const adaptFooter = (footer: Footer, siteSettings: SiteSettings): FooterD
   const siteName = text(siteSettings.siteName) ?? text(siteSettings.legalCompanyName) ?? 'Ecolitea'
   const legalLinks = [
     adaptLegalLink(siteSettings.privacyPolicyPage, 'Privacy Policy'),
+    adaptLegalLink(siteSettings.cookiePolicyPage, 'Cookie Policy'),
     adaptLegalLink(siteSettings.termsPage, 'Terms'),
   ].filter((link): link is FooterLinkData => link !== null)
 

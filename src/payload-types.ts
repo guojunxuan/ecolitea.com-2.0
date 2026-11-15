@@ -3077,7 +3077,12 @@ export interface SiteSettings {
   copyrightText?: string | null;
   companyRegistrationNumber?: string | null;
   privacyPolicyPage?: (string | null) | Page;
+  cookiePolicyPage?: (string | null) | Page;
   termsPage?: (string | null) | Page;
+  /**
+   * Emergency switch. When enabled, Google Tag Manager is never loaded, regardless of visitor consent.
+   */
+  disableGtm?: boolean | null;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -3498,7 +3503,9 @@ export interface SiteSettingsSelect<T extends boolean = true> {
   copyrightText?: T;
   companyRegistrationNumber?: T;
   privacyPolicyPage?: T;
+  cookiePolicyPage?: T;
   termsPage?: T;
+  disableGtm?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
