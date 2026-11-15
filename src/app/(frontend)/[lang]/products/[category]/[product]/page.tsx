@@ -1,3 +1,4 @@
+import { localizeMetadata } from '@/utilities/i18n/seo'
 import { fallbackToEnglish } from '@/utilities/i18n/pageAccess'
 import type { Metadata } from 'next'
 import { draftMode } from 'next/headers'
@@ -30,8 +31,9 @@ type Args = { params: Promise<{ lang: string; category: string; product: string 
 const isFullBleed = (block?: ProductBlock) =>
   block?.blockType === 'productMediaBanner' ||
   (block?.blockType === 'productCode' && block.width === 'full')
-export async function generateStaticParams() {
-  return (await getProductStaticParams()).products
+export async function generateStaticParams(options?: { params: { lang: string } }) {
+  const locale = options?.params.lang ?? 'en'
+  return (await getProductStaticParams(locale)).products
 }
 export default async function ProductPage({ params }: Args) {
   const { category, product: slug, lang = 'en' } = await params
@@ -143,17 +145,20 @@ export async function generateMetadata({ params }: Args): Promise<Metadata> {
   const description = product.meta.description?.trim() || product.summary
   const canonical = productPath(category, product.slug)
   const image = product.meta.image?.url
-  return {
-    title,
-    description,
-    twitter: null,
-    alternates: { canonical },
-    openGraph: mergeOpenGraph({
+  return localizeMetadata(
+    {
       title,
-      description: description ?? undefined,
-      url: canonical,
-      images: image ? [{ url: new URL(image, getServerSideURL()).toString() }] : undefined,
-    }),
-    ...(draft ? { robots: { index: false, follow: false } } : {}),
-  }
+      description,
+      twitter: null,
+      alternates: { canonical },
+      openGraph: mergeOpenGraph({
+        title,
+        description: description ?? undefined,
+        url: canonical,
+        images: image ? [{ url: new URL(image, getServerSideURL()).toString() }] : undefined,
+      }),
+      ...(draft ? { robots: { index: false, follow: false } } : {}),
+    },
+    { path: canonical, locale: lang, sourceCollection: 'products', sourceId: product.id, draft },
+  )
 }

@@ -1,3 +1,4 @@
+import { localizeMetadata } from '@/utilities/i18n/seo'
 import type { Metadata } from 'next'
 import Link from '@/components/LocaleLink'
 import { CMSLink } from '@/components/Link'
@@ -21,7 +22,7 @@ export const dynamic = 'force-static'
 export const revalidate = 600
 const CATEGORY_CAROUSEL_ID = 'product-category-carousel'
 export default async function ProductsPage({ params }: { params?: Promise<{ lang: string }> }) {
-  const { lang = 'en' } = await params ?? {}
+  const { lang = 'en' } = (await params) ?? {}
   const [categories, hero, seo] = await Promise.all([
     getProductCategoriesOverview(lang),
     getProductListingHero(lang),
@@ -124,8 +125,11 @@ export default async function ProductsPage({ params }: { params?: Promise<{ lang
     </div>
   )
 }
-export async function generateMetadata(): Promise<Metadata> {
-  const seo = await getProductListingSEO()
+export async function generateMetadata(args?: {
+  params: Promise<{ lang: string }>
+}): Promise<Metadata> {
+  const lang = (await args?.params)?.lang ?? 'en'
+  const seo = await getProductListingSEO(lang)
   const title = seo.title || 'Products'
   const description = seo.description || 'Explore our products.'
   const openGraph = mergeOpenGraph({
@@ -134,16 +138,19 @@ export async function generateMetadata(): Promise<Metadata> {
     url: '/products',
     images: seo.imageURL ? [{ url: seo.imageURL }] : undefined,
   })
-  return {
-    title,
-    description,
-    alternates: { canonical: '/products' },
-    openGraph,
-    twitter: {
-      card: 'summary_large_image',
+  return localizeMetadata(
+    {
       title,
       description,
-      images: seo.imageURL ? [seo.imageURL] : openGraph?.images,
+      alternates: { canonical: '/products' },
+      openGraph,
+      twitter: {
+        card: 'summary_large_image',
+        title,
+        description,
+        images: seo.imageURL ? [seo.imageURL] : openGraph?.images,
+      },
     },
-  }
+    { path: '/products', locale: lang },
+  )
 }

@@ -1,3 +1,4 @@
+import { localizeMetadata } from '@/utilities/i18n/seo'
 import type { Metadata } from 'next/types'
 import type { Where } from 'payload'
 
@@ -96,8 +97,14 @@ export default async function Page({ searchParams: searchParamsPromise }: Args) 
   )
 }
 
-export function generateMetadata(): Metadata {
-  return {
-    title: `Payload Website Template Search`,
-  }
+export async function generateMetadata(args?: {
+  params: Promise<{ lang: string }>
+}): Promise<Metadata> {
+  const lang = (await args?.params)?.lang ?? 'en'
+  return localizeMetadata(
+    {
+      title: `Payload Website Template Search`,
+    },
+    { path: '/search', locale: lang },
+  )
 }

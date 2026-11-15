@@ -1,3 +1,4 @@
+import { localizeMetadata, readySourceIDs } from '@/utilities/i18n/seo'
 import { fallbackToEnglish } from '@/utilities/i18n/pageAccess'
 import { blogRichTextBlocks } from '@/collections/Blogs/blocks/richTextBlocks'
 import type { Metadata } from 'next'
@@ -25,7 +26,8 @@ import styles from './page.module.css'
 type Args = { params: Promise<{ lang: string; slug: string }> }
 
 // Unknown slugs remain available at runtime through Next's default dynamicParams behavior.
-export async function generateStaticParams() {
+export async function generateStaticParams(options?: { params: { lang: string } }) {
+  const locale = options?.params.lang ?? 'en'
   const payload = await getPayload({ config: configPromise })
   const slugs: { slug: string }[] = []
   let page = 1
@@ -41,7 +43,17 @@ export async function generateStaticParams() {
       select: { slug: true },
       where: publicBlogVisibility(new Date()),
     })
-    slugs.push(...result.docs.filter((blog) => Boolean(blog.slug)).map(({ slug }) => ({ slug })))
+    const ready = await readySourceIDs(
+      payload,
+      'blogs',
+      result.docs.map((doc) => String(doc.id)),
+      locale,
+    )
+    slugs.push(
+      ...result.docs
+        .filter((blog) => Boolean(blog.slug) && ready.has(String(blog.id)))
+        .map(({ slug }) => ({ slug })),
+    )
     hasNextPage = result.hasNextPage
     page += 1
   }
@@ -79,7 +91,8 @@ export default async function BlogPage({ params }: Args) {
           sidebar={hasShare ? <ArticleShare model={share} url={canonicalURL} /> : undefined}
         >
           <div className={styles.content} data-slot="blog-article-content">
-            <RichText blocks={blogRichTextBlocks}
+            <RichText
+              blocks={blogRichTextBlocks}
               context="article"
               data={blog.content}
               enableGutter={false}
@@ -104,19 +117,28 @@ export async function generateMetadata({ params }: Args): Promise<Metadata> {
   const { isEnabled: draft } = await draftMode()
   const blog = await getBlogBySlug(decodedSlug, draft, lang)
   if (!blog) return { robots: { index: false, follow: false } }
-  const generated = await generateMeta({ doc: blog })
+  const generated = await generateMeta({
+    doc: blog,
+    locale: lang,
+    sourceCollection: 'blogs',
+    path: `/blogs/${blog.slug}`,
+    draft,
+  })
   const canonical = `/blogs/${blog.slug}`
-  return {
-    ...generated,
-    title: blog.meta?.title ?? blog.title,
-    description: blog.meta?.description ?? blog.excerpt,
-    alternates: { canonical },
-    openGraph: {
-      ...generated.openGraph,
+  return localizeMetadata(
+    {
+      ...generated,
       title: blog.meta?.title ?? blog.title,
       description: blog.meta?.description ?? blog.excerpt,
-      url: canonical,
+      alternates: { canonical },
+      openGraph: {
+        ...generated.openGraph,
+        title: blog.meta?.title ?? blog.title,
+        description: blog.meta?.description ?? blog.excerpt,
+        url: canonical,
+      },
+      ...(draft ? { robots: { index: false, follow: false } } : {}),
     },
-    ...(draft ? { robots: { index: false, follow: false } } : {}),
-  }
+    { path: canonical, locale: lang, sourceCollection: 'blogs', sourceId: blog.id, draft },
+  )
 }

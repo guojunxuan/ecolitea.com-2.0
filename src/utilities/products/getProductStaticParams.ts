@@ -1,11 +1,31 @@
-import { allCategories, allProducts, cached } from './shared'
+import { readySourceIDs } from '@/utilities/i18n/seo'
+import { allCategories, allProducts, cached, client } from './shared'
 
-export const getProductStaticParams = () =>
+export const getProductStaticParams = (locale = 'en') =>
   cached(
-    ['products-static-params'],
-    ['products-sitemap', 'products-list', 'product-categories'],
+    ['products-static-params', locale],
+    ['products-sitemap', 'products-list', 'product-categories', `translations:${locale}`],
     async () => {
-      const [categories, products] = await Promise.all([allCategories(), allProducts()])
+      let [categories, products] = await Promise.all([allCategories(), allProducts()])
+      if (locale !== 'en') {
+        const payload = await client()
+        const [readyCategories, readyProducts] = await Promise.all([
+          readySourceIDs(
+            payload,
+            'product-categories',
+            categories.map(({ id }) => id),
+            locale,
+          ),
+          readySourceIDs(
+            payload,
+            'products',
+            products.map(({ id }) => id),
+            locale,
+          ),
+        ])
+        categories = categories.filter(({ id }) => readyCategories.has(id))
+        products = products.filter(({ id }) => readyProducts.has(id))
+      }
       const active = categories.filter((category) =>
         products.some(
           (product) =>

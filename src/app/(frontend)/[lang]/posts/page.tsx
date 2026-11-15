@@ -1,3 +1,4 @@
+import { localizeMetadata } from '@/utilities/i18n/seo'
 import { getLocalizedList } from '@/utilities/i18n/getLocalized'
 import type { Metadata } from 'next/types'
 
@@ -14,7 +15,7 @@ export const dynamic = 'force-static'
 export const revalidate = 600
 
 export default async function Page({ params }: { params?: Promise<{ lang: string }> }) {
-  const { lang = 'en' } = await params ?? {}
+  const { lang = 'en' } = (await params) ?? {}
   const payload = await getPayload({ config: configPromise })
 
   const posts = await payload.find({
@@ -56,8 +57,14 @@ export default async function Page({ params }: { params?: Promise<{ lang: string
   )
 }
 
-export function generateMetadata(): Metadata {
-  return {
-    title: `Payload Website Template Posts`,
-  }
+export async function generateMetadata(args?: {
+  params: Promise<{ lang: string }>
+}): Promise<Metadata> {
+  const lang = (await args?.params)?.lang ?? 'en'
+  return localizeMetadata(
+    {
+      title: `Payload Website Template Posts`,
+    },
+    { path: '/posts', locale: lang },
+  )
 }

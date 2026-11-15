@@ -1,3 +1,4 @@
+import { readySourceIDs } from '@/utilities/i18n/seo'
 import { getDocumentBySlug } from '@/utilities/i18n/getDocumentBySlug'
 import { enforceLegalLocale, fallbackToEnglish } from '@/utilities/i18n/pageAccess'
 import { postRichTextBlocks } from '@/collections/Posts/blocks/richTextBlocks'
@@ -19,7 +20,8 @@ import { LivePreviewListener } from '@/components/LivePreviewListener'
 
 import styles from '../../pages.module.css'
 
-export async function generateStaticParams() {
+export async function generateStaticParams(options?: { params: { lang: string } }) {
+  const locale = options?.params.lang ?? 'en'
   const payload = await getPayload({ config: configPromise })
   const posts = await payload.find({
     collection: 'posts',
@@ -32,17 +34,24 @@ export async function generateStaticParams() {
     },
   })
 
-  const params = posts.docs.map(({ slug }) => {
-    return { slug }
-  })
+  const ready = await readySourceIDs(
+    payload,
+    'posts',
+    posts.docs.map((doc) => String(doc.id)),
+    locale,
+  )
+
+  const params = posts.docs
+    .filter((doc) => ready.has(String(doc.id)))
+    .map(({ slug }) => {
+      return { slug }
+    })
 
   return params
 }
 
 type Args = {
-  params: Promise<{ lang: string;
-    slug?: string
-  }>
+  params: Promise<{ lang: string; slug?: string }>
 }
 
 export default async function Post({ params: paramsPromise }: Args) {
@@ -84,7 +93,13 @@ export async function generateMetadata({ params: paramsPromise }: Args): Promise
   const decodedSlug = decodeURIComponent(slug)
   const post = await queryPostBySlug({ slug: decodedSlug, locale: lang })
 
-  return generateMeta({ doc: post })
+  return generateMeta({
+    doc: post,
+    locale: lang,
+    path: `/posts/${decodedSlug}`,
+    sourceCollection: 'posts',
+    draft: (await draftMode()).isEnabled,
+  })
 }
 
 const queryPostBySlug = async ({ slug, locale = 'en' }: { slug: string; locale?: string }) => {

@@ -1,3 +1,4 @@
+import { localizeMetadata } from '@/utilities/i18n/seo'
 import { fallbackToEnglish } from '@/utilities/i18n/pageAccess'
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
@@ -109,16 +110,19 @@ export async function productListingMetadata({
   const canonical = productCategoryPath(category.slug, page)
   const image = category.meta.image
   const imageURL = image?.url ? getMediaUrl(image.url, undefined, getServerSideURL()) : seo.imageURL
-  return {
-    title,
-    description,
-    twitter: null,
-    alternates: { canonical },
-    openGraph: mergeOpenGraph({
+  return localizeMetadata(
+    {
       title,
       description,
-      url: canonical,
-      images: imageURL ? [{ url: imageURL }] : undefined,
-    }),
-  }
+      twitter: null,
+      alternates: { canonical },
+      openGraph: mergeOpenGraph({
+        title,
+        description,
+        url: canonical,
+        images: imageURL ? [{ url: imageURL }] : undefined,
+      }),
+    },
+    { path: canonical, locale, sourceCollection: 'product-categories', sourceId: category.id },
+  )
 }

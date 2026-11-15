@@ -87,11 +87,13 @@ const blog = {
       direction: null,
       format: '',
       indent: 0,
-      children: ['blogMediaBlock', 'blogKeyTakeaways', 'blogCta', 'blogBanner'].map((blockType, index) => ({
-        type: 'block',
-        version: 2,
-        fields: { id: String(index), blockType },
-      })),
+      children: ['blogMediaBlock', 'blogKeyTakeaways', 'blogCta', 'blogBanner'].map(
+        (blockType, index) => ({
+          type: 'block',
+          version: 2,
+          fields: { id: String(index), blockType },
+        }),
+      ),
     },
   },
   updatedAt: '2026-09-28T00:00:00.000Z',
@@ -143,7 +145,12 @@ describe('blog detail', () => {
       'Related 3',
     ])
     expect(mockGetBlogBySlug).toHaveBeenCalledWith(blog.slug, false, 'en')
-    expect(mockGetRelatedBlogs).toHaveBeenCalledWith(blog, expect.anything(), expect.any(Date), 'en')
+    expect(mockGetRelatedBlogs).toHaveBeenCalledWith(
+      blog,
+      expect.anything(),
+      expect.any(Date),
+      'en',
+    )
   })
 
   it('shows a TOC matching rich text headings and hides empty related cards', async () => {
@@ -206,7 +213,13 @@ describe('blog detail', () => {
   it('generates metadata for the same visible article and canonical blog URL', async () => {
     const metadata = await generateMetadata(args)
     expect(mockGetBlogBySlug).toHaveBeenCalledWith(blog.slug, false, 'en')
-    expect(mockGenerateMeta).toHaveBeenCalledWith({ doc: blog })
+    expect(mockGenerateMeta).toHaveBeenCalledWith({
+      doc: blog,
+      locale: 'en',
+      sourceCollection: 'blogs',
+      path: `/blogs/${blog.slug}`,
+      draft: false,
+    })
     expect(metadata.alternates?.canonical).toBe('/blogs/organic-tea-guide')
   })
 

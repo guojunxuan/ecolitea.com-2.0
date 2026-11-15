@@ -1,3 +1,4 @@
+import { localizeMetadata } from '@/utilities/i18n/seo'
 import { getLocalizedList } from '@/utilities/i18n/getLocalized'
 import type { Metadata } from 'next/types'
 
@@ -14,9 +15,7 @@ import styles from '../../../pages.module.css'
 export const revalidate = 600
 
 type Args = {
-  params: Promise<{ lang: string;
-    pageNumber: string
-  }>
+  params: Promise<{ lang: string; pageNumber: string }>
 }
 
 export default async function Page({ params: paramsPromise }: Args) {
@@ -63,9 +62,12 @@ export default async function Page({ params: paramsPromise }: Args) {
 
 export async function generateMetadata({ params: paramsPromise }: Args): Promise<Metadata> {
   const { pageNumber, lang = 'en' } = await paramsPromise
-  return {
-    title: `Payload Website Template Posts Page ${pageNumber || ''}`,
-  }
+  return localizeMetadata(
+    {
+      title: `Payload Website Template Posts Page ${pageNumber || ''}`,
+    },
+    { path: `/posts/page/${pageNumber}`, locale: lang },
+  )
 }
 
 export async function generateStaticParams() {

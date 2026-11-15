@@ -20,10 +20,23 @@ export default async function CaseStudy({ params }: Args) {
   await fallbackToEnglish(doc, lang, url, () => queryCaseStudy(decodeURIComponent(slug)))
   if (!doc) return <PayloadRedirects locale={lang} url={url} />
   const { isEnabled: draft } = await draftMode()
-  return <article><PayloadRedirects locale={lang} disableNotFound url={url} />{draft && <LivePreviewListener />}<h1>{doc.title}</h1>{doc.layout && <RenderCaseStudyBlocks blocks={doc.layout} />}</article>
+  return (
+    <article>
+      <PayloadRedirects locale={lang} disableNotFound url={url} />
+      {draft && <LivePreviewListener />}
+      <h1>{doc.title}</h1>
+      {doc.layout && <RenderCaseStudyBlocks blocks={doc.layout} />}
+    </article>
+  )
 }
 
 export async function generateMetadata({ params }: Args): Promise<Metadata> {
   const { slug = '', lang = 'en' } = await params
-  return generateMeta({ doc: await queryCaseStudy(decodeURIComponent(slug), lang) })
+  return generateMeta({
+    doc: await queryCaseStudy(decodeURIComponent(slug), lang),
+    locale: lang,
+    path: `/case-studies/${slug}`,
+    sourceCollection: 'case-studies',
+    draft: (await draftMode()).isEnabled,
+  })
 }

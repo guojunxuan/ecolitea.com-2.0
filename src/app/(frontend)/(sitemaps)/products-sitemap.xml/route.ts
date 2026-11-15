@@ -1,3 +1,4 @@
+import { localizeSitemap, sitemapLocaleKey, sitemapLocaleTags } from '@/utilities/i18n/seo'
 import { productCategoryPath, productPath } from '@/utilities/products/paths'
 import config from '@payload-config'
 import { unstable_cache } from 'next/cache'
@@ -50,6 +51,7 @@ const getProductsSitemap = unstable_cache(
     }
 
     const products = [] as {
+      id: string
       slug: string
       categorySlug?: string | null
       category: string | { id: string }
@@ -86,22 +88,33 @@ const getProductsSitemap = unstable_cache(
         typeof category === 'object' && category !== null ? category.id : category,
       ),
     )
-    return [
-      { loc: escapeXml(`${siteURL}/products`) },
-      ...categories
-        .filter(({ id, slug }) => Boolean(slug) && categoryIDs.has(id))
-        .map(({ slug, updatedAt }) => ({
-          loc: escapeXml(`${siteURL}${productCategoryPath(slug)}`),
-          ...(updatedAt && !Number.isNaN(Date.parse(updatedAt)) ? { lastmod: updatedAt } : {}),
+    return localizeSitemap(
+      [
+        { entry: { loc: escapeXml(`${siteURL}/products`) } },
+        ...categories
+          .filter(({ id, slug }) => Boolean(slug) && categoryIDs.has(id))
+          .map(({ id, slug, updatedAt }) => ({
+            sourceCollection: 'product-categories',
+            sourceId: id,
+            entry: {
+              loc: escapeXml(`${siteURL}${productCategoryPath(slug)}`),
+              ...(updatedAt && !Number.isNaN(Date.parse(updatedAt)) ? { lastmod: updatedAt } : {}),
+            },
+          })),
+        ...visibleProducts.map(({ id, slug, categorySlug, updatedAt, publishedAt }) => ({
+          sourceCollection: 'products',
+          sourceId: id,
+          entry: {
+            loc: escapeXml(`${siteURL}${productPath(categorySlug!, slug)}`),
+            lastmod: validLastmod(updatedAt, validLastmod(publishedAt, fallback)),
+          },
         })),
-      ...visibleProducts.map(({ slug, categorySlug, updatedAt, publishedAt }) => ({
-        loc: escapeXml(`${siteURL}${productPath(categorySlug!, slug)}`),
-        lastmod: validLastmod(updatedAt, validLastmod(publishedAt, fallback)),
-      })),
-    ]
+      ],
+      payload,
+    )
   },
-  ['products-sitemap'],
-  { tags: ['products-sitemap'], revalidate: 600 },
+  ['products-sitemap', ...sitemapLocaleKey()],
+  { tags: ['products-sitemap', ...sitemapLocaleTags()], revalidate: 600 },
 )
 
 export async function GET() {

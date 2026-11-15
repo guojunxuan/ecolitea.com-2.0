@@ -1,3 +1,4 @@
+import { localizeMetadata, readySourceIDs } from '@/utilities/i18n/seo'
 import { getLocalizedDoc, getLocalizedList } from '@/utilities/i18n/getLocalized'
 import { fallbackToEnglish } from '@/utilities/i18n/pageAccess'
 import type { Metadata } from 'next'
@@ -166,7 +167,11 @@ export async function renderBlogListing({ page, categorySlug, locale = 'en' }: L
   )
 }
 
-export async function blogListingMetadata({ page, categorySlug, locale = 'en' }: ListingArgs): Promise<Metadata> {
+export async function blogListingMetadata({
+  page,
+  categorySlug,
+  locale = 'en',
+}: ListingArgs): Promise<Metadata> {
   const category = await resolveCategory(categorySlug, locale)
   const seo = await getBlogListingSEO(locale)
   const baseTitle = category
@@ -193,25 +198,42 @@ export async function blogListingMetadata({ page, categorySlug, locale = 'en' }:
     url: canonical,
     images: imageURL ? [{ url: imageURL }] : undefined,
   })
-  if (categorySlug) return { title, description, alternates: { canonical }, openGraph }
-  return {
-    title,
-    description,
-    alternates: { canonical },
-    openGraph,
-    twitter: {
-      card: 'summary_large_image',
+  if (categorySlug)
+    return localizeMetadata(
+      { title, description, alternates: { canonical }, openGraph },
+      { path: canonical, locale, sourceCollection: 'blog-categories', sourceId: category?.id },
+    )
+  return localizeMetadata(
+    {
       title,
       description,
-      images: seo?.imageURL ? [seo.imageURL] : openGraph?.images,
+      alternates: { canonical },
+      openGraph,
+      twitter: {
+        card: 'summary_large_image',
+        title,
+        description,
+        images: seo?.imageURL ? [seo.imageURL] : openGraph?.images,
+      },
     },
-  }
+    { path: canonical, locale },
+  )
 }
 
-export async function getCategoryStaticParams() {
+export async function getCategoryStaticParams(options?: { params: { lang: string } }) {
+  const locale = options?.params.lang ?? 'en'
   const [categories, countEntries] = await Promise.all([getCategories(), getCategoryCounts()])
   const counts = new Map(countEntries)
+  const ready =
+    locale === 'en'
+      ? new Set(categories.map(({ id }) => id))
+      : await readySourceIDs(
+          await getPayload({ config: configPromise }),
+          'blog-categories',
+          categories.map(({ id }) => id),
+          locale,
+        )
   return categories
-    .filter(({ id }) => (counts.get(id) ?? 0) > 0)
+    .filter(({ id }) => (counts.get(id) ?? 0) > 0 && ready.has(id))
     .map(({ slug }) => ({ categorySlug: slug }))
 }

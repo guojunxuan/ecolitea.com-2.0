@@ -1,3 +1,4 @@
+import { localizeMetadata } from './i18n/seo'
 import type { Metadata } from 'next'
 
 import type { Blog, Media, Page, Post, Config } from '../payload-types'
@@ -19,6 +20,10 @@ const getImageURL = (image?: Media | Config['db']['defaultIDType'] | null) => {
 
 export const generateMeta = async (args: {
   doc: Partial<Page> | Partial<Post> | Partial<Blog> | null
+  locale?: string
+  path?: string
+  sourceCollection?: string
+  draft?: boolean
 }): Promise<Metadata> => {
   const { doc } = args
 
@@ -28,7 +33,7 @@ export const generateMeta = async (args: {
     ? doc?.meta?.title + ' | Payload Website Template'
     : 'Payload Website Template'
 
-  return {
+  const metadata: Metadata = {
     description: doc?.meta?.description,
     openGraph: mergeOpenGraph({
       description: doc?.meta?.description || '',
@@ -44,4 +49,11 @@ export const generateMeta = async (args: {
     }),
     title,
   }
+  return localizeMetadata(metadata, {
+    path: args.path ?? (doc?.slug === 'home' ? '/' : `/${doc?.slug ?? ''}`),
+    locale: args.locale,
+    sourceCollection: args.sourceCollection ?? 'pages',
+    sourceId: doc?.id ? String(doc.id) : undefined,
+    draft: args.draft,
+  })
 }

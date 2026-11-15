@@ -1,3 +1,4 @@
+import { readySourceIDs } from '@/utilities/i18n/seo'
 import { getDocumentBySlug } from '@/utilities/i18n/getDocumentBySlug'
 import { enforceLegalLocale, fallbackToEnglish } from '@/utilities/i18n/pageAccess'
 import type { Metadata } from 'next'
@@ -13,7 +14,8 @@ import { RenderHero } from '@/heros/RenderHero'
 import { generateMeta } from '@/utilities/generateMeta'
 import { LivePreviewListener } from '@/components/LivePreviewListener'
 
-export async function generateStaticParams() {
+export async function generateStaticParams(options?: { params: { lang: string } }) {
+  const locale = options?.params.lang ?? 'en'
   const payload = await getPayload({ config: configPromise })
   const pages = await payload.find({
     collection: 'pages',
@@ -26,9 +28,16 @@ export async function generateStaticParams() {
     },
   })
 
+  const ready = await readySourceIDs(
+    payload,
+    'pages',
+    pages.docs.map((doc) => String(doc.id)),
+    locale,
+  )
+
   const params = pages.docs
     ?.filter((doc) => {
-      return doc.slug !== 'home'
+      return doc.slug !== 'home' && ready.has(String(doc.id))
     })
     .map(({ slug }) => {
       return { slug }
@@ -38,9 +47,7 @@ export async function generateStaticParams() {
 }
 
 type Args = {
-  params: Promise<{ lang: string;
-    slug?: string
-  }>
+  params: Promise<{ lang: string; slug?: string }>
 }
 
 export default async function Page({ params: paramsPromise }: Args) {
@@ -51,7 +58,8 @@ export default async function Page({ params: paramsPromise }: Args) {
   const url = decodedSlug === 'home' ? '/' : '/' + decodedSlug
   await enforceLegalLocale(url, lang)
   const page: RequiredDataFromCollectionSlug<'pages'> | null = await queryPageBySlug({
-    slug: decodedSlug, locale: lang,
+    slug: decodedSlug,
+    locale: lang,
   })
 
   await fallbackToEnglish(page, lang, url, () => queryPageBySlug({ slug: decodedSlug }))
@@ -79,10 +87,17 @@ export async function generateMetadata({ params: paramsPromise }: Args): Promise
   // Decode to support slugs with special characters
   const decodedSlug = decodeURIComponent(slug)
   const page = await queryPageBySlug({
-    slug: decodedSlug, locale: lang,
+    slug: decodedSlug,
+    locale: lang,
   })
 
-  return generateMeta({ doc: page })
+  return generateMeta({
+    doc: page,
+    locale: lang,
+    path: decodedSlug === 'home' ? '/' : `/${decodedSlug}`,
+    sourceCollection: 'pages',
+    draft: (await draftMode()).isEnabled,
+  })
 }
 
 const queryPageBySlug = async ({ slug, locale = 'en' }: { slug: string; locale?: string }) => {

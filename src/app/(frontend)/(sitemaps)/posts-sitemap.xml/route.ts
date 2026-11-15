@@ -1,3 +1,4 @@
+import { localizeSitemap, sitemapLocaleKey, sitemapLocaleTags } from '@/utilities/i18n/seo'
 import { getServerSideSitemap } from 'next-sitemap'
 import { getPayload } from 'payload'
 import config from '@payload-config'
@@ -35,16 +36,20 @@ const getPostsSitemap = unstable_cache(
       ? results.docs
           .filter((post) => Boolean(post?.slug))
           .map((post) => ({
-            loc: `${SITE_URL}/posts/${post?.slug}`,
-            lastmod: post.updatedAt || dateFallback,
+            sourceCollection: 'posts',
+            sourceId: String(post.id),
+            entry: {
+              loc: `${SITE_URL}/posts/${post?.slug}`,
+              lastmod: post.updatedAt || dateFallback,
+            },
           }))
       : []
 
-    return sitemap
+    return localizeSitemap(sitemap, payload)
   },
-  ['posts-sitemap'],
+  ['posts-sitemap', ...sitemapLocaleKey()],
   {
-    tags: ['posts-sitemap'],
+    tags: ['posts-sitemap', ...sitemapLocaleTags()],
   },
 )
 

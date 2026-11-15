@@ -1,16 +1,22 @@
+import { localizeSitemap, sitemapLocaleKey, sitemapLocaleTags } from '@/utilities/i18n/seo'
 import config from '@payload-config'
 import { unstable_cache } from 'next/cache'
 import { getServerSideSitemap } from 'next-sitemap'
 import { getPayload } from 'payload'
 import { publicBlogVisibility } from '@/utilities/blogs/publicVisibility'
 
-const escapeXml = (value: string) => value.replace(/[&<>"']/g, (character) => ({
-  '&': '&amp;',
-  '<': '&lt;',
-  '>': '&gt;',
-  '"': '&quot;',
-  "'": '&apos;',
-})[character]!)
+const escapeXml = (value: string) =>
+  value.replace(
+    /[&<>"']/g,
+    (character) =>
+      ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&apos;',
+      })[character]!,
+  )
 
 const validLastmod = (value: string | null | undefined, fallback: string) =>
   value && !Number.isNaN(Date.parse(value)) ? value : fallback
@@ -43,7 +49,13 @@ const getBlogsSitemap = unstable_cache(
       page += 1
     }
 
-    const blogs = [] as { slug: string; category: string | { id: string }; publishedAt?: string | null; updatedAt: string }[]
+    const blogs = [] as {
+      id: string
+      slug: string
+      category: string | { id: string }
+      publishedAt?: string | null
+      updatedAt: string
+    }[]
     page = 1
     hasNextPage = true
     while (hasNextPage) {
@@ -62,26 +74,39 @@ const getBlogsSitemap = unstable_cache(
       page += 1
     }
 
-    const categoryIDs = new Set(blogs.map(({ category }) =>
-      typeof category === 'object' && category !== null ? category.id : category,
-    ))
-    return [
-      { loc: escapeXml(`${siteURL}/blogs`) },
-      ...categories
-        .filter(({ id, slug }) => Boolean(slug) && categoryIDs.has(id))
-        .map(({ slug }) => ({
-          loc: escapeXml(`${siteURL}/blogs/category/${slug}`),
-        })),
-      ...blogs
-        .filter(({ slug }) => Boolean(slug))
-        .map(({ slug, updatedAt, publishedAt }) => ({
-          loc: escapeXml(`${siteURL}/blogs/${slug}`),
-          lastmod: validLastmod(updatedAt, validLastmod(publishedAt, fallback)),
-        })),
-    ]
+    const categoryIDs = new Set(
+      blogs.map(({ category }) =>
+        typeof category === 'object' && category !== null ? category.id : category,
+      ),
+    )
+    return localizeSitemap(
+      [
+        { entry: { loc: escapeXml(`${siteURL}/blogs`) } },
+        ...categories
+          .filter(({ id, slug }) => Boolean(slug) && categoryIDs.has(id))
+          .map(({ id, slug }) => ({
+            sourceCollection: 'blog-categories',
+            sourceId: id,
+            entry: {
+              loc: escapeXml(`${siteURL}/blogs/category/${slug}`),
+            },
+          })),
+        ...blogs
+          .filter(({ slug }) => Boolean(slug))
+          .map(({ id, slug, updatedAt, publishedAt }) => ({
+            sourceCollection: 'blogs',
+            sourceId: id,
+            entry: {
+              loc: escapeXml(`${siteURL}/blogs/${slug}`),
+              lastmod: validLastmod(updatedAt, validLastmod(publishedAt, fallback)),
+            },
+          })),
+      ],
+      payload,
+    )
   },
-  ['blogs-sitemap'],
-  { tags: ['blogs-sitemap'], revalidate: 600 },
+  ['blogs-sitemap', ...sitemapLocaleKey()],
+  { tags: ['blogs-sitemap', ...sitemapLocaleTags()], revalidate: 600 },
 )
 
 export async function GET() {
