@@ -43,7 +43,10 @@ function SettingsPanel() {
       className={styles.dialog}
       data-website-theme="default"
       aria-labelledby={titleId}
-      onClose={closeSettings}
+      onClose={(event) => {
+        // Strict Mode may reopen the dialog before a queued native close event arrives.
+        if (!event.currentTarget.open) closeSettings()
+      }}
       onClick={(event) => {
         if (event.target === event.currentTarget) event.currentTarget.close()
       }}
@@ -129,10 +132,24 @@ function SettingsPanel() {
           </section>
         </div>
         <footer className={styles.actions}>
-          <Button type="button" variant="outline" onClick={rejectOptional}>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => {
+              dialog.current?.close()
+              rejectOptional()
+            }}
+          >
             {copy.reject}
           </Button>
-          <Button type="button" onClick={() => save({ analytics, marketing })}>
+          <Button
+            type="button"
+            onClick={() => {
+              // Release the native modal's inert background before restoring trigger focus.
+              dialog.current?.close()
+              save({ analytics, marketing })
+            }}
+          >
             {copy.save}
           </Button>
         </footer>

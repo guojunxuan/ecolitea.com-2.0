@@ -108,6 +108,27 @@ describe('consent UI', () => {
       'true',
     )
   })
+  it('keeps settings open through Strict Mode native close-event replay', async () => {
+    HTMLDialogElement.prototype.close = function () {
+      if (!this.open) return
+      this.removeAttribute('open')
+      setTimeout(() => this.dispatchEvent(new Event('close')), 0)
+    }
+    render(
+      <React.StrictMode>
+        <ConsentProvider gtmDisabled>
+          <CookieSettingsButton />
+          <CookieSettingsDialog />
+        </ConsentProvider>
+      </React.StrictMode>,
+    )
+    open()
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 20))
+    })
+    expect(screen.queryByRole('dialog', { name: 'Cookie settings' })).not.toBeNull()
+  })
+
   it('locks marketing for GPC and clears existing region preferences', () => {
     document.cookie = 'ec_preferences=DE; Path=/'
     Object.defineProperty(navigator, 'globalPrivacyControl', { configurable: true, value: true })

@@ -54,6 +54,8 @@ const disableR2Storage = process.env.DISABLE_R2_STORAGE === 'false' ? 'false' : 
 process.env.DISABLE_R2_STORAGE = disableR2Storage
 process.env.PREVIEW_SECRET = 'e2e-only-preview-secret'
 process.env.PLAYWRIGHT_TEST = 'true'
+// Never inherit a deployed Google container in browser tests. Specs intercept this placeholder.
+process.env.NEXT_PUBLIC_GTM_MEASUREMENT_ID = 'GTM-TEST000'
 process.env.PLAYWRIGHT_E2E_RUN_ID = e2eRunID
 process.env.PLAYWRIGHT_BASE_URL = e2eBaseURL
 // Native upload actions use absolute thumbnail URLs; pin them to this test

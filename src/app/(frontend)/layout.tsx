@@ -33,9 +33,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <Providers gtmDisabled={siteSettings.disableGtm === true}>
           <SkipLink href="#main-content">Skip to content</SkipLink>
           <Header />
-          <main id="main-content" tabIndex={-1}>
-            {children}
-          </main>
+          <main id="main-content" tabIndex={-1}>{children}</main>
           <Footer />
           <CookieBanner
             cookiePolicyHref={
