@@ -11,10 +11,30 @@ export type ServerEnv = {
   R2_PUBLIC_URL: string
   TURNSTILE_SECRET_KEY?: string
   QUOTE_IP_HASH_SALT?: string
+  GOOGLE_TRANSLATE_API_KEY?: string
+  REVALIDATE_SECRET?: string
+  TRANSLATION_MONTHLY_CHAR_LIMIT: number
+  JOBS_AUTORUN: boolean
 }
 
-const required = ['DATABASE_URI','PAYLOAD_SECRET','NEXT_PUBLIC_SERVER_URL','CRON_SECRET','PREVIEW_SECRET','R2_BUCKET','R2_ACCESS_KEY_ID','R2_SECRET_ACCESS_KEY','R2_ENDPOINT','R2_PUBLIC_URL'] as const
-const optional = ['TURNSTILE_SECRET_KEY', 'QUOTE_IP_HASH_SALT'] as const
+const required = [
+  'DATABASE_URI',
+  'PAYLOAD_SECRET',
+  'NEXT_PUBLIC_SERVER_URL',
+  'CRON_SECRET',
+  'PREVIEW_SECRET',
+  'R2_BUCKET',
+  'R2_ACCESS_KEY_ID',
+  'R2_SECRET_ACCESS_KEY',
+  'R2_ENDPOINT',
+  'R2_PUBLIC_URL',
+] as const
+const optional = [
+  'TURNSTILE_SECRET_KEY',
+  'QUOTE_IP_HASH_SALT',
+  'GOOGLE_TRANSLATE_API_KEY',
+  'REVALIDATE_SECRET',
+] as const
 export function parseServerEnv(env: Partial<NodeJS.ProcessEnv>): ServerEnv {
   const out = {} as Record<(typeof required)[number], string>
   for (const key of required) {
@@ -24,7 +44,15 @@ export function parseServerEnv(env: Partial<NodeJS.ProcessEnv>): ServerEnv {
   }
   out.R2_PUBLIC_URL = out.R2_PUBLIC_URL.replace(/\/+$/, '')
   out.NEXT_PUBLIC_SERVER_URL = out.NEXT_PUBLIC_SERVER_URL.replace(/\/+$/, '')
-  const result: ServerEnv = { ...out }
+  const monthlyLimit = Number(env.TRANSLATION_MONTHLY_CHAR_LIMIT?.trim() || '450000')
+  if (!Number.isSafeInteger(monthlyLimit) || monthlyLimit <= 0) {
+    throw new Error('TRANSLATION_MONTHLY_CHAR_LIMIT must be a positive safe integer')
+  }
+  const result: ServerEnv = {
+    ...out,
+    TRANSLATION_MONTHLY_CHAR_LIMIT: monthlyLimit,
+    JOBS_AUTORUN: env.JOBS_AUTORUN === 'true',
+  }
   for (const key of optional) {
     const value = env[key]?.trim()
     if (value) result[key] = value

@@ -5,6 +5,10 @@ declare global {
       DATABASE_URI: string
       MONGODB_URI: string
       NEXT_PUBLIC_GTM_MEASUREMENT_ID?: string
+      GOOGLE_TRANSLATE_API_KEY?: string
+      TRANSLATION_MONTHLY_CHAR_LIMIT?: string
+      JOBS_AUTORUN?: string
+      REVALIDATE_SECRET?: string
       NEXT_PUBLIC_SERVER_URL: string
       VERCEL_PROJECT_PRODUCTION_URL: string
       CRON_SECRET: string
