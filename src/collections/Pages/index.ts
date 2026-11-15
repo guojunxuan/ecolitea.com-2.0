@@ -1,5 +1,6 @@
 import { pageBlocks } from './blocks'
 import { imageOnly } from '@/collections/mediaUploadPolicy'
+import { enforcePageSlug, validatePageSlug } from './validateSlug'
 import type { CollectionConfig } from 'payload'
 
 import { authenticated } from '../../access/authenticated'
@@ -122,6 +123,8 @@ export const Pages: CollectionConfig = {
       name: 'slug',
       type: 'slug',
       useAsSlug: 'title',
+      validate: validatePageSlug,
+      hooks: { beforeChange: [enforcePageSlug] },
     },
   ],
   hooks: {
