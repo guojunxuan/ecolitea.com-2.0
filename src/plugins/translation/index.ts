@@ -2,7 +2,7 @@ import type { Plugin } from 'payload'
 import { translations } from './collections/translations'
 import { translationSearch } from './collections/translationSearch'
 import { translationUsage } from './collections/translationUsage'
-import { createTranslationRuntime, type TranslationOptions } from './task'
+import { createTranslationRuntime, TRANSLATION_QUEUE, type TranslationOptions } from './task'
 import { createCollectionTranslationHooks, createGlobalTranslationHook } from './hooks'
 import { getTranslationRule } from './rules'
 import { enqueueFrontendDictionary } from './dictionary'
@@ -74,6 +74,23 @@ export const translationPlugin =
         ),
         translationUsage,
       ],
-      jobs: { ...config.jobs, tasks: [...(config.jobs?.tasks ?? []), ...runtime.tasks] },
+      jobs: {
+        ...config.jobs,
+        processingOrder: async (args) => {
+          const configured = config.jobs?.processingOrder
+          const order =
+            typeof configured === 'function'
+              ? await configured(args)
+              : configured && typeof configured === 'object' && !Array.isArray(configured)
+                ? (configured.queues[args.queue ?? 'default'] ?? configured.default ?? 'createdAt')
+                : (configured ?? 'createdAt')
+          // Native/saved jobs without metadata keep their FIFO precedence. New
+          // translation work sorts by update, publication, then first backfill.
+          return args.allQueues || args.queue === TRANSLATION_QUEUE
+            ? ['meta.translationPriority', ...(Array.isArray(order) ? order : [order])]
+            : order
+        },
+        tasks: [...(config.jobs?.tasks ?? []), ...runtime.tasks],
+      },
     }
   }

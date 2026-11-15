@@ -13,6 +13,13 @@ const fields: Field[] = [
     options: ['pending', 'waiting_quota', 'ready', 'failed'],
     admin: { readOnly: true },
   },
+  {
+    name: 'requestPriority',
+    type: 'number',
+    min: 0,
+    max: 2,
+    admin: { readOnly: true },
+  },
   { name: 'requestedSourceVersion', type: 'text', admin: { readOnly: true } },
   { name: 'lastReadySourceVersion', type: 'text', admin: { readOnly: true } },
   { name: 'ruleVersion', type: 'number', admin: { readOnly: true } },

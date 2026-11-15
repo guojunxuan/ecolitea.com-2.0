@@ -1523,6 +1523,7 @@ export interface Translation {
   sourceId: string;
   locale: string;
   status: 'pending' | 'waiting_quota' | 'ready' | 'failed';
+  requestPriority?: number | null;
   requestedSourceVersion?: string | null;
   lastReadySourceVersion?: string | null;
   ruleVersion?: number | null;
@@ -2692,6 +2693,7 @@ export interface TranslationsSelect<T extends boolean = true> {
   sourceId?: T;
   locale?: T;
   status?: T;
+  requestPriority?: T;
   requestedSourceVersion?: T;
   lastReadySourceVersion?: T;
   ruleVersion?: T;

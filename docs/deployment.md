@@ -83,8 +83,8 @@ previously loaded script. Failed script loading does not interrupt browsing or c
 
 The Footer's **Cookie settings** button lets visitors review or withdraw consent. Closing the
 banner or the settings dialog does not save a decision. If an `ec_preferences` cookie exists, its
-region/language preference can be cleared in the Necessary section; this phase does not create
-that preference or add language routing.
+region/language preference can be cleared in the Necessary section. The frontend language
+selector writes this preference without changing consent.
 
 Browser tests use `GTM-TEST000` and fulfill `googletagmanager.com` requests locally. Run only the
 consent spec with storage disabled when checking this feature:
@@ -103,8 +103,8 @@ Payload owns the translation lifecycle. The plugin at `src/plugins/translation` 
 `translations`, the private `translation-search` index, the `translation-usage` Global, source
 hooks, and Jobs tasks. English documents and upload metadata keep their existing shapes.
 Next.js supplies the authenticated cache-invalidation boundary; Google is a replaceable provider.
-The public website still reads English. Language routes, populated relationship merging,
-translated search queries, and sitemap/hreflang wiring belong to Phase 3.
+The frontend consumes ready translations through its language-aware reading boundary; the
+translation plugin owns records, queueing and invalidation, while Next.js owns public routing and SEO.
 
 Configure languages in `src/i18n/config.ts`. `source` is English; `translating` and `live` are
 translation targets. The default contains only English and Global, so no translation work is
@@ -176,7 +176,8 @@ The endpoint accepts `Authorization: Bearer <secret>` and JSON `{ "tags": [], "p
 Each request accepts at most 100 total entries; the client batches larger sets. Tags expire
 immediately. Missing configuration returns 503, invalid authentication 401, and invalid input
 400. Hooks retain their direct Next cache behavior inside a request; only the installed missing
-work-store invariant causes HTTP fallback. English paths are unchanged.
+work-store invariant causes HTTP fallback. Public English URLs remain unchanged; path invalidation
+targets their internal `/en/...` routes and each live language route.
 
 Translation Jobs retry twice, for three executions total. A durable translation checkpoint
 prevents search/cache notification retries from spending translation quota again. Terminal
@@ -200,10 +201,9 @@ contains the read-only counter. Staff access reuses the existing authenticated-u
 this application has no separate administrator role model. External translation/search writes
 are denied; server Local API writes own these records.
 
-There is no bulk backfill producer in this phase. After adding a target language, republish
-existing English documents and save Globals/Media to enqueue them. The readiness denominator is
-tracked requests, not an inventory of all eligible site content. Verify the existing content
-inventory before changing a language to `live` in a later frontend release.
+Use the bulk producer described below after adding a target language. The readiness denominator
+is tracked requests, not an inventory of all eligible site content; compare the dry-run inventory
+before changing a language to `live`. Republishing English sources also requeues their translations.
 
 Explicit rules cover Products, categories, Blogs, Posts, Case Studies, Pages, Forms, Header,
 Footer, visitor-facing Settings, and Media `alt`/`caption`. Media has no drafts, so each save is
@@ -212,8 +212,57 @@ Site Settings' Privacy Policy, Cookie Policy or Terms fields are excluded, and c
 references removes prior plugin-owned translations. Sources without a public document URL,
 such as Media, Forms, Globals and the frontend dictionary, do not receive fabricated search rows.
 
-The source dictionary is `src/i18n/dictionaries/en.json`. Existing components continue to use
-their English copy in this phase. `mergeTranslation` is a backend helper only; it returns English
-by reference, merges the latest compatible ready checkpoint for configured target locales, and
-returns `null` when no usable translation exists. Phase 3 callers must enforce public locale and
-source visibility, handle the specified English redirect fallback, and partition caches by locale.
+The source dictionary is `src/i18n/dictionaries/en.json`. The frontend reads dictionary translations
+server-side and passes the selected copy to client components. `mergeTranslation` returns English by reference, merges the latest compatible ready
+checkpoint for configured target locales, and returns `null` when no usable translation exists.
+Frontend callers also enforce public locale/source visibility, handle the English redirect
+fallback, and partition caches by locale.
+
+## Launching a frontend language (Phase 3)
+
+The deployment configuration in `src/i18n/config.ts` owns public languages and regions. Keep
+English as `source`; add a target as `translating` and add its region entries, then deploy.
+A translating locale remains unavailable to public requests, the selector and SEO output.
+
+Use the bulk producer to inspect and enqueue the current public inventory. Replace `<locale>`
+with the configured code and explicitly select the environment's `DATABASE_URI` before running:
+
+```sh
+corepack pnpm exec tsx scripts/translation-backfill.ts --locale=<locale> --dry-run --confirm
+corepack pnpm exec tsx scripts/translation-backfill.ts --locale=<locale> --confirm
+```
+
+Both commands print the target database host/name, locale, storage mode and execution mode before
+initializing Payload. Non-test databases additionally require
+`--confirm-non-test=<database-name>`; review the printed target before supplying it. The developer database named `ecolitea2` is refused. During
+development and automated checks use only isolated local test databases, `DISABLE_R2_STORAGE=true`
+and an injected stub provider; never enqueue against production or call Google from tests.
+
+`--dry-run` reports counts per source, total documents and estimated deduplicated characters,
+including dictionary text and rich-text HTML markers, without creating translation requests or
+Jobs. The producer does not start a worker. Execute mode requires configured translation targets
+and an enabled provider; it only saves plugin-owned translation requests and Jobs, never English
+sources. Drafts, future/unset publication dates for Blogs/Products and the three legal Pages are
+excluded. Non-draft sources (including Media and Forms), persisted Globals and the frontend
+dictionary are included. Character estimates use the same extraction rules as the worker; current
+quota usage, concurrent edits, reusable checkpoints and provider retries can change actual usage.
+
+Jobs use Payload's public metadata and processing-order configuration: updates with a ready
+checkpoint first, new publications second, first backfill/dictionary work third, FIFO within each
+tier. The request stores its tier so next-month quota recovery preserves it. Existing Jobs without
+the new metadata remain runnable and retain precedence. A backfill of the same version does not
+demote a pending publication. Keep one worker with `limit: 1`; backfill does not run jobs itself.
+
+Wait for **Payload Admin → System → Translations** to finish the inventory and check failures or
+`waiting_quota` requests. Its completion denominator is tracked requests, so compare the dry-run
+inventory as well. Before making a language public, run the read-only reserved-slug scan with an
+explicit environment and its confirmation flags:
+
+```sh
+corepack pnpm exec tsx scripts/scan-reserved-slugs.ts --confirm
+```
+
+Resolve any reported conflicts manually; the scan never renames content. Change the target locale
+to `live`, then deploy again. Only ready documents enter that language's public URLs and SEO
+output. Keep the preview endpoints unprefixed, and verify that the reverse proxy preserves the
+same host during English internal rewrites. The default configuration still contains only English.

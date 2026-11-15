@@ -200,23 +200,44 @@ export function createTranslationRuntime(options: TranslationOptions = {}) {
       ],
     })
 
-  const queue = async (req: PayloadRequest, input: TranslationInput): Promise<void> => {
+  const queue = async (
+    req: PayloadRequest,
+    input: TranslationInput,
+    options: { backfill?: boolean } = {},
+  ): Promise<boolean> => {
     const prior = req.context
     try {
-      if (!canQueue || !targets.includes(input.locale) || req.context.translationWrite) return
-      if (!(await currentSource(req, input))) return
+      if (!canQueue || !targets.includes(input.locale) || req.context.translationWrite) return false
+      if (!(await currentSource(req, input))) return false
+      const existing = await findTranslation(req, input)
+      const requestedPriority = existing?.lastReadySourceVersion
+        ? 0
+        : options.backfill || input.sourceCollection === 'dictionary'
+          ? 2
+          : 1
+      // A backfill must not demote an already queued publication of the same version.
+      const requestPriority =
+        existing?.requestedSourceVersion === input.sourceVersion
+          ? Math.min(
+              existing.requestPriority ?? (input.sourceCollection === 'dictionary' ? 2 : 1),
+              requestedPriority,
+            )
+          : requestedPriority
       const owner = await writeTranslation(req, input, {
+        requestPriority,
         status: 'pending',
         requestedSourceVersion: input.sourceVersion,
         error: null,
       })
-      if (owner.requestedSourceVersion !== input.sourceVersion) return
+      if (owner.requestedSourceVersion !== input.sourceVersion) return false
       await req.payload.jobs.queue({
         task: 'translateDocument',
         queue: TRANSLATION_QUEUE,
+        meta: { translationPriority: requestPriority },
         input,
         req,
       })
+      return true
     } finally {
       req.context = prior
     }
@@ -494,19 +515,23 @@ export function createTranslationRuntime(options: TranslationOptions = {}) {
       waiting.push(...result.docs)
       page++
     } while (result.hasNextPage)
-    // There is no bulk backfill producer in Phase 2. Dictionary startup (Task 8)
-    // is the final tier; existing translations precede new publication requests.
     const tier = (row: Translation) =>
-      row.lastReadySourceVersion ? 0 : row.sourceCollection === 'dictionary' ? 2 : 1
+      row.lastReadySourceVersion
+        ? 0
+        : (row.requestPriority ?? (row.sourceCollection === 'dictionary' ? 2 : 1))
     waiting.sort((a, b) => tier(a) - tier(b) || a.createdAt.localeCompare(b.createdAt))
     for (const row of waiting) {
       if (row.requestedSourceVersion)
-        await queue(req, {
-          sourceCollection: row.sourceCollection,
-          sourceId: row.sourceId,
-          locale: row.locale,
-          sourceVersion: row.requestedSourceVersion,
-        })
+        await queue(
+          req,
+          {
+            sourceCollection: row.sourceCollection,
+            sourceId: row.sourceId,
+            locale: row.locale,
+            sourceVersion: row.requestedSourceVersion,
+          },
+          { backfill: tier(row) === 2 },
+        )
     }
   }
 
