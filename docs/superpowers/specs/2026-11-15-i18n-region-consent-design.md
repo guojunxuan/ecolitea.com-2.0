@@ -96,11 +96,14 @@ quota.ts            月度字符计数
 
 ### 4.4 触发与执行
 
-- 仅在英文**发布**（含定时发布生效）时入队；autosave 草稿不触发。写回译文使用 `context` 标记，不触发自身 hook。
+- 入队条件：afterChange 中完整文档 `_status === 'published'`（首次发布与已发布内容再次发布都触发，不要求状态迁移）；写入使用 `select` 省略生命周期字段时，同一 `req` 内 `findByID({ draft: true, depth: 0 })` 恢复后判断。autosave / 草稿不触发；`draft:true` 但显式 `_status:'published'` 的更新是真实发布，会触发。定时发布走同一 hook。
+- 写 `translations` 不会触发源集合 hook；任务内的写操作仍设置 `context.translationWrite`，作为插件/共享 hook 的保护（context 不随队列持久化，需在任务内重新设置）。
 - 每次发布整篇重译该文档的全部目标语言（所有 `translating` / `live` 语言）。
-- 英文下线或删除时，对应译文一并失效。
-- 任务失败自动重试；失败保留旧译文并标记 `failed`。
-- 任务执行前校验 `sourceVersion`，旧任务不得覆盖新译文。
+- 下线：比较写入前后**公开版本**状态（`wasPublic && currentPublic?._status !== 'published'`），不能只比较 `previousDoc` / `doc`。Products 复用现有 `src/collections/Products/hooks/productPublicTransition.ts`。删除用 `afterDelete`。下线/删除使所有语言译文、翻译搜索记录、sitemap/hreflang 与各语言缓存失效。
+- 任务失败自动重试；失败保留旧译文并标记 `failed`。记录 `lastReadySourceVersion` 与 `requestedSourceVersion`，读取时使用最近一次就绪的译文，不把旧译文标记为新源版本的翻译。
+- 任务执行前与写入前都校验源文档当前状态和版本，旧任务不得覆盖新译文；任务幂等。
+- Jobs：`getPayload({ cron: true })` 初始化 `autoRun`；仅一个由环境变量指定的进程运行；首版并发 1（Jobs 只隔离 transaction，不隔离 context）。
+- 缓存失效边界：后台任务中直接调用 `revalidateTag` 会报 `static generation store missing`。新增带鉴权、仅服务端的 Next Route Handler 执行失效，翻译完成后调用，可重试、幂等。现有 Products 定时发布的失效（`revalidateProduct` 在 `schedulePublish` 后台任务中执行）同样改走此 Route Handler，在第二阶段一并修复。
 
 ### 4.5 富文本
 
@@ -133,16 +136,16 @@ Site Settings → Legal 引用的 Privacy Policy、Cookie Policy、Terms 三个 
 
 | 部分 | 方案 |
 |---|---|
-| 路由 | 前台路由移入 `app/(frontend)/[lang]/...`；`proxy.ts` 将无前缀请求内部改写为 `en`；显式 `/en/...` 301 到无前缀 |
+| 路由 | 前台根布局与全部 16 个页面入口移入 `app/(frontend)/[lang]/...`（同层不能保留 `[slug]`；根布局必须下移才能读取 `lang`）；`src/proxy.ts`（导出 `proxy`，不用 `middleware.ts`，不导出 `runtime`）将无前缀请求内部改写为 `/en...`；matcher 排除 `api`、`admin`、`next`、`_next`、静态资源目录与带扩展名文件（sitemap、robots 不改写；`/search` 迁入 `[lang]`）。显式 `/en/...` 在 `redirects.ts` 中 `statusCode: 301` 跳到无前缀（不用 `permanent: true`，那是 308），并单独写 `/en → /` 规则 |
 | URL | 英文保持现有地址；其他语言加前缀，如 `/de/products/...`；所有语言共用英文 slug |
-| 保留 slug | 配置中的所有语言代码为保留 slug，Pages 服务端校验拦截 |
+| 保留 slug | URL 第一段为两个字母（可带 `-xx` 地区）一律视为语言段：已配置且公开 → 该语言；`translating` 或未配置 → 404，不降级为英文。因此所有两个字母的根级 slug 均为保留，由 Pages 服务端校验拦截；上线前扫描现有 Pages 冲突并报告人工处理，不自动改名或删除 |
 | 读取 | 新增 `getLocalizedDoc()`：读英文文档并合并对应语言译文；现有 `getProductBySlug`、`getGlobals` 等统一经由它 |
-| 缓存 | cache tag 增加语言维度；英文发布失效英文缓存，某语言译文写入只失效该语言 |
+| 缓存 | 缓存 **key 与 tag** 都加入语言（tag 不参与 key，只加 tag 会串语言）；英文源可按现有 key 缓存，合并后的模型按 `[…, id, locale]` 缓存。现有所有 `revalidatePath('/x')` 改为内部路径 `/en/x`（首页 `/en`），其他语言用 `/<locale>/x`。部署需确认反向代理后 rewrite 保持同源（主机名一致） |
 | 静态生成 | `generateStaticParams` 输出 `live` 语言 × 已就绪文档 |
 | Cookie 与渲染 | 服务端不读取 `ec_preferences` / `ec_consent`，避免整页动态化；相关 UI 状态在客户端读取 |
 | Metadata | `<html lang>`、自身 canonical、所有已就绪语言 hreflang + `x-default`（英文） |
 | Sitemap | 现有 4 个 sitemap 增加语言维度，只列 `live` 语言的已就绪文档 |
-| 搜索 | 索引增加 `locale`，各语言独立记录；语言页面只搜索本语言 |
+| 搜索 | 现有 search 插件保留英文（插件会删除同一源文档的多余记录，不能按语言加行）；翻译插件新增自有 `translation-search` 集合（`sourceCollection`+`sourceId`+`locale` 唯一索引），由翻译完成/失效流程写入；语言页面只搜索本语言并继续应用 `publishedAt` 可见性 |
 | Redirects | 运营只维护英文规则；查询时去掉语言前缀匹配，命中后按当前语言生成目标地址；外部 URL 原样跳转；目标未就绪按下方规则 |
 | 未就绪页面 | 直接访问 `live` 语言下未就绪的 `/xx/...`：302 到英文版 |
 
@@ -218,7 +221,11 @@ Site Settings → Legal 引用的 Privacy Policy、Cookie Policy、Terms 三个 
 
 每阶段单独出实施计划并只运行与该阶段相关的测试。
 
-## 11. 待验证（实施前）
+## 11. 验证结果
+
+已完成：路由（`docs/superpowers/reports/2026-11-15-spike-i18n-routing.md`，分支 `spike/i18n-routing` `38f593e`）与 Payload Jobs/hooks/search（`docs/superpowers/reports/2026-11-15-spike-payload-jobs.md`，分支 `spike/payload-jobs` `afb2dcb`），结论已并入 §4.4 与 §5。待验证：Google v2 HTML 模式（需测试凭据）、反向代理后的真实容器部署。
+
+## 11a. 原待验证项（已处理）
 
 - Next.js 16 `proxy.ts` 内部改写与 `[lang]` 段在现有路由（含根级 `[slug]`、sitemap 路由）下的行为。
 - Payload 4 canary 的 Jobs `autoRun`、hook `context` 与发布事件识别（区分 autosave 与 publish）。
