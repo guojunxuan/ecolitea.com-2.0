@@ -96,3 +96,124 @@ DISABLE_R2_STORAGE=true corepack pnpm test:e2e tests/e2e/cookie-consent.e2e.spec
 Playwright selects a run-scoped local test database and cleans up its own fixtures. The automated
 checks verify consent and script requests with an empty intercepted script; they do not validate
 or publish a live GTM container.
+
+## Translation backend (Phase 2)
+
+Payload owns the translation lifecycle. The plugin at `src/plugins/translation` registers
+`translations`, the private `translation-search` index, the `translation-usage` Global, source
+hooks, and Jobs tasks. English documents and upload metadata keep their existing shapes.
+Next.js supplies the authenticated cache-invalidation boundary; Google is a replaceable provider.
+The public website still reads English. Language routes, populated relationship merging,
+translated search queries, and sitemap/hreflang wiring belong to Phase 3.
+
+Configure languages in `src/i18n/config.ts`. `source` is English; `translating` and `live` are
+translation targets. The default contains only English and Global, so no translation work is
+queued. Add the following server environment variables before enabling targets:
+
+```dotenv
+GOOGLE_TRANSLATE_API_KEY=
+TRANSLATION_MONTHLY_CHAR_LIMIT=450000
+JOBS_AUTORUN=false
+REVALIDATE_SECRET=
+```
+
+`GOOGLE_TRANSLATE_API_KEY` enables the Google Cloud Translation Basic v2 REST adapter. An empty
+key selects the offline identity stub and prevents real translation jobs from being queued.
+`TRANSLATION_MONTHLY_CHAR_LIMIT` must be a positive safe integer. The independent usage Global
+reserves deduplicated characters before sending a document, including its HTML markers. Failed
+or partially sent attempts can therefore count conservatively; reservations are not refunded.
+The counter resets on the first reservation in a new UTC calendar month, not when source content
+is deleted. It is an application budget, not a measurement of the entire Google project's bill.
+
+Enable **exactly one** long-running instance with `JOBS_AUTORUN=true`; leave it false elsewhere.
+Node instrumentation initializes `getPayload({ config, cron: true })`. The worker polls every
+five seconds with `allQueues: true, limit: 1`, including Payload's native `schedulePublish` queue.
+Quota reservation serialization is local to that Payload process, not a distributed quota lock.
+Do not overlap external/manual runners with the automatic worker, and use `limit: 1` for every
+manual Local API run. The retained `CRON_SECRET` endpoint can be used by an external scheduler:
+
+```sh
+curl --fail --header "Authorization: Bearer $CRON_SECRET" \
+  "$NEXT_PUBLIC_SERVER_URL/api/payload-jobs/run?allQueues=true&limit=1"
+```
+
+That installed Payload endpoint uses **GET** and also handles scheduled tasks. See the official
+[Payload Jobs documentation](https://payloadcms.com/docs/beta/jobs-queue/overview) for its public
+Local API. The daily `resumeTranslationQuota` task requeues requests waiting since before the
+current UTC month, prioritizing updates with an existing ready translation, then new publication
+requests, then dictionary bootstrap requests. Run the container on UTC for midnight scheduling.
+Google quota errors also wait conservatively for the next month.
+
+### Google project configuration
+
+Use an environment-specific Google Cloud project and API key, enable Cloud Translation Basic,
+and complete the required billing setup. Restrict the key to the Translation API and applicable
+server restrictions; keep it server-only. Follow Google's
+[Basic REST reference](https://cloud.google.com/translate/docs/reference/rest/v2/translate) and
+[current pricing](https://cloud.google.com/translate/pricing) rather than assuming a permanent
+free-tier allowance.
+
+In Google Cloud Console, open **APIs & Services → Cloud Translation API → Quotas** and lower the
+daily character quota to fit the intended budget, accounting for other applications using the
+same project. The application monthly guard and Google's daily quota are separate controls;
+Google's daily quota resets on Pacific time. See
+[Google's quota configuration](https://cloud.google.com/translate/quotas).
+
+Under **Billing → Budgets & alerts**, create an alerts budget scoped to this project/service,
+set appropriate actual and forecast thresholds, and route notifications to the responsible
+operators. Alerts-only budgets notify; they do not themselves stop API calls. Follow Google's
+[budget and alert guide](https://cloud.google.com/billing/docs/how-to/budgets).
+
+### Cache delivery and operations
+
+Set a strong, shared `REVALIDATE_SECRET` on every serving instance. It is required for background
+cache invalidation, including native scheduled publication even when translation is disabled.
+`NEXT_PUBLIC_SERVER_URL` must be reachable from the worker and route to the same site's Next
+server. Ensure the reverse proxy forwards **POST `/next/revalidate`** and its Authorization
+header. Do not expose this secret in a public environment variable.
+
+The endpoint accepts `Authorization: Bearer <secret>` and JSON `{ "tags": [], "paths": [] }`.
+Each request accepts at most 100 total entries; the client batches larger sets. Tags expire
+immediately. Missing configuration returns 503, invalid authentication 401, and invalid input
+400. Hooks retain their direct Next cache behavior inside a request; only the installed missing
+work-store invariant causes HTTP fallback. English paths are unchanged.
+
+Translation Jobs retry twice, for three executions total. A durable translation checkpoint
+prevents search/cache notification retries from spending translation quota again. Terminal
+failure sets `failed` and `error` while retaining `fields` and `lastReadySourceVersion`.
+Republishing the current English source requeues its work. Dictionary bootstrap only queues a
+new content hash: unchanged failed dictionaries need explicit requeueing through the Jobs Local
+API after the underlying problem is fixed. Incompatible dictionary interpolation placeholders
+are rejected; reads return no translation if an older template no longer matches.
+
+Unpublish and delete hooks remove all stored locales, including locales removed from config,
+then request cache invalidation. These source-hook notifications are synchronous, not a durable
+outbox: if delivery fails after deletion, fix the endpoint and explicitly resend the source's
+`translation:<collection>:<id>:<locale>` tags plus `translations:<locale>`, `translation-search`
+and `translations-sitemap`. Source visibility must also be checked by Phase 3 readers.
+
+### Content and status ownership
+
+Open **Payload Admin → System → Translations** for the read-only request list, per-language
+tracked-request readiness, and current-month reserved characters. **System → Translation Usage**
+contains the read-only counter. Staff access reuses the existing authenticated-user boundary;
+this application has no separate administrator role model. External translation/search writes
+are denied; server Local API writes own these records.
+
+There is no bulk backfill producer in this phase. After adding a target language, republish
+existing English documents and save Globals/Media to enqueue them. The readiness denominator is
+tracked requests, not an inventory of all eligible site content. Verify the existing content
+inventory before changing a language to `live` in a later frontend release.
+
+Explicit rules cover Products, categories, Blogs, Posts, Case Studies, Pages, Forms, Header,
+Footer, visitor-facing Settings, and Media `alt`/`caption`. Media has no drafts, so each save is
+publication; filenames, URLs, dimensions and storage metadata stay shared. Pages referenced by
+Site Settings' Privacy Policy, Cookie Policy or Terms fields are excluded, and changing those
+references removes prior plugin-owned translations. Sources without a public document URL,
+such as Media, Forms, Globals and the frontend dictionary, do not receive fabricated search rows.
+
+The source dictionary is `src/i18n/dictionaries/en.json`. Existing components continue to use
+their English copy in this phase. `mergeTranslation` is a backend helper only; it returns English
+by reference, merges the latest compatible ready checkpoint for configured target locales, and
+returns `null` when no usable translation exists. Phase 3 callers must enforce public locale and
+source visibility, handle the specified English redirect fallback, and partition caches by locale.
