@@ -3,6 +3,7 @@ import { revalidatePath, revalidateTag } from 'next/cache'
 import type { Product } from '@/payload-types'
 import { productCategoryPath, productPath } from '@/utilities/products/paths'
 import { clearProductPublicTransition, getProductPublicTransition } from './productPublicTransition'
+import { consumeProductTranslation, getTranslationRuntime } from '@/plugins/translation/hooks'
 
 const relationshipID = (value: Product['category']) =>
   typeof value === 'object' ? value?.id : value
@@ -27,8 +28,15 @@ export const revalidateProduct: CollectionAfterChangeHook<Product> = async ({
   req,
 }) => {
   try {
+    const translation = getTranslationRuntime(req)
+    const transition =
+      !req.context.disableRevalidate || translation
+        ? await getProductPublicTransition(req, doc, previousDoc)
+        : undefined
+    if (translation && transition)
+      await consumeProductTranslation(req, doc, transition, translation)
     if (!req.context.disableRevalidate) {
-      const { before, after } = await getProductPublicTransition(req, doc, previousDoc)
+      const { before, after } = transition!
       const publicKeys = ['_status', 'slug', 'categorySlug', 'publishedAt', 'updatedAt'] as const
       const changed = publicKeys.some((key) => before?.[key] !== after?.[key])
       if (changed) {

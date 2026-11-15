@@ -6,7 +6,7 @@ import type { TranslationRule } from '@/plugins/translation/rules'
 
 const text = (value: string, format = 0) => ({ type: 'text', text: value, format, version: 1 })
 const paragraph = (...children: object[]) => ({ type: 'paragraph', children, version: 1 })
-const lexical = (...children: object[]) => ({ root: { type: 'root', children, version: 1 } })
+const lexical = <T extends object[]>(...children: T) => ({ root: { type: 'root', children, version: 1 } })
 
 describe('translation extraction and merging', () => {
   const rule: TranslationRule = {

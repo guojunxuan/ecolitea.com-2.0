@@ -82,7 +82,7 @@ describe('translation collections (isolated MongoDB)', () => {
       payload.create({
         collection: 'translations',
         overrideAccess: false,
-        data: { ...identity, locale: 'es' },
+        data: { ...identity, locale: 'es', status: 'pending' },
       }),
     ).rejects.toMatchObject({ status: 403 })
     await expect(
@@ -98,22 +98,32 @@ describe('translation collections (isolated MongoDB)', () => {
     ).rejects.toMatchObject({ status: 403 })
     for (const operation of ['read', 'create', 'update', 'delete'] as const) {
       expect(
-        await translationSearch.access![operation]!({ req: { payload, user: { id: 'staff' } } } as never),
+        await translationSearch.access![operation]!({
+          req: { payload, user: { id: 'staff' } },
+        } as never),
       ).toBe(false)
     }
   })
 
   it('reuses authenticated staff access and makes status fields read-only', async () => {
-    expect(await translations.access!.read!({ req: { payload, user: { id: 'staff' } } } as never)).toBe(true)
+    expect(
+      await translations.access!.read!({ req: { payload, user: { id: 'staff' } } } as never),
+    ).toBe(true)
     for (const operation of ['create', 'update', 'delete'] as const) {
       expect(
-        await translations.access![operation]!({ req: { payload, user: { id: 'staff' } } } as never),
+        await translations.access![operation]!({
+          req: { payload, user: { id: 'staff' } },
+        } as never),
       ).toBe(false)
     }
     const declaredFields = translations.fields.filter(
       (field) => 'name' in field && !['id', 'createdAt', 'updatedAt'].includes(field.name),
     )
-    expect(declaredFields.every((field) => field.admin?.readOnly)).toBe(true)
+    expect(
+      declaredFields.every(
+        (field) => field.admin && 'readOnly' in field.admin && field.admin.readOnly,
+      ),
+    ).toBe(true)
     expect(translations.admin?.group).toBe('System')
   })
 })

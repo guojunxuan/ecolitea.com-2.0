@@ -379,6 +379,8 @@ export interface Config {
   user: User;
   jobs: {
     tasks: {
+      translateDocument: TaskTranslateDocument;
+      resumeTranslationQuota: TaskResumeTranslationQuota;
       schedulePublish: TaskSchedulePublish;
       inline: {
         input: unknown;
@@ -1634,7 +1636,7 @@ export interface PayloadJob {
     | {
         executedAt: string;
         completedAt: string;
-        taskSlug: 'inline' | 'schedulePublish';
+        taskSlug: 'inline' | 'translateDocument' | 'resumeTranslationQuota' | 'schedulePublish';
         taskID: string;
         input:
           | {
@@ -1665,13 +1667,13 @@ export interface PayloadJob {
           | boolean
           | null;
         parent?: {
-          taskSlug?: ('inline' | 'schedulePublish') | null;
+          taskSlug?: ('inline' | 'translateDocument' | 'resumeTranslationQuota' | 'schedulePublish') | null;
           taskID?: string | null;
         };
         id?: string | null;
       }[]
     | null;
-  taskSlug?: ('inline' | 'schedulePublish') | null;
+  taskSlug?: ('inline' | 'translateDocument' | 'resumeTranslationQuota' | 'schedulePublish') | null;
   queue?: string | null;
   waitUntil?: string | null;
   processingUntil?: string | null;
@@ -3825,6 +3827,29 @@ export interface ActivityWidget {
       | null;
   };
   width: 'x-small' | 'small' | 'medium' | 'large' | 'x-large' | 'full';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TaskTranslateDocument".
+ */
+export interface TaskTranslateDocument {
+  input: {
+    sourceCollection: string;
+    sourceId: string;
+    locale: string;
+    sourceVersion: string;
+  };
+  output: {
+    skipped?: boolean | null;
+  };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TaskResumeTranslationQuota".
+ */
+export interface TaskResumeTranslationQuota {
+  input?: unknown;
+  output?: unknown;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

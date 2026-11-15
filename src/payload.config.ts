@@ -117,6 +117,8 @@ export default buildConfig({
     outputFile: path.resolve(dirname, 'payload-types.ts'),
   },
   jobs: {
+    // One designated Node process; all queues also includes native schedulePublish.
+    autoRun: serverEnv.JOBS_AUTORUN ? [{ cron: '*/5 * * * * *', allQueues: true, limit: 1 }] : [],
     access: {
       run: ({ req }: { req: PayloadRequest }): boolean => {
         // Allow logged in users to execute this endpoint (default)
