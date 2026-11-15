@@ -1,5 +1,6 @@
 import type { CollectionAfterChangeHook, CollectionAfterDeleteHook } from 'payload'
-import { revalidatePath, revalidateTag } from 'next/cache'
+import { revalidateTag } from 'next/cache'
+import { revalidateLocalizedPath as revalidatePath } from '@/utilities/i18n/revalidatePaths'
 export const revalidateCategories: CollectionAfterChangeHook = ({ doc, previousDoc, req: { context } }) => {
   if (context.disableRevalidate) return doc
   if (doc?.slug) revalidatePath(`/categories/${doc.slug}`)

@@ -46,8 +46,8 @@ describe('authenticated Next revalidation boundary', () => {
       ).status,
     ).toBe(204)
     expect(tag).toHaveBeenCalledWith('translation:pages:1:de', { expire: 0 })
-    expect(path).toHaveBeenCalledWith('/about')
-    expect(path).toHaveBeenCalledWith('/posts/[slug]', 'page')
+    expect(path).toHaveBeenCalledWith('/en/about')
+    expect(path).toHaveBeenCalledWith('/en/posts/[slug]', 'page')
   })
   it.each([
     null,
@@ -104,7 +104,7 @@ describe('background cache fallback', () => {
       ([, init]) => JSON.parse(init!.body as string).paths as string[],
     )
     expect(paths).toEqual(
-      expect.arrayContaining(['/tea', '/posts/tea', '/case-studies/tea', '/blogs/tea']),
+      expect.arrayContaining(['/en/tea', '/en/posts/tea', '/en/case-studies/tea', '/en/blogs/tea']),
     )
   })
 
@@ -115,7 +115,7 @@ describe('background cache fallback', () => {
     cache.revalidatePath('/products')
     cache.revalidateTag('products-list', 'max')
     cache.flush()
-    expect(path).toHaveBeenCalledWith('/products')
+    expect(path).toHaveBeenCalledWith('/en/products')
     expect(tag).toHaveBeenCalledWith('products-list', 'max')
     expect(http).not.toHaveBeenCalled()
   })
@@ -139,7 +139,7 @@ describe('background cache fallback', () => {
       }),
     )
     expect(JSON.parse(http.mock.calls[0][1]!.body as string)).toEqual({
-      paths: ['/products/tea/leaf'],
+      paths: ['/en/products/tea/leaf'],
       tags: ['product-1'],
     })
   })

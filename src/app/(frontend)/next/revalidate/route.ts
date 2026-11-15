@@ -1,5 +1,6 @@
 import { timingSafeEqual } from 'node:crypto'
-import { revalidatePath, revalidateTag } from 'next/cache'
+import { revalidateTag } from 'next/cache'
+import { revalidateLocalizedPath as revalidatePath } from '@/utilities/i18n/revalidatePaths'
 import { serverEnv } from '@/utilities/env'
 import { REVALIDATION_LIMIT } from '@/plugins/translation/revalidate'
 

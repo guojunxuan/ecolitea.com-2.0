@@ -1,6 +1,7 @@
 import type { GlobalAfterChangeHook } from 'payload'
 
-import { revalidatePath, revalidateTag } from 'next/cache'
+import { revalidateTag } from 'next/cache'
+import { revalidateLocalizedPath as revalidatePath } from '@/utilities/i18n/revalidatePaths'
 
 export const revalidateSettings: GlobalAfterChangeHook = ({ doc, req: { context } }) => {
   if (!context.disableRevalidate) {

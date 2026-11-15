@@ -1,5 +1,6 @@
 import type { CollectionAfterChangeHook, CollectionAfterDeleteHook } from 'payload'
-import { revalidatePath, revalidateTag } from 'next/cache'
+import { revalidateTag } from 'next/cache'
+import { revalidateLocalizedPath as revalidatePath } from '@/utilities/i18n/revalidatePaths'
 import type { ProductCategory } from '@/payload-types'
 import { productCategoryPath, productsOverviewPath } from '@/utilities/products/paths'
 

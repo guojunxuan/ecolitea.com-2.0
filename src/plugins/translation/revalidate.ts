@@ -1,5 +1,7 @@
 import { serverEnv } from '@/utilities/env'
-import { revalidatePath, revalidateTag } from 'next/cache'
+import { revalidateTag } from 'next/cache'
+import { revalidatePath } from 'next/cache'
+import { internalLocalePaths } from '@/utilities/i18n/revalidatePaths'
 import { RetryableTranslationError } from './provider/types'
 
 export type TranslationInvalidation = { tags?: string[]; paths?: string[] }
@@ -49,8 +51,10 @@ export function createRevalidation() {
       operations.push(() => revalidateTag(...args))
     },
     revalidatePath(...args: Parameters<typeof revalidatePath>): void {
-      paths.add(args[0])
-      operations.push(() => revalidatePath(...args))
+      for (const path of internalLocalePaths(args[0])) {
+        paths.add(path)
+        operations.push(() => args[1] ? revalidatePath(path, args[1]) : revalidatePath(path))
+      }
     },
     flush(): void | Promise<void> {
       try {

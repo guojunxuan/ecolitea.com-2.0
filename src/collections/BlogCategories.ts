@@ -11,7 +11,8 @@ import type {
   CollectionAfterChangeHook,
   CollectionAfterDeleteHook,
 } from 'payload'
-import { revalidatePath, revalidateTag } from 'next/cache'
+import { revalidateTag } from 'next/cache'
+import { revalidateLocalizedPath as revalidatePath } from '@/utilities/i18n/revalidatePaths'
 import { anyone } from '@/access/anyone'
 import { authenticated } from '@/access/authenticated'
 import type { BlogCategory } from '@/payload-types'

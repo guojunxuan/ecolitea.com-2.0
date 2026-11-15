@@ -27,10 +27,10 @@ describe('product cache invalidation', () => {
       },
     } as never)
     for (const path of [
-      '/products/new-cat/new',
-      '/products/old-cat/old',
-      '/products/new-cat',
-      '/products/old-cat',
+      '/en/products/new-cat/new',
+      '/en/products/old-cat/old',
+      '/en/products/new-cat',
+      '/en/products/old-cat',
     ])
       expect(revalidatePath).toHaveBeenCalledWith(path)
     for (const tag of [
@@ -84,7 +84,7 @@ describe('product cache invalidation', () => {
       doc: { id: 'c', slug: 'new' },
       previousDoc: { id: 'c', slug: 'old' },
     } as never)
-    for (const path of ['/products/new', '/products/old', '/products'])
+    for (const path of ['/en/products/new', '/en/products/old', '/en/products'])
       expect(revalidatePath).toHaveBeenCalledWith(path)
     for (const tag of [
       'product-categories',
@@ -96,7 +96,7 @@ describe('product cache invalidation', () => {
     expect(revalidateTag).toHaveBeenCalledWith('redirects', { expire: 0 })
     vi.clearAllMocks()
     await revalidateProductCategoryDelete({ req, doc: { id: 'c', slug: 'old' } } as never)
-    expect(revalidatePath).toHaveBeenCalledWith('/products/old')
+    expect(revalidatePath).toHaveBeenCalledWith('/en/products/old')
     vi.clearAllMocks()
     await revalidateProduct({
       req,

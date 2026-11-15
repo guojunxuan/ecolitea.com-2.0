@@ -17,12 +17,12 @@ describe('Blog cache invalidation', () => {
       previousDoc: { id: 'b', slug: 'old', category: 'old', _status: 'published' },
     } as never)
     for (const path of [
-      '/blogs/new',
-      '/blogs/old',
-      '/blogs',
-      '/blogs/category/category-new',
-      '/blogs/category/category-old',
-      '/search',
+      '/en/blogs/new',
+      '/en/blogs/old',
+      '/en/blogs',
+      '/en/blogs/category/category-new',
+      '/en/blogs/category/category-old',
+      '/en/search',
     ])
       expect(revalidatePath).toHaveBeenCalledWith(path)
     for (const tag of [
@@ -54,7 +54,7 @@ describe('Blog cache invalidation', () => {
       doc: { id: 'b', slug: 'draft', _status: 'draft' },
       previousDoc: { id: 'b', slug: 'old', category: 'old', _status: 'published' },
     } as never)
-    expect(revalidatePath).toHaveBeenCalledWith('/blogs/old')
+    expect(revalidatePath).toHaveBeenCalledWith('/en/blogs/old')
     expect(revalidateTag).toHaveBeenCalledWith('redirects', { expire: 0 })
     vi.clearAllMocks()
     await revalidateDelete({
@@ -62,7 +62,7 @@ describe('Blog cache invalidation', () => {
       doc: { id: 'b', slug: 'deleted', category: 'old', _status: 'published' },
     } as never)
     expect(revalidateTag).toHaveBeenCalledWith('redirects', { expire: 0 })
-    expect(revalidatePath).toHaveBeenCalledWith('/blogs/deleted')
+    expect(revalidatePath).toHaveBeenCalledWith('/en/blogs/deleted')
     expect(revalidateTag).toHaveBeenCalledWith('blogs-list', 'max')
   })
   it('does not expire redirects for ordinary published content edits', async () => {
@@ -88,13 +88,13 @@ describe('Blog cache invalidation', () => {
       doc: { id: 'c', slug: 'new' },
       previousDoc: { id: 'c', slug: 'old' },
     } as never)
-    expect(revalidatePath).toHaveBeenCalledWith('/blogs/category/new')
-    expect(revalidatePath).toHaveBeenCalledWith('/blogs/category/old')
+    expect(revalidatePath).toHaveBeenCalledWith('/en/blogs/category/new')
+    expect(revalidatePath).toHaveBeenCalledWith('/en/blogs/category/old')
     for (const tag of ['blog-categories', 'blogs-list', 'blogs-sitemap'])
       expect(revalidateTag).toHaveBeenCalledWith(tag, 'max')
     vi.clearAllMocks()
     await BlogCategories.hooks!.afterDelete![0]({ req, doc: { id: 'c', slug: 'new' } } as never)
-    expect(revalidatePath).toHaveBeenCalledWith('/blogs/category/new')
+    expect(revalidatePath).toHaveBeenCalledWith('/en/blogs/category/new')
     expect(revalidateTag).toHaveBeenCalledWith('blogs-sitemap', 'max')
   })
 })
