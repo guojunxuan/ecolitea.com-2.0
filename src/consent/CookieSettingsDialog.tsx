@@ -6,7 +6,7 @@ import React, { useEffect, useId, useRef, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { useConsent } from './ConsentProvider'
 import { clearPreferences, readCookie } from './cookie'
-import { consentCopy as copy } from './copy'
+import { useDictionary } from '@/i18n/DictionaryProvider'
 import styles from './CookieSettingsDialog.module.css'
 
 export function CookieSettingsDialog() {
@@ -15,6 +15,7 @@ export function CookieSettingsDialog() {
 }
 
 function SettingsPanel() {
+  const { consent: copy } = useDictionary()
   const { state, gpc, save, rejectOptional, closeSettings } = useConsent()
   const [analytics, setAnalytics] = useState(state?.analytics ?? false)
   const [marketing, setMarketing] = useState(state?.marketing ?? false)

@@ -2,10 +2,11 @@
 
 import React from 'react'
 import { useConsent } from './ConsentProvider'
-import { consentCopy } from './copy'
+import { useDictionary } from '@/i18n/DictionaryProvider'
 import styles from './CookieSettingsButton.module.css'
 
 export function CookieSettingsButton() {
+  const { consent: copy } = useDictionary()
   const { openSettings } = useConsent()
   return (
     <button
@@ -14,7 +15,7 @@ export function CookieSettingsButton() {
       aria-haspopup="dialog"
       onClick={(event) => openSettings(event.currentTarget)}
     >
-      {consentCopy.settings}
+      {copy.settings}
     </button>
   )
 }

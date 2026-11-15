@@ -2,6 +2,7 @@ import { LocaleProvider } from '@/i18n/LocaleProvider'
 import { legalPagePaths } from '@/utilities/i18n/pageAccess'
 import type { Metadata } from 'next'
 
+import { getDictionary } from '@/i18n/getDictionary'
 import { cn } from '@/utilities/ui'
 import { GeistMono } from 'geist/font/mono'
 import { GeistSans } from 'geist/font/sans'
@@ -37,13 +38,14 @@ export default async function RootLayout({ children, params }: { children: React
   if (!publicLocales.some(({ code }) => code === lang)) notFound()
   const siteSettings = await getCachedSiteSettings(lang)
   const legalPaths = await legalPagePaths()
+  const dictionary = await getDictionary(lang)
 
   return (
     <html className={cn(GeistSans.variable, GeistMono.variable)} lang={lang}>
       <body>
-        <LocaleProvider locale={lang} legalPaths={legalPaths} englishLabel="(English)">
-        <Providers gtmDisabled={siteSettings.disableGtm === true}>
-          <SkipLink href="#main-content">Skip to content</SkipLink>
+        <LocaleProvider locale={lang} legalPaths={legalPaths} englishLabel={dictionary.common.english}>
+        <Providers dictionary={dictionary} gtmDisabled={siteSettings.disableGtm === true}>
+          <SkipLink href="#main-content">{dictionary.common.skipToContent}</SkipLink>
           <Header locale={lang} />
           <main id="main-content" tabIndex={-1}>{children}</main>
           <Footer locale={lang} />

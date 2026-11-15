@@ -52,7 +52,7 @@ describe('public website shell', () => {
     const source = readSource('src/app/(frontend)/[lang]/layout.tsx')
 
     const headerIndex = source.indexOf('<Header locale={lang} />')
-    const skipIndex = source.indexOf('<SkipLink href="#main-content">Skip to content</SkipLink>')
+    const skipIndex = source.indexOf('<SkipLink href="#main-content">{dictionary.common.skipToContent}</SkipLink>')
     const mainIndex = source.indexOf('<main id="main-content" tabIndex={-1}>{children}</main>')
     const footerIndex = source.indexOf('<Footer locale={lang} />')
 

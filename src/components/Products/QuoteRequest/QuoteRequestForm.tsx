@@ -3,6 +3,8 @@
 import { useEffect, useId, useRef, useState, type FormEvent } from 'react'
 import { ArrowRight, CircleAlert } from 'lucide-react'
 
+import { useDictionary } from '@/i18n/DictionaryProvider'
+import { localizeQuoteError } from '@/i18n/quoteErrors'
 import { Media } from '@/components/Media'
 import type { ProductDetail } from '@/utilities/products/models'
 import { Button } from '@/components/ui/button'
@@ -27,13 +29,6 @@ export type QuoteRequestProduct = {
 }
 
 const emptyValues: Record<QuoteField, string> = { name: '', email: '', company: '', message: '' }
-const messages = {
-  verification: 'Verification failed, please try again.',
-  rate_limited: 'Too many requests, please try again later.',
-  server: 'Something went wrong. Please try again.',
-  needsVerification: 'Please complete the verification before submitting.',
-  unavailable: 'Verification is unavailable. Disable content blockers for this page and try again.',
-} as const
 
 export function QuoteRequestForm({
   product,
@@ -42,6 +37,8 @@ export function QuoteRequestForm({
   product: QuoteRequestProduct
   onSuccess: (name: string) => void
 }) {
+  const { quote: copy } = useDictionary()
+  const messages = { ...copy.errors, rate_limited: copy.errors.rateLimited }
   const id = useId()
   const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY
   const [values, setValues] = useState(emptyValues)
@@ -61,7 +58,8 @@ export function QuoteRequestForm({
     }
   }, [])
 
-  const banner = !siteKey || widgetFailed ? messages.unavailable : notice
+  const banner =
+    !siteKey || widgetFailed ? messages.unavailable : localizeQuoteError(notice, copy.errors)
 
   const setField = (field: QuoteField, value: string) => {
     setValues((current) => ({ ...current, [field]: value }))
@@ -139,7 +137,7 @@ export function QuoteRequestForm({
     type?: string,
   ) => {
     const fieldId = `${id}-${name}`
-    const error = errors[name]
+    const error = localizeQuoteError(errors[name], copy.errors)
     const shared = {
       id: fieldId,
       name,
@@ -201,11 +199,11 @@ export function QuoteRequestForm({
           </div>
         </div>
         <div className={styles.row}>
-          {field('name', 'Name', 'Your full name', 'input', 'text')}
-          {field('company', 'Company', 'Company name', 'input', 'text')}
+          {field('name', copy.nameLabel, copy.namePlaceholder, 'input', 'text')}
+          {field('company', copy.companyLabel, copy.companyPlaceholder, 'input', 'text')}
         </div>
-        {field('email', 'Work email', 'name@company.com', 'input', 'email')}
-        {field('message', 'Message', 'Quantity, customization, target delivery date…', 'textarea')}
+        {field('email', copy.emailLabel, copy.emailPlaceholder, 'input', 'email')}
+        {field('message', copy.messageLabel, copy.messagePlaceholder, 'textarea')}
         {siteKey && (
           <TurnstileWidget
             siteKey={siteKey}
@@ -229,10 +227,10 @@ export function QuoteRequestForm({
           </p>
         )}
         <Button type="submit" disabled={submitting}>
-          {submitting ? 'Sending…' : 'Send request'}
+          {submitting ? copy.sending : copy.send}
           {!submitting && <ArrowRight aria-hidden="true" />}
         </Button>
-        <p className={styles.privacy}>We only use your details to respond to this request.</p>
+        <p className={styles.privacy}>{copy.privacy}</p>
       </div>
     </form>
   )

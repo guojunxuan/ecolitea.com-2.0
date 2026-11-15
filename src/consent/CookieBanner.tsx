@@ -6,10 +6,11 @@ import React, { useEffect, useRef } from 'react'
 
 import { Button } from '@/components/ui/button'
 import { useConsent } from './ConsentProvider'
-import { consentCopy as copy } from './copy'
+import { useDictionary } from '@/i18n/DictionaryProvider'
 import styles from './CookieBanner.module.css'
 
 export function CookieBanner({ cookiePolicyHref }: { cookiePolicyHref?: string | null }) {
+  const { consent: copy } = useDictionary()
   const consent = useConsent()
   const banner = useRef<HTMLElement>(null)
 

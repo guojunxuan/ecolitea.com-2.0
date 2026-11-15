@@ -1,4 +1,5 @@
 {
+  "common": { "english": "(English)", "skipToContent": "Skip to content" },
   "consent": {
     "region": "Cookie consent",
     "title": "Your cookie choices",
