@@ -359,6 +359,7 @@ export interface Config {
     footer: Footer;
     'site-settings': SiteSettings;
     settings: Settings;
+    'translation-usage': TranslationUsage;
     'payload-jobs-stats': PayloadJobsStat;
   };
   globalsSelect: {
@@ -366,6 +367,7 @@ export interface Config {
     footer: FooterSelect<false> | FooterSelect<true>;
     'site-settings': SiteSettingsSelect<false> | SiteSettingsSelect<true>;
     settings: SettingsSelect<false> | SettingsSelect<true>;
+    'translation-usage': TranslationUsageSelect<false> | TranslationUsageSelect<true>;
     'payload-jobs-stats': PayloadJobsStatsSelect<false> | PayloadJobsStatsSelect<true>;
   };
   locale: null;
@@ -3339,6 +3341,19 @@ export interface Settings {
   createdAt?: string | null;
 }
 /**
+ * Conservative reserved characters for the UTC calendar month. Resets on the first reservation in a new month.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "translation-usage".
+ */
+export interface TranslationUsage {
+  id: string;
+  month?: string | null;
+  characters?: number | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-jobs-stats".
  */
@@ -3704,6 +3719,17 @@ export interface SettingsSelect<T extends boolean = true> {
               image?: T;
             };
       };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "translation-usage_select".
+ */
+export interface TranslationUsageSelect<T extends boolean = true> {
+  month?: T;
+  characters?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
