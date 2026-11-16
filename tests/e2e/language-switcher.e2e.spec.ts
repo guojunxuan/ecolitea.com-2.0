@@ -22,9 +22,15 @@ for (const width of [1440, 390]) {
       } else await activeTrigger.click()
     }
     if (width === 390)
-      await expect(page.getByRole('button', { name: 'Region & language', exact: true })).toHaveCount(0)
+      await expect(
+        page.getByRole('button', { name: 'Region & language', exact: true }),
+      ).toHaveCount(0)
     await openPanel()
-    const panel = page.getByRole('dialog', { name: 'Region & language' })
+    // Desktop: modal dialog. Mobile: drill-in view inside the still-open menu.
+    const panel =
+      width === 390
+        ? page.getByRole('region', { name: 'Location & language' })
+        : page.getByRole('dialog', { name: 'Region & language' })
     await expect(panel).toBeVisible()
     await expect(panel.getByRole('heading', { name: 'Europe' })).toBeVisible()
     await expect(panel.getByRole('button', { name: /France/ })).toHaveCount(0)
@@ -32,16 +38,9 @@ for (const width of [1440, 390]) {
       'aria-pressed',
       'true',
     )
-    const panelBox = await panel.boundingBox()
     if (width === 390) {
-      // Bottom sheet: full width, content height, anchored to the viewport bottom.
-      await expect
-        .poll(async () => {
-          const box = (await panel.boundingBox())!
-          return [box.width, Math.round(box.y + box.height)]
-        })
-        .toEqual([390, 844])
-      expect(panelBox!.height).toBeLessThan(844)
+      await expect(page.getByRole('dialog', { name: 'Navigation' })).toBeVisible()
+      await expect.poll(async () => (await panel.boundingBox())!.x).toBe(0)
     }
     await page.screenshot({ path: `/tmp/phase4-language-${width}.png` })
     await page.keyboard.press('Escape')

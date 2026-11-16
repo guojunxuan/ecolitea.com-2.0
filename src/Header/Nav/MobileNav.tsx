@@ -1,6 +1,6 @@
 'use client'
 
-import { ArrowRight, ChevronRight, SearchIcon } from 'lucide-react'
+import { ArrowRight, ChevronLeft, ChevronRight, SearchIcon } from 'lucide-react'
 import Link from '@/components/LocaleLink'
 import { usePathname } from 'next/navigation'
 import React, { useCallback, useEffect, useLayoutEffect, useReducer, useRef, useState } from 'react'
@@ -8,7 +8,7 @@ import React, { useCallback, useEffect, useLayoutEffect, useReducer, useRef, use
 import { Logo } from '@/components/Logo/Logo'
 import type { LogoImage } from '@/components/Logo/types'
 
-import { LanguageSwitcher, type LanguageSwitcherHandle } from './LanguageSwitcher'
+import { RegionList } from './LanguageSwitcher'
 import { GlobeIcon } from '@/components/icons/GlobeIcon'
 import { useLocaleContext } from '@/i18n/LocaleProvider'
 import { readRegionPreference } from '@/i18n/preferences'
@@ -75,7 +75,8 @@ export const MobileNav: React.FC<MobileNavProps> = ({
     i18n: { publicLocales, regions },
   } = useLocaleContext()
   const { language: languageCopy } = useDictionary()
-  const languageSwitcherRef = useRef<LanguageSwitcherHandle>(null)
+  const languageEntryRef = useRef<HTMLButtonElement>(null)
+  const languageBackRef = useRef<HTMLButtonElement>(null)
   const [selectedRegion, setSelectedRegion] = useState<string | null>(null)
   const publicRegions = regions.filter((region) =>
     publicLocales.some(({ code }) => code === region.locale),
@@ -84,6 +85,7 @@ export const MobileNav: React.FC<MobileNavProps> = ({
     publicRegions.find(({ code }) => code === selectedRegion) ??
     publicRegions.find((region) => region.locale === locale)
   const currentLanguage = publicLocales.find(({ code }) => code === currentRegion?.locale)
+  // Language drill-in view inside the open menu (slides in from the right).
   const [languageOpen, setLanguageOpen] = useState(false)
   const [isOpen, setIsOpen] = useState(false)
   const [state, dispatch] = useReducer(navigationReducer, initialNavigationState)
@@ -95,13 +97,14 @@ export const MobileNav: React.FC<MobileNavProps> = ({
   const restoreFocusRef = useRef(false)
 
   useEffect(() => {
-    onOpenChange?.(isOpen || languageOpen)
-  }, [isOpen, languageOpen, onOpenChange])
+    onOpenChange?.(isOpen)
+  }, [isOpen, onOpenChange])
 
   const close = useCallback((restoreFocus = true) => {
     restoreFocusRef.current = restoreFocus
     if (rootPanelRef.current) rootPanelRef.current.scrollTop = 0
     setIsOpen(false)
+    setLanguageOpen(false)
     dispatch({ type: 'reset' })
   }, [])
 
@@ -280,6 +283,8 @@ export const MobileNav: React.FC<MobileNavProps> = ({
             className={styles.mobileNavPanel}
             data-testid="mobile-navigation-root"
             id="mobile-navigation-root"
+            data-shifted={languageOpen ? 'true' : 'false'}
+            inert={languageOpen ? true : undefined}
             ref={rootPanelRef}
           >
             <nav aria-label="Primary navigation" className={styles.mobileLinkList}>
@@ -365,7 +370,14 @@ export const MobileNav: React.FC<MobileNavProps> = ({
             <button
               aria-label={`${languageCopy.trigger}: ${currentRegion?.label ?? 'Global'} ${currentLanguage?.short ?? locale.toUpperCase()}`}
               className={styles.mobileLanguageEntry}
-              onClick={() => languageSwitcherRef.current?.open()}
+              aria-controls="mobile-language-view"
+              aria-expanded={languageOpen}
+              onClick={() => {
+                setSelectedRegion(readRegionPreference())
+                setLanguageOpen(true)
+                requestAnimationFrame(() => languageBackRef.current?.focus())
+              }}
+              ref={languageEntryRef}
               type="button"
             >
               <GlobeIcon aria-hidden="true" />
@@ -375,6 +387,32 @@ export const MobileNav: React.FC<MobileNavProps> = ({
               </span>
               <ChevronRight aria-hidden="true" />
             </button>
+          </section>
+          <section
+            aria-label={languageCopy.title}
+            className={styles.mobileLanguageView}
+            data-open={languageOpen ? 'true' : 'false'}
+            id="mobile-language-view"
+            inert={languageOpen ? undefined : true}
+          >
+            <div className={styles.mobileLanguageHeader}>
+              <button
+                aria-label="Back to menu"
+                className={styles.mobileIconButton}
+                onClick={() => {
+                  setLanguageOpen(false)
+                  languageEntryRef.current?.focus()
+                }}
+                ref={languageBackRef}
+                type="button"
+              >
+                <ChevronLeft aria-hidden="true" />
+              </button>
+              <h2 className="website-type-title">{languageCopy.title}</h2>
+            </div>
+            <div className={styles.mobileLanguageBody}>
+              <RegionList onSelect={setSelectedRegion} selectedRegion={currentRegion?.code} />
+            </div>
           </section>
           {menuCta ? (
             <div className={styles.mobileMenuCtaBar} data-mobile-cta-bar="true">
@@ -390,13 +428,6 @@ export const MobileNav: React.FC<MobileNavProps> = ({
           ) : null}
         </div>
       ) : null}
-      {/* Panel only: the mobile entry lives at the bottom of the menu, not in the toolbar. */}
-      <LanguageSwitcher
-        mode="mobile"
-        onOpenChange={setLanguageOpen}
-        ref={languageSwitcherRef}
-        returnFocusRef={openButtonRef}
-      />
     </div>
   )
 }

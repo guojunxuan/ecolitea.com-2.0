@@ -75,9 +75,12 @@
 }
 
 @media (width <= 1170px) {
-  .surface[data-scrolled='true'],
-  .surface[data-menu-open='true'] {
+  .surface[data-scrolled='true'] {
     background: var(--website-glass-surface);
+  }
+  /* Open mobile menu: solid toolbar that matches the menu surface, no glass. */
+  .surface[data-menu-open='true'] {
+    background: var(--website-color-background);
   }
 }
 

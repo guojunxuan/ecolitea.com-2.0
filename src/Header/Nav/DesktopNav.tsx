@@ -489,7 +489,7 @@ export const DesktopNav: React.FC<DesktopNavProps> = ({
         )}
       </div>
       <div className={styles.actions}>
-        <LanguageSwitcher mode="desktop" onOpenChange={setLanguageOpen} />
+        <LanguageSwitcher onOpenChange={setLanguageOpen} />
         <Link aria-label="Search" className={styles.searchLink} href="/search">
           <SearchIcon aria-hidden="true" size={19} strokeWidth={1.75} />
         </Link>

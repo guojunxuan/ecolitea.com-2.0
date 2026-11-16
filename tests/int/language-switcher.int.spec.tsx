@@ -1,7 +1,7 @@
 import React from 'react'
-import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/react'
+import { cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { LanguageSwitcher, type LanguageSwitcherHandle } from '@/Header/Nav/LanguageSwitcher'
+import { LanguageSwitcher } from '@/Header/Nav/LanguageSwitcher'
 import { LocaleProvider as RuntimeLocaleProvider } from '@/i18n/LocaleProvider'
 import { preferencesCookie } from '@/i18n/preferences'
 import { ConsentProvider } from '@/consent/ConsentProvider'
@@ -91,7 +91,7 @@ describe('Header language switcher', () => {
   it('groups only public regions and defaults the checkmark to the current language', () => {
     render(
       <LocaleProvider locale="de">
-        <LanguageSwitcher mode="desktop" />
+        <LanguageSwitcher />
       </LocaleProvider>,
     )
     fireEvent.click(trigger())
@@ -107,7 +107,7 @@ describe('Header language switcher', () => {
 
   it('reads the selected region only when opened and refreshes after preference clearing', () => {
     document.cookie = 'ec_preferences=AT; Path=/'
-    render(<LanguageSwitcher mode="desktop" />)
+    render(<LanguageSwitcher />)
     fireEvent.click(trigger())
     expect(screen.getByRole('button', { name: /Österreich/ }).getAttribute('aria-pressed')).toBe(
       'true',
@@ -119,7 +119,7 @@ describe('Header language switcher', () => {
   })
 
   it('supports Escape, outside click, keyboard focus and trigger toggling', () => {
-    render(<LanguageSwitcher mode="desktop" />)
+    render(<LanguageSwitcher />)
     trigger().focus()
     fireEvent.keyDown(trigger(), { key: 'ArrowDown' })
     expect(screen.getByRole('button', { name: /Global/ })).toBe(document.activeElement)
@@ -161,7 +161,7 @@ describe('Header language switcher', () => {
   it('closes the language panel when Cookie settings opens and closes settings when language opens', () => {
     render(
       <ConsentProvider gtmDisabled={true}>
-        <LanguageSwitcher mode="desktop" />
+        <LanguageSwitcher />
         <CookieSettingsButton />
         <CookieSettingsDialog />
       </ConsentProvider>,
@@ -174,30 +174,10 @@ describe('Header language switcher', () => {
     expect(screen.queryByRole('dialog', { name: 'Cookie settings' })).toBeNull()
   })
 
-  it('renders no Header trigger on mobile, opens by handle and restores focus to the fallback', () => {
-    const handle = React.createRef<LanguageSwitcherHandle>()
-    const fallback = React.createRef<HTMLButtonElement>()
-    render(
-      <>
-        <button ref={fallback} type="button">
-          Open navigation
-        </button>
-        <LanguageSwitcher mode="mobile" ref={handle} returnFocusRef={fallback} />
-      </>,
-    )
-    expect(screen.queryByRole('button', { name: 'Region & language' })).toBeNull()
-    act(() => handle.current!.open())
-    const dialog = screen.getByRole('dialog', { name: 'Region & language' })
-    expect(dialog.tagName).toBe('DIALOG')
-    fireEvent.click(within(dialog).getByRole('button', { name: 'Close' }))
-    expect(screen.queryByRole('dialog')).toBeNull()
-    expect(fallback.current).toBe(document.activeElement)
-  })
-
   it('always renders the entry, even in a single-language configuration', () => {
     const german = fixture.locales.pop()!
     try {
-      render(<LanguageSwitcher mode="desktop" />)
+      render(<LanguageSwitcher />)
       expect(trigger()).toBeTruthy()
     } finally {
       fixture.locales.push(german)
@@ -206,7 +186,7 @@ describe('Header language switcher', () => {
 
   it('persists the region and leaves a useful error when switching fails', async () => {
     vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('offline')))
-    render(<LanguageSwitcher mode="desktop" />)
+    render(<LanguageSwitcher />)
     fireEvent.click(trigger())
     fireEvent.click(screen.getByRole('button', { name: /Deutschland/ }))
     expect(await screen.findByRole('alert')).toHaveProperty(

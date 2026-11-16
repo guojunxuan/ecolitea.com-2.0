@@ -54,14 +54,12 @@ const panel = () => screen.getByRole('dialog', { name: 'Region & language' })
 
 describe('Phase 4 language panel', () => {
   it('uses the short language entry and a native modal with grouped public regions', () => {
-    render(<LanguageSwitcher mode="desktop" />)
+    render(<LanguageSwitcher />)
     expect(trigger().textContent).toBe('EN')
     fireEvent.click(trigger())
     expect(panel().tagName).toBe('DIALOG')
     expect(panel()).toHaveProperty('open', true)
-    expect(
-      within(panel()).getByRole('heading', { name: 'Location & language' }),
-    ).toBeTruthy()
+    expect(within(panel()).getByRole('heading', { name: 'Location & language' })).toBeTruthy()
     expect(within(panel()).getByRole('heading', { name: 'Europe' })).toBeTruthy()
     expect(
       within(within(panel()).getByRole('button', { name: /Deutschland · Deutsch/ })).getByText(
@@ -77,7 +75,7 @@ describe('Phase 4 language panel', () => {
   })
 
   it('closes on Escape, backdrop and another panel, restoring the triggering focus', () => {
-    render(<LanguageSwitcher mode="desktop" />)
+    render(<LanguageSwitcher />)
     fireEvent.click(trigger())
     fireEvent.keyDown(panel(), { key: 'Escape' })
     expect(screen.queryByRole('dialog')).toBeNull()
@@ -90,24 +88,31 @@ describe('Phase 4 language panel', () => {
     expect(screen.queryByRole('dialog')).toBeNull()
   })
 
-  it('opens the same mounted modal from the mobile menu bottom entry', () => {
+  it('opens the language view inside the mobile menu without closing it', () => {
     render(<MobileNav menuCta={null} navItems={[]} siteName="Ecolitea" />)
     expect(screen.queryByRole('button', { name: 'Region & language' })).toBeNull()
     fireEvent.click(screen.getByRole('button', { name: 'Open navigation' }))
-    fireEvent.click(screen.getByRole('button', { name: /Global EN/ }))
-    expect(screen.queryByRole('dialog', { name: 'Navigation' })).toBeNull()
-    const dialogID = panel().id
-    fireEvent.click(within(panel()).getByRole('button', { name: 'Close' }))
-    expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Open navigation' }))
-    fireEvent.click(screen.getByRole('button', { name: 'Open navigation' }))
-    fireEvent.click(screen.getByRole('button', { name: /Global EN/ }))
-    expect(panel().id).toBe(dialogID)
+    const entry = screen.getByRole('button', { name: /Global EN/ })
+    fireEvent.click(entry)
+    // The menu stays open; the language view slides in over it.
+    expect(screen.getByRole('dialog', { name: 'Navigation' })).toBeTruthy()
+    expect(screen.queryByRole('dialog', { name: 'Region & language' })).toBeNull()
+    const view = document.getElementById('mobile-language-view')!
+    expect(view.getAttribute('data-open')).toBe('true')
+    expect(view.hasAttribute('inert')).toBe(false)
+    expect(entry.getAttribute('aria-expanded')).toBe('true')
+    expect(within(view).getByRole('heading', { name: 'Location & language' })).toBeTruthy()
+    expect(within(view).getByRole('button', { name: /Global · English/ })).toBeTruthy()
+    fireEvent.click(within(view).getByRole('button', { name: 'Back to menu' }))
+    expect(view.getAttribute('data-open')).toBe('false')
+    expect(view.hasAttribute('inert')).toBe(true)
+    expect(document.activeElement).toBe(entry)
   })
 
   it('keeps the Global EN entry when no additional languages are public', () => {
     const german = fixture.i18n.publicLocales.pop()!
     try {
-      render(<LanguageSwitcher mode="desktop" />)
+      render(<LanguageSwitcher />)
       fireEvent.click(trigger())
       expect(within(panel()).getAllByRole('button', { name: /Global · English/ })).toHaveLength(1)
       expect(within(panel()).queryByRole('button', { name: /Deutschland/ })).toBeNull()
@@ -118,7 +123,7 @@ describe('Phase 4 language panel', () => {
 
   it('persists selection and reports transport failures without losing the panel', async () => {
     vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('offline')))
-    render(<LanguageSwitcher mode="desktop" />)
+    render(<LanguageSwitcher />)
     fireEvent.click(trigger())
     fireEvent.click(within(panel()).getByRole('button', { name: /Deutschland · Deutsch/ }))
     expect(await screen.findByRole('alert')).toHaveProperty(

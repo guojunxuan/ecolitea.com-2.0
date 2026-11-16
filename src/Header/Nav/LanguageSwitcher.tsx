@@ -1,7 +1,7 @@
 'use client'
 
 import { Check, X } from 'lucide-react'
-import React, { useCallback, useEffect, useId, useImperativeHandle, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useId, useRef, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { GlobeIcon } from '@/components/icons/GlobeIcon'
 import { useDictionary } from '@/i18n/DictionaryProvider'
@@ -10,21 +10,7 @@ import { readRegionPreference, writeRegionPreference } from '@/i18n/preferences'
 import { announcePanelOpen, listenForPanelOpen } from '@/utilities/panelEvents'
 import styles from './LanguageSwitcher.module.css'
 
-export type LanguageSwitcherHandle = { open: () => void }
-
-export function LanguageSwitcher({
-  mode,
-  onOpenChange,
-  ref,
-  returnFocusRef,
-}: {
-  /** `mobile` renders no Header trigger; the panel is opened through `ref` from the menu entry. */
-  mode: 'desktop' | 'mobile'
-  onOpenChange?: (open: boolean) => void
-  /** Focus target after closing when there is no visible trigger. */
-  returnFocusRef?: React.RefObject<HTMLElement | null>
-  ref?: React.Ref<LanguageSwitcherHandle>
-}) {
+export function LanguageSwitcher({ onOpenChange }: { onOpenChange?: (open: boolean) => void }) {
   const {
     locale,
     i18n: { publicLocales, regions },
@@ -32,8 +18,6 @@ export function LanguageSwitcher({
   const { language: copy } = useDictionary()
   const [open, setOpen] = useState(false)
   const [selected, setSelected] = useState<string | null>(null)
-  const [busy, setBusy] = useState(false)
-  const [error, setError] = useState(false)
   const id = useId()
   const titleId = useId()
   const trigger = useRef<HTMLButtonElement>(null)
@@ -44,22 +28,19 @@ export function LanguageSwitcher({
   const selectedRegion =
     entries.find(({ code }) => code === selected)?.code ??
     entries.find((entry) => entry.locale === locale)?.code
-  const groups = [...new Set(entries.map(({ group }) => group))]
   const current = publicLocales.find(({ code }) => code === locale)
 
   const close = useCallback((restoreFocus = true) => {
     // Release native modal inertness before returning focus to the visible Header entry.
     dialog.current?.close()
     setOpen(false)
-    if (restoreFocus) (trigger.current ?? returnFocusRef?.current)?.focus()
-  }, [returnFocusRef])
+    if (restoreFocus) trigger.current?.focus()
+  }, [])
   const show = useCallback(() => {
     announcePanelOpen(id)
     setSelected(readRegionPreference())
-    setError(false)
     setOpen(true)
   }, [id])
-  useImperativeHandle(ref, () => ({ open: show }), [show])
 
   useEffect(() => {
     onOpenChange?.(open)
@@ -104,6 +85,86 @@ export function LanguageSwitcher({
     }
   }, [close, open])
 
+  return (
+    <div className={styles.root}>
+      {
+        <button
+          aria-controls={id}
+          aria-expanded={open}
+          aria-haspopup="dialog"
+          aria-label={copy.trigger}
+          className={styles.trigger}
+          onClick={() => (open ? close() : show())}
+          onKeyDown={(event) => {
+            if (event.key === 'ArrowDown') {
+              event.preventDefault()
+              show()
+            }
+          }}
+          ref={trigger}
+          type="button"
+        >
+          <GlobeIcon aria-hidden="true" />
+          <span>{current?.short ?? locale.toUpperCase()}</span>
+        </button>
+      }
+      {open && (
+        <dialog
+          aria-label={copy.trigger}
+          className={styles.panel}
+          data-website-theme="default"
+          id={id}
+          onCancel={(event) => {
+            event.preventDefault()
+            close()
+          }}
+          onClose={(event) => {
+            if (!event.currentTarget.open) close()
+          }}
+          onClick={(event) => {
+            if (event.target === event.currentTarget) close()
+          }}
+          ref={dialog}
+        >
+          <div className={styles.surface}>
+            <div className={styles.heading}>
+              <h2 className="website-type-title" id={titleId}>
+                {copy.title}
+              </h2>
+              <Button aria-label={copy.close} onClick={() => close()} size="icon" variant="ghost">
+                <X aria-hidden="true" />
+              </Button>
+            </div>
+            <div className={styles.body}>
+              <RegionList selectedRegion={selectedRegion} onSelect={setSelected} />
+            </div>
+          </div>
+        </dialog>
+      )}
+    </div>
+  )
+}
+
+/** Region list shared by the desktop dialog and the mobile menu's language view. */
+export function RegionList({
+  selectedRegion,
+  onSelect,
+}: {
+  selectedRegion?: string
+  onSelect?: (code: string) => void
+}) {
+  const {
+    i18n: { publicLocales, regions },
+  } = useLocaleContext()
+  const { language: copy } = useDictionary()
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState(false)
+  const entries = regions.filter((region) =>
+    publicLocales.some(({ code }) => code === region.locale),
+  )
+  const groups = [...new Set(entries.map(({ group }) => group))]
+  const setSelected = (code: string) => onSelect?.(code)
+
   const select = async (region: (typeof regions)[number]) => {
     setBusy(true)
     setError(false)
@@ -134,98 +195,43 @@ export function LanguageSwitcher({
   }
 
   return (
-    <div className={styles.root} data-mode={mode}>
-      {mode === 'desktop' && (
-        <button
-          aria-controls={id}
-          aria-expanded={open}
-          aria-haspopup="dialog"
-          aria-label={copy.trigger}
-          className={styles.trigger}
-          onClick={() => (open ? close() : show())}
-          onKeyDown={(event) => {
-            if (event.key === 'ArrowDown') {
-              event.preventDefault()
-              show()
-            }
-          }}
-          ref={trigger}
-          type="button"
-        >
-          <GlobeIcon aria-hidden="true" />
-          <span>{current?.short ?? locale.toUpperCase()}</span>
-        </button>
-      )}
-      {open && (
-        <dialog
-          aria-label={copy.trigger}
-          className={styles.panel}
-          data-website-theme="default"
-          id={id}
-          onCancel={(event) => {
-            event.preventDefault()
-            close()
-          }}
-          onClose={(event) => {
-            if (!event.currentTarget.open) close()
-          }}
-          onClick={(event) => {
-            if (event.target === event.currentTarget) close()
-          }}
-          ref={dialog}
-        >
-          <div className={styles.surface}>
-            <div className={styles.heading}>
-              <h2 className="website-type-title" id={titleId}>
-                {copy.title}
-              </h2>
-              <Button aria-label={copy.close} onClick={() => close()} size="icon" variant="ghost">
-                <X aria-hidden="true" />
-              </Button>
-            </div>
-            <div className={styles.body}>
-              <div className={styles.groups}>
-                {groups.map((group) => (
-                  <section key={group ?? 'global'}>
-                    {group && <h3 className="website-type-eyebrow">{group}</h3>}
-                    <div className={styles.entries}>
-                      {entries
-                        .filter((region) => region.group === group)
-                        .map((region) => (
-                          <button
-                            aria-label={`${region.label} · ${publicLocales.find(({ code }) => code === region.locale)?.label ?? region.locale}`}
-                            aria-pressed={selectedRegion === region.code}
-                            className={styles.region}
-                            data-region={region.code}
-                            disabled={busy}
-                            key={region.code}
-                            onClick={() => void select(region)}
-                            type="button"
-                          >
-                            <span>{region.label}</span>
-                            <span className={styles.selection}>
-                              <span className={styles.short}>
-                                {publicLocales.find(({ code }) => code === region.locale)?.short}
-                              </span>
-                              {selectedRegion === region.code && (
-                                <Check aria-hidden="true" size={18} />
-                              )}
-                            </span>
-                          </button>
-                        ))}
-                    </div>
-                  </section>
+    <>
+      <div className={styles.groups}>
+        {groups.map((group) => (
+          <section key={group ?? 'global'}>
+            {group && <h3 className="website-type-eyebrow">{group}</h3>}
+            <div className={styles.entries}>
+              {entries
+                .filter((region) => region.group === group)
+                .map((region) => (
+                  <button
+                    aria-label={`${region.label} · ${publicLocales.find(({ code }) => code === region.locale)?.label ?? region.locale}`}
+                    aria-pressed={selectedRegion === region.code}
+                    className={styles.region}
+                    data-region={region.code}
+                    disabled={busy}
+                    key={region.code}
+                    onClick={() => void select(region)}
+                    type="button"
+                  >
+                    <span>{region.label}</span>
+                    <span className={styles.selection}>
+                      <span className={styles.short}>
+                        {publicLocales.find(({ code }) => code === region.locale)?.short}
+                      </span>
+                      {selectedRegion === region.code && <Check aria-hidden="true" size={18} />}
+                    </span>
+                  </button>
                 ))}
-              </div>
-              {error && (
-                <p className="website-type-body-sm" role="alert">
-                  {copy.error}
-                </p>
-              )}
             </div>
-          </div>
-        </dialog>
+          </section>
+        ))}
+      </div>
+      {error && (
+        <p className="website-type-body-sm" role="alert">
+          {copy.error}
+        </p>
       )}
-    </div>
+    </>
   )
 }

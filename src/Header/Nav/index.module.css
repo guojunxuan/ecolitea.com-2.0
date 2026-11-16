@@ -103,6 +103,7 @@
 }
 
 .mobileNavPanel {
+  transition: transform var(--website-duration-standard) ease;
   /* Column flow lets the language entry sit at the bottom of the menu. */
   display: flex;
   flex-direction: column;
@@ -545,4 +546,51 @@
   composes: website-type-caption from global;
   color: var(--website-color-muted-foreground);
   margin-left: auto;
+}
+
+/* Language drill-in: slides in from the right over the menu; the menu shifts left. */
+.mobileNavPanel[data-shifted='true'] {
+  transform: translateX(-25%);
+}
+.mobileLanguageView {
+  background: var(--website-color-background);
+  display: flex;
+  flex-direction: column;
+  inset: 0;
+  position: absolute;
+  transform: translateX(100%);
+  transition:
+    transform var(--website-duration-standard) ease,
+    visibility 0s linear var(--website-duration-standard);
+  visibility: hidden;
+  z-index: 1;
+}
+.mobileLanguageView[data-open='true'] {
+  transform: none;
+  transition: transform var(--website-duration-standard) ease;
+  visibility: visible;
+}
+.mobileLanguageHeader {
+  align-items: center;
+  display: flex;
+  flex-shrink: 0;
+  gap: var(--website-space-1);
+  padding: var(--website-space-2) var(--website-gutter) var(--website-space-2)
+    calc(var(--website-gutter) - var(--website-space-3));
+}
+.mobileLanguageHeader h2 {
+  margin: 0;
+}
+.mobileLanguageBody {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 0 var(--website-gutter) calc(var(--website-space-6) + env(safe-area-inset-bottom));
+}
+@media (prefers-reduced-motion: reduce) {
+  .mobileNavPanel,
+  .mobileLanguageView,
+  .mobileLanguageView[data-open='true'] {
+    transition: none;
+  }
 }
