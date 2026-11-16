@@ -1,5 +1,7 @@
 # 第二阶段实施计划：翻译插件（后台）
 
+> 2026-11-16: Historical implementation plan. Google integration settings and credential/environment instructions are superseded by [Integrations Settings design](../specs/2026-11-16-integrations-settings-analytics-design.md). Use [deployment documentation](../../deployment.md) for current operation.
+
 日期：2026-11-15
 分支：feature/i18n-consent
 Spec：`docs/superpowers/specs/2026-11-15-i18n-region-consent-design.md` §3、§4（含 §4.4 已并入的 spike 结论）、§9

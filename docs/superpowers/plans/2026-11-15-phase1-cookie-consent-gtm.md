@@ -1,5 +1,7 @@
 # 第一阶段实施计划：Cookie 授权 + GTM
 
+> 2026-11-16: Historical implementation plan. Google integration settings and credential/environment instructions are superseded by [Integrations Settings design](../specs/2026-11-16-integrations-settings-analytics-design.md). Use [deployment documentation](../../deployment.md) for current operation.
+
 日期：2026-11-15
 分支：feature/i18n-consent
 Spec：`docs/superpowers/specs/2026-11-15-i18n-region-consent-design.md`（§6.2、§6.3、§7、§8、§9 中与授权相关的部分）

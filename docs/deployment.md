@@ -1,6 +1,6 @@
 # Production deployment
 
-Copy `.env.example` to `.env` and set `GHCR_REPOSITORY`, `IMAGE_TAG`, `MONGODB_URI`, Payload secrets, and Cloudflare R2 credentials. Create an R2 bucket, S3 API token, and public custom domain; configure CORS for the site origin and media GET/HEAD.
+Copy `.env.example` to `.env` and configure the values in the [environment table](#environment-variables). Set `ECOLITEA_IMAGE` to the full image repository when overriding the Compose default, and select a release with `IMAGE_TAG`. Create an R2 bucket, S3 API token, and public custom domain; configure CORS for the site origin and media GET/HEAD.
 
 Start the stack:
 
@@ -20,29 +20,85 @@ Application releases never remove `mongodb_data` or recreate MongoDB. Back up wi
 
 Use Caddy with `deploy/Caddyfile.example` to proxy the public hostname to `127.0.0.1:3000`.
 
+## Environment variables
+
+`src/utilities/env.ts` owns the application server contract; `.env.example` groups the supported
+configuration. Keep each environment's database, bucket and credentials isolated. Local development
+reads the project `.env`. Compose reads its `.env` for substitutions and explicitly forwards server
+values to the application. Recreate the application container after a runtime change; `docker compose
+restart` alone does not apply changed Compose environment values. Public browser values are frozen
+at image build time and require a rebuild. See [Next.js environment variables](https://nextjs.org/docs/app/guides/environment-variables).
+
+| Variable | Group | Required | Where set | Apply change |
+|---|---|---|---|---|
+| `DATABASE_URI` | Server runtime | Yes | Local `.env`; Compose maps `MONGODB_URI` to it | Restart local server / recreate application container |
+| `PAYLOAD_SECRET` | Server runtime | Yes | Local `.env` / Compose `.env` | Restart / recreate; re-enter encrypted integration key after rotation |
+| `NEXT_PUBLIC_SERVER_URL` | Server runtime / public origin | Yes | Local `.env` / Compose `.env`; match image build origin where inlined | Recreate server; rebuild if changing browser-inlined URLs |
+| `CRON_SECRET` | Server runtime | Yes | Local `.env` / Compose `.env` | Restart / recreate |
+| `PREVIEW_SECRET` | Server runtime | Yes | Local `.env` / Compose `.env` | Restart / recreate |
+| `R2_BUCKET` | Server runtime | Yes in the server parser | Local `.env` / Compose `.env` | Restart / recreate |
+| `R2_ACCESS_KEY_ID` | Server runtime | Yes in the server parser | Local `.env` / Compose `.env` | Restart / recreate |
+| `R2_SECRET_ACCESS_KEY` | Server runtime | Yes in the server parser | Local `.env` / Compose `.env` | Restart / recreate |
+| `R2_ENDPOINT` | Server runtime | Yes in the server parser | Local `.env` / Compose `.env` | Restart / recreate |
+| `R2_PUBLIC_URL` | Server runtime / build | Yes | Local `.env`, Compose `.env`, Docker build argument | Recreate and rebuild: image host allowlist is build configuration |
+| `TURNSTILE_SECRET_KEY` | Optional server feature | Required for quote submissions | Local `.env` / Compose `.env` | Restart / recreate |
+| `QUOTE_IP_HASH_SALT` | Optional server feature | Required for quote submissions | Local `.env` / Compose `.env` | Restart / recreate |
+| `REVALIDATE_SECRET` | Optional server feature | Required for background invalidation and scheduled publication | Local `.env` / Compose `.env` | Restart / recreate every worker and serving instance |
+| `JOBS_AUTORUN` | Optional server feature | No; defaults to `false` | Local `.env` / Compose `.env`; `true` on exactly one long-running instance | Restart / recreate |
+| `NEXT_PUBLIC_TURNSTILE_SITE_KEY` | Public build-time | Required to show the quote challenge | Local `.env` before build / Docker build argument | Rebuild and redeploy |
+| `NEXT_PUBLIC_SITE_URL` | Retained compatibility build argument | Required by the current Dockerfile guard | Local build environment / Docker build argument | Rebuild; no application consumer |
+| `NEXT_PUBLIC_CMS_URL` | Retained compatibility build argument | Required by the current Dockerfile guard | Local build environment / Docker build argument | Rebuild; no application consumer |
+| `MONGODB_URI` | Deployment-only | Yes for Compose | Compose `.env`; use the `mongodb` service hostname and appropriate credentials | Recreate application container |
+| `MONGO_INITDB_ROOT_USERNAME` | Deployment-only | Yes for a new Compose database | Compose `.env` | Initializes a new MongoDB volume only; existing users need a separate credential change |
+| `MONGO_INITDB_ROOT_PASSWORD` | Deployment-only | Yes for a new Compose database | Compose `.env` | Initializes a new MongoDB volume only; existing users need a separate credential change |
+| `ECOLITEA_IMAGE` | Deployment-only | No; defaults to `ghcr.io/ecolitea/ecolitea` | Compose `.env` | Pull and recreate application container |
+| `IMAGE_TAG` | Deployment-only | No; defaults to `latest` | Compose `.env` | Pull and recreate application container |
+| `DISABLE_R2_STORAGE` | Development & test | Set `true` for tests outside storage integration | Local/test process environment | Restart test process; R2 placeholders remain required by parser |
+| `NEXT_DEV_ALLOWED_ORIGINS` | Development & test | No | Local `.env`; comma-separated hostnames | Restart dev server |
+| `VERCEL_PROJECT_PRODUCTION_URL` | Platform-provided | No outside that platform | Hosting platform | Rebuild for build-time URL consumers; restart for runtime reads |
+| `PRODUCT_DETAIL_SPECS_APPROVED_FINGERPRINT` | One-off repair | Only for the matching repair | Explicit script/migration process environment | Next invocation |
+| `PRODUCT_OPTION_IMAGE_APPROVED_FINGERPRINT` | One-off repair | Only for the matching repair | Explicit script/migration process environment | Next invocation |
+| `PRODUCT_OPTION_IMAGE_DEMO_REPAIR` | One-off repair | No; opt-in demo repair | Explicit script/migration process environment | Next invocation |
+| `PRODUCT_OPTION_IMAGE_BACKUP_PATH` | One-off repair | Optional backup path for its report script | Explicit script process environment | Next invocation |
+
+Some older public flags and URL/preview aliases remain forwarded by Compose/CI for compatibility.
+They do not configure Google integrations. Treat the table and actual application consumers as the
+supported contract. Do not put secrets in Docker build arguments or public variables.
+
+## Administrator roles and integration credentials
+
+Users has `admin` and `editor` roles. The first account on a fresh database becomes `admin`; later
+accounts default to `editor`. Apply `20261116_user_roles` using the application's migration workflow
+when upgrading an existing database: it grants `admin` to **all existing users**, preserving access.
+Review the exact database/storage target and take the normal database backup before migrations.
+Existing sessions may need a new login to receive the role in their token. Only an admin can change
+roles or replace/clear the Google Translate API key. Collection and Global content access otherwise
+keeps its existing authenticated-user rules.
+
+The integration key is encrypted with AES-256-GCM using a key derived from `PAYLOAD_SECRET`. The
+Admin shows only its status and last four characters; neither the encrypted field nor plaintext is
+exposed by public APIs, and editors cannot read the last four characters. Replacing or clearing it
+uses the dedicated inputs in **Site Settings → Integrations**. Leave the replacement input empty to
+keep the current value. Do not select clear while entering a replacement.
+
+Keep `PAYLOAD_SECRET` stable and shared by the serving and worker instances. Rotating it requires
+re-entering the translation key: existing ciphertext becomes **Needs re-entry (cannot decrypt)**.
+Translation queueing/execution then skips cleanly; the public website continues rendering. A secret
+rotation also affects authentication tokens.
+
 ## Cookie consent and Google Tag Manager
 
-Payload owns the persisted configuration in **Site Settings → Legal**: select a published English
+Payload owns the persisted configuration in **Site Settings → Legal & Privacy → Policy Pages**: select a published English
 Page for **Cookie Policy Page** to show its link in the banner and Footer. Privacy Policy, Cookie
 Policy, and Terms appear in that order when configured. Policy content should describe the services
 actually enabled in the GTM container; keep that list current when adding services.
 
-Set the optional public container ID in the build environment:
-
-```dotenv
-NEXT_PUBLIC_GTM_MEASUREMENT_ID=GTM-XXXX
-```
-
-Only uppercase container IDs matching `GTM-` followed by letters or digits are accepted. An empty or
-invalid value disables loading. This variable is public and is separate from
-`NEXT_PUBLIC_GA_MEASUREMENT_ID`; the application does not install GA4 directly.
-
-For local development, set it in `.env` before starting Next.js. For release images, set the GitHub
-Actions repository variable `NEXT_PUBLIC_GTM_MEASUREMENT_ID`; the existing release workflow forwards
-it to the Dockerfile build argument of the same name. Supply that build argument explicitly when
-building an image elsewhere. Rebuild and deploy the image after changing the ID: setting only the
-Compose runtime environment does not change an already built browser bundle. See
-[Next.js public environment variables](https://nextjs.org/docs/app/guides/environment-variables#bundling-environment-variables-for-the-browser).
+Set **GTM Container ID** in **Site Settings → Integrations → Google Tag Manager**. It is public
+and optional: an empty value disables loading. The server trims it and accepts only `GTM-` followed
+by uppercase letters or digits. Put the GA4 measurement ID (`G-…`) only in the GTM container's Google
+tag configuration. The application installs GTM and delegates GA4 delivery to that container.
+Changing the container ID requires saving settings and refreshing the page; no image rebuild is
+needed. See [Site Settings operations](#site-settings-operations) for invalidation behavior.
 
 The client consent provider reads `ec_consent` after hydration and applies the browser's Global
 Privacy Control signal, which forces marketing off. It queues Consent Mode v2 defaults with
@@ -72,14 +128,48 @@ See Google's [consent mode overview](https://developers.google.com/tag-platform/
 and [consent setup guide](https://developers.google.com/tag-platform/security/guides/consent) for
 container configuration and consent-aware tag behavior.
 
-The emergency switch is **Payload Admin → Site Settings → Legal → Disable Google Tag Manager**.
+The emergency switch is **Payload Admin → Site Settings → Integrations → Disable Google Tag Manager**.
 It defaults to off. Enable and save it to prevent GTM loading regardless of visitor consent once
-the Site Settings cache refreshes. The existing revalidation hook uses stale-while-revalidate, so
-an initial subsequent request may still receive the previous cached setting. An already running
+the Site Settings cache refreshes. Saving expires the Site Settings cache and invalidates language layouts for subsequent requests. An already running
 container cannot be unloaded from an open page. Visitor withdrawal updates Consent Mode immediately;
 withdrawing both optional categories also removes accessible `_ga`, `_ga_*`, and `_gcl_*` cookies
 for the current host and parent domains. A full page reload is required to start without the
 previously loaded script. Failed script loading does not interrupt browsing or cookie settings.
+
+### Business event dictionary and GA4 setup
+
+The website pushes only the following business fields to `window.dataLayer`. Submission events fire
+after a successful response; download and contact events fire on the actual link action. No form
+values, contact addresses, phone numbers, company names or quote text are included. Events can queue
+locally before GTM loads; GTM consent requirements control external delivery.
+
+| Event | Trigger | Parameters |
+|---|---|---|
+| `quote_submit` | Successful quote request | `product_slug` |
+| `form_submit` | Successful Page form submission | `form_title` |
+| `file_download` | Product download link clicked | `file_name`, `product_slug` |
+| `contact_click` | Footer email or phone link clicked | `method`: `email` or `phone` |
+
+1. Configure a Google tag in GTM with the intended GA4 `G-…` measurement ID, retaining the consent
+   requirements above.
+2. Create Version 2 **Data Layer Variables** for `product_slug`, `form_title`, `file_name` and
+   `method`, matching these keys exactly. See Google's [data layer reference](https://developers.google.com/tag-platform/tag-manager/datalayer).
+3. Create a **Custom Event** trigger for each event name in the table. Create one **Google Analytics:
+   GA4 Event** tag per event, set its event name exactly, map only that event's listed parameters to
+   the corresponding variables, and attach its trigger. Require `analytics_storage` consent on
+   these analytics tags. See Google's [event setup guide](https://support.google.com/tagmanager/answer/13034206).
+4. Decide which events represent conversions, then [mark those as key events in GA4](https://support.google.com/analytics/answer/13128484).
+   Add custom dimensions for business parameters only when reports need them. If GA4 enhanced
+   measurement already emits form/download events, adjust it so these custom events do not produce
+   duplicate conversion counts.
+5. Use **GTM Preview / Tag Assistant** on a test environment. Verify that no GTM script loads before
+   optional consent or after rejecting both categories, and that analytics tags stay blocked for
+   marketing-only consent. Accept analytics, perform each action and inspect the event, variables,
+   consent state and fired GA4 tag. Confirm failed submissions emit no success event and inspect
+   all parameters for personal data.
+6. Verify received names and parameters in **GA4 Realtime** and, while debugging, [DebugView](https://support.google.com/analytics/answer/7201382).
+   Repeat with the emergency disable switch and a fresh page. Publish the container only after
+   this configuration has been reviewed in the intended environment.
 
 The Footer's **Cookie settings** button lets visitors review or withdraw consent. Closing the
 banner or the settings dialog does not save a decision. If an `ec_preferences` cookie exists, its
@@ -108,23 +198,23 @@ translation plugin owns records, queueing and invalidation, while Next.js owns p
 
 The fixed language catalog is `src/i18n/catalog.ts`. Configure target status and visitor regions in
 Site Settings → Language. English is the fixed source; `translating` and `live` are translation
-targets. An empty configuration keeps only English and Global and queues no translation work. Add the following server environment variables before enabling targets:
+targets. An empty configuration keeps only English and Global and queues no translation work.
 
-```dotenv
-GOOGLE_TRANSLATE_API_KEY=
-TRANSLATION_MONTHLY_CHAR_LIMIT=450000
-JOBS_AUTORUN=false
-REVALIDATE_SECRET=
-```
+An admin sets **Replace Google Translate API key** in **Site Settings → Integrations → Google
+Translate**, then saves. The key enables the Google Cloud Translation Basic v2 adapter. A missing
+or undecryptable key prevents new queueing and makes already queued tasks skip without contacting
+Google. Settings are resolved at queue/run time, so replacing or clearing a key does not require an
+image rebuild or worker restart. The Admin reports **Configured ••••1234**, **Not configured** or
+**Needs re-entry (cannot decrypt)**; see the [role and credential section](#administrator-roles-and-integration-credentials).
 
-`GOOGLE_TRANSLATE_API_KEY` enables the Google Cloud Translation Basic v2 REST adapter. An empty
-key selects the offline identity stub and prevents real translation jobs from being queued.
-`TRANSLATION_MONTHLY_CHAR_LIMIT` must be a positive safe integer. The independent usage Global
-reserves deduplicated characters before sending a document, including its HTML markers. Failed
-or partially sent attempts can therefore count conservatively; reservations are not refunded.
-The counter resets on the first reservation in a new UTC calendar month, not when source content
-is deleted. It is an application budget, not a measurement of the entire Google project's bill.
+**Translation Monthly Char Limit** in the same group defaults to `450000` and must be a positive
+safe integer. The independent usage Global reserves deduplicated characters before sending a
+document, including its HTML markers. Failed or partially sent attempts can count conservatively;
+reservations are not refunded. The counter resets on the first reservation in a new UTC calendar
+month, not when source content is deleted. This is an application budget, not a measurement of the
+entire Google project's bill.
 
+Configure worker and background invalidation values using the [environment table](#environment-variables).
 Enable **exactly one** long-running instance with `JOBS_AUTORUN=true`; leave it false elsewhere.
 Node instrumentation initializes `getPayload({ config, cron: true })`. The worker polls every
 five seconds with `allQueues: true, limit: 1`, including Payload's native `schedulePublish` queue.
@@ -197,8 +287,8 @@ and `translations-sitemap`. Source visibility must also be checked by Phase 3 re
 
 Open **Payload Admin → System → Translations** for the read-only request list, per-language
 tracked-request readiness, and current-month reserved characters. **System → Translation Usage**
-contains the read-only counter. Staff access reuses the existing authenticated-user boundary;
-this application has no separate administrator role model. External translation/search writes
+contains the read-only counter. Staff access to translation requests and usage reuses the existing authenticated-user boundary;
+the new role checks protect role changes and integration credentials. External translation/search writes
 are denied; server Local API writes own these records.
 
 Use the bulk producer described below after adding a target language. The readiness denominator
@@ -272,8 +362,9 @@ same host during English internal rewrites. The default configuration still cont
 ### Site Settings operations
 
 Brand, Contact & Social, Legal & Privacy, Integrations and Language use unnamed presentation
-groups; existing stored field paths are unchanged and need no migration. Integrations displays
-the environment-provided GTM container and the emergency disable switch. Legal & Privacy →
+groups. Integrations owns the GTM container ID, emergency disable switch, monthly translation
+budget and admin-only credential inputs. Existing Google environment settings must be entered in
+Integrations after upgrading; they are not imported automatically. Legal & Privacy →
 Cookie Consent controls the banner title and long explanations; empty values fall back to the
 frontend dictionary. Translated Site Settings supply these explanations on non-English pages.
 

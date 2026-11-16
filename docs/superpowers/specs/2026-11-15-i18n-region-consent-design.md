@@ -113,7 +113,7 @@ Lexical 按段落转换为 HTML，用 Google HTML 模式整段翻译，再还原
 
 ### 4.6 额度（仅使用免费额度）
 
-- 第一层（主控）：插件按自然月计数已发送字符，超过 `TRANSLATION_MONTHLY_CHAR_LIMIT`（默认 450000）后新任务标为 `waiting_quota`，下月 1 日自动恢复。
+- 第一层（主控）：插件按自然月计数已发送字符，超过 Site Settings → Integrations 的 `translationMonthlyCharLimit`（默认 450000）后新任务标为 `waiting_quota`，下月 1 日自动恢复。
 - 第二层（兜底）：部署时在 Google Cloud Console 设置每日字符配额与预算告警（写入部署文档，非代码）。
 - 排队优先级：已有译文的更新 → 新发布内容 → 首次补译。
 - 注意：免费额度也需要绑定结算账户。
@@ -200,7 +200,7 @@ Site Settings → Legal 引用的 Privacy Policy、Cookie Policy、Terms 三个 
 同意管理器 → Consent Mode v2 Basic → GTM → GA4（统计） / 广告标签（营销）
 ```
 
-- GTM 容器 ID 由环境变量提供（如 `NEXT_PUBLIC_GTM_ID`），有则加载，无则不加载；GA4 与广告标签在 GTM 后台配置，项目不直接接入 GA4。
+- GTM 容器 ID 由 Site Settings → Integrations 的 `gtmContainerId` 提供（参见 [Integrations 设计](2026-11-16-integrations-settings-analytics-design.md)），有则按授权加载，无则不加载；GA4 与广告标签在 GTM 后台配置，项目不直接接入 GA4。
 - 紧急总开关：Site Settings 增加“停用 GTM”，默认关闭；开启后无论授权一律不加载 GTM。
 - 默认授权状态先于任何标签设置；授权变更立即更新 Consent Mode。
 - 客户端路由换页不重复初始化 GTM、不重复发送 `page_view`。
@@ -214,8 +214,9 @@ Site Settings → Legal 引用的 Privacy Policy、Cookie Policy、Terms 三个 
 | 位置 | 内容 |
 |---|---|
 | `src/i18n/config.ts` | 语言、地区、状态 |
-| 环境变量 | `NEXT_PUBLIC_GTM_ID`、`TRANSLATION_MONTHLY_CHAR_LIMIT`、Google 翻译凭据、任务运行实例标识；同步更新 `src/utilities/env.ts` 与 `.env.example` |
-| Site Settings → Legal | Privacy Policy、Terms（已有），新增 Cookie Policy 页面关联、“停用 GTM”开关 |
+| 环境变量 | `JOBS_AUTORUN` 任务运行实例标识、后台失效鉴权；同步更新 `src/utilities/env.ts` 与 `.env.example` |
+| Site Settings → Integrations | `gtmContainerId`、停用 GTM、`translationMonthlyCharLimit`、admin 管理的加密 Google 翻译凭据；参见 [Integrations 设计](2026-11-16-integrations-settings-analytics-design.md) |
+| Site Settings → Legal | Privacy Policy、Terms（已有），新增 Cookie Policy 页面关联（“停用 GTM”迁至 Integrations） |
 | Pages | 三个法律页面正文（英文） |
 | Google Cloud Console | 每日字符配额、预算告警（部署文档） |
 

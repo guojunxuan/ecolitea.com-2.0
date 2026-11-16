@@ -1,5 +1,7 @@
 # 第四阶段：语言配置后台化 + Translation 标签页 + 语言/Cookie 面板重设计
 
+> 2026-11-16: Historical implementation plan. Google integration settings and credential/environment instructions are superseded by [Integrations Settings design](../specs/2026-11-16-integrations-settings-analytics-design.md). Use [deployment documentation](../../deployment.md) for current operation.
+
 日期：2026-11-16
 分支：feature/i18n-consent
 上位 spec：`docs/superpowers/specs/2026-11-15-i18n-region-consent-design.md`（本文件修订其 §3、§6、§9；冲突以本文件为准）
