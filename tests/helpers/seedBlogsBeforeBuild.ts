@@ -29,7 +29,7 @@ try {
   })
   const author = await payload.create({
     collection: 'users',
-    data: { email: fixture.email, password: fixture.password, name: 'Tea Editor' },
+    data: { role: 'editor', email: fixture.email, password: fixture.password, name: 'Tea Editor' },
     ...fixtureContext,
   })
   // Three populated categories make the mobile More disclosure a real browser path.

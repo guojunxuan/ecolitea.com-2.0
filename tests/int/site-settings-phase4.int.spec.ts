@@ -4,7 +4,7 @@ import { siteSettingsTabs } from '@/SiteSettings/fields'
 
 function paths(fields: Field[], prefix = ''): string[] {
   return fields.flatMap((field) => {
-    if (field.type === 'ui') return []
+    if (field.type === 'ui' || ('virtual' in field && field.virtual)) return []
     if (field.type === 'tabs') return field.tabs.flatMap((tab) => paths(tab.fields, prefix))
     const path = 'name' in field && field.name ? `${prefix}${field.name}` : ''
     const children = 'fields' in field ? paths(field.fields, path ? `${path}.` : prefix) : []
@@ -31,7 +31,7 @@ describe('Phase 4 Site Settings presentation', () => {
     }
   })
 
-  it('preserves every persisted field path without a migration', () => {
+  it('preserves existing paths and adds the managed integration fields', () => {
     expect(
       paths([siteSettingsTabs])
         .filter((path) => !/^(languages|regions|cookieConsent)(\.|$)/.test(path))
@@ -68,6 +68,10 @@ describe('Phase 4 Site Settings presentation', () => {
         'cookiePolicyPage',
         'termsPage',
         'disableGtm',
+        'gtmContainerId',
+        'translationMonthlyCharLimit',
+        'googleTranslateApiKeyEncrypted',
+        'googleTranslateApiKeyLast4',
       ].sort(),
     )
   })

@@ -1,5 +1,6 @@
 import type { Field, TabsField, UnnamedGroupField } from 'payload'
 
+import { integrationFields } from './integrations'
 import { languageFields, regionFields } from './language'
 import { brandingTab } from './branding'
 import { contactTab } from './contact'
@@ -70,27 +71,37 @@ export const siteSettingsTabs: TabsField = {
           'English policy pages linked throughout the website.',
           named(legalTab.fields, ['privacyPolicyPage', 'cookiePolicyPage', 'termsPage']),
         ),
-        group('Cookie Consent', 'Visitor-facing explanations for cookie choices.', [{ name: 'cookieConsent', type: 'group', label: false, fields: [
-          { name: 'bannerTitle', type: 'text' },
-          ...['bannerDescription', 'settingsDescription', 'necessaryDescription', 'analyticsDescription', 'marketingDescription'].map((name) => ({ name, type: 'textarea' as const })),
-        ] }]),
+        group('Cookie Consent', 'Visitor-facing explanations for cookie choices.', [
+          {
+            name: 'cookieConsent',
+            type: 'group',
+            label: false,
+            fields: [
+              { name: 'bannerTitle', type: 'text' },
+              ...[
+                'bannerDescription',
+                'settingsDescription',
+                'necessaryDescription',
+                'analyticsDescription',
+                'marketingDescription',
+              ].map((name) => ({ name, type: 'textarea' as const })),
+            ],
+          },
+        ]),
       ],
     },
     {
       label: 'Integrations',
       fields: [
         group('Google Tag Manager', 'Container configuration and emergency controls.', [
-          {
-            name: 'gtmContainerStatus',
-            type: 'ui',
-            admin: {
-              components: {
-                Field: '@/SiteSettings/components/GtmContainerStatus#GtmContainerStatus',
-              },
-            },
-          },
+          integrationFields[0],
           ...named(legalTab.fields, ['disableGtm']),
         ]),
+        group(
+          'Google Translate',
+          'Translation provider credentials and character budget.',
+          integrationFields.slice(1),
+        ),
       ],
     },
     {

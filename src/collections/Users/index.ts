@@ -1,5 +1,6 @@
-import type { CollectionConfig } from 'payload'
+import { ValidationError, type CollectionConfig } from 'payload'
 
+import { isAdminField } from '../../access/isAdmin'
 import { authenticated } from '../../access/authenticated'
 
 export const Users: CollectionConfig = {
@@ -16,7 +17,52 @@ export const Users: CollectionConfig = {
     useAsTitle: 'name',
   },
   auth: true,
+  hooks: {
+    beforeChange: [
+      async ({ data, operation, req }) => {
+        if (operation === 'create') {
+          const { totalDocs } = await req.payload.count({
+            collection: 'users',
+            overrideAccess: true,
+            req,
+          })
+          if (totalDocs === 0) data.role = 'admin'
+        }
+        return data
+      },
+    ],
+  },
   fields: [
+    {
+      name: 'role',
+      type: 'select',
+      required: true,
+      defaultValue: 'editor',
+      saveToJWT: true,
+      options: [
+        { label: 'Admin', value: 'admin' },
+        { label: 'Editor', value: 'editor' },
+      ],
+      access: { create: isAdminField, update: isAdminField, read: ({ req }) => Boolean(req.user) },
+      hooks: {
+        beforeValidate: [
+          ({ value, data, req, operation, previousValue }) => {
+            if (
+              req.user &&
+              req.user.role !== 'admin' &&
+              data &&
+              Object.prototype.hasOwnProperty.call(data, 'role') &&
+              data.role !== (operation === 'create' ? 'editor' : previousValue)
+            )
+              throw new ValidationError({
+                errors: [{ path: 'role', message: 'Only administrators can change roles.' }],
+                req,
+              })
+            return value
+          },
+        ],
+      },
+    },
     {
       name: 'name',
       type: 'text',

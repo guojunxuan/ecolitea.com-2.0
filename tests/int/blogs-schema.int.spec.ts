@@ -209,6 +209,7 @@ describe('Blogs through the isolated Payload Local API', () => {
     user = await payload.create({
       collection: 'users',
       data: {
+        role: 'editor',
         email: 'blog-author@example.test',
         password: 'isolated-test-password',
         name: 'Test Author',

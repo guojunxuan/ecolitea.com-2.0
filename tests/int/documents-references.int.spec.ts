@@ -332,6 +332,7 @@ describe('Documents protection through the real Payload API', () => {
                           user: {
                             id: 'fixture-user',
                             collection: 'users',
+                            role: 'editor',
                             email: 'fixture@example.invalid',
                             createdAt: '',
                             updatedAt: '',
@@ -475,7 +476,11 @@ describe('Documents protection through the real Payload API', () => {
   it('ignores a real operational edit lock and permits deletion when no content references remain', async () => {
     const user = await payload.create({
       collection: 'users',
-      data: { email: 'lock-owner@example.invalid', password: 'isolated-test-password-123' },
+      data: {
+        role: 'editor',
+        email: 'lock-owner@example.invalid',
+        password: 'isolated-test-password-123',
+      },
     })
     const doc = await payload.create({
       collection: 'documents',
@@ -497,7 +502,11 @@ describe('Documents protection through the real Payload API', () => {
   it('ignores native recent-document preferences while preserving content deletion protection', async () => {
     const user = await payload.create({
       collection: 'users',
-      data: { email: 'recent-owner@example.invalid', password: 'isolated-test-password-123' },
+      data: {
+        role: 'editor',
+        email: 'recent-owner@example.invalid',
+        password: 'isolated-test-password-123',
+      },
     })
     const doc = await payload.create({
       collection: 'documents',

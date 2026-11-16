@@ -94,7 +94,11 @@ describe('Products through isolated Payload Local API', () => {
     )
     editor = await payload.create({
       collection: 'users',
-      data: { email: 'products-editor@example.test', password: 'isolated-test-password' },
+      data: {
+        role: 'editor',
+        email: 'products-editor@example.test',
+        password: 'isolated-test-password',
+      },
     })
     mediaID = (
       await payload.create({

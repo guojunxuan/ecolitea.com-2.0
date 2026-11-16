@@ -4,6 +4,7 @@ import { anyone } from '@/access/anyone'
 import { authenticated } from '@/access/authenticated'
 
 import { validateLanguages, validateRegions } from '@/i18n/settings'
+import { protectIntegrationSecrets } from './fields/integrations'
 import { siteSettingsTabs } from './fields'
 import { revalidateSiteSettings } from './hooks/revalidateSiteSettings'
 
@@ -33,6 +34,7 @@ export const SiteSettings: GlobalConfig = {
         return data
       },
     ],
+    beforeChange: [protectIntegrationSecrets],
     afterChange: [revalidateSiteSettings],
   },
   fields: [siteSettingsTabs],

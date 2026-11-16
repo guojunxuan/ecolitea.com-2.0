@@ -29,7 +29,8 @@ test.describe('Media and Documents native Admin workflows', () => {
       collection: 'users',
       where: { email: { equals: user.email } },
     })
-    if (!existing.totalDocs) await payload.create({ collection: 'users', data: user })
+    if (!existing.totalDocs)
+      await payload.create({ collection: 'users', data: { ...user, role: 'editor' } })
   })
   test.beforeEach(async ({ page }) => {
     await page

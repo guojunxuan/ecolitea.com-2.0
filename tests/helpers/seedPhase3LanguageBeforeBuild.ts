@@ -21,6 +21,7 @@ try {
   await payload.create({
     collection: 'users',
     data: {
+      role: 'admin',
       email: 'phase4-admin@example.invalid',
       password: 'phase4-test-only',
       name: 'Phase4 editor',
@@ -30,6 +31,7 @@ try {
   await payload.updateGlobal({
     slug: 'site-settings',
     data: {
+      gtmContainerId: 'GTM-TEST000',
       siteName: 'Phase4 Test',
       legalCompanyName: 'Phase4 Test Company',
       tagline: 'Test site',

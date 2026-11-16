@@ -35,6 +35,7 @@ const logoAsset: SiteAsset = {
   width: 1302,
 }
 const siteSettings: SiteSettings = {
+  translationMonthlyCharLimit: 450000,
   address: 'Shanghai, China',
   id: 'site-settings',
   legalCompanyName: 'Ecolitea Limited',

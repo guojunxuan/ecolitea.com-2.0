@@ -560,6 +560,7 @@ export interface Category {
  */
 export interface User {
   id: string;
+  role: 'admin' | 'editor';
   name?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -2462,6 +2463,7 @@ export interface CaseStudyMediaBlockSelect<T extends boolean = true> {
  * via the `definition` "users_select".
  */
 export interface UsersSelect<T extends boolean = true> {
+  role?: T;
   name?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -3185,10 +3187,22 @@ export interface SiteSettings {
     analyticsDescription?: string | null;
     marketingDescription?: string | null;
   };
+  gtmContainerId?: string | null;
   /**
    * Emergency switch. When enabled, Google Tag Manager is never loaded, regardless of visitor consent.
    */
   disableGtm?: boolean | null;
+  /**
+   * Application character budget per UTC calendar month.
+   */
+  translationMonthlyCharLimit: number;
+  googleTranslateApiKeyEncrypted?: string | null;
+  googleTranslateApiKeyLast4?: string | null;
+  /**
+   * Leave empty to keep the stored key. The key is encrypted when saved.
+   */
+  googleTranslateApiKeyInput?: string | null;
+  googleTranslateApiKeyClear?: boolean | null;
   /**
    * Add or remove languages here; set each language's status in the table above.
    */
@@ -3687,7 +3701,13 @@ export interface SiteSettingsSelect<T extends boolean = true> {
         analyticsDescription?: T;
         marketingDescription?: T;
       };
+  gtmContainerId?: T;
   disableGtm?: T;
+  translationMonthlyCharLimit?: T;
+  googleTranslateApiKeyEncrypted?: T;
+  googleTranslateApiKeyLast4?: T;
+  googleTranslateApiKeyInput?: T;
+  googleTranslateApiKeyClear?: T;
   languages?:
     | T
     | {
