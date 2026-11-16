@@ -92,14 +92,15 @@ describe('Phase 4 language panel', () => {
 
   it('opens the same mounted modal from the mobile menu bottom entry', () => {
     render(<MobileNav menuCta={null} navItems={[]} siteName="Ecolitea" />)
-    expect(trigger().textContent).toBe('')
+    expect(screen.queryByRole('button', { name: 'Region & language' })).toBeNull()
     fireEvent.click(screen.getByRole('button', { name: 'Open navigation' }))
     fireEvent.click(screen.getByRole('button', { name: /Global EN/ }))
     expect(screen.queryByRole('dialog', { name: 'Navigation' })).toBeNull()
     const dialogID = panel().id
     fireEvent.click(within(panel()).getByRole('button', { name: 'Close' }))
-    expect(document.activeElement).toBe(trigger())
-    fireEvent.click(trigger())
+    expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Open navigation' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Open navigation' }))
+    fireEvent.click(screen.getByRole('button', { name: /Global EN/ }))
     expect(panel().id).toBe(dialogID)
   })
 

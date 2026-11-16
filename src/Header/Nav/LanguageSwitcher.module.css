@@ -16,17 +16,10 @@
   white-space: nowrap;
 }
 /* The globe's circle fills more of its box than the search glyph; these sizes match
-   its outline to the search circle (desktop search 19px, mobile search 24px). */
+   its outline to the search circle (desktop search 19px). */
 .trigger svg {
   width: 17px;
   height: 17px;
-}
-.root[data-mode='mobile'] .trigger svg {
-  width: calc(var(--website-icon-large) * 0.875);
-  height: calc(var(--website-icon-large) * 0.875);
-}
-.root[data-mode='mobile'] .trigger {
-  width: var(--website-control-target-min);
 }
 .panel {
   margin: auto;
@@ -40,8 +33,10 @@
   color: var(--website-color-foreground);
   box-shadow: var(--website-shadow-overlay);
   overflow: hidden;
+  animation: language-panel-in var(--website-duration-standard) ease both;
 }
 .panel::backdrop {
+  animation: language-backdrop-in var(--website-duration-standard) ease both;
   background: color-mix(
     in srgb,
     var(--website-color-brand-black) var(--website-scrim-standard),
@@ -167,5 +162,46 @@
   }
   .region[aria-pressed='true'] {
     border-color: var(--website-color-border);
+  }
+}
+
+/* Open effect: the scrim fades in and the panel rises slightly; mobile slides up as a sheet. */
+@keyframes language-panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(var(--website-space-3)) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes language-panel-sheet-in {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: none;
+  }
+}
+@keyframes language-backdrop-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@media (width < 48rem) {
+  .panel {
+    animation-name: language-panel-sheet-in;
+    animation-duration: var(--website-duration-slow);
+    animation-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .panel,
+  .panel::backdrop {
+    animation: none;
   }
 }

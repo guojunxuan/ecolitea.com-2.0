@@ -16,9 +16,13 @@ export function LanguageSwitcher({
   mode,
   onOpenChange,
   ref,
+  returnFocusRef,
 }: {
+  /** `mobile` renders no Header trigger; the panel is opened through `ref` from the menu entry. */
   mode: 'desktop' | 'mobile'
   onOpenChange?: (open: boolean) => void
+  /** Focus target after closing when there is no visible trigger. */
+  returnFocusRef?: React.RefObject<HTMLElement | null>
   ref?: React.Ref<LanguageSwitcherHandle>
 }) {
   const {
@@ -47,8 +51,8 @@ export function LanguageSwitcher({
     // Release native modal inertness before returning focus to the visible Header entry.
     dialog.current?.close()
     setOpen(false)
-    if (restoreFocus) trigger.current?.focus()
-  }, [])
+    if (restoreFocus) (trigger.current ?? returnFocusRef?.current)?.focus()
+  }, [returnFocusRef])
   const show = useCallback(() => {
     announcePanelOpen(id)
     setSelected(readRegionPreference())
@@ -131,25 +135,27 @@ export function LanguageSwitcher({
 
   return (
     <div className={styles.root} data-mode={mode}>
-      <button
-        aria-controls={id}
-        aria-expanded={open}
-        aria-haspopup="dialog"
-        aria-label={copy.trigger}
-        className={styles.trigger}
-        onClick={() => (open ? close() : show())}
-        onKeyDown={(event) => {
-          if (event.key === 'ArrowDown') {
-            event.preventDefault()
-            show()
-          }
-        }}
-        ref={trigger}
-        type="button"
-      >
-        <GlobeIcon aria-hidden="true" />
-        {mode === 'desktop' && <span>{current?.short ?? locale.toUpperCase()}</span>}
-      </button>
+      {mode === 'desktop' && (
+        <button
+          aria-controls={id}
+          aria-expanded={open}
+          aria-haspopup="dialog"
+          aria-label={copy.trigger}
+          className={styles.trigger}
+          onClick={() => (open ? close() : show())}
+          onKeyDown={(event) => {
+            if (event.key === 'ArrowDown') {
+              event.preventDefault()
+              show()
+            }
+          }}
+          ref={trigger}
+          type="button"
+        >
+          <GlobeIcon aria-hidden="true" />
+          <span>{current?.short ?? locale.toUpperCase()}</span>
+        </button>
+      )}
       {open && (
         <dialog
           aria-label={copy.trigger}

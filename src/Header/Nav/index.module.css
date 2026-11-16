@@ -10,9 +10,7 @@
 .mobileToolbar {
   align-items: center;
   display: grid;
-  /* Menu · Logo · Language · Search */
-  /* Mirror the two right-hand controls so the logo stays centred. */
-  grid-template-columns: calc(2 * var(--website-control-target-min)) minmax(0, 1fr) repeat(2, var(--website-control-target-min));
+  grid-template-columns: var(--website-control-target-min) minmax(0, 1fr) var(--website-control-target-min);
   width: 100%;
 }
 
@@ -105,6 +103,9 @@
 }
 
 .mobileNavPanel {
+  /* Column flow lets the language entry sit at the bottom of the menu. */
+  display: flex;
+  flex-direction: column;
   flex: 1 1 auto;
   overscroll-behavior-y: contain;
   overflow-y: auto;
@@ -526,13 +527,13 @@
   display: flex;
   gap: var(--website-space-3);
   min-height: var(--website-control-large);
-  margin-top: var(--website-space-6);
+  margin-top: auto;
   padding: var(--website-space-4) 0;
   text-align: left;
   width: 100%;
 }
 .mobileLanguageEntry > svg {
-  /* Same optical size as the toolbar globe. */
+  /* Matches the optical size of the Header search icon. */
   height: calc(var(--website-icon-large) * 0.875);
   width: calc(var(--website-icon-large) * 0.875);
 }

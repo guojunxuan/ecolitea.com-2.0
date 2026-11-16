@@ -1,7 +1,7 @@
 import React from 'react'
-import { cleanup, fireEvent, render, screen, within } from '@testing-library/react'
+import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { LanguageSwitcher } from '@/Header/Nav/LanguageSwitcher'
+import { LanguageSwitcher, type LanguageSwitcherHandle } from '@/Header/Nav/LanguageSwitcher'
 import { LocaleProvider as RuntimeLocaleProvider } from '@/i18n/LocaleProvider'
 import { preferencesCookie } from '@/i18n/preferences'
 import { ConsentProvider } from '@/consent/ConsentProvider'
@@ -174,14 +174,24 @@ describe('Header language switcher', () => {
     expect(screen.queryByRole('dialog', { name: 'Cookie settings' })).toBeNull()
   })
 
-  it('uses a full-screen modal on mobile and restores focus on close', () => {
-    render(<LanguageSwitcher mode="mobile" />)
-    fireEvent.click(trigger())
+  it('renders no Header trigger on mobile, opens by handle and restores focus to the fallback', () => {
+    const handle = React.createRef<LanguageSwitcherHandle>()
+    const fallback = React.createRef<HTMLButtonElement>()
+    render(
+      <>
+        <button ref={fallback} type="button">
+          Open navigation
+        </button>
+        <LanguageSwitcher mode="mobile" ref={handle} returnFocusRef={fallback} />
+      </>,
+    )
+    expect(screen.queryByRole('button', { name: 'Region & language' })).toBeNull()
+    act(() => handle.current!.open())
     const dialog = screen.getByRole('dialog', { name: 'Region & language' })
     expect(dialog.tagName).toBe('DIALOG')
     fireEvent.click(within(dialog).getByRole('button', { name: 'Close' }))
     expect(screen.queryByRole('dialog')).toBeNull()
-    expect(trigger()).toBe(document.activeElement)
+    expect(fallback.current).toBe(document.activeElement)
   })
 
   it('always renders the entry, even in a single-language configuration', () => {

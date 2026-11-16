@@ -264,7 +264,6 @@ export const MobileNav: React.FC<MobileNavProps> = ({
         >
           {brand}
         </Link>
-        <LanguageSwitcher mode="mobile" onOpenChange={setLanguageOpen} ref={languageSwitcherRef} />
         <Link
           aria-label="Search"
           className={styles.mobileIconButton}
@@ -391,6 +390,13 @@ export const MobileNav: React.FC<MobileNavProps> = ({
           ) : null}
         </div>
       ) : null}
+      {/* Panel only: the mobile entry lives at the bottom of the menu, not in the toolbar. */}
+      <LanguageSwitcher
+        mode="mobile"
+        onOpenChange={setLanguageOpen}
+        ref={languageSwitcherRef}
+        returnFocusRef={openButtonRef}
+      />
     </div>
   )
 }

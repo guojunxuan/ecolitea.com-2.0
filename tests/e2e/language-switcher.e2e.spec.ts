@@ -11,10 +11,19 @@ for (const width of [1440, 390]) {
     )
     await page.goto(`${baseURL}/phase3-ready`)
     await page.getByRole('button', { name: 'Reject optional' }).click()
-    const trigger = page.getByRole('button', { name: 'Region & language' })
-    await expect(trigger).toHaveCount(1)
-    const activeTrigger = trigger.filter({ visible: true })
-    await activeTrigger.click()
+    // Desktop: Header trigger. Mobile: no toolbar trigger; the entry sits at the bottom of the menu.
+    const menuButton = page.getByRole('button', { name: 'Open navigation' })
+    const activeTrigger =
+      width === 390 ? menuButton : page.getByRole('button', { name: 'Region & language' })
+    const openPanel = async () => {
+      if (width === 390) {
+        await menuButton.click()
+        await page.getByRole('button', { name: /Region & language: Global EN/ }).click()
+      } else await activeTrigger.click()
+    }
+    if (width === 390)
+      await expect(page.getByRole('button', { name: 'Region & language', exact: true })).toHaveCount(0)
+    await openPanel()
     const panel = page.getByRole('dialog', { name: 'Region & language' })
     await expect(panel).toBeVisible()
     await expect(panel.getByRole('heading', { name: 'Europe' })).toBeVisible()
@@ -32,7 +41,7 @@ for (const width of [1440, 390]) {
     await page.keyboard.press('Escape')
     await expect(panel).toHaveCount(0)
     await expect(activeTrigger).toBeFocused()
-    await activeTrigger.click()
+    await openPanel()
     await panel.getByRole('button', { name: /Deutschland/ }).click()
     await expect(page).toHaveURL(`${baseURL}/de/phase3-ready`)
     await expect(page.locator('html')).toHaveAttribute('lang', 'de')
