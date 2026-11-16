@@ -34,8 +34,14 @@ for (const width of [1440, 390]) {
     )
     const panelBox = await panel.boundingBox()
     if (width === 390) {
-      expect(panelBox!.width).toBe(390)
-      expect(panelBox!.height).toBe(844)
+      // Bottom sheet: full width, content height, anchored to the viewport bottom.
+      await expect
+        .poll(async () => {
+          const box = (await panel.boundingBox())!
+          return [box.width, Math.round(box.y + box.height)]
+        })
+        .toEqual([390, 844])
+      expect(panelBox!.height).toBeLessThan(844)
     }
     await page.screenshot({ path: `/tmp/phase4-language-${width}.png` })
     await page.keyboard.press('Escape')

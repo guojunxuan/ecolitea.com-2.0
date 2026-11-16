@@ -60,7 +60,7 @@ describe('Phase 4 language panel', () => {
     expect(panel().tagName).toBe('DIALOG')
     expect(panel()).toHaveProperty('open', true)
     expect(
-      within(panel()).getByRole('heading', { name: 'Select your location and language' }),
+      within(panel()).getByRole('heading', { name: 'Location & language' }),
     ).toBeTruthy()
     expect(within(panel()).getByRole('heading', { name: 'Europe' })).toBeTruthy()
     expect(

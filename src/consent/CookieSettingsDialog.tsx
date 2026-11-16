@@ -31,7 +31,7 @@ function Category({
   return (
     <section className={styles.category}>
       <div className={styles.row}>
-        <h3 className="website-type-button">{name}</h3>
+        <h3 className="website-type-body-sm">{name}</h3>
         {control}
         <Button
           type="button"
@@ -93,7 +93,7 @@ function SettingsPanel() {
     >
       <div className={styles.surface}>
         <header className={styles.header}>
-          <h2 ref={title} id={titleId} tabIndex={-1} className="website-type-heading-3">
+          <h2 ref={title} id={titleId} tabIndex={-1} className="website-type-title">
             {copy.settings}
           </h2>
           <Button
@@ -182,6 +182,7 @@ function SettingsPanel() {
         <footer className={styles.actions}>
           <Button
             type="button"
+            size="sm"
             variant="outline"
             onClick={() => {
               dialog.current?.close()
@@ -192,6 +193,7 @@ function SettingsPanel() {
           </Button>
           <Button
             type="button"
+            size="sm"
             onClick={() => {
               // Release the native modal's inert background before restoring trigger focus.
               dialog.current?.close()

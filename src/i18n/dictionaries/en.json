@@ -65,7 +65,7 @@
   },
   "language": {
     "trigger": "Region & language",
-    "title": "Select your location and language",
+    "title": "Location & language",
     "close": "Close",
     "unavailable": "This page is not available in {language} yet.",
     "error": "Unable to switch language. Please try again."

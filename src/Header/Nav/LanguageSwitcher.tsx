@@ -176,7 +176,7 @@ export function LanguageSwitcher({
         >
           <div className={styles.surface}>
             <div className={styles.heading}>
-              <h2 className="website-type-heading-3" id={titleId}>
+              <h2 className="website-type-title" id={titleId}>
                 {copy.title}
               </h2>
               <Button aria-label={copy.close} onClick={() => close()} size="icon" variant="ghost">
