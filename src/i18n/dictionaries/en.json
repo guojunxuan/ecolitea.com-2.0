@@ -58,5 +58,11 @@
       "productRequired": "Product is required.",
       "productNotFound": "Product not found."
     }
+  },
+  "language": {
+    "trigger": "Region & language",
+    "close": "Close",
+    "unavailable": "This page is not available in {language} yet.",
+    "error": "Unable to switch language. Please try again."
   }
 }

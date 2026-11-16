@@ -1,3 +1,4 @@
+import { LanguageUnavailableNotice } from '@/i18n/LanguageUnavailableNotice'
 import { LocaleProvider } from '@/i18n/LocaleProvider'
 import { legalPagePaths } from '@/utilities/i18n/pageAccess'
 import type { Metadata } from 'next'
@@ -47,7 +48,7 @@ export default async function RootLayout({ children, params }: { children: React
         <Providers dictionary={dictionary} gtmDisabled={siteSettings.disableGtm === true}>
           <SkipLink href="#main-content">{dictionary.common.skipToContent}</SkipLink>
           <Header locale={lang} />
-          <main id="main-content" tabIndex={-1}>{children}</main>
+          <main id="main-content" tabIndex={-1}><LanguageUnavailableNotice />{children}</main>
           <Footer locale={lang} />
           <CookieBanner
             cookiePolicyHref={

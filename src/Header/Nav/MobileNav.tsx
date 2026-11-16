@@ -8,6 +8,9 @@ import React, { useCallback, useEffect, useLayoutEffect, useReducer, useRef, use
 import { Logo } from '@/components/Logo/Logo'
 import type { LogoImage } from '@/components/Logo/types'
 
+import { LanguageSwitcher } from './LanguageSwitcher'
+import { publicLocales } from '@/i18n/config'
+import { announcePanelOpen, listenForPanelOpen } from '@/utilities/panelEvents'
 import { NavigationBlocks } from './NavigationBlocks'
 import styles from './index.module.css'
 import { initialNavigationState, navigationReducer } from './navigationState'
@@ -64,6 +67,7 @@ export const MobileNav: React.FC<MobileNavProps> = ({
   triggerRef,
 }) => {
   const pathname = usePathname()
+  const [languageOpen, setLanguageOpen] = useState(false)
   const [isOpen, setIsOpen] = useState(false)
   const [state, dispatch] = useReducer(navigationReducer, initialNavigationState)
   const internalOpenButtonRef = useRef<HTMLButtonElement>(null)
@@ -74,8 +78,8 @@ export const MobileNav: React.FC<MobileNavProps> = ({
   const restoreFocusRef = useRef(false)
 
   useEffect(() => {
-    onOpenChange?.(isOpen)
-  }, [isOpen, onOpenChange])
+    onOpenChange?.(isOpen || languageOpen)
+  }, [isOpen, languageOpen, onOpenChange])
 
   const close = useCallback((restoreFocus = true) => {
     restoreFocusRef.current = restoreFocus
@@ -83,6 +87,14 @@ export const MobileNav: React.FC<MobileNavProps> = ({
     setIsOpen(false)
     dispatch({ type: 'reset' })
   }, [])
+
+  useEffect(
+    () =>
+      listenForPanelOpen((owner) => {
+        if (owner !== 'mobile-navigation') close(false)
+      }),
+    [close],
+  )
 
   useEffect(() => {
     if (isOpen) return
@@ -206,13 +218,23 @@ export const MobileNav: React.FC<MobileNavProps> = ({
       className={styles.mobileNav}
       ref={dialogRef}
     >
-      <div className={styles.mobileToolbar} data-open={isOpen ? 'true' : 'false'}>
+      <div
+        className={styles.mobileToolbar}
+        data-multilingual={publicLocales.length > 1 ? 'true' : undefined}
+        data-open={isOpen ? 'true' : 'false'}
+      >
         <button
           aria-controls="mobile-navigation-root"
           aria-expanded={isOpen}
           aria-label={isOpen ? 'Close navigation' : 'Open navigation'}
           className={styles.mobileMenuButton}
-          onClick={() => (isOpen ? close() : setIsOpen(true))}
+          onClick={() => {
+            if (isOpen) close()
+            else {
+              announcePanelOpen('mobile-navigation')
+              setIsOpen(true)
+            }
+          }}
           ref={openButtonRef}
           type="button"
         >
@@ -228,6 +250,7 @@ export const MobileNav: React.FC<MobileNavProps> = ({
         >
           {brand}
         </Link>
+        <LanguageSwitcher mode="mobile" onOpenChange={setLanguageOpen} />
         <Link
           aria-label="Search"
           className={styles.mobileIconButton}

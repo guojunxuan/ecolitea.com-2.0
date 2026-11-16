@@ -6,6 +6,7 @@ import { readConsent, writeConsent } from './cookie'
 import { applyGpc, detectGpc } from './gpc'
 import { applyConsent, ensureConsentDefaults, getGtmId } from './gtm'
 import type { ConsentState } from './types'
+import { announcePanelOpen, listenForPanelOpen } from '@/utilities/panelEvents'
 
 type ConsentContextValue = {
   state: ConsentState | null
@@ -49,6 +50,14 @@ export function ConsentProvider({
     applyConsent(saved, getGtmId(), gtmDisabled)
   }, [gtmDisabled])
 
+  useEffect(
+    () =>
+      listenForPanelOpen((owner) => {
+        if (owner !== 'cookie-settings') setSettingsOpen(false)
+      }),
+    [],
+  )
+
   const closeSettings = () => {
     setSettingsOpen(false)
     returnFocus.current?.focus()
@@ -76,6 +85,7 @@ export function ConsentProvider({
         rejectOptional: () => save({ analytics: false, marketing: false }),
         dismissBanner: () => setBannerDismissed(true),
         openSettings: (element) => {
+          announcePanelOpen('cookie-settings')
           returnFocus.current =
             element ??
             (document.activeElement instanceof HTMLElement ? document.activeElement : null)

@@ -21,8 +21,16 @@ const parseTestPort = (value: string | undefined, name: string, fallback: number
   return port
 }
 
+const languageFixtureRequested =
+  process.env.PHASE3_I18N_FIXTURE === 'true' ||
+  process.argv.some((argument) => argument.endsWith('language-switcher.e2e.spec.ts'))
+if (languageFixtureRequested) process.env.PHASE3_I18N_FIXTURE = 'true'
 const developerDatabaseURI = process.env.DATABASE_URI
-const e2eDatabaseBaseURI = process.env.E2E_DATABASE_URI ?? 'mongodb://127.0.0.1:27017/ecolitea2-e2e'
+const e2eDatabaseBaseURI =
+  process.env.E2E_DATABASE_URI ??
+  (languageFixtureRequested
+    ? 'mongodb://127.0.0.1:27017/ecolitea2-phase3-e2e'
+    : 'mongodb://127.0.0.1:27017/ecolitea2-e2e')
 const e2ePort = parseTestPort(process.env.PLAYWRIGHT_PORT, 'PLAYWRIGHT_PORT', 3001)
 const e2eStoragePort = parseTestPort(
   process.env.PLAYWRIGHT_STORAGE_PORT,
@@ -32,7 +40,7 @@ const e2eStoragePort = parseTestPort(
 if (e2ePort === e2eStoragePort) {
   throw new Error('PLAYWRIGHT_PORT and PLAYWRIGHT_STORAGE_PORT must differ.')
 }
-const e2eBaseURL = `http://127.0.0.1:${e2ePort}`
+const e2eBaseURL = `http://localhost:${e2ePort}`
 const e2eStorageEndpoint = `http://127.0.0.1:${e2eStoragePort}`
 const e2eMediaOrigin = 'https://media.example.invalid'
 const inheritedRunID = process.env.PLAYWRIGHT_E2E_RUN_ID
@@ -54,6 +62,7 @@ const disableR2Storage = process.env.DISABLE_R2_STORAGE === 'false' ? 'false' : 
 process.env.DISABLE_R2_STORAGE = disableR2Storage
 process.env.PREVIEW_SECRET = 'e2e-only-preview-secret'
 process.env.PLAYWRIGHT_TEST = 'true'
+process.env.JOBS_AUTORUN = 'false'
 // Never inherit a deployed Google container in browser tests. Specs intercept this placeholder.
 process.env.NEXT_PUBLIC_GTM_MEASUREMENT_ID = 'GTM-TEST000'
 process.env.PLAYWRIGHT_E2E_RUN_ID = e2eRunID
@@ -65,6 +74,10 @@ process.env.R2_ACCESS_KEY_ID = 'e2e-local-access-key'
 process.env.R2_ENDPOINT = e2eStorageEndpoint
 process.env.R2_PUBLIC_URL = e2eMediaOrigin
 process.env.R2_SECRET_ACCESS_KEY = 'e2e-local-secret-key'
+
+const phase3LanguageSeedCommand = languageFixtureRequested
+  ? 'DISABLE_R2_STORAGE=true pnpm exec tsx tests/helpers/seedPhase3LanguageBeforeBuild.ts && '
+  : ''
 
 const task6ArchiveSeedCommand =
   process.env.PLAYWRIGHT_PRESEED_TASK6_ARCHIVE === 'true'
@@ -118,13 +131,13 @@ export default defineConfig({
     },
     {
       // Next's persistent data cache must never cross run-scoped databases.
-      command: `node -e "require('node:fs').rmSync('.next-e2e/cache', { recursive: true, force: true })" && DISABLE_R2_STORAGE=true pnpm exec tsx tests/helpers/seedBlogsBeforeBuild.ts && ${task6ArchiveSeedCommand}pnpm exec next build --webpack && pnpm exec next-sitemap --config next-sitemap.config.cjs && mkdir -p .next-e2e/standalone/.next-e2e && cp -R .next-e2e/static .next-e2e/standalone/.next-e2e/static && if [ -d public ]; then cp -R public .next-e2e/standalone/public; fi && if [ -d media ]; then cp -R media .next-e2e/standalone/media; fi && node .next-e2e/standalone/server.js`,
+      command: `node -e "require('node:fs').rmSync('.next-e2e/cache', { recursive: true, force: true })" && DISABLE_R2_STORAGE=true pnpm exec tsx tests/helpers/seedBlogsBeforeBuild.ts && ${task6ArchiveSeedCommand}${phase3LanguageSeedCommand}pnpm exec next build --webpack && pnpm exec next-sitemap --config next-sitemap.config.cjs && mkdir -p .next-e2e/standalone/.next-e2e && cp -R .next-e2e/static .next-e2e/standalone/.next-e2e/static && if [ -d public ]; then cp -R public .next-e2e/standalone/public; fi && if [ -d media ]; then cp -R media .next-e2e/standalone/media; fi && node .next-e2e/standalone/server.js`,
       env: {
         ...process.env,
         DATABASE_URI: e2eDatabaseURI,
         DISABLE_R2_STORAGE: disableR2Storage,
         E2E_STORAGE_PORT: String(e2eStoragePort),
-        HOSTNAME: '127.0.0.1',
+        HOSTNAME: 'localhost',
         // `tsx/esm` is required for Playwright to load this config, but Next's
         // TypeScript config loader must not inherit it on Node 24.
         NODE_OPTIONS: '--no-deprecation',

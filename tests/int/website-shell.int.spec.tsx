@@ -53,7 +53,7 @@ describe('public website shell', () => {
 
     const headerIndex = source.indexOf('<Header locale={lang} />')
     const skipIndex = source.indexOf('<SkipLink href="#main-content">{dictionary.common.skipToContent}</SkipLink>')
-    const mainIndex = source.indexOf('<main id="main-content" tabIndex={-1}>{children}</main>')
+    const mainIndex = source.indexOf('<main id="main-content" tabIndex={-1}>')
     const footerIndex = source.indexOf('<Footer locale={lang} />')
 
     expect(skipIndex).toBeGreaterThan(-1)

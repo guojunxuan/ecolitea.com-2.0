@@ -5,6 +5,8 @@ import Link from '@/components/LocaleLink'
 import { usePathname } from 'next/navigation'
 import React, { useCallback, useEffect, useId, useLayoutEffect, useRef, useState } from 'react'
 
+import { LanguageSwitcher } from './LanguageSwitcher'
+import { announcePanelOpen, listenForPanelOpen } from '@/utilities/panelEvents'
 import { DesktopMegaMenu } from './DesktopMegaMenu'
 import { NavigationLink } from './NavigationLink'
 import type { HeaderNavigationData } from './types'
@@ -49,6 +51,7 @@ export const DesktopNav: React.FC<DesktopNavProps> = ({
   const contentTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const suppressHoverRef = useRef(false)
   const pointerInsideRef = useRef(false)
+  const [languageOpen, setLanguageOpen] = useState(false)
   const [openID, setOpenID] = useState<string | null>(null)
   const [renderedID, setRenderedID] = useState<string | null>(null)
   const [menuPhase, setMenuPhase] = useState<'closing' | 'open'>('open')
@@ -125,6 +128,7 @@ export const DesktopNav: React.FC<DesktopNavProps> = ({
 
   const open = useCallback(
     (id: string, delayed: boolean) => {
+      announcePanelOpen('desktop-navigation')
       clearCloseTimer()
       clearOpenTimer()
       clearExitTimer()
@@ -156,6 +160,7 @@ export const DesktopNav: React.FC<DesktopNavProps> = ({
       clearCloseTimer()
       if (openID === id) close()
       else {
+        announcePanelOpen('desktop-navigation')
         clearExitTimer()
         setMenuPhase('open')
         setOpenID(id)
@@ -191,7 +196,8 @@ export const DesktopNav: React.FC<DesktopNavProps> = ({
     setAtEnd(strip.scrollLeft + strip.clientWidth >= strip.scrollWidth - 1)
   }, [navigationKey])
 
-  useEffect(() => onOpenChange?.(openID !== null), [onOpenChange, openID])
+  useEffect(() => onOpenChange?.(openID !== null || languageOpen), [languageOpen, onOpenChange, openID])
+  useEffect(() => listenForPanelOpen((owner) => { if (owner !== 'desktop-navigation') close() }), [close])
   useEffect(
     () => () => {
       clearOpenTimer()
@@ -483,6 +489,7 @@ export const DesktopNav: React.FC<DesktopNavProps> = ({
         )}
       </div>
       <div className={styles.actions}>
+        <LanguageSwitcher mode="desktop" onOpenChange={setLanguageOpen} />
         <Link aria-label="Search" className={styles.searchLink} href="/search">
           <SearchIcon aria-hidden="true" size={19} strokeWidth={1.75} />
         </Link>

@@ -1,0 +1,92 @@
+.root {
+  position: relative;
+}
+.trigger {
+  composes: website-type-body-sm from global;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--website-space-2);
+  min-height: var(--website-control-target-min);
+  padding: 0;
+  color: inherit;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.root[data-mode='mobile'] .trigger {
+  width: var(--website-control-target-min);
+}
+.desktopPanel {
+  position: absolute;
+  right: 0;
+  top: calc(100% + var(--website-space-2));
+  width: max-content;
+  min-width: 20rem;
+  max-width: calc(100vw - var(--website-space-8));
+  max-height: 70dvh;
+  overflow-y: auto;
+  padding: var(--website-space-6);
+  color: var(--website-color-foreground);
+  backdrop-filter: blur(28px) saturate(120%);
+  background: color-mix(in srgb, var(--website-color-brand-white) 82%, transparent);
+  border: 1px solid color-mix(in oklch, var(--website-color-foreground) 9%, transparent);
+  box-shadow: 0 1.25rem 2.5rem color-mix(in oklch, var(--website-color-foreground) 7%, transparent);
+  z-index: var(--website-z-dropdown);
+}
+.groups {
+  display: grid;
+  gap: var(--website-space-6);
+}
+.groups h3 {
+  margin: 0 0 var(--website-space-2);
+  color: var(--website-color-muted-foreground);
+}
+.region {
+  composes: website-type-body-sm from global;
+  width: 100%;
+  min-height: var(--website-control-target-min);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--website-space-6);
+  padding: var(--website-space-2);
+  text-align: left;
+  color: inherit;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+.region:hover,
+.region[aria-pressed='true'] {
+  background: var(--website-color-interactive-surface);
+}
+.region:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+.mobilePanel {
+  position: fixed;
+  inset: 0;
+  margin: 0;
+  width: 100%;
+  height: 100dvh;
+  max-width: none;
+  max-height: none;
+  border: 0;
+  padding: var(--website-space-4);
+  color: var(--website-color-foreground);
+  background: var(--website-color-background);
+  overflow-y: auto;
+}
+.heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--website-space-4);
+  margin-bottom: var(--website-space-8);
+}
+.heading h2 {
+  margin: 0;
+}

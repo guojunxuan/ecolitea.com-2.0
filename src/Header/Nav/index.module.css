@@ -14,6 +14,10 @@
   width: 100%;
 }
 
+.mobileToolbar[data-multilingual='true'] {
+  grid-template-columns: var(--website-control-target-min) minmax(0, 1fr) repeat(2, var(--website-control-target-min));
+}
+
 .mobileToolbar > :nth-child(2) {
   justify-self: center;
 }
