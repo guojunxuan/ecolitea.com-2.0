@@ -29,8 +29,8 @@ const developerDatabaseURI = process.env.DATABASE_URI
 const e2eDatabaseBaseURI =
   process.env.E2E_DATABASE_URI ??
   (languageFixtureRequested
-    ? 'mongodb://127.0.0.1:27017/ecolitea2-phase3-e2e'
-    : 'mongodb://127.0.0.1:27017/ecolitea2-e2e')
+    ? 'mongodb://127.0.0.1:27017/ecolitea2-phase4-e2e'
+    : 'mongodb://127.0.0.1:27017/ecolitea2-phase4-e2e')
 const e2ePort = parseTestPort(process.env.PLAYWRIGHT_PORT, 'PLAYWRIGHT_PORT', 3001)
 const e2eStoragePort = parseTestPort(
   process.env.PLAYWRIGHT_STORAGE_PORT,
@@ -131,7 +131,7 @@ export default defineConfig({
     },
     {
       // Next's persistent data cache must never cross run-scoped databases.
-      command: `node -e "require('node:fs').rmSync('.next-e2e/cache', { recursive: true, force: true })" && DISABLE_R2_STORAGE=true pnpm exec tsx tests/helpers/seedBlogsBeforeBuild.ts && ${task6ArchiveSeedCommand}${phase3LanguageSeedCommand}pnpm exec next build --webpack && pnpm exec next-sitemap --config next-sitemap.config.cjs && mkdir -p .next-e2e/standalone/.next-e2e && cp -R .next-e2e/static .next-e2e/standalone/.next-e2e/static && if [ -d public ]; then cp -R public .next-e2e/standalone/public; fi && if [ -d media ]; then cp -R media .next-e2e/standalone/media; fi && node .next-e2e/standalone/server.js`,
+      command: `node -e "require('node:fs').rmSync('.next-e2e/cache', { recursive: true, force: true })" && DISABLE_R2_STORAGE=true pnpm exec tsx tests/helpers/seedBlogsBeforeBuild.ts && ${task6ArchiveSeedCommand}${phase3LanguageSeedCommand}pnpm build && mkdir -p .next-e2e/standalone/.next-e2e && cp -R .next-e2e/static .next-e2e/standalone/.next-e2e/static && if [ -d public ]; then cp -R public .next-e2e/standalone/public; fi && if [ -d media ]; then cp -R media .next-e2e/standalone/media; fi && node .next-e2e/standalone/server.js`,
       env: {
         ...process.env,
         DATABASE_URI: e2eDatabaseURI,

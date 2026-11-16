@@ -8,8 +8,8 @@ import { translationSearch } from '@/plugins/translation/collections/translation
 import { createIsolatedTestDatabaseURI } from '../helpers/isolatedDatabase'
 
 describe('translation collections (isolated MongoDB)', () => {
-  const name = `ecolitea2-test-phase2-collections-${randomUUID().slice(0, 8)}`
-  const url = createIsolatedTestDatabaseURI(name, 'mongodb://127.0.0.1:27017/ecolitea2-test-phase2')
+  const name = `ecolitea2-test-phase4-collections-${randomUUID().slice(0, 8)}`
+  const url = createIsolatedTestDatabaseURI(name, 'mongodb://127.0.0.1:27017/ecolitea2-test-phase4')
   let payload: Payload
   const identity = { sourceCollection: 'products', sourceId: 'source', locale: 'de' }
 

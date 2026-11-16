@@ -1,7 +1,7 @@
 import { getBlogListing } from '@/utilities/blogs/getBlogListing'
 import { getProductListing } from '@/utilities/products/getProductListing'
 import { readyTranslationFilter } from '@/utilities/i18n/getLocalized'
-import { publicLocales } from '@/i18n/config'
+import { getI18nSettings } from '@/i18n/getI18nSettings'
 import { localePath, stripLocale } from '@/i18n/paths'
 import { getDocumentBySlug } from '@/utilities/i18n/getDocumentBySlug'
 import { legalPagePaths } from '@/utilities/i18n/pageAccess'
@@ -14,6 +14,7 @@ import config from '@payload-config'
 
 /** Public, read-only switch destination. URL language always wins over cookies. */
 export async function GET(request: Request): Promise<Response> {
+  const { publicLocales } = await getI18nSettings()
   const query = new URL(request.url).searchParams
   const locale = query.get('locale') ?? ''
   const path = query.get('path') ?? '/'

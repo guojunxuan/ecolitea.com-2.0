@@ -16,8 +16,8 @@ const locales: readonly LocaleConfig[] = [
 ]
 
 describe('translation backfill (isolated MongoDB)', () => {
-  const name = `ecolitea2-test-phase3-backfill-${randomUUID().slice(0, 8)}`
-  const url = createIsolatedTestDatabaseURI(name, 'mongodb://127.0.0.1:27017/ecolitea2-test-phase3')
+  const name = `ecolitea2-test-phase4-backfill-${randomUUID().slice(0, 8)}`
+  const url = createIsolatedTestDatabaseURI(name, 'mongodb://127.0.0.1:27017/ecolitea2-test-phase4')
   const translate = vi.fn(stubTranslationProvider.translate)
   let payload: Payload
   let now = new Date('2026-11-15T00:00:00Z')
@@ -360,8 +360,8 @@ describe('backfill command safety', () => {
     expect(inspectBackfillTarget('mongodb://user:secret@server/site', 'site').database).toBe(
       'server/site',
     )
-    expect(inspectBackfillTarget('mongodb://127.0.0.1:27017/ecolitea2-test-phase3').database).toBe(
-      '127.0.0.1:27017/ecolitea2-test-phase3',
+    expect(inspectBackfillTarget('mongodb://127.0.0.1:27017/ecolitea2-test-phase4').database).toBe(
+      '127.0.0.1:27017/ecolitea2-test-phase4',
     )
   })
 })

@@ -2,18 +2,13 @@ import { withPayload } from '@payloadcms/next/withPayload'
 import type { NextConfig } from 'next'
 import path from 'path'
 import { fileURLToPath } from 'url'
-
-const __filename = fileURLToPath(import.meta.url)
-const dirname = path.dirname(__filename)
+const dirname = path.dirname(fileURLToPath(import.meta.url))
 import { redirects } from './redirects'
 import { serverEnv } from './src/utilities/env'
-import { assertPhase3I18nFixtureEnvironment } from './src/i18n/testFixtureGuard'
 
 const NEXT_PUBLIC_SERVER_URL = process.env.VERCEL_PROJECT_PRODUCTION_URL
   ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
   : process.env.__NEXT_PRIVATE_ORIGIN || 'http://localhost:3000'
-
-const phase3Fixture = assertPhase3I18nFixtureEnvironment(process.env)
 
 const nextConfig: NextConfig = {
   // Extra local hostnames (comma-separated) for dev-only features bound to a domain, e.g. Turnstile.
@@ -54,16 +49,7 @@ const nextConfig: NextConfig = {
   outputFileTracingIncludes: {
     '/api/*': ['./node_modules/.pnpm/strtok3@*/node_modules/strtok3/lib/**/*.js'],
   },
-  webpack: (webpackConfig, { webpack }) => {
-    if (phase3Fixture) {
-      // Replace every import spelling, including the proxy's relative import.
-      webpackConfig.plugins.push(
-        new webpack.NormalModuleReplacementPlugin(
-          /(?:^|[/\\])i18n[/\\]config(?:\.ts)?$/,
-          path.resolve(dirname, 'tests/fixtures/i18n/config.ts'),
-        ),
-      )
-    }
+  webpack: (webpackConfig) => {
     webpackConfig.resolve.extensionAlias = {
       '.cjs': ['.cts', '.cjs'],
       '.js': ['.ts', '.tsx', '.js', '.jsx'],

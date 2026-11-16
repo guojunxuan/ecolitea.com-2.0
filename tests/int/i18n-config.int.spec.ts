@@ -1,16 +1,20 @@
 import { describe, expect, it } from 'vitest'
-import {
-  isLocaleSegment,
-  locales,
-  publicLocales,
-  regions,
-  sourceLocale,
-  targetLocales,
-} from '@/i18n/config'
+import { isLocaleSegment, sourceLocale } from '@/i18n/config'
 import { parseServerEnv } from '@/utilities/env'
 
+import { normalizeI18nSettings } from '@/i18n/settings'
+const defaults = normalizeI18nSettings({})
+const locales = defaults.publicLocales.map(({ code, label, status }) => ({ code, label, status }))
+const publicLocales = locales
+const targetLocales = defaults.targetLocales.map(({ code, label, status }) => ({
+  code,
+  label,
+  status,
+}))
+const regions = defaults.regions
+
 const base = {
-  DATABASE_URI: 'mongodb://127.0.0.1:27017/ecolitea2-test-phase2-env',
+  DATABASE_URI: 'mongodb://127.0.0.1:27017/ecolitea2-test-phase4-env',
   PAYLOAD_SECRET: 'phase2-test-secret',
   NEXT_PUBLIC_SERVER_URL: 'https://server.example.invalid',
   CRON_SECRET: 'phase2-test-cron',

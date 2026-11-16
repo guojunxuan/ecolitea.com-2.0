@@ -1,6 +1,7 @@
 import { pathToFileURL } from 'node:url'
 import type { CollectionSlug, GlobalSlug, Payload, PayloadRequest, Where } from 'payload'
-import { locales as configuredLocales, type LocaleConfig } from '../src/i18n/config'
+import type { LocaleConfig } from '../src/i18n/config'
+import { getI18nSettings } from '../src/i18n/getI18nSettings'
 import { extract } from '../src/plugins/translation/extract'
 import { getTranslationRule } from '../src/plugins/translation/rules'
 import type {
@@ -83,7 +84,7 @@ export async function runTranslationBackfill({
   payload,
   locale,
   dryRun = false,
-  locales = configuredLocales,
+  locales,
   now = new Date(),
 }: {
   payload: Payload
@@ -92,13 +93,13 @@ export async function runTranslationBackfill({
   locales?: readonly LocaleConfig[]
   now?: Date
 }): Promise<BackfillReport> {
-  assertTargetLocale(locale, locales)
+  assertTargetLocale(locale, locales ?? (await getI18nSettings(payload)).targetLocales)
   const { createLocalReq } = await import('payload')
   const { getTranslationRuntime } = await import('../src/plugins/translation/hooks')
   const { getFrontendDictionarySource } = await import('../src/plugins/translation/dictionary')
   const req = await createLocalReq({}, payload)
   const runtime = getTranslationRuntime(req)
-  if (!dryRun && (!runtime?.canQueue || !runtime.targets.includes(locale)))
+  if (!dryRun && (!runtime?.canQueue || !(await runtime.getTargets(req)).includes(locale)))
     throw new Error(
       'Translation queueing is disabled; configure the target locale and provider first.',
     )
@@ -219,7 +220,6 @@ async function main() {
   )
   const args = parseBackfillArguments(argv)
   inspectBackfillTarget(databaseURI, args.confirmNonTest)
-  assertTargetLocale(args.locale, configuredLocales)
   // This producer never starts a worker or dictionary bootstrap during inventory/dry-run.
   process.env.JOBS_AUTORUN = 'false'
   const [{ getPayload }, { default: config }] = await Promise.all([

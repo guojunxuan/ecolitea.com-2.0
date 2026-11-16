@@ -9,6 +9,15 @@ import { CookieSettingsButton } from '@/consent/CookieSettingsButton'
 import { ConsentProvider } from '@/consent/ConsentProvider'
 import { QuoteRequestDialog } from '@/components/Products/QuoteRequest/QuoteRequestDialog'
 
+vi.mock('@/i18n/getI18nSettings', () => ({
+  getI18nSettings: async () => {
+    const config = (await import('@/i18n/config')) as unknown as {
+      publicLocales?: unknown[]
+      targetLocales?: unknown[]
+    }
+    return { publicLocales: [], targetLocales: config.targetLocales, regions: [] }
+  },
+}))
 vi.mock('@/i18n/config', () => ({
   sourceLocale: 'en',
   targetLocales: [{ code: 'de', status: 'live' }],

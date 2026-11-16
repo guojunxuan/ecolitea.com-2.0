@@ -2,14 +2,14 @@ import React from 'react'
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { LanguageSwitcher } from '@/Header/Nav/LanguageSwitcher'
-import { LocaleProvider } from '@/i18n/LocaleProvider'
+import { LocaleProvider as RuntimeLocaleProvider } from '@/i18n/LocaleProvider'
 import { preferencesCookie } from '@/i18n/preferences'
 import { ConsentProvider } from '@/consent/ConsentProvider'
 import { CookieSettingsButton } from '@/consent/CookieSettingsButton'
 import { CookieSettingsDialog } from '@/consent/CookieSettingsDialog'
 import { DesktopNav } from '@/Header/Nav/DesktopNav'
 import { LanguageUnavailableNotice } from '@/i18n/LanguageUnavailableNotice'
-import { assertPhase3I18nFixtureEnvironment } from '@/i18n/testFixtureGuard'
+import { assertPhase3I18nFixtureEnvironment } from '../helpers/legacyI18nFixtureGuard'
 
 const fixture = vi.hoisted(() => ({
   locales: [
@@ -30,8 +30,36 @@ vi.mock('@/i18n/config', () => ({
   publicLocales: fixture.locales,
   regions: fixture.regions,
 }))
+vi.mock('@/i18n/LocaleProvider', async (original) => {
+  const actual = await original<typeof import('@/i18n/LocaleProvider')>()
+  return {
+    ...actual,
+    useLocaleContext: () => ({
+      ...actual.useLocaleContext(),
+      i18n: {
+        publicLocales: fixture.locales,
+        targetLocales: fixture.locales.filter(({ code }) => code !== 'en'),
+        regions: fixture.regions.filter(({ locale }) =>
+          fixture.locales.some(({ code }) => code === locale),
+        ),
+      },
+    }),
+  }
+})
 vi.mock('next/navigation', () => ({ usePathname: () => '/' }))
 
+const LocaleProvider = (props: React.ComponentProps<typeof RuntimeLocaleProvider>) => (
+  <RuntimeLocaleProvider
+    {...props}
+    i18n={{
+      publicLocales: fixture.locales as never,
+      targetLocales: fixture.locales.filter(({ code }) => code !== 'en') as never,
+      regions: fixture.regions.filter(({ locale }) =>
+        fixture.locales.some(({ code }) => code === locale),
+      ),
+    }}
+  />
+)
 beforeEach(() => {
   document.cookie = 'ec_preferences=; Max-Age=0; Path=/'
   vi.stubGlobal(

@@ -1,5 +1,6 @@
 import type { Payload } from 'payload'
-import { sourceLocale, targetLocales } from '@/i18n/config'
+import { getI18nSettings } from '@/i18n/getI18nSettings'
+import { sourceLocale } from '@/i18n/config'
 import { getFrontendDictionarySource, validateDictionaryFields } from './dictionary'
 import { asRecord } from './lexical'
 import { merge } from './merge'
@@ -11,6 +12,7 @@ type ReadOptions = { sourceCollection: string; sourceId: string; locale: string;
 export async function mergeTranslation<T>(doc: T, options: ReadOptions): Promise<T | null> {
   const { sourceCollection, sourceId, locale } = options
   if (locale === sourceLocale) return doc
+  const { targetLocales } = await getI18nSettings(options.payload)
   if (!targetLocales.some(({ code }) => code === locale)) return null
   const rule =
     sourceCollection === 'dictionary' && sourceId === 'frontend'

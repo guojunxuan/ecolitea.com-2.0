@@ -4,6 +4,8 @@ const customFields = rowRule({ label: 'translate', value: 'translate' })
 export const siteSettingsRule: TranslationRule = {
   // Brand and legal identity, contact numbers and registration identifiers are shared.
   siteName: 'exclude',
+  ...prefixRule('languages[]', rowRule({})),
+  ...prefixRule('regions[]', rowRule({ label: 'exclude', group: 'exclude' })),
   legalCompanyName: 'exclude',
   phone: 'exclude',
   companyRegistrationNumber: 'exclude',

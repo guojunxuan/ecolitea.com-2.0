@@ -2,12 +2,15 @@
 
 import React, { useEffect, useState } from 'react'
 import { usePathname } from 'next/navigation'
-import { publicLocales } from './config'
+import { useLocaleContext } from './LocaleProvider'
 import { useDictionary } from './DictionaryProvider'
 import { useLocale } from './LocaleProvider'
 import styles from './LanguageUnavailableNotice.module.css'
 
 export function LanguageUnavailableNotice() {
+  const {
+    i18n: { publicLocales },
+  } = useLocaleContext()
   const locale = useLocale()
   const pathname = usePathname()
   const { language: copy } = useDictionary()

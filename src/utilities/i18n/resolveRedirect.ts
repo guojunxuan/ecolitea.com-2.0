@@ -1,6 +1,6 @@
 import type { CollectionSlug, Payload } from 'payload'
 import type { Redirect } from '@/payload-types'
-import { publicLocales } from '@/i18n/config'
+import { getI18nSettings } from '@/i18n/getI18nSettings'
 import { localePath, stripLocale, isLocaleNeutralPath } from '@/i18n/paths'
 import { getContentPath } from '@/utilities/getContentPath'
 import { publicProductVisibility } from '@/utilities/products/publicVisibility'
@@ -66,6 +66,7 @@ export async function resolveLocalizedRedirect(
   item: Pick<Redirect, 'to'>,
   locale = 'en',
 ): Promise<Destination | null> {
+  const { publicLocales } = await getI18nSettings(payload)
   if (!publicLocales.some(({ code }) => code === locale)) return null
   const reference = item.to?.reference
   if (reference && !item.to?.url) {

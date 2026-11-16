@@ -21,7 +21,7 @@ import { getCachedSiteSettings } from '@/utilities/getGlobals'
 import { resolveLinkHref } from '@/utilities/resolveLinkHref'
 
 import '../globals.css'
-import { publicLocales } from '@/i18n/config'
+import { getI18nSettings } from '@/i18n/getI18nSettings'
 import { notFound } from 'next/navigation'
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -30,12 +30,23 @@ export async function generateMetadata(): Promise<Metadata> {
   return buildSiteMetadata(resolveFavicon(siteSettings.favicon))
 }
 
-export function generateStaticParams() {
+export const dynamicParams = true
+
+export async function generateStaticParams() {
+  const { publicLocales } = await getI18nSettings()
   return publicLocales.map(({ code: lang }) => ({ lang }))
 }
 
-export default async function RootLayout({ children, params }: { children: React.ReactNode; params: Promise<{ lang: string }> }) {
+export default async function RootLayout({
+  children,
+  params,
+}: {
+  children: React.ReactNode
+  params: Promise<{ lang: string }>
+}) {
   const { lang } = await params
+  const i18n = await getI18nSettings()
+  const { publicLocales } = i18n
   if (!publicLocales.some(({ code }) => code === lang)) notFound()
   const siteSettings = await getCachedSiteSettings(lang)
   const legalPaths = await legalPagePaths()
@@ -44,24 +55,32 @@ export default async function RootLayout({ children, params }: { children: React
   return (
     <html className={cn(GeistSans.variable, GeistMono.variable)} lang={lang}>
       <body>
-        <LocaleProvider locale={lang} legalPaths={legalPaths} englishLabel={dictionary.common.english}>
-        <Providers dictionary={dictionary} gtmDisabled={siteSettings.disableGtm === true}>
-          <SkipLink href="#main-content">{dictionary.common.skipToContent}</SkipLink>
-          <Header locale={lang} />
-          <main id="main-content" tabIndex={-1}><LanguageUnavailableNotice />{children}</main>
-          <Footer locale={lang} />
-          <CookieBanner
-            cookiePolicyHref={
-              siteSettings.cookiePolicyPage
-                ? resolveLinkHref({
-                    type: 'reference',
-                    reference: { relationTo: 'pages', value: siteSettings.cookiePolicyPage },
-                  })
-                : null
-            }
-          />
-          <CookieSettingsDialog />
-        </Providers>
+        <LocaleProvider
+          i18n={i18n}
+          locale={lang}
+          legalPaths={legalPaths}
+          englishLabel={dictionary.common.english}
+        >
+          <Providers dictionary={dictionary} gtmDisabled={siteSettings.disableGtm === true}>
+            <SkipLink href="#main-content">{dictionary.common.skipToContent}</SkipLink>
+            <Header locale={lang} />
+            <main id="main-content" tabIndex={-1}>
+              <LanguageUnavailableNotice />
+              {children}
+            </main>
+            <Footer locale={lang} />
+            <CookieBanner
+              cookiePolicyHref={
+                siteSettings.cookiePolicyPage
+                  ? resolveLinkHref({
+                      type: 'reference',
+                      reference: { relationTo: 'pages', value: siteSettings.cookiePolicyPage },
+                    })
+                  : null
+              }
+            />
+            <CookieSettingsDialog />
+          </Providers>
         </LocaleProvider>
       </body>
     </html>

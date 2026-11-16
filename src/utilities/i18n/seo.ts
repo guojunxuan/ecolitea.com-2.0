@@ -2,7 +2,9 @@ import type { Metadata } from 'next'
 import { unstable_cache } from 'next/cache'
 import type { ISitemapField } from 'next-sitemap'
 import type { Payload } from 'payload'
-import { publicLocales, sourceLocale } from '@/i18n/config'
+import { localeCatalog } from '@/i18n/catalog'
+import { sourceLocale } from '@/i18n/config'
+import { getI18nSettings } from '@/i18n/getI18nSettings'
 import { localePath } from '@/i18n/paths'
 import { getServerSideURL } from '@/utilities/getURL'
 
@@ -39,6 +41,7 @@ export async function readySourceIDs(
   ids: string[],
   locale: string,
 ): Promise<Set<string>> {
+  const { publicLocales } = await getI18nSettings(payload)
   if (locale === sourceLocale) return new Set(ids)
   if (!ids.length || !publicLocales.some(({ code }) => code === locale)) return new Set()
   const [result, legal] = await Promise.all([
@@ -76,6 +79,7 @@ export async function readySourceIDs(
 }
 
 async function availableLocales(source: Source, payload?: Payload): Promise<string[]> {
+  const { publicLocales } = await getI18nSettings(payload)
   if (!source.sourceCollection) return publicLocales.map(({ code }) => code)
   if (!source.sourceId) return [sourceLocale]
   const codes = publicLocales.map(({ code }) => code)
@@ -117,6 +121,7 @@ export async function localizeMetadata(
   },
 ): Promise<Metadata> {
   const { path, locale = sourceLocale, draft = false } = options
+  const { publicLocales } = await getI18nSettings(options.payload)
   // The default deployment must retain its existing SEO output byte-for-byte.
   if (draft || (publicLocales.length === 1 && locale === sourceLocale)) return metadata
   const codes = await availableLocales(options, options.payload)
@@ -139,6 +144,7 @@ export async function localizeSitemap(
   sources: SitemapSource[],
   payload: Payload,
 ): Promise<ISitemapField[]> {
+  const { publicLocales } = await getI18nSettings(payload)
   if (publicLocales.length === 1) return sources.map(({ entry }) => entry)
   const collections = [
     ...new Set(
@@ -185,9 +191,10 @@ export async function localizeSitemap(
   })
 }
 
-export const sitemapLocaleTags = () =>
-  publicLocales.length > 1
-    ? ['translations-sitemap', ...publicLocales.map(({ code }) => `translations:${code}`)]
-    : []
-export const sitemapLocaleKey = () =>
-  publicLocales.length > 1 ? publicLocales.map(({ code }) => code) : []
+export const sitemapLocaleTags = () => [
+  'global_site-settings',
+  'translations-sitemap',
+  ...localeCatalog.map(({ code }) => `translations:${code}`),
+]
+
+export const sitemapLocaleKey = () => ['site-settings-locales']

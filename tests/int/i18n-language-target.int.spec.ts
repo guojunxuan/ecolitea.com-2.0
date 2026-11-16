@@ -1,15 +1,32 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 const read = vi.hoisted(() => vi.fn())
-vi.mock('@/i18n/config', async () => ({ ...await vi.importActual('@/i18n/config'), publicLocales: [{ code: 'en' }, { code: 'de' }] }))
+vi.mock('@/i18n/getI18nSettings', () => ({
+  getI18nSettings: async () => {
+    const config = (await import('@/i18n/config')) as unknown as {
+      publicLocales?: unknown[]
+      targetLocales?: unknown[]
+    }
+    return { publicLocales: config.publicLocales, targetLocales: config.publicLocales, regions: [] }
+  },
+}))
+vi.mock('@/i18n/config', async () => ({
+  ...(await vi.importActual('@/i18n/config')),
+  publicLocales: [{ code: 'en' }, { code: 'de' }],
+}))
 vi.mock('@/utilities/i18n/getDocumentBySlug', () => ({ getDocumentBySlug: read }))
 vi.mock('@/utilities/i18n/pageAccess', () => ({ legalPagePaths: async () => ['/privacy'] }))
 vi.mock('@/utilities/blogs/getBlogBySlug', () => ({ getBlogBySlug: vi.fn() }))
 vi.mock('@/utilities/products/getProductBySlug', () => ({ getProductBySlug: vi.fn() }))
-vi.mock('@/utilities/products/getProductCategoryBySlug', () => ({ getProductCategoryBySlug: vi.fn() }))
+vi.mock('@/utilities/products/getProductCategoryBySlug', () => ({
+  getProductCategoryBySlug: vi.fn(),
+}))
 vi.mock('payload', () => ({ getPayload: vi.fn() }))
 vi.mock('@payload-config', () => ({ default: {} }))
 import { GET } from '@/app/(frontend)/next/language-target/route'
-const request = (path: string, locale = 'de') => new Request(`https://site.example.invalid/next/language-target?${new URLSearchParams({ path, locale })}`)
+const request = (path: string, locale = 'de') =>
+  new Request(
+    `https://site.example.invalid/next/language-target?${new URLSearchParams({ path, locale })}`,
+  )
 beforeEach(() => read.mockReset())
 describe('public language switch destination', () => {
   it('uses the same path when ready, locale home when unavailable', async () => {

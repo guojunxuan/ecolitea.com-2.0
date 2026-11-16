@@ -1,13 +1,14 @@
 import type { Payload, Where } from 'payload'
 import type { Blog, Post } from '@/payload-types'
 import type { CardBlogData, CardPostData } from '@/components/Card'
-import { publicLocales } from '@/i18n/config'
+import { getI18nSettings } from '@/i18n/getI18nSettings'
 import { getLocalizedDoc } from '@/utilities/i18n/getLocalized'
 import { publicSourceVisibility } from '@/utilities/i18n/publicSourceVisibility'
 
 /** The private index locates candidates; public source reads and retained ready
  * checkpoints decide what can be rendered. Do not trust an index row after unpublish. */
 export async function getTranslatedSearchResults(payload: Payload, query: string, locale: string) {
+  const { publicLocales } = await getI18nSettings(payload)
   const blogs: CardBlogData[] = []
   const posts: CardPostData[] = []
   if (!publicLocales.some(({ code }) => code === locale) || locale === 'en') return { blogs, posts }

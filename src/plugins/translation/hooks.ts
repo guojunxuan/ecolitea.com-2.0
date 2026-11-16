@@ -46,7 +46,7 @@ async function publish(
   if (!runtime.canQueue || !doc.updatedAt) return
   const id = source.startsWith('global:') ? source.slice(7) : String(doc.id)
   if (source === 'pages' && (await isLegalPage(req, id))) return
-  for (const locale of runtime.targets)
+  for (const locale of await runtime.getTargets(req))
     await runtime.queue(req, {
       sourceCollection: source,
       sourceId: id,

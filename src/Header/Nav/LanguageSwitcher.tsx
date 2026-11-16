@@ -3,7 +3,7 @@
 import { Check, Globe2, X } from 'lucide-react'
 import React, { useCallback, useEffect, useId, useRef, useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { publicLocales, regions } from '@/i18n/config'
+import { useLocaleContext } from '@/i18n/LocaleProvider'
 import { useDictionary } from '@/i18n/DictionaryProvider'
 import { useLocale } from '@/i18n/LocaleProvider'
 import { readRegionPreference, writeRegionPreference } from '@/i18n/preferences'
@@ -17,6 +17,9 @@ export function LanguageSwitcher({
   mode: 'desktop' | 'mobile'
   onOpenChange?: (open: boolean) => void
 }) {
+  const {
+    i18n: { publicLocales, regions },
+  } = useLocaleContext()
   const locale = useLocale()
   const { language: copy } = useDictionary()
   const [open, setOpen] = useState(false)

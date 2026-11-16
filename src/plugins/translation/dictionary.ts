@@ -54,7 +54,7 @@ export async function enqueueFrontendDictionary(
   if (!serverEnv.JOBS_AUTORUN || !serverEnv.GOOGLE_TRANSLATE_API_KEY || !runtime.canQueue) return
   const { sourceVersion } = getFrontendDictionarySource()
   const req = await createLocalReq({}, payload)
-  for (const locale of runtime.targets) {
+  for (const locale of await runtime.getTargets(req)) {
     const existing = (
       await payload.find({
         collection: 'translations',

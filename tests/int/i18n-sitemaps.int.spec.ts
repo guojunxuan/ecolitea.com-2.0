@@ -8,6 +8,16 @@ const { find, findGlobal, cache } = vi.hoisted(() => ({
 vi.mock('@payload-config', () => ({ default: {} }))
 vi.mock('payload', () => ({ getPayload: async () => ({ find, findGlobal }) }))
 vi.mock('next/cache', () => ({ unstable_cache: cache }))
+vi.mock('@/i18n/getI18nSettings', () => ({
+  getI18nSettings: async () => ({
+    publicLocales: [
+      { code: 'en', status: 'source' },
+      { code: 'de', status: 'live' },
+    ],
+    targetLocales: [{ code: 'de', status: 'live' }],
+    regions: [],
+  }),
+}))
 vi.mock('@/i18n/config', () => ({
   sourceLocale: 'en',
   isLocaleSegment: (segment: string) => /^[a-z]{2}(?:-[a-z]{2})?$/i.test(segment),
@@ -71,9 +81,13 @@ describe('translated sitemap HTTP responses', () => {
       const { GET } = await routes[kind as keyof typeof routes]()
       expect(cache).toHaveBeenCalledWith(
         expect.any(Function),
-        [`${kind}-sitemap`, 'en', 'de'],
+        [`${kind}-sitemap`, 'site-settings-locales'],
         expect.objectContaining({
-          tags: expect.arrayContaining(['translations-sitemap', 'translations:de']),
+          tags: expect.arrayContaining([
+            'global_site-settings',
+            'translations-sitemap',
+            'translations:de',
+          ]),
         }),
       )
       const response = await GET()

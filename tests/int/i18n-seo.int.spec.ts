@@ -1,3 +1,10 @@
+vi.mock('@/i18n/getI18nSettings', () => ({
+  getI18nSettings: async () => ({
+    publicLocales: configured.publicLocales,
+    targetLocales: configured.publicLocales.filter((entry) => entry.code !== 'en'),
+    regions: [],
+  }),
+}))
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { Payload } from 'payload'
 import { localizeMetadata, localizeSitemap, readySourceIDs } from '@/utilities/i18n/seo'

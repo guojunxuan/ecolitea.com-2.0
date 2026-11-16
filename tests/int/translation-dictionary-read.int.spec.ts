@@ -18,6 +18,15 @@ import { stubTranslationProvider } from '@/plugins/translation/provider/stub'
 import { serverEnv } from '@/utilities/env'
 import { createIsolatedTestDatabaseURI } from '../helpers/isolatedDatabase'
 
+vi.mock('@/i18n/getI18nSettings', () => ({
+  getI18nSettings: async () => {
+    const config = (await import('@/i18n/config')) as unknown as {
+      publicLocales?: unknown[]
+      targetLocales?: unknown[]
+    }
+    return { publicLocales: [], targetLocales: config.targetLocales, regions: [] }
+  },
+}))
 vi.mock('@/i18n/config', () => ({
   sourceLocale: 'en',
   locales: [
@@ -71,8 +80,8 @@ describe('frontend dictionary source', () => {
 })
 
 describe('dictionary Jobs and last-ready reads (isolated MongoDB)', () => {
-  const name = `ecolitea2-test-phase2-dictionary-${randomUUID().slice(0, 8)}`
-  const url = createIsolatedTestDatabaseURI(name, 'mongodb://127.0.0.1:27017/ecolitea2-test-phase2')
+  const name = `ecolitea2-test-phase4-dictionary-${randomUUID().slice(0, 8)}`
+  const url = createIsolatedTestDatabaseURI(name, 'mongodb://127.0.0.1:27017/ecolitea2-test-phase4')
   let payload: Payload
   const priorEnv = { key: serverEnv.GOOGLE_TRANSLATE_API_KEY, worker: serverEnv.JOBS_AUTORUN }
   const priorInit = vi.fn(async (_payload: Payload) => undefined)

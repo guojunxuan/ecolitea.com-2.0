@@ -1,6 +1,8 @@
 import type { CollectionSlug, GlobalSlug, PayloadRequest, TaskConfig, Where } from 'payload'
 import type { Translation, TranslationSearch } from '@/payload-types'
-import { sourceLocale, targetLocales } from '@/i18n/config'
+import { getI18nSettings } from '@/i18n/getI18nSettings'
+import { localeCatalog } from '@/i18n/catalog'
+import { sourceLocale } from '@/i18n/config'
 import { serverEnv } from '@/utilities/env'
 import { getContentPath } from '@/utilities/getContentPath'
 import { extract } from './extract'
@@ -66,9 +68,11 @@ export async function isLegalPage(req: PayloadRequest, id: string): Promise<bool
 }
 
 export function createTranslationRuntime(options: TranslationOptions = {}) {
-  const targets = options.targets ?? targetLocales.map(({ code }) => code)
-  const canQueue =
-    (options.enabled ?? Boolean(serverEnv.GOOGLE_TRANSLATE_API_KEY)) && targets.length > 0
+  const targets = options.targets ?? []
+  const getTargets = async (req: PayloadRequest): Promise<readonly string[]> =>
+    options.targets ??
+    (await getI18nSettings(req.payload, req)).targetLocales.map(({ code }) => code)
+  const canQueue = options.enabled ?? Boolean(serverEnv.GOOGLE_TRANSLATE_API_KEY)
   const provider = options.provider ?? createTranslationProvider(serverEnv.GOOGLE_TRANSLATE_API_KEY)
   const invalidate = options.invalidate ?? requestRevalidation
   const now = options.now ?? (() => new Date())
@@ -207,7 +211,12 @@ export function createTranslationRuntime(options: TranslationOptions = {}) {
   ): Promise<boolean> => {
     const prior = req.context
     try {
-      if (!canQueue || !targets.includes(input.locale) || req.context.translationWrite) return false
+      if (
+        !canQueue ||
+        !(await getTargets(req)).includes(input.locale) ||
+        req.context.translationWrite
+      )
+        return false
       if (!(await currentSource(req, input))) return false
       const existing = await findTranslation(req, input)
       const requestedPriority = existing?.lastReadySourceVersion
@@ -249,7 +258,7 @@ export function createTranslationRuntime(options: TranslationOptions = {}) {
     sourceId: string,
   ): Promise<void> => {
     const where = identityWhere({ sourceCollection, sourceId })
-    const locales = new Set<string>(targets)
+    const locales = new Set<string>(await getTargets(req))
     // Delete in batches, collecting all stored locales (including removed config locales).
     await withTranslationContext(req, async () => {
       for (const collection of ['translations', 'translation-search'] as const) {
@@ -352,7 +361,8 @@ export function createTranslationRuntime(options: TranslationOptions = {}) {
     TaskConfig<{ input: TranslationInput; output: { skipped: boolean } }>['handler'],
     string
   > = async ({ input, req, job }) => {
-    if (!canQueue || !targets.includes(input.locale)) return { output: { skipped: true } }
+    if (!canQueue || !(await getTargets(req)).includes(input.locale))
+      return { output: { skipped: true } }
     const source = await currentSource(req, input)
     if (!source) return { output: { skipped: true } }
     try {
@@ -416,7 +426,8 @@ export function createTranslationRuntime(options: TranslationOptions = {}) {
         const translated = await provider.translate({
           texts: sources,
           source: sourceLocale,
-          target: input.locale,
+          target:
+            localeCatalog.find(({ code }) => code === input.locale)?.googleCode ?? input.locale,
           format,
         })
         if (
@@ -563,7 +574,7 @@ export function createTranslationRuntime(options: TranslationOptions = {}) {
         return { output: {} }
       },
     }
-  return { canQueue, targets, queue, cleanup, recover, tasks: [task, recoveryTask] }
+  return { canQueue, targets, getTargets, queue, cleanup, recover, tasks: [task, recoveryTask] }
 }
 
 export type TranslationRuntime = ReturnType<typeof createTranslationRuntime>

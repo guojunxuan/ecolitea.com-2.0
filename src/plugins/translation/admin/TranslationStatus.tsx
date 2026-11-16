@@ -1,7 +1,8 @@
 import type { Payload, ServerProps } from 'payload'
-import { locales } from '@/i18n/config'
+import { getI18nSettings } from '@/i18n/getI18nSettings'
 
 export async function getTranslationStatus(payload: Payload) {
+  const { targetLocales: locales } = await getI18nSettings(payload)
   const usage = await payload.findGlobal({ slug: 'translation-usage', depth: 0 })
   const month = new Date().toISOString().slice(0, 7)
   const counts = await Promise.all(

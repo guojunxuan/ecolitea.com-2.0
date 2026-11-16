@@ -13,12 +13,24 @@ vi.mock('@/i18n/config', async (original) => {
   const config = await original<typeof import('@/i18n/config')>()
   const de = { code: 'de', label: 'Deutsch', status: 'live' as const }
   const fr = { code: 'fr', label: 'Français', status: 'translating' as const }
-  return { ...config, publicLocales: [...config.publicLocales, de], targetLocales: [de, fr] }
+  return {
+    ...config,
+    publicLocales: [{ code: 'en', label: 'English', status: 'source' }, de],
+    targetLocales: [de, fr],
+  }
+})
+
+vi.mock('@/i18n/getI18nSettings', async () => {
+  const config = (await import('@/i18n/config')) as unknown as {
+    publicLocales: unknown[]
+    targetLocales: unknown[]
+  }
+  return { getI18nSettings: async () => config }
 })
 
 describe('translated search and redirect destinations (isolated MongoDB)', () => {
-  const name = `ecolitea2-test-phase3-search-${randomUUID().slice(0, 8)}`
-  const url = createIsolatedTestDatabaseURI(name, 'mongodb://127.0.0.1:27017/ecolitea2-test-phase3')
+  const name = `ecolitea2-test-phase4-search-${randomUUID().slice(0, 8)}`
+  const url = createIsolatedTestDatabaseURI(name, 'mongodb://127.0.0.1:27017/ecolitea2-test-phase4')
   let payload: Payload
   const config = buildConfig({
     secret: 'phase3-search-only-test-secret-at-least-32-characters',
@@ -324,7 +336,6 @@ describe('translated search and redirect destinations (isolated MongoDB)', () =>
   })
 })
 
-
 describe('source visibility parity', () => {
   it('retains status-only Posts and Case Studies while honoring Blog/Product timestamps', () => {
     const future = { _status: 'published', publishedAt: '2099-01-01T00:00:00Z' }
@@ -332,14 +343,20 @@ describe('source visibility parity', () => {
       expect(publicSourceVisibility(collection)).toEqual({ _status: { equals: 'published' } })
       expect(isPublicSource(future, collection)).toBe(true)
     }
-    for (const collection of ['blogs', 'products']) expect(isPublicSource(future, collection)).toBe(false)
+    for (const collection of ['blogs', 'products'])
+      expect(isPublicSource(future, collection)).toBe(false)
   })
 })
-
 
 describe('locale-neutral redirect destinations', () => {
   it('keeps root-level static resources and their suffix without a document lookup', async () => {
     const { resolveLocalizedRedirect } = await import('@/utilities/i18n/resolveRedirect')
-    expect(await resolveLocalizedRedirect({} as never, { to: { url: '/catalog.pdf?download=1#intro' } }, 'de')).toEqual({ path: '/catalog.pdf?download=1#intro', permanent: false })
+    expect(
+      await resolveLocalizedRedirect(
+        {} as never,
+        { to: { url: '/catalog.pdf?download=1#intro' } },
+        'de',
+      ),
+    ).toEqual({ path: '/catalog.pdf?download=1#intro', permanent: false })
   })
 })

@@ -1,11 +1,14 @@
 import { revalidatePath } from 'next/cache'
-import { publicLocales, type LocaleConfig } from '@/i18n/config'
+import { localeCatalog, type LocaleConfig } from '@/i18n/config'
 
 /** Public English URLs rewrite to /en. Already internal paths stay partitioned,
  * including background retries received by the authenticated Next boundary. */
 export function internalLocalePaths(
   path: string,
-  configured: readonly LocaleConfig[] = publicLocales,
+  configured: readonly Pick<LocaleConfig, 'code' | 'status'>[] = localeCatalog.map((entry) => ({
+    ...entry,
+    status: entry.code === 'en' ? 'source' : 'live',
+  })),
 ): string[] {
   if (/^\/(api|admin|next|_next)(\/|$)/.test(path) || /\.[^/]+$/.test(path)) return [path]
   // Next's implicit cache tags use the physical route pattern for dynamic

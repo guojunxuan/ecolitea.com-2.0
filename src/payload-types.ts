@@ -3181,6 +3181,56 @@ export interface SiteSettings {
    * Emergency switch. When enabled, Google Tag Manager is never loaded, regardless of visitor consent.
    */
   disableGtm?: boolean | null;
+  languages?:
+    | {
+        code:
+          | 'de'
+          | 'fr'
+          | 'es'
+          | 'it'
+          | 'pt'
+          | 'nl'
+          | 'pl'
+          | 'sv'
+          | 'tr'
+          | 'ru'
+          | 'ja'
+          | 'ko'
+          | 'zh'
+          | 'zh-tw'
+          | 'vi'
+          | 'th'
+          | 'id';
+        status: 'off' | 'translating' | 'live';
+        id?: string | null;
+      }[]
+    | null;
+  regions?:
+    | {
+        label: string;
+        group?: string | null;
+        locale:
+          | 'en'
+          | 'de'
+          | 'fr'
+          | 'es'
+          | 'it'
+          | 'pt'
+          | 'nl'
+          | 'pl'
+          | 'sv'
+          | 'tr'
+          | 'ru'
+          | 'ja'
+          | 'ko'
+          | 'zh'
+          | 'zh-tw'
+          | 'vi'
+          | 'th'
+          | 'id';
+        id?: string | null;
+      }[]
+    | null;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -3617,6 +3667,21 @@ export interface SiteSettingsSelect<T extends boolean = true> {
   cookiePolicyPage?: T;
   termsPage?: T;
   disableGtm?: T;
+  languages?:
+    | T
+    | {
+        code?: T;
+        status?: T;
+        id?: T;
+      };
+  regions?:
+    | T
+    | {
+        label?: T;
+        group?: T;
+        locale?: T;
+        id?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
