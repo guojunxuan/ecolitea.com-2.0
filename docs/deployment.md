@@ -68,9 +68,10 @@ supported contract. Do not put secrets in Docker build arguments or public varia
 ## Administrator roles and integration credentials
 
 Users has `admin` and `editor` roles. The first account on a fresh database becomes `admin`; later
-accounts default to `editor`. Apply `20261116_user_roles` using the application's migration workflow
-when upgrading an existing database: it grants `admin` to **all existing users**, preserving access.
-Review the exact database/storage target and take the normal database backup before migrations.
+accounts default to `editor`. Before using the new controls on an existing installation, review and
+apply `src/migrations/20261116_user_roles.ts` through the application's migration workflow against
+the intended environment. It grants `admin` to **all existing users**, preserving access. Review the
+exact database/storage target and take the normal database backup before running the migration.
 Existing sessions may need a new login to receive the role in their token. Only an admin can change
 roles or replace/clear the Google Translate API key. Collection and Global content access otherwise
 keeps its existing authenticated-user rules.
