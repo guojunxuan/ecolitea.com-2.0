@@ -54,9 +54,12 @@ function SettingsPanel() {
     >
       <div className={styles.surface}>
         <header className={styles.header}>
-          <h2 ref={title} id={titleId} tabIndex={-1} className="website-type-heading-3">
-            {copy.settings}
-          </h2>
+          <div className={styles.heading}>
+            <h2 ref={title} id={titleId} tabIndex={-1} className="website-type-heading-3">
+              {copy.settings}
+            </h2>
+            <p className="website-type-body-sm">{copy.settingsDescription}</p>
+          </div>
           <Button
             type="button"
             variant="ghost"
@@ -68,69 +71,69 @@ function SettingsPanel() {
           </Button>
         </header>
         <div className={styles.body}>
-          <section className={styles.category}>
-            <div className={styles.row}>
-              <h3 className="website-type-title">{copy.necessary}</h3>
-              <span className="website-type-caption">{copy.alwaysActive}</span>
-            </div>
-            <p className="website-type-body-sm">{copy.necessaryDescription}</p>
-            {hasPreferences && (
+          <div className={styles.categories}>
+            <section className={styles.category}>
               <div className={styles.row}>
-                <span className="website-type-body-sm">{copy.preferences}</span>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => {
-                    clearPreferences()
-                    setHasPreferences(false)
-                  }}
-                >
-                  {copy.clear}
-                </Button>
+                <h3 className="website-type-title">{copy.necessary}</h3>
+                <span className={`website-type-caption ${styles.badge}`}>{copy.alwaysActive}</span>
               </div>
-            )}
-          </section>
-          <section className={styles.category}>
-            <div className={styles.row}>
-              <h3 className="website-type-title">{copy.analytics}</h3>
-              <Button
-                type="button"
-                variant="outline"
-                className={styles.switch}
-                role="switch"
-                aria-label={copy.analytics}
-                aria-describedby={analyticsId}
-                aria-checked={analytics}
-                onClick={() => setAnalytics(!analytics)}
-              >
-                <span aria-hidden="true" />
-              </Button>
-            </div>
-            <p id={analyticsId} className="website-type-body-sm">
-              {copy.analyticsDescription}
-            </p>
-          </section>
-          <section className={styles.category}>
-            <div className={styles.row}>
-              <h3 className="website-type-title">{copy.marketing}</h3>
-              <Button
-                type="button"
-                variant="outline"
-                className={styles.switch}
-                role="switch"
-                aria-label={copy.marketing}
-                aria-describedby={marketingId}
-                aria-checked={gpc ? false : marketing}
-                disabled={gpc}
-                onClick={() => setMarketing(!marketing)}
-              >
-                <span aria-hidden="true" />
-              </Button>
-            </div>
-            <p id={marketingId} className="website-type-body-sm">
-              {gpc ? copy.gpc : copy.marketingDescription}
-            </p>
-          </section>
+              <p className="website-type-body-sm">{copy.necessaryDescription}</p>
+              {hasPreferences && (
+                <div className={styles.row}>
+                  <span className="website-type-body-sm">{copy.preferences}</span>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => {
+                      clearPreferences()
+                      setHasPreferences(false)
+                    }}
+                  >
+                    {copy.clear}
+                  </Button>
+                </div>
+              )}
+            </section>
+            <section className={styles.category}>
+              <div className={styles.row}>
+                <h3 className="website-type-title">{copy.analytics}</h3>
+                <button
+                  type="button"
+                  className={styles.switch}
+                  role="switch"
+                  aria-label={copy.analytics}
+                  aria-describedby={analyticsId}
+                  aria-checked={analytics}
+                  onClick={() => setAnalytics(!analytics)}
+                >
+                  <span aria-hidden="true" />
+                </button>
+              </div>
+              <p id={analyticsId} className="website-type-body-sm">
+                {copy.analyticsDescription}
+              </p>
+            </section>
+            <section className={styles.category}>
+              <div className={styles.row}>
+                <h3 className="website-type-title">{copy.marketing}</h3>
+                <button
+                  type="button"
+                  className={styles.switch}
+                  role="switch"
+                  aria-label={copy.marketing}
+                  aria-describedby={marketingId}
+                  aria-checked={gpc ? false : marketing}
+                  disabled={gpc}
+                  onClick={() => setMarketing(!marketing)}
+                >
+                  <span aria-hidden="true" />
+                </button>
+              </div>
+              <p id={marketingId} className="website-type-body-sm">
+                {gpc ? copy.gpc : copy.marketingDescription}
+              </p>
+            </section>
+          </div>
         </div>
         <footer className={styles.actions}>
           <Button

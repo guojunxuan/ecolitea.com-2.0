@@ -8,6 +8,7 @@
     "accept": "Accept all",
     "reject": "Reject optional",
     "settings": "Cookie settings",
+    "settingsDescription": "Choose which optional cookies we may use. Necessary cookies are always on.",
     "close": "Close",
     "save": "Save settings",
     "necessary": "Necessary",

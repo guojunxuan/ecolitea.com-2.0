@@ -51,10 +51,10 @@ export function CookieBanner({ cookiePolicyHref }: { cookiePolicyHref?: string |
           )}
         </div>
         <div className={styles.actions}>
-          <Button type="button" variant="outline" onClick={consent.acceptAll}>
+          <Button type="button" onClick={consent.acceptAll}>
             {copy.accept}
           </Button>
-          <Button type="button" variant="outline" onClick={consent.rejectOptional}>
+          <Button type="button" onClick={consent.rejectOptional}>
             {copy.reject}
           </Button>
           <Button

@@ -32,27 +32,40 @@
   padding: var(--website-space-6);
   flex-shrink: 0;
 }
+.header {
+  align-items: flex-start;
+  padding-bottom: var(--website-space-4);
+}
+.heading {
+  display: grid;
+  gap: var(--website-space-2);
+}
 .header h2,
+.heading p,
 .category h3,
 .category p {
   margin: 0;
 }
+.heading p,
+.category p {
+  color: var(--website-color-muted-foreground);
+}
 .body {
   overflow-y: auto;
   min-height: 0;
-  padding: 0 var(--website-space-6);
+  padding: 0 var(--website-space-6) var(--website-space-6);
 }
-.category {
-  padding-block: var(--website-space-6);
-  border-bottom: 1px solid var(--website-color-border);
+.categories {
   display: grid;
   gap: var(--website-space-3);
 }
-.category:last-child {
-  border-bottom: 0;
-}
-.category p {
-  color: var(--website-color-muted-foreground);
+.category {
+  display: grid;
+  gap: var(--website-space-2);
+  padding: var(--website-space-4);
+  border: 1px solid var(--website-color-border);
+  border-radius: var(--website-radius-content);
+  background: var(--website-color-surface);
 }
 .row {
   display: flex;
@@ -60,29 +73,74 @@
   justify-content: space-between;
   gap: var(--website-space-4);
 }
+.badge {
+  flex-shrink: 0;
+  padding: var(--website-space-1) var(--website-space-3);
+  border-radius: var(--website-radius-pill);
+  background: var(--website-color-muted-surface);
+  color: var(--website-color-muted-foreground);
+}
 .actions {
   border-top: 1px solid var(--website-color-border);
   background: var(--website-color-surface);
 }
+/* Native switch: neutral track off, brand action track on; the thumb slides. */
 .switch {
-  width: var(--website-control-large);
-  min-height: var(--website-control-target-min);
-  border-radius: var(--website-radius-pill);
-  padding: var(--website-space-1);
-  justify-content: flex-start;
+  position: relative;
   flex-shrink: 0;
+  width: var(--website-control-large);
+  height: calc(var(--website-icon-large) + var(--website-space-1) * 2);
+  padding: 0;
+  border: 0;
+  border-radius: var(--website-radius-pill);
+  background: var(--website-color-interactive-surface);
+  cursor: pointer;
+  transition: background-color var(--website-duration-fast) ease;
+}
+/* Keep the 44px touch target without enlarging the visible track. */
+.switch::after {
+  content: '';
+  position: absolute;
+  inset: 50% 0 auto;
+  height: var(--website-control-target-min);
+  transform: translateY(-50%);
 }
 .switch span {
-  display: block;
+  position: absolute;
+  top: var(--website-space-1);
+  left: var(--website-space-1);
   width: var(--website-icon-large);
   height: var(--website-icon-large);
   border-radius: var(--website-radius-circle);
-  background: currentColor;
+  background: var(--website-color-surface);
+  box-shadow: var(--website-shadow-subtle);
+  transition: transform var(--website-duration-fast) ease;
 }
 .switch[aria-checked='true'] {
   background: var(--website-color-action);
-  color: var(--website-color-action-foreground);
-  justify-content: flex-end;
+}
+.switch[aria-checked='true'] span {
+  transform: translateX(
+    calc(var(--website-control-large) - var(--website-icon-large) - var(--website-space-1) * 2)
+  );
+}
+.switch:disabled {
+  cursor: not-allowed;
+  background: var(--website-color-disabled-surface);
+}
+.switch:disabled span {
+  box-shadow: none;
+  background: var(--website-color-disabled-border);
+}
+.switch:focus-visible {
+  outline: 2px solid var(--website-color-focus);
+  outline-offset: 2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .switch,
+  .switch span {
+    transition: none;
+  }
 }
 @media (width < 48rem) {
   .dialog {
