@@ -53,7 +53,7 @@ const trigger = () => screen.getByRole('button', { name: 'Region & language' })
 const panel = () => screen.getByRole('dialog', { name: 'Region & language' })
 
 describe('Phase 4 language panel', () => {
-  it('uses the short language entry and a native modal with grouped public regions', () => {
+  it('uses the short language entry and a native modal listing regions with full language names', () => {
     render(<LanguageSwitcher />)
     expect(trigger().textContent).toBe('EN')
     fireEvent.click(trigger())
@@ -63,7 +63,7 @@ describe('Phase 4 language panel', () => {
     expect(within(panel()).getByRole('heading', { name: 'Europe' })).toBeTruthy()
     expect(
       within(within(panel()).getByRole('button', { name: /Deutschland · Deutsch/ })).getByText(
-        'DE',
+        'Deutsch',
       ),
     ).toBeTruthy()
     expect(within(panel()).queryByRole('button', { name: /France/ })).toBeNull()

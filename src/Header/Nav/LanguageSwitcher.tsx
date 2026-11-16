@@ -216,8 +216,9 @@ export function RegionList({
                   >
                     <span>{region.label}</span>
                     <span className={styles.selection}>
+                      {/* Full native language name, so one region can list several languages. */}
                       <span className={styles.short}>
-                        {publicLocales.find(({ code }) => code === region.locale)?.short}
+                        {publicLocales.find(({ code }) => code === region.locale)?.label}
                       </span>
                       {selectedRegion === region.code && <Check aria-hidden="true" size={18} />}
                     </span>

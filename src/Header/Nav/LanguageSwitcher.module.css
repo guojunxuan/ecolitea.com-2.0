@@ -66,10 +66,10 @@
 }
 .groups {
   display: grid;
-  gap: var(--website-space-6);
+  gap: var(--website-space-8);
 }
 .groups h3 {
-  margin: 0 0 var(--website-space-2);
+  margin: 0 0 var(--website-space-3);
   color: var(--website-color-muted-foreground);
 }
 .entries {
