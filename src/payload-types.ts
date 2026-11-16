@@ -3177,6 +3177,14 @@ export interface SiteSettings {
   privacyPolicyPage?: (string | null) | Page;
   cookiePolicyPage?: (string | null) | Page;
   termsPage?: (string | null) | Page;
+  cookieConsent?: {
+    bannerTitle?: string | null;
+    bannerDescription?: string | null;
+    settingsDescription?: string | null;
+    necessaryDescription?: string | null;
+    analyticsDescription?: string | null;
+    marketingDescription?: string | null;
+  };
   /**
    * Emergency switch. When enabled, Google Tag Manager is never loaded, regardless of visitor consent.
    */
@@ -3669,6 +3677,16 @@ export interface SiteSettingsSelect<T extends boolean = true> {
   privacyPolicyPage?: T;
   cookiePolicyPage?: T;
   termsPage?: T;
+  cookieConsent?:
+    | T
+    | {
+        bannerTitle?: T;
+        bannerDescription?: T;
+        settingsDescription?: T;
+        necessaryDescription?: T;
+        analyticsDescription?: T;
+        marketingDescription?: T;
+      };
   disableGtm?: T;
   languages?:
     | T
@@ -3850,8 +3868,7 @@ export interface CollectionQueryWidget {
       | 'redirects'
       | 'forms'
       | 'form-submissions'
-      | 'search'
-      | 'translations';
+      | 'search';
     where?:
       | {
           [k: string]: unknown;
@@ -3892,7 +3909,6 @@ export interface ActivityWidget {
           | 'forms'
           | 'form-submissions'
           | 'search'
-          | 'translations'
         )[]
       | null;
   };

@@ -70,6 +70,10 @@ export const siteSettingsTabs: TabsField = {
           'English policy pages linked throughout the website.',
           named(legalTab.fields, ['privacyPolicyPage', 'cookiePolicyPage', 'termsPage']),
         ),
+        group('Cookie Consent', 'Visitor-facing explanations for cookie choices.', [{ name: 'cookieConsent', type: 'group', label: false, fields: [
+          { name: 'bannerTitle', type: 'text' },
+          ...['bannerDescription', 'settingsDescription', 'necessaryDescription', 'analyticsDescription', 'marketingDescription'].map((name) => ({ name, type: 'textarea' as const })),
+        ] }]),
       ],
     },
     {

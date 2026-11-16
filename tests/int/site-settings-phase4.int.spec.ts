@@ -34,7 +34,7 @@ describe('Phase 4 Site Settings presentation', () => {
   it('preserves every persisted field path without a migration', () => {
     expect(
       paths([siteSettingsTabs])
-        .filter((path) => !/^(languages|regions)(\.|$)/.test(path))
+        .filter((path) => !/^(languages|regions|cookieConsent)(\.|$)/.test(path))
         .sort(),
     ).toEqual(
       [

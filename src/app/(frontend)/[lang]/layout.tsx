@@ -10,6 +10,7 @@ import { GeistSans } from 'geist/font/sans'
 import React from 'react'
 
 import { resolveFavicon } from '@/components/Logo/resolveFavicon'
+import { resolveConsentCopy } from '@/consent/copy'
 import { CookieBanner } from '@/consent/CookieBanner'
 import { CookieSettingsDialog } from '@/consent/CookieSettingsDialog'
 import { SkipLink } from '@/components/SkipLink'
@@ -61,7 +62,7 @@ export default async function RootLayout({
           legalPaths={legalPaths}
           englishLabel={dictionary.common.english}
         >
-          <Providers dictionary={dictionary} gtmDisabled={siteSettings.disableGtm === true}>
+          <Providers dictionary={{ ...dictionary, consent: resolveConsentCopy(siteSettings.cookieConsent, dictionary.consent) }} gtmDisabled={siteSettings.disableGtm === true}>
             <SkipLink href="#main-content">{dictionary.common.skipToContent}</SkipLink>
             <Header locale={lang} />
             <main id="main-content" tabIndex={-1}>

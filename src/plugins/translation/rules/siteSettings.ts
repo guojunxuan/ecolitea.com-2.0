@@ -3,6 +3,7 @@ import { prefixRule, rowRule } from './shared'
 const customFields = rowRule({ label: 'translate', value: 'translate' })
 export const siteSettingsRule: TranslationRule = {
   // Brand and legal identity, contact numbers and registration identifiers are shared.
+  ...prefixRule('cookieConsent', { bannerTitle: 'translate', bannerDescription: 'translate', settingsDescription: 'translate', necessaryDescription: 'translate', analyticsDescription: 'translate', marketingDescription: 'translate' }),
   siteName: 'exclude',
   ...prefixRule('languages[]', rowRule({})),
   ...prefixRule('regions[]', rowRule({ label: 'exclude', group: 'exclude' })),
