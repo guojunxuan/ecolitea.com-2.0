@@ -254,7 +254,7 @@ describe('translation lifecycle and real Jobs (isolated MongoDB)', () => {
       const batches = http.mock.calls.map(
         ([, init]) => JSON.parse(init!.body as string) as { paths: string[]; tags: string[] },
       )
-      expect(batches.some(({ paths }) => paths.includes('/products/tea/scheduled'))).toBe(true)
+      expect(batches.some(({ paths }) => paths.includes('/en/products/tea/scheduled'))).toBe(true)
       expect(batches.some(({ tags }) => tags.includes('products-list'))).toBe(true)
       expect(batches.some(({ tags }) => tags.includes('redirects'))).toBe(true)
       expect(
