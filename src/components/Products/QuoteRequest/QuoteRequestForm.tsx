@@ -4,6 +4,7 @@ import { useEffect, useId, useRef, useState, type FormEvent } from 'react'
 import { ArrowRight, CircleAlert } from 'lucide-react'
 
 import { useDictionary } from '@/i18n/DictionaryProvider'
+import { trackEvent } from '@/consent/analytics'
 import { localizeQuoteError } from '@/i18n/quoteErrors'
 import { Media } from '@/components/Media'
 import type { ProductDetail } from '@/utilities/products/models'
@@ -105,11 +106,12 @@ export function QuoteRequestForm({
         code?: 'validation' | 'verification' | 'rate_limited' | 'server'
         fieldErrors?: QuoteFieldErrors
       } | null
-      if (!active.current) return
       if (response.ok && result?.ok) {
-        onSuccess(values.name.trim())
+        trackEvent('quote_submit', { product_slug: product.slug })
+        if (active.current) onSuccess(values.name.trim())
         return
       }
+      if (!active.current) return
       refreshVerification()
       if (result?.code === 'validation' && result.fieldErrors) {
         setErrors(result.fieldErrors)

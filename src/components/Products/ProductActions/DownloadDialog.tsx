@@ -4,6 +4,7 @@ import { Download, X } from 'lucide-react'
 import { useEffect, useId, useRef } from 'react'
 
 import { Button } from '@/components/ui/button'
+import { trackEvent } from '@/consent/analytics'
 
 import styles from './DownloadDialog.module.css'
 
@@ -13,7 +14,13 @@ export type DownloadDialogFile = { id: string; title: string; url: string; meta?
  * Standalone modal listing the product's resource files. The native dialog supplies the
  * backdrop, focus containment, Esc handling and focus return; entry and exit are CSS-only.
  */
-export function DownloadDialog({ files }: { files: DownloadDialogFile[] }) {
+export function DownloadDialog({
+  files,
+  productSlug,
+}: {
+  files: DownloadDialogFile[]
+  productSlug: string
+}) {
   const dialog = useRef<HTMLDialogElement>(null)
   const titleId = useId()
   const title = useRef<HTMLHeadingElement>(null)
@@ -81,6 +88,12 @@ export function DownloadDialog({ files }: { files: DownloadDialogFile[] }) {
                   href={file.url}
                   target="_blank"
                   rel="noopener noreferrer"
+                  onClick={() =>
+                    trackEvent('file_download', {
+                      file_name: file.url.split(/[?#]/, 1)[0].split('/').at(-1) || file.title,
+                      product_slug: productSlug,
+                    })
+                  }
                 >
                   <span className={styles.fileText}>
                     <span className={styles.fileTitle}>{file.title}</span>

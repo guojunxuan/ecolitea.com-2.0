@@ -25,6 +25,7 @@ import { FooterNavigation } from '@/Footer/Navigation.client'
 
 const footerGlobal: FooterGlobal = { id: 'footer', columns: [] }
 const siteSettings: SiteSettings = {
+  translationMonthlyCharLimit: 450000,
   address: 'Shanghai, China',
   id: 'site-settings',
   legalCompanyName: 'Ecolitea Limited',

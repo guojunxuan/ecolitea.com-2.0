@@ -50,9 +50,11 @@ const reply = (status: number, json: unknown) =>
 describe('QuoteRequestForm', () => {
   beforeEach(() => {
     vi.stubEnv('NEXT_PUBLIC_TURNSTILE_SITE_KEY', 'test-site-key')
+    window.dataLayer = []
   })
   afterEach(() => {
     cleanup()
+    delete window.dataLayer
     vi.unstubAllGlobals()
     vi.unstubAllEnvs()
   })
@@ -171,6 +173,7 @@ describe('QuoteRequestForm', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Send request' }))
     expect(screen.getByRole<HTMLButtonElement>('button', { name: 'Sending…' }).disabled).toBe(true)
     await waitFor(() => expect(onSuccess).toHaveBeenCalledWith('Ada'))
+    expect(window.dataLayer).toEqual([{ event: 'quote_submit', product_slug: 'bag' }])
     const [url, init] = fetchSpy.mock.calls[0] as unknown as [string, RequestInit]
     expect(url).toBe('/api/quote-requests/submit')
     expect(JSON.parse(String(init.body))).toEqual({
@@ -187,6 +190,7 @@ describe('QuoteRequestForm', () => {
     ['verification', 403, 'Verification failed, please try again.'],
     ['rate_limited', 429, 'Too many requests, please try again later.'],
     ['server', 500, 'Something went wrong. Please try again.'],
+    ['rejected', 200, 'Something went wrong. Please try again.'],
   ])('keeps entered values and resets verification on %s', async (code, status, message) => {
     vi.stubGlobal('fetch', reply(status, { ok: false, code }))
     const onSuccess = vi.fn()
@@ -201,6 +205,7 @@ describe('QuoteRequestForm', () => {
     )
     expect(screen.getByTestId('turnstile').getAttribute('data-reset-key')).toBe('1')
     expect(onSuccess).not.toHaveBeenCalled()
+    expect(window.dataLayer).toEqual([])
     // The single-use token was consumed, so submitting again requires a fresh one.
     fireEvent.click(screen.getByRole('button', { name: 'Send request' }))
     expect(screen.getByRole('alert').textContent).toContain('complete the verification')
@@ -268,6 +273,7 @@ describe('QuoteRequestForm', () => {
     expect(screen.getByRole<HTMLButtonElement>('button', { name: 'Send request' }).disabled).toBe(
       false,
     )
+    expect(window.dataLayer).toEqual([])
   })
 
   it('explains when verification cannot load or no site key is configured', () => {
@@ -285,6 +291,7 @@ describe('QuoteRequestForm', () => {
 describe('QuoteRequestDialog', () => {
   // jsdom has no modal dialog support, so model the open attribute and close event.
   beforeEach(() => {
+    window.dataLayer = []
     vi.stubEnv('NEXT_PUBLIC_TURNSTILE_SITE_KEY', 'test-site-key')
     HTMLDialogElement.prototype.showModal = function showModal() {
       this.setAttribute('open', '')
@@ -368,6 +375,7 @@ describe('QuoteRequestDialog', () => {
     })
     expect(screen.getByRole('textbox', { name: 'Name' })).toBeTruthy()
     expect(screen.queryByText(/We've received your request/)).toBeNull()
+    expect(window.dataLayer).toEqual([{ event: 'quote_submit', product_slug: 'bag' }])
   })
 
   it.each(['Ada Lovelace', 'A'.repeat(100)])(

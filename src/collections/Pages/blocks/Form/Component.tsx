@@ -4,6 +4,7 @@ import type { FormFieldBlock, Form as FormType } from '@payloadcms/plugin-form-b
 import { useRouter } from 'next/navigation'
 import React, { useCallback, useState } from 'react'
 import { useForm, FormProvider } from 'react-hook-form'
+import { trackEvent } from '@/consent/analytics'
 import RichText from '@/components/RichText'
 import { Button } from '@/components/ui/button'
 import type { SerializedEditorState } from '@payloadcms/richtext-lexical/lexical'
@@ -79,7 +80,7 @@ export const FormBlock: React.FC<
 
           clearTimeout(loadingTimerID)
 
-          if (req.status >= 400) {
+          if (!req.ok) {
             setIsLoading(false)
 
             setError({
@@ -92,6 +93,7 @@ export const FormBlock: React.FC<
 
           setIsLoading(false)
           setHasSubmitted(true)
+          trackEvent('form_submit', { form_title: formFromProps.title })
 
           if (confirmationType === 'redirect' && redirect) {
             const { url } = redirect
@@ -111,7 +113,7 @@ export const FormBlock: React.FC<
 
       void submitForm()
     },
-    [router, formID, redirect, confirmationType],
+    [router, formID, formFromProps.title, redirect, confirmationType],
   )
 
   return (

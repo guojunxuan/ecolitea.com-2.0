@@ -37,6 +37,7 @@ export function ProductActions({
       <QuoteRequestDialog product={product} />
       {downloads.length > 0 && (
         <DownloadDialog
+          productSlug={product.slug}
           files={downloads.map((file) => ({
             id: file.id,
             title: file.title,

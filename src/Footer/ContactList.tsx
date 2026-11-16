@@ -1,6 +1,7 @@
 import { Mail, MapPin, Phone } from 'lucide-react'
 import React from 'react'
 
+import { ContactLink } from './ContactLink'
 import styles from './index.module.css'
 import type { ContactData } from './types'
 
@@ -20,13 +21,17 @@ export const ContactList = ({ contact }: Props) => (
       {contact.phone && (
         <li className={styles.contactItem}>
           <Phone aria-hidden="true" className={styles.contactIcon} />
-          <a href={`tel:${contact.phone}`}>{contact.phone}</a>
+          <ContactLink href={`tel:${contact.phone}`} method="phone">
+            {contact.phone}
+          </ContactLink>
         </li>
       )}
       {contact.salesEmail && (
         <li className={styles.contactItem}>
           <Mail aria-hidden="true" className={styles.contactIcon} />
-          <a href={`mailto:${contact.salesEmail}`}>{contact.salesEmail}</a>
+          <ContactLink href={`mailto:${contact.salesEmail}`} method="email">
+            {contact.salesEmail}
+          </ContactLink>
         </li>
       )}
     </ul>
