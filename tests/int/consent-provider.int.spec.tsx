@@ -6,24 +6,34 @@ import { serializeConsent } from '@/consent/cookie'
 
 function Probe() {
   const consent = useConsent()
-  return <>
-    {consent.bannerVisible && <div role="region" aria-label="Cookie consent" />}
-    <output>{JSON.stringify(consent.state)}</output>
-    <button onClick={consent.acceptAll}>Accept</button>
-    <button onClick={consent.rejectOptional}>Reject</button>
-    <button onClick={consent.dismissBanner}>Dismiss</button>
-  </>
+  return (
+    <>
+      {consent.bannerVisible && <div role="region" aria-label="Cookie consent" />}
+      <output>{JSON.stringify(consent.state)}</output>
+      <button onClick={consent.acceptAll}>Accept</button>
+      <button onClick={consent.rejectOptional}>Reject</button>
+      <button onClick={consent.dismissBanner}>Dismiss</button>
+    </>
+  )
 }
-const mount = (gtmDisabled = false) => render(<ConsentProvider gtmDisabled={gtmDisabled}><Probe /></ConsentProvider>)
+const mount = (gtmDisabled = false) =>
+  render(
+    <ConsentProvider gtmDisabled={gtmDisabled} gtmContainerId="GTM-TEST000">
+      <Probe />
+    </ConsentProvider>,
+  )
 beforeEach(() => {
-  vi.stubEnv('NEXT_PUBLIC_GTM_MEASUREMENT_ID', 'GTM-TEST000')
-  for (const cookie of document.cookie.split(';')) document.cookie = `${cookie.split('=')[0].trim()}=; Path=/; Max-Age=0`
+  for (const cookie of document.cookie.split(';'))
+    document.cookie = `${cookie.split('=')[0].trim()}=; Path=/; Max-Age=0`
   document.querySelectorAll('script[data-ecolitea-gtm]').forEach((script) => script.remove())
   delete window.dataLayer
   delete window.gtag
   Object.defineProperty(navigator, 'globalPrivacyControl', { configurable: true, value: false })
 })
-afterEach(() => { cleanup(); vi.unstubAllEnvs() })
+afterEach(() => {
+  cleanup()
+  vi.unstubAllEnvs()
+})
 
 describe('ConsentProvider', () => {
   it('shows the undecided banner after mount and dismisses only in memory', () => {

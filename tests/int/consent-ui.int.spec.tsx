@@ -8,7 +8,6 @@ import { CookieSettingsButton } from '@/consent/CookieSettingsButton'
 
 let resize: ResizeObserverCallback
 beforeEach(() => {
-  vi.stubEnv('NEXT_PUBLIC_GTM_MEASUREMENT_ID', '')
   vi.stubGlobal(
     'ResizeObserver',
     class {

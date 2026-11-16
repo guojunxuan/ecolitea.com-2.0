@@ -23,7 +23,11 @@ const parseTestPort = (value: string | undefined, name: string, fallback: number
 
 const languageFixtureRequested =
   process.env.PHASE3_I18N_FIXTURE === 'true' ||
-  process.argv.some((argument) => argument.endsWith('language-switcher.e2e.spec.ts'))
+  process.argv.some(
+    (argument) =>
+      argument.endsWith('language-switcher.e2e.spec.ts') ||
+      argument.endsWith('cookie-consent.e2e.spec.ts'),
+  )
 if (languageFixtureRequested) process.env.PHASE3_I18N_FIXTURE = 'true'
 const developerDatabaseURI = process.env.DATABASE_URI
 const e2eDatabaseBaseURI =
@@ -63,8 +67,7 @@ process.env.DISABLE_R2_STORAGE = disableR2Storage
 process.env.PREVIEW_SECRET = 'e2e-only-preview-secret'
 process.env.PLAYWRIGHT_TEST = 'true'
 process.env.JOBS_AUTORUN = 'false'
-// Never inherit a deployed Google container in browser tests. Specs intercept this placeholder.
-process.env.NEXT_PUBLIC_GTM_MEASUREMENT_ID = 'GTM-TEST000'
+// The isolated Site Settings fixture owns the placeholder GTM ID; specs intercept requests.
 process.env.PLAYWRIGHT_E2E_RUN_ID = e2eRunID
 process.env.PLAYWRIGHT_BASE_URL = e2eBaseURL
 // Native upload actions use absolute thumbnail URLs; pin them to this test

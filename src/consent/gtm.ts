@@ -1,9 +1,5 @@
 export const validGtmId = (value: string | undefined): string | null =>
-  value && /^GTM-[A-Z0-9]+$/.test(value) ? value : null
-
-// Called from the client provider; Next inlines this public value at build time.
-export const getGtmId = (): string | null =>
-  validGtmId(process.env.NEXT_PUBLIC_GTM_MEASUREMENT_ID)
+  value && /^GTM-[A-Z0-9]+$/.test(value.trim()) ? value.trim() : null
 
 import type { ConsentState } from './types'
 
@@ -75,7 +71,11 @@ function clearGoogleCookies(): void {
   }
 }
 
-export function applyConsent(state: ConsentState | null, id: string | null, disabled: boolean): void {
+export function applyConsent(
+  state: ConsentState | null,
+  id: string | null,
+  disabled: boolean,
+): void {
   const flags = state ?? { analytics: false, marketing: false }
   updateConsent(flags)
   if (!flags.analytics && !flags.marketing) clearGoogleCookies()

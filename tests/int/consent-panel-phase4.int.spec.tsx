@@ -10,7 +10,6 @@ import en from '@/i18n/dictionaries/en.json'
 const observers: ResizeObserverCallback[] = []
 beforeEach(() => {
   observers.length = 0
-  vi.stubEnv('NEXT_PUBLIC_GTM_MEASUREMENT_ID', '')
   vi.stubGlobal(
     'ResizeObserver',
     class {

@@ -1,3 +1,6 @@
+import { getPayload } from 'payload'
+import configPromise from '@payload-config'
+import { getIntegrations } from '@/SiteSettings/integrations'
 import { LanguageUnavailableNotice } from '@/i18n/LanguageUnavailableNotice'
 import { LocaleProvider } from '@/i18n/LocaleProvider'
 import { legalPagePaths } from '@/utilities/i18n/pageAccess'
@@ -50,6 +53,7 @@ export default async function RootLayout({
   const { publicLocales } = i18n
   if (!publicLocales.some(({ code }) => code === lang)) notFound()
   const siteSettings = await getCachedSiteSettings(lang)
+  const { gtm } = await getIntegrations(await getPayload({ config: configPromise }))
   const legalPaths = await legalPagePaths()
   const dictionary = await getDictionary(lang)
 
@@ -62,7 +66,14 @@ export default async function RootLayout({
           legalPaths={legalPaths}
           englishLabel={dictionary.common.english}
         >
-          <Providers dictionary={{ ...dictionary, consent: resolveConsentCopy(siteSettings.cookieConsent, dictionary.consent) }} gtmDisabled={siteSettings.disableGtm === true}>
+          <Providers
+            dictionary={{
+              ...dictionary,
+              consent: resolveConsentCopy(siteSettings.cookieConsent, dictionary.consent),
+            }}
+            gtmContainerId={gtm.disabled ? null : gtm.containerId}
+            gtmDisabled={gtm.disabled}
+          >
             <SkipLink href="#main-content">{dictionary.common.skipToContent}</SkipLink>
             <Header locale={lang} />
             <main id="main-content" tabIndex={-1}>

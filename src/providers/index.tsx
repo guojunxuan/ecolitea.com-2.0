@@ -8,11 +8,14 @@ import { HeaderThemeProvider } from './HeaderTheme'
 export const Providers: React.FC<{
   children: React.ReactNode
   gtmDisabled?: boolean
+  gtmContainerId?: string | null
   dictionary?: FrontendDictionary
-}> = ({ children, gtmDisabled = false, dictionary }) => {
+}> = ({ children, gtmDisabled = false, gtmContainerId = null, dictionary }) => {
   const content = (
     <HeaderThemeProvider>
-      <ConsentProvider gtmDisabled={gtmDisabled}>{children}</ConsentProvider>
+      <ConsentProvider gtmDisabled={gtmDisabled} gtmContainerId={gtmContainerId}>
+        {children}
+      </ConsentProvider>
     </HeaderThemeProvider>
   )
   return dictionary ? (

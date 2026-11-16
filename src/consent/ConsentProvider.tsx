@@ -4,7 +4,7 @@ import React, { createContext, useContext, useEffect, useRef, useState } from 'r
 
 import { readConsent, writeConsent } from './cookie'
 import { applyGpc, detectGpc } from './gpc'
-import { applyConsent, ensureConsentDefaults, getGtmId } from './gtm'
+import { applyConsent, ensureConsentDefaults, validGtmId } from './gtm'
 import type { ConsentState } from './types'
 import { announcePanelOpen, listenForPanelOpen } from '@/utilities/panelEvents'
 
@@ -27,9 +27,11 @@ const ConsentContext = createContext<ConsentContextValue | null>(null)
 export function ConsentProvider({
   children,
   gtmDisabled,
+  gtmContainerId = null,
 }: {
   children: React.ReactNode
   gtmDisabled: boolean
+  gtmContainerId?: string | null
 }) {
   const [state, setState] = useState<ConsentState | null>(null)
   const [gpc, setGpc] = useState(false)
@@ -47,8 +49,8 @@ export function ConsentProvider({
     setGpc(signal)
     setState(saved)
     setReady(true)
-    applyConsent(saved, getGtmId(), gtmDisabled)
-  }, [gtmDisabled])
+    applyConsent(saved, validGtmId(gtmContainerId ?? undefined), gtmDisabled)
+  }, [gtmDisabled, gtmContainerId])
 
   useEffect(
     () =>
@@ -68,7 +70,7 @@ export function ConsentProvider({
     writeConsent(effective)
     setState(effective)
     setGpc(detectGpc())
-    applyConsent(effective, getGtmId(), gtmDisabled)
+    applyConsent(effective, validGtmId(gtmContainerId ?? undefined), gtmDisabled)
     closeSettings()
   }
 

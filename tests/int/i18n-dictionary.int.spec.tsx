@@ -73,7 +73,6 @@ describe('frontend dictionary delivery', () => {
     expect(await getDictionary('de', { payload })).toEqual(en)
   })
   it('delivers translated copy to consent and Quote clients, including validation', async () => {
-    vi.stubEnv('NEXT_PUBLIC_GTM_MEASUREMENT_ID', '')
     vi.stubEnv('NEXT_PUBLIC_TURNSTILE_SITE_KEY', '')
     const { payload } = translations({
       'consent.settings': 'Cookie-Einstellungen',
