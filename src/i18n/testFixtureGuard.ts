@@ -1,3 +1,4 @@
+// Lives under src/ (not tests/) because next.config.ts imports it and tests/ is excluded from Docker builds.
 /** Test-only injection is permitted solely for isolated local browser builds. */
 export function assertPhase3I18nFixtureEnvironment(env: Partial<NodeJS.ProcessEnv>): boolean {
   if (env.PHASE3_I18N_FIXTURE !== 'true') return false

@@ -7,7 +7,7 @@ const __filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(__filename)
 import { redirects } from './redirects'
 import { serverEnv } from './src/utilities/env'
-import { assertPhase3I18nFixtureEnvironment } from './tests/helpers/phase3I18nFixture'
+import { assertPhase3I18nFixtureEnvironment } from './src/i18n/testFixtureGuard'
 
 const NEXT_PUBLIC_SERVER_URL = process.env.VERCEL_PROJECT_PRODUCTION_URL
   ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`

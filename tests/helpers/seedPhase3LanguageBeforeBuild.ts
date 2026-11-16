@@ -3,7 +3,7 @@ import config from '../../src/payload.config.js'
 import { extract } from '../../src/plugins/translation/extract'
 import { getTranslationRule } from '../../src/plugins/translation/rules'
 import { fixtureContext, richText, reportBlogEnvironment } from './blogFixtures'
-import { assertPhase3I18nFixtureEnvironment } from './phase3I18nFixture'
+import { assertPhase3I18nFixtureEnvironment } from '../../src/i18n/testFixtureGuard'
 
 if (!assertPhase3I18nFixtureEnvironment(process.env))
   throw new Error('Phase3 fixture mode is required.')

@@ -9,7 +9,7 @@ import { CookieSettingsButton } from '@/consent/CookieSettingsButton'
 import { CookieSettingsDialog } from '@/consent/CookieSettingsDialog'
 import { DesktopNav } from '@/Header/Nav/DesktopNav'
 import { LanguageUnavailableNotice } from '@/i18n/LanguageUnavailableNotice'
-import { assertPhase3I18nFixtureEnvironment } from '../helpers/phase3I18nFixture'
+import { assertPhase3I18nFixtureEnvironment } from '@/i18n/testFixtureGuard'
 
 const fixture = vi.hoisted(() => ({
   locales: [
