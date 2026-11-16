@@ -74,10 +74,10 @@ function SettingsPanel() {
           <div className={styles.categories}>
             <section className={styles.category}>
               <div className={styles.row}>
-                <h3 className="website-type-title">{copy.necessary}</h3>
+                <h3 className="website-type-button">{copy.necessary}</h3>
                 <span className={`website-type-caption ${styles.badge}`}>{copy.alwaysActive}</span>
               </div>
-              <p className="website-type-body-sm">{copy.necessaryDescription}</p>
+              <p className="website-type-caption">{copy.necessaryDescription}</p>
               {hasPreferences && (
                 <div className={styles.row}>
                   <span className="website-type-body-sm">{copy.preferences}</span>
@@ -96,7 +96,7 @@ function SettingsPanel() {
             </section>
             <section className={styles.category}>
               <div className={styles.row}>
-                <h3 className="website-type-title">{copy.analytics}</h3>
+                <h3 className="website-type-button">{copy.analytics}</h3>
                 <button
                   type="button"
                   className={styles.switch}
@@ -109,13 +109,13 @@ function SettingsPanel() {
                   <span aria-hidden="true" />
                 </button>
               </div>
-              <p id={analyticsId} className="website-type-body-sm">
+              <p id={analyticsId} className="website-type-caption">
                 {copy.analyticsDescription}
               </p>
             </section>
             <section className={styles.category}>
               <div className={styles.row}>
-                <h3 className="website-type-title">{copy.marketing}</h3>
+                <h3 className="website-type-button">{copy.marketing}</h3>
                 <button
                   type="button"
                   className={styles.switch}
@@ -129,7 +129,7 @@ function SettingsPanel() {
                   <span aria-hidden="true" />
                 </button>
               </div>
-              <p id={marketingId} className="website-type-body-sm">
+              <p id={marketingId} className="website-type-caption">
                 {gpc ? copy.gpc : copy.marketingDescription}
               </p>
             </section>

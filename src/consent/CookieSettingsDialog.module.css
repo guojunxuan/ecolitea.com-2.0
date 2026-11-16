@@ -1,7 +1,6 @@
 .dialog {
   margin: auto;
-  /* Compact preference panel: three-quarters of the reading measure. */
-  width: min(calc(var(--website-container-reading) * 0.75), calc(100% - var(--website-space-12)));
+  width: min(var(--website-container-reading), calc(100% - var(--website-space-12)));
   max-width: none;
   max-height: calc(100svh - var(--website-space-12));
   padding: 0;
