@@ -103,6 +103,8 @@ describe('Phase 4 language panel', () => {
     expect(entry.getAttribute('aria-expanded')).toBe('true')
     expect(within(view).getByRole('heading', { name: 'Location & language' })).toBeTruthy()
     expect(within(view).getByRole('button', { name: /Global · English/ })).toBeTruthy()
+    // Full-screen view: the site toolbar is covered.
+    expect(view.closest('[data-language-open="true"]')).toBeTruthy()
     fireEvent.click(within(view).getByRole('button', { name: 'Back to menu' }))
     expect(view.getAttribute('data-open')).toBe('false')
     expect(view.hasAttribute('inert')).toBe(true)

@@ -1,6 +1,6 @@
 'use client'
 
-import { ArrowRight, ChevronLeft, ChevronRight, SearchIcon } from 'lucide-react'
+import { ArrowRight, ChevronLeft, ChevronRight, SearchIcon, X } from 'lucide-react'
 import Link from '@/components/LocaleLink'
 import { usePathname } from 'next/navigation'
 import React, { useCallback, useEffect, useLayoutEffect, useReducer, useRef, useState } from 'react'
@@ -76,7 +76,7 @@ export const MobileNav: React.FC<MobileNavProps> = ({
   } = useLocaleContext()
   const { language: languageCopy } = useDictionary()
   const languageEntryRef = useRef<HTMLButtonElement>(null)
-  const languageBackRef = useRef<HTMLButtonElement>(null)
+  const languageTitleRef = useRef<HTMLHeadingElement>(null)
   const [selectedRegion, setSelectedRegion] = useState<string | null>(null)
   const publicRegions = regions.filter((region) =>
     publicLocales.some(({ code }) => code === region.locale),
@@ -278,7 +278,11 @@ export const MobileNav: React.FC<MobileNavProps> = ({
       </div>
 
       {isOpen ? (
-        <div className={styles.mobileNavDialog} data-mobile-navigation-surface="true">
+        <div
+          className={styles.mobileNavDialog}
+          data-language-open={languageOpen ? 'true' : 'false'}
+          data-mobile-navigation-surface="true"
+        >
           <section
             className={styles.mobileNavPanel}
             data-testid="mobile-navigation-root"
@@ -375,7 +379,8 @@ export const MobileNav: React.FC<MobileNavProps> = ({
               onClick={() => {
                 setSelectedRegion(readRegionPreference())
                 setLanguageOpen(true)
-                requestAnimationFrame(() => languageBackRef.current?.focus())
+                // Focus the view title (not the back button) so no focus ring flashes on tap.
+                requestAnimationFrame(() => languageTitleRef.current?.focus())
               }}
               ref={languageEntryRef}
               type="button"
@@ -403,12 +408,22 @@ export const MobileNav: React.FC<MobileNavProps> = ({
                   setLanguageOpen(false)
                   languageEntryRef.current?.focus()
                 }}
-                ref={languageBackRef}
                 type="button"
               >
                 <ChevronLeft aria-hidden="true" />
               </button>
-              <h2 className="website-type-title">{languageCopy.title}</h2>
+              <h2 className="website-type-title" ref={languageTitleRef} tabIndex={-1}>
+                {languageCopy.title}
+              </h2>
+              <button
+                aria-label="Close menu"
+                className={styles.mobileIconButton}
+                data-language-close="true"
+                onClick={() => close()}
+                type="button"
+              >
+                <X aria-hidden="true" />
+              </button>
             </div>
             <div className={styles.mobileLanguageBody}>
               <RegionList onSelect={setSelectedRegion} selectedRegion={currentRegion?.code} />
