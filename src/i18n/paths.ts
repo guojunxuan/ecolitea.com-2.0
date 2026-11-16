@@ -6,7 +6,20 @@ export function stripLocale(path: string): string {
   return !suffix || /^[?#]/.test(suffix) ? `/${suffix}` : suffix
 }
 export function localePath(path: string, locale = 'en'): string {
-  if (!path.startsWith('/') || path.startsWith('//') || /^\/(api|admin|next|_next)(\/|$)/.test(path)) return path
+  if (
+    !path.startsWith('/') ||
+    path.startsWith('//') ||
+    /^\/(api|admin|next|_next)(\/|$)/.test(path)
+  )
+    return path
   const source = stripLocale(path)
+  const pathname = source.split(/[?#]/)[0]
+  if (
+    /^\/(api|admin|next|_next|fonts|media|brand-assets|block-previews|demos)(\/|$)/.test(
+      pathname,
+    ) ||
+    /\.[^/]+$/.test(pathname)
+  )
+    return source
   return locale === 'en' ? source : `/${locale}${source === '/' ? '' : source}`
 }

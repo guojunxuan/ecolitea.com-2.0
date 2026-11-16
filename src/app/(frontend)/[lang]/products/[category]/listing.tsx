@@ -35,7 +35,13 @@ export async function renderProductListing({ categorySlug, page, locale = 'en' }
     getProductListing(category.id, page, locale),
     getProductCategoriesOverview(locale),
   ])
-  if (page > Math.max(1, listing.totalPages)) notFound()
+  if (page > Math.max(1, listing.totalPages)) {
+    await fallbackToEnglish(null, locale, url, async () => {
+      const english = await getProductListing(category.id, page)
+      return page <= Math.max(1, english.totalPages) ? english : null
+    })
+    notFound()
+  }
   const others = categories.filter((item) => item.id !== category.id)
   const base = productCategoryPath(category.slug)
   return (

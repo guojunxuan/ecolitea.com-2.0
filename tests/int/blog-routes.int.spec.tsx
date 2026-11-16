@@ -275,25 +275,29 @@ describe('blog listing routes', () => {
   it.each(['0', '-1', '1', '2.5', '2e1', '02', 'abc', 'Infinity'])(
     'rejects noncanonical page %s',
     async (pageNumber) => {
-      await expect(BlogPage({ params: Promise.resolve({ lang: 'en', pageNumber }) })).rejects.toThrow(
-        'NEXT_NOT_FOUND',
-      )
+      await expect(
+        BlogPage({ params: Promise.resolve({ lang: 'en', pageNumber }) }),
+      ).rejects.toThrow('NEXT_NOT_FOUND')
       expect(getBlogListing).not.toHaveBeenCalled()
     },
   )
 
   it('rejects out-of-range pages and unknown categories', async () => {
-    await expect(BlogPage({ params: Promise.resolve({ lang: 'en', pageNumber: '4' }) })).rejects.toThrow(
-      'NEXT_NOT_FOUND',
-    )
+    await expect(
+      BlogPage({ params: Promise.resolve({ lang: 'en', pageNumber: '4' }) }),
+    ).rejects.toThrow('NEXT_NOT_FOUND')
     await expect(
       CategoryPage({ params: Promise.resolve({ lang: 'en', categorySlug: 'missing' }) }),
     ).rejects.toThrow('NEXT_NOT_FOUND')
     await expect(
-      CategoryPaged({ params: Promise.resolve({ lang: 'en', categorySlug: 'missing', pageNumber: '2' }) }),
+      CategoryPaged({
+        params: Promise.resolve({ lang: 'en', categorySlug: 'missing', pageNumber: '2' }),
+      }),
     ).rejects.toThrow('NEXT_NOT_FOUND')
     await expect(
-      CategoryPaged({ params: Promise.resolve({ lang: 'en', categorySlug: 'tea-guides', pageNumber: '3' }) }),
+      CategoryPaged({
+        params: Promise.resolve({ lang: 'en', categorySlug: 'tea-guides', pageNumber: '3' }),
+      }),
     ).rejects.toThrow('NEXT_NOT_FOUND')
   })
 
@@ -302,7 +306,9 @@ describe('blog listing routes', () => {
       CategoryPage({ params: Promise.resolve({ lang: 'en', categorySlug: 'empty' }) }),
     ).rejects.toThrow('NEXT_NOT_FOUND')
     await expect(
-      CategoryPaged({ params: Promise.resolve({ lang: 'en', categorySlug: 'empty', pageNumber: '2' }) }),
+      CategoryPaged({
+        params: Promise.resolve({ lang: 'en', categorySlug: 'empty', pageNumber: '2' }),
+      }),
     ).rejects.toThrow('NEXT_NOT_FOUND')
   })
 
@@ -465,7 +471,7 @@ describe('blog listing routes', () => {
   })
 
   it('prerenders only populated categories while allowing new populated categories at request time', async () => {
-    expect(await generateStaticParams()).toEqual([
+    expect(await generateStaticParams({ params: { lang: 'en' } })).toEqual([
       { categorySlug: 'tea-guides' },
       { categorySlug: 'lifestyle' },
     ])

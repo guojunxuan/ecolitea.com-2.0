@@ -1,3 +1,4 @@
+import { getLocalizedList, readyTranslationFilter } from '@/utilities/i18n/getLocalized'
 import type { Post, PageArchiveBlock as ArchiveBlockProps } from '@/payload-types'
 
 import configPromise from '@payload-config'
@@ -11,9 +12,18 @@ import styles from './Component.module.css'
 export const ArchiveBlock: React.FC<
   ArchiveBlockProps & {
     id?: string
+    locale?: string
   }
 > = async (props) => {
-  const { id, categories, introContent, limit: limitFromProps, populateBy, selectedDocs } = props
+  const {
+    id,
+    categories,
+    introContent,
+    limit: limitFromProps,
+    populateBy,
+    selectedDocs,
+    locale = 'en',
+  } = props
 
   const limit = limitFromProps || 3
 
@@ -31,7 +41,21 @@ export const ArchiveBlock: React.FC<
       collection: 'posts',
       depth: 1,
       limit,
-      ...(flattenedCategories && flattenedCategories.length > 0
+      ...(locale !== 'en'
+        ? {
+            draft: false,
+            overrideAccess: false,
+            where: {
+              and: [
+                ...(await readyTranslationFilter(payload, 'posts', locale)),
+                ...(flattenedCategories?.length
+                  ? [{ categories: { in: flattenedCategories } }]
+                  : []),
+              ],
+            },
+          }
+        : {}),
+      ...(locale === 'en' && flattenedCategories && flattenedCategories.length > 0
         ? {
             where: {
               categories: {
@@ -42,7 +66,7 @@ export const ArchiveBlock: React.FC<
         : {}),
     })
 
-    posts = fetchedPosts.docs
+    posts = await getLocalizedList(fetchedPosts.docs, 'posts', locale, payload)
   } else {
     if (selectedDocs?.length) {
       const filteredSelectedPosts = selectedDocs.map((post) => {

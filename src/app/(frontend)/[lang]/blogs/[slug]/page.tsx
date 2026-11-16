@@ -26,7 +26,7 @@ import styles from './page.module.css'
 type Args = { params: Promise<{ lang: string; slug: string }> }
 
 // Unknown slugs remain available at runtime through Next's default dynamicParams behavior.
-export async function generateStaticParams(options?: { params: { lang: string } }) {
+export async function generateStaticParams(options: { params: { lang: string } }) {
   const locale = options?.params.lang ?? 'en'
   const payload = await getPayload({ config: configPromise })
   const slugs: { slug: string }[] = []

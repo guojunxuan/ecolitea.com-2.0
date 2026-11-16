@@ -1,5 +1,6 @@
+import { fallbackToEnglish } from '@/utilities/i18n/pageAccess'
 import { localizeMetadata } from '@/utilities/i18n/seo'
-import { getLocalizedList } from '@/utilities/i18n/getLocalized'
+import { getLocalizedList, readyTranslationFilter } from '@/utilities/i18n/getLocalized'
 import type { Metadata } from 'next/types'
 
 import { CollectionArchive } from '@/components/CollectionArchive'
@@ -28,11 +29,26 @@ export default async function Page({ params: paramsPromise }: Args) {
 
   const posts = await payload.find({
     collection: 'posts',
+    where: { and: await readyTranslationFilter(payload, 'posts', lang) },
     depth: 1,
     limit: 12,
     page: sanitizedPageNumber,
     overrideAccess: false,
   })
+
+  if (lang !== 'en' && posts.docs.length === 0) {
+    await fallbackToEnglish(null, lang, `/posts/page/${sanitizedPageNumber}`, async () => {
+      const english = await payload.find({
+        collection: 'posts',
+        draft: false,
+        overrideAccess: false,
+        page: sanitizedPageNumber,
+        limit: 12,
+        depth: 0,
+      })
+      return english.docs.length ? english : null
+    })
+  }
 
   return (
     <div className={styles.pageSection}>

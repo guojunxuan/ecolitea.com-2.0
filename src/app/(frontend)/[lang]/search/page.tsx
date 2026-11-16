@@ -97,7 +97,7 @@ export default async function Page({ searchParams: searchParamsPromise }: Args) 
   )
 }
 
-export async function generateMetadata(args?: {
+export async function generateMetadata(args: {
   params: Promise<{ lang: string }>
 }): Promise<Metadata> {
   const lang = (await args?.params)?.lang ?? 'en'

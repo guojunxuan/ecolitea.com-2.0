@@ -14,7 +14,7 @@ import { RenderHero } from '@/heros/RenderHero'
 import { generateMeta } from '@/utilities/generateMeta'
 import { LivePreviewListener } from '@/components/LivePreviewListener'
 
-export async function generateStaticParams(options?: { params: { lang: string } }) {
+export async function generateStaticParams(options: { params: { lang: string } }) {
   const locale = options?.params.lang ?? 'en'
   const payload = await getPayload({ config: configPromise })
   const pages = await payload.find({
@@ -77,7 +77,7 @@ export default async function Page({ params: paramsPromise }: Args) {
       {draft && <LivePreviewListener />}
 
       <RenderHero {...hero} />
-      <RenderPageBlocks blocks={layout} />
+      <RenderPageBlocks blocks={layout} locale={draft ? 'en' : lang} />
     </article>
   )
 }

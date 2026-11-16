@@ -31,7 +31,7 @@ type Args = { params: Promise<{ lang: string; category: string; product: string 
 const isFullBleed = (block?: ProductBlock) =>
   block?.blockType === 'productMediaBanner' ||
   (block?.blockType === 'productCode' && block.width === 'full')
-export async function generateStaticParams(options?: { params: { lang: string } }) {
+export async function generateStaticParams(options: { params: { lang: string } }) {
   const locale = options?.params.lang ?? 'en'
   return (await getProductStaticParams(locale)).products
 }

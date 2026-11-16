@@ -1,5 +1,5 @@
 import { localizeMetadata } from '@/utilities/i18n/seo'
-import { getLocalizedList } from '@/utilities/i18n/getLocalized'
+import { getLocalizedList, readyTranslationFilter } from '@/utilities/i18n/getLocalized'
 import type { Metadata } from 'next/types'
 
 import { CollectionArchive } from '@/components/CollectionArchive'
@@ -20,6 +20,7 @@ export default async function Page({ params }: { params?: Promise<{ lang: string
 
   const posts = await payload.find({
     collection: 'posts',
+    where: { and: await readyTranslationFilter(payload, 'posts', lang) },
     depth: 1,
     limit: 12,
     overrideAccess: false,
@@ -57,7 +58,7 @@ export default async function Page({ params }: { params?: Promise<{ lang: string
   )
 }
 
-export async function generateMetadata(args?: {
+export async function generateMetadata(args: {
   params: Promise<{ lang: string }>
 }): Promise<Metadata> {
   const lang = (await args?.params)?.lang ?? 'en'

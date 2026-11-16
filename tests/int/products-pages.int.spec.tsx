@@ -63,7 +63,9 @@ vi.mock('@/components/Products/OverflowCarousel', () => ({
     </section>
   ),
 }))
-import Overview, { generateMetadata as overviewMetadata } from '@/app/(frontend)/[lang]/products/page'
+import Overview, {
+  generateMetadata as overviewMetadata,
+} from '@/app/(frontend)/[lang]/products/page'
 import {
   parsePageNumber,
   renderProductListing,
@@ -277,7 +279,9 @@ describe('Products routes', () => {
   })
   it('uses the same single-link View More action for related product cards', async () => {
     mocks.related.mockResolvedValue([cards[0]])
-    render(await Detail({ params: Promise.resolve({ lang: 'en', category: 'tea', product: 'bag' }) }))
+    render(
+      await Detail({ params: Promise.resolve({ lang: 'en', category: 'tea', product: 'bag' }) }),
+    )
     const related = document.querySelector('[data-product-card]') as HTMLElement
     expect(related).toBeTruthy()
     expect(within(related).getByText('View More').closest('a')).toBe(related)
@@ -297,7 +301,9 @@ describe('Products routes', () => {
     ).rejects.toThrow('404')
   })
   it('selects Overview when specifications are empty and omits an empty Download action', async () => {
-    render(await Detail({ params: Promise.resolve({ lang: 'en', category: 'tea', product: 'bag' }) }))
+    render(
+      await Detail({ params: Promise.resolve({ lang: 'en', category: 'tea', product: 'bag' }) }),
+    )
     expect(screen.queryByText('Hidden label')).toBeNull()
     expect(screen.queryByText('You may also need')).toBeNull()
     expect(screen.queryByRole('tab', { name: 'Specifications' })).toBeNull()
@@ -318,7 +324,9 @@ describe('Products routes', () => {
       overview: ['The first paragraph.', 'A second paragraph.'],
       specifications: [{ group: null, items: [{ label: 'Width', value: '60 mm' }] }],
     })
-    render(await Detail({ params: Promise.resolve({ lang: 'en', category: 'tea', product: 'bag' }) }))
+    render(
+      await Detail({ params: Promise.resolve({ lang: 'en', category: 'tea', product: 'bag' }) }),
+    )
     const tabs = screen.getAllByRole('tab')
     expect(tabs.map((tab) => tab.textContent)).toEqual(['Overview', 'Specifications'])
     const overview = screen.getByRole('tab', { name: 'Overview', selected: true })
@@ -376,7 +384,9 @@ describe('Products routes', () => {
         },
       ],
     })
-    render(await Detail({ params: Promise.resolve({ lang: 'en', category: 'tea', product: 'bag' }) }))
+    render(
+      await Detail({ params: Promise.resolve({ lang: 'en', category: 'tea', product: 'bag' }) }),
+    )
     fireEvent.click(screen.getByRole('tab', { name: 'Specifications' }))
     const panel = screen.getByRole('tabpanel', { name: 'Specifications' })
     expect(within(panel).getByRole('heading', { name: 'Materials' })).toBeTruthy()
@@ -410,7 +420,9 @@ describe('Products routes', () => {
     )
     vi.spyOn(HTMLElement.prototype, 'scrollHeight', 'get').mockImplementation(() => fullHeight)
 
-    render(await Detail({ params: Promise.resolve({ lang: 'en', category: 'tea', product: 'bag' }) }))
+    render(
+      await Detail({ params: Promise.resolve({ lang: 'en', category: 'tea', product: 'bag' }) }),
+    )
     expect(screen.queryByRole('button', { name: 'Read more' })).toBeNull()
     fullHeight = 144
     act(() => measure?.([], {} as ResizeObserver))
@@ -451,7 +463,9 @@ describe('Products routes', () => {
 
     it('keeps file details out of the button and lists them in a labelled dialog', async () => {
       mocks.product.mockResolvedValue({ ...detail, downloads: files.slice(0, 1) })
-      render(await Detail({ params: Promise.resolve({ lang: 'en', category: 'tea', product: 'bag' }) }))
+      render(
+        await Detail({ params: Promise.resolve({ lang: 'en', category: 'tea', product: 'bag' }) }),
+      )
       const trigger = screen.getByRole('button', { name: 'Download' })
       expect(trigger.textContent).toBe('Download')
       expect(trigger.getAttribute('aria-haspopup')).toBe('dialog')
@@ -472,7 +486,9 @@ describe('Products routes', () => {
     })
     it('lists every file and closes from the Close button, releasing scroll and focus', async () => {
       mocks.product.mockResolvedValue({ ...detail, downloads: files })
-      render(await Detail({ params: Promise.resolve({ lang: 'en', category: 'tea', product: 'bag' }) }))
+      render(
+        await Detail({ params: Promise.resolve({ lang: 'en', category: 'tea', product: 'bag' }) }),
+      )
       const trigger = screen.getByRole('button', { name: 'Download' })
       fireEvent.click(trigger)
       const dialog = dialogOf()
@@ -490,7 +506,9 @@ describe('Products routes', () => {
     })
     it('closes on a backdrop click but not on a click inside the panel', async () => {
       mocks.product.mockResolvedValue({ ...detail, downloads: files })
-      render(await Detail({ params: Promise.resolve({ lang: 'en', category: 'tea', product: 'bag' }) }))
+      render(
+        await Detail({ params: Promise.resolve({ lang: 'en', category: 'tea', product: 'bag' }) }),
+      )
       fireEvent.click(screen.getByRole('button', { name: 'Download' }))
       const dialog = dialogOf()
       fireEvent.click(within(dialog).getByRole('heading', { name: 'Resources', hidden: true }))
@@ -514,7 +532,9 @@ describe('Products routes', () => {
         { id: 'back', alt: 'Back view' },
       ],
     })
-    render(await Detail({ params: Promise.resolve({ lang: 'en', category: 'tea', product: 'bag' }) }))
+    render(
+      await Detail({ params: Promise.resolve({ lang: 'en', category: 'tea', product: 'bag' }) }),
+    )
     const gallery = screen.getByRole('region', { name: 'Product images' })
     expect(within(gallery).getByRole('img', { name: 'Front view' })).toBeTruthy()
     fireEvent.click(screen.getByRole('button', { name: 'Show image 2 of 2' }))
@@ -532,12 +552,16 @@ describe('Products routes', () => {
   })
   it('uses draft lookup and live preview listener', async () => {
     mocks.draft.mockResolvedValue({ isEnabled: true })
-    render(await Detail({ params: Promise.resolve({ lang: 'en', category: 'tea', product: 'bag' }) }))
+    render(
+      await Detail({ params: Promise.resolve({ lang: 'en', category: 'tea', product: 'bag' }) }),
+    )
     expect(mocks.product).toHaveBeenCalledWith('bag', { draft: true, locale: 'en' })
     expect(screen.getByText('Preview listener')).toBeTruthy()
   })
   it('provides overview twitter and paginated category canonicals without twitter', async () => {
-    expect(await overviewMetadata()).toHaveProperty('twitter')
+    expect(await overviewMetadata({ params: Promise.resolve({ lang: 'en' }) })).toHaveProperty(
+      'twitter',
+    )
     const metadata = await productListingMetadata({ categorySlug: 'tea', page: 2 })
     expect(metadata.twitter).toBeNull()
     expect(metadata.alternates?.canonical).toBe('/products/tea/page/2')

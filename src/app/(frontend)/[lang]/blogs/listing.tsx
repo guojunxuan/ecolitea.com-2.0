@@ -1,5 +1,9 @@
 import { localizeMetadata, readySourceIDs } from '@/utilities/i18n/seo'
-import { getLocalizedDoc, getLocalizedList } from '@/utilities/i18n/getLocalized'
+import {
+  getLocalizedDoc,
+  getLocalizedList,
+  readyTranslationFilter,
+} from '@/utilities/i18n/getLocalized'
 import { fallbackToEnglish } from '@/utilities/i18n/pageAccess'
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
@@ -53,45 +57,56 @@ const getCategories = unstable_cache(
   { tags: ['blog-categories', 'blogs-list'], revalidate: 600 },
 )
 
-const getCategoryCounts = unstable_cache(
-  async (): Promise<[string, number][]> => {
-    const payload = await getPayload({ config: configPromise })
-    const counts = new Map<string, number>()
-    let page = 1
-    let hasNextPage = true
-    while (hasNextPage) {
-      const result = await payload.find({
-        collection: 'blogs',
-        depth: 0,
-        draft: false,
-        limit: 100,
-        page,
-        overrideAccess: false,
-        select: { category: true },
-        where: publicBlogVisibility(new Date()),
-      })
-      for (const blog of result.docs) {
-        const id =
-          typeof blog.category === 'object' && blog.category !== null
-            ? blog.category.id
-            : blog.category
-        if (id) counts.set(id, (counts.get(id) ?? 0) + 1)
+const getCategoryCounts = (locale = 'en') =>
+  unstable_cache(
+    async (): Promise<[string, number][]> => {
+      const payload = await getPayload({ config: configPromise })
+      const counts = new Map<string, number>()
+      let page = 1
+      let hasNextPage = true
+      while (hasNextPage) {
+        const result = await payload.find({
+          collection: 'blogs',
+          depth: 0,
+          draft: false,
+          limit: 100,
+          page,
+          overrideAccess: false,
+          select: { category: true },
+          where: {
+            and: [
+              publicBlogVisibility(new Date()),
+              ...(await readyTranslationFilter(payload, 'blogs', locale)),
+            ],
+          },
+        })
+        for (const blog of result.docs) {
+          const id =
+            typeof blog.category === 'object' && blog.category !== null
+              ? blog.category.id
+              : blog.category
+          if (id) counts.set(id, (counts.get(id) ?? 0) + 1)
+        }
+        hasNextPage = result.hasNextPage
+        page += 1
       }
-      hasNextPage = result.hasNextPage
-      page += 1
-    }
-    return [...counts]
-  },
-  ['blog-category-counts'],
-  { tags: ['blogs-list', 'blog-categories'], revalidate: 600 },
-)
+      return [...counts]
+    },
+    ['blog-category-counts', locale],
+    { tags: ['blogs-list', 'blog-categories', `translations:${locale}`], revalidate: 600 },
+  )()
 
 async function resolveCategory(slug?: string, locale = 'en'): Promise<Category | undefined> {
   if (!slug) return undefined
   const category = (await getCategories()).find((item) => item.slug === slug)
   if (!category) notFound()
-  const counts = new Map(await getCategoryCounts())
-  if (!counts.get(category.id)) notFound()
+  const counts = new Map(await getCategoryCounts(locale))
+  if (!counts.get(category.id)) {
+    await fallbackToEnglish(null, locale, `/blogs/category/${slug}`, async () =>
+      new Map(await getCategoryCounts()).get(category.id),
+    )
+    notFound()
+  }
   const translated = await getLocalizedDoc(category, 'blog-categories', locale)
   await fallbackToEnglish(translated, locale, `/blogs/category/${slug}`, async () => category)
   return translated ?? undefined
@@ -108,11 +123,22 @@ export async function renderBlogListing({ page, categorySlug, locale = 'en' }: L
   const category = await resolveCategory(categorySlug, locale)
   const [categories, countEntries, listing, listingHero] = await Promise.all([
     getCategories(),
-    getCategoryCounts(),
+    getCategoryCounts(locale),
     getBlogListing(page, category?.id, locale),
     getBlogListingHero(locale),
   ])
-  if (page > 1 && (page > listing.totalPages || listing.docs.length === 0)) notFound()
+  if (page > 1 && (page > listing.totalPages || listing.docs.length === 0)) {
+    await fallbackToEnglish(
+      null,
+      locale,
+      `${category ? `/blogs/category/${category.slug}` : '/blogs'}/page/${page}`,
+      async () => {
+        const english = await getBlogListing(page, category?.id)
+        return english.docs.length ? english : null
+      },
+    )
+    notFound()
+  }
   const counts = new Map(countEntries)
 
   const localizedCategories = await getLocalizedList(categories, 'blog-categories', locale)
@@ -220,9 +246,9 @@ export async function blogListingMetadata({
   )
 }
 
-export async function getCategoryStaticParams(options?: { params: { lang: string } }) {
+export async function getCategoryStaticParams(options: { params: { lang: string } }) {
   const locale = options?.params.lang ?? 'en'
-  const [categories, countEntries] = await Promise.all([getCategories(), getCategoryCounts()])
+  const [categories, countEntries] = await Promise.all([getCategories(), getCategoryCounts(locale)])
   const counts = new Map(countEntries)
   const ready =
     locale === 'en'

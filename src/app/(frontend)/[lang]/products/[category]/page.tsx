@@ -4,7 +4,7 @@ import { productListingMetadata, renderProductListing } from './listing'
 export const dynamic = 'force-static'
 export const revalidate = 600
 type Args = { params: Promise<{ lang: string; category: string }> }
-export async function generateStaticParams(options?: { params: { lang: string } }) {
+export async function generateStaticParams(options: { params: { lang: string } }) {
   const locale = options?.params.lang ?? 'en'
   return (await getProductStaticParams(locale)).categories.map((category) => ({ category }))
 }

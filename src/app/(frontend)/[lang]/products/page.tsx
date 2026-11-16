@@ -125,7 +125,7 @@ export default async function ProductsPage({ params }: { params?: Promise<{ lang
     </div>
   )
 }
-export async function generateMetadata(args?: {
+export async function generateMetadata(args: {
   params: Promise<{ lang: string }>
 }): Promise<Metadata> {
   const lang = (await args?.params)?.lang ?? 'en'

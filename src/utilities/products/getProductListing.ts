@@ -1,4 +1,4 @@
-import { getLocalizedList } from '../i18n/getLocalized'
+import { getLocalizedList, readyTranslationFilter } from '../i18n/getLocalized'
 import { cached, client, toProductCard, visible } from './shared'
 
 export const getProductListing = (categoryId: string, page: number, locale = 'en') =>
@@ -15,7 +15,10 @@ export const getProductListing = (categoryId: string, page: number, locale = 'en
         limit: 12,
         page,
         sort: '-publishedAt',
-        where: visible([{ category: { equals: categoryId } }]),
+        where: visible([
+          { category: { equals: categoryId } },
+          ...(await readyTranslationFilter(payload, 'products', locale)),
+        ]),
       })
       return {
         docs: (await getLocalizedList(result.docs, 'products', locale, payload)).map(toProductCard),

@@ -1,6 +1,6 @@
 import { readySourceIDs } from '@/utilities/i18n/seo'
 import { getDocumentBySlug } from '@/utilities/i18n/getDocumentBySlug'
-import { enforceLegalLocale, fallbackToEnglish } from '@/utilities/i18n/pageAccess'
+import { fallbackToEnglish } from '@/utilities/i18n/pageAccess'
 import { postRichTextBlocks } from '@/collections/Posts/blocks/richTextBlocks'
 import type { Metadata } from 'next'
 
@@ -20,7 +20,7 @@ import { LivePreviewListener } from '@/components/LivePreviewListener'
 
 import styles from '../../pages.module.css'
 
-export async function generateStaticParams(options?: { params: { lang: string } }) {
+export async function generateStaticParams(options: { params: { lang: string } }) {
   const locale = options?.params.lang ?? 'en'
   const payload = await getPayload({ config: configPromise })
   const posts = await payload.find({

@@ -233,7 +233,7 @@ describe('blog detail', () => {
   it('pre-generates only visible published slugs', async () => {
     const find = vi.fn().mockResolvedValue({ docs: [{ slug: 'visible' }], hasNextPage: false })
     mockGetPayload.mockResolvedValue({ find })
-    expect(await generateStaticParams()).toEqual([{ slug: 'visible' }])
+    expect(await generateStaticParams({ params: { lang: 'en' } })).toEqual([{ slug: 'visible' }])
     expect(find).toHaveBeenCalledWith(
       expect.objectContaining({
         collection: 'blogs',

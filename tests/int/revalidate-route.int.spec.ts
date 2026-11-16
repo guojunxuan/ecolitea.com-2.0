@@ -47,7 +47,7 @@ describe('authenticated Next revalidation boundary', () => {
     ).toBe(204)
     expect(tag).toHaveBeenCalledWith('translation:pages:1:de', { expire: 0 })
     expect(path).toHaveBeenCalledWith('/en/about')
-    expect(path).toHaveBeenCalledWith('/en/posts/[slug]', 'page')
+    expect(path).toHaveBeenCalledWith('/[lang]/posts/[slug]', 'page')
   })
   it.each([
     null,

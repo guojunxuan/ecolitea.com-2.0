@@ -11,9 +11,10 @@ import styles from './RenderPageBlocks.module.css'
 
 export type RenderPageBlocksProps = {
   blocks: Page['layout']
+  locale?: string
 }
 
-export const RenderPageBlocks: React.FC<RenderPageBlocksProps> = ({ blocks }) => {
+export const RenderPageBlocks: React.FC<RenderPageBlocksProps> = ({ blocks, locale = 'en' }) => {
   if (!blocks?.length) return null
 
   return (
@@ -23,7 +24,7 @@ export const RenderPageBlocks: React.FC<RenderPageBlocksProps> = ({ blocks }) =>
 
         switch (block.blockType) {
           case 'pageArchive':
-            content = <ArchiveBlock {...block} id={block.id ?? undefined} />
+            content = <ArchiveBlock {...block} locale={locale} id={block.id ?? undefined} />
             break
           case 'pageContent':
             content = <ContentBlock {...block} />

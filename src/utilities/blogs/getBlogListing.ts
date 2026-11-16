@@ -1,4 +1,4 @@
-import { getLocalizedList } from '../i18n/getLocalized'
+import { getLocalizedList, readyTranslationFilter } from '../i18n/getLocalized'
 import configPromise from '@payload-config'
 import { unstable_cache } from 'next/cache'
 import { getPayload, type PaginatedDocs } from 'payload'
@@ -38,6 +38,7 @@ export async function getBlogListing(
         where: {
           and: [
             publicBlogVisibility(new Date()),
+            ...(await readyTranslationFilter(payload, 'blogs', locale)),
             ...(categoryId ? [{ category: { equals: categoryId } }] : []),
           ],
         },
@@ -46,7 +47,11 @@ export async function getBlogListing(
     },
     ['blogs-list', String(page), categoryId ?? 'all', locale],
     {
-      tags: ['blogs-list', `translations:${locale}`, ...(categoryId ? [`blog-category-${categoryId}`] : [])],
+      tags: [
+        'blogs-list',
+        `translations:${locale}`,
+        ...(categoryId ? [`blog-category-${categoryId}`] : []),
+      ],
       revalidate: 600,
     },
   )

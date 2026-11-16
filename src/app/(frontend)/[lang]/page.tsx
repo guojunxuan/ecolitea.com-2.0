@@ -6,7 +6,7 @@ import { readySourceIDs } from '@/utilities/i18n/seo'
 export default PageTemplate
 export { generateMetadata }
 
-export async function generateStaticParams(options?: { params: { lang: string } }) {
+export async function generateStaticParams(options: { params: { lang: string } }) {
   const locale = options?.params.lang ?? 'en'
   if (locale === 'en') return [{}]
   const payload = await getPayload({ config })

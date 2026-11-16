@@ -7,6 +7,15 @@ describe('public locale URLs', () => {
     expect(localePath('/products?q=tea', 'en')).toBe('/products?q=tea')
     expect(localePath('https://example.invalid/x', 'de')).toBe('https://example.invalid/x')
     expect(localePath('#details', 'de')).toBe('#details')
+    for (const path of [
+      '/catalog.pdf',
+      '/media/download',
+      '/fonts/a',
+      '/brand-assets/logo',
+      '/block-previews/a',
+      '/demos/a',
+    ])
+      expect(localePath(path, 'de')).toBe(path)
   })
   it('prefixes internal links once and shares English slugs', () => {
     expect(localePath('/blogs/tea', 'de')).toBe('/de/blogs/tea')
