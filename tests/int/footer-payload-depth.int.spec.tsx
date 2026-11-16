@@ -10,6 +10,7 @@ vi.mock('@/utilities/getGlobals', () => ({
 }))
 
 import { Footer } from '@/Footer/Component'
+import { ConsentProvider } from '@/consent/ConsentProvider'
 
 afterEach(() => {
   cleanup()
@@ -48,7 +49,7 @@ describe('Footer Payload relationship depth', () => {
       ],
     })
 
-    render(await Footer())
+    render(<ConsentProvider gtmDisabled>{await Footer()}</ConsentProvider>)
 
     expect(getCachedFooterMock).toHaveBeenCalledOnce()
     expect(getCachedSiteSettingsMock).toHaveBeenCalledOnce()

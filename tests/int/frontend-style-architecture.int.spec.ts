@@ -382,7 +382,9 @@ describe('frontend style architecture', () => {
   })
 
   it('keeps all owned TSX free of utility and unknown literal classes', async () => {
-    const files = listFiles('src', '.tsx')
+    // Phase 2 Admin component classes belong to Payload, outside the public shell.
+    const translationAdmin = path.join('src', 'plugins', 'translation', 'admin') + path.sep
+    const files = listFiles('src', '.tsx').filter((file) => !file.startsWith(translationAdmin))
     const violations = (
       await Promise.all(files.map((file) => scanShellClasses(file, read(file))))
     ).flat()
