@@ -11,9 +11,7 @@ export type ServerEnv = {
   R2_PUBLIC_URL: string
   TURNSTILE_SECRET_KEY?: string
   QUOTE_IP_HASH_SALT?: string
-  GOOGLE_TRANSLATE_API_KEY?: string
   REVALIDATE_SECRET?: string
-  TRANSLATION_MONTHLY_CHAR_LIMIT: number
   JOBS_AUTORUN: boolean
 }
 
@@ -29,12 +27,7 @@ const required = [
   'R2_ENDPOINT',
   'R2_PUBLIC_URL',
 ] as const
-const optional = [
-  'TURNSTILE_SECRET_KEY',
-  'QUOTE_IP_HASH_SALT',
-  'GOOGLE_TRANSLATE_API_KEY',
-  'REVALIDATE_SECRET',
-] as const
+const optional = ['TURNSTILE_SECRET_KEY', 'QUOTE_IP_HASH_SALT', 'REVALIDATE_SECRET'] as const
 export function parseServerEnv(env: Partial<NodeJS.ProcessEnv>): ServerEnv {
   const out = {} as Record<(typeof required)[number], string>
   for (const key of required) {
@@ -44,13 +37,8 @@ export function parseServerEnv(env: Partial<NodeJS.ProcessEnv>): ServerEnv {
   }
   out.R2_PUBLIC_URL = out.R2_PUBLIC_URL.replace(/\/+$/, '')
   out.NEXT_PUBLIC_SERVER_URL = out.NEXT_PUBLIC_SERVER_URL.replace(/\/+$/, '')
-  const monthlyLimit = Number(env.TRANSLATION_MONTHLY_CHAR_LIMIT?.trim() || '450000')
-  if (!Number.isSafeInteger(monthlyLimit) || monthlyLimit <= 0) {
-    throw new Error('TRANSLATION_MONTHLY_CHAR_LIMIT must be a positive safe integer')
-  }
   const result: ServerEnv = {
     ...out,
-    TRANSLATION_MONTHLY_CHAR_LIMIT: monthlyLimit,
     JOBS_AUTORUN: env.JOBS_AUTORUN === 'true',
   }
   for (const key of optional) {
@@ -85,3 +73,10 @@ export const serverEnv = parseServerEnv(
     ? { ...testDefaults, ...testOptionalDefaults, ...process.env }
     : process.env,
 )
+
+// Public build-time values use literal reads so Next can inline them. Keep this
+// model separate from the server contract; client components must not import
+// this module because serverEnv validates server-only configuration on load.
+export const publicEnv = {
+  NEXT_PUBLIC_TURNSTILE_SITE_KEY: process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY,
+}

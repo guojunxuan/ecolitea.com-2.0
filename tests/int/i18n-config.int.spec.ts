@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { isLocaleSegment, sourceLocale } from '@/i18n/config'
 import { parseServerEnv } from '@/utilities/env'
 
@@ -55,29 +55,25 @@ describe('language configuration', () => {
   )
 })
 
-describe('translation environment', () => {
-  it('defaults to a conservative quota with no credentials or worker', () => {
-    expect(parseServerEnv(base)).toMatchObject({
-      TRANSLATION_MONTHLY_CHAR_LIMIT: 450000,
-      JOBS_AUTORUN: false,
-    })
-    expect(parseServerEnv(base).GOOGLE_TRANSLATE_API_KEY).toBeUndefined()
-    expect(parseServerEnv(base).REVALIDATE_SECRET).toBeUndefined()
+describe('server environment', () => {
+  it('keeps integration settings out of the deployment environment model', () => {
+    expect(parseServerEnv(base)).toEqual({ ...base, JOBS_AUTORUN: false })
   })
 
-  it('parses configured values and trims optional secrets', () => {
+  it('parses worker topology and trims optional secrets', () => {
     expect(
       parseServerEnv({
         ...base,
-        GOOGLE_TRANSLATE_API_KEY: ' key ',
         REVALIDATE_SECRET: ' secret ',
-        TRANSLATION_MONTHLY_CHAR_LIMIT: '123',
+        TURNSTILE_SECRET_KEY: ' turnstile-secret ',
+        QUOTE_IP_HASH_SALT: ' ip-salt ',
         JOBS_AUTORUN: 'true',
       }),
-    ).toMatchObject({
-      GOOGLE_TRANSLATE_API_KEY: 'key',
+    ).toEqual({
+      ...base,
       REVALIDATE_SECRET: 'secret',
-      TRANSLATION_MONTHLY_CHAR_LIMIT: 123,
+      TURNSTILE_SECRET_KEY: 'turnstile-secret',
+      QUOTE_IP_HASH_SALT: 'ip-salt',
       JOBS_AUTORUN: true,
     })
   })
@@ -86,12 +82,33 @@ describe('translation environment', () => {
     expect(parseServerEnv({ ...base, JOBS_AUTORUN: value }).JOBS_AUTORUN).toBe(false)
   })
 
-  it.each(['0', '-1', '1.5', 'invalid', 'Infinity', '9007199254740992'])(
-    'rejects invalid monthly limit %s',
-    (value) => {
-      expect(() => parseServerEnv({ ...base, TRANSLATION_MONTHLY_CHAR_LIMIT: value })).toThrow(
-        'TRANSLATION_MONTHLY_CHAR_LIMIT',
-      )
-    },
-  )
+  it('keeps required configuration strict and normalizes public origins', () => {
+    expect(() => parseServerEnv({ ...base, PAYLOAD_SECRET: ' ' })).toThrow(
+      'Missing required environment variable: PAYLOAD_SECRET',
+    )
+    expect(
+      parseServerEnv({
+        ...base,
+        NEXT_PUBLIC_SERVER_URL: ' https://site.example.invalid/// ',
+        R2_PUBLIC_URL: ' https://media.example.invalid/// ',
+      }),
+    ).toMatchObject({
+      NEXT_PUBLIC_SERVER_URL: 'https://site.example.invalid',
+      R2_PUBLIC_URL: 'https://media.example.invalid',
+    })
+  })
+})
+
+describe('public environment', () => {
+  afterEach(() => {
+    vi.unstubAllEnvs()
+    vi.resetModules()
+  })
+
+  it('exposes the public Turnstile site key without exposing server secrets', async () => {
+    vi.stubEnv('NEXT_PUBLIC_TURNSTILE_SITE_KEY', 'public-test-site-key')
+    vi.resetModules()
+    const { publicEnv } = await import('@/utilities/env')
+    expect(publicEnv).toEqual({ NEXT_PUBLIC_TURNSTILE_SITE_KEY: 'public-test-site-key' })
+  })
 })

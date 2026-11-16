@@ -4,9 +4,9 @@ declare global {
       PAYLOAD_SECRET: string
       DATABASE_URI: string
       MONGODB_URI: string
-      NEXT_PUBLIC_GTM_MEASUREMENT_ID?: string
-      GOOGLE_TRANSLATE_API_KEY?: string
-      TRANSLATION_MONTHLY_CHAR_LIMIT?: string
+      NEXT_PUBLIC_TURNSTILE_SITE_KEY?: string
+      TURNSTILE_SECRET_KEY?: string
+      QUOTE_IP_HASH_SALT?: string
       JOBS_AUTORUN?: string
       REVALIDATE_SECRET?: string
       NEXT_PUBLIC_SERVER_URL: string
