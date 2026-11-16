@@ -1,4 +1,5 @@
 import React from 'react'
+import { readFileSync } from 'node:fs'
 import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { LanguageSwitcher } from '@/Header/Nav/LanguageSwitcher'
@@ -110,6 +111,92 @@ describe('Phase 4 language panel', () => {
     expect(view.hasAttribute('inert')).toBe(true)
     expect(document.activeElement).toBe(entry)
   })
+
+  it('focuses the sliding language title without scrolling its clipped parent', () => {
+    const frames: FrameRequestCallback[] = []
+    vi.stubGlobal('requestAnimationFrame', (callback: FrameRequestCallback) => {
+      frames.push(callback)
+      return frames.length
+    })
+    render(<MobileNav menuCta={null} navItems={[]} />)
+    fireEvent.click(screen.getByRole('button', { name: 'Open navigation' }))
+    fireEvent.click(screen.getByRole('button', { name: /Global EN/ }))
+    const title = within(document.getElementById('mobile-language-view')!).getByRole('heading', {
+      name: 'Location & language',
+    })
+    const focus = vi.spyOn(title, 'focus')
+    act(() => frames.forEach((callback) => callback(0)))
+    expect(focus).toHaveBeenCalledWith({ preventScroll: true })
+    const css = readFileSync('src/Header/Nav/index.module.css', 'utf8')
+    expect(css).toMatch(/\.mobileNavDialog\s*\{[^}]*overflow: clip;/)
+  })
+
+  it.each(['success', 'failure'] as const)(
+    'keeps the mobile language view open throughout selection and %s without closing or returning',
+    async (outcome) => {
+      let respond!: (response: Response) => void
+      const fetchTarget = vi.fn(
+        () =>
+          new Promise<Response>((resolve) => {
+            respond = resolve
+          }),
+      )
+      const assign = vi.fn()
+      vi.stubGlobal('fetch', fetchTarget)
+      vi.stubGlobal('location', {
+        pathname: '/',
+        search: '?ref=langfix',
+        hash: '#test',
+        origin: 'http://localhost',
+        protocol: 'http:',
+        assign,
+      })
+      const onOpenChange = vi.fn()
+      render(<MobileNav menuCta={null} navItems={[]} onOpenChange={onOpenChange} />)
+      fireEvent.click(screen.getByRole('button', { name: 'Open navigation' }))
+      const entry = screen.getByRole('button', { name: /Global EN/ })
+      fireEvent.click(entry)
+      const view = document.getElementById('mobile-language-view')!
+      const selected = within(view).getByRole('button', { name: /Deutschland · Deutsch/ })
+      const entryFocus = vi.spyOn(entry, 'focus')
+      const closeStates: string[] = []
+      const observer = new MutationObserver((records) => {
+        for (const record of records)
+          if (record.attributeName === 'data-open') closeStates.push(view.dataset.open!)
+      })
+      observer.observe(view, { attributes: true, attributeOldValue: true })
+      onOpenChange.mockClear()
+      fireEvent.pointerDown(selected)
+      fireEvent.click(selected)
+      expect(selected).toHaveProperty('disabled', true)
+      expect(view.dataset.open).toBe('true')
+      expect(view.hasAttribute('inert')).toBe(false)
+      expect(screen.getByRole('dialog', { name: 'Navigation' })).toBeTruthy()
+      await act(async () => {
+        respond(
+          new Response(JSON.stringify({ href: '/de' }), {
+            status: outcome === 'success' ? 200 : 503,
+          }),
+        )
+      })
+      expect(document.getElementById('mobile-language-view')).toBe(view)
+      expect(view.dataset.open).toBe('true')
+      expect(view.closest('[data-language-open="true"]')).toBeTruthy()
+      expect(entry.getAttribute('aria-expanded')).toBe('true')
+      expect(closeStates).toEqual([])
+      expect(onOpenChange).not.toHaveBeenCalled()
+      expect(entryFocus).not.toHaveBeenCalled()
+      if (outcome === 'success') {
+        expect(assign).toHaveBeenCalledWith('/de?ref=langfix#test')
+        expect(selected).toHaveProperty('disabled', true)
+      } else {
+        expect(within(view).getByRole('alert').textContent).toContain('Unable to switch language')
+        expect(selected).toHaveProperty('disabled', false)
+        expect(assign).not.toHaveBeenCalled()
+      }
+      observer.disconnect()
+    },
+  )
 
   it('keeps the Global EN entry when no additional languages are public', () => {
     const german = fixture.i18n.publicLocales.pop()!

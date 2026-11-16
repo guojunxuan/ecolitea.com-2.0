@@ -379,8 +379,8 @@ export const MobileNav: React.FC<MobileNavProps> = ({
               onClick={() => {
                 setSelectedRegion(readRegionPreference())
                 setLanguageOpen(true)
-                // Focus the view title (not the back button) so no focus ring flashes on tap.
-                requestAnimationFrame(() => languageTitleRef.current?.focus())
+                // Keep focus from scrolling the clipped parent while the view slides in.
+                requestAnimationFrame(() => languageTitleRef.current?.focus({ preventScroll: true }))
               }}
               ref={languageEntryRef}
               type="button"
