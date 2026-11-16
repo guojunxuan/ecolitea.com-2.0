@@ -514,3 +514,34 @@
     transition-duration: 0.01ms;
   }
 }
+
+.mobileLanguageEntry {
+  composes: website-type-body-sm from global;
+  align-items: center;
+  background: transparent;
+  border: 0;
+  border-top: 1px solid var(--website-color-border);
+  color: inherit;
+  cursor: pointer;
+  display: flex;
+  gap: var(--website-space-3);
+  min-height: var(--website-control-large);
+  margin-top: var(--website-space-6);
+  padding: var(--website-space-4) 0;
+  text-align: left;
+  width: 100%;
+}
+.mobileLanguageEntry > svg {
+  /* Same optical size as the toolbar globe. */
+  height: calc(var(--website-icon-large) * 0.875);
+  width: calc(var(--website-icon-large) * 0.875);
+}
+.mobileLanguageEntry > svg:last-child {
+  height: var(--website-icon-medium);
+  width: var(--website-icon-medium);
+}
+.mobileLanguageShort {
+  composes: website-type-caption from global;
+  color: var(--website-color-muted-foreground);
+  margin-left: auto;
+}

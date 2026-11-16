@@ -6,7 +6,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: var(--website-space-2);
+  gap: var(--website-space-1);
   min-height: var(--website-control-target-min);
   padding: 0;
   color: inherit;
@@ -15,9 +15,15 @@
   cursor: pointer;
   white-space: nowrap;
 }
+/* The globe's circle fills more of its box than the search glyph; these sizes match
+   its outline to the search circle (desktop search 19px, mobile search 24px). */
 .trigger svg {
-  width: var(--website-icon-large);
-  height: var(--website-icon-large);
+  width: 17px;
+  height: 17px;
+}
+.root[data-mode='mobile'] .trigger svg {
+  width: calc(var(--website-icon-large) * 0.875);
+  height: calc(var(--website-icon-large) * 0.875);
 }
 .root[data-mode='mobile'] .trigger {
   width: var(--website-control-target-min);
