@@ -26,6 +26,8 @@
 
 ## 3. 语言与地区配置
 
+> 2026-11-16 修订：本节由 [Phase 4 计划](../plans/2026-11-16-phase4-settings-language-and-panels.md) 的 §0、A–D 取代。语言状态、地区和 Cookie 长文案由 Site Settings 管理；界面按 Phase 4 面板结构实现。下文保留为历史设计记录。
+
 单一来源、类型化的代码配置 `src/i18n/config.ts`，做法与 Payload 官方把 `localization.locales` 放在 config 中一致（语言属于系统结构，新增必须部署）。翻译插件、`proxy.ts`、sitemap、hreflang、Header 选择器都只从这里读取。
 
 ```ts
@@ -151,6 +153,8 @@ Site Settings → Legal 引用的 Privacy Policy、Cookie Policy、Terms 三个 
 
 ## 6. 前台界面
 
+> 2026-11-16 修订：本节由 [Phase 4 计划](../plans/2026-11-16-phase4-settings-language-and-panels.md) 的 §0、A–D 取代。语言状态、地区和 Cookie 长文案由 Site Settings 管理；界面按 Phase 4 面板结构实现。下文保留为历史设计记录。
+
 ### 6.1 语言选择器
 
 - 桌面：入口位于 Header 搜索按钮左侧，显示 🌐 + 当前语言名（始终只显示语言）。点击后在入口正下方展开下拉面板，右缘对齐入口，沿用现有 mega menu 表面样式；与 mega menu 互斥；点击外部、Esc、再次点击入口收起。透明 Header 与滚动玻璃 Header 下颜色跟随现有主题。
@@ -204,6 +208,8 @@ Site Settings → Legal 引用的 Privacy Policy、Cookie Policy、Terms 三个 
 - 事件中不发送邮箱、电话、询盘正文等个人信息。
 
 ## 9. 配置归属
+
+> 2026-11-16 修订：本节由 [Phase 4 计划](../plans/2026-11-16-phase4-settings-language-and-panels.md) 的 §0、A–D 取代。语言状态、地区和 Cookie 长文案由 Site Settings 管理；界面按 Phase 4 面板结构实现。下文保留为历史设计记录。
 
 | 位置 | 内容 |
 |---|---|

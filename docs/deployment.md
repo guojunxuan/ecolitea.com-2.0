@@ -106,9 +106,9 @@ Next.js supplies the authenticated cache-invalidation boundary; Google is a repl
 The frontend consumes ready translations through its language-aware reading boundary; the
 translation plugin owns records, queueing and invalidation, while Next.js owns public routing and SEO.
 
-Configure languages in `src/i18n/config.ts`. `source` is English; `translating` and `live` are
-translation targets. The default contains only English and Global, so no translation work is
-queued. Add the following server environment variables before enabling targets:
+The fixed language catalog is `src/i18n/catalog.ts`. Configure target status and visitor regions in
+Site Settings → Language. English is the fixed source; `translating` and `live` are translation
+targets. An empty configuration keeps only English and Global and queues no translation work. Add the following server environment variables before enabling targets:
 
 ```dotenv
 GOOGLE_TRANSLATE_API_KEY=
@@ -218,11 +218,13 @@ checkpoint for configured target locales, and returns `null` when no usable tran
 Frontend callers also enforce public locale/source visibility, handle the English redirect
 fallback, and partition caches by locale.
 
-## Launching a frontend language (Phase 3)
+## Launching a frontend language (Phase 4)
 
-The deployment configuration in `src/i18n/config.ts` owns public languages and regions. Keep
-English as `source`; add a target as `translating` and add its region entries, then deploy.
-A translating locale remains unavailable to public requests, the selector and SEO output.
+Site Settings → Language owns target status and regions; `src/i18n/catalog.ts` owns the 18 supported
+languages and provider codes. Add a target as `translating`, add its region entries and retain an
+English region (empty regions use Global). Saving takes effect without deploying. A translating
+locale remains unavailable to final public requests, the selector and SEO output. Enabling a
+language does not enqueue a full backfill; explicitly inspect and execute the producer below.
 
 Use the bulk producer to inspect and enqueue the current public inventory. Replace `<locale>`
 with the configured code and explicitly select the environment's `DATABASE_URI` before running:
@@ -263,6 +265,25 @@ corepack pnpm exec tsx scripts/scan-reserved-slugs.ts --confirm
 ```
 
 Resolve any reported conflicts manually; the scan never renames content. Change the target locale
-to `live`, then deploy again. Only ready documents enter that language's public URLs and SEO
+to `live` in Site Settings and save. Only ready documents enter that language's public URLs and SEO
 output. Keep the preview endpoints unprefixed, and verify that the reverse proxy preserves the
 same host during English internal rewrites. The default configuration still contains only English.
+
+### Site Settings operations
+
+Brand, Contact & Social, Legal & Privacy, Integrations and Language use unnamed presentation
+groups; existing stored field paths are unchanged and need no migration. Integrations displays
+the environment-provided GTM container and the emergency disable switch. Legal & Privacy →
+Cookie Consent controls the banner title and long explanations; empty values fall back to the
+frontend dictionary. Translated Site Settings supply these explanations on non-English pages.
+
+Language displays current UTC-month usage, the next reset, completion against the same public
+source inventory as backfill, and native filtered links for failures and quota waits. Edit status
+in the language table; its native controls bind to the Languages rows. Translations and Translation Usage are hidden from navigation
+and linked here; their access controls are unchanged. Switching a language off retains stored
+translations. Remove or reassign its region rows before saving; keep an English region.
+
+Saving invalidates Site Settings, all language layouts and translated sitemaps. Built-in language
+segments pass through Proxy; the layout enforces public status, including languages enabled
+after a build. Language and Cookie panels use native dialogs with shared exclusivity.
+See `superpowers/plans/2026-11-16-phase4-settings-language-and-panels.md` for the approved design.
