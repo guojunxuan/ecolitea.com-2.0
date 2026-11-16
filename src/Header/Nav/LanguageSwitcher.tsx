@@ -1,35 +1,38 @@
 'use client'
 
-import { Check, Globe2, X } from 'lucide-react'
-import React, { useCallback, useEffect, useId, useRef, useState } from 'react'
+import { Check, X } from 'lucide-react'
+import React, { useCallback, useEffect, useId, useImperativeHandle, useRef, useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { useLocaleContext } from '@/i18n/LocaleProvider'
+import { GlobeIcon } from '@/components/icons/GlobeIcon'
 import { useDictionary } from '@/i18n/DictionaryProvider'
-import { useLocale } from '@/i18n/LocaleProvider'
+import { useLocaleContext } from '@/i18n/LocaleProvider'
 import { readRegionPreference, writeRegionPreference } from '@/i18n/preferences'
 import { announcePanelOpen, listenForPanelOpen } from '@/utilities/panelEvents'
 import styles from './LanguageSwitcher.module.css'
 
+export type LanguageSwitcherHandle = { open: () => void }
+
 export function LanguageSwitcher({
   mode,
   onOpenChange,
+  ref,
 }: {
   mode: 'desktop' | 'mobile'
   onOpenChange?: (open: boolean) => void
+  ref?: React.Ref<LanguageSwitcherHandle>
 }) {
   const {
+    locale,
     i18n: { publicLocales, regions },
   } = useLocaleContext()
-  const locale = useLocale()
   const { language: copy } = useDictionary()
   const [open, setOpen] = useState(false)
   const [selected, setSelected] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState(false)
   const id = useId()
+  const titleId = useId()
   const trigger = useRef<HTMLButtonElement>(null)
-  const root = useRef<HTMLDivElement>(null)
-  const panel = useRef<HTMLElement>(null)
   const dialog = useRef<HTMLDialogElement>(null)
   const entries = regions.filter((region) =>
     publicLocales.some(({ code }) => code === region.locale),
@@ -41,17 +44,18 @@ export function LanguageSwitcher({
   const current = publicLocales.find(({ code }) => code === locale)
 
   const close = useCallback((restoreFocus = true) => {
-    // Release native modal inertness before returning focus to the Header.
+    // Release native modal inertness before returning focus to the visible Header entry.
     dialog.current?.close()
     setOpen(false)
     if (restoreFocus) trigger.current?.focus()
   }, [])
-  const show = () => {
+  const show = useCallback(() => {
     announcePanelOpen(id)
     setSelected(readRegionPreference())
     setError(false)
     setOpen(true)
-  }
+  }, [id])
+  useImperativeHandle(ref, () => ({ open: show }), [show])
 
   useEffect(() => {
     onOpenChange?.(open)
@@ -65,13 +69,11 @@ export function LanguageSwitcher({
   )
   useEffect(() => {
     if (!open) return
-    const element = dialog.current
+    const element = dialog.current!
     const overflow = document.documentElement.style.overflow
-    if (mode === 'mobile' && element) {
-      element.showModal()
-      document.documentElement.style.overflow = 'hidden'
-    }
-    panel.current?.querySelector<HTMLButtonElement>('[data-region]')?.focus()
+    element.showModal()
+    document.documentElement.style.overflow = 'hidden'
+    element.querySelector<HTMLButtonElement>('[data-region]')?.focus()
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         event.preventDefault()
@@ -79,7 +81,11 @@ export function LanguageSwitcher({
       }
     }
     const onPointerDown = (event: PointerEvent) => {
-      if (!root.current?.contains(event.target as Node)) close()
+      if (
+        !element.contains(event.target as Node) &&
+        !trigger.current?.contains(event.target as Node)
+      )
+        close()
     }
     const onResize = () => close(false)
     document.addEventListener('keydown', onKeyDown)
@@ -89,10 +95,10 @@ export function LanguageSwitcher({
       document.removeEventListener('keydown', onKeyDown)
       document.removeEventListener('pointerdown', onPointerDown)
       window.removeEventListener('resize', onResize)
-      element?.close()
-      if (mode === 'mobile') document.documentElement.style.overflow = overflow
+      element.close()
+      document.documentElement.style.overflow = overflow
     }
-  }, [close, mode, open])
+  }, [close, open])
 
   const select = async (region: (typeof regions)[number]) => {
     setBusy(true)
@@ -123,51 +129,8 @@ export function LanguageSwitcher({
     }
   }
 
-  const content = (
-    <>
-      {mode === 'mobile' && (
-        <div className={styles.heading}>
-          <h2 className="website-type-heading-3">{copy.trigger}</h2>
-          <Button aria-label={copy.close} onClick={() => close()} size="icon" variant="ghost">
-            <X aria-hidden="true" />
-          </Button>
-        </div>
-      )}
-      <div className={styles.groups}>
-        {groups.map((group) => (
-          <section key={group ?? 'global'}>
-            {group && <h3 className="website-type-eyebrow">{group}</h3>}
-            {entries
-              .filter((region) => region.group === group)
-              .map((region) => (
-                <button
-                  aria-pressed={selectedRegion === region.code}
-                  className={styles.region}
-                  data-region={region.code}
-                  disabled={busy}
-                  key={region.code}
-                  onClick={() => void select(region)}
-                  type="button"
-                >
-                  <span>
-                    {region.label} ·{' '}
-                    {publicLocales.find(({ code }) => code === region.locale)?.label}
-                  </span>
-                  {selectedRegion === region.code && <Check aria-hidden="true" size={18} />}
-                </button>
-              ))}
-          </section>
-        ))}
-      </div>
-      {error && (
-        <p className="website-type-body-sm" role="alert">
-          {copy.error}
-        </p>
-      )}
-    </>
-  )
   return (
-    <div className={styles.root} data-mode={mode} ref={root}>
+    <div className={styles.root} data-mode={mode}>
       <button
         aria-controls={id}
         aria-expanded={open}
@@ -184,38 +147,79 @@ export function LanguageSwitcher({
         ref={trigger}
         type="button"
       >
-        <Globe2 aria-hidden="true" size={19} strokeWidth={1.75} />
-        {mode === 'desktop' && <span>{current?.label ?? locale}</span>}
+        <GlobeIcon aria-hidden="true" />
+        {mode === 'desktop' && <span>{current?.short ?? locale.toUpperCase()}</span>}
       </button>
-      {open &&
-        (mode === 'mobile' ? (
-          <dialog
-            aria-label={copy.trigger}
-            className={styles.mobilePanel}
-            data-website-theme="default"
-            id={id}
-            onCancel={(event) => {
-              event.preventDefault()
-              close()
-            }}
-            ref={(element) => {
-              dialog.current = element
-              panel.current = element
-            }}
-          >
-            {content}
-          </dialog>
-        ) : (
-          <section
-            aria-label={copy.trigger}
-            className={styles.desktopPanel}
-            id={id}
-            ref={panel}
-            role="dialog"
-          >
-            {content}
-          </section>
-        ))}
+      {open && (
+        <dialog
+          aria-label={copy.trigger}
+          className={styles.panel}
+          data-website-theme="default"
+          id={id}
+          onCancel={(event) => {
+            event.preventDefault()
+            close()
+          }}
+          onClose={(event) => {
+            if (!event.currentTarget.open) close()
+          }}
+          onClick={(event) => {
+            if (event.target === event.currentTarget) close()
+          }}
+          ref={dialog}
+        >
+          <div className={styles.surface}>
+            <div className={styles.heading}>
+              <h2 className="website-type-heading-3" id={titleId}>
+                {copy.title}
+              </h2>
+              <Button aria-label={copy.close} onClick={() => close()} size="icon" variant="ghost">
+                <X aria-hidden="true" />
+              </Button>
+            </div>
+            <div className={styles.body}>
+              <div className={styles.groups}>
+                {groups.map((group) => (
+                  <section key={group ?? 'global'}>
+                    {group && <h3 className="website-type-eyebrow">{group}</h3>}
+                    <div className={styles.entries}>
+                      {entries
+                        .filter((region) => region.group === group)
+                        .map((region) => (
+                          <button
+                            aria-label={`${region.label} · ${publicLocales.find(({ code }) => code === region.locale)?.label ?? region.locale}`}
+                            aria-pressed={selectedRegion === region.code}
+                            className={styles.region}
+                            data-region={region.code}
+                            disabled={busy}
+                            key={region.code}
+                            onClick={() => void select(region)}
+                            type="button"
+                          >
+                            <span>{region.label}</span>
+                            <span className={styles.selection}>
+                              <span className={styles.short}>
+                                {publicLocales.find(({ code }) => code === region.locale)?.short}
+                              </span>
+                              {selectedRegion === region.code && (
+                                <Check aria-hidden="true" size={18} />
+                              )}
+                            </span>
+                          </button>
+                        ))}
+                    </div>
+                  </section>
+                ))}
+              </div>
+              {error && (
+                <p className="website-type-body-sm" role="alert">
+                  {copy.error}
+                </p>
+              )}
+            </div>
+          </div>
+        </dialog>
+      )}
     </div>
   )
 }

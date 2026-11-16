@@ -61,6 +61,13 @@ const LocaleProvider = (props: React.ComponentProps<typeof RuntimeLocaleProvider
   />
 )
 beforeEach(() => {
+  vi.stubGlobal(
+    'ResizeObserver',
+    class {
+      observe() {}
+      disconnect() {}
+    },
+  )
   document.cookie = 'ec_preferences=; Max-Age=0; Path=/'
   vi.stubGlobal(
     'matchMedia',

@@ -8,7 +8,11 @@ import React, { useCallback, useEffect, useLayoutEffect, useReducer, useRef, use
 import { Logo } from '@/components/Logo/Logo'
 import type { LogoImage } from '@/components/Logo/types'
 
-import { LanguageSwitcher } from './LanguageSwitcher'
+import { LanguageSwitcher, type LanguageSwitcherHandle } from './LanguageSwitcher'
+import { GlobeIcon } from '@/components/icons/GlobeIcon'
+import { useLocaleContext } from '@/i18n/LocaleProvider'
+import { readRegionPreference } from '@/i18n/preferences'
+import { useDictionary } from '@/i18n/DictionaryProvider'
 import { announcePanelOpen, listenForPanelOpen } from '@/utilities/panelEvents'
 import { NavigationBlocks } from './NavigationBlocks'
 import styles from './index.module.css'
@@ -66,6 +70,20 @@ export const MobileNav: React.FC<MobileNavProps> = ({
   triggerRef,
 }) => {
   const pathname = usePathname()
+  const {
+    locale,
+    i18n: { publicLocales, regions },
+  } = useLocaleContext()
+  const { language: languageCopy } = useDictionary()
+  const languageSwitcherRef = useRef<LanguageSwitcherHandle>(null)
+  const [selectedRegion, setSelectedRegion] = useState<string | null>(null)
+  const publicRegions = regions.filter((region) =>
+    publicLocales.some(({ code }) => code === region.locale),
+  )
+  const currentRegion =
+    publicRegions.find(({ code }) => code === selectedRegion) ??
+    publicRegions.find((region) => region.locale === locale)
+  const currentLanguage = publicLocales.find(({ code }) => code === currentRegion?.locale)
   const [languageOpen, setLanguageOpen] = useState(false)
   const [isOpen, setIsOpen] = useState(false)
   const [state, dispatch] = useReducer(navigationReducer, initialNavigationState)
@@ -217,10 +235,7 @@ export const MobileNav: React.FC<MobileNavProps> = ({
       className={styles.mobileNav}
       ref={dialogRef}
     >
-      <div
-        className={styles.mobileToolbar}
-        data-open={isOpen ? 'true' : 'false'}
-      >
+      <div className={styles.mobileToolbar} data-open={isOpen ? 'true' : 'false'}>
         <button
           aria-controls="mobile-navigation-root"
           aria-expanded={isOpen}
@@ -230,6 +245,7 @@ export const MobileNav: React.FC<MobileNavProps> = ({
             if (isOpen) close()
             else {
               announcePanelOpen('mobile-navigation')
+              setSelectedRegion(readRegionPreference())
               setIsOpen(true)
             }
           }}
@@ -248,7 +264,7 @@ export const MobileNav: React.FC<MobileNavProps> = ({
         >
           {brand}
         </Link>
-        <LanguageSwitcher mode="mobile" onOpenChange={setLanguageOpen} />
+        <LanguageSwitcher mode="mobile" onOpenChange={setLanguageOpen} ref={languageSwitcherRef} />
         <Link
           aria-label="Search"
           className={styles.mobileIconButton}
@@ -347,6 +363,19 @@ export const MobileNav: React.FC<MobileNavProps> = ({
                 )
               })}
             </nav>
+            <button
+              aria-label={`${languageCopy.trigger}: ${currentRegion?.label ?? 'Global'} ${currentLanguage?.short ?? locale.toUpperCase()}`}
+              className={styles.mobileLanguageEntry}
+              onClick={() => languageSwitcherRef.current?.open()}
+              type="button"
+            >
+              <GlobeIcon aria-hidden="true" />
+              <span>{currentRegion?.label ?? 'Global'}</span>
+              <span className={styles.mobileLanguageShort}>
+                {currentLanguage?.short ?? locale.toUpperCase()}
+              </span>
+              <ChevronRight aria-hidden="true" />
+            </button>
           </section>
           {menuCta ? (
             <div className={styles.mobileMenuCtaBar} data-mobile-cta-bar="true">
