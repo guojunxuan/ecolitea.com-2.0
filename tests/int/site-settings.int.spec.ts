@@ -118,11 +118,11 @@ describe('Site Settings Global', () => {
   it('uses five unnamed tabs so persisted fields remain flat', () => {
     expect(siteSettingsTabs.type).toBe('tabs')
     expect(siteSettingsTabs.tabs.map((tab) => tab.label)).toEqual([
-      'General',
-      'Branding',
-      'Contact',
-      'Social',
-      'Legal',
+      'Brand',
+      'Contact & Social',
+      'Legal & Privacy',
+      'Integrations',
+      'Language',
     ])
     expect(siteSettingsTabs.tabs.every((tab) => !('name' in tab))).toBe(true)
   })

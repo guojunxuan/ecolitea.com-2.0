@@ -3136,13 +3136,11 @@ export interface Footer {
 export interface SiteSettings {
   id: string;
   siteName: string;
-  legalCompanyName: string;
   tagline: string;
   /**
    * A general company description, not a default SEO description.
    */
   siteDescription: string;
-  customFields?: SiteSettingsCustomField;
   /**
    * Upload a horizontal SVG logo with a tight viewBox.
    */
@@ -3151,19 +3149,13 @@ export interface SiteSettings {
    * Use a square SVG, PNG, or ICO image suitable for a browser icon.
    */
   favicon?: (string | null) | SiteAsset;
+  customFields?: SiteSettingsCustomField;
   salesEmail: string;
   /**
    * Include the international dialing code.
    */
   phone: string;
   address: string;
-  newsletter: {
-    enabled?: boolean | null;
-    heading?: string | null;
-    description?: string | null;
-    emailPlaceholder: string;
-    buttonLabel: string;
-  };
   contactCustomFields?: SiteSettingsContactCustomField;
   socialLinks?:
     | {
@@ -3172,6 +3164,14 @@ export interface SiteSettings {
         id?: string | null;
       }[]
     | null;
+  newsletter: {
+    enabled?: boolean | null;
+    heading?: string | null;
+    description?: string | null;
+    emailPlaceholder: string;
+    buttonLabel: string;
+  };
+  legalCompanyName: string;
   copyrightText?: string | null;
   companyRegistrationNumber?: string | null;
   privacyPolicyPage?: (string | null) | Page;
@@ -3585,15 +3585,22 @@ export interface NavigationColumnsSelect<T extends boolean = true> {
  */
 export interface SiteSettingsSelect<T extends boolean = true> {
   siteName?: T;
-  legalCompanyName?: T;
   tagline?: T;
   siteDescription?: T;
-  customFields?: T | SiteSettingsCustomFieldSelect<T>;
   logo?: T;
   favicon?: T;
+  customFields?: T | SiteSettingsCustomFieldSelect<T>;
   salesEmail?: T;
   phone?: T;
   address?: T;
+  contactCustomFields?: T | SiteSettingsContactCustomFieldSelect<T>;
+  socialLinks?:
+    | T
+    | {
+        platform?: T;
+        url?: T;
+        id?: T;
+      };
   newsletter?:
     | T
     | {
@@ -3603,14 +3610,7 @@ export interface SiteSettingsSelect<T extends boolean = true> {
         emailPlaceholder?: T;
         buttonLabel?: T;
       };
-  contactCustomFields?: T | SiteSettingsContactCustomFieldSelect<T>;
-  socialLinks?:
-    | T
-    | {
-        platform?: T;
-        url?: T;
-        id?: T;
-      };
+  legalCompanyName?: T;
   copyrightText?: T;
   companyRegistrationNumber?: T;
   privacyPolicyPage?: T;
