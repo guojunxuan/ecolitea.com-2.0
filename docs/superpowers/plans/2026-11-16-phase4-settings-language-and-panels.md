@@ -8,13 +8,30 @@
 ## 已确认的决定（用户 2026-11-16）
 
 1. 语言**目录**留在代码（18 种，见 §A1）；每种语言的**状态**与**地区**改由 Site Settings 管理，后台修改无需重新部署即生效。
-2. Site Settings 新增 **Translation** 标签页：本月额度、语言状态表、地区。`translations` / `translation-usage` 从 Admin 导航移除（`admin.hidden`），仅能从该标签页链接进入。
+2. Site Settings 新增 **Language** 标签页（原称 Translation）：本月额度、语言状态表、地区。`translations` / `translation-usage` 从 Admin 导航移除（`admin.hidden`），仅能从该标签页链接进入。
 3. 状态表“完成度”分母 = 全站应翻译内容总数；“问题”列显示“N 失败 · M 等待额度”。
 4. Header 语言入口：项目自有 SVG 图标 + 语言简写（EN/DE/ZH/ZH-TW）；点击打开**独立面板**（不再是下拉）。手机顶栏只显示图标；展开菜单底部另有一行入口。语言面板**不放国旗**。
 5. Cookie 设置面板改为“列表 + 展开”，说明默认收起；手机底部按钮**保持上下排列**。手机 Cookie 通栏中 “Cookie settings” 改为文字链接。
 6. Cookie 通栏与设置面板的说明文案**不再写死**，在后台可编辑。
 
 参考图仅作结构思路；视觉一律使用项目现有 token、`typography.css` role、`src/components/ui`。不新增依赖。
+
+
+## 0. Site Settings 结构重组（先做；用户 2026-11-16 确认）
+
+参照 Settings global 的写法：标签页内用**无 name 的 `group`**（仅展示）组织字段，子项用 `collapsible`。所有现有标签页本就无 `name`，新分组也不设 `name` → **字段名与存储位置不变，无数据迁移，前台读取代码不变**。已有命名 group（`newsletter`、B 节新增的 `cookieConsent`）保持其 name。
+
+| 标签页 | 分组 → 字段 |
+|---|---|
+| **Brand** | Identity：siteName、tagline、siteDescription；Assets：logo、favicon；Custom Fields（collapsible）：customFields |
+| **Contact & Social** | Contact Details：salesEmail、phone、address、contactCustomFields（collapsible）；Social Links：createSocialPlatform、socialLinks；Newsletter：`newsletter` group |
+| **Legal & Privacy** | Company：legalCompanyName（自 General 迁入）、companyRegistrationNumber、copyrightText；Policy Pages：privacyPolicyPage、cookiePolicyPage、termsPage；Cookie Consent：B 节 `cookieConsent` |
+| **Integrations** | Google Tag Manager：容器状态（`ui` 只读组件，显示环境变量 `NEXT_PUBLIC_GTM_MEASUREMENT_ID` 或 “Not configured”）、disableGtm |
+| **Language** | A4 的 Translation Usage、Languages、Regions |
+
+命名：标签页与分组用 Title Case 英文名词短语；每个分组一句 `admin.description`；去掉冗余前缀（如 “Sales Email” → “Email”，字段 name 不变）。原 “Translation” 标签页即此处的 **Language**。
+
+测试：Site Settings schema/admin 相关 spec 断言字段 name 与存储路径不变（快照或显式断言），以及标签页/分组结构；`generate:types` 结果中 SiteSettings 类型除新增字段外不变。
 
 ## A. 语言配置后台化
 
@@ -74,6 +91,7 @@
 
 ## 提交拆分
 
+0. `refactor(site-settings): group fields into Brand, Contact & Social, Legal & Privacy, Integrations, Language`（§0，字段数据不变）
 1. `feat(i18n): manage locale status and regions in Site Settings`（A1–A3，含测试注入改造）
 2. `feat(translation): add Site Settings Translation tab`（A4）
 3. `feat(consent): make cookie copy editable in Site Settings`（B）
