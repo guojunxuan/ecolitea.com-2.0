@@ -9,6 +9,7 @@ type Region = {
 }
 export type I18nInput = { languages?: Language[] | null; regions?: Region[] | null }
 export type I18nSettings = {
+  configuredLocales?: LocaleConfig[]
   publicLocales: LocaleConfig[]
   targetLocales: LocaleConfig[]
   regions: RegionConfig[]
@@ -65,5 +66,12 @@ export function normalizeI18nSettings(input: I18nInput): I18nSettings {
     }))
   if (!regions.some(({ locale }) => locale === 'en'))
     regions.unshift({ code: 'GLOBAL', label: 'Global', group: null, locale: 'en' })
-  return { publicLocales, targetLocales, regions }
+  return {
+    configuredLocales: locales.filter(({ code }) =>
+      input.languages?.some((row) => row.code === code),
+    ),
+    publicLocales,
+    targetLocales,
+    regions,
+  }
 }

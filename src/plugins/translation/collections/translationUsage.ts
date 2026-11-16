@@ -6,6 +6,7 @@ export const translationUsage: GlobalConfig = {
   slug: 'translation-usage',
   label: 'Translation Usage',
   admin: {
+    hidden: true,
     group: 'System',
     description:
       'Conservative reserved characters for the UTC calendar month. Resets on the first reservation in a new month.',

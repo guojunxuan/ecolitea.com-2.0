@@ -148,6 +148,16 @@ test('live locale changes invalidate URLs, panel and sitemap without deployment;
     await expect(page).toHaveURL(/\/admin\/?$/)
     await page.goto(`${baseURL}/admin/globals/site-settings`)
     await page.getByRole('tab', { name: 'Language', exact: true }).click()
+    const usage = page.getByRole('progressbar', { name: 'Monthly translation usage' })
+    expect((await usage.boundingBox())!.height).toBeGreaterThan(0)
+    await expect(usage).toHaveAttribute('aria-valuenow', '0')
+    const colors = await usage.evaluate((track) => ({
+      track: getComputedStyle(track).backgroundColor,
+      fill: getComputedStyle(track.firstElementChild!).backgroundColor,
+      width: track.firstElementChild!.getBoundingClientRect().width,
+    }))
+    expect(colors.track).not.toBe(colors.fill)
+    expect(colors.width).toBe(0)
     await page.getByRole('table').getByRole('combobox').nth(1).click()
     await page.getByRole('option', { name: 'live', exact: true }).click()
     await page.getByRole('button', { name: 'Save', exact: true }).click()
@@ -164,6 +174,7 @@ test('live locale changes invalidate URLs, panel and sitemap without deployment;
       await page.setViewportSize({ width, height: 1000 })
       await page.getByRole('tab', { name: 'Language', exact: true }).click()
       await expect(page.getByRole('table').getByText('Deutsch')).toBeVisible()
+      await expect(page.getByRole('table')).toHaveCSS('border-collapse', 'separate')
       await expect(page.getByRole('table').getByRole('combobox')).toHaveCount(2)
       await page.screenshot({
         path: `/tmp/phase4-site-settings-language-${width}.png`,

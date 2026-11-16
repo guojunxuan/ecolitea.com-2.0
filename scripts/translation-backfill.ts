@@ -1,16 +1,9 @@
 import { pathToFileURL } from 'node:url'
-import type { CollectionSlug, GlobalSlug, Payload, PayloadRequest, Where } from 'payload'
+import type { Payload } from 'payload'
+import { getTranslationInventory } from '../src/plugins/translation/inventory'
 import type { LocaleConfig } from '../src/i18n/config'
 import { getI18nSettings } from '../src/i18n/getI18nSettings'
-import { extract } from '../src/plugins/translation/extract'
-import { getTranslationRule } from '../src/plugins/translation/rules'
-import type {
-  SourceDocument,
-  TranslationInput,
-  TranslationRuntime,
-} from '../src/plugins/translation/task'
-import { publicBlogVisibility } from '../src/utilities/blogs/publicVisibility'
-import { publicProductVisibility } from '../src/utilities/products/publicVisibility'
+import type { TranslationInput, TranslationRuntime } from '../src/plugins/translation/task'
 
 type BackfillArguments = { locale: string; dryRun: boolean; confirmNonTest?: string }
 export type BackfillReport = {
@@ -71,14 +64,6 @@ function assertTargetLocale(locale: string, locales: readonly LocaleConfig[]) {
     throw new Error('--locale must be a configured translating or live language.')
 }
 
-const estimateCharacters = (doc: SourceDocument, source: string) => {
-  const rule = getTranslationRule(source)
-  const texts = new Map<string, string>()
-  for (const entry of rule ? extract(doc, rule) : [])
-    texts.set(`${entry.kind}:${entry.source}`, entry.source)
-  return [...texts.values()].reduce((total, text) => total + Array.from(text).length, 0)
-}
-
 /** Queue only plugin-owned records and Jobs. English sources are never saved. */
 export async function runTranslationBackfill({
   payload,
@@ -96,7 +81,6 @@ export async function runTranslationBackfill({
   assertTargetLocale(locale, locales ?? (await getI18nSettings(payload)).targetLocales)
   const { createLocalReq } = await import('payload')
   const { getTranslationRuntime } = await import('../src/plugins/translation/hooks')
-  const { getFrontendDictionarySource } = await import('../src/plugins/translation/dictionary')
   const req = await createLocalReq({}, payload)
   const runtime = getTranslationRuntime(req)
   if (!dryRun && (!runtime?.canQueue || !(await runtime.getTargets(req)).includes(locale)))
@@ -120,89 +104,9 @@ export async function runTranslationBackfill({
         report.queued++
     }
   }
-  const legalIDs = await getLegalIDs(payload, req)
-  for (const collection of payload.config.collections) {
-    if (!getTranslationRule(collection.slug)) continue
-    const where: Where =
-      collection.slug === 'blogs'
-        ? publicBlogVisibility(now)
-        : collection.slug === 'products'
-          ? publicProductVisibility(now)
-          : collection.versions?.drafts
-            ? { _status: { equals: 'published' } }
-            : {}
-    let page = 1
-    let hasNextPage: boolean
-    do {
-      const result = await payload.find({
-        collection: collection.slug as CollectionSlug,
-        depth: 0,
-        draft: false,
-        overrideAccess: true,
-        where,
-        sort: 'id',
-        limit: 100,
-        page,
-        req,
-      })
-      for (const doc of result.docs as unknown as SourceDocument[]) {
-        if (collection.slug === 'pages' && legalIDs.has(String(doc.id))) continue
-        if (!doc.updatedAt) throw new Error(`Source has no version: ${collection.slug}:${doc.id}`)
-        await add(
-          {
-            sourceCollection: collection.slug,
-            sourceId: String(doc.id),
-            locale,
-            sourceVersion: doc.updatedAt,
-          },
-          estimateCharacters(doc, collection.slug),
-        )
-      }
-      hasNextPage = result.hasNextPage
-      page++
-    } while (hasNextPage)
-  }
-  for (const global of payload.config.globals) {
-    const sourceCollection = `global:${global.slug}`
-    if (!getTranslationRule(sourceCollection)) continue
-    const doc = (await payload.findGlobal({
-      slug: global.slug as GlobalSlug,
-      depth: 0,
-      draft: false,
-      overrideAccess: true,
-      req,
-    })) as SourceDocument
-    // An unsaved Global has no persisted source version to translate.
-    if (!doc.updatedAt) continue
-    await add(
-      { sourceCollection, sourceId: global.slug, locale, sourceVersion: doc.updatedAt },
-      estimateCharacters(doc, sourceCollection),
-    )
-  }
-  const dictionary = getFrontendDictionarySource()
-  const characters = [
-    ...new Set(extract(dictionary.doc, dictionary.rule).map(({ source }) => source)),
-  ].reduce((total, text) => total + Array.from(text).length, 0)
-  await add(
-    {
-      sourceCollection: 'dictionary',
-      sourceId: 'frontend',
-      locale,
-      sourceVersion: dictionary.sourceVersion,
-    },
-    characters,
-  )
+  for (const { input, characters } of await getTranslationInventory(payload, req, now, locale))
+    await add(input, characters)
   return report
-}
-
-async function getLegalIDs(payload: Payload, req: PayloadRequest): Promise<Set<string>> {
-  if (!payload.config.globals.some(({ slug }) => slug === 'site-settings')) return new Set()
-  const settings = await payload.findGlobal({ slug: 'site-settings', depth: 0, req })
-  return new Set(
-    [settings.privacyPolicyPage, settings.cookiePolicyPage, settings.termsPage]
-      .filter(Boolean)
-      .map((value) => String(typeof value === 'object' ? value!.id : value)),
-  )
 }
 
 async function main() {

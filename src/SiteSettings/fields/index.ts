@@ -92,6 +92,17 @@ export const siteSettingsTabs: TabsField = {
     {
       label: 'Language',
       fields: [
+        group('Translation Usage', 'Monthly quota and completion of public source content.', [
+          {
+            name: 'translationStatus',
+            type: 'ui',
+            admin: {
+              components: {
+                Field: '@/plugins/translation/admin/TranslationStatus#TranslationStatus',
+              },
+            },
+          },
+        ]),
         group('Languages', 'Translation status for each target language.', languageFields),
         group('Regions', 'Visitor locations and their enabled languages.', regionFields),
       ],

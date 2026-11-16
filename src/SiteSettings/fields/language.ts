@@ -5,6 +5,11 @@ export const languageFields: Field[] = [
   {
     name: 'languages',
     type: 'array',
+    label: 'Manage languages',
+    admin: {
+      initCollapsed: true,
+      description: "Add or remove languages here; set each language's status in the table above.",
+    },
     validate: (value) => validateLanguages(value as Parameters<typeof validateLanguages>[0]),
     fields: [
       {
@@ -20,6 +25,7 @@ export const languageFields: Field[] = [
         type: 'select',
         required: true,
         defaultValue: 'off',
+        admin: { hidden: true },
         options: ['off', 'translating', 'live'],
       },
     ],

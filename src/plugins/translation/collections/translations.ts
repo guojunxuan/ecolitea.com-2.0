@@ -33,6 +33,7 @@ export const translations: CollectionConfig = {
   slug: 'translations',
   disableDuplicate: true,
   admin: {
+    hidden: true,
     group: 'System',
     defaultColumns: ['sourceCollection', 'sourceId', 'locale', 'status', 'translatedAt'],
   },

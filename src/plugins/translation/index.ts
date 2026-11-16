@@ -45,16 +45,7 @@ export const translationPlugin =
             },
           }
         }),
-        {
-          ...translations,
-          admin: {
-            ...translations.admin,
-            components: {
-              ...translations.admin?.components,
-              beforeList: ['@/plugins/translation/admin/TranslationStatus#TranslationStatus'],
-            },
-          },
-        },
+        translations,
         translationSearch,
       ],
       globals: [

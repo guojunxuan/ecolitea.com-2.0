@@ -47,7 +47,6 @@ import { FilesizeCell as FilesizeCell_597c400895e53c1ba930cc53925f77c6 } from '@
 import { SocialPlatformNameField as SocialPlatformNameField_57cfda3ee93492850d81f1adf8296638 } from '@/SiteSettings/components/SocialPlatformNameField'
 import { LinkToDoc as LinkToDoc_aead06e4cbf6b2620c5c51c9ab283634 } from '@payloadcms/plugin-search/client'
 import { ReindexButton as ReindexButton_aead06e4cbf6b2620c5c51c9ab283634 } from '@payloadcms/plugin-search/client'
-import { TranslationStatus as TranslationStatus_06b96e0e8253b2da4edf573bfabe4b95 } from '@/plugins/translation/admin/TranslationStatus'
 import { RowLabel as RowLabel_ec255a65fa6fa8d1faeb09cf35284224 } from '@/Header/RowLabel'
 import { NavItemRowLabel as NavItemRowLabel_1f6ff6ff633e3695d348f4f3c58f1466 } from '@/Footer/RowLabel'
 import { ColumnRowLabel as ColumnRowLabel_1f6ff6ff633e3695d348f4f3c58f1466 } from '@/Footer/RowLabel'
@@ -55,6 +54,7 @@ import { SocialPlatformCreateActions as SocialPlatformCreateActions_f4925e2e9e91
 import { SocialLinksArrayField as SocialLinksArrayField_ea1af3bc4c821b42c92f79172947f6c9 } from '@/SiteSettings/components/SocialLinksArrayField'
 import { SocialLinkRowLabel as SocialLinkRowLabel_68735dc78968c7c1609d0002eef58140 } from '@/SiteSettings/components/SocialLinkRowLabel'
 import { GtmContainerStatus as GtmContainerStatus_dd8dd4819aeace99ec4554affb087823 } from '@/SiteSettings/components/GtmContainerStatus'
+import { TranslationStatus as TranslationStatus_06b96e0e8253b2da4edf573bfabe4b95 } from '@/plugins/translation/admin/TranslationStatus'
 import { ArticleShareURLField as ArticleShareURLField_1245b93634f2f81e3750ee57bc6e3eed } from '@/Settings/components/ArticleShareURLField'
 import { HeroSlideRowLabel as HeroSlideRowLabel_cd32ae05f5941e1c60a7be80501d1b25 } from '@/Settings/components/HeroSlideRowLabel'
 import { CategoryCarouselStatus as CategoryCarouselStatus_0bbce7c388200caa031ae6b42ce937c9 } from '@/Settings/components/ListingCarouselNotice'
@@ -120,7 +120,6 @@ export const importMap = {
   "@/SiteSettings/components/SocialPlatformNameField#SocialPlatformNameField": SocialPlatformNameField_57cfda3ee93492850d81f1adf8296638,
   "@payloadcms/plugin-search/client#LinkToDoc": LinkToDoc_aead06e4cbf6b2620c5c51c9ab283634,
   "@payloadcms/plugin-search/client#ReindexButton": ReindexButton_aead06e4cbf6b2620c5c51c9ab283634,
-  "@/plugins/translation/admin/TranslationStatus#TranslationStatus": TranslationStatus_06b96e0e8253b2da4edf573bfabe4b95,
   "@/Header/RowLabel#RowLabel": RowLabel_ec255a65fa6fa8d1faeb09cf35284224,
   "@/Footer/RowLabel#NavItemRowLabel": NavItemRowLabel_1f6ff6ff633e3695d348f4f3c58f1466,
   "@/Footer/RowLabel#ColumnRowLabel": ColumnRowLabel_1f6ff6ff633e3695d348f4f3c58f1466,
@@ -128,6 +127,7 @@ export const importMap = {
   "@/SiteSettings/components/SocialLinksArrayField#SocialLinksArrayField": SocialLinksArrayField_ea1af3bc4c821b42c92f79172947f6c9,
   "@/SiteSettings/components/SocialLinkRowLabel#SocialLinkRowLabel": SocialLinkRowLabel_68735dc78968c7c1609d0002eef58140,
   "@/SiteSettings/components/GtmContainerStatus#GtmContainerStatus": GtmContainerStatus_dd8dd4819aeace99ec4554affb087823,
+  "@/plugins/translation/admin/TranslationStatus#TranslationStatus": TranslationStatus_06b96e0e8253b2da4edf573bfabe4b95,
   "@/Settings/components/ArticleShareURLField#ArticleShareURLField": ArticleShareURLField_1245b93634f2f81e3750ee57bc6e3eed,
   "@/Settings/components/HeroSlideRowLabel#HeroSlideRowLabel": HeroSlideRowLabel_cd32ae05f5941e1c60a7be80501d1b25,
   "@/Settings/components/ListingCarouselNotice#CategoryCarouselStatus": CategoryCarouselStatus_0bbce7c388200caa031ae6b42ce937c9,

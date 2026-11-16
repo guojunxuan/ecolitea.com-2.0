@@ -3181,6 +3181,9 @@ export interface SiteSettings {
    * Emergency switch. When enabled, Google Tag Manager is never loaded, regardless of visitor consent.
    */
   disableGtm?: boolean | null;
+  /**
+   * Add or remove languages here; set each language's status in the table above.
+   */
   languages?:
     | {
         code:
