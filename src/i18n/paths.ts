@@ -5,21 +5,14 @@ export function stripLocale(path: string): string {
   const suffix = path.slice(first.length + 1)
   return !suffix || /^[?#]/.test(suffix) ? `/${suffix}` : suffix
 }
+export function isLocaleNeutralPath(path: string): boolean {
+  if (!path.startsWith('/') || path.startsWith('//')) return true
+  const pathname = path.split(/[?#]/)[0]
+  return /^\/(api|admin|next|_next|fonts|media|brand-assets|block-previews|demos)(\/|$)/.test(pathname) || /\.[^/]+$/.test(pathname)
+}
 export function localePath(path: string, locale = 'en'): string {
-  if (
-    !path.startsWith('/') ||
-    path.startsWith('//') ||
-    /^\/(api|admin|next|_next)(\/|$)/.test(path)
-  )
-    return path
+  if (isLocaleNeutralPath(path)) return path
   const source = stripLocale(path)
-  const pathname = source.split(/[?#]/)[0]
-  if (
-    /^\/(api|admin|next|_next|fonts|media|brand-assets|block-previews|demos)(\/|$)/.test(
-      pathname,
-    ) ||
-    /\.[^/]+$/.test(pathname)
-  )
-    return source
+  if (isLocaleNeutralPath(source)) return source
   return locale === 'en' ? source : `/${locale}${source === '/' ? '' : source}`
 }

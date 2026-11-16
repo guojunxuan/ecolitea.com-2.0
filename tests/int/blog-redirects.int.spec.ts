@@ -1,7 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-const { redirects, findByID, redirect, permanentRedirect } = vi.hoisted(() => ({
+const { redirects, findByID, redirect, permanentRedirect, localizedRedirect } = vi.hoisted(() => ({
   redirects: vi.fn(),
+  localizedRedirect: vi.fn(),
   findByID: vi.fn(),
   redirect: vi.fn(() => {
     throw new Error('TEMPORARY_REDIRECT')
@@ -11,6 +12,7 @@ const { redirects, findByID, redirect, permanentRedirect } = vi.hoisted(() => ({
   }),
 }))
 
+vi.mock('@/utilities/i18n/resolveRedirect', () => ({ resolveLocalizedRedirect: localizedRedirect }))
 vi.mock('@/utilities/getRedirects', () => ({ getCachedRedirects: () => redirects }))
 vi.mock('@/utilities/getDocument', () => ({
   getCachedDocument: () => async () => ({ slug: 'old' }),
@@ -31,12 +33,31 @@ import { PayloadRedirects } from '@/components/PayloadRedirects'
 
 beforeEach(() => {
   redirects.mockReset()
+  localizedRedirect.mockReset()
   findByID.mockReset()
   redirect.mockClear()
   permanentRedirect.mockClear()
 })
 
 describe('PayloadRedirects', () => {
+  it.each([true, false])(
+    'matches English rules after stripping the locale and applies localized resolution (permanent=%s)',
+    async (permanent) => {
+      const item = {
+        from: '/old-blog',
+        to: { reference: { relationTo: 'blogs', value: 'blog-123' } },
+      }
+      redirects.mockResolvedValue([item])
+      const path = permanent ? '/de/blogs/current' : '/blogs/current'
+      localizedRedirect.mockResolvedValue({ path, permanent })
+      await expect(PayloadRedirects({ url: '/de/old-blog', locale: 'de' })).rejects.toThrow(
+        permanent ? 'PERMANENT_REDIRECT' : 'TEMPORARY_REDIRECT',
+      )
+      expect(localizedRedirect).toHaveBeenCalledWith(expect.any(Object), item, 'de')
+      expect(permanent ? permanentRedirect : redirect).toHaveBeenCalledWith(path)
+    },
+  )
+
   it('permanently redirects to a populated Blog reference', async () => {
     redirects.mockResolvedValue([
       {

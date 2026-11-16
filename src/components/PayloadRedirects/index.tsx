@@ -1,4 +1,6 @@
 import type React from 'react'
+import { stripLocale } from '@/i18n/paths'
+import { resolveLocalizedRedirect } from '@/utilities/i18n/resolveRedirect'
 import type { Page, Post } from '@/payload-types'
 
 import { getCachedDocument } from '@/utilities/getDocument'
@@ -16,10 +18,27 @@ interface Props {
 }
 
 /* This component helps us with SSR based dynamic redirects */
-export const PayloadRedirects: React.FC<Props> = async ({ disableNotFound, url }) => {
+export const PayloadRedirects: React.FC<Props> = async ({
+  disableNotFound,
+  url,
+  locale = 'en',
+}) => {
   const redirects = await getCachedRedirects()()
 
-  const redirectItem = redirects.find((redirect) => redirect.from === url)
+  const redirectItem = redirects.find((redirect) => redirect.from === stripLocale(url))
+
+  if (redirectItem && locale !== 'en') {
+    const payload = await getPayload({ config: configPromise })
+    const destination = await resolveLocalizedRedirect(payload, redirectItem, locale)
+    if (destination && destination.path !== url) {
+      // User-approved installed public APIs: 307 for unavailable translations,
+      // 308 for permanent document redirects; static /en normalization stays 301.
+      if (destination.permanent) permanentRedirect(destination.path)
+      redirect(destination.path)
+    }
+    if (disableNotFound) return null
+    notFound()
+  }
 
   if (redirectItem) {
     if (redirectItem.to?.url) {

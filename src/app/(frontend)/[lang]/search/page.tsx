@@ -10,70 +10,85 @@ import { Search } from '@/search/Component'
 import { CardPostData } from '@/components/Card'
 import { normalizeSearchQuery } from '@/search/query'
 import { publicSearchVisibility } from '@/search/visibility'
+import { getTranslatedSearchResults } from '@/search/getTranslatedSearchResults'
+import type { CardBlogData } from '@/components/Card'
 import { resolveBlogSearchResults } from '@/search/resolveBlogSearchResults'
 
 import styles from '../pages.module.css'
 
 type Args = {
+  params?: Promise<{ lang: string }>
   searchParams: Promise<{
     q?: string | string[]
   }>
 }
-export default async function Page({ searchParams: searchParamsPromise }: Args) {
+export default async function Page({ searchParams: searchParamsPromise, params }: Args) {
+  const { lang = 'en' } = params ? await params : {}
   const { q } = await searchParamsPromise
   const query = normalizeSearchQuery(q)
   const payload = await getPayload({ config: configPromise })
-  const publicWhere: Where = {
-    and: [
-      publicSearchVisibility(new Date()),
-      // Constrain before limit: this page currently renders article cards only.
-      // Use `equals`: `in` on the polymorphic `doc.relationTo` path matches nothing.
-      {
-        or: [{ 'doc.relationTo': { equals: 'blogs' } }, { 'doc.relationTo': { equals: 'posts' } }],
-      },
-    ],
-  }
-
-  const results = await payload.find({
-    collection: 'search',
-    depth: 1,
-    limit: 12,
-    select: {
-      title: true,
-      slug: true,
-      doc: true,
-      categories: true,
-      meta: true,
-      excerpt: true,
-      category: true,
-      heroImage: true,
-      publishedAt: true,
-    },
-    // pagination: false reduces overhead if you don't need totalDocs
-    pagination: false,
-    overrideAccess: false,
-    where: query
-      ? {
-          and: [
-            publicWhere,
-            {
-              or: [
-                { title: { like: query } },
-                { 'meta.description': { like: query } },
-                { 'meta.title': { like: query } },
-                { excerpt: { like: query } },
-                { slug: { like: query } },
-              ],
-            },
+  let blogResults: CardBlogData[]
+  let postResults: CardPostData[]
+  if (lang !== 'en') {
+    const localized = await getTranslatedSearchResults(payload, query, lang)
+    blogResults = localized.blogs
+    postResults = localized.posts
+  } else {
+    const publicWhere: Where = {
+      and: [
+        publicSearchVisibility(new Date()),
+        // Constrain before limit: this page currently renders article cards only.
+        // Use `equals`: `in` on the polymorphic `doc.relationTo` path matches nothing.
+        {
+          or: [
+            { 'doc.relationTo': { equals: 'blogs' } },
+            { 'doc.relationTo': { equals: 'posts' } },
           ],
-        }
-      : publicWhere,
-  })
+        },
+      ],
+    }
 
-  const blogResults = await resolveBlogSearchResults(payload, results.docs)
-  const postResults = results.docs.filter(
-    (result) => result.doc.relationTo === 'posts',
-  ) as CardPostData[]
+    const results = await payload.find({
+      collection: 'search',
+      depth: 1,
+      limit: 12,
+      select: {
+        title: true,
+        slug: true,
+        doc: true,
+        categories: true,
+        meta: true,
+        excerpt: true,
+        category: true,
+        heroImage: true,
+        publishedAt: true,
+      },
+      // pagination: false reduces overhead if you don't need totalDocs
+      pagination: false,
+      overrideAccess: false,
+      where: query
+        ? {
+            and: [
+              publicWhere,
+              {
+                or: [
+                  { title: { like: query } },
+                  { 'meta.description': { like: query } },
+                  { 'meta.title': { like: query } },
+                  { excerpt: { like: query } },
+                  { slug: { like: query } },
+                ],
+              },
+            ],
+          }
+        : publicWhere,
+    })
+
+    blogResults = await resolveBlogSearchResults(payload, results.docs)
+    postResults = results.docs.filter(
+      (result) => result.doc.relationTo === 'posts',
+    ) as CardPostData[]
+  }
 
   return (
     <div className={styles.pageSection}>
