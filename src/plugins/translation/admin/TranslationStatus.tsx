@@ -4,17 +4,18 @@ import type { Payload, PayloadRequest, ServerProps } from 'payload'
 import { getI18nSettings } from '@/i18n/getI18nSettings'
 import { getTranslationInventory } from '../inventory'
 import styles from './translationStatus.module.css'
-import { serverEnv } from '@/utilities/env'
+import { getIntegrations } from '@/SiteSettings/integrations'
 
 export async function getTranslationStatus(
   payload: Payload,
   req?: PayloadRequest,
   now = new Date(),
 ) {
-  const [{ targetLocales, configuredLocales }, usage, inventory] = await Promise.all([
+  const [{ targetLocales, configuredLocales }, usage, inventory, integrations] = await Promise.all([
     getI18nSettings(payload, req),
     payload.findGlobal({ slug: 'translation-usage', depth: 0, req }),
     getTranslationInventory(payload, req, now),
+    getIntegrations(payload, req),
   ])
   const identities = new Set(
     inventory.map(({ input }) => `${input.sourceCollection}:${input.sourceId}`),
@@ -54,7 +55,7 @@ export async function getTranslationStatus(
     total: identities.size,
     currentTime: now.getTime(),
     characters: usage.month === month ? (usage.characters ?? 0) : 0,
-    limit: serverEnv.TRANSLATION_MONTHLY_CHAR_LIMIT,
+    limit: integrations.translate.monthlyCharLimit,
     reset,
     counts,
   }

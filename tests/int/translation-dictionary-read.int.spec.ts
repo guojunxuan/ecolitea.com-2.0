@@ -18,6 +18,17 @@ import { stubTranslationProvider } from '@/plugins/translation/provider/stub'
 import { serverEnv } from '@/utilities/env'
 import { createIsolatedTestDatabaseURI } from '../helpers/isolatedDatabase'
 
+const integration = vi.hoisted(() => ({
+  translate: {
+    apiKey: 'placeholder-never-sent' as string | null,
+    status: 'configured' as 'configured' | 'missing' | 'undecryptable',
+    monthlyCharLimit: 450000,
+  },
+}))
+vi.mock('@/SiteSettings/integrations', () => ({
+  getIntegrations: async () => ({ gtm: { containerId: null, disabled: false }, ...integration }),
+}))
+
 vi.mock('@/i18n/getI18nSettings', () => ({
   getI18nSettings: async () => {
     const config = (await import('@/i18n/config')) as unknown as {
@@ -83,7 +94,7 @@ describe('dictionary Jobs and last-ready reads (isolated MongoDB)', () => {
   const name = `ecolitea2-test-phase4-dictionary-${randomUUID().slice(0, 8)}`
   const url = createIsolatedTestDatabaseURI(name, 'mongodb://127.0.0.1:27017/ecolitea2-test-phase4')
   let payload: Payload
-  const priorEnv = { key: serverEnv.GOOGLE_TRANSLATE_API_KEY, worker: serverEnv.JOBS_AUTORUN }
+  const priorWorker = serverEnv.JOBS_AUTORUN
   const priorInit = vi.fn(async (_payload: Payload) => undefined)
   const translate = vi.fn(stubTranslationProvider.translate)
   const invalidate = vi.fn(async () => undefined)
@@ -94,7 +105,6 @@ describe('dictionary Jobs and last-ready reads (isolated MongoDB)', () => {
     collections: [],
     plugins: [
       translationPlugin({
-        enabled: true,
         targets: ['de'],
         provider: { translate },
         reserve: async () => true,
@@ -121,14 +131,16 @@ describe('dictionary Jobs and last-ready reads (isolated MongoDB)', () => {
   beforeAll(async () => {
     if (process.env.DISABLE_R2_STORAGE !== 'true') throw new Error('Set DISABLE_R2_STORAGE=true')
     console.info(`Phase2 dictionary target=${url}; storage=disabled; provider=stub; HTTP=none`)
-    serverEnv.GOOGLE_TRANSLATE_API_KEY = 'phase2-placeholder-never-sent'
+    integration.translate = {
+      apiKey: 'placeholder-never-sent',
+      status: 'configured',
+      monthlyCharLimit: 450000,
+    }
     serverEnv.JOBS_AUTORUN = false
     payload = await getPayload({ key: name, config })
   }, 20000)
   afterAll(async () => {
-    if (priorEnv.key === undefined) Reflect.deleteProperty(serverEnv, 'GOOGLE_TRANSLATE_API_KEY')
-    else serverEnv.GOOGLE_TRANSLATE_API_KEY = priorEnv.key
-    serverEnv.JOBS_AUTORUN = priorEnv.worker
+    serverEnv.JOBS_AUTORUN = priorWorker
     if (payload) {
       console.info(`Phase2 cleanup target=${url}; storage=disabled`)
       try {
@@ -145,7 +157,11 @@ describe('dictionary Jobs and last-ready reads (isolated MongoDB)', () => {
     translate.mockImplementation(stubTranslationProvider.translate)
     invalidate.mockResolvedValue(undefined)
     serverEnv.JOBS_AUTORUN = false
-    serverEnv.GOOGLE_TRANSLATE_API_KEY = 'phase2-placeholder-never-sent'
+    integration.translate = {
+      apiKey: 'placeholder-never-sent',
+      status: 'configured',
+      monthlyCharLimit: 450000,
+    }
   })
 
   it('chains prior onInit and requires both the designated worker and credentials', async () => {
@@ -153,9 +169,24 @@ describe('dictionary Jobs and last-ready reads (isolated MongoDB)', () => {
     expect(priorInit).toHaveBeenCalledWith(payload)
     expect((await jobs()).totalDocs).toBe(0)
     serverEnv.JOBS_AUTORUN = true
-    Reflect.deleteProperty(serverEnv, 'GOOGLE_TRANSLATE_API_KEY')
+    integration.translate = { apiKey: null, status: 'missing', monthlyCharLimit: 450000 }
     await startup()
     expect((await jobs()).totalDocs).toBe(0)
+  })
+
+  it('skips an undecryptable key and enables the existing dictionary runtime after replacement', async () => {
+    serverEnv.JOBS_AUTORUN = true
+    integration.translate = { apiKey: null, status: 'undecryptable', monthlyCharLimit: 450000 }
+    await startup()
+    expect((await jobs()).totalDocs).toBe(0)
+    integration.translate = {
+      apiKey: 'replacement-never-sent',
+      status: 'configured',
+      monthlyCharLimit: 450000,
+    }
+    await startup()
+    expect((await jobs()).totalDocs).toBe(1)
+    expect(translate).not.toHaveBeenCalled()
   })
 
   it('queues a changed hash once and keeps unchanged pending requests intact', async () => {

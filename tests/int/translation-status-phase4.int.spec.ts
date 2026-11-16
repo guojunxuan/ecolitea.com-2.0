@@ -1,6 +1,12 @@
 import { cleanup, render, screen } from '@testing-library/react'
 import { expect, it, vi } from 'vitest'
 import type { Payload } from 'payload'
+vi.mock('@/SiteSettings/integrations', () => ({
+  getIntegrations: async () => ({
+    gtm: { containerId: null, disabled: false },
+    translate: { apiKey: null, status: 'missing', monthlyCharLimit: 123456 },
+  }),
+}))
 vi.mock('@/plugins/translation/admin/LanguageStatusTable', () => ({
   LanguageStatusTable: () => null,
 }))
@@ -51,6 +57,7 @@ it('counts completion against the full public inventory and links problems by lo
   } as unknown as Payload
   const result = await getTranslationStatus(payload, undefined, new Date('2026-11-16T00:00:00Z'))
   expect(result.characters).toBe(123)
+  expect(result.limit).toBe(123456)
   expect(result.reset).toBe('2026-12-01T00:00:00.000Z')
   expect(result.counts[0]).toMatchObject({ code: 'de', total: 2, ready: 1, failed: 0, waiting: 1 })
 })

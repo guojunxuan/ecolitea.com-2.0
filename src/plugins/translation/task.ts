@@ -3,7 +3,7 @@ import type { Translation, TranslationSearch } from '@/payload-types'
 import { getI18nSettings } from '@/i18n/getI18nSettings'
 import { localeCatalog } from '@/i18n/catalog'
 import { sourceLocale } from '@/i18n/config'
-import { serverEnv } from '@/utilities/env'
+import { getIntegrations } from '@/SiteSettings/integrations'
 import { getContentPath } from '@/utilities/getContentPath'
 import { extract } from './extract'
 import { merge } from './merge'
@@ -72,8 +72,15 @@ export function createTranslationRuntime(options: TranslationOptions = {}) {
   const getTargets = async (req: PayloadRequest): Promise<readonly string[]> =>
     options.targets ??
     (await getI18nSettings(req.payload, req)).targetLocales.map(({ code }) => code)
-  const canQueue = options.enabled ?? Boolean(serverEnv.GOOGLE_TRANSLATE_API_KEY)
-  const provider = options.provider ?? createTranslationProvider(serverEnv.GOOGLE_TRANSLATE_API_KEY)
+  const canQueue = async (req: PayloadRequest): Promise<boolean> => {
+    // Explicit enablement and provider injection keep offline callers independent
+    // of credentials. The application's default runtime always resolves Settings.
+    if (options.enabled !== undefined) return options.enabled
+    const { translate } = await getIntegrations(req.payload, req)
+    if (translate.status === 'configured') return true
+    req.payload.logger.warn(`Translation skipped: Google Translate key is ${translate.status}.`)
+    return false
+  }
   const invalidate = options.invalidate ?? requestRevalidation
   const now = options.now ?? (() => new Date())
   const retries = 2
@@ -212,7 +219,7 @@ export function createTranslationRuntime(options: TranslationOptions = {}) {
     const prior = req.context
     try {
       if (
-        !canQueue ||
+        !(await canQueue(req)) ||
         !(await getTargets(req)).includes(input.locale) ||
         req.context.translationWrite
       )
@@ -361,8 +368,21 @@ export function createTranslationRuntime(options: TranslationOptions = {}) {
     TaskConfig<{ input: TranslationInput; output: { skipped: boolean } }>['handler'],
     string
   > = async ({ input, req, job }) => {
-    if (!canQueue || !(await getTargets(req)).includes(input.locale))
+    if (!(await canQueue(req)) || !(await getTargets(req)).includes(input.locale))
       return { output: { skipped: true } }
+    // Resolve again when a queued job runs: credentials and budget can change
+    // between publication and execution without reconstructing this runtime.
+    const integration =
+      !options.provider || !options.reserve
+        ? (await getIntegrations(req.payload, req)).translate
+        : null
+    if (!options.provider && !integration?.apiKey) {
+      req.payload.logger.warn(
+        `Translation skipped: Google Translate key is ${integration?.status ?? 'missing'}.`,
+      )
+      return { output: { skipped: true } }
+    }
+    const provider = options.provider ?? createTranslationProvider(integration!.apiKey!)
     const source = await currentSource(req, input)
     if (!source) return { output: { skipped: true } }
     try {
@@ -406,12 +426,9 @@ export function createTranslationRuntime(options: TranslationOptions = {}) {
       )
       const permitted = options.reserve
         ? await options.reserve(characters, req)
-        : await createQuota(
-            req.payload,
-            serverEnv.TRANSLATION_MONTHLY_CHAR_LIMIT,
-            now,
-            req,
-          ).reserve(characters)
+        : await createQuota(req.payload, integration!.monthlyCharLimit, now, req).reserve(
+            characters,
+          )
       if (!permitted) {
         if (await currentSource(req, input))
           await writeTranslation(req, input, {
@@ -506,7 +523,7 @@ export function createTranslationRuntime(options: TranslationOptions = {}) {
   }
 
   const recover = async (req: PayloadRequest): Promise<void> => {
-    if (!canQueue) return
+    if (!(await canQueue(req))) return
     const boundary = `${now().toISOString().slice(0, 7)}-01T00:00:00.000Z`
     const waiting: Translation[] = []
     let page = 1

@@ -43,7 +43,7 @@ async function publish(
   doc: SourceDocument,
   runtime: TranslationRuntime,
 ): Promise<void> {
-  if (!runtime.canQueue || !doc.updatedAt) return
+  if (!doc.updatedAt || !(await runtime.canQueue(req))) return
   const id = source.startsWith('global:') ? source.slice(7) : String(doc.id)
   if (source === 'pages' && (await isLegalPage(req, id))) return
   for (const locale of await runtime.getTargets(req))

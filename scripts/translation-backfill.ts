@@ -83,7 +83,12 @@ export async function runTranslationBackfill({
   const { getTranslationRuntime } = await import('../src/plugins/translation/hooks')
   const req = await createLocalReq({}, payload)
   const runtime = getTranslationRuntime(req)
-  if (!dryRun && (!runtime?.canQueue || !(await runtime.getTargets(req)).includes(locale)))
+  if (
+    !dryRun &&
+    (!runtime ||
+      !(await runtime.canQueue(req)) ||
+      !(await runtime.getTargets(req)).includes(locale))
+  )
     throw new Error(
       'Translation queueing is disabled; configure the target locale and provider first.',
     )
