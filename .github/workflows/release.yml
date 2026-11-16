@@ -48,11 +48,7 @@ jobs:
       R2_ENDPOINT: https://ci-only-account.r2.cloudflarestorage.com
       R2_PUBLIC_URL: https://media.example.invalid
       DISABLE_R2_STORAGE: "true"
-      NEXT_PUBLIC_ENABLE_CLOUD: "false"
       NEXT_PUBLIC_ENABLE_DOCS: "false"
-      NEXT_PUBLIC_ENABLE_COMMUNITY_HELP: "false"
-      NEXT_PUBLIC_ENABLE_PARTNERS: "false"
-      NEXT_PUBLIC_ENABLE_STYLEGUIDE: "false"
       NEXT_PUBLIC_SKIP_BUILD_DOCS: "true"
       NEXT_PUBLIC_SKIP_BUILD_HELPS: "true"
       NEXT_PRIVATE_DRAFT_SECRET: ci-only-draft-secret
