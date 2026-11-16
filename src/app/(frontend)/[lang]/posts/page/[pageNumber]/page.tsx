@@ -1,4 +1,5 @@
 import { fallbackToEnglish } from '@/utilities/i18n/pageAccess'
+import { fallbackListingToEnglish } from '@/utilities/i18n/listingAccess'
 import { localizeMetadata } from '@/utilities/i18n/seo'
 import { getLocalizedList, readyTranslationFilter } from '@/utilities/i18n/getLocalized'
 import type { Metadata } from 'next/types'
@@ -37,6 +38,7 @@ export default async function Page({ params: paramsPromise }: Args) {
   })
 
   if (lang !== 'en' && posts.docs.length === 0) {
+    await fallbackListingToEnglish(['posts'], lang, `/posts/page/${sanitizedPageNumber}`, payload)
     await fallbackToEnglish(null, lang, `/posts/page/${sanitizedPageNumber}`, async () => {
       const english = await payload.find({
         collection: 'posts',

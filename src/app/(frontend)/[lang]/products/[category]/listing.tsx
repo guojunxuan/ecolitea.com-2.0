@@ -1,5 +1,6 @@
 import { localizeMetadata } from '@/utilities/i18n/seo'
 import { fallbackToEnglish } from '@/utilities/i18n/pageAccess'
+import { fallbackListingToEnglish } from '@/utilities/i18n/listingAccess'
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import Link from '@/components/LocaleLink'
@@ -27,8 +28,9 @@ export function parsePageNumber(value: string): number {
   return page
 }
 export async function renderProductListing({ categorySlug, page, locale = 'en' }: ListingArgs) {
-  const category = await getProductCategoryBySlug(categorySlug, locale)
   const url = productCategoryPath(categorySlug, page)
+  await fallbackListingToEnglish(['products'], locale, url)
+  const category = await getProductCategoryBySlug(categorySlug, locale)
   await fallbackToEnglish(category, locale, url, () => getProductCategoryBySlug(categorySlug))
   if (!category) return <PayloadRedirects locale={locale} url={url} />
   const [listing, categories] = await Promise.all([

@@ -1,4 +1,5 @@
 import { localizeMetadata } from '@/utilities/i18n/seo'
+import { fallbackListingToEnglish } from '@/utilities/i18n/listingAccess'
 import type { Metadata } from 'next/types'
 import type { Where } from 'payload'
 
@@ -33,6 +34,14 @@ export default async function Page({ searchParams: searchParamsPromise, params }
     const localized = await getTranslatedSearchResults(payload, query, lang)
     blogResults = localized.blogs
     postResults = localized.posts
+    if (!blogResults.length && !postResults.length) {
+      await fallbackListingToEnglish(
+        ['blogs', 'posts'],
+        lang,
+        query ? `/search?q=${encodeURIComponent(query)}` : '/search',
+        payload,
+      )
+    }
   } else {
     const publicWhere: Where = {
       and: [

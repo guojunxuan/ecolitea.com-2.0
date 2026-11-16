@@ -1,4 +1,5 @@
 import { localizeMetadata } from '@/utilities/i18n/seo'
+import { fallbackListingToEnglish } from '@/utilities/i18n/listingAccess'
 import type { Metadata } from 'next'
 import Link from '@/components/LocaleLink'
 import { CMSLink } from '@/components/Link'
@@ -28,6 +29,7 @@ export default async function ProductsPage({ params }: { params?: Promise<{ lang
     getProductListingHero(lang),
     getProductListingSEO(lang),
   ])
+  if (!categories.length) await fallbackListingToEnglish(['products'], lang, '/products')
   const categoryItems = await getProductCategoryCarousel(categories, lang)
   return (
     <div className={styles.root}>

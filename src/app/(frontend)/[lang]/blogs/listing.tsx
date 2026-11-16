@@ -5,6 +5,7 @@ import {
   readyTranslationFilter,
 } from '@/utilities/i18n/getLocalized'
 import { fallbackToEnglish } from '@/utilities/i18n/pageAccess'
+import { fallbackListingToEnglish } from '@/utilities/i18n/listingAccess'
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { unstable_cache } from 'next/cache'
@@ -96,19 +97,23 @@ const getCategoryCounts = (locale = 'en') =>
     { tags: ['blogs-list', 'blog-categories', `translations:${locale}`], revalidate: 600 },
   )()
 
-async function resolveCategory(slug?: string, locale = 'en'): Promise<Category | undefined> {
+async function resolveCategory(
+  slug?: string,
+  locale = 'en',
+  englishPath = `/blogs/category/${slug}`,
+): Promise<Category | undefined> {
   if (!slug) return undefined
   const category = (await getCategories()).find((item) => item.slug === slug)
   if (!category) notFound()
   const counts = new Map(await getCategoryCounts(locale))
   if (!counts.get(category.id)) {
-    await fallbackToEnglish(null, locale, `/blogs/category/${slug}`, async () =>
+    await fallbackToEnglish(null, locale, englishPath, async () =>
       new Map(await getCategoryCounts()).get(category.id),
     )
     notFound()
   }
   const translated = await getLocalizedDoc(category, 'blog-categories', locale)
-  await fallbackToEnglish(translated, locale, `/blogs/category/${slug}`, async () => category)
+  await fallbackToEnglish(translated, locale, englishPath, async () => category)
   return translated ?? undefined
 }
 
@@ -120,7 +125,10 @@ export function parsePageNumber(value: string): number {
 }
 
 export async function renderBlogListing({ page, categorySlug, locale = 'en' }: ListingArgs) {
-  const category = await resolveCategory(categorySlug, locale)
+  const path = categorySlug ? `/blogs/category/${categorySlug}` : '/blogs'
+  const englishPath = page > 1 ? `${path}/page/${page}` : path
+  await fallbackListingToEnglish(['blogs'], locale, englishPath)
+  const category = await resolveCategory(categorySlug, locale, englishPath)
   const [categories, countEntries, listing, listingHero] = await Promise.all([
     getCategories(),
     getCategoryCounts(locale),
@@ -198,7 +206,10 @@ export async function blogListingMetadata({
   categorySlug,
   locale = 'en',
 }: ListingArgs): Promise<Metadata> {
-  const category = await resolveCategory(categorySlug, locale)
+  const path = categorySlug ? `/blogs/category/${categorySlug}` : '/blogs'
+  const englishPath = page > 1 ? `${path}/page/${page}` : path
+  await fallbackListingToEnglish(['blogs'], locale, englishPath)
+  const category = await resolveCategory(categorySlug, locale, englishPath)
   const seo = await getBlogListingSEO(locale)
   const baseTitle = category
     ? category.meta?.title || `${category.title} Blogs`

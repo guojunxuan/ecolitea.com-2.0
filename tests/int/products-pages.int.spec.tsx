@@ -2,6 +2,9 @@ import React from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/react'
 import type { Props as MediaProps } from '@/components/Media/types'
+vi.mock('@/i18n/getI18nSettings', () => ({
+  getI18nSettings: async () => ({ publicLocales: [{ code: 'en' }] }),
+}))
 const mocks = vi.hoisted(() => ({
   overview: vi.fn(),
   category: vi.fn(),

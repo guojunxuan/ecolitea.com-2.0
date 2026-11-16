@@ -1,4 +1,5 @@
 import { localizeMetadata } from '@/utilities/i18n/seo'
+import { fallbackListingToEnglish } from '@/utilities/i18n/listingAccess'
 import { getLocalizedList, readyTranslationFilter } from '@/utilities/i18n/getLocalized'
 import type { Metadata } from 'next/types'
 
@@ -31,6 +32,8 @@ export default async function Page({ params }: { params?: Promise<{ lang: string
       meta: true,
     },
   })
+
+  if (!posts.docs.length) await fallbackListingToEnglish(['posts'], lang, '/posts', payload)
 
   return (
     <div className={styles.pageSection}>
