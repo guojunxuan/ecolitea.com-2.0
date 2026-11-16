@@ -52,10 +52,32 @@
     padding: var(--website-space-6);
     padding-top: var(--website-space-12);
   }
+  .description[data-expanded='false'] {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    overflow: hidden;
+  }
   .actions {
     display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--website-space-2);
+  }
+  .actions .settings {
+    grid-column: 1 / -1;
+    padding-inline: 0;
+    border: 0;
+    background: transparent;
+    text-decoration: underline;
+    text-underline-offset: var(--website-space-1);
   }
   .actions button {
     width: 100%;
   }
+}
+
+.readMore {
+  min-height: var(--website-control-target-min);
+  padding: 0;
+  text-decoration: underline;
 }

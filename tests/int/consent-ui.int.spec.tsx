@@ -138,6 +138,7 @@ describe('consent UI', () => {
     expect(
       screen.getByText('Disabled by your browser’s Global Privacy Control setting.'),
     ).toBeTruthy()
+    fireEvent.click(screen.getByRole('button', { name: 'Necessary details' }))
     fireEvent.click(screen.getByRole('button', { name: 'Clear' }))
     expect(document.cookie).not.toContain('ec_preferences=')
     expect(screen.queryByText('Region & language preference')).toBeNull()

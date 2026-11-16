@@ -1,17 +1,55 @@
 'use client'
 
-import { X } from 'lucide-react'
+import { Minus, Plus, X } from 'lucide-react'
 import React, { useEffect, useId, useRef, useState } from 'react'
 
 import { Button } from '@/components/ui/button'
 import { useConsent } from './ConsentProvider'
 import { clearPreferences, readCookie } from './cookie'
 import { useDictionary } from '@/i18n/DictionaryProvider'
+import { ConsentDescription } from './ConsentDescription'
 import styles from './CookieSettingsDialog.module.css'
 
 export function CookieSettingsDialog() {
   const { settingsOpen } = useConsent()
   return settingsOpen ? <SettingsPanel /> : null
+}
+
+function Category({
+  name,
+  control,
+  children,
+  descriptionId,
+}: {
+  name: string
+  control: React.ReactNode
+  children: React.ReactNode
+  descriptionId: string
+}) {
+  const { consent: copy } = useDictionary()
+  const [expanded, setExpanded] = useState(false)
+  return (
+    <section className={styles.category}>
+      <div className={styles.row}>
+        <h3 className="website-type-button">{name}</h3>
+        {control}
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          aria-label={`${name} ${copy.details}`}
+          aria-expanded={expanded}
+          aria-controls={descriptionId}
+          onClick={() => setExpanded(!expanded)}
+        >
+          {expanded ? <Minus aria-hidden="true" /> : <Plus aria-hidden="true" />}
+        </Button>
+      </div>
+      <div id={descriptionId} className={styles.explanation} hidden={!expanded}>
+        {children}
+      </div>
+    </section>
+  )
 }
 
 function SettingsPanel() {
@@ -23,6 +61,7 @@ function SettingsPanel() {
   const dialog = useRef<HTMLDialogElement>(null)
   const title = useRef<HTMLHeadingElement>(null)
   const titleId = useId()
+  const necessaryId = useId()
   const analyticsId = useId()
   const marketingId = useId()
 
@@ -54,12 +93,9 @@ function SettingsPanel() {
     >
       <div className={styles.surface}>
         <header className={styles.header}>
-          <div className={styles.heading}>
-            <h2 ref={title} id={titleId} tabIndex={-1} className="website-type-heading-3">
-              {copy.settings}
-            </h2>
-            <p className="website-type-body-sm">{copy.settingsDescription}</p>
-          </div>
+          <h2 ref={title} id={titleId} tabIndex={-1} className="website-type-heading-3">
+            {copy.settings}
+          </h2>
           <Button
             type="button"
             variant="ghost"
@@ -71,19 +107,27 @@ function SettingsPanel() {
           </Button>
         </header>
         <div className={styles.body}>
+          <ConsentDescription
+            text={copy.settingsDescription}
+            descriptionClassName={styles.description}
+            containerClassName={styles.introduction}
+            buttonClassName={styles.readMore}
+          />
           <div className={styles.categories}>
-            <section className={styles.category}>
-              <div className={styles.row}>
-                <h3 className="website-type-button">{copy.necessary}</h3>
+            <Category
+              name={copy.necessary}
+              descriptionId={necessaryId}
+              control={
                 <span className={`website-type-caption ${styles.badge}`}>{copy.alwaysActive}</span>
-              </div>
-              <p className="website-type-caption">{copy.necessaryDescription}</p>
+              }
+            >
+              <p className="website-type-body-sm">{copy.necessaryDescription}</p>
               {hasPreferences && (
-                <div className={styles.row}>
+                <div className={styles.preference}>
                   <span className="website-type-body-sm">{copy.preferences}</span>
                   <Button
                     type="button"
-                    variant="outline"
+                    variant="link"
                     onClick={() => {
                       clearPreferences()
                       setHasPreferences(false)
@@ -93,10 +137,11 @@ function SettingsPanel() {
                   </Button>
                 </div>
               )}
-            </section>
-            <section className={styles.category}>
-              <div className={styles.row}>
-                <h3 className="website-type-button">{copy.analytics}</h3>
+            </Category>
+            <Category
+              name={copy.analytics}
+              descriptionId={analyticsId}
+              control={
                 <button
                   type="button"
                   className={styles.switch}
@@ -108,14 +153,14 @@ function SettingsPanel() {
                 >
                   <span aria-hidden="true" />
                 </button>
-              </div>
-              <p id={analyticsId} className="website-type-caption">
-                {copy.analyticsDescription}
-              </p>
-            </section>
-            <section className={styles.category}>
-              <div className={styles.row}>
-                <h3 className="website-type-button">{copy.marketing}</h3>
+              }
+            >
+              <p className="website-type-body-sm">{copy.analyticsDescription}</p>
+            </Category>
+            <Category
+              name={copy.marketing}
+              descriptionId={marketingId}
+              control={
                 <button
                   type="button"
                   className={styles.switch}
@@ -128,11 +173,10 @@ function SettingsPanel() {
                 >
                   <span aria-hidden="true" />
                 </button>
-              </div>
-              <p id={marketingId} className="website-type-caption">
-                {gpc ? copy.gpc : copy.marketingDescription}
-              </p>
-            </section>
+              }
+            >
+              <p className="website-type-body-sm">{gpc ? copy.gpc : copy.marketingDescription}</p>
+            </Category>
           </div>
         </div>
         <footer className={styles.actions}>

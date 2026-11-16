@@ -90,9 +90,7 @@ test('footer settings grant analytics, revoke it, and clear GA cookies', async (
 })
 
 for (const width of [1440, 390]) {
-  test(`banner and settings geometry and keyboard behavior at ${width}px`, async ({
-    page,
-  }, testInfo) => {
+  test(`banner and settings geometry and keyboard behavior at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 844 })
     await page.goto(`${baseURL}/blogs`)
     const banner = page.getByRole('region', { name: 'Cookie consent' })
@@ -106,7 +104,25 @@ for (const width of [1440, 390]) {
     expect(
       await page.evaluate(() => parseFloat(document.body.style.paddingBottom)),
     ).toBeGreaterThanOrEqual(box!.height)
-    await page.screenshot({ path: testInfo.outputPath(`banner-${width}.png`) })
+    if (width === 390) {
+      const more = banner.getByRole('button', { name: 'Read more' })
+      await expect(more).toHaveAttribute('aria-expanded', 'false')
+      const descriptionId = await more.getAttribute('aria-controls')
+      await more.click()
+      await expect(banner.getByRole('button', { name: 'Read less' })).toHaveAttribute(
+        'aria-expanded',
+        'true',
+      )
+      expect(
+        await page
+          .locator(`[id="${descriptionId}"]`)
+          .evaluate((element) => element.scrollHeight <= element.clientHeight + 1),
+      ).toBe(true)
+      await page.screenshot({ path: '/tmp/phase4-cookie-banner-expanded-390.png' })
+      await banner.getByRole('button', { name: 'Read less' }).click()
+      await expect(more).toHaveAttribute('aria-expanded', 'false')
+    }
+    await page.screenshot({ path: `/tmp/phase4-cookie-banner-${width}.png` })
     const trigger = banner.getByRole('button', { name: 'Cookie settings' })
     await trigger.click()
     const dialog = page.getByRole('dialog', { name: 'Cookie settings' })
@@ -124,7 +140,7 @@ for (const width of [1440, 390]) {
     await expect(dialog.getByRole('button', { name: 'Reject optional' })).toBeFocused()
     await page.keyboard.press('Tab')
     await expect(save).toBeFocused()
-    await page.screenshot({ path: testInfo.outputPath(`settings-${width}.png`) })
+    await page.screenshot({ path: `/tmp/phase4-cookie-settings-${width}.png` })
     await page.keyboard.press('Escape')
     await expect(dialog).toHaveCount(0)
     await expect(trigger).toBeFocused()

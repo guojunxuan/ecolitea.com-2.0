@@ -7,6 +7,7 @@ import React, { useEffect, useRef } from 'react'
 import { Button } from '@/components/ui/button'
 import { useConsent } from './ConsentProvider'
 import { useDictionary } from '@/i18n/DictionaryProvider'
+import { ConsentDescription } from './ConsentDescription'
 import styles from './CookieBanner.module.css'
 
 export function CookieBanner({ cookiePolicyHref }: { cookiePolicyHref?: string | null }) {
@@ -20,7 +21,7 @@ export function CookieBanner({ cookiePolicyHref }: { cookiePolicyHref?: string |
     const previous = document.body.style.paddingBottom
     const baseline = parseFloat(getComputedStyle(document.body).paddingBottom) || 0
     const measure = () => {
-      document.body.style.paddingBottom = `${baseline + element.getBoundingClientRect().height}px`
+      document.body.style.paddingBottom = `${Math.ceil(baseline + element.getBoundingClientRect().height)}px`
     }
     const observer = new ResizeObserver(measure)
     observer.observe(element)
@@ -43,7 +44,11 @@ export function CookieBanner({ cookiePolicyHref }: { cookiePolicyHref?: string |
       <div className={`site-container ${styles.content}`}>
         <div className={styles.intro}>
           <h2 className="website-type-title">{copy.title}</h2>
-          <p className="website-type-body-sm">{copy.description}</p>
+          <ConsentDescription
+            text={copy.description}
+            descriptionClassName={styles.description}
+            buttonClassName={styles.readMore}
+          />
           {cookiePolicyHref && (
             <Link className={`website-type-body-sm ${styles.policy}`} href={cookiePolicyHref}>
               {copy.policy}
@@ -60,6 +65,7 @@ export function CookieBanner({ cookiePolicyHref }: { cookiePolicyHref?: string |
           <Button
             type="button"
             variant="outline"
+            className={styles.settings}
             aria-haspopup="dialog"
             onClick={(event) => consent.openSettings(event.currentTarget)}
           >
