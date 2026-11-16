@@ -118,7 +118,7 @@ Lexical 按段落转换为 HTML，用 Google HTML 模式整段翻译，再还原
 
 ### 4.7 法律页面
 
-Site Settings → Legal 引用的 Privacy Policy、Cookie Policy、Terms 三个 Page 自动认定为法律页面：只提供英文，不生成译文；`/xx/<legal-slug>` 301 到英文；非英文页面中的政策链接直接指向英文地址并标注 `(English)`；不进入其他语言 sitemap / hreflang。
+Site Settings → Legal 引用的 Privacy Policy、Cookie Policy、Terms 三个 Page 自动认定为法律页面：只提供英文，不生成译文；`/xx/<legal-slug>` 308 到英文（已安装 Next 页面 API `permanentRedirect()` 只输出 308，与 301 语义等价）；非英文页面中的政策链接直接指向英文地址并标注 `(English)`；不进入其他语言 sitemap / hreflang。
 
 ### 4.8 前端字典
 
@@ -147,7 +147,7 @@ Site Settings → Legal 引用的 Privacy Policy、Cookie Policy、Terms 三个 
 | Sitemap | 现有 4 个 sitemap 增加语言维度，只列 `live` 语言的已就绪文档 |
 | 搜索 | 现有 search 插件保留英文（插件会删除同一源文档的多余记录，不能按语言加行）；翻译插件新增自有 `translation-search` 集合（`sourceCollection`+`sourceId`+`locale` 唯一索引），由翻译完成/失效流程写入；语言页面只搜索本语言并继续应用 `publishedAt` 可见性 |
 | Redirects | 运营只维护英文规则；查询时去掉语言前缀匹配，命中后按当前语言生成目标地址；外部 URL 原样跳转；目标未就绪按下方规则 |
-| 未就绪页面 | 直接访问 `live` 语言下未就绪的 `/xx/...`：302 到英文版 |
+| 未就绪页面 | 直接访问 `live` 语言下未就绪的 `/xx/...`：307 到英文版（`redirect()` 只输出 307，与 302 语义等价） |
 
 ## 6. 前台界面
 
