@@ -120,7 +120,6 @@ export function LanguageSwitcher({
     }
   }
 
-  if (publicLocales.length < 2) return null
   const content = (
     <>
       {mode === 'mobile' && (

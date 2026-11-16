@@ -149,11 +149,11 @@ describe('Header language switcher', () => {
     expect(trigger()).toBe(document.activeElement)
   })
 
-  it('does not render a control in a single-language configuration', () => {
+  it('always renders the entry, even in a single-language configuration', () => {
     const german = fixture.locales.pop()!
     try {
       render(<LanguageSwitcher mode="desktop" />)
-      expect(screen.queryByRole('button')).toBeNull()
+      expect(trigger()).toBeTruthy()
     } finally {
       fixture.locales.push(german)
     }

@@ -9,7 +9,6 @@ import { Logo } from '@/components/Logo/Logo'
 import type { LogoImage } from '@/components/Logo/types'
 
 import { LanguageSwitcher } from './LanguageSwitcher'
-import { publicLocales } from '@/i18n/config'
 import { announcePanelOpen, listenForPanelOpen } from '@/utilities/panelEvents'
 import { NavigationBlocks } from './NavigationBlocks'
 import styles from './index.module.css'
@@ -220,7 +219,6 @@ export const MobileNav: React.FC<MobileNavProps> = ({
     >
       <div
         className={styles.mobileToolbar}
-        data-multilingual={publicLocales.length > 1 ? 'true' : undefined}
         data-open={isOpen ? 'true' : 'false'}
       >
         <button

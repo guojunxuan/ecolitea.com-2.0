@@ -10,12 +10,9 @@
 .mobileToolbar {
   align-items: center;
   display: grid;
-  grid-template-columns: var(--website-control-target-min) minmax(0, 1fr) var(--website-control-target-min);
-  width: 100%;
-}
-
-.mobileToolbar[data-multilingual='true'] {
+  /* Menu · Logo · Language · Search */
   grid-template-columns: var(--website-control-target-min) minmax(0, 1fr) repeat(2, var(--website-control-target-min));
+  width: 100%;
 }
 
 .mobileToolbar > :nth-child(2) {
