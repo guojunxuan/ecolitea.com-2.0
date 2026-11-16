@@ -1,6 +1,7 @@
 .dialog {
   margin: auto;
-  width: min(var(--website-container-reading), calc(100% - var(--website-space-12)));
+  /* Compact preference panel: three-quarters of the reading measure. */
+  width: min(calc(var(--website-container-reading) * 0.75), calc(100% - var(--website-space-12)));
   max-width: none;
   max-height: calc(100svh - var(--website-space-12));
   padding: 0;
@@ -57,12 +58,12 @@
 }
 .categories {
   display: grid;
-  gap: var(--website-space-3);
+  gap: var(--website-space-2);
 }
 .category {
   display: grid;
-  gap: var(--website-space-2);
-  padding: var(--website-space-4);
+  gap: var(--website-space-1);
+  padding: var(--website-space-3) var(--website-space-4);
   border: 1px solid var(--website-color-border);
   border-radius: var(--website-radius-content);
   background: var(--website-color-surface);
