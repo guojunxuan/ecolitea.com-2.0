@@ -101,6 +101,29 @@
   border-top: 1px solid var(--website-color-border);
   background: var(--website-color-surface);
 }
+/* Expand toggle: two lines form +, rotate to × when expanded (mirrors the mobile menu button). */
+.toggle {
+  position: relative;
+}
+.toggleLine {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: var(--website-icon-small);
+  height: 1.5px;
+  margin: -0.75px 0 0 calc(var(--website-icon-small) / -2);
+  background: currentColor;
+  transition: transform var(--website-duration-standard) ease;
+}
+.toggleLine:last-child {
+  transform: rotate(90deg);
+}
+.toggle[aria-expanded='true'] .toggleLine:first-child {
+  transform: rotate(45deg);
+}
+.toggle[aria-expanded='true'] .toggleLine:last-child {
+  transform: rotate(135deg);
+}
 /* Native switch: neutral track off, brand action track on; the thumb slides. */
 .switch {
   position: relative;
@@ -153,7 +176,8 @@
 }
 @media (prefers-reduced-motion: reduce) {
   .switch,
-  .switch span {
+  .switch span,
+  .toggleLine {
     transition: none;
   }
 }

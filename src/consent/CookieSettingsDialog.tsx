@@ -1,6 +1,6 @@
 'use client'
 
-import { Minus, Plus, X } from 'lucide-react'
+import { X } from 'lucide-react'
 import React, { useEffect, useId, useRef, useState } from 'react'
 
 import { Button } from '@/components/ui/button'
@@ -40,9 +40,12 @@ function Category({
           aria-label={`${name} ${copy.details}`}
           aria-expanded={expanded}
           aria-controls={descriptionId}
+          className={styles.toggle}
           onClick={() => setExpanded(!expanded)}
         >
-          {expanded ? <Minus aria-hidden="true" /> : <Plus aria-hidden="true" />}
+          {/* Line icon that morphs + → × like the mobile menu button. */}
+          <span aria-hidden="true" className={styles.toggleLine} />
+          <span aria-hidden="true" className={styles.toggleLine} />
         </Button>
       </div>
       <div id={descriptionId} className={styles.explanation} hidden={!expanded}>
