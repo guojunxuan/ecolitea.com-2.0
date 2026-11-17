@@ -142,8 +142,9 @@ source, including any environment override.
 
 ### Local Mailpit capture
 
-Install and start [Mailpit](https://mailpit.axllent.org/docs/install/), for example with
-`brew install mailpit` followed by `mailpit`, and use this local `.env` group:
+Mailpit runs from the project-owned `docker-compose.dev.yml` (image pinned on GHCR; never deploy
+this file). Start it with `corepack pnpm mail:up` and stop it with `corepack pnpm mail:down`. It
+listens only on `127.0.0.1`. Use this local `.env` group:
 
 ```dotenv
 SMTP_HOST=127.0.0.1

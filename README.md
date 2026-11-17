@@ -67,6 +67,8 @@ longer than 10 minutes.
 
 ```bash
 corepack pnpm dev                 # Start the development server
+corepack pnpm mail:up             # Start local Mailpit (SMTP 127.0.0.1:1025, UI http://localhost:8025)
+corepack pnpm mail:down           # Stop local Mailpit
 corepack pnpm test:int            # Run integration tests
 corepack pnpm test:e2e:all        # Run both Playwright storage profiles
 corepack pnpm exec tsc --noEmit   # Type-check the project
