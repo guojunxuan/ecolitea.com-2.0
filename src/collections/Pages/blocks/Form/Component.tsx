@@ -1,10 +1,11 @@
 'use client'
-import type { FormFieldBlock, Form as FormType } from '@payloadcms/plugin-form-builder/types'
+import type { Form as FormType } from '@payloadcms/plugin-form-builder/types'
 
 import { useRouter } from 'next/navigation'
 import React, { useCallback, useState } from 'react'
-import { useForm, FormProvider } from 'react-hook-form'
+import { useForm, FormProvider, type FieldValues } from 'react-hook-form'
 import { trackEvent } from '@/consent/analytics'
+import { normalizeSubmissionData } from '@/plugins/formBuilder/submissionData'
 import RichText from '@/components/RichText'
 import { Button } from '@/components/ui/button'
 import type { SerializedEditorState } from '@payloadcms/richtext-lexical/lexical'
@@ -33,9 +34,7 @@ export const FormBlock: React.FC<
     introContent,
   } = props
 
-  const formMethods = useForm({
-    defaultValues: formFromProps.fields,
-  })
+  const formMethods = useForm()
   const {
     control,
     formState: { errors },
@@ -49,15 +48,15 @@ export const FormBlock: React.FC<
   const router = useRouter()
 
   const onSubmit = useCallback(
-    (data: FormFieldBlock[]) => {
+    (data: FieldValues) => {
       let loadingTimerID: ReturnType<typeof setTimeout>
       const submitForm = async () => {
         setError(undefined)
 
-        const dataToSend = Object.entries(data).map(([name, value]) => ({
-          field: name,
-          value,
-        }))
+        const dataToSend = normalizeSubmissionData(
+          Object.entries(data).map(([name, value]) => ({ field: name, value })),
+          formFromProps.fields,
+        )
 
         // delay loading indicator by 1s
         loadingTimerID = setTimeout(() => {
@@ -113,7 +112,7 @@ export const FormBlock: React.FC<
 
       void submitForm()
     },
-    [router, formID, formFromProps.title, redirect, confirmationType],
+    [router, formID, formFromProps.fields, formFromProps.title, redirect, confirmationType],
   )
 
   return (

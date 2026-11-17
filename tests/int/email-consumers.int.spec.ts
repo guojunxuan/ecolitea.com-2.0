@@ -19,6 +19,8 @@ import { getServerSideURL } from '@/utilities/getURL'
 
 const databaseURI = 'mongodb://127.0.0.1:27017/ecolitea2-test'
 const fixtureTag = `email-consumers-${randomUUID()}`
+// Exercise values omitted in REST JSON despite the persisted Local API type being string.
+const omittedValue = undefined as unknown as string
 const richText = (text: string) => ({
   root: {
     type: 'root' as const,
@@ -57,7 +59,7 @@ describe('email consumers through installed Payload APIs', () => {
   let failingTransport = false
   const messages: SendEmailOptions[] = []
   const created: Array<{ collection: CollectionSlug; id: string }> = []
-  const remember = (collection: CollectionSlug, doc: { id: string }) => {
+  const remember = <T extends { id: string }>(collection: CollectionSlug, doc: T): T => {
     created.push({ collection, id: doc.id })
     return doc
   }
@@ -109,7 +111,13 @@ describe('email consumers through installed Payload APIs', () => {
       collection: 'forms',
       data: {
         title: fixtureTag,
-        fields: [],
+        fields: [
+          { blockType: 'text', name: 'name', label: 'Name', required: true },
+          { blockType: 'email', name: 'email', label: 'Email', required: true },
+          { blockType: 'select', name: 'topic', options: [{ label: 'Tea', value: 'tea' }] },
+          { blockType: 'number', name: 'quantity' },
+          { blockType: 'checkbox', name: 'updates' },
+        ],
         confirmationMessage: richText('Thank you'),
         emails: [
           {
@@ -175,6 +183,127 @@ describe('email consumers through installed Payload APIs', () => {
     })
     expect(messages[0].html).toContain('Customer: Ada; Email: ada@example.invalid')
   })
+
+  it('accepts empty optional values without removing meaningful zero or false', async () => {
+    const saved = remember(
+      'form-submissions',
+      await payload.create({
+        collection: 'form-submissions',
+        data: {
+          form: formID,
+          submissionData: [
+            { field: 'name', value: 'Ada' },
+            { field: 'email', value: 'ada@example.invalid' },
+            { field: 'topic', value: omittedValue },
+            { field: 'quantity', value: '0' },
+            { field: 'updates', value: 'false' },
+          ],
+        },
+      }),
+    )
+    expect(saved.submissionData).toEqual([
+      expect.objectContaining({ field: 'name', value: 'Ada' }),
+      expect.objectContaining({ field: 'email', value: 'ada@example.invalid' }),
+      expect.objectContaining({ field: 'quantity', value: '0' }),
+      expect.objectContaining({ field: 'updates', value: 'false' }),
+    ])
+  })
+
+  it('omits blank optional select, number and checkbox values on server writes', async () => {
+    const saved = remember(
+      'form-submissions',
+      await payload.create({
+        collection: 'form-submissions',
+        data: {
+          form: formID,
+          submissionData: [
+            { field: 'name', value: 'Ada' },
+            { field: 'email', value: 'ada@example.invalid' },
+            { field: 'topic', value: omittedValue },
+            { field: 'quantity', value: '' },
+            { field: 'updates', value: omittedValue },
+          ],
+        },
+      }),
+    )
+    expect(saved.submissionData?.map((row) => row.field)).toEqual(['name', 'email'])
+  })
+
+  it.each(['missing', 'empty', 'whitespace'])(
+    'rejects a %s required value on the server',
+    async (kind) => {
+      const submissionData = [{ field: 'email', value: 'ada@example.invalid' }]
+      if (kind !== 'missing')
+        submissionData.push({ field: 'name', value: kind === 'empty' ? '' : '   ' })
+      await expect(
+        payload
+          .create({
+            collection: 'form-submissions',
+            data: { form: formID, submissionData },
+          })
+          .then((doc) => remember('form-submissions', doc)),
+      ).rejects.toMatchObject({ name: 'ValidationError' })
+      expect(messages).toHaveLength(0)
+    },
+  )
+
+  it.each(['select', 'number', 'checkbox'] as const)(
+    'enforces a required %s on the server',
+    async (blockType) => {
+      const fields =
+        blockType === 'select'
+          ? [
+              {
+                blockType,
+                name: 'required',
+                required: true,
+                options: [{ label: 'Tea', value: 'tea' }],
+              },
+            ]
+          : [{ blockType, name: 'required', required: true }]
+      const form = remember(
+        'forms',
+        await payload.create({
+          collection: 'forms',
+          data: {
+            title: `${fixtureTag}-${blockType}`,
+            fields,
+            emails: [],
+            confirmationMessage: richText('Thank you'),
+          },
+        }),
+      )
+      for (const submissionData of [
+        [],
+        [{ field: 'required', value: blockType === 'checkbox' ? 'false' : '' }],
+      ]) {
+        await expect(
+          payload
+            .create({
+              collection: 'form-submissions',
+              data: { form: form.id, submissionData },
+            })
+            .then((doc) => remember('form-submissions', doc)),
+        ).rejects.toMatchObject({ name: 'ValidationError' })
+      }
+      const saved = remember(
+        'form-submissions',
+        await payload.create({
+          collection: 'form-submissions',
+          data: {
+            form: form.id,
+            submissionData: [
+              {
+                field: 'required',
+                value: blockType === 'checkbox' ? 'true' : blockType === 'number' ? '0' : 'tea',
+              },
+            ],
+          },
+        }),
+      )
+      expect(saved.id).toBeTruthy()
+    },
+  )
 
   it('still saves a form submission when the actual adapter transport fails', async () => {
     failingTransport = true

@@ -366,7 +366,7 @@ describe('Form behavior across the style migration', () => {
     vi.stubGlobal('fetch', fetchMock)
     render(<FormBlock enableIntro={false} form={form()} />)
     fireEvent.click(screen.getByRole('button', { name: 'Send' }))
-    expect(await screen.findAllByText('This field is required')).toHaveLength(2)
+    expect(await screen.findAllByText('This field is required')).toHaveLength(3)
     expect(fetchMock).not.toHaveBeenCalled()
     for (const error of screen.getAllByText('This field is required'))
       expect(error.classList).toContain(style('Form/Error/index', 'error'))
@@ -374,6 +374,7 @@ describe('Form behavior across the style migration', () => {
     for (const control of [
       screen.getByRole('textbox', { name: /Name/ }),
       screen.getByRole('textbox', { name: /Email/ }),
+      screen.getByRole('checkbox', { name: /Consent/ }),
     ]) {
       const errorID = control.getAttribute('aria-describedby')
       expect(control.getAttribute('aria-invalid')).toBe('true')

@@ -17,6 +17,7 @@ import { beforeSyncWithSearch } from '@/search/beforeSync'
 import { publicBlogVisibility } from '@/utilities/blogs/publicVisibility'
 import { publicSearchVisibility } from '@/search/visibility'
 import { translationPlugin } from './translation'
+import { validateSubmission } from './formBuilder/validateSubmission'
 
 import {
   Blog,
@@ -276,6 +277,9 @@ export const plugins: Plugin[] = [
   formBuilderPlugin({
     fields: {
       payment: false,
+    },
+    formSubmissionOverrides: {
+      hooks: { beforeValidate: [validateSubmission] },
     },
     formOverrides: {
       fields: ({ defaultFields }) => {
