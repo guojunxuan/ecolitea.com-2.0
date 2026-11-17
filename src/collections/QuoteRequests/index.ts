@@ -2,6 +2,7 @@ import type { CollectionConfig } from 'payload'
 import { validations } from 'payload'
 
 import { authenticated } from '@/access/authenticated'
+import { sendQuoteNotification } from '@/plugins/email/quoteNotification'
 import { QUOTE_LIMITS } from '@/utilities/quoteRequests/validate'
 
 import { submitQuoteRequestEndpoint } from './endpoints/submit'
@@ -23,6 +24,7 @@ export const QuoteRequests: CollectionConfig = {
     delete: authenticated,
   },
   endpoints: [submitQuoteRequestEndpoint],
+  hooks: { afterChange: [sendQuoteNotification] },
   fields: [
     { name: 'name', type: 'text', required: true, maxLength: QUOTE_LIMITS.name },
     {
