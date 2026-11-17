@@ -2,7 +2,7 @@
 
 - Date: 2026-11-17
 - Branch: `feature/i18n-consent`
-- Status: Approved
+- Status: Implemented on branch (report: `docs/superpowers/reports/2026-11-17-email-plugin.md`). Mailpit runs from `docker-compose.dev.yml` (`pnpm mail:up`). Follow-up: Page form validation fix `5e42123` (2026-11-18)
 - Related: `docs/superpowers/specs/2026-11-16-integrations-settings-analytics-design.md`, `docs/deployment.md`
 
 ## Goal
@@ -61,7 +61,7 @@ Out of scope: email log collection (future, same plugin), customer confirmation 
 
 ## 6. Local testing
 
-- Mailpit (`brew install mailpit` or Docker). `.env`: `SMTP_HOST=127.0.0.1`, `SMTP_PORT=1025`, `SMTP_SECURE=none`, `SMTP_FROM_ADDRESS=noreply@localhost`. View at `http://localhost:8025`.
+- Mailpit via the project-owned `docker-compose.dev.yml` (`corepack pnpm mail:up` / `mail:down`). `.env`: `SMTP_HOST=127.0.0.1`, `SMTP_PORT=1025`, `SMTP_SECURE=none`, `SMTP_FROM_ADDRESS=noreply@localhost`. View at `http://localhost:8025`.
 
 ## 7. Testing (targeted only)
 

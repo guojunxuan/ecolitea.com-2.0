@@ -2,7 +2,7 @@
 
 - Date: 2026-11-16
 - Branch: `feature/i18n-consent` (implemented directly on this branch)
-- Status: Approved
+- Status: Implemented on branch (report: `docs/superpowers/reports/2026-11-16-integrations-settings-analytics.md`). Follow-ups: local E2E verification 2026-11-17; consent revocation sweep fix `3dab8cf` (2026-11-18)
 - Related: `docs/superpowers/specs/2026-11-15-i18n-region-consent-design.md`, `docs/deployment.md`
 
 ## Goal

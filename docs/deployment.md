@@ -222,7 +222,10 @@ It defaults to off. Enable and save it to prevent GTM loading regardless of visi
 the Site Settings cache refreshes. Saving expires the Site Settings cache and invalidates language layouts for subsequent requests. An already running
 container cannot be unloaded from an open page. Visitor withdrawal updates Consent Mode immediately;
 withdrawing both optional categories also removes accessible `_ga`, `_ga_*`, and `_gcl_*` cookies
-for the current host and parent domains. A full page reload is required to start without the
+for the current host and parent domains, immediately and again after 1, 3 and 8 seconds. The
+follow-up sweeps cover a Google tag that finishes initializing after the withdrawal; granting
+consent again cancels pending sweeps. After that window, Consent Mode denial governs further
+storage by the already loaded container. A full page reload is required to start without the
 previously loaded script. Failed script loading does not interrupt browsing or cookie settings.
 
 ### Business event dictionary and GA4 setup
@@ -248,9 +251,11 @@ locally before GTM loads; GTM consent requirements control external delivery.
    the corresponding variables, and attach its trigger. Require `analytics_storage` consent on
    these analytics tags. See Google's [event setup guide](https://support.google.com/tagmanager/answer/13034206).
 4. Decide which events represent conversions, then [mark those as key events in GA4](https://support.google.com/analytics/answer/13128484).
-   Add custom dimensions for business parameters only when reports need them. If GA4 enhanced
-   measurement already emits form/download events, adjust it so these custom events do not produce
-   duplicate conversion counts.
+   Add custom dimensions for business parameters only when reports need them. In the GA4 web
+   stream's **Enhanced measurement** settings, turn **Form interactions off**: its automatic
+   `form_submit` duplicates the business event and also fires for rejected submissions (verified
+   locally). Keep page views, scrolls and outbound clicks on; review **File downloads** against
+   `file_download` before marking either as a key event.
 5. Use **GTM Preview / Tag Assistant** on a test environment. Verify that no GTM script loads before
    optional consent or after rejecting both categories, and that analytics tags stay blocked for
    marketing-only consent. Accept analytics, perform each action and inspect the event, variables,
@@ -275,6 +280,48 @@ DISABLE_R2_STORAGE=true corepack pnpm test:e2e tests/e2e/cookie-consent.e2e.spec
 Playwright selects a run-scoped local test database and cleans up its own fixtures. The automated
 checks verify consent and script requests with an empty intercepted script; they do not validate
 or publish a live GTM container.
+
+### GTM container template
+
+[`docs/analytics/gtm-container-template.json`](analytics/gtm-container-template.json) contains the
+four Data Layer Variables, four Custom Event triggers, the Google tag and four GA4 Event tags
+described above. Replace `G-XXXXXXXXXX` with the target environment's measurement ID before
+importing, then use **GTM Admin → Import Container → Existing workspace → Merge → Rename
+conflicting tags, triggers, and variables**. Review every tag after import (tag type, measurement
+ID, event name and Event Parameters) and confirm the consent requirements above before publishing.
+Keep the template in sync with the event dictionary.
+
+### Local end-to-end verification
+
+Use a dedicated test GA4 property and GTM container, never the production ones. GA4 rejects
+`localhost` as a stream URL; any valid placeholder domain works because collection is keyed by the
+measurement ID.
+
+1. Start MongoDB, `corepack pnpm mail:up` and `corepack pnpm dev`; sign in to Admin again after
+   role changes.
+2. Import the template into the test container with the test measurement ID. Use **Preview /
+   Tag Assistant** for interactive checks, or **Submit → Publish** the test container when an
+   unauthenticated browser (for example, automated Playwright) must load it.
+3. In **Site Settings → Integrations**, set the test container ID and keep **Disable Google Tag
+   Manager** off.
+4. Consent: reject loads no GTM; analytics-only grants `analytics_storage` with advertising denied;
+   withdrawal clears `_ga*`/`_gcl_*` including after a slow tag load; GPC forces marketing off.
+5. Events: perform each business action after accepting analytics and confirm the dataLayer entry,
+   the `/g/collect` request (`en`, `ep.*`, `gcs`) and **GA4 DebugView/Realtime**. Confirm no
+   personal data in any request and no event for failed submissions.
+6. Email (Mailpit at `http://localhost:8025`): Admin test email, quote notification (Reply-To is
+   the customer, HTML escaped), a Page form with configured emails, and forgot-password with a
+   dedicated test account. Stop Mailpit and confirm a quote still saves.
+7. Remove any records created with test data afterwards.
+
+Reference results: [local verification report](superpowers/reports/2026-11-17-local-e2e-consent-gtm-email.md)
+and [follow-up fixes](superpowers/reports/2026-11-18-consent-forms-bugfixes.md).
+
+### Page form submissions
+
+Page forms omit empty optional values (keeping `0` and `false`) before submitting. The server
+validates every submission against the linked form's field configuration and rejects missing
+required values, including unchecked required checkboxes, regardless of the client.
 
 ## Translation backend (Phase 2)
 
