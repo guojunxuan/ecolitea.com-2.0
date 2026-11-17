@@ -65,6 +65,16 @@ Some older public flags and URL/preview aliases remain forwarded by Compose/CI f
 They do not configure Google integrations. Treat the table and actual application consumers as the
 supported contract. Do not put secrets in Docker build arguments or public variables.
 
+## Migration checks
+
+Check `corepack pnpm payload migrate:status` against the intended database before deploying.
+`20261023_products_model_redesign` and `20261024_product_blocks_revision` are no-ops on
+products and versions already in the current grouped-specification/section-block shape produced
+by the later product migrations. Legacy transformations and full-scan blocking of unknown or
+conflicting data still apply. Their historical local-target restrictions remain in force.
+Their `down` operations refuse later product/section schemas rather than rewriting current data;
+use the matching database backup and application revision when rolling back those later changes.
+
 ## Administrator roles and integration credentials
 
 Users has `admin` and `editor` roles. The first account on a fresh database becomes `admin`; later

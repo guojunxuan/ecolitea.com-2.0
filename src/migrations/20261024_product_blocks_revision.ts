@@ -84,6 +84,15 @@ export function planProductBlocksRevision(
       plan.unknown.push({ path, reason: 'Expected section object' })
       return section
     }
+    // 20261111 promotes the theme to the section. Up still validates every owned
+    // block field below; down must not rename current body/title fields to legacy names.
+    if (direction === 'down' && Object.hasOwn(section, 'theme')) {
+      plan.unknown.push({
+        path,
+        reason: 'Later section schema cannot be reversed by this migration; restore its backup',
+      })
+      return section
+    }
     if (section.blocks == null) return section
     if (!Array.isArray(section.blocks)) {
       plan.unknown.push({ path: `${path}.blocks`, reason: 'Expected array or null' })
@@ -253,7 +262,7 @@ async function migrate(args: MigrateUpArgs | MigrateDownArgs, direction: Directi
 export async function up(args: MigrateUpArgs) {
   await migrate(args, 'up')
 }
-/** Reverse renamed text fields; retain minHeight to avoid deleting newly authored data. */
+/** Reverse pre-20261111 text fields only; retain minHeight and refuse later section schemas. */
 export async function down(args: MigrateDownArgs) {
   await migrate(args, 'down')
 }

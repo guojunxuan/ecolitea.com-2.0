@@ -1,6 +1,7 @@
 import { createRequire } from 'node:module'
 import { isDeepStrictEqual } from 'node:util'
 import { describe, expect, it, vi } from 'vitest'
+import { currentProductMigrationFixture } from '../helpers/currentProductMigrationFixture'
 import {
   down,
   planProductModelMigration,
@@ -98,6 +99,109 @@ const specs = [{ group: 'Power', label: 'Voltage', value: '240 V' }]
 const legacy = { excerpt: 'Summary text', specs, layout: [], downloads: null, faqs: [] }
 
 describe('product model migration', () => {
+  it.each([false, true])(
+    'leaves current grouped specifications unchanged (version=%s)',
+    (version) => {
+      const current = currentProductMigrationFixture()
+      const input = version ? { _id: 'v', version: current } : { _id: 'p', ...current }
+      const before = structuredClone(input)
+      expect(planProductModelMigration(input, version, 'up')).toMatchObject({
+        set: {},
+        unset: {},
+        toRename: 0,
+        toUnset: 0,
+        unknown: [],
+        conflicts: [],
+      })
+      expect(input).toEqual(before)
+    },
+  )
+
+  it('accepts grouped draft rows preserved by the detail migration without rewriting them', () => {
+    const input = { specifications: [{ group: null, items: [{ label: null }, { value: '' }] }] }
+    expect(planProductModelMigration(input, false, 'up')).toMatchObject({
+      set: {},
+      unset: {},
+      unknown: [],
+      conflicts: [],
+    })
+  })
+
+  it('migrates a mixed batch while preserving current main and version documents', async () => {
+    const current = { _id: 'current', ...currentProductMigrationFixture() }
+    const currentVersion = {
+      _id: 'current-v',
+      version: currentProductMigrationFixture(),
+      latest: true,
+    }
+    const before = structuredClone([current, currentVersion])
+    const f = fixture(
+      [{ _id: 'old', ...legacy }, current],
+      [{ _id: 'old-v', version: { ...legacy } }, currentVersion],
+    )
+    const report = await scanProductModelMigration(f.payload.db as never, 'up')
+    expect(report.allowedToWrite).toBe(true)
+    expect(report.unknown).toEqual([])
+    expect(report.collections.map((row) => row.toChangeDocuments)).toEqual([1, 1])
+    await up({ payload: f.payload } as never)
+    expect(f.documents.products[0]).toEqual({
+      _id: 'old',
+      summary: legacy.excerpt,
+      specifications: specs,
+    })
+    expect(f.documents._products_versions[0]).toEqual({
+      _id: 'old-v',
+      version: { summary: legacy.excerpt, specifications: specs },
+    })
+    expect([current, currentVersion]).toEqual(before)
+  })
+
+  it.each(
+    [
+      [{ group: 'Power', items: 'bad' }],
+      [{ group: 42, items: [] }],
+      [{ items: [null] }],
+      [{ items: [{}] }],
+      [{ items: [{ label: 'x', value: 42 }] }],
+      [{ items: [{ label: 'x', value: 'y', items: [] }] }],
+      [
+        { group: null, items: [] },
+        { label: 'flat', value: 'row' },
+      ],
+    ].map((specifications) => ({ specifications })),
+  )('rejects malformed or mixed grouped specifications: %j', async ({ specifications }) => {
+    const f = fixture([{ _id: 'old', ...legacy }], [{ _id: 'bad-v', version: { specifications } }])
+    const report = await scanProductModelMigration(f.payload.db as never, 'up')
+    expect(report.allowedToWrite).toBe(false)
+    expect(report.unknown.length).toBeGreaterThan(0)
+    expect(report.unknown.every((issue) => issue.collection === '_products_versions')).toBe(true)
+    const before = structuredClone(f.documents)
+    await expect(up({ payload: f.payload } as never)).rejects.toThrow(/aborted before writes/)
+    expect(f.documents).toEqual(before)
+  })
+
+  it('does not accept grouped specifications under the legacy specs field', async () => {
+    const f = fixture([{ _id: 'bad', specs: currentProductMigrationFixture().specifications }])
+    await expect(up({ payload: f.payload } as never)).rejects.toThrow(/aborted before writes/)
+    expect(f.documents.products[0]).toHaveProperty('specs')
+    expect(f.documents.products[0]).not.toHaveProperty('specifications')
+  })
+
+  it.each([
+    currentProductMigrationFixture(),
+    { summary: 'Current summary', specifications: currentProductMigrationFixture().specifications },
+    { summary: 'Current summary', resources: [], specifications: [] },
+    { summary: 'Current summary', sections: currentProductMigrationFixture().sections },
+  ])('refuses down on later product shapes before changing any records', async (current) => {
+    const f = fixture(
+      [{ _id: 'old', summary: 'Old summary', specifications: specs }],
+      [{ _id: 'current-v', version: current }],
+    )
+    const before = structuredClone(f.documents)
+    await expect(down({ payload: f.payload } as never)).rejects.toThrow(/aborted before writes/)
+    expect(f.documents).toEqual(before)
+  })
+
   it.each([false, true])(
     'plans field paths preserving BSON/row metadata (version=%s)',
     (version) => {

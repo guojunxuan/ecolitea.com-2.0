@@ -1,5 +1,6 @@
 import { isDeepStrictEqual } from 'node:util'
 import { describe, expect, it, vi } from 'vitest'
+import { currentProductMigrationFixture } from '../helpers/currentProductMigrationFixture'
 import {
   planProductBlocksRevision,
   scanProductBlocksRevision,
@@ -101,6 +102,84 @@ const source = () => ({
 })
 
 describe('Product blocks revision migration', () => {
+  it.each([false, true])('is a no-op on current sections and blocks (version=%s)', (version) => {
+    const current = currentProductMigrationFixture()
+    const input = version ? { _id: 'v', version: current } : { _id: 'p', ...current }
+    const before = structuredClone(input)
+    const plan = planProductBlocksRevision(input, version, 'up')
+    expect(plan).toMatchObject({
+      changed: false,
+      toRename: 0,
+      unknown: [],
+      conflicts: [],
+      nonemptyLegacy: [],
+    })
+    expect(input).toEqual(before)
+    expect(plan.sections).toEqual(current.sections)
+  })
+
+  it('changes only legacy records in a mixed main/version batch', async () => {
+    const current = { _id: 'current', ...currentProductMigrationFixture() }
+    const currentVersion = { _id: 'current-v', version: currentProductMigrationFixture() }
+    const before = structuredClone([current, currentVersion])
+    const f = fixture(
+      [{ _id: 'old', ...source() }, current],
+      [{ _id: 'old-v', version: source() }, currentVersion],
+    )
+    const report = await scanProductBlocksRevision(f.payload.db as never, 'up')
+    expect(report.allowedToWrite).toBe(true)
+    expect(report.collections.map((row) => row.toChangeDocuments)).toEqual([1, 1])
+    await up({ payload: f.payload } as never)
+    expect(
+      (f.documents.products[0].sections as { blocks: Document[] }[])[0].blocks[0],
+    ).toHaveProperty('body', 'Banner')
+    expect(
+      (
+        (f.documents._products_versions[0].version as Document).sections as { blocks: Document[] }[]
+      )[0].blocks[0],
+    ).toHaveProperty('body', 'Banner')
+    expect([current, currentVersion]).toEqual(before)
+  })
+
+  it.each([false, true])(
+    'rejects down on current sections before any write (version=%s)',
+    async (version) => {
+      const current = currentProductMigrationFixture()
+      const f = fixture(
+        [
+          {
+            _id: 'old',
+            sections: [{ blocks: [{ blockType: 'productMediaBanner', body: 'Old body' }] }],
+          },
+          ...(version ? [] : [{ _id: 'current', ...current }]),
+        ],
+        version ? [{ _id: 'current-v', version: current }] : [],
+      )
+      const before = structuredClone(f.documents)
+      await expect(down({ payload: f.payload } as never)).rejects.toThrow(/aborted before writes/)
+      expect(f.documents).toEqual(before)
+    },
+  )
+
+  it('does not skip malformed owned fields just because a section has the current theme', async () => {
+    const f = fixture(
+      [{ _id: 'current', ...currentProductMigrationFixture() }],
+      [
+        {
+          _id: 'bad',
+          version: {
+            sections: [
+              { theme: 'inverse', blocks: [{ blockType: 'productMediaBanner', body: 42 }] },
+            ],
+          },
+        },
+      ],
+    )
+    const before = structuredClone(f.documents)
+    await expect(up({ payload: f.payload } as never)).rejects.toThrow(/aborted before writes/)
+    expect(f.documents).toEqual(before)
+  })
+
   it('renames main and version fields, adds Code minimum, is idempotent and reverses names', async () => {
     const f = fixture([{ _id: 'p', ...source() }], [{ _id: 'v', version: source(), latest: true }])
     const session = { id: 'test' }

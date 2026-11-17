@@ -26,6 +26,24 @@ const isRecord = (value: unknown): value is RecordValue =>
   !Array.isArray(value) &&
   (Object.getPrototypeOf(value) === Object.prototype || Object.getPrototypeOf(value) === null)
 
+// Freeze the grouped shape produced by 20261109, including incomplete draft text.
+// Only the renamed target may contain it; legacy `specs` must retain its original contract.
+const isTextOrEmpty = (value: unknown) => value == null || typeof value === 'string'
+const isGroupedSpecification = (value: unknown): boolean =>
+  isRecord(value) &&
+  !Object.hasOwn(value, 'label') &&
+  !Object.hasOwn(value, 'value') &&
+  isTextOrEmpty(value.group) &&
+  Array.isArray(value.items) &&
+  value.items.every(
+    (item) =>
+      isRecord(item) &&
+      !Object.hasOwn(item, 'items') &&
+      (Object.hasOwn(item, 'label') || Object.hasOwn(item, 'value')) &&
+      isTextOrEmpty(item.label) &&
+      isTextOrEmpty(item.value),
+  )
+
 export type ProductModelPlan = {
   set: RecordValue
   unset: Record<string, ''>
@@ -57,12 +75,26 @@ export function planProductModelMigration(
     plan.unknown.push({ path: version ? 'version' : '$', reason: 'Expected a document object' })
     return plan
   }
+  if (
+    direction === 'down' &&
+    (Object.hasOwn(base, 'resources') ||
+      (Array.isArray(base.sections) &&
+        base.sections.some((section) => isRecord(section) && Object.hasOwn(section, 'theme'))))
+  ) {
+    plan.unknown.push({
+      path: version ? 'version' : '$',
+      reason: 'Later product schema cannot be reversed by this migration; restore its backup',
+    })
+    return plan
+  }
   const valid = (field: string, kind: 'text' | 'specs'): boolean => {
     if (!Object.hasOwn(base, field)) return true
     const value = base[field]
     if (value === null) return true
     if (kind === 'text' && typeof value === 'string') return true
     if (kind === 'specs' && Array.isArray(value)) {
+      if (direction === 'up' && field === 'specifications' && value.every(isGroupedSpecification))
+        return true
       let okay = true
       value.forEach((row, i) => {
         if (
@@ -295,6 +327,7 @@ async function migrate(args: MigrateUpArgs | MigrateDownArgs, direction: Directi
 export async function up(args: MigrateUpArgs) {
   await migrate(args, 'up')
 }
+/** Grouped specifications and later product schemas require rollback of the later migration or a backup. */
 export async function down(args: MigrateDownArgs) {
   await migrate(args, 'down')
 }
