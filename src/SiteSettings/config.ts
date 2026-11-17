@@ -7,6 +7,7 @@ import { validateLanguages, validateRegions } from '@/i18n/settings'
 import { protectIntegrationSecrets } from './fields/integrations'
 import { siteSettingsTabs } from './fields'
 import { revalidateSiteSettings } from './hooks/revalidateSiteSettings'
+import { createTestEmailEndpoint } from '@/plugins/email/endpoint'
 
 export const SiteSettings: GlobalConfig = {
   slug: 'site-settings',
@@ -39,4 +40,5 @@ export const SiteSettings: GlobalConfig = {
   },
   fields: [siteSettingsTabs],
   versions: false,
+  endpoints: [createTestEmailEndpoint()],
 }

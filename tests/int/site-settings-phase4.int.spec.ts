@@ -72,6 +72,17 @@ describe('Phase 4 Site Settings presentation', () => {
         'translationMonthlyCharLimit',
         'googleTranslateApiKeyEncrypted',
         'googleTranslateApiKeyLast4',
+        'smtpHost',
+        'smtpPort',
+        'smtpSecurity',
+        'smtpUser',
+        'smtpFromAddress',
+        'smtpFromName',
+        'smtpPasswordEncrypted',
+        'smtpPasswordLast4',
+        'quoteNotificationsEnabled',
+        'quoteNotificationRecipients',
+        'quoteNotificationRecipients.email',
       ].sort(),
     )
   })

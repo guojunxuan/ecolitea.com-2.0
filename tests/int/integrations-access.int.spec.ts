@@ -2,10 +2,11 @@
 import { randomUUID } from 'node:crypto'
 import { mongooseAdapter, type MongooseAdapter } from '@payloadcms/db-mongodb'
 import { buildConfig, createLocalReq, getPayload, handleEndpoints, type Payload } from 'payload'
-import { afterAll, beforeAll, describe, expect, it } from 'vitest'
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
 import { Users } from '@/collections/Users'
 import { SiteSettings } from '@/SiteSettings/config'
 import { integrationFields } from '@/SiteSettings/fields/integrations'
+import { emailFields, emailNotificationFields } from '@/SiteSettings/fields/email'
 import { getIntegrations } from '@/SiteSettings/integrations'
 import { up } from '@/migrations/20261116_user_roles'
 import { createIsolatedTestDatabaseURI } from '../helpers/isolatedDatabase'
@@ -19,6 +20,7 @@ describe('integration access through real Payload operations', () => {
   const request = async (user?: User) =>
     createLocalReq({ user, context: { disableRevalidate: true } }, payload)
   beforeAll(async () => {
+    vi.stubEnv('SMTP_HOST', '')
     expect(process.env.DISABLE_R2_STORAGE).toBe('true')
     const url = createIsolatedTestDatabaseURI(cacheKey)
     process.stdout.write(
@@ -35,7 +37,12 @@ describe('integration access through real Payload operations', () => {
           {
             ...SiteSettings,
             hooks: { ...SiteSettings.hooks, afterChange: [] },
-            fields: [...integrationFields, { name: 'disableGtm', type: 'checkbox' }],
+            fields: [
+              ...integrationFields,
+              ...emailFields,
+              ...emailNotificationFields,
+              { name: 'disableGtm', type: 'checkbox' },
+            ],
           },
         ],
       }),
@@ -63,6 +70,7 @@ describe('integration access through real Payload operations', () => {
     })
   }, 15000)
   afterAll(async () => {
+    vi.unstubAllEnvs()
     if (!payload) return
     await (payload.db as MongooseAdapter).connection.dropDatabase()
     await payload.destroy()
@@ -195,6 +203,92 @@ describe('integration access through real Payload operations', () => {
     const saved = await payload.findGlobal({ slug: 'site-settings', overrideAccess: true })
     expect(saved.googleTranslateApiKeyEncrypted).toBeNull()
     expect(saved.googleTranslateApiKeyLast4).toBeNull()
+  })
+  it('protects SMTP secrets and private connection fields through real public REST and editor reads', async () => {
+    const saved = await payload.updateGlobal({
+      slug: 'site-settings',
+      data: {
+        smtpHost: 'smtp.example.test',
+        smtpFromAddress: 'noreply@example.test',
+        smtpPasswordInput: 'isolated-smtp-password-9876',
+      },
+      overrideAccess: false,
+      req: await request(admin),
+    })
+    expect(saved.smtpPasswordEncrypted).toBeUndefined()
+    expect(saved.smtpPasswordLast4).toBe('9876')
+    expect(saved.smtpPasswordInput).toBeNull()
+    const stored = await (payload.db as MongooseAdapter).connection
+      .db!.collection('globals')
+      .findOne({ globalType: 'site-settings' })
+    expect(JSON.stringify(stored)).not.toContain('isolated-smtp-password-9876')
+    expect(stored).not.toHaveProperty('smtpPasswordInput')
+    const response = await handleEndpoints({
+      config: payload.config,
+      payloadInstanceCacheKey: cacheKey,
+      request: new Request('http://localhost/api/globals/site-settings'),
+    })
+    expect(response.status).toBe(200)
+    const publicData = await response.json()
+    const read = await payload.findGlobal({
+      slug: 'site-settings',
+      overrideAccess: false,
+      req: await request(editor),
+    })
+    for (const field of [
+      'smtpPasswordEncrypted',
+      'smtpPasswordLast4',
+      'smtpPasswordInput',
+      'smtpHost',
+      'smtpUser',
+    ]) {
+      expect(publicData).not.toHaveProperty(field)
+      expect(read).not.toHaveProperty(field)
+    }
+    for (const overrideAccess of [false, true])
+      for (const data of [
+        { smtpPasswordInput: 'attacker' },
+        { smtpPasswordClear: true },
+        { smtpPasswordEncrypted: 'forged' },
+        { smtpPasswordLast4: 'fake' },
+      ]) {
+        await expect(
+          payload.updateGlobal({
+            slug: 'site-settings',
+            data,
+            overrideAccess,
+            req: await request(editor),
+          }),
+        ).rejects.toMatchObject({ status: 400 })
+      }
+    for (const data of [{ smtpPasswordEncrypted: 'forged' }, { smtpPasswordLast4: 'fake' }]) {
+      await expect(
+        payload.updateGlobal({
+          slug: 'site-settings',
+          data,
+          overrideAccess: false,
+          req: await request(admin),
+        }),
+      ).rejects.toMatchObject({ status: 400 })
+    }
+    await payload.updateGlobal({
+      slug: 'site-settings',
+      data: { disableGtm: false },
+      overrideAccess: false,
+      req: await request(editor),
+    })
+    expect(
+      (await payload.findGlobal({ slug: 'site-settings', overrideAccess: true })).smtpPasswordLast4,
+    ).toBe('9876')
+    await payload.updateGlobal({
+      slug: 'site-settings',
+      data: { smtpPasswordClear: true },
+      overrideAccess: false,
+      req: await request(admin),
+    })
+    const cleared = await payload.findGlobal({ slug: 'site-settings', overrideAccess: true })
+    expect(cleared.smtpPasswordEncrypted).toBeNull()
+    expect(cleared.smtpPasswordLast4).toBeNull()
   })
   it('migrates every existing user to admin', async () => {
     await up({ payload, req: await request() } as Parameters<typeof up>[0])

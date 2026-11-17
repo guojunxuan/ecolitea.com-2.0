@@ -1,6 +1,7 @@
 import type { Field, TabsField, UnnamedGroupField } from 'payload'
 
 import { integrationFields } from './integrations'
+import { emailFields, emailNotificationFields } from './email'
 import { languageFields, regionFields } from './language'
 import { brandingTab } from './branding'
 import { contactTab } from './contact'
@@ -101,6 +102,16 @@ export const siteSettingsTabs: TabsField = {
           'Google Translate',
           'Translation provider credentials and character budget.',
           integrationFields.slice(1),
+        ),
+        group(
+          'Email',
+          'Outbound SMTP connection. Environment variables override this entire connection when SMTP_HOST is set.',
+          emailFields,
+        ),
+        group(
+          'Email Notifications',
+          'Quote request notification delivery.',
+          emailNotificationFields,
         ),
       ],
     },

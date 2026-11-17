@@ -3199,10 +3199,33 @@ export interface SiteSettings {
   googleTranslateApiKeyEncrypted?: string | null;
   googleTranslateApiKeyLast4?: string | null;
   /**
-   * Leave empty to keep the stored key. The key is encrypted when saved.
+   * Leave empty to keep the stored credential. It is encrypted when saved.
    */
   googleTranslateApiKeyInput?: string | null;
   googleTranslateApiKeyClear?: boolean | null;
+  smtpHost?: string | null;
+  smtpPort?: number | null;
+  smtpSecurity?: ('none' | 'starttls' | 'tls') | null;
+  smtpUser?: string | null;
+  smtpPasswordEncrypted?: string | null;
+  smtpPasswordLast4?: string | null;
+  /**
+   * Leave empty to keep the stored credential. It is encrypted when saved.
+   */
+  smtpPasswordInput?: string | null;
+  smtpPasswordClear?: boolean | null;
+  smtpFromAddress?: string | null;
+  smtpFromName?: string | null;
+  quoteNotificationsEnabled?: boolean | null;
+  /**
+   * Leave empty to send notifications to the Contact Details email.
+   */
+  quoteNotificationRecipients?:
+    | {
+        email: string;
+        id?: string | null;
+      }[]
+    | null;
   /**
    * Add or remove languages here; set each language's status in the table above.
    */
@@ -3708,6 +3731,23 @@ export interface SiteSettingsSelect<T extends boolean = true> {
   googleTranslateApiKeyLast4?: T;
   googleTranslateApiKeyInput?: T;
   googleTranslateApiKeyClear?: T;
+  smtpHost?: T;
+  smtpPort?: T;
+  smtpSecurity?: T;
+  smtpUser?: T;
+  smtpPasswordEncrypted?: T;
+  smtpPasswordLast4?: T;
+  smtpPasswordInput?: T;
+  smtpPasswordClear?: T;
+  smtpFromAddress?: T;
+  smtpFromName?: T;
+  quoteNotificationsEnabled?: T;
+  quoteNotificationRecipients?:
+    | T
+    | {
+        email?: T;
+        id?: T;
+      };
   languages?:
     | T
     | {

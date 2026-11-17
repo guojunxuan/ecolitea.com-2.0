@@ -54,6 +54,9 @@ import { SocialPlatformCreateActions as SocialPlatformCreateActions_f4925e2e9e91
 import { SocialLinksArrayField as SocialLinksArrayField_ea1af3bc4c821b42c92f79172947f6c9 } from '@/SiteSettings/components/SocialLinksArrayField'
 import { SocialLinkRowLabel as SocialLinkRowLabel_68735dc78968c7c1609d0002eef58140 } from '@/SiteSettings/components/SocialLinkRowLabel'
 import { GoogleTranslateKeyStatus as GoogleTranslateKeyStatus_2284c350114d509bb2cd38ebf76c8cae } from '@/SiteSettings/components/GoogleTranslateKeyStatus'
+import { EmailStatus as EmailStatus_2075dc18e86a6b724ca94a7341c807ce } from '@/plugins/email/admin/EmailStatus'
+import { EncryptedSecretStatus as EncryptedSecretStatus_8a076eb65a1263befaa5bf20b73e2edb } from '@/fields/EncryptedSecretStatus'
+import { TestEmailButton as TestEmailButton_eea26b75a50d913d75c4cce62dffd808 } from '@/plugins/email/admin/TestEmailButton'
 import { TranslationStatus as TranslationStatus_06b96e0e8253b2da4edf573bfabe4b95 } from '@/plugins/translation/admin/TranslationStatus'
 import { ArticleShareURLField as ArticleShareURLField_1245b93634f2f81e3750ee57bc6e3eed } from '@/Settings/components/ArticleShareURLField'
 import { HeroSlideRowLabel as HeroSlideRowLabel_cd32ae05f5941e1c60a7be80501d1b25 } from '@/Settings/components/HeroSlideRowLabel'
@@ -127,6 +130,9 @@ export const importMap = {
   "@/SiteSettings/components/SocialLinksArrayField#SocialLinksArrayField": SocialLinksArrayField_ea1af3bc4c821b42c92f79172947f6c9,
   "@/SiteSettings/components/SocialLinkRowLabel#SocialLinkRowLabel": SocialLinkRowLabel_68735dc78968c7c1609d0002eef58140,
   "@/SiteSettings/components/GoogleTranslateKeyStatus#GoogleTranslateKeyStatus": GoogleTranslateKeyStatus_2284c350114d509bb2cd38ebf76c8cae,
+  "@/plugins/email/admin/EmailStatus#EmailStatus": EmailStatus_2075dc18e86a6b724ca94a7341c807ce,
+  "@/fields/EncryptedSecretStatus#EncryptedSecretStatus": EncryptedSecretStatus_8a076eb65a1263befaa5bf20b73e2edb,
+  "@/plugins/email/admin/TestEmailButton#TestEmailButton": TestEmailButton_eea26b75a50d913d75c4cce62dffd808,
   "@/plugins/translation/admin/TranslationStatus#TranslationStatus": TranslationStatus_06b96e0e8253b2da4edf573bfabe4b95,
   "@/Settings/components/ArticleShareURLField#ArticleShareURLField": ArticleShareURLField_1245b93634f2f81e3750ee57bc6e3eed,
   "@/Settings/components/HeroSlideRowLabel#HeroSlideRowLabel": HeroSlideRowLabel_cd32ae05f5941e1c60a7be80501d1b25,
