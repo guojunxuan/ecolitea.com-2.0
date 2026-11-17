@@ -32,9 +32,6 @@ jobs:
       NEXT_PUBLIC_SERVER_URL: http://localhost:3000
       CRON_SECRET: ci-only-cron-secret
       PREVIEW_SECRET: ci-only-preview-secret
-      NEXT_PUBLIC_SITE_URL: ${{ vars.NEXT_PUBLIC_SITE_URL }}
-      NEXT_PUBLIC_CMS_URL: ${{ vars.NEXT_PUBLIC_CMS_URL }}
-      PAYLOAD_PUBLIC_APP_URL: ${{ vars.NEXT_PUBLIC_SITE_URL }}
       R2_BUCKET: ci-only-bucket
       R2_ACCESS_KEY_ID: ci-only-access-key
       R2_SECRET_ACCESS_KEY: ci-only-secret-key
@@ -42,16 +39,9 @@ jobs:
       R2_PUBLIC_URL: https://media.example.invalid
       DISABLE_R2_STORAGE: "true"
       NEXT_PUBLIC_ENABLE_CLOUD: "false"
-      NEXT_PUBLIC_ENABLE_DOCS: "false"
       NEXT_PUBLIC_ENABLE_COMMUNITY_HELP: "false"
       NEXT_PUBLIC_ENABLE_PARTNERS: "false"
       NEXT_PUBLIC_ENABLE_STYLEGUIDE: "false"
-      NEXT_PUBLIC_SKIP_BUILD_DOCS: "true"
-      NEXT_PUBLIC_SKIP_BUILD_HELPS: "true"
-      NEXT_PRIVATE_DRAFT_SECRET: ci-only-draft-secret
-      NEXT_PRIVATE_REVALIDATION_KEY: ci-only-revalidation-secret
-      REVALIDATION_KEY: ci-only-revalidation-secret
-      GA_USE_DEMO_DATA: "false"
 
     steps:
       - name: Check out the selected branch

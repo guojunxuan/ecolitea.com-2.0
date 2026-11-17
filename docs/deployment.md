@@ -53,8 +53,6 @@ at image build time and require a rebuild. See [Next.js environment variables](h
 | `SMTP_FROM_ADDRESS` | Optional server SMTP override | Required for a configured env sender | Local `.env` / Compose `.env`; valid email, read only when `SMTP_HOST` is non-empty | Restart / recreate every sending instance |
 | `SMTP_FROM_NAME` | Optional server SMTP override | No; optional sender display name | Local `.env` / Compose `.env`; read only when `SMTP_HOST` is non-empty | Restart / recreate every sending instance |
 | `NEXT_PUBLIC_TURNSTILE_SITE_KEY` | Public build-time | Required to show the quote challenge | Local `.env` before build / Docker build argument | Rebuild and redeploy |
-| `NEXT_PUBLIC_SITE_URL` | Retained compatibility build argument | Required by the current Dockerfile guard | Local build environment / Docker build argument | Rebuild; no application consumer |
-| `NEXT_PUBLIC_CMS_URL` | Retained compatibility build argument | Required by the current Dockerfile guard | Local build environment / Docker build argument | Rebuild; no application consumer |
 | `MONGODB_URI` | Deployment-only | Yes for Compose | Compose `.env`; use the `mongodb` service hostname and appropriate credentials | Recreate application container |
 | `MONGO_INITDB_ROOT_USERNAME` | Deployment-only | Yes for a new Compose database | Compose `.env` | Initializes a new MongoDB volume only; existing users need a separate credential change |
 | `MONGO_INITDB_ROOT_PASSWORD` | Deployment-only | Yes for a new Compose database | Compose `.env` | Initializes a new MongoDB volume only; existing users need a separate credential change |
@@ -68,9 +66,8 @@ at image build time and require a rebuild. See [Next.js environment variables](h
 | `PRODUCT_OPTION_IMAGE_DEMO_REPAIR` | One-off repair | No; opt-in demo repair | Explicit script/migration process environment | Next invocation |
 | `PRODUCT_OPTION_IMAGE_BACKUP_PATH` | One-off repair | Optional backup path for its report script | Explicit script process environment | Next invocation |
 
-Some older public flags and URL/preview aliases remain forwarded by Compose/CI for compatibility.
-They do not configure Google integrations. Treat the table and actual application consumers as the
-supported contract. Do not put secrets in Docker build arguments or public variables.
+The table and actual application consumers define the supported configuration contract.
+Do not put secrets in Docker build arguments or public variables.
 
 ## Migration checks
 
@@ -120,8 +117,7 @@ required credentials in the same source. An empty `SMTP_HOST` selects Site Setti
 the other SMTP variables. SMTP is resolved on each send; a malformed override marks the
 configuration invalid instead of preventing application startup or falling back to a different
 source. Changing deployment variables requires restarting the local process or recreating each
-sending application container; no image rebuild is needed. The legacy `SENDGRID_API_KEY` and
-`EMAIL_FROM_*` variables do not configure this adapter.
+sending application container; no image rebuild is needed.
 
 Security is explicit: `starttls` requires a STARTTLS upgrade, `tls` uses TLS from connection
 establishment, and `none` disables TLS for local capture servers. The default port is always `587`;
