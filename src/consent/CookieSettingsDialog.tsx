@@ -43,7 +43,7 @@ function Category({
           className={styles.toggle}
           onClick={() => setExpanded(!expanded)}
         >
-          {/* Line icon that morphs + → × like the mobile menu button. */}
+          {/* Line icon that morphs + → − with the mobile menu button's line motion. */}
           <span aria-hidden="true" className={styles.toggleLine} />
           <span aria-hidden="true" className={styles.toggleLine} />
         </Button>

@@ -101,7 +101,7 @@
   border-top: 1px solid var(--website-color-border);
   background: var(--website-color-surface);
 }
-/* Expand toggle: two lines form +, rotate to × when expanded (mirrors the mobile menu button). */
+/* Expand toggle: two lines form +; the vertical line rotates onto the horizontal one (+ → −). */
 .toggle {
   position: relative;
 }
@@ -118,11 +118,8 @@
 .toggleLine:last-child {
   transform: rotate(90deg);
 }
-.toggle[aria-expanded='true'] .toggleLine:first-child {
-  transform: rotate(45deg);
-}
 .toggle[aria-expanded='true'] .toggleLine:last-child {
-  transform: rotate(135deg);
+  transform: rotate(180deg);
 }
 /* Native switch: neutral track off, brand action track on; the thumb slides. */
 .switch {
