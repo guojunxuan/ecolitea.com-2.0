@@ -32,6 +32,7 @@ describe('quote-requests collection', () => {
     const databaseURI = createIsolatedTestDatabaseURI(databaseName)
     console.info(`Quote request test target: ${databaseURI}`)
     const config = await buildConfig({
+      telemetry: false,
       collections: [
         {
           slug: 'products',

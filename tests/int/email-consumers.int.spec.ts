@@ -74,6 +74,8 @@ describe('email consumers through installed Payload APIs', () => {
     )
     expect(configuredFormBuilder).toBeDefined()
     const config = await buildConfig({
+      telemetry: false,
+      typescript: { autoGenerate: false },
       secret: 'email-consumers-isolated-test-secret-at-least-32-characters',
       serverURL: 'https://cms.example.invalid',
       routes: { admin: '/manage' },

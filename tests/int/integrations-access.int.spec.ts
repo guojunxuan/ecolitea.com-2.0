@@ -29,6 +29,7 @@ describe('integration access through real Payload operations', () => {
     payload = await getPayload({
       key: cacheKey,
       config: buildConfig({
+        telemetry: false,
         secret: 'isolated-integrations-test-secret-32-characters',
         typescript: { autoGenerate: false },
         db: mongooseAdapter({ url, connectOptions: { serverSelectionTimeoutMS: 3000 } }),
