@@ -32,7 +32,7 @@ at image build time and require a rebuild. See [Next.js environment variables](h
 | Variable | Group | Required | Where set | Apply change |
 |---|---|---|---|---|
 | `DATABASE_URI` | Server runtime | Yes | Local `.env`; Compose maps `MONGODB_URI` to it | Restart local server / recreate application container |
-| `PAYLOAD_SECRET` | Server runtime | Yes | Local `.env` / Compose `.env` | Restart / recreate; re-enter encrypted integration key after rotation |
+| `PAYLOAD_SECRET` | Server runtime | Yes | Local `.env` / Compose `.env` | Restart / recreate; re-enter encrypted integration credentials after rotation |
 | `NEXT_PUBLIC_SERVER_URL` | Server runtime / public origin | Yes | Local `.env` / Compose `.env`; match image build origin where inlined | Recreate server; rebuild if changing browser-inlined URLs |
 | `CRON_SECRET` | Server runtime | Yes | Local `.env` / Compose `.env` | Restart / recreate |
 | `PREVIEW_SECRET` | Server runtime | Yes | Local `.env` / Compose `.env` | Restart / recreate |
@@ -45,6 +45,13 @@ at image build time and require a rebuild. See [Next.js environment variables](h
 | `QUOTE_IP_HASH_SALT` | Optional server feature | Required for quote submissions | Local `.env` / Compose `.env` | Restart / recreate |
 | `REVALIDATE_SECRET` | Optional server feature | Required for background invalidation and scheduled publication | Local `.env` / Compose `.env` | Restart / recreate every worker and serving instance |
 | `JOBS_AUTORUN` | Optional server feature | No; defaults to `false` | Local `.env` / Compose `.env`; `true` on exactly one long-running instance | Restart / recreate |
+| `SMTP_HOST` | Optional server SMTP override | No; non-empty selects the entire env connection | Local `.env` / Compose `.env` | Restart / recreate every sending instance |
+| `SMTP_PORT` | Optional server SMTP override | No; defaults to `587`, integer 1–65535 | Local `.env` / Compose `.env`; read only when `SMTP_HOST` is non-empty | Restart / recreate every sending instance |
+| `SMTP_SECURE` | Optional server SMTP override | No; `none`, `starttls` (default), or `tls` | Local `.env` / Compose `.env`; read only when `SMTP_HOST` is non-empty | Restart / recreate every sending instance |
+| `SMTP_USER` | Optional server SMTP override | Only if the SMTP service requires authentication | Local `.env` / Compose `.env`; read only when `SMTP_HOST` is non-empty | Restart / recreate every sending instance |
+| `SMTP_PASSWORD` | Optional server SMTP override | Only if the SMTP service requires authentication | Local `.env` / Compose `.env`; server secret, read only when `SMTP_HOST` is non-empty | Restart / recreate every sending instance |
+| `SMTP_FROM_ADDRESS` | Optional server SMTP override | Required for a configured env sender | Local `.env` / Compose `.env`; valid email, read only when `SMTP_HOST` is non-empty | Restart / recreate every sending instance |
+| `SMTP_FROM_NAME` | Optional server SMTP override | No; optional sender display name | Local `.env` / Compose `.env`; read only when `SMTP_HOST` is non-empty | Restart / recreate every sending instance |
 | `NEXT_PUBLIC_TURNSTILE_SITE_KEY` | Public build-time | Required to show the quote challenge | Local `.env` before build / Docker build argument | Rebuild and redeploy |
 | `NEXT_PUBLIC_SITE_URL` | Retained compatibility build argument | Required by the current Dockerfile guard | Local build environment / Docker build argument | Rebuild; no application consumer |
 | `NEXT_PUBLIC_CMS_URL` | Retained compatibility build argument | Required by the current Dockerfile guard | Local build environment / Docker build argument | Rebuild; no application consumer |
@@ -83,19 +90,93 @@ apply `src/migrations/20261116_user_roles.ts` through the application's migratio
 the intended environment. It grants `admin` to **all existing users**, preserving access. Review the
 exact database/storage target and take the normal database backup before running the migration.
 Existing sessions may need a new login to receive the role in their token. Only an admin can change
-roles or replace/clear the Google Translate API key. Collection and Global content access otherwise
+roles or replace/clear the Google Translate API key and SMTP password. Collection and Global content access otherwise
 keeps its existing authenticated-user rules.
 
-The integration key is encrypted with AES-256-GCM using a key derived from `PAYLOAD_SECRET`. The
-Admin shows only its status and last four characters; neither the encrypted field nor plaintext is
-exposed by public APIs, and editors cannot read the last four characters. Replacing or clearing it
-uses the dedicated inputs in **Site Settings → Integrations**. Leave the replacement input empty to
-keep the current value. Do not select clear while entering a replacement.
+The integration credentials are encrypted with AES-256-GCM using a key derived from `PAYLOAD_SECRET`.
+The Admin shows each credential's status and last four characters; neither the encrypted fields
+nor plaintext are exposed by public APIs, and editors cannot read the last four characters.
+Replace or clear credentials with the dedicated inputs in **Site Settings → Integrations**. Leave
+the replacement input empty to keep the current value. Do not select clear while entering a replacement.
 
 Keep `PAYLOAD_SECRET` stable and shared by the serving and worker instances. Rotating it requires
-re-entering the translation key: existing ciphertext becomes **Needs re-entry (cannot decrypt)**.
+re-entering the translation key and any stored SMTP password: existing ciphertext becomes **Needs re-entry (cannot decrypt)**.
 Translation queueing/execution then skips cleanly; the public website continues rendering. A secret
-rotation also affects authentication tokens.
+rotation also affects authentication tokens. An SMTP environment password is independent of this
+encryption key; it can provide the temporary recovery path below.
+
+## Email delivery
+
+The Payload email adapter in `src/plugins/email/` owns outbound SMTP delivery for quote
+notifications, form-builder emails and forgot-password messages. Configure the connection in
+**Site Settings → Integrations → Email**: host, port, security, username, sender address/name and
+the write-only SMTP password input. Saving takes effect on the next send without a restart. The
+source/status display distinguishes Environment variables, Site Settings, Not configured and
+Needs re-entry. Stored connection values remain available when an environment override is active.
+
+When `SMTP_HOST` is non-empty after trimming, **all seven `SMTP_*` variables form the effective
+connection**. There is no field-by-field fallback to settings: supply the sender address and any
+required credentials in the same source. An empty `SMTP_HOST` selects Site Settings and ignores
+the other SMTP variables. SMTP is resolved on each send; a malformed override marks the
+configuration invalid instead of preventing application startup or falling back to a different
+source. Changing deployment variables requires restarting the local process or recreating each
+sending application container; no image rebuild is needed. The legacy `SENDGRID_API_KEY` and
+`EMAIL_FROM_*` variables do not configure this adapter.
+
+Security is explicit: `starttls` requires a STARTTLS upgrade, `tls` uses TLS from connection
+establishment, and `none` disables TLS for local capture servers. The default port is always `587`;
+select the port required by the SMTP service when using another security mode. In production, use
+a verified sender domain and publish your SMTP provider's SPF and DKIM records. Follow the
+provider's instructions and the upstream [SPF](https://www.rfc-editor.org/info/rfc7208/) and
+[DKIM](https://www.rfc-editor.org/info/rfc6376/) references; the application does not provision DNS
+or sign messages itself.
+
+Quote notifications default to enabled. **Quote notification recipients** accepts email rows;
+an empty list falls back to the configured `salesEmail`. The visitor's address becomes Reply-To,
+while the effective SMTP sender remains From. Configure form-builder notifications on each Form;
+they use the same Payload adapter. Keep `NEXT_PUBLIC_SERVER_URL` at the canonical public origin
+for Admin and password-reset links. **Send test email** is admin-only and sends to the signed-in
+administrator's email, with one attempt per 30 seconds per administrator per application worker.
+This in-memory limit is not shared across workers and resets on restart. The test uses the active
+source, including any environment override.
+
+### Local Mailpit capture
+
+Install and start [Mailpit](https://mailpit.axllent.org/docs/install/), for example with
+`brew install mailpit` followed by `mailpit`, and use this local `.env` group:
+
+```dotenv
+SMTP_HOST=127.0.0.1
+SMTP_PORT=1025
+SMTP_SECURE=none
+SMTP_USER=
+SMTP_PASSWORD=
+SMTP_FROM_ADDRESS=noreply@localhost
+SMTP_FROM_NAME=Ecolitea local
+```
+
+Restart the local application, send an Admin test email, and inspect it at
+`http://localhost:8025`. This example assumes the application and Mailpit run on the same host;
+inside a container, use a Mailpit hostname reachable from that container. Mailpit captures mail
+locally. Automated tests use injected transports and never connect to SMTP services.
+
+### Recovery and delivery limits
+
+If a broken Admin SMTP connection or undecryptable password prevents receiving password resets,
+set a complete working `SMTP_*` environment group, including a non-empty `SMTP_HOST` and sender
+address. Restart the local application, or run `docker compose up -d --no-deps ecolitea` to
+recreate the application with the changed Compose values. Request a new password-reset email,
+then sign in and repair the saved settings, re-entering the SMTP password after `PAYLOAD_SECRET`
+rotation. Clear `SMTP_HOST` and restart/recreate again when returning control to Site Settings.
+
+Missing, invalid or undecryptable configurations skip delivery and log a warning per attempt.
+Transport errors and the roughly 10-second send timeout do not roll back saved quote requests or
+form submissions, so the visitor can still see success when a notification was not delivered.
+Forgot-password remains Payload's built-in flow: a reset cannot arrive without working email.
+Failure logs contain recipient domain/count, subject and a sanitized error reason, never message
+bodies or credentials. Delivery is best-effort: there is no durable email queue, retry worker or
+email-history collection. A successful SMTP response does not prove inbox delivery; check the
+provider's delivery/bounce tools when diagnosing missing mail.
 
 ## Cookie consent and Google Tag Manager
 
@@ -374,7 +455,7 @@ same host during English internal rewrites. The default configuration still cont
 
 Brand, Contact & Social, Legal & Privacy, Integrations and Language use unnamed presentation
 groups. Integrations owns the GTM container ID, emergency disable switch, monthly translation
-budget and admin-only credential inputs. Existing Google environment settings must be entered in
+budget, SMTP connection, quote notification controls and admin-only credential inputs. Existing Google environment settings must be entered in
 Integrations after upgrading; they are not imported automatically. Legal & Privacy →
 Cookie Consent controls the banner title and long explanations; empty values fall back to the
 frontend dictionary. Translated Site Settings supply these explanations on non-English pages.

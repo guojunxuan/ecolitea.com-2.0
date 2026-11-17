@@ -9,6 +9,13 @@ declare global {
       QUOTE_IP_HASH_SALT?: string
       JOBS_AUTORUN?: string
       REVALIDATE_SECRET?: string
+      SMTP_HOST?: string
+      SMTP_PORT?: string
+      SMTP_SECURE?: string
+      SMTP_USER?: string
+      SMTP_PASSWORD?: string
+      SMTP_FROM_ADDRESS?: string
+      SMTP_FROM_NAME?: string
       NEXT_PUBLIC_SERVER_URL: string
       VERCEL_PROJECT_PRODUCTION_URL: string
       CRON_SECRET: string

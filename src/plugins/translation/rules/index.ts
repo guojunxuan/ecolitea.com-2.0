@@ -17,7 +17,7 @@ export type TranslationRule = Readonly<Record<string, 'translate' | 'exclude'>>
 export type RulePathSegment = { field: string; row: boolean; blockType?: string }
 
 // Increment whenever a declared translation decision or path changes.
-export const RULE_VERSION = 1
+export const RULE_VERSION = 2
 export const translationRules: Readonly<Record<string, TranslationRule>> = {
   products: productsRule,
   'product-categories': productCategoriesRule,

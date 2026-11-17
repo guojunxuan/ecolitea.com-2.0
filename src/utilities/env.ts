@@ -15,6 +15,56 @@ export type ServerEnv = {
   JOBS_AUTORUN: boolean
 }
 
+export type SmtpEnvConfiguration = {
+  host: string
+  port: number
+  security: 'none' | 'starttls' | 'tls'
+  user?: string
+  password?: string
+  fromAddress?: string
+  fromName?: string
+}
+
+// Match ordinary mailbox addresses while allowing Mailpit's local sender domain.
+export const isSmtpEmailAddress = (value: unknown): value is string =>
+  typeof value === 'string' &&
+  !/\s/.test(value) &&
+  /^(?!.*\.\.)[\w!#$%&'*+/=?^`{|}~-](?:[\w!#$%&'*+/=?^`{|}~.-]*[\w!#$%&'*+/=?^`{|}~-])?@(?:localhost|[a-z0-9](?:[a-z0-9-]*[a-z0-9])?(?:\.[a-z0-9](?:[a-z0-9-]*[a-z0-9])?)*\.[a-z]{2,})$/i.test(
+    value,
+  )
+
+// Resolve this optional group at send time. Invalid SMTP must not block startup.
+export function parseSmtpEnv(env: Partial<NodeJS.ProcessEnv>): SmtpEnvConfiguration | undefined {
+  const host = env.SMTP_HOST?.trim()
+  if (!host) return undefined
+
+  const portValue = env.SMTP_PORT?.trim() || '587'
+  const port = Number(portValue)
+  if (!/^\d+$/.test(portValue) || !Number.isInteger(port) || port < 1 || port > 65535)
+    throw new Error('Invalid SMTP_PORT: enter an integer from 1 to 65535.')
+
+  const security = env.SMTP_SECURE?.trim() || 'starttls'
+  if (security !== 'none' && security !== 'starttls' && security !== 'tls')
+    throw new Error('Invalid SMTP_SECURE: choose none, starttls, or tls.')
+
+  const fromAddress = env.SMTP_FROM_ADDRESS?.trim()
+  if (fromAddress && !isSmtpEmailAddress(fromAddress))
+    throw new Error('Invalid SMTP_FROM_ADDRESS: enter a valid email address.')
+
+  const user = env.SMTP_USER?.trim()
+  const password = env.SMTP_PASSWORD
+  const fromName = env.SMTP_FROM_NAME?.trim()
+  return {
+    host,
+    port,
+    security,
+    ...(user ? { user } : {}),
+    ...(password ? { password } : {}),
+    ...(fromAddress ? { fromAddress } : {}),
+    ...(fromName ? { fromName } : {}),
+  }
+}
+
 const required = [
   'DATABASE_URI',
   'PAYLOAD_SECRET',
