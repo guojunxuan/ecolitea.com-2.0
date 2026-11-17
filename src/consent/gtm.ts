@@ -14,6 +14,7 @@ declare global {
 }
 
 const initializedLayers = new WeakSet<DataLayer>()
+let pendingCookieClears: number[] = []
 
 export function ensureConsentDefaults(): void {
   const layer = (window.dataLayer ??= [])
@@ -78,6 +79,15 @@ export function applyConsent(
 ): void {
   const flags = state ?? { analytics: false, marketing: false }
   updateConsent(flags)
-  if (!flags.analytics && !flags.marketing) clearGoogleCookies()
+  pendingCookieClears.forEach((timer) => window.clearTimeout(timer))
+  pendingCookieClears = []
+  if (!flags.analytics && !flags.marketing) {
+    clearGoogleCookies()
+    // An in-flight Google bootstrap can process an earlier grant after this clear.
+    // Sweep that short initialization window; Consent Mode denies subsequent storage.
+    pendingCookieClears = [1000, 3000, 8000].map((delay) =>
+      window.setTimeout(clearGoogleCookies, delay),
+    )
+  }
   if (id && !disabled && (flags.analytics || flags.marketing)) loadGtm(id)
 }
