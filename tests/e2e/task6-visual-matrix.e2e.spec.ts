@@ -501,7 +501,11 @@ test.describe.serial('Task 6 visual matrix fixtures', () => {
       await expect(page.locator('blockquote')).toContainText('A quote block')
       await expect(page.getByRole('region', { name: 'Scrollable table' })).toBeVisible()
       await expect(page.locator('main [class*="archive"] article')).toHaveCount(3)
-      await expect(page.locator('a[href*="example.invalid"]')).toBeVisible()
+      const contentLink = page.locator('main a[href^="https://example.invalid/"]')
+      await expect(contentLink).toHaveCount(1)
+      await expect(contentLink).toBeVisible()
+      // Shared Site Settings intentionally exposes this separate Footer contact.
+      await expect(page.locator('footer a[href="mailto:phase4@example.invalid"]')).toHaveCount(1)
       await expect
         .poll(() => page.evaluate(() => document.documentElement.scrollWidth <= innerWidth))
         .toBe(true)
