@@ -42,7 +42,7 @@ describe('product detail cache boundary', () => {
       expect(detail?.title).toBe('Tea')
       expect(detail).not.toHaveProperty('inquiry')
     }
-    expect(mocks.cache.get(JSON.stringify(['product-detail-v2', 'product']))).toEqual(
+    expect(mocks.cache.get(JSON.stringify(['product-detail-v2', 'product', 'en']))).toEqual(
       product('default'),
     )
     expect(mocks.find.mock.calls.filter(([args]) => args.depth === 2)).toHaveLength(1)

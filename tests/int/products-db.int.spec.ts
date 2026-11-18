@@ -388,8 +388,8 @@ describe('Products through isolated Payload Local API', () => {
             data: { _status: 'draft' },
           })
         }
-        expect(revalidatePath).toHaveBeenCalledWith(livePath)
-        expect(revalidatePath).toHaveBeenCalledWith('/products/green-tea')
+        expect(revalidatePath).toHaveBeenCalledWith(`/en${livePath}`)
+        expect(revalidatePath).toHaveBeenCalledWith('/en/products/green-tea')
         for (const tag of [
           `product-${product.id}`,
           `product-category-${firstCategoryID}`,
@@ -464,8 +464,8 @@ describe('Products through isolated Payload Local API', () => {
         })
       ).docs[0],
     ).toMatchObject({ to: { reference: { value: product.id } } })
-    expect(revalidatePath).toHaveBeenCalledWith(oldPath)
-    expect(revalidatePath).toHaveBeenCalledWith(`/products/black-tea/${slug}`)
+    expect(revalidatePath).toHaveBeenCalledWith(`/en${oldPath}`)
+    expect(revalidatePath).toHaveBeenCalledWith(`/en/products/black-tea/${slug}`)
     for (const tag of [
       'products-list',
       'products-sitemap',
@@ -873,8 +873,8 @@ describe('Products through isolated Payload Local API', () => {
     expect(redirect.docs[0]).toMatchObject({
       to: { reference: { relationTo: 'products', value: product.id } },
     })
-    expect(revalidatePath).toHaveBeenCalledWith(oldPath)
-    expect(revalidatePath).toHaveBeenCalledWith(`/products/black-tea/${draftSlug}`)
+    expect(revalidatePath).toHaveBeenCalledWith(`/en${oldPath}`)
+    expect(revalidatePath).toHaveBeenCalledWith(`/en/products/black-tea/${draftSlug}`)
     expect(revalidateTag).toHaveBeenCalledWith(`product-category-${firstCategoryID}`, 'max')
     expect(revalidateTag).toHaveBeenCalledWith(`product-category-${secondCategoryID}`, 'max')
   }, 20_000)
@@ -921,9 +921,9 @@ describe('Products through isolated Payload Local API', () => {
       expect(redirect.docs[0]).toMatchObject({
         to: { reference: { relationTo: 'products', value: product.id } },
       })
-      expect(revalidatePath).toHaveBeenCalledWith(oldPath)
-      expect(revalidatePath).toHaveBeenCalledWith(`/products/black-tea/${product.draftSlug}`)
-      expect(revalidatePath).toHaveBeenCalledWith(`/products/${product.categorySlug}`)
+      expect(revalidatePath).toHaveBeenCalledWith(`/en${oldPath}`)
+      expect(revalidatePath).toHaveBeenCalledWith(`/en/products/black-tea/${product.draftSlug}`)
+      expect(revalidatePath).toHaveBeenCalledWith(`/en/products/${product.categorySlug}`)
       expect(revalidateTag).toHaveBeenCalledWith(`product-${product.id}`, 'max')
     }
     expect(revalidateTag).toHaveBeenCalledWith(`product-category-${firstCategoryID}`, 'max')
@@ -985,7 +985,7 @@ describe('Products through isolated Payload Local API', () => {
       `/products/black-tea/${historical.slug}`,
       `/products/${current.categorySlug}`,
     ]) {
-      expect(revalidatePath).toHaveBeenCalledWith(path)
+      expect(revalidatePath).toHaveBeenCalledWith(`/en${path}`)
     }
     for (const categoryID of [firstCategoryID, secondCategoryID]) {
       expect(revalidateTag).toHaveBeenCalledWith(`product-category-${categoryID}`, 'max')
@@ -1035,7 +1035,7 @@ describe('Products through isolated Payload Local API', () => {
         })
       ).docs[0],
     ).toMatchObject({ to: { reference: { value: product.id } } })
-    expect(revalidatePath).toHaveBeenCalledWith(suppressedPath)
+    expect(revalidatePath).toHaveBeenCalledWith(`/en${suppressedPath}`)
     await payload.update({
       collection: 'products',
       id: product.id,
@@ -1045,7 +1045,7 @@ describe('Products through isolated Payload Local API', () => {
     })
     vi.clearAllMocks()
     await payload.delete({ collection: 'products', id: product.id, req })
-    expect(revalidatePath).toHaveBeenCalledWith(`/products/${product.categorySlug}/${nextSlug}`)
+    expect(revalidatePath).toHaveBeenCalledWith(`/en/products/${product.categorySlug}/${nextSlug}`)
     expect(req.context.taskMarker).toBe('sequential')
   }, 20_000)
 
@@ -1137,7 +1137,7 @@ describe('Products through isolated Payload Local API', () => {
     })
     vi.clearAllMocks()
     await payload.delete({ collection: 'products', id: product.id })
-    expect(revalidatePath).toHaveBeenCalledWith(oldPath)
+    expect(revalidatePath).toHaveBeenCalledWith(`/en${oldPath}`)
     expect(revalidateTag).toHaveBeenCalledWith(`product-${product.id}`, 'max')
   }, 20_000)
   it('restores the parent request context and invalidates the batch and category after nested Local API updates', async () => {
@@ -1181,8 +1181,8 @@ describe('Products through isolated Payload Local API', () => {
         }),
       }),
     )
-    expect(revalidatePath).toHaveBeenCalledWith(`/products/${category.slug}/${product.slug}`)
-    expect(revalidatePath).toHaveBeenCalledWith(`/products/${renamed}/${product.slug}`)
+    expect(revalidatePath).toHaveBeenCalledWith(`/en/products/${category.slug}/${product.slug}`)
+    expect(revalidatePath).toHaveBeenCalledWith(`/en/products/${renamed}/${product.slug}`)
     expect(revalidateTag).toHaveBeenCalledWith('product-categories', 'max')
     expect(revalidateTag).toHaveBeenCalledWith(`product-${product.id}`, 'max')
     expect(revalidateTag).toHaveBeenCalledWith(`product-category-${category.id}`, 'max')

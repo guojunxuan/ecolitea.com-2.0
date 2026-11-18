@@ -248,8 +248,8 @@ describe('public product queries', () => {
           sort: '_order',
         }),
       )
-      expect(mocks.cache).toHaveBeenCalledWith(['products-overview-v2'], {
-        tags: ['products-overview', 'product-categories', 'products-list'],
+      expect(mocks.cache).toHaveBeenCalledWith(['products-overview-v2', 'en'], {
+        tags: ['products-overview', 'product-categories', 'products-list', 'translations:en'],
         revalidate: 600,
       })
     },

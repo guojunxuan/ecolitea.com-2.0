@@ -29,7 +29,7 @@ describe('public blog queries', () => {
     const result = { docs: [], totalDocs: 0, page: 2 }
     find.mockResolvedValue(result)
 
-    await expect(getBlogListing(2)).resolves.toBe(result)
+    await expect(getBlogListing(2)).resolves.toEqual(result)
 
     expect(find).toHaveBeenCalledWith({
       collection: 'blogs',
@@ -56,20 +56,28 @@ describe('public blog queries', () => {
         ],
       },
     })
-    expect(unstableCache).toHaveBeenCalledWith(expect.any(Function), ['blogs-list', '2', 'all'], {
-      tags: ['blogs-list'],
-      revalidate: 600,
-    })
+    expect(unstableCache).toHaveBeenCalledWith(
+      expect.any(Function),
+      ['blogs-list', '2', 'all', 'en'],
+      {
+        tags: ['blogs-list', 'translations:en'],
+        revalidate: 600,
+      },
+    )
   })
 
   it('filters by category and tags the category cache', async () => {
     find.mockResolvedValue({ docs: [] })
     await getBlogListing(1, 'cat-a')
     expect(find.mock.calls[0][0].where.and).toContainEqual({ category: { equals: 'cat-a' } })
-    expect(unstableCache).toHaveBeenCalledWith(expect.any(Function), ['blogs-list', '1', 'cat-a'], {
-      tags: ['blogs-list', 'blog-category-cat-a'],
-      revalidate: 600,
-    })
+    expect(unstableCache).toHaveBeenCalledWith(
+      expect.any(Function),
+      ['blogs-list', '1', 'cat-a', 'en'],
+      {
+        tags: ['blogs-list', 'translations:en', 'blog-category-cat-a'],
+        revalidate: 600,
+      },
+    )
   })
 
   it('finds a public detail by stable ID and tags its cached body', async () => {
@@ -94,8 +102,8 @@ describe('public blog queries', () => {
       }),
     )
     expect(find.mock.calls[1][0].where.and).toContainEqual({ id: { equals: 'b1' } })
-    expect(unstableCache).toHaveBeenCalledWith(expect.any(Function), ['blog-detail', 'b1'], {
-      tags: ['blog-b1', 'blog-categories'],
+    expect(unstableCache).toHaveBeenCalledWith(expect.any(Function), ['blog-detail', 'b1', 'en'], {
+      tags: ['blog-b1', 'blog-categories', 'translation:blogs:b1:en', 'translations:en'],
       revalidate: 600,
     })
   })

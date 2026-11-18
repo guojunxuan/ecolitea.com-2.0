@@ -2,6 +2,12 @@ import { afterAll, describe, expect, it, vi } from 'vitest'
 
 import { generateMeta } from '@/utilities/generateMeta'
 
+vi.mock('next/cache', () => ({ unstable_cache: (fn: unknown) => fn }))
+vi.mock('@payload-config', () => ({ default: {} }))
+vi.mock('payload', () => ({
+  getPayload: async () => ({ findGlobal: async () => ({}) }),
+}))
+
 vi.stubEnv('NEXT_PUBLIC_SERVER_URL', 'https://site.example.invalid')
 
 afterAll(() => {

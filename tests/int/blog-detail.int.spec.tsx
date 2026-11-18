@@ -22,6 +22,7 @@ const {
   mockGenerateMeta: vi.fn(async () => ({ title: 'SEO title' })),
 }))
 
+vi.mock('next/cache', () => ({ unstable_cache: (fn: unknown) => fn }))
 vi.mock('next/headers', () => ({ draftMode: mockDraftMode }))
 vi.mock('next/navigation', () => ({ notFound: mockNotFound }))
 vi.mock('payload', () => ({ getPayload: mockGetPayload }))
@@ -115,7 +116,11 @@ beforeEach(() => {
   mockDraftMode.mockResolvedValue({ isEnabled: false })
   mockGetBlogBySlug.mockResolvedValue(blog)
   mockGetRelatedBlogs.mockResolvedValue(related)
-  mockGetPayload.mockResolvedValue({ find: vi.fn().mockResolvedValue({ docs: [] }) })
+  mockGetPayload.mockResolvedValue({
+    config: { globals: [{ slug: 'site-settings' }] },
+    findGlobal: async () => ({}),
+    find: vi.fn().mockResolvedValue({ docs: [] }),
+  })
 })
 
 describe('blog detail', () => {
@@ -232,7 +237,11 @@ describe('blog detail', () => {
 
   it('pre-generates only visible published slugs', async () => {
     const find = vi.fn().mockResolvedValue({ docs: [{ slug: 'visible' }], hasNextPage: false })
-    mockGetPayload.mockResolvedValue({ find })
+    mockGetPayload.mockResolvedValue({
+      config: { globals: [{ slug: 'site-settings' }] },
+      findGlobal: async () => ({}),
+      find,
+    })
     expect(await generateStaticParams({ params: { lang: 'en' } })).toEqual([{ slug: 'visible' }])
     expect(find).toHaveBeenCalledWith(
       expect.objectContaining({

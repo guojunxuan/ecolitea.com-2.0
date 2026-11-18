@@ -1,3 +1,4 @@
+import { localeCatalog } from '@/i18n/config'
 import { createRequire } from 'node:module'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -8,7 +9,13 @@ const { find, unstableCache, revalidateTag, revalidatePath } = vi.hoisted(() => 
   revalidatePath: vi.fn(),
 }))
 
-vi.mock('payload', () => ({ getPayload: vi.fn(async () => ({ find })) }))
+vi.mock('payload', () => ({
+  getPayload: vi.fn(async () => ({
+    find,
+    config: { globals: [{ slug: 'site-settings' }] },
+    findGlobal: async () => ({}),
+  })),
+}))
 vi.mock('@payload-config', () => ({ default: Promise.resolve({}) }))
 vi.mock('next/cache', () => ({
   unstable_cache: unstableCache,
@@ -92,7 +99,18 @@ describe('Blog sitemap', () => {
     expect(find.mock.calls.filter(([args]) => args.collection === 'blogs').map(([args]) => args.page)).toEqual([1, 2])
     expect(find.mock.calls.filter(([args]) => args.collection === 'blog-categories').map(([args]) => args.page)).toEqual([1, 2])
     expect(find.mock.calls.filter(([args]) => args.collection === 'blog-categories').every(([args]) => args.sort === '_order')).toBe(true)
-    expect(unstableCache).toHaveBeenCalledWith(expect.any(Function), ['blogs-sitemap'], expect.objectContaining({ tags: ['blogs-sitemap'] }))
+    expect(unstableCache).toHaveBeenCalledWith(
+      expect.any(Function),
+      ['blogs-sitemap', 'site-settings-locales'],
+      expect.objectContaining({
+        tags: [
+          'blogs-sitemap',
+          'global_site-settings',
+          'translations-sitemap',
+          ...localeCatalog.map(({ code }) => `translations:${code}`),
+        ],
+      }),
+    )
   })
 
   it('updates article lastmod without reporting stale category or index dates', async () => {

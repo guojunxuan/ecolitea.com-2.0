@@ -86,7 +86,7 @@ describe('product public transition hook boundary', () => {
       expect(req.payload.create).not.toHaveBeenCalled()
       expect(req.payload.update).not.toHaveBeenCalled()
       expect(req.payload.delete).not.toHaveBeenCalled()
-      expect(revalidatePath).toHaveBeenCalledWith('/products/tea/live')
+      expect(revalidatePath).toHaveBeenCalledWith('/en/products/tea/live')
       expect(revalidateTag).toHaveBeenCalledWith('products-sitemap', 'max')
     },
   )

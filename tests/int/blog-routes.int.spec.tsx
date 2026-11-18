@@ -14,7 +14,13 @@ const { find, getBlogListing, getBlogListingHero, getBlogListingSEO, notFound, u
     unstableCache: vi.fn((fn: () => unknown) => async () => JSON.parse(JSON.stringify(await fn()))),
   }))
 
-vi.mock('payload', () => ({ getPayload: vi.fn(async () => ({ find })) }))
+vi.mock('payload', () => ({
+  getPayload: vi.fn(async () => ({
+    find,
+    config: { globals: [{ slug: 'site-settings' }] },
+    findGlobal: async () => ({}),
+  })),
+}))
 vi.mock('@payload-config', () => ({ default: Promise.resolve({}) }))
 vi.mock('next/navigation', () => ({ notFound, useRouter: () => ({ push: vi.fn() }) }))
 vi.mock('next/cache', () => ({ unstable_cache: unstableCache }))

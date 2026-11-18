@@ -210,11 +210,11 @@ describe('Product Overview settings', () => {
     const doc = { product: { seo: { title: 'Products' } } }
     expect(revalidateSettings({ doc, req: { context: {} } } as never)).toBe(doc)
     expect(revalidateTag).toHaveBeenCalledWith('global_settings', 'max')
-    expect(revalidatePath).toHaveBeenCalledWith('/products')
+    expect(revalidatePath).toHaveBeenCalledWith('/en/products')
     for (const path of [
-      '/products/[category]',
-      '/products/[category]/page/[pageNumber]',
-      '/products/[category]/[product]',
+      '/[lang]/products/[category]',
+      '/[lang]/products/[category]/page/[pageNumber]',
+      '/[lang]/products/[category]/[product]',
     ])
       expect(revalidatePath).toHaveBeenCalledWith(path, 'page')
     expect(revalidateTag).toHaveBeenCalledWith('products-overview', 'max')

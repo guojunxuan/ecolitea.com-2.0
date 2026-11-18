@@ -216,12 +216,12 @@ describe('Settings Global', () => {
       } else {
         expect(revalidateTag).toHaveBeenCalledWith('global_settings', 'max')
         expect(revalidateTag).toHaveBeenCalledWith('products-overview', 'max')
-        expect(revalidatePath).toHaveBeenCalledWith('/blogs')
-        expect(revalidatePath).toHaveBeenCalledWith('/blogs/[slug]', 'page')
-        expect(revalidatePath).toHaveBeenCalledWith('/blogs/page/[pageNumber]', 'page')
-        expect(revalidatePath).toHaveBeenCalledWith('/blogs/category/[categorySlug]', 'page')
+        expect(revalidatePath).toHaveBeenCalledWith('/en/blogs')
+        expect(revalidatePath).toHaveBeenCalledWith('/[lang]/blogs/[slug]', 'page')
+        expect(revalidatePath).toHaveBeenCalledWith('/[lang]/blogs/page/[pageNumber]', 'page')
+        expect(revalidatePath).toHaveBeenCalledWith('/[lang]/blogs/category/[categorySlug]', 'page')
         expect(revalidatePath).toHaveBeenCalledWith(
-          '/blogs/category/[categorySlug]/page/[pageNumber]',
+          '/[lang]/blogs/category/[categorySlug]/page/[pageNumber]',
           'page',
         )
       }

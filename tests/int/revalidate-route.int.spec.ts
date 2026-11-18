@@ -1,5 +1,6 @@
 // @vitest-environment node
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { localeCatalog } from '@/i18n/config'
 const { env, path, tag } = vi.hoisted(() => ({
   env: {
     REVALIDATE_SECRET: 'phase2-only',
@@ -139,7 +140,7 @@ describe('background cache fallback', () => {
       }),
     )
     expect(JSON.parse(http.mock.calls[0][1]!.body as string)).toEqual({
-      paths: ['/en/products/tea/leaf'],
+      paths: localeCatalog.map(({ code }) => `/${code}/products/tea/leaf`),
       tags: ['product-1'],
     })
   })

@@ -1,7 +1,14 @@
+import { localeCatalog } from '@/i18n/config'
 import { createRequire } from 'node:module'
 import { beforeEach, afterEach, describe, expect, it, vi } from 'vitest'
 const { find, cache } = vi.hoisted(() => ({ find: vi.fn(), cache: vi.fn((fn) => fn) }))
-vi.mock('payload', () => ({ getPayload: async () => ({ find }) }))
+vi.mock('payload', () => ({
+  getPayload: async () => ({
+    find,
+    config: { globals: [{ slug: 'site-settings' }] },
+    findGlobal: async () => ({}),
+  }),
+}))
 vi.mock('@payload-config', () => ({ default: Promise.resolve({}) }))
 vi.mock('next/cache', () => ({ unstable_cache: cache }))
 const sitemapConfig = createRequire(import.meta.url)('../../next-sitemap.config.cjs')
@@ -76,8 +83,15 @@ describe('Products sitemap', () => {
     ])
     expect(cache).toHaveBeenCalledWith(
       expect.any(Function),
-      ['products-sitemap'],
-      expect.objectContaining({ tags: ['products-sitemap'] }),
+      ['products-sitemap', 'site-settings-locales'],
+      expect.objectContaining({
+        tags: [
+          'products-sitemap',
+          'global_site-settings',
+          'translations-sitemap',
+          ...localeCatalog.map(({ code }) => `translations:${code}`),
+        ],
+      }),
     )
   })
   it('escapes XML and omits products with missing paths and their empty categories', async () => {
