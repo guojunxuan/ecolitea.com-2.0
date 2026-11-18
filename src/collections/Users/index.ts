@@ -1,16 +1,20 @@
 import { ValidationError, type CollectionConfig } from 'payload'
 
-import { isAdminField } from '../../access/isAdmin'
+import { isAdmin, isAdminField } from '../../access/isAdmin'
 import { authenticated } from '../../access/authenticated'
 
 export const Users: CollectionConfig = {
   slug: 'users',
   access: {
     admin: authenticated,
-    create: authenticated,
-    delete: authenticated,
+    create: isAdmin,
+    delete: isAdmin,
     read: authenticated,
-    update: authenticated,
+    update: ({ req: { user } }) => {
+      if (!user) return false
+      if (user.role === 'admin') return true
+      return { id: { equals: user.id } }
+    },
   },
   admin: {
     defaultColumns: ['name', 'email'],

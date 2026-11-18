@@ -16,6 +16,7 @@ describe('integration access through real Payload operations', () => {
   let payload: Payload
   let admin: User
   let editor: User
+  let otherEditor: User
   const cacheKey = `ecolitea2-integrations-int-${randomUUID()}`
   const request = async (user?: User) =>
     createLocalReq({ user, context: { disableRevalidate: true } }, payload)
@@ -67,7 +68,14 @@ describe('integration access through real Payload operations', () => {
     editor = await payload.create({
       collection: 'users',
       req: await request(admin),
+      overrideAccess: false,
       data: { email: 'editor@example.test', password: 'isolated-password' } as never,
+    })
+    otherEditor = await payload.create({
+      collection: 'users',
+      req: await request(admin),
+      overrideAccess: false,
+      data: { email: 'other-editor@example.test', password: 'isolated-password' } as never,
     })
   }, 15000)
   afterAll(async () => {
@@ -79,6 +87,172 @@ describe('integration access through real Payload operations', () => {
   it('promotes the first user and defaults subsequent users to editor', () => {
     expect(admin.role).toBe('admin')
     expect(editor.role).toBe('editor')
+  })
+  describe('Users access boundaries', () => {
+    it('prevents editors from taking over another account through its password', async () => {
+      await expect(
+        payload.update({
+          collection: 'users',
+          id: admin.id,
+          data: { password: 'editor-controlled-password' },
+          overrideAccess: false,
+          req: await request(editor),
+        }),
+      ).rejects.toMatchObject({ status: 403 })
+      const login = await payload.login({
+        collection: 'users',
+        data: { email: admin.email, password: 'isolated-password' },
+      })
+      expect(login.user?.id).toBe(admin.id)
+      await expect(
+        payload.login({
+          collection: 'users',
+          data: { email: admin.email, password: 'editor-controlled-password' },
+        }),
+      ).rejects.toMatchObject({ status: 401 })
+    })
+    it.each([{ email: 'editor-controlled@example.test' }, { role: 'editor' as const }])(
+      'prevents editors from changing another account with %j',
+      async (data) => {
+        await expect(
+          payload.update({
+            collection: 'users',
+            id: admin.id,
+            data,
+            overrideAccess: false,
+            req: await request(editor),
+          }),
+        ).rejects.toMatchObject({ status: 403 })
+        expect(await payload.findByID({ collection: 'users', id: admin.id })).toMatchObject({
+          email: admin.email,
+          role: 'admin',
+        })
+      },
+    )
+    it('prevents editors from creating accounts with the default role', async () => {
+      await expect(
+        payload.create({
+          collection: 'users',
+          data: { email: 'editor-created@example.test', password: 'isolated-password' } as never,
+          overrideAccess: false,
+          req: await request(editor),
+        }),
+      ).rejects.toMatchObject({ status: 403 })
+      expect(
+        (
+          await payload.count({
+            collection: 'users',
+            where: { email: { equals: 'editor-created@example.test' } },
+          })
+        ).totalDocs,
+      ).toBe(0)
+    })
+    it.each(['self', 'other'] as const)(
+      'prevents editors from deleting %s accounts',
+      async (target) => {
+        const id = target === 'self' ? editor.id : otherEditor.id
+        await expect(
+          payload.delete({
+            collection: 'users',
+            id,
+            overrideAccess: false,
+            req: await request(editor),
+          }),
+        ).rejects.toMatchObject({ status: 403 })
+        expect((await payload.findByID({ collection: 'users', id })).id).toBe(id)
+      },
+    )
+    it('allows editors to change their own name and password', async () => {
+      const changed = await payload.update({
+        collection: 'users',
+        id: editor.id,
+        data: { name: 'Editor self update', password: 'editor-new-password' },
+        overrideAccess: false,
+        req: await request(editor),
+      })
+      expect(changed).toMatchObject({ id: editor.id, name: 'Editor self update', role: 'editor' })
+      const login = await payload.login({
+        collection: 'users',
+        data: { email: editor.email, password: 'editor-new-password' },
+      })
+      expect(login.user?.id).toBe(editor.id)
+    })
+    it('limits editor bulk updates to their own account', async () => {
+      const changed = await payload.update({
+        collection: 'users',
+        where: { id: { in: [admin.id, editor.id] } },
+        data: { name: 'Editor bulk update' },
+        overrideAccess: false,
+        req: await request(editor),
+      })
+      expect(changed.errors).toEqual([])
+      expect(changed.docs.map(({ id }) => id)).toEqual([editor.id])
+      expect((await payload.findByID({ collection: 'users', id: admin.id })).name).not.toBe(
+        'Editor bulk update',
+      )
+    })
+    it('preserves authenticated reads of other accounts', async () => {
+      const read = await payload.findByID({
+        collection: 'users',
+        id: admin.id,
+        overrideAccess: false,
+        req: await request(editor),
+      })
+      expect(read.id).toBe(admin.id)
+    })
+    it('allows administrators to create, update, and delete other accounts', async () => {
+      const created = await payload.create({
+        collection: 'users',
+        data: { email: 'admin-managed@example.test', password: 'isolated-password' } as never,
+        overrideAccess: false,
+        req: await request(admin),
+      })
+      expect(created.role).toBe('editor')
+      const changed = await payload.update({
+        collection: 'users',
+        id: created.id,
+        data: {
+          name: 'Admin managed',
+          email: 'admin-updated@example.test',
+          password: 'admin-updated-password',
+          role: 'admin',
+        },
+        overrideAccess: false,
+        req: await request(admin),
+      })
+      expect(changed).toMatchObject({
+        name: 'Admin managed',
+        email: 'admin-updated@example.test',
+        role: 'admin',
+      })
+      const login = await payload.login({
+        collection: 'users',
+        data: { email: changed.email, password: 'admin-updated-password' },
+      })
+      expect(login.user?.id).toBe(created.id)
+      const deleted = await payload.delete({
+        collection: 'users',
+        id: created.id,
+        overrideAccess: false,
+        req: await request(admin),
+      })
+      expect(deleted.id).toBe(created.id)
+    })
+    it('refuses first-user registration after bootstrap', async () => {
+      const response = await handleEndpoints({
+        config: payload.config,
+        payloadInstanceCacheKey: cacheKey,
+        request: new Request('http://localhost/api/users/first-register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: 'late-bootstrap@example.test',
+            password: 'isolated-password',
+          }),
+        }),
+      })
+      expect(response.status).toBe(403)
+    })
   })
   it.each([false, true])(
     'rejects editor role escalation with overrideAccess=%s',
@@ -99,11 +273,11 @@ describe('integration access through real Payload operations', () => {
           req: await request(editor),
           overrideAccess,
         }),
-      ).rejects.toMatchObject({ status: 400 })
+      ).rejects.toMatchObject({ status: overrideAccess ? 400 : 403 })
       expect((await payload.findByID({ collection: 'users', id: editor.id })).role).toBe('editor')
     },
   )
-  it('allows editor native forms to echo the unchanged/default role', async () => {
+  it('allows editor native forms to echo their unchanged role', async () => {
     const changed = await payload.update({
       collection: 'users',
       id: editor.id,
@@ -112,13 +286,6 @@ describe('integration access through real Payload operations', () => {
       req: await request(editor),
     })
     expect(changed).toMatchObject({ role: 'editor', name: 'Updated editor' })
-    const created = await payload.create({
-      collection: 'users',
-      data: { role: 'editor', email: 'native-default@example.test', password: 'isolated-password' },
-      overrideAccess: false,
-      req: await request(editor),
-    })
-    expect(created.role).toBe('editor')
   })
   it('lets admins replace, preserves on unrelated save, and hides secrets from API reads', async () => {
     const saved = await payload.updateGlobal({
