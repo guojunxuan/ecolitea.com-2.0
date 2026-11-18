@@ -405,6 +405,8 @@ immediately. Missing configuration returns 503, invalid authentication 401, and 
 work-store invariant causes HTTP fallback. Public English URLs remain unchanged; path invalidation
 targets their internal `/en/...` routes and each live language route.
 
+Known Next.js 16.3.3 redirect limitation: `createAppPageEntrypoint` in `dist/build/templates/app-page-runtime.js` appends cached headers after rendering has set `Location`, so a cache miss can emit duplicate identical values; require every value to match the expected target, and restore the strict single-header check when Next is upgraded ([upstream issue](https://github.com/vercel/next.js/issues/82117)).
+
 Translation Jobs retry twice, for three executions total. A durable translation checkpoint
 prevents search/cache notification retries from spending translation quota again. Terminal
 failure sets `failed` and `error` while retaining `fields` and `lastReadySourceVersion`.
