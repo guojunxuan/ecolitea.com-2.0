@@ -24,7 +24,7 @@ public/sitemap*.xml
 
 
 # Playwright
-/output/playwright/
+/output/
 /.playwright-cli/
 node_modules/
 /test-results/
