@@ -16,9 +16,10 @@ import { Users } from '@/collections/Users'
 import { plugins } from '@/plugins'
 import { createEmailAdapter } from '@/plugins/email/adapter'
 import { getServerSideURL } from '@/utilities/getURL'
+import { createIsolatedTestDatabaseURI } from '../helpers/isolatedDatabase'
 
-const databaseURI = 'mongodb://127.0.0.1:27017/ecolitea2-test'
 const fixtureTag = `email-consumers-${randomUUID()}`
+const databaseURI = createIsolatedTestDatabaseURI(fixtureTag)
 // Exercise values omitted in REST JSON despite the persisted Local API type being string.
 const omittedValue = undefined as unknown as string
 const richText = (text: string) => ({
@@ -65,8 +66,8 @@ describe('email consumers through installed Payload APIs', () => {
   }
 
   beforeAll(async () => {
-    expect(process.env.DATABASE_URI).toBe(databaseURI)
     expect(process.env.DISABLE_R2_STORAGE).toBe('true')
+    vi.stubEnv('JOBS_AUTORUN', 'false')
     expect(process.env.JOBS_AUTORUN).toBe('false')
     console.info(
       `Email consumer test target: ${databaseURI}; storage disabled; injected mail only.`,
@@ -140,6 +141,7 @@ describe('email consumers through installed Payload APIs', () => {
   })
 
   afterAll(async () => {
+    vi.unstubAllEnvs()
     if (!payload) return
     console.info(`Cleaning only ${fixtureTag} document IDs in ${databaseURI}.`)
     try {
