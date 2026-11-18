@@ -21,20 +21,9 @@ const parseTestPort = (value: string | undefined, name: string, fallback: number
   return port
 }
 
-const languageFixtureRequested =
-  process.env.PHASE3_I18N_FIXTURE === 'true' ||
-  process.argv.some(
-    (argument) =>
-      argument.endsWith('language-switcher.e2e.spec.ts') ||
-      argument.endsWith('cookie-consent.e2e.spec.ts'),
-  )
-if (languageFixtureRequested) process.env.PHASE3_I18N_FIXTURE = 'true'
 const developerDatabaseURI = process.env.DATABASE_URI
 const e2eDatabaseBaseURI =
-  process.env.E2E_DATABASE_URI ??
-  (languageFixtureRequested
-    ? 'mongodb://127.0.0.1:27017/ecolitea2-phase4-e2e'
-    : 'mongodb://127.0.0.1:27017/ecolitea2-phase4-e2e')
+  process.env.E2E_DATABASE_URI ?? 'mongodb://127.0.0.1:27017/ecolitea2-phase4-e2e'
 const e2ePort = parseTestPort(process.env.PLAYWRIGHT_PORT, 'PLAYWRIGHT_PORT', 3001)
 const e2eStoragePort = parseTestPort(
   process.env.PLAYWRIGHT_STORAGE_PORT,
@@ -65,6 +54,8 @@ process.env.DATABASE_URI = e2eDatabaseURI
 const disableR2Storage = process.env.DISABLE_R2_STORAGE === 'false' ? 'false' : 'true'
 process.env.DISABLE_R2_STORAGE = disableR2Storage
 process.env.PREVIEW_SECRET = 'e2e-only-preview-secret'
+// Translation cleanup uses the authenticated Next boundary even for fixture writes.
+process.env.REVALIDATE_SECRET = 'e2e-only-revalidation-secret'
 process.env.PLAYWRIGHT_TEST = 'true'
 process.env.JOBS_AUTORUN = 'false'
 // The isolated Site Settings fixture owns the placeholder GTM ID; specs intercept requests.
@@ -78,9 +69,9 @@ process.env.R2_ENDPOINT = e2eStorageEndpoint
 process.env.R2_PUBLIC_URL = e2eMediaOrigin
 process.env.R2_SECRET_ACCESS_KEY = 'e2e-local-secret-key'
 
-const phase3LanguageSeedCommand = languageFixtureRequested
-  ? 'DISABLE_R2_STORAGE=true pnpm exec tsx tests/helpers/seedPhase3LanguageBeforeBuild.ts && '
-  : ''
+// These shared fixtures are required by full CI runs as well as named specs.
+const phase3LanguageSeedCommand =
+  'DISABLE_R2_STORAGE=true pnpm exec tsx tests/helpers/seedPhase3LanguageBeforeBuild.ts && '
 
 const task6ArchiveSeedCommand =
   process.env.PLAYWRIGHT_PRESEED_TASK6_ARCHIVE === 'true'

@@ -19,5 +19,10 @@ it.each(['true', 'false'])(
       disabled === 'false' ? ['**/media-documents.e2e.spec.ts'] : undefined,
     )
     expect(process.env.DISABLE_R2_STORAGE).toBe(disabled)
+    expect(process.env.REVALIDATE_SECRET).toBe('e2e-only-revalidation-secret')
+    const servers = config.webServer as { command: string }[]
+    // Full CI invocations have no individual spec arguments. Consent and
+    // language tests still require their Global, admin and translated pages.
+    expect(servers[1].command).toContain('tsx tests/helpers/seedPhase3LanguageBeforeBuild.ts && ')
   },
 )
