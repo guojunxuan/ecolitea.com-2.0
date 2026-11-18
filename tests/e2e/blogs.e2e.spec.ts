@@ -187,11 +187,27 @@ test.describe('Blog publishing journeys', () => {
     page,
   }) => {
     await page.goto(`${baseURL}/blogs`)
+    await page.getByRole('button', { name: 'Reject optional' }).click()
     const card = page.locator('[data-slot="content-card"]').first()
     const href = await card.locator('[data-slot="content-card-link"]').getAttribute('href')
     const excerpt = card.locator('[data-slot="content-card-description"]')
+    await excerpt.scrollIntoViewIfNeeded()
+    await card.evaluate(async (element) => {
+      await Promise.all(
+        element
+          .parentElement!.getAnimations({ subtree: true })
+          .map((animation) => animation.finished),
+      )
+    })
     const box = await excerpt.boundingBox()
     expect(box).not.toBeNull()
+    // The first-visit banner must not intercept this native card-area click.
+    expect(
+      await page.evaluate(
+        ({ x, y }) => document.elementFromPoint(x, y)?.closest('a')?.getAttribute('href'),
+        { x: box!.x + box!.width / 2, y: box!.y + box!.height / 2 },
+      ),
+    ).toBe(href)
     await page.mouse.move(box!.x + box!.width / 2, box!.y + box!.height / 2)
     await page.mouse.down()
     await page.waitForTimeout(400)
@@ -460,7 +476,21 @@ test.describe('Blog publishing journeys', () => {
     await page.goto(preview)
     await expect(page).toHaveURL(`${baseURL}/blogs/${fixture.prefix}-draft`)
     await expect(page.getByRole('heading', { name: 'draft private tea story' })).toBeVisible()
-    await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', /noindex/)
+    // Next can emit more than one streamed robots node in draft mode. Assert
+    // the indexing policy of every node instead of assuming a unique element.
+    await expect
+      .poll(() =>
+        page
+          .locator('meta[name="robots"]')
+          .evaluateAll(
+            (nodes) =>
+              nodes.length > 0 &&
+              nodes.every((node) =>
+                /(?:^|[,\s])noindex(?:$|[,\s])/.test(node.getAttribute('content') ?? ''),
+              ),
+          ),
+      )
+      .toBe(true)
     await page.goto(`${baseURL}/next/exit-preview`)
     expect((await page.request.get(`${baseURL}/blogs/${fixture.prefix}-draft`)).status()).toBe(404)
   })

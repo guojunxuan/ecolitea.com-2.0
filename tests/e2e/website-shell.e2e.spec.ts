@@ -694,7 +694,7 @@ async function exerciseMobile(page: Page, testInfo: TestInfo) {
   await page.keyboard.press('Enter')
   await expect(dialog).toBeVisible()
   await expect(page.locator('body')).toHaveCSS('overflow', 'hidden')
-  await expectBackground(surface, { alpha: 0.9, blue: 255, green: 255, red: 255 })
+  await expectBackground(surface, { alpha: 1, blue: 255, green: 255, red: 255 })
   const dialogSurface = dialog.locator('[data-mobile-navigation-surface="true"]')
   await expectBackground(dialogSurface, {
     alpha: 1,

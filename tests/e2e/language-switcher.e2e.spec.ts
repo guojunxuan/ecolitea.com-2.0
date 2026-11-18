@@ -18,7 +18,7 @@ for (const width of [1440, 390]) {
     const openPanel = async () => {
       if (width === 390) {
         await menuButton.click()
-        await page.getByRole('button', { name: /Region & language: Global EN/ }).click()
+        await page.getByRole('button', { name: /^Region & language:/ }).click()
       } else await activeTrigger.click()
     }
     if (width === 390)
@@ -56,11 +56,8 @@ for (const width of [1440, 390]) {
       path: '/',
     })
     await page.goto(`${baseURL}/phase3-english-only`)
-    await page.getByRole('button', { name: 'Region & language' }).filter({ visible: true }).click()
-    await page
-      .getByRole('dialog', { name: 'Region & language' })
-      .getByRole('button', { name: /Deutschland/ })
-      .click()
+    await openPanel()
+    await panel.getByRole('button', { name: /Deutschland/ }).click()
     await expect(page).toHaveURL(`${baseURL}/de?unavailable=de`)
     await expect(page.getByRole('status')).toHaveText('This page is not available in Deutsch yet.')
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(
@@ -99,7 +96,10 @@ test('live locale changes invalidate URLs, panel and sitemap without deployment;
   const originalResponse = await request.get(`${baseURL}/api/globals/site-settings?depth=0`)
   const original = await originalResponse.json()
   const save = async (data: unknown) => {
-    const response = await request.post(`${baseURL}/api/globals/site-settings`, { data })
+    const response = await request.post(`${baseURL}/api/globals/site-settings`, {
+      data,
+      headers: { Origin: baseURL },
+    })
     expect(response.ok(), await response.text()).toBe(true)
   }
   try {

@@ -85,7 +85,9 @@ test('footer settings grant analytics, revoke it, and clear GA cookies', async (
   await dialog.getByRole('switch', { name: 'Analytics' }).click()
   await dialog.getByRole('button', { name: 'Save settings' }).click()
   await expect(trigger).toBeFocused()
-  expect((await context.cookies()).filter(({ name }) => /^_ga|^_gcl_/.test(name))).toEqual([])
+  await expect
+    .poll(async () => (await context.cookies()).filter(({ name }) => /^_ga|^_gcl_/.test(name)))
+    .toEqual([])
   expect(gtmRequests).toHaveLength(1)
 })
 
@@ -127,9 +129,20 @@ for (const width of [1440, 390]) {
     await trigger.click()
     const dialog = page.getByRole('dialog', { name: 'Cookie settings' })
     await expect(dialog).toBeVisible()
+    // Measure the final frame, not the translated/scaled entrance animation.
+    await dialog.evaluate(async (element) => {
+      await Promise.all(element.getAnimations().map((animation) => animation.finished))
+    })
     const dialogBox = await dialog.boundingBox()
     expect(Math.abs(dialogBox!.x + dialogBox!.width / 2 - width / 2)).toBeLessThan(1)
-    if (width === 1440) expect(Math.abs(dialogBox!.y + dialogBox!.height / 2 - 422)).toBeLessThan(1)
+    if (width === 1440) {
+      expect(Math.abs(dialogBox!.y + dialogBox!.height / 2 - 422)).toBeLessThan(1)
+    } else {
+      // The current mobile design is a content-height bottom sheet.
+      expect(dialogBox!.width).toBe(width)
+      expect(Math.abs(dialogBox!.y + dialogBox!.height - 844)).toBeLessThan(1)
+      expect(dialogBox!.height).toBeLessThanOrEqual(844 * 0.85)
+    }
     const save = dialog.getByRole('button', { name: 'Save settings' })
     const saveBox = await save.boundingBox()
     expect(saveBox!.y).toBeGreaterThanOrEqual(0)
