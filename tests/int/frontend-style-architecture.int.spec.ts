@@ -21,6 +21,16 @@ const listFiles = (relativePath: string, suffix: string): string[] =>
 const shellFiles = (suffix: string) =>
   ['src/Header', 'src/Footer'].flatMap((directory) => listFiles(directory, suffix))
 
+// These Payload component hooks belong to Admin, not the website stylesheet
+// contract. Permit each hook only in its owning file; keep scanning its TSX.
+const adminHooks: Record<string, Set<string>> = {
+  'src/SiteSettings/components/GoogleTranslateKeyStatus.tsx': new Set([
+    'google-translate-key-status',
+  ]),
+  'src/plugins/email/admin/EmailStatus.tsx': new Set(['email-status']),
+  'src/plugins/email/admin/TestEmailButton.tsx': new Set(['email-test']),
+}
+
 describe('frontend style architecture', () => {
   it('recognizes all approved global typography roles in component classes', () => {
     const roles = new Set(
@@ -386,10 +396,22 @@ describe('frontend style architecture', () => {
     const translationAdmin = path.join('src', 'plugins', 'translation', 'admin') + path.sep
     const files = listFiles('src', '.tsx').filter((file) => !file.startsWith(translationAdmin))
     const violations = (
-      await Promise.all(files.map((file) => scanShellClasses(file, read(file))))
+      await Promise.all(files.map((file) => scanShellClasses(file, read(file), adminHooks[file])))
     ).flat()
 
     expect(violations).toEqual([])
+  })
+
+  it('keeps Admin hook exceptions scoped and still rejects utilities and unknown classes', () => {
+    for (const [file, allowed] of Object.entries(adminHooks)) {
+      const hook = [...allowed][0]
+      expect(
+        scanShellClasses(file, `<div className="${hook} flex unknown-hook" />`, allowed),
+      ).toEqual([expect.stringContaining(': flex'), expect.stringContaining(': unknown-hook')])
+      expect(scanShellClasses('src/components/Other.tsx', `<div className="${hook}" />`)).toEqual([
+        expect.stringContaining(`: ${hook}`),
+      ])
+    }
   })
 
   it('detects equivalent inverse colors, radii, durations, and shared shadows', () => {
