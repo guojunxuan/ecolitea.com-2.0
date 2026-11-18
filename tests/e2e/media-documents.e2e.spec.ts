@@ -16,6 +16,10 @@ const prefix = `resources-${runID}`
 const user = { email: `${prefix}@example.invalid`, password: 'isolated-browser-password' }
 let payload: Payload
 
+// Payload's cookie-authenticated API clients need the same trusted Origin as
+// native Admin requests, including file reads made through context.request.
+test.use({ extraHTTPHeaders: { Origin: baseURL } })
+
 test.describe('Media and Documents native Admin workflows', () => {
   test.setTimeout(90_000)
   test.beforeAll(async () => {
@@ -42,7 +46,7 @@ test.describe('Media and Documents native Admin workflows', () => {
   })
   test.afterAll(async ({ browser }) => {
     if (!payload) return
-    const context = await browser.newContext()
+    const context = await browser.newContext({ extraHTTPHeaders: { Origin: baseURL } })
     const response = await context.request.post(`${baseURL}/api/users/login`, { data: user })
     if (response.ok()) {
       for (const collection of ['media', 'documents'] as const) {
