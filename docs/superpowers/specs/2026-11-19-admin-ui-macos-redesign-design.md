@@ -3,6 +3,7 @@
 - 日期：2026-11-19
 - 分支：`feature/admin-ui-macos`（基于 `feature/i18n-consent`，依赖其中的 email / translation 插件）
 - 状态：设计已确认，待编写实施计划
+- 后续：`docs/superpowers/specs/2026-11-19-remove-posts-categories-design.md`（同一分支，在本设计完成后执行）
 - 视觉稿：`.superpowers/brainstorm/89787-1795079269/content/admin-demo-v2.html`（本地文件，不提交；浅色/深色 × 概览/列表/编辑）
 - 参考：Apple Human Interface Guidelines（macOS 字号、系统颜色、Tab view/分段控件用法）；macOS 27 UI Kit 未能访问（Figma 登录受限），不影响本设计
 - 相关：`docs/superpowers/specs/2026-11-17-visual-refresh-design.md`（公开前端视觉刷新；该文档“不改 Payload Admin”的约束仅针对该项目）
@@ -12,9 +13,10 @@
 ### 1.1 目标
 
 1. 去掉 Admin 中的 Payload 品牌痕迹，改为由 Site Settings 驱动的品牌。
-2. 以 macOS（HIG）视觉语言重塑 Admin：系统字体、系统颜色、浅色/深色两套外观（跟随系统）、更圆润的控件、柔和的分层阴影。
-3. 用按业务组织的 Dashboard 替代默认首页。
-4. 统一侧边栏分组。
+2. 清除前台模板遗留与写死的品牌字符串，品牌统一来自 Site Settings（§9）。
+3. 以 macOS（HIG）视觉语言重塑 Admin：系统字体、系统颜色、浅色/深色两套外观（跟随系统）、更圆润的控件、柔和的分层阴影。
+4. 用按业务组织的 Dashboard 替代默认首页。
+5. 统一侧边栏分组。
 
 ### 1.2 硬约束
 
@@ -199,7 +201,44 @@ label 用英文。每个 widget = 一个查询模块（纯数据，可单测）+
 - 全局检查：`corepack pnpm exec tsc --noEmit --incremental false`、`corepack pnpm lint`、`corepack pnpm build`。
 - int 与 e2e 需要 MongoDB；数据库连接失败要单独报告，不视为功能回归。存储不在测试范围内时使用 `DISABLE_R2_STORAGE=true`。
 
-## 8. 发现但不在本次范围内
+## 8. 与后续设计的关系
 
-- 前台写死的品牌字符串：`src/plugins/index.ts`（SEO 标题中的 “| Ecolitea”）、`src/Footer/adaptFooter.ts`（回退值 `'Ecolitea'`）、posts / search 页面标题中的 “Payload Website Template”。
-- Posts 与 Blogs、Categories 与 Blog Categories 功能重叠（Posts、Categories 为模板遗留），是否合并或删除属于数据模型问题。
+Posts 与 Categories 的移除由 `2026-11-19-remove-posts-categories-design.md` 负责，在本设计完成后执行。本设计中：
+
+- §6 的 `Content` 分组仍包含 Posts、Categories；移除后由后续设计更新分组测试。
+- §9 不修改 `src/app/(frontend)/[lang]/posts/**` 的页面标题（这些路由将被删除）。
+
+## 9. 前台品牌字符串清理
+
+### 9.1 现状
+
+| 位置 | 遗留内容 |
+|---|---|
+| `src/plugins/index.ts` `generateTitle` | `… \| Ecolitea`、`'Ecolitea'`、默认分支 `… \| Payload Website Template` |
+| `src/utilities/generateMeta.ts` | 标题后缀 `' \| Payload Website Template'`；默认 OG 图 `/website-template-OG.webp` |
+| `src/utilities/mergeOpenGraph.ts` | `siteName` / `title` 为 `'Payload Website Template'`；描述 `'An open-source website built with Payload and Next.js.'`；默认 OG 图 `/website-template-OG.webp` |
+| `src/utilities/buildSiteMetadata.ts` | `twitter.creator: '@payloadcms'` |
+| `src/Footer/adaptFooter.ts` | 回退值 `'Ecolitea'` |
+| `src/app/(frontend)/[lang]/search/page.tsx` | 标题 `'Payload Website Template Search'` |
+
+### 9.2 规则
+
+- 新增 `src/utilities/siteIdentity.ts`：从 Site Settings（`getCachedGlobal('site-settings')`）规范化出 `{ siteName?: string; siteDescription?: string }`，空字符串视为缺失。前台 metadata 只通过它读取品牌，不再各自解析 Site Settings。
+- 标题格式统一为纯函数 `formatTitle(title?, siteName?)`：两者都有时为 `"{title} | {siteName}"`；只有其一时取其一；都没有时返回空字符串，由调用方省略 `title`。
+- SEO 插件 `generateTitle`：保留现有按 collection 的标题规则（例如 Blog Categories 为 “{title} Blogs”、Product Categories 为 “{title} Products”、Settings 为 “Blogs”），后缀改为 `formatTitle` + 通过 `req` 读取的 `siteName`。
+- `generateMeta`、`mergeOpenGraph`：`siteName`、默认描述来自 `siteIdentity`；缺失时省略对应字段。
+- 默认 OG 图：删除对 `/website-template-OG.webp` 的引用；文档没有 meta 图片时不输出 `og:image`。删除前确认 `public/website-template-OG.webp` 没有其他引用，再一并删除该文件。
+- `buildSiteMetadata`：删除 `twitter.creator`。
+- Footer：回退链改为 `siteName → legalCompanyName → 不显示`。
+- search 页标题：`formatTitle('Search', siteName)`。
+
+### 9.3 测试
+
+- `formatTitle`、`siteIdentity` 规范化：int 纯函数测试。
+- `generateTitle`：更新现有 `tests/int/blog-site-integration.int.spec.ts` 中相关断言为由 `siteName` 决定的后缀，并覆盖 `siteName` 缺失的情况。
+- Footer 回退：更新 `tests/int/footer-adapter.int.spec.ts`。
+- 品牌守卫：一个 int 测试扫描 `src/`（排除 `payload-types.ts`、`src/migrations/`），断言不包含 `Ecolitea`、`Payload Website Template`、`@payloadcms'` 这类字面量。
+
+## 10. 发现但不在本次范围内
+
+- 无。前述 Posts/Categories 重叠问题已拆分到后续设计。
