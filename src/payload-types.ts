@@ -172,6 +172,19 @@ export type SupportedTimezones =
   | 'Pacific/Fiji';
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "LexicalNodes_47D10C91".
+ */
+export type LexicalNodes_47D10C91 =
+  | SerializedTextNode
+  | SerializedTabNode
+  | SerializedLineBreakNode
+  | SerializedParagraphNode<LexicalNodes_47D10C91>
+  | SerializedAutoLinkNode<LexicalNodes_47D10C91, LexicalLinkFields>
+  | SerializedLinkNode<LexicalNodes_47D10C91, LexicalLinkFields>
+  | SerializedListNode<LexicalNodes_47D10C91>
+  | SerializedListItemNode<LexicalNodes_47D10C91>;
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "LexicalNodes_B17D0A84".
  */
 export type LexicalNodes_B17D0A84 =
@@ -189,19 +202,6 @@ export type LexicalNodes_B17D0A84 =
   | SerializedTableRowNode<LexicalNodes_B17D0A84>
   | SerializedHorizontalRuleNode
   | SerializedQuoteNode<LexicalNodes_B17D0A84>;
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "LexicalNodes_47D10C91".
- */
-export type LexicalNodes_47D10C91 =
-  | SerializedTextNode
-  | SerializedTabNode
-  | SerializedLineBreakNode
-  | SerializedParagraphNode<LexicalNodes_47D10C91>
-  | SerializedAutoLinkNode<LexicalNodes_47D10C91, LexicalLinkFields>
-  | SerializedLinkNode<LexicalNodes_47D10C91, LexicalLinkFields>
-  | SerializedListNode<LexicalNodes_47D10C91>
-  | SerializedListItemNode<LexicalNodes_47D10C91>;
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "LexicalNodes_67D0DA17".
@@ -287,21 +287,21 @@ export interface Config {
   };
   blocks: {};
   collections: {
-    folders: Folder;
+    products: Product;
+    'product-categories': ProductCategory;
+    'quote-requests': QuoteRequest;
     pages: Page;
     posts: Post;
     blogs: Blog;
     'blog-categories': BlogCategory;
-    'product-categories': ProductCategory;
-    products: Product;
-    'quote-requests': QuoteRequest;
+    'case-studies': CaseStudy;
+    categories: Category;
     media: Media;
     documents: Document;
     'site-assets': SiteAsset;
-    'social-platforms': SocialPlatform;
-    categories: Category;
-    'case-studies': CaseStudy;
+    folders: Folder;
     users: User;
+    'social-platforms': SocialPlatform;
     redirects: Redirect;
     forms: Form;
     'form-submissions': FormSubmission;
@@ -315,29 +315,29 @@ export interface Config {
     'payload-migrations': PayloadMigration;
   };
   collectionsJoins: {
-    'blog-categories': {
-      blogs: 'blogs';
-    };
     'product-categories': {
       products: 'products';
     };
+    'blog-categories': {
+      blogs: 'blogs';
+    };
   };
   collectionsSelect: {
-    folders: FoldersSelect<false> | FoldersSelect<true>;
+    products: ProductsSelect<false> | ProductsSelect<true>;
+    'product-categories': ProductCategoriesSelect<false> | ProductCategoriesSelect<true>;
+    'quote-requests': QuoteRequestsSelect<false> | QuoteRequestsSelect<true>;
     pages: PagesSelect<false> | PagesSelect<true>;
     posts: PostsSelect<false> | PostsSelect<true>;
     blogs: BlogsSelect<false> | BlogsSelect<true>;
     'blog-categories': BlogCategoriesSelect<false> | BlogCategoriesSelect<true>;
-    'product-categories': ProductCategoriesSelect<false> | ProductCategoriesSelect<true>;
-    products: ProductsSelect<false> | ProductsSelect<true>;
-    'quote-requests': QuoteRequestsSelect<false> | QuoteRequestsSelect<true>;
+    'case-studies': CaseStudiesSelect<false> | CaseStudiesSelect<true>;
+    categories: CategoriesSelect<false> | CategoriesSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     documents: DocumentsSelect<false> | DocumentsSelect<true>;
     'site-assets': SiteAssetsSelect<false> | SiteAssetsSelect<true>;
-    'social-platforms': SocialPlatformsSelect<false> | SocialPlatformsSelect<true>;
-    categories: CategoriesSelect<false> | CategoriesSelect<true>;
-    'case-studies': CaseStudiesSelect<false> | CaseStudiesSelect<true>;
+    folders: FoldersSelect<false> | FoldersSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
+    'social-platforms': SocialPlatformsSelect<false> | SocialPlatformsSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
     'form-submissions': FormSubmissionsSelect<false> | FormSubmissionsSelect<true>;
@@ -372,6 +372,11 @@ export interface Config {
   };
   locale: null;
   widgets: {
+    'site-setup': SiteSetupWidget;
+    overview: OverviewWidget;
+    'recent-quotes': RecentQuotesWidget;
+    'system-status': SystemStatusWidget;
+    'quick-actions': QuickActionsWidget;
     collections: CollectionsWidget;
     'collection-query': CollectionQueryWidget;
     activity: ActivityWidget;
@@ -410,6 +415,109 @@ export interface UserAuthOperations {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "products".
+ */
+export interface Product {
+  id: string;
+  title: string;
+  gallery: (string | Media)[];
+  summary: string;
+  /**
+   * Shown in the Overview tab on the product page. Separate paragraphs with a blank line. Falls back to Summary when empty.
+   */
+  overview?: string | null;
+  /**
+   * Files offered by the Download button on the product page.
+   */
+  resources?: (string | Document)[] | null;
+  specifications?:
+    | {
+        group?: string | null;
+        items: {
+          label: string;
+          value: string;
+          id?: string | null;
+        }[];
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Every section appears in the sticky section nav on the product page, in this order.
+   */
+  sections?:
+    | {
+        /**
+         * Only displayed in the sticky section navigation.
+         */
+        label: string;
+        theme: 'default' | 'inverse';
+        title?: string | null;
+        description?: string | null;
+        /**
+         * Generated from the label when empty. Keep it stable after publishing.
+         */
+        anchor?: string | null;
+        blocks?:
+          | (
+              | ProductMediaBannerBlock
+              | ProductMediaCarouselBlock
+              | ProductMediaTabsBlock
+              | ProductMediaAccordionBlock
+              | ProductMediaTextBlock
+              | ProductCodeBlock
+            )[]
+          | null;
+        id?: string | null;
+      }[]
+    | null;
+  meta?: {
+    title?: string | null;
+    /**
+     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
+     */
+    image?: (string | null) | Media;
+    description?: string | null;
+  };
+  slug: string;
+  category: string | ProductCategory;
+  categorySlug?: string | null;
+  publishedAt?: string | null;
+  relatedProducts?: (string | Product)[] | null;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "media".
+ */
+export interface Media {
+  id: string;
+  /**
+   * Describe the image for screen readers and search engines.
+   */
+  alt: string;
+  durationSeconds?: number | null;
+  _h_folders?: (string | null) | Folder;
+  updatedAt?: string | null;
+  /**
+   * Default caption shown when this media is used in a Media block. A caption set on the block overrides it.
+   */
+  caption?: LexicalRichText<LexicalNodes_46081D0A> | null;
+  prefix?: string | null;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "folders".
  */
 export interface Folder {
@@ -420,6 +528,232 @@ export interface Folder {
   createdAt: string;
   _h_slugPath?: string | null;
   _h_titlePath?: string | null;
+}
+/**
+ * Documents: PDF (.pdf), Word (.docx), Excel (.xlsx), PowerPoint (.pptx); maximum 10 MB. Legacy Office formats and documents with macros are not allowed.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "documents".
+ */
+export interface Document {
+  id: string;
+  /**
+   * Shown to editors when choosing this document.
+   */
+  title: string;
+  /**
+   * Optional short summary.
+   */
+  description?: string | null;
+  _h_folders?: (string | null) | Folder;
+  updatedAt?: string | null;
+  prefix?: string | null;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ProductMediaBannerBlock".
+ */
+export interface ProductMediaBannerBlock {
+  /**
+   * A wide media banner with an overlaid title and short centered copy.
+   */
+  title?: string | null;
+  body?: string | null;
+  media: string | Media;
+  mobileMedia?: (string | null) | Media;
+  /**
+   * Video only. Ambient plays muted on loop; Player shows controls. Ignored for images and GIFs.
+   */
+  playback: 'ambient' | 'player';
+  aspectRatio: 'full-screen' | '21:9' | '16:9';
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'productMediaBanner';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ProductMediaCarouselBlock".
+ */
+export interface ProductMediaCarouselBlock {
+  title?: string | null;
+  slides?:
+    | {
+        media: string | Media;
+        /**
+         * Video only. Ambient plays muted on loop; Player shows controls. Ignored for images and GIFs.
+         */
+        playback: 'ambient' | 'player';
+        caption?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  aspectRatio: '21:9' | '16:9' | '4:3';
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'productMediaCarousel';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ProductMediaTabsBlock".
+ */
+export interface ProductMediaTabsBlock {
+  title?: string | null;
+  tabs?:
+    | {
+        title: string;
+        description?: string | null;
+        media: string | Media;
+        /**
+         * Video only. Ambient plays muted on loop; Player shows controls. Ignored for images and GIFs.
+         */
+        playback: 'ambient' | 'player';
+        id?: string | null;
+      }[]
+    | null;
+  aspectRatio: '21:9' | '16:9' | '4:3' | '1:1';
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'productMediaTabs';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ProductMediaAccordionBlock".
+ */
+export interface ProductMediaAccordionBlock {
+  title?: string | null;
+  items?:
+    | {
+        title: string;
+        body?: LexicalRichText<LexicalNodes_47D10C91> | null;
+        media: string | Media;
+        /**
+         * Video only. Ambient plays muted on loop; Player shows controls. Ignored for images and GIFs.
+         */
+        playback: 'ambient' | 'player';
+        id?: string | null;
+      }[]
+    | null;
+  mediaPosition: 'right' | 'left';
+  aspectRatio: '4:5' | '1:1' | '4:3';
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'productMediaAccordion';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ProductMediaTextBlock".
+ */
+export interface ProductMediaTextBlock {
+  title: string;
+  body?: LexicalRichText<LexicalNodes_47D10C91> | null;
+  media: string | Media;
+  /**
+   * Video only. Ambient plays muted on loop; Player shows controls. Ignored for images and GIFs.
+   */
+  playback: 'ambient' | 'player';
+  mediaPosition: 'right' | 'left';
+  aspectRatio: '4:5' | '1:1' | '4:3' | '16:9';
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'productMediaText';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ProductCodeBlock".
+ */
+export interface ProductCodeBlock {
+  /**
+   * Identifies this block in the Admin list. Not shown on the live site.
+   */
+  label: string;
+  title?: string | null;
+  /**
+   * Custom HTML content. Use {{asset:0}}, {{asset:1}}, etc. to reference assets below.
+   */
+  html: string;
+  /**
+   * Use --website-* tokens and .website-type-* classes. Legacy --color-* aliases remain supported.
+   */
+  css?: string | null;
+  /**
+   * Optional inline script. Runs in a sandboxed iframe; cannot access the parent window.
+   */
+  js?: string | null;
+  /**
+   * Uploaded media for use in your HTML/CSS/JS. Reference them with {{asset:0}}, {{asset:1}}, etc.
+   */
+  assets?: (string | Media)[] | null;
+  /**
+   * Placeholder height in px until the content reports its real height.
+   */
+  minHeight: number;
+  width: 'standard' | 'full';
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'productCode';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "product-categories".
+ */
+export interface ProductCategory {
+  id: string;
+  _order?: string | null;
+  title: string;
+  description?: string | null;
+  image: string | Media;
+  meta?: {
+    title?: string | null;
+    /**
+     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
+     */
+    image?: (string | null) | Media;
+    description?: string | null;
+  };
+  slug: string;
+  products?: {
+    docs?: (string | Product)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "quote-requests".
+ */
+export interface QuoteRequest {
+  id: string;
+  name: string;
+  email: string;
+  company: string;
+  message: string;
+  status: 'new' | 'contacted' | 'closed';
+  product?: (string | null) | Product;
+  /**
+   * Snapshot at submission time.
+   */
+  productTitle?: string | null;
+  /**
+   * Snapshot at submission time.
+   */
+  productSlug?: string | null;
+  userAgent?: string | null;
+  /**
+   * Salted hash used only for rate limiting.
+   */
+  ipHash?: string | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -504,35 +838,6 @@ export interface Post {
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "media".
- */
-export interface Media {
-  id: string;
-  /**
-   * Describe the image for screen readers and search engines.
-   */
-  alt: string;
-  durationSeconds?: number | null;
-  _h_folders?: (string | null) | Folder;
-  updatedAt?: string | null;
-  /**
-   * Default caption shown when this media is used in a Media block. A caption set on the block overrides it.
-   */
-  caption?: LexicalRichText<LexicalNodes_46081D0A> | null;
-  prefix?: string | null;
-  createdAt: string;
-  url?: string | null;
-  thumbnailURL?: string | null;
-  filename?: string | null;
-  mimeType?: string | null;
-  filesize?: number | null;
-  width?: number | null;
-  height?: number | null;
-  focalX?: number | null;
-  focalY?: number | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -926,343 +1231,6 @@ export interface BlogCategory {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "product-categories".
- */
-export interface ProductCategory {
-  id: string;
-  _order?: string | null;
-  title: string;
-  description?: string | null;
-  image: string | Media;
-  meta?: {
-    title?: string | null;
-    /**
-     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
-     */
-    image?: (string | null) | Media;
-    description?: string | null;
-  };
-  slug: string;
-  products?: {
-    docs?: (string | Product)[];
-    hasNextPage?: boolean;
-    totalDocs?: number;
-  };
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "products".
- */
-export interface Product {
-  id: string;
-  title: string;
-  gallery: (string | Media)[];
-  summary: string;
-  /**
-   * Shown in the Overview tab on the product page. Separate paragraphs with a blank line. Falls back to Summary when empty.
-   */
-  overview?: string | null;
-  /**
-   * Files offered by the Download button on the product page.
-   */
-  resources?: (string | Document)[] | null;
-  specifications?:
-    | {
-        group?: string | null;
-        items: {
-          label: string;
-          value: string;
-          id?: string | null;
-        }[];
-        id?: string | null;
-      }[]
-    | null;
-  /**
-   * Every section appears in the sticky section nav on the product page, in this order.
-   */
-  sections?:
-    | {
-        /**
-         * Only displayed in the sticky section navigation.
-         */
-        label: string;
-        theme: 'default' | 'inverse';
-        title?: string | null;
-        description?: string | null;
-        /**
-         * Generated from the label when empty. Keep it stable after publishing.
-         */
-        anchor?: string | null;
-        blocks?:
-          | (
-              | ProductMediaBannerBlock
-              | ProductMediaCarouselBlock
-              | ProductMediaTabsBlock
-              | ProductMediaAccordionBlock
-              | ProductMediaTextBlock
-              | ProductCodeBlock
-            )[]
-          | null;
-        id?: string | null;
-      }[]
-    | null;
-  meta?: {
-    title?: string | null;
-    /**
-     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
-     */
-    image?: (string | null) | Media;
-    description?: string | null;
-  };
-  slug: string;
-  category: string | ProductCategory;
-  categorySlug?: string | null;
-  publishedAt?: string | null;
-  relatedProducts?: (string | Product)[] | null;
-  updatedAt: string;
-  createdAt: string;
-  _status?: ('draft' | 'published') | null;
-}
-/**
- * Documents: PDF (.pdf), Word (.docx), Excel (.xlsx), PowerPoint (.pptx); maximum 10 MB. Legacy Office formats and documents with macros are not allowed.
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "documents".
- */
-export interface Document {
-  id: string;
-  /**
-   * Shown to editors when choosing this document.
-   */
-  title: string;
-  /**
-   * Optional short summary.
-   */
-  description?: string | null;
-  _h_folders?: (string | null) | Folder;
-  updatedAt?: string | null;
-  prefix?: string | null;
-  createdAt: string;
-  url?: string | null;
-  thumbnailURL?: string | null;
-  filename?: string | null;
-  mimeType?: string | null;
-  filesize?: number | null;
-  width?: number | null;
-  height?: number | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "ProductMediaBannerBlock".
- */
-export interface ProductMediaBannerBlock {
-  /**
-   * A wide media banner with an overlaid title and short centered copy.
-   */
-  title?: string | null;
-  body?: string | null;
-  media: string | Media;
-  mobileMedia?: (string | null) | Media;
-  /**
-   * Video only. Ambient plays muted on loop; Player shows controls. Ignored for images and GIFs.
-   */
-  playback: 'ambient' | 'player';
-  aspectRatio: 'full-screen' | '21:9' | '16:9';
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'productMediaBanner';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "ProductMediaCarouselBlock".
- */
-export interface ProductMediaCarouselBlock {
-  title?: string | null;
-  slides?:
-    | {
-        media: string | Media;
-        /**
-         * Video only. Ambient plays muted on loop; Player shows controls. Ignored for images and GIFs.
-         */
-        playback: 'ambient' | 'player';
-        caption?: string | null;
-        id?: string | null;
-      }[]
-    | null;
-  aspectRatio: '21:9' | '16:9' | '4:3';
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'productMediaCarousel';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "ProductMediaTabsBlock".
- */
-export interface ProductMediaTabsBlock {
-  title?: string | null;
-  tabs?:
-    | {
-        title: string;
-        description?: string | null;
-        media: string | Media;
-        /**
-         * Video only. Ambient plays muted on loop; Player shows controls. Ignored for images and GIFs.
-         */
-        playback: 'ambient' | 'player';
-        id?: string | null;
-      }[]
-    | null;
-  aspectRatio: '21:9' | '16:9' | '4:3' | '1:1';
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'productMediaTabs';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "ProductMediaAccordionBlock".
- */
-export interface ProductMediaAccordionBlock {
-  title?: string | null;
-  items?:
-    | {
-        title: string;
-        body?: LexicalRichText<LexicalNodes_47D10C91> | null;
-        media: string | Media;
-        /**
-         * Video only. Ambient plays muted on loop; Player shows controls. Ignored for images and GIFs.
-         */
-        playback: 'ambient' | 'player';
-        id?: string | null;
-      }[]
-    | null;
-  mediaPosition: 'right' | 'left';
-  aspectRatio: '4:5' | '1:1' | '4:3';
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'productMediaAccordion';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "ProductMediaTextBlock".
- */
-export interface ProductMediaTextBlock {
-  title: string;
-  body?: LexicalRichText<LexicalNodes_47D10C91> | null;
-  media: string | Media;
-  /**
-   * Video only. Ambient plays muted on loop; Player shows controls. Ignored for images and GIFs.
-   */
-  playback: 'ambient' | 'player';
-  mediaPosition: 'right' | 'left';
-  aspectRatio: '4:5' | '1:1' | '4:3' | '16:9';
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'productMediaText';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "ProductCodeBlock".
- */
-export interface ProductCodeBlock {
-  /**
-   * Identifies this block in the Admin list. Not shown on the live site.
-   */
-  label: string;
-  title?: string | null;
-  /**
-   * Custom HTML content. Use {{asset:0}}, {{asset:1}}, etc. to reference assets below.
-   */
-  html: string;
-  /**
-   * Use --website-* tokens and .website-type-* classes. Legacy --color-* aliases remain supported.
-   */
-  css?: string | null;
-  /**
-   * Optional inline script. Runs in a sandboxed iframe; cannot access the parent window.
-   */
-  js?: string | null;
-  /**
-   * Uploaded media for use in your HTML/CSS/JS. Reference them with {{asset:0}}, {{asset:1}}, etc.
-   */
-  assets?: (string | Media)[] | null;
-  /**
-   * Placeholder height in px until the content reports its real height.
-   */
-  minHeight: number;
-  width: 'standard' | 'full';
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'productCode';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "quote-requests".
- */
-export interface QuoteRequest {
-  id: string;
-  name: string;
-  email: string;
-  company: string;
-  message: string;
-  status: 'new' | 'contacted' | 'closed';
-  product?: (string | null) | Product;
-  /**
-   * Snapshot at submission time.
-   */
-  productTitle?: string | null;
-  /**
-   * Snapshot at submission time.
-   */
-  productSlug?: string | null;
-  userAgent?: string | null;
-  /**
-   * Salted hash used only for rate limiting.
-   */
-  ipHash?: string | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "site-assets".
- */
-export interface SiteAsset {
-  id: string;
-  alt: string;
-  prefix?: string | null;
-  updatedAt: string;
-  createdAt: string;
-  url?: string | null;
-  thumbnailURL?: string | null;
-  filename?: string | null;
-  mimeType?: string | null;
-  filesize?: number | null;
-  width?: number | null;
-  height?: number | null;
-  focalX?: number | null;
-  focalY?: number | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "social-platforms".
- */
-export interface SocialPlatform {
-  id: string;
-  /**
-   * Platform names cannot be changed after creation.
-   */
-  platform: string;
-  /**
-   * Upload an SVG icon designed for use on dark backgrounds.
-   */
-  icon: string | SiteAsset;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "case-studies".
  */
 export interface CaseStudy {
@@ -1408,6 +1376,43 @@ export interface CaseStudyMediaBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'caseStudyMediaBlock';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "site-assets".
+ */
+export interface SiteAsset {
+  id: string;
+  alt: string;
+  prefix?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "social-platforms".
+ */
+export interface SocialPlatform {
+  id: string;
+  /**
+   * Platform names cannot be changed after creation.
+   */
+  platform: string;
+  /**
+   * Upload an SVG icon designed for use on dark backgrounds.
+   */
+  icon: string | SiteAsset;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1695,8 +1700,16 @@ export interface PayloadLockedDocument {
   id: string;
   document?:
     | ({
-        relationTo: 'folders';
-        value: string | Folder;
+        relationTo: 'products';
+        value: string | Product;
+      } | null)
+    | ({
+        relationTo: 'product-categories';
+        value: string | ProductCategory;
+      } | null)
+    | ({
+        relationTo: 'quote-requests';
+        value: string | QuoteRequest;
       } | null)
     | ({
         relationTo: 'pages';
@@ -1715,16 +1728,12 @@ export interface PayloadLockedDocument {
         value: string | BlogCategory;
       } | null)
     | ({
-        relationTo: 'product-categories';
-        value: string | ProductCategory;
+        relationTo: 'case-studies';
+        value: string | CaseStudy;
       } | null)
     | ({
-        relationTo: 'products';
-        value: string | Product;
-      } | null)
-    | ({
-        relationTo: 'quote-requests';
-        value: string | QuoteRequest;
+        relationTo: 'categories';
+        value: string | Category;
       } | null)
     | ({
         relationTo: 'media';
@@ -1739,20 +1748,16 @@ export interface PayloadLockedDocument {
         value: string | SiteAsset;
       } | null)
     | ({
-        relationTo: 'social-platforms';
-        value: string | SocialPlatform;
-      } | null)
-    | ({
-        relationTo: 'categories';
-        value: string | Category;
-      } | null)
-    | ({
-        relationTo: 'case-studies';
-        value: string | CaseStudy;
+        relationTo: 'folders';
+        value: string | Folder;
       } | null)
     | ({
         relationTo: 'users';
         value: string | User;
+      } | null)
+    | ({
+        relationTo: 'social-platforms';
+        value: string | SocialPlatform;
       } | null)
     | ({
         relationTo: 'redirects';
@@ -1822,15 +1827,202 @@ export interface PayloadMigration {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "folders_select".
+ * via the `definition` "products_select".
  */
-export interface FoldersSelect<T extends boolean = true> {
-  _h_folders?: T;
-  name?: T;
+export interface ProductsSelect<T extends boolean = true> {
+  title?: T;
+  gallery?: T;
+  summary?: T;
+  overview?: T;
+  resources?: T;
+  specifications?:
+    | T
+    | {
+        group?: T;
+        items?:
+          | T
+          | {
+              label?: T;
+              value?: T;
+              id?: T;
+            };
+        id?: T;
+      };
+  sections?:
+    | T
+    | {
+        label?: T;
+        theme?: T;
+        title?: T;
+        description?: T;
+        anchor?: T;
+        blocks?:
+          | T
+          | {
+              productMediaBanner?: T | ProductMediaBannerBlockSelect<T>;
+              productMediaCarousel?: T | ProductMediaCarouselBlockSelect<T>;
+              productMediaTabs?: T | ProductMediaTabsBlockSelect<T>;
+              productMediaAccordion?: T | ProductMediaAccordionBlockSelect<T>;
+              productMediaText?: T | ProductMediaTextBlockSelect<T>;
+              productCode?: T | ProductCodeBlockSelect<T>;
+            };
+        id?: T;
+      };
+  meta?:
+    | T
+    | {
+        title?: T;
+        image?: T;
+        description?: T;
+      };
+  slug?: T;
+  category?: T;
+  categorySlug?: T;
+  publishedAt?: T;
+  relatedProducts?: T;
   updatedAt?: T;
   createdAt?: T;
-  _h_slugPath?: T;
-  _h_titlePath?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ProductMediaBannerBlock_select".
+ */
+export interface ProductMediaBannerBlockSelect<T extends boolean = true> {
+  title?: T;
+  body?: T;
+  media?: T;
+  mobileMedia?: T;
+  playback?: T;
+  aspectRatio?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ProductMediaCarouselBlock_select".
+ */
+export interface ProductMediaCarouselBlockSelect<T extends boolean = true> {
+  title?: T;
+  slides?:
+    | T
+    | {
+        media?: T;
+        playback?: T;
+        caption?: T;
+        id?: T;
+      };
+  aspectRatio?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ProductMediaTabsBlock_select".
+ */
+export interface ProductMediaTabsBlockSelect<T extends boolean = true> {
+  title?: T;
+  tabs?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        media?: T;
+        playback?: T;
+        id?: T;
+      };
+  aspectRatio?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ProductMediaAccordionBlock_select".
+ */
+export interface ProductMediaAccordionBlockSelect<T extends boolean = true> {
+  title?: T;
+  items?:
+    | T
+    | {
+        title?: T;
+        body?: T;
+        media?: T;
+        playback?: T;
+        id?: T;
+      };
+  mediaPosition?: T;
+  aspectRatio?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ProductMediaTextBlock_select".
+ */
+export interface ProductMediaTextBlockSelect<T extends boolean = true> {
+  title?: T;
+  body?: T;
+  media?: T;
+  playback?: T;
+  mediaPosition?: T;
+  aspectRatio?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ProductCodeBlock_select".
+ */
+export interface ProductCodeBlockSelect<T extends boolean = true> {
+  label?: T;
+  title?: T;
+  html?: T;
+  css?: T;
+  js?: T;
+  assets?: T;
+  minHeight?: T;
+  width?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "product-categories_select".
+ */
+export interface ProductCategoriesSelect<T extends boolean = true> {
+  _order?: T;
+  title?: T;
+  description?: T;
+  image?: T;
+  meta?:
+    | T
+    | {
+        title?: T;
+        image?: T;
+        description?: T;
+      };
+  slug?: T;
+  products?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "quote-requests_select".
+ */
+export interface QuoteRequestsSelect<T extends boolean = true> {
+  name?: T;
+  email?: T;
+  company?: T;
+  message?: T;
+  status?: T;
+  product?: T;
+  productTitle?: T;
+  productSlug?: T;
+  userAgent?: T;
+  ipHash?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -2057,294 +2249,6 @@ export interface BlogCategoriesSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "product-categories_select".
- */
-export interface ProductCategoriesSelect<T extends boolean = true> {
-  _order?: T;
-  title?: T;
-  description?: T;
-  image?: T;
-  meta?:
-    | T
-    | {
-        title?: T;
-        image?: T;
-        description?: T;
-      };
-  slug?: T;
-  products?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "products_select".
- */
-export interface ProductsSelect<T extends boolean = true> {
-  title?: T;
-  gallery?: T;
-  summary?: T;
-  overview?: T;
-  resources?: T;
-  specifications?:
-    | T
-    | {
-        group?: T;
-        items?:
-          | T
-          | {
-              label?: T;
-              value?: T;
-              id?: T;
-            };
-        id?: T;
-      };
-  sections?:
-    | T
-    | {
-        label?: T;
-        theme?: T;
-        title?: T;
-        description?: T;
-        anchor?: T;
-        blocks?:
-          | T
-          | {
-              productMediaBanner?: T | ProductMediaBannerBlockSelect<T>;
-              productMediaCarousel?: T | ProductMediaCarouselBlockSelect<T>;
-              productMediaTabs?: T | ProductMediaTabsBlockSelect<T>;
-              productMediaAccordion?: T | ProductMediaAccordionBlockSelect<T>;
-              productMediaText?: T | ProductMediaTextBlockSelect<T>;
-              productCode?: T | ProductCodeBlockSelect<T>;
-            };
-        id?: T;
-      };
-  meta?:
-    | T
-    | {
-        title?: T;
-        image?: T;
-        description?: T;
-      };
-  slug?: T;
-  category?: T;
-  categorySlug?: T;
-  publishedAt?: T;
-  relatedProducts?: T;
-  updatedAt?: T;
-  createdAt?: T;
-  _status?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "ProductMediaBannerBlock_select".
- */
-export interface ProductMediaBannerBlockSelect<T extends boolean = true> {
-  title?: T;
-  body?: T;
-  media?: T;
-  mobileMedia?: T;
-  playback?: T;
-  aspectRatio?: T;
-  id?: T;
-  blockName?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "ProductMediaCarouselBlock_select".
- */
-export interface ProductMediaCarouselBlockSelect<T extends boolean = true> {
-  title?: T;
-  slides?:
-    | T
-    | {
-        media?: T;
-        playback?: T;
-        caption?: T;
-        id?: T;
-      };
-  aspectRatio?: T;
-  id?: T;
-  blockName?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "ProductMediaTabsBlock_select".
- */
-export interface ProductMediaTabsBlockSelect<T extends boolean = true> {
-  title?: T;
-  tabs?:
-    | T
-    | {
-        title?: T;
-        description?: T;
-        media?: T;
-        playback?: T;
-        id?: T;
-      };
-  aspectRatio?: T;
-  id?: T;
-  blockName?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "ProductMediaAccordionBlock_select".
- */
-export interface ProductMediaAccordionBlockSelect<T extends boolean = true> {
-  title?: T;
-  items?:
-    | T
-    | {
-        title?: T;
-        body?: T;
-        media?: T;
-        playback?: T;
-        id?: T;
-      };
-  mediaPosition?: T;
-  aspectRatio?: T;
-  id?: T;
-  blockName?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "ProductMediaTextBlock_select".
- */
-export interface ProductMediaTextBlockSelect<T extends boolean = true> {
-  title?: T;
-  body?: T;
-  media?: T;
-  playback?: T;
-  mediaPosition?: T;
-  aspectRatio?: T;
-  id?: T;
-  blockName?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "ProductCodeBlock_select".
- */
-export interface ProductCodeBlockSelect<T extends boolean = true> {
-  label?: T;
-  title?: T;
-  html?: T;
-  css?: T;
-  js?: T;
-  assets?: T;
-  minHeight?: T;
-  width?: T;
-  id?: T;
-  blockName?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "quote-requests_select".
- */
-export interface QuoteRequestsSelect<T extends boolean = true> {
-  name?: T;
-  email?: T;
-  company?: T;
-  message?: T;
-  status?: T;
-  product?: T;
-  productTitle?: T;
-  productSlug?: T;
-  userAgent?: T;
-  ipHash?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "media_select".
- */
-export interface MediaSelect<T extends boolean = true> {
-  alt?: T;
-  durationSeconds?: T;
-  _h_folders?: T;
-  updatedAt?: T;
-  caption?: T;
-  prefix?: T;
-  createdAt?: T;
-  url?: T;
-  thumbnailURL?: T;
-  filename?: T;
-  mimeType?: T;
-  filesize?: T;
-  width?: T;
-  height?: T;
-  focalX?: T;
-  focalY?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "documents_select".
- */
-export interface DocumentsSelect<T extends boolean = true> {
-  title?: T;
-  description?: T;
-  _h_folders?: T;
-  updatedAt?: T;
-  prefix?: T;
-  createdAt?: T;
-  url?: T;
-  thumbnailURL?: T;
-  filename?: T;
-  mimeType?: T;
-  filesize?: T;
-  width?: T;
-  height?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "site-assets_select".
- */
-export interface SiteAssetsSelect<T extends boolean = true> {
-  alt?: T;
-  prefix?: T;
-  updatedAt?: T;
-  createdAt?: T;
-  url?: T;
-  thumbnailURL?: T;
-  filename?: T;
-  mimeType?: T;
-  filesize?: T;
-  width?: T;
-  height?: T;
-  focalX?: T;
-  focalY?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "social-platforms_select".
- */
-export interface SocialPlatformsSelect<T extends boolean = true> {
-  platform?: T;
-  icon?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "categories_select".
- */
-export interface CategoriesSelect<T extends boolean = true> {
-  title?: T;
-  slug?: T;
-  parent?: T;
-  breadcrumbs?:
-    | T
-    | {
-        doc?: T;
-        url?: T;
-        label?: T;
-        id?: T;
-      };
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "case-studies_select".
  */
 export interface CaseStudiesSelect<T extends boolean = true> {
@@ -2460,6 +2364,97 @@ export interface CaseStudyMediaBlockSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "categories_select".
+ */
+export interface CategoriesSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  parent?: T;
+  breadcrumbs?:
+    | T
+    | {
+        doc?: T;
+        url?: T;
+        label?: T;
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "media_select".
+ */
+export interface MediaSelect<T extends boolean = true> {
+  alt?: T;
+  durationSeconds?: T;
+  _h_folders?: T;
+  updatedAt?: T;
+  caption?: T;
+  prefix?: T;
+  createdAt?: T;
+  url?: T;
+  thumbnailURL?: T;
+  filename?: T;
+  mimeType?: T;
+  filesize?: T;
+  width?: T;
+  height?: T;
+  focalX?: T;
+  focalY?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "documents_select".
+ */
+export interface DocumentsSelect<T extends boolean = true> {
+  title?: T;
+  description?: T;
+  _h_folders?: T;
+  updatedAt?: T;
+  prefix?: T;
+  createdAt?: T;
+  url?: T;
+  thumbnailURL?: T;
+  filename?: T;
+  mimeType?: T;
+  filesize?: T;
+  width?: T;
+  height?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "site-assets_select".
+ */
+export interface SiteAssetsSelect<T extends boolean = true> {
+  alt?: T;
+  prefix?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  url?: T;
+  thumbnailURL?: T;
+  filename?: T;
+  mimeType?: T;
+  filesize?: T;
+  width?: T;
+  height?: T;
+  focalX?: T;
+  focalY?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "folders_select".
+ */
+export interface FoldersSelect<T extends boolean = true> {
+  _h_folders?: T;
+  name?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _h_slugPath?: T;
+  _h_titlePath?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "users_select".
  */
 export interface UsersSelect<T extends boolean = true> {
@@ -2481,6 +2476,16 @@ export interface UsersSelect<T extends boolean = true> {
         createdAt?: T;
         expiresAt?: T;
       };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "social-platforms_select".
+ */
+export interface SocialPlatformsSelect<T extends boolean = true> {
+  platform?: T;
+  icon?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -3896,6 +3901,56 @@ export interface PayloadJobsStatsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "site-setup_widget".
+ */
+export interface SiteSetupWidget {
+  data?: {
+    [k: string]: unknown;
+  };
+  width: 'x-small' | 'small' | 'medium' | 'large' | 'x-large' | 'full';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "overview_widget".
+ */
+export interface OverviewWidget {
+  data?: {
+    [k: string]: unknown;
+  };
+  width: 'x-small' | 'small' | 'medium' | 'large' | 'x-large' | 'full';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "recent-quotes_widget".
+ */
+export interface RecentQuotesWidget {
+  data?: {
+    [k: string]: unknown;
+  };
+  width: 'x-small' | 'small' | 'medium' | 'large' | 'x-large' | 'full';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "system-status_widget".
+ */
+export interface SystemStatusWidget {
+  data?: {
+    [k: string]: unknown;
+  };
+  width: 'x-small' | 'small' | 'medium' | 'large' | 'x-large' | 'full';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "quick-actions_widget".
+ */
+export interface QuickActionsWidget {
+  data?: {
+    [k: string]: unknown;
+  };
+  width: 'x-small' | 'small' | 'medium' | 'large' | 'x-large' | 'full';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "collections_widget".
  */
 export interface CollectionsWidget {
@@ -3912,18 +3967,19 @@ export interface CollectionQueryWidget {
   data?: {
     title?: string | null;
     relatedCollection:
-      | 'folders'
+      | 'products'
+      | 'product-categories'
+      | 'quote-requests'
       | 'pages'
       | 'posts'
       | 'blogs'
       | 'blog-categories'
-      | 'product-categories'
-      | 'products'
-      | 'quote-requests'
+      | 'case-studies'
+      | 'categories'
       | 'media'
       | 'documents'
-      | 'categories'
-      | 'case-studies'
+      | 'site-assets'
+      | 'folders'
       | 'users'
       | 'redirects'
       | 'forms'
@@ -3952,18 +4008,19 @@ export interface ActivityWidget {
   data?: {
     excludedCollections?:
       | (
-          | 'folders'
+          | 'products'
+          | 'product-categories'
+          | 'quote-requests'
           | 'pages'
           | 'posts'
           | 'blogs'
           | 'blog-categories'
-          | 'product-categories'
-          | 'products'
-          | 'quote-requests'
+          | 'case-studies'
+          | 'categories'
           | 'media'
           | 'documents'
-          | 'categories'
-          | 'case-studies'
+          | 'site-assets'
+          | 'folders'
           | 'users'
           | 'redirects'
           | 'forms'
@@ -4007,6 +4064,10 @@ export interface TaskSchedulePublish {
     locale?: string | null;
     doc?:
       | ({
+          relationTo: 'products';
+          value: string | Product;
+        } | null)
+      | ({
           relationTo: 'pages';
           value: string | Page;
         } | null)
@@ -4017,10 +4078,6 @@ export interface TaskSchedulePublish {
       | ({
           relationTo: 'blogs';
           value: string | Blog;
-        } | null)
-      | ({
-          relationTo: 'products';
-          value: string | Product;
         } | null)
       | ({
           relationTo: 'case-studies';
@@ -4221,14 +4278,6 @@ export interface SerializedParagraphNode<TChildren> extends SerializedLexicalEle
   textStyle: string;
 }
 
-export interface SerializedHeadingNode<
-  TChildren,
-  TTag extends 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' = 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6',
-> extends SerializedLexicalElementBase<TChildren> {
-  type: 'heading';
-  tag: TTag;
-}
-
 export interface LexicalLinkFields {
   [k: string]: unknown;
   doc?: {
@@ -4263,6 +4312,26 @@ export interface SerializedListItemNode<TChildren> extends SerializedLexicalElem
   value: number;
 }
 
+/** Shape of a Lexical `richText` field. */
+export interface LexicalRichText<TNode> {
+  root: {
+    children: TNode[];
+    direction: LexicalElementDirection;
+    format: LexicalElementFormat;
+    indent: number;
+    type: 'root';
+    version: number;
+  };
+}
+
+export interface SerializedHeadingNode<
+  TChildren,
+  TTag extends 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' = 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6',
+> extends SerializedLexicalElementBase<TChildren> {
+  type: 'heading';
+  tag: TTag;
+}
+
 export interface SerializedTableNode<TChildren> extends SerializedLexicalElementBase<TChildren> {
   type: 'table';
   colWidths?: number[];
@@ -4291,18 +4360,6 @@ export interface SerializedHorizontalRuleNode {
 
 export interface SerializedQuoteNode<TChildren> extends SerializedLexicalElementBase<TChildren> {
   type: 'quote';
-}
-
-/** Shape of a Lexical `richText` field. */
-export interface LexicalRichText<TNode> {
-  root: {
-    children: TNode[];
-    direction: LexicalElementDirection;
-    format: LexicalElementFormat;
-    indent: number;
-    type: 'root';
-    version: number;
-  };
 }
 
 export type SerializedBlockNode<TFields extends { blockType: string }> = TFields extends unknown ? {

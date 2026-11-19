@@ -1,0 +1,160 @@
+.card,
+.metric,
+.banner {
+  padding: 14px 16px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-large);
+  background: var(--color-bg-elevated);
+  overflow-wrap: anywhere;
+}
+
+.card {
+  height: 100%;
+}
+
+.cardHeader,
+.banner,
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+}
+
+.cardHeader,
+.banner {
+  justify-content: space-between;
+}
+
+.cardHeader h2 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 650;
+}
+
+.banner {
+  background: var(--color-bg-brand-tertiary);
+}
+
+.banner p,
+.card p,
+.metrics,
+.status {
+  margin: 0;
+}
+
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 140px), 1fr));
+  gap: 12px;
+}
+
+.metric {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.metric dt,
+.status dt,
+.detail {
+  color: var(--color-text-secondary);
+}
+
+.metric dd,
+.status dd {
+  margin: 0;
+}
+
+.metric dd:first-of-type {
+  order: -1;
+  font-size: 28px;
+  font-weight: 650;
+  line-height: 1.15;
+  font-variant-numeric: tabular-nums;
+}
+
+.detail {
+  display: block;
+  font-size: 12px;
+}
+
+.cardHeader + .detail,
+.status {
+  margin-top: 10px;
+}
+
+.quotes {
+  list-style: none;
+  padding: 0;
+  margin: 8px 0 0;
+}
+
+.quote {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0;
+  border-top: 1px solid var(--color-border);
+  text-decoration: none;
+}
+
+.quote:hover strong {
+  text-decoration: underline;
+}
+
+.quote time {
+  flex-shrink: 0;
+}
+
+.chip {
+  display: inline-block;
+  padding: 0 7px;
+  border-radius: var(--radius-chip);
+  background: var(--color-bg-secondary);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.chip[data-status='new'] {
+  background: var(--color-bg-warning-tertiary);
+}
+
+.chip[data-status='contacted'] {
+  background: var(--color-bg-success-tertiary);
+}
+
+.status {
+  display: grid;
+  gap: 8px;
+}
+
+.status > div {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 2px 8px;
+}
+
+.action,
+.primaryAction {
+  padding: 5px 12px;
+  border-radius: var(--radius-medium);
+  background: var(--color-bg-secondary);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.action:hover {
+  background: var(--color-bg-secondary-hover);
+}
+
+.primaryAction {
+  background: var(--color-bg-brand);
+  color: var(--color-text-onbrand);
+}
+
+.primaryAction:hover {
+  background: var(--color-bg-brand-hover);
+}

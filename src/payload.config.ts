@@ -27,6 +27,7 @@ import { defaultLexical } from '@/fields/defaultLexical'
 import { getServerSideURL } from './utilities/getURL'
 import { serverEnv } from './utilities/env'
 import { createEmailAdapter } from './plugins/email/adapter'
+import { adminDashboard } from './components/admin/dashboard/config'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -36,6 +37,7 @@ export default buildConfig({
   email: createEmailAdapter(),
   admin: {
     theme: 'all',
+    dashboard: adminDashboard,
     meta: {
       titleSuffix: ' · Admin',
       defaultOGImageType: 'off',

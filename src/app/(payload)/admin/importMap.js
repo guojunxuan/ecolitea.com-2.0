@@ -66,6 +66,11 @@ import { AdminIcon as AdminIcon_43ccebbe24cad1546463345662fee5cd } from '@/compo
 import { AdminLogo as AdminLogo_264b34ad43c4732ccbe38b640131fdc5 } from '@/components/admin/brand/AdminLogo'
 import { FolderIcon as FolderIcon_3817bf644402e67bfe6577f60ef982de } from '@payloadcms/ui'
 import { HierarchySidebarTabServer as HierarchySidebarTabServer_ab83ff7e88da8d3530831f296ec4756a } from '@payloadcms/ui/rsc'
+import { SiteSetup as SiteSetup_b89c900cd6728da8277e8c5aab265775 } from '@/components/admin/dashboard/SiteSetup'
+import { Overview as Overview_00118b9e4aff0802ed31a23605c4c9de } from '@/components/admin/dashboard/Overview'
+import { RecentQuotes as RecentQuotes_a75ffa188be7e5f540e2feea5d578921 } from '@/components/admin/dashboard/RecentQuotes'
+import { SystemStatus as SystemStatus_2b6b106c1493c5bf354ee48f953c99d8 } from '@/components/admin/dashboard/SystemStatus'
+import { QuickActions as QuickActions_a84bb7252cb03040e3ff136e508268af } from '@/components/admin/dashboard/QuickActions'
 import { CollectionCards as CollectionCards_ab83ff7e88da8d3530831f296ec4756a } from '@payloadcms/ui/rsc'
 import { CollectionQueryWidget as CollectionQueryWidget_ab83ff7e88da8d3530831f296ec4756a } from '@payloadcms/ui/rsc'
 import { QueryPresetsWhereField as QueryPresetsWhereField_3817bf644402e67bfe6577f60ef982de } from '@payloadcms/ui'
@@ -143,6 +148,11 @@ export const importMap = {
   "@/components/admin/brand/AdminLogo#AdminLogo": AdminLogo_264b34ad43c4732ccbe38b640131fdc5,
   "@payloadcms/ui#FolderIcon": FolderIcon_3817bf644402e67bfe6577f60ef982de,
   "@payloadcms/ui/rsc#HierarchySidebarTabServer": HierarchySidebarTabServer_ab83ff7e88da8d3530831f296ec4756a,
+  "@/components/admin/dashboard/SiteSetup#SiteSetup": SiteSetup_b89c900cd6728da8277e8c5aab265775,
+  "@/components/admin/dashboard/Overview#Overview": Overview_00118b9e4aff0802ed31a23605c4c9de,
+  "@/components/admin/dashboard/RecentQuotes#RecentQuotes": RecentQuotes_a75ffa188be7e5f540e2feea5d578921,
+  "@/components/admin/dashboard/SystemStatus#SystemStatus": SystemStatus_2b6b106c1493c5bf354ee48f953c99d8,
+  "@/components/admin/dashboard/QuickActions#QuickActions": QuickActions_a84bb7252cb03040e3ff136e508268af,
   "@payloadcms/ui/rsc#CollectionCards": CollectionCards_ab83ff7e88da8d3530831f296ec4756a,
   "@payloadcms/ui/rsc#CollectionQueryWidget": CollectionQueryWidget_ab83ff7e88da8d3530831f296ec4756a,
   "@payloadcms/ui#QueryPresetsWhereField": QueryPresetsWhereField_3817bf644402e67bfe6577f60ef982de,
