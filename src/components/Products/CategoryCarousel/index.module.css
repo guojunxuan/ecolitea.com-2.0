@@ -30,7 +30,7 @@
   color: var(--website-color-foreground);
 }
 .card:hover .img {
-  transform: scale(1.04);
+  transform: scale(1.03);
 }
 .card:focus-visible {
   outline: 2px solid var(--website-color-focus);
@@ -48,7 +48,7 @@
 .img {
   object-fit: cover;
   object-position: var(--category-focal-point, center);
-  transition: transform var(--website-duration-standard) var(--website-easing-standard);
+  transition: transform var(--website-duration-slow) var(--website-easing-standard);
 }
 .image[data-image-fit='contain'] .img {
   object-fit: contain;

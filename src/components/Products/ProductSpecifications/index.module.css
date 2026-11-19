@@ -6,8 +6,6 @@
   margin: 0;
   padding-top: var(--website-space-3);
   color: var(--website-color-subtle-foreground);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
   overflow-wrap: anywhere;
 }
 .list {

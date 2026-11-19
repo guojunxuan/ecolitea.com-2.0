@@ -40,8 +40,9 @@
   composes: website-type-button from global;
   display: inline-flex;
   align-items: center;
-  gap: var(--website-space-2);
+  gap: var(--website-space-1);
   flex-shrink: 0;
+  white-space: nowrap;
   min-height: var(--website-control-target-min);
   border-radius: var(--website-radius-control);
   text-decoration: none;
@@ -49,7 +50,7 @@
   transition: opacity var(--website-duration-fast) var(--website-easing-standard);
 }
 .linkChevron {
-  flex-shrink: 0;
+  flex: none;
   color: var(--carousel-link-chevron-color);
 }
 @media (hover: hover) and (pointer: fine) {

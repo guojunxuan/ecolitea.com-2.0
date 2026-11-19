@@ -9,62 +9,47 @@
   outline-offset: 4px;
 }
 .cover {
-  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.cover::before,
+.cover > :not(.caption) {
+  grid-area: 1 / 1;
   aspect-ratio: 16 / 9;
-  overflow: hidden;
   border-radius: var(--website-radius-content);
+}
+
+.cover::before {
+  content: '';
   background: var(--website-color-muted-surface);
 }
-.cover::after {
-  position: absolute;
-  inset: 0;
-  content: '';
-  background: var(--website-color-brand-black);
-  opacity: 0;
-  transition: opacity var(--website-duration-standard) var(--website-easing-standard);
+
+.cover > :not(.caption) {
+  position: relative;
+  overflow: hidden;
 }
+
 .image {
   object-fit: cover;
 }
+
 .caption {
-  --category-caption-fade: var(--website-space-12);
-  position: absolute;
-  z-index: 1;
-  inset: auto 0 0;
-  padding: var(--website-space-12) var(--website-space-6) var(--website-space-6);
-  color: var(--website-color-brand-white);
-  background: linear-gradient(
-    to top,
-    color-mix(in srgb, var(--website-color-brand-black) var(--website-scrim-strong), transparent)
-      calc(100% - var(--category-caption-fade)),
-    transparent
-  );
-  pointer-events: none;
+  grid-area: 2 / 1;
+  padding-block: var(--website-space-3);
 }
+
 .title {
   composes: website-type-title from global;
   margin: 0;
 }
-.card:hover .cover::after {
-  opacity: 0.1;
-}
-@media (width < 48rem) {
-  .caption {
-    --category-caption-fade: var(--website-space-8);
-    padding: var(--website-space-8) var(--website-space-4) var(--website-space-4);
+
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .image {
+    transition: transform var(--website-duration-slow) var(--website-easing-standard);
   }
-}
-/* Narrow cards keep the photo subject visible: a shorter scrim zone than the roomy default. */
-@media (width >= 48rem) {
-  @container (width < 21.25rem) {
-    .caption {
-      --category-caption-fade: var(--website-space-8);
-      padding-top: var(--website-space-8);
-    }
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .cover::after {
-    transition: none;
+
+  .card:hover .image {
+    transform: scale(1.03);
   }
 }

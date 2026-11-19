@@ -63,8 +63,7 @@
   text-decoration: none;
   transition:
     background-color var(--website-duration-standard) var(--website-easing-standard),
-    border-color var(--website-duration-standard) var(--website-easing-standard),
-    box-shadow var(--website-duration-standard) var(--website-easing-standard);
+    border-color var(--website-duration-standard) var(--website-easing-standard);
 }
 .moreCard:focus-visible {
   outline: 2px solid var(--website-color-focus);
@@ -96,7 +95,6 @@
 .moreCard:is(:hover, :focus-visible) {
   border-color: var(--website-color-border);
   background: var(--website-color-surface);
-  box-shadow: var(--website-shadow-raised);
 }
 .moreCard:is(:hover, :focus-visible) .moreIcon {
   color: var(--website-color-foreground);

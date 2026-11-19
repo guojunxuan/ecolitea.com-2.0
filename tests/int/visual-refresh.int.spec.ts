@@ -61,4 +61,29 @@ describe('visual refresh contracts', () => {
       expect(css, file).toMatch(/website-type-eyebrow/)
     }
   })
+
+  it('keeps product cards flat and dialogs on the overlay shadow', () => {
+    for (const file of ['src/components/Products/ProductCard/index.module.css', 'src/components/Products/ProductPreviewGrid/index.module.css']) {
+      expect(read(file), file).not.toMatch(/var\(--website-shadow-(subtle|raised)\)/)
+    }
+    for (const file of ['src/components/Products/ProductActions/DownloadDialog.module.css']) {
+      const css = read(file)
+      expect(css, file).toMatch(/var\(--website-shadow-overlay\)/)
+      expect(css, file).toMatch(/var\(--website-radius-panel\)/)
+    }
+  })
+  it('groups accordion items and rotates the plus icon', () => {
+    const css = read('src/collections/Products/blocks/MediaAccordion/Component.module.css')
+    expect(css).toMatch(/background(-color)?:\s*var\(--website-color-muted-surface\)/)
+    expect(css).toMatch(/border-radius:\s*var\(--website-radius-content\)/)
+    expect(css).toMatch(/\[aria-expanded=['"]?true['"]?\][^{]*\{[^}]*rotate\(45deg\)/s)
+  })
+  it('shows entrance content in its final state unless motion is ready', () => {
+    const css = read('src/collections/Products/blocks/shared/Entrance.module.css')
+    expect(css).toMatch(/\[data-motion=['"]?ready['"]?\]/)
+    expect(css).toMatch(/prefers-reduced-motion:\s*reduce/)
+  })
+  it('uses tabular numerals for specification values', () => {
+    expect(read('src/components/Products/ProductSpecifications/index.module.css')).toMatch(/tabular-nums|'tnum'/)
+  })
 })

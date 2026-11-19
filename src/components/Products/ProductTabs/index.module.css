@@ -11,8 +11,6 @@
   padding-inline: 0;
   border-bottom: 2px solid transparent;
   color: var(--website-color-subtle-foreground);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
   cursor: pointer;
   transition: color var(--website-duration-standard) var(--website-easing-standard);
 }

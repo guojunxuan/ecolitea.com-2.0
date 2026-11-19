@@ -4,6 +4,7 @@ import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import { Accordion } from '@/collections/Products/blocks/MediaAccordion/Accordion'
 import { Tabs } from '@/collections/Products/blocks/MediaTabs/Tabs'
 import { Carousel } from '@/collections/Products/blocks/MediaCarousel/Carousel'
+import { Entrance } from '@/collections/Products/blocks/shared/Entrance'
 import type { Media } from '@/payload-types'
 
 vi.mock('@/components/Media', () => ({
@@ -27,6 +28,28 @@ afterEach(() => {
   vi.useRealTimers()
   vi.unstubAllGlobals()
   vi.restoreAllMocks()
+})
+
+it('shows entrance content immediately without IntersectionObserver', () => {
+  vi.stubGlobal('IntersectionObserver', undefined)
+  const { container } = render(<Entrance>Feature</Entrance>)
+  expect(container.firstElementChild?.getAttribute('data-entrance-state')).toBe('complete')
+  expect(document.documentElement.dataset.motion).toBeUndefined()
+})
+
+it('enables motion only after observing the entrance', () => {
+  const observe = vi.fn()
+  vi.stubGlobal('IntersectionObserver', class {
+    observe = observe
+    disconnect() {}
+  })
+  try {
+    render(<Entrance>Feature</Entrance>)
+    expect(observe).toHaveBeenCalled()
+    expect(document.documentElement.dataset.motion).toBe('ready')
+  } finally {
+    delete document.documentElement.dataset.motion
+  }
 })
 
 it('places tabs below lazy media and loops in both directions', () => {

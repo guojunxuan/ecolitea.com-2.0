@@ -67,6 +67,9 @@ export function Entrance({
         { threshold: 0 },
       )
       observer.observe(element)
+      if (document.documentElement.dataset.motion !== 'ready') {
+        document.documentElement.dataset.motion = 'ready'
+      }
     }
     return () => {
       stopObserving()

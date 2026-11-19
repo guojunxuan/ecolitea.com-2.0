@@ -14,24 +14,14 @@
 .visual {
   min-width: 0;
 }
+.copy {
+  display: grid;
+  gap: var(--website-space-2);
+}
 .item {
-  position: relative;
-  border-bottom: 1px solid var(--website-color-border);
-}
-.item::after {
-  content: '';
-  position: absolute;
-  inset-inline-start: 0;
-  inset-block-end: -1px;
-  width: 25%;
-  height: 1px;
-  background: var(--website-color-foreground);
-  transform: scaleX(0);
-  transform-origin: left;
-  transition: transform var(--website-duration-standard) var(--website-easing-standard);
-}
-.item[data-open='true']::after {
-  transform: scaleX(1);
+  padding-inline: var(--website-space-6);
+  border-radius: var(--website-radius-content);
+  background-color: var(--website-color-muted-surface);
 }
 .item h4 {
   margin: 0;
@@ -58,21 +48,21 @@
   flex-shrink: 0;
   width: var(--website-space-4);
   height: var(--website-space-4);
+  transition: transform var(--website-duration-standard) var(--website-easing-standard);
 }
 .icon::before,
 .icon::after {
   content: '';
   position: absolute;
-  inset: calc(50% - 1px) 0 auto;
-  height: 2px;
+  inset: calc(50% - 0.75px) 0 auto;
+  height: 1.5px;
   background: currentColor;
-  transition: transform var(--website-duration-standard) var(--website-easing-standard);
 }
 .icon::after {
   transform: rotate(90deg);
 }
-button[aria-expanded='true'] .icon::after {
-  transform: rotate(0);
+.item button[aria-expanded='true'] .icon {
+  transform: rotate(45deg);
 }
 .body {
   composes: website-type-body-md from global;
@@ -131,8 +121,7 @@ button[aria-expanded='true'] .icon::after {
 @media (prefers-reduced-motion: reduce) {
   .body,
   .panel,
-  .icon::after,
-  .item::after {
+  .icon {
     transition: none;
   }
 }

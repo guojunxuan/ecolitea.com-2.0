@@ -1,4 +1,4 @@
-.entrance[data-entrance-state='playing'] {
+:global(html[data-motion='ready']) .entrance[data-entrance-state='playing'] {
   animation: entrance var(--website-duration-slow) var(--website-easing-standard) both;
   animation-delay: calc(var(--product-entrance-order, 0) * var(--website-duration-fast) / 2);
 }
@@ -13,7 +13,7 @@
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .entrance[data-entrance-state='playing'] {
+  :global(html[data-motion='ready']) .entrance[data-entrance-state='playing'] {
     animation: none;
   }
 }
