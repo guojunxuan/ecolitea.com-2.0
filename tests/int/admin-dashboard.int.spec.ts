@@ -49,9 +49,9 @@ describe('Admin dashboard queries', () => {
       { id: '2', name: 'Liv', company: 'Lab', status: 'closed', product: 'deleted', createdAt: '2026-11-18T00:00:00Z' },
     ] })
 
-    expect(await getRecentQuotes(req)).toEqual([
-      { id: '1', name: 'Kai', company: 'Studio', status: 'new', product: 'Snapshot', createdAt: '2026-11-19T00:00:00Z' },
-      { id: '2', name: 'Liv', company: 'Lab', status: 'closed', product: null, createdAt: '2026-11-18T00:00:00Z' },
+    expect(await getRecentQuotes(req, Date.parse('2026-11-19T00:10:00Z'))).toEqual([
+      { id: '1', name: 'Kai', company: 'Studio', status: 'new', product: 'Snapshot', createdAt: '2026-11-19T00:00:00Z', relativeTime: '10 minutes ago' },
+      { id: '2', name: 'Liv', company: 'Lab', status: 'closed', product: null, createdAt: '2026-11-18T00:00:00Z', relativeTime: 'yesterday' },
     ])
     expect(find).toHaveBeenCalledWith(expect.objectContaining({
       collection: 'quote-requests', sort: '-createdAt', limit: 5, req, overrideAccess: false,
@@ -64,7 +64,7 @@ describe('Admin dashboard queries', () => {
     findGlobal.mockResolvedValue({})
     find.mockResolvedValueOnce({ docs: [] }).mockRejectedValueOnce(new Error('find failed'))
     expect(await getOverview(req)).toBeNull()
-    expect(await getRecentQuotes(req)).toEqual([])
+    expect(await getRecentQuotes(req, Date.parse('2026-11-19T00:10:00Z'))).toEqual([])
     expect(await getRecentQuotes(req)).toBeNull()
   })
 
