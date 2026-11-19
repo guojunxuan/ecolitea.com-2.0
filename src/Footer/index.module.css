@@ -98,7 +98,7 @@
 .linkList {
   display: grid;
   min-height: 0;
-  gap: 0.15rem;
+  gap: var(--website-space-2);
   overflow: hidden;
 }
 .navLink {
@@ -260,12 +260,10 @@
     visibility: visible;
   }
   .linkList {
-    gap: 0.4rem;
     overflow: visible;
   }
   .navLink {
     min-height: auto;
-    padding-block: 0.25rem;
   }
 }
 

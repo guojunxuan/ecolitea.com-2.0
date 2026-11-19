@@ -329,6 +329,7 @@ describe('FooterNavigation', () => {
       )
     }
     expect(css).not.toMatch(/letter-spacing:|text-transform:\s*uppercase/)
+    expect(css).toMatch(/\.linkList\s*\{[^}]*gap:\s*var\(--website-space-2\)/s)
     expect(css).toMatch(/\.socialIcon\s*\{[^}]*width:\s*var\(--website-icon-medium\)/s)
     expect(css).toMatch(/\.contactIcon\s*\{[^}]*width:\s*var\(--website-icon-small\)/s)
   })

@@ -385,7 +385,9 @@ describe('frontend style architecture', () => {
     expect(read('src/Footer/index.module.css')).toContain(
       'grid-template-columns: minmax(0, 20fr) minmax(0, 55fr) minmax(0, 25fr)',
     )
-    expect(read('src/Footer/index.module.css')).toContain('var(--website-duration-fast) ease')
+    expect(read('src/Footer/index.module.css')).toContain(
+      'var(--website-duration-fast) var(--website-easing-standard)',
+    )
     expect(read('src/Footer/index.module.css')).toContain(
       'var(--website-duration-standard) var(--website-easing-standard)',
     )
@@ -423,7 +425,7 @@ describe('frontend style architecture', () => {
         background: rgb(10, 10, 10);
         color: rgba(255, 255, 255, .68);
         border-block-color: rgba(255, 255, 255, .18);
-        border-radius: 8px;
+        border-radius: 12px;
         transition: opacity .16s ease;
         box-shadow: 0 1px 2px rgba(0, 0, 0, .1);
       }
@@ -436,8 +438,8 @@ describe('frontend style architecture', () => {
       `
       .example {
         background: rgb(255 255 255);
-        color: rgb(38 38 41);
-        border-radius: 12px;
+        color: rgb(17 17 17);
+        border-radius: 20px;
         transition-duration: 0.36s;
       }
       .shorthand { background: white no-repeat; }

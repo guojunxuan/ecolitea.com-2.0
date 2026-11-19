@@ -113,7 +113,7 @@ export const scanShellCss = (file: string, source: string, tokensSource: string)
     .map((name) => ({ name, value: durationMs(values.get(`--website-duration-${name}`) ?? '') }))
     .filter((duration): duration is { name: string; value: number } => duration.value !== null)
   const shadows = [...values.entries()]
-    .filter(([name]) => name.startsWith('--website-shadow-'))
+    .filter(([name, value]) => name.startsWith('--website-shadow-') && value !== 'none')
     .map(([name, value]) => ({ name, value: normalizedShadow(value) }))
   const violations: string[] = []
   const isFooter = file.startsWith('src/Footer/')
