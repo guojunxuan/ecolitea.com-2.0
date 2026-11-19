@@ -638,3 +638,10 @@ describe('DesktopNav', () => {
     expect(css).toContain('@media (prefers-reduced-motion: reduce)')
   })
 })
+
+it('pins Header typography to the production role values after the visual refresh', () => {
+  const css = readFileSync(resolve('src/Header/Nav/index.module.css'), 'utf8')
+  expect(css).toMatch(/--header-type-title-size:\s*20px/)
+  expect(css).toMatch(/--header-type-body-sm-size:\s*15px/)
+  expect(css).not.toMatch(/\.topLevelLink\s*\{[^}]*text-transform:\s*uppercase/s)
+})

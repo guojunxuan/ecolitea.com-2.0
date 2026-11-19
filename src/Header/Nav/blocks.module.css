@@ -1,3 +1,86 @@
+.blockHeading,
+.categoryHeading,
+.blockCTA,
+.productCardTitle,
+.navigationCardDescription,
+.navigationCTA,
+.linkGroupHeading,
+.visualCardTitle,
+.categoryAccordionButton,
+.categoryTab,
+.categoryTabActive,
+.linkList {
+  --header-type-title-size: 20px;
+  --header-type-title-leading: 1.4;
+  --header-type-title-weight: 600;
+  --header-type-title-tracking: -0.125px;
+  --header-type-caption-size: 14px;
+  --header-type-caption-leading: 1.43;
+  --header-type-caption-tracking: 0;
+  --header-type-caption-weight: 400;
+  --header-type-body-md-size: 16px;
+  --header-type-body-md-leading: 1.5;
+  --header-type-body-md-weight: 400;
+  --header-type-body-md-tracking: 0;
+  --header-type-body-sm-size: 15px;
+  --header-type-body-sm-leading: 1.33;
+  --header-type-body-sm-weight: 400;
+  --header-type-body-sm-tracking: 0;
+}
+
+.blockHeading,
+.categoryHeading {
+  font-size: var(--header-type-title-size);
+  line-height: var(--header-type-title-leading);
+  font-weight: var(--header-type-title-weight);
+  letter-spacing: var(--header-type-title-tracking);
+  text-wrap: wrap;
+}
+
+.blockCTA,
+.productCardTitle,
+.navigationCardDescription,
+.navigationCTA,
+.linkGroupHeading {
+  font-size: var(--header-type-caption-size);
+}
+
+.blockCTA,
+.productCardTitle,
+.navigationCTA,
+.linkGroupHeading {
+  line-height: var(--header-type-caption-leading);
+}
+
+.blockCTA,
+.productCardTitle,
+.navigationCardDescription,
+.navigationCTA {
+  letter-spacing: var(--header-type-caption-tracking);
+}
+
+.productCardTitle,
+.navigationCardDescription {
+  font-weight: var(--header-type-caption-weight);
+}
+
+.visualCardTitle,
+.categoryAccordionButton {
+  font-size: var(--header-type-body-md-size);
+  line-height: var(--header-type-body-md-leading);
+  font-weight: var(--header-type-body-md-weight);
+  letter-spacing: var(--header-type-body-md-tracking);
+}
+
+.categoryTab,
+.categoryTabActive,
+.linkList {
+  font-size: var(--header-type-body-sm-size);
+  line-height: var(--header-type-body-sm-leading);
+  font-weight: var(--header-type-body-sm-weight);
+  letter-spacing: var(--header-type-body-sm-tracking);
+}
+
 .navigationBlocks { column-gap: var(--website-space-6); display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); min-width: 0; row-gap: var(--website-space-12); }
 .navigationBlocksCompact { gap: var(--website-space-6); }
 .navigationBlocks.navigationBlocksCompact > * { grid-column: 1 / -1; }

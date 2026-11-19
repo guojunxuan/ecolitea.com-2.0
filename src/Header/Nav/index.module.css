@@ -1,3 +1,80 @@
+:is(.mobileNavTitle,
+.mobileDirectLink,
+.mobileAccordionTrigger,
+.mobileLanguageHeader,
+.topLevelLink,
+.dropdownButton,
+.searchLink,
+.mobileViewAll,
+.mobileLanguageEntry,
+.menuCta,
+.mobileLanguageShort,
+.mobileMenuCta) {
+  --header-type-eyebrow-size: 12px;
+  --header-type-eyebrow-leading: 1.33;
+  --header-type-eyebrow-weight: 600;
+  --header-type-title-size: 20px;
+  --header-type-title-leading: 1.4;
+  --header-type-title-tracking: -0.125px;
+  --header-type-body-sm-size: 15px;
+  --header-type-body-sm-leading: 1.33;
+  --header-type-body-sm-weight: 400;
+  --header-type-body-sm-tracking: 0;
+  --header-type-caption-size: 14px;
+  --header-type-caption-leading: 1.43;
+  --header-type-caption-weight: 400;
+  --header-type-caption-tracking: 0;
+  --header-type-button-size: 16px;
+  --header-type-button-leading: 1.5;
+  --header-type-button-weight: 500;
+  --header-type-button-tracking: 0;
+  --header-type-title-weight: 600;
+}
+
+.mobileNavTitle {
+  font-size: var(--header-type-eyebrow-size);
+  line-height: var(--header-type-eyebrow-leading);
+  font-weight: var(--header-type-eyebrow-weight);
+}
+
+.mobileDirectLink,
+.mobileAccordionTrigger,
+.mobileLanguageHeader h2 {
+  font-size: var(--header-type-title-size);
+  line-height: var(--header-type-title-leading);
+  letter-spacing: var(--header-type-title-tracking);
+  text-wrap: wrap;
+}
+
+.topLevelLink,
+.dropdownButton,
+.searchLink,
+.mobileViewAll,
+.mobileLanguageEntry {
+  font-size: var(--header-type-body-sm-size);
+  line-height: var(--header-type-body-sm-leading);
+  letter-spacing: var(--header-type-body-sm-tracking);
+}
+
+.topLevelLink,
+.dropdownButton,
+.searchLink,
+.mobileLanguageEntry {
+  font-weight: var(--header-type-body-sm-weight);
+}
+
+.menuCta,
+.mobileLanguageShort {
+  font-size: var(--header-type-caption-size);
+  line-height: var(--header-type-caption-leading);
+  font-weight: var(--header-type-caption-weight);
+  letter-spacing: var(--header-type-caption-tracking);
+}
+
+.mobileLanguageHeader h2 {
+  font-weight: var(--header-type-title-weight);
+}
+
 .desktopNav {
   display: none;
 }
@@ -229,6 +306,10 @@
 
 .mobileMenuCta {
   composes: website-type-button from global;
+  font-size: var(--header-type-button-size);
+  line-height: var(--header-type-button-leading);
+  font-weight: var(--header-type-button-weight);
+  letter-spacing: var(--header-type-button-tracking);
   align-items: center;
   background: var(--website-color-action);
   border-radius: var(--website-radius-control);

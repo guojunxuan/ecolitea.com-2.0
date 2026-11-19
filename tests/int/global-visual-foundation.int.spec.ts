@@ -27,21 +27,22 @@ describe('global visual foundation', () => {
     }
   })
 
-  it('defines the approved Geist Sans roles and responsive title steps', () => {
+  it('defines the approved Inter roles and responsive title steps', () => {
     const css = read('src/styles/typography.css')
     const rules = auditCss(css)
     const expected = {
-      'display-1': ['48px', '1', '700', '-1.6px'],
-      'display-2': ['42px', '1.04', '700', '-1.5px'],
-      'heading-1': ['32px', '1.1', '700', '-0.8px'],
-      'heading-2': ['24px', '1.23', '700', '-0.5px'],
-      'heading-3': ['20px', '1.27', '700', '-0.25px'],
-      title: ['20px', '1.4', '600', '-0.125px'],
-      'body-md': ['16px', '1.5', '400', '0'],
-      'body-sm': ['15px', '1.33', '400', '0'],
-      button: ['16px', '1.5', '500', '0'],
-      caption: ['14px', '1.43', '400', '0'],
-      eyebrow: ['12px', '1.33', '600', '0.125px'],
+      'display-1': ['56px', '1', '600', '-0.04em'],
+      'display-2': ['44px', '1', '600', '-0.035em'],
+      'heading-1': ['36px', '1.02', '600', '-0.03em'],
+      'heading-2': ['28px', '1.08', '600', '-0.025em'],
+      'heading-3': ['22px', '1.15', '600', '-0.02em'],
+      title: ['18px', '1.3', '600', '-0.015em'],
+      excerpt: ['19px', '1.35', '400', '-0.01em'],
+      'body-md': ['17px', '1.6', '400', '0'],
+      'body-sm': ['15px', '1.5', '400', '0'],
+      button: ['16px', '1.5', '600', '-0.01em'],
+      caption: ['13px', '1.45', '400', '0'],
+      eyebrow: ['11px', '1.4', '600', '0.08em'],
     }
     for (const [role, [size, height, weight, tracking]] of Object.entries(expected)) {
       const selector = `.website-type-${role}`
@@ -68,22 +69,28 @@ describe('global visual foundation', () => {
       expect(css).not.toMatch(new RegExp(`\\.website-type-${oldRole}\\s*\\{`))
     }
     expect(rules.declarations.filter((entry) => entry.prop.startsWith('margin'))).toEqual([])
-    for (const [role, size, height, tracking] of [
-      ['display-1', '64px', '1', '-2.125px'],
-      ['display-2', '54px', '1.04', '-1.875px'],
-      ['heading-1', '40px', '1.1', '-1px'],
-      ['heading-2', '26px', '1.23', '-0.625px'],
-      ['heading-3', '22px', '1.27', '-0.25px'],
-    ]) {
+    for (const [media, role, size] of [
+      ['48rem', 'display-1', '80px'], ['48rem', 'display-2', '64px'], ['48rem', 'heading-1', '48px'],
+      ['48rem', 'heading-2', '36px'], ['48rem', 'heading-3', '26px'], ['48rem', 'title', '20px'],
+      ['48rem', 'excerpt', '22px'], ['48rem', 'eyebrow', '12px'],
+      ['73.125rem', 'display-1', '112px'], ['73.125rem', 'display-2', '80px'], ['73.125rem', 'heading-1', '64px'],
+      ['73.125rem', 'heading-2', '40px'], ['73.125rem', 'heading-3', '28px'], ['73.125rem', 'excerpt', '24px'],
+    ] as const) {
       const declarations = rules.declarations.filter(
         (entry) =>
           entry.header === `.website-type-${role}` &&
-          entry.ancestors.includes('@media (width >= 48rem)'),
+          entry.ancestors.some((ancestor) => ancestor.startsWith('@media') && ancestor.includes(media)),
       )
-      expect(declarations.find((entry) => entry.prop === 'font-size')?.value).toBe(size)
-      expect(declarations.find((entry) => entry.prop === 'line-height')?.value).toBe(height)
-      expect(declarations.find((entry) => entry.prop === 'letter-spacing')?.value).toBe(tracking)
+      expect(declarations.find((entry) => entry.prop === 'font-size')?.value, `${role} @ ${media}`).toBe(size)
     }
+    for (const role of ['display-1', 'display-2', 'heading-1', 'heading-2', 'heading-3', 'title']) {
+      expect(css).toMatch(new RegExp(`\\.website-type-${role}\\s*\\{[^}]*text-wrap:\\s*balance`, 's'))
+    }
+    for (const role of ['body-md', 'body-sm', 'excerpt', 'caption']) {
+      expect(css).not.toMatch(new RegExp(`\\.website-type-${role}\\s*\\{[^}]*text-wrap:`, 's'))
+    }
+    expect(css).toMatch(/\.website-type-eyebrow\s*\{[^}]*text-transform:\s*uppercase/s)
+    expect(css).not.toMatch(/\.website-type-excerpt\s*\{[^}]*font-style:\s*italic/s)
   })
 
   it('keeps every content element rule within the owned RichText scope', () => {

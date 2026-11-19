@@ -1,3 +1,13 @@
+.desktopBrandFallback {
+  --header-type-body-md-size: 16px;
+  --header-type-body-md-leading: 1.5;
+}
+
+.desktopBrandFallback {
+  font-size: var(--header-type-body-md-size);
+  line-height: var(--header-type-body-md-leading);
+}
+
 .header {
   height: 0;
   position: relative;
