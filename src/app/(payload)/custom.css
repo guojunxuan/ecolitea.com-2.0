@@ -1,0 +1,133 @@
+/* Admin palette. Calibrate these values against the native Admin surfaces. */
+:root {
+  --admin-bg: #ffffff;
+  --admin-bg-secondary: #f5f5f7;
+  --admin-bg-tertiary: #ebebed;
+  --admin-bg-elevated: #ffffff;
+  --admin-hover: rgb(0 0 0 / 5%);
+  --admin-pressed: rgb(0 0 0 / 8%);
+  --admin-text: #1d1d1f;
+  --admin-text-secondary: rgb(29 29 31 / 62%);
+  --admin-text-tertiary: rgb(29 29 31 / 38%);
+  --admin-border: rgb(0 0 0 / 8%);
+  --admin-brand: #007aff;
+  --admin-selection: 12%;
+  --admin-success: #34c759;
+  --admin-warning: #ff9500;
+  --admin-danger: #ff3b30;
+  --admin-component: #5856d6;
+  --admin-assistive: #ff2d55;
+  --admin-font: -apple-system, BlinkMacSystemFont, "Inter", system-ui, sans-serif;
+  --admin-control-radius: 7px;
+  --admin-panel-radius: 12px;
+  --admin-chip-radius: 999px;
+  --admin-small-text: 10px;
+  --admin-tooltip-shadow: 0 2px 8px rgb(0 0 0 / 14%), 0 0 0 0.5px rgb(0 0 0 / 12%);
+  --admin-menu-shadow: 0 4px 12px rgb(0 0 0 / 8%), 0 12px 40px rgb(0 0 0 / 14%), 0 0 0 0.5px rgb(0 0 0 / 12%);
+  --admin-modal-shadow: 0 8px 24px rgb(0 0 0 / 12%), 0 24px 64px rgb(0 0 0 / 16%), 0 0 0 0.5px rgb(0 0 0 / 12%);
+}
+
+html[data-theme='dark'] {
+  --admin-bg: #1e1e20;
+  --admin-bg-secondary: #2a2a2d;
+  --admin-bg-tertiary: #3a3a3c;
+  --admin-bg-elevated: #2c2c2e;
+  --admin-hover: rgb(255 255 255 / 8%);
+  --admin-pressed: rgb(255 255 255 / 12%);
+  --admin-text: #f5f5f7;
+  --admin-text-secondary: rgb(235 235 245 / 60%);
+  --admin-text-tertiary: rgb(235 235 245 / 32%);
+  --admin-border: rgb(255 255 255 / 8%);
+  --admin-brand: #0a84ff;
+  --admin-selection: 24%;
+  --admin-success: #30d158;
+  --admin-warning: #ff9f0a;
+  --admin-danger: #ff453a;
+  --admin-component: #5e5ce6;
+  --admin-assistive: #ff375f;
+  --admin-tooltip-shadow: 0 2px 8px rgb(0 0 0 / 35%), 0 0 0 0.5px rgb(255 255 255 / 12%);
+  --admin-menu-shadow: 0 4px 12px rgb(0 0 0 / 25%), 0 12px 40px rgb(0 0 0 / 50%), 0 0 0 0.5px rgb(255 255 255 / 12%);
+  --admin-modal-shadow: 0 8px 24px rgb(0 0 0 / 32%), 0 24px 64px rgb(0 0 0 / 58%), 0 0 0 0.5px rgb(255 255 255 / 12%);
+}
+
+/* Payload semantic tokens. Keep this mapping independent of palette values. */
+:root,
+html[data-theme='light'],
+html[data-theme='dark'] {
+  --color-bg: var(--admin-bg);
+  --color-bg-secondary: var(--admin-bg-secondary);
+  --color-bg-secondary-hover: color-mix(in srgb, var(--admin-bg-secondary), var(--admin-bg-tertiary) 55%);
+  --color-bg-secondary-pressed: var(--admin-bg-tertiary);
+  --color-bg-tertiary: var(--admin-bg-tertiary);
+  --color-bg-elevated: var(--admin-bg-elevated);
+  --color-bg-hover: var(--admin-hover);
+  --color-bg-pressed: var(--admin-pressed);
+  --color-bg-transparent-hover: var(--admin-hover);
+  --color-bg-transparent-pressed: var(--admin-pressed);
+
+  --color-text: var(--admin-text);
+  --color-icon: var(--admin-text);
+  --color-text-secondary: var(--admin-text-secondary);
+  --color-icon-secondary: var(--admin-text-secondary);
+  --color-text-tertiary: var(--admin-text-tertiary);
+  --color-icon-tertiary: var(--admin-text-tertiary);
+  --color-text-disabled: var(--admin-text-tertiary);
+  --color-icon-disabled: var(--admin-text-tertiary);
+  --color-border: var(--admin-border);
+  --color-border-disabled: var(--admin-border);
+
+  --color-bg-brand: var(--admin-brand);
+  --color-bg-brand-hover: color-mix(in srgb, var(--admin-brand), var(--admin-text) 8%);
+  --color-bg-brand-pressed: color-mix(in srgb, var(--admin-brand), var(--admin-text) 14%);
+  --color-bg-selected-strong: var(--admin-brand);
+  --color-text-brand: var(--admin-brand);
+  --color-icon-brand: var(--admin-brand);
+  --color-border-selected: var(--admin-brand);
+  --field-color-toggle-bg-checked: var(--admin-brand);
+  --accessibility-focus-color: var(--admin-brand);
+  --color-bg-selected: color-mix(in srgb, var(--admin-brand) var(--admin-selection), transparent);
+  --color-bg-selected-hover: color-mix(in srgb, var(--color-bg-selected), var(--admin-brand) 8%);
+  --color-bg-selected-pressed: color-mix(in srgb, var(--color-bg-selected), var(--admin-brand) 14%);
+  --color-bg-brand-tertiary: var(--color-bg-selected);
+  --color-bg-brand-tertiary-hover: var(--color-bg-selected-hover);
+
+  --color-bg-success: var(--admin-success);
+  --color-text-success: var(--admin-success);
+  --color-icon-success: var(--admin-success);
+  --color-bg-success-tertiary: color-mix(in srgb, var(--admin-success) 15%, transparent);
+  --color-bg-success-tertiary-hover: color-mix(in srgb, var(--admin-success) 24%, transparent);
+  --color-bg-warning: var(--admin-warning);
+  --color-text-warning: var(--admin-warning);
+  --color-icon-warning: var(--admin-warning);
+  --color-bg-warning-tertiary: color-mix(in srgb, var(--admin-warning) 16%, transparent);
+  --color-bg-warning-tertiary-hover: color-mix(in srgb, var(--admin-warning) 25%, transparent);
+  --color-bg-danger: var(--admin-danger);
+  --color-text-danger: var(--admin-danger);
+  --color-icon-danger: var(--admin-danger);
+  --color-bg-danger-hover: color-mix(in srgb, var(--admin-danger), var(--admin-text) 8%);
+  --color-bg-danger-pressed: color-mix(in srgb, var(--admin-danger), var(--admin-text) 14%);
+  --color-bg-danger-tertiary: color-mix(in srgb, var(--admin-danger) 15%, transparent);
+  --color-bg-danger-tertiary-hover: color-mix(in srgb, var(--admin-danger) 23%, transparent);
+  --color-bg-danger-tertiary-pressed: color-mix(in srgb, var(--admin-danger) 29%, transparent);
+  --color-bg-component: var(--admin-component);
+  --color-text-component: var(--admin-component);
+  --color-icon-component: var(--admin-component);
+  --color-bg-component-tertiary: color-mix(in srgb, var(--admin-component) 15%, transparent);
+  --color-bg-component-tertiary-hover: color-mix(in srgb, var(--admin-component) 23%, transparent);
+  --color-bg-assistive: var(--admin-assistive);
+  --color-text-assistive: var(--admin-assistive);
+  --color-icon-assistive: var(--admin-assistive);
+  --color-bg-assistive-hover: color-mix(in srgb, var(--admin-assistive), var(--admin-text) 8%);
+  --color-bg-assistive-pressed: color-mix(in srgb, var(--admin-assistive), var(--admin-text) 14%);
+  --color-bg-assistive-tertiary: color-mix(in srgb, var(--admin-assistive) 15%, transparent);
+
+  --font-family-sans: var(--admin-font);
+  --radius-medium: var(--admin-control-radius);
+  --radius-large: var(--admin-panel-radius);
+  --radius-chip: var(--admin-chip-radius);
+  --text-body-small-font-size: var(--admin-small-text);
+  --text-body-small-strong-font-size: var(--admin-small-text);
+  --elevation-300-tooltip: var(--admin-tooltip-shadow);
+  --elevation-400-menu-panel: var(--admin-menu-shadow);
+  --elevation-500-modal-window: var(--admin-modal-shadow);
+}
