@@ -1,4 +1,5 @@
 .breadcrumb {
+  composes: website-type-caption from global;
   color: var(--website-color-muted-foreground);
 }
 
@@ -10,7 +11,6 @@
   padding: 0;
   margin: 0;
   list-style: none;
-  font-size: 0.8125rem;
 }
 
 .breadcrumb li {
@@ -36,23 +36,19 @@
   color: var(--website-color-foreground);
 }
 
-.header h1 {
+.title {
+  composes: website-type-heading-1 from global;
   margin: 2rem 0 0;
-  font-size: clamp(2.25rem, 1.35rem + 3.4vw, 4rem);
-  font-weight: 600;
-  line-height: 1.04;
-  letter-spacing: -0.032em;
-  text-wrap: pretty;
 }
 
 .meta {
+  composes: website-type-body-sm from global;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: var(--website-space-3);
   margin-top: 1.5rem;
   color: var(--website-color-muted-foreground);
-  font-size: 0.875rem;
 }
 
 .meta strong {
@@ -67,7 +63,7 @@
   border-left: 4px solid var(--website-color-foreground);
   border-radius: 0 var(--website-radius-content) var(--website-radius-content) 0;
   background: var(--website-color-muted-surface);
-  color: var(--website-color-foreground);
+  color: var(--website-color-muted-foreground);
 }
 
 .media {

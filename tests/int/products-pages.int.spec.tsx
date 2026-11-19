@@ -175,6 +175,17 @@ describe('Products routes', () => {
       expect(document.getElementById('tea')).toBeTruthy()
     },
   )
+  it('applies the inverse theme to the dark product hero slide itself', async () => {
+    mocks.hero.mockResolvedValue([
+      { id: 'dark', title: 'Featured range', media: null, theme: 'dark', showText: true },
+    ])
+    render(await Overview({ params: Promise.resolve({ lang: 'en' }) }))
+    const slide = screen.getByRole('heading', { name: 'Featured range' }).closest(
+      '[aria-roledescription="slide"]',
+    )
+    expect(slide?.getAttribute('data-website-theme')).toBe('inverse')
+  })
+
   it.each([1, 2, 3, 4, 6, 8])(
     'overview with %s products previews the latest four and a category entry',
     async (count) => {

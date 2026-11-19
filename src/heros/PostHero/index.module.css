@@ -21,10 +21,8 @@
 }
 
 .categories {
+  composes: website-type-eyebrow from global;
   margin-bottom: var(--website-space-6);
-  font-size: 0.875rem;
-  line-height: 1.25rem;
-  text-transform: uppercase;
 }
 
 .title {
@@ -49,8 +47,7 @@
 }
 
 .metaLabel {
-  font-size: 0.875rem;
-  line-height: 1.25rem;
+  composes: website-type-caption from global;
 }
 
 .mediaFrame {

@@ -34,8 +34,8 @@ export const BlogHero = ({ blog }: { blog: Blog }) => {
           <li aria-current="page">{blog.title}</li>
         </ol>
       </nav>
-      <header className={styles.header}>
-        <h1>{blog.title}</h1>
+      <header>
+        <h1 className={styles.title}>{blog.title}</h1>
         <div className={styles.meta}>
           {authors.length > 0 && (
             <span>

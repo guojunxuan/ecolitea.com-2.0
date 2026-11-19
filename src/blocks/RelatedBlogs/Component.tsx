@@ -8,7 +8,7 @@ export const RelatedBlogs = ({ blogs }: { blogs: BlogListItem[] }) => {
   if (!blogs.length) return null
 
   return <section aria-label="More to read" className={styles.root}>
-    <h2>More to read</h2>
+    <h2 className={styles.heading}>More to read</h2>
     <div className={styles.grid}>
       {blogs.slice(0, 3).map((blog) => {
         const category = typeof blog.category === 'object' && blog.category !== null ? blog.category : null
@@ -18,8 +18,8 @@ export const RelatedBlogs = ({ blogs }: { blogs: BlogListItem[] }) => {
           </Link>
           <div className={styles.body}>
             {category && <Link className={styles.category} href={`/blogs/category/${category.slug}`}>{category.title}</Link>}
-            <h3><Link href={`/blogs/${blog.slug}`}>{blog.title}</Link></h3>
-            {blog.excerpt && <p>{blog.excerpt}</p>}
+            <h3 className={styles.title}><Link href={`/blogs/${blog.slug}`}>{blog.title}</Link></h3>
+            {blog.excerpt && <p className={styles.excerpt}>{blog.excerpt}</p>}
           </div>
         </article>
       })}

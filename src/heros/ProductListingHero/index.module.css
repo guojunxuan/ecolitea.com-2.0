@@ -48,6 +48,16 @@
   pointer-events: none;
   user-select: none;
 }
+.slide[data-website-theme='inverse']:has(.copy) .mediaFrame::after {
+  position: absolute;
+  inset: 0;
+  content: '';
+  background: linear-gradient(
+    to bottom,
+    rgb(0 0 0 / var(--website-scrim-standard)),
+    rgb(0 0 0 / var(--website-scrim-strong)) 55%
+  );
+}
 .mediaFrame > div,
 .mediaFrame picture {
   position: absolute;

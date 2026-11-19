@@ -53,10 +53,9 @@
 }
 
 .description {
+  composes: website-type-body-md from global;
   max-width: 42rem;
   margin: var(--website-space-4) 0 0;
-  font-size: clamp(1rem, 2vw, 1.25rem);
-  line-height: 1.5;
 }
 
 @media (width >= 48rem) {

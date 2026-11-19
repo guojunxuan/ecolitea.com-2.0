@@ -86,4 +86,15 @@ describe('visual refresh contracts', () => {
   it('uses tabular numerals for specification values', () => {
     expect(read('src/components/Products/ProductSpecifications/index.module.css')).toMatch(/tabular-nums|'tnum'/)
   })
+
+  it('maps hero literal font sizes to roles', () => {
+    for (const file of ['src/heros/PostHero/index.module.css', 'src/heros/BlogHero/index.module.css', 'src/heros/BlogListingHero/index.module.css', 'src/blocks/RelatedBlogs/Component.module.css']) {
+      expect(read(file), file).not.toMatch(/font-size:\s*(clamp\(|[0-9.]+(px|rem))/)
+    }
+  })
+
+  it('puts a token-driven scrim behind inverse photo slide copy', () => {
+    const css = read('src/heros/ProductListingHero/index.module.css')
+    expect(css).toMatch(/\.slide\[data-website-theme='inverse'\][^{]*::after[^{]*\{[^}]*linear-gradient/s)
+  })
 })
