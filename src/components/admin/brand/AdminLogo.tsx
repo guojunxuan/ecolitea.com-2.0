@@ -6,7 +6,7 @@ export async function AdminLogo() {
   const { logo, name } = await getAdminBrand()
 
   return logo ? (
-    <Image {...logo} alt={logo.alt || name} className={styles.logo} unoptimized priority />
+    <Image {...logo} alt={logo.alt || name} className={styles.logo} unoptimized preload />
   ) : (
     <span className={styles.wordmark}>{name}</span>
   )

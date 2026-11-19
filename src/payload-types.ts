@@ -3145,7 +3145,7 @@ export interface SiteSettings {
   siteName: string;
   tagline: string;
   /**
-   * A general company description, not a default SEO description.
+   * Company description used as a fallback when page metadata has no description.
    */
   siteDescription: string;
   /**

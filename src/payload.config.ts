@@ -42,6 +42,8 @@ export default buildConfig({
     meta: {
       titleSuffix: ' · Admin',
       defaultOGImageType: 'off',
+      description: 'Site administration',
+      openGraph: { siteName: 'Admin', description: 'Site administration' },
       icons: {
         icon: [
           { url: '/favicon.ico', sizes: '32x32' },

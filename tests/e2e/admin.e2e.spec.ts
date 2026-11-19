@@ -97,6 +97,9 @@ test.describe('Admin Panel', () => {
           const loginPage = await context.newPage()
           await loginPage.goto(`${baseURL}/admin/login`)
           await expect(loginPage.getByText('Admin', { exact: true })).toBeVisible()
+          await expect(loginPage.locator('meta[property="og:site_name"]')).toHaveAttribute('content', 'Admin')
+          await expect(loginPage.locator('meta[property="og:description"]')).toHaveAttribute('content', 'Site administration')
+          await expect(loginPage.locator('link[rel="icon"][href="/favicon.svg"]')).toHaveCount(1)
           await expect(loginPage.locator('html')).toHaveAttribute('data-theme', colorScheme)
           const color = await loginPage.evaluate(() => {
             const probe = document.createElement('span')
@@ -155,7 +158,7 @@ test.describe('Admin Panel', () => {
           collection: 'blogs', depth: 0, limit: 1, where: { slug: { equals: fixture.slug } },
         })
         await admin.goto(`${baseURL}/admin/collections/blogs/${blog.id}`)
-        await expect(admin.locator('input[name="title"]')).toHaveValue(blog.title)
+        await expect(admin.getByRole('textbox', { name: 'Title *', exact: true })).toHaveValue(blog.title)
         await openSidebar(admin)
         await capture(admin, `edit-${colorScheme}`)
 

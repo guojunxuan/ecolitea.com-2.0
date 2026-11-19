@@ -47,7 +47,7 @@
 
 ## 5. Normalize public site branding
 
-- [x] Create `tests/int/site-identity.int.spec.ts`. Check trimmed, partial and missing titles, Open Graph defaults, and source literals. Update `blog-site-integration.int.spec.ts`, `blog-category-seo.int.spec.ts`, `products-seo.int.spec.ts`, `settings.int.spec.ts`, `footer-adapter.int.spec.ts`, `blog-routes.int.spec.tsx` `logo.int.spec.tsx` and `generate-meta.int.spec.ts` where assumptions change.
+- [x] Create `tests/int/site-identity.int.spec.ts`. Check trimmed, partial and missing titles, Open Graph defaults, and source literals. Update `blog-site-integration.int.spec.ts`, `blog-category-seo.int.spec.ts`, `products-seo.int.spec.ts`, `settings.int.spec.ts`, `footer-adapter.int.spec.ts`, `blog-routes.int.spec.tsx`, `logo.int.spec.tsx` and `generate-meta.int.spec.ts` where assumptions change.
 - [x] Run `corepack pnpm test:int tests/int/{site-identity,blog-site-integration,blog-category-seo,products-seo,settings,footer-adapter,generate-meta}.int.spec.ts tests/int/{blog-routes,logo}.int.spec.tsx` before implementing.
 - [x] Add `src/utilities/siteIdentity.ts` exporting `normalizeSiteIdentity`, `getSiteIdentity` and `formatTitle`. Use the request for SEO generation and the cached global for frontend metadata. Update `generateMeta.ts`, `mergeOpenGraph.ts`, `buildSiteMetadata.ts`, the locale layout, search and the blog and product Open Graph consumers.
 - [x] Remove the Footer fallback and hide missing copyright text in `Footer/{adaptFooter.ts,types.ts,Component.tsx}`. Move the upload fixture in `tests/e2e/blogs.e2e.spec.ts` to an existing test WebP, then remove `public/website-template-OG.webp`. Keep the historical static demo as a record of its captured output.
@@ -62,6 +62,7 @@
 ## Canary.29 findings
 
 - The native sidebar does not consume `graphics.Icon`. Render the same brand graphic in `beforeNavLinks` and keep the native navigation.
+- Canary default Open Graph metadata retains Payload attribution independently of images. Set neutral Admin metadata and neutral artwork at the static favicon URLs.
 - The first-user view has no logo slot. Preserve the native first-user form and apply the shared theme.
 - The anonymous client config drops `admin.theme`. Initialize automatic mode with the public theme hook when no manual preference cookie exists.
 - Native navigation lists collections before globals. Collection and global membership match the requested groups.
@@ -69,7 +70,7 @@
 
 ## Results
 
-- Targeted Vitest run passed 154 cases across 13 files.
+- Targeted Vitest run passed 156 cases across 13 files.
 - The isolated Chromium admin suite passed all five cases. The eight captures and computed-background reports are under `/tmp/admin-ui-shots/`.
 - TypeScript, lint and the isolated production build passed. Lint reported 18 existing warnings.
-- Screenshot calibration changed the light secondary fill to `#f4f4f6` and the dark elevated fill to `#2b2b2e`. The semantic mapping stayed intact.
+- Screenshot calibration changed the light secondary fill to `#f4f4f6` and the dark elevated fill to `#2b2b2e`. The calibration changed palette values only. The accessibility review preserved the system status fills and added separate higher-contrast light status foregrounds.

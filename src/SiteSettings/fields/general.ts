@@ -40,7 +40,7 @@ export const generalTab: Tab = {
       hooks: { beforeValidate: [trimText] },
       validate: validateNonBlankTextarea,
       admin: {
-        description: 'A general company description, not a default SEO description.',
+        description: 'Company description used as a fallback when page metadata has no description.',
       },
     },
     customFields({
