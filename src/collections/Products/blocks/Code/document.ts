@@ -27,7 +27,7 @@ export function buildProductCodeDocument(block: ProductCodeBlock): string {
       (match, number: string) => assets[Number(number)] || match,
     )
   const aliases =
-    ':root{--font-geist-sans:sans-serif;--font-geist-mono:monospace;--color-background:var(--website-color-background);--color-foreground:var(--website-color-foreground);--color-muted-foreground:var(--website-color-muted-foreground);--color-surface:var(--website-color-surface);--color-border:var(--website-color-border);--font-sans:var(--website-font-sans);--font-mono:var(--website-font-mono);--radius:var(--website-radius-content)}'
+    ':root{--font-inter:sans-serif;--font-geist-mono:monospace;--color-background:var(--website-color-background);--color-foreground:var(--website-color-foreground);--color-muted-foreground:var(--website-color-muted-foreground);--color-surface:var(--website-color-surface);--color-border:var(--website-color-border);--font-sans:var(--website-font-sans);--font-mono:var(--website-font-mono);--radius:var(--website-radius-content)}'
   const sharedStyles = `${escapeStyle(siteTokens)}${aliases}${escapeStyle(siteTypography)}`
   const measure = `(()=>{const report=()=>parent.postMessage({type:'productCode-height',height:Math.max(document.body.scrollHeight,document.body.getBoundingClientRect().height)},'*');new ResizeObserver(report).observe(document.body);window.addEventListener('load',report);if(document.fonts)document.fonts.ready.then(report);report()})()`
   // DOM script text bypasses the HTML parser while retaining normal JavaScript

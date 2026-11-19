@@ -389,14 +389,14 @@ it('assigns one prepared srcdoc when the iframe first mounts', () => {
     expect(writes).toHaveLength(1)
     expect(writes[0]).toContain('<html data-website-theme="inverse">')
     expect(writes[0]).toContain(
-      new URL('/fonts/product-code/Geist-Variable.woff2', window.location.origin).href,
+      new URL('/fonts/product-code/InterVariable.woff2', window.location.origin).href,
     )
     expect(writes[0]).toContain(
       new URL('/fonts/product-code/GeistMono-Variable.woff2', window.location.origin).href,
     )
-    expect(writes[0]).toContain('font-family:ProductCodeGeist;')
+    expect(writes[0]).toContain('font-family:ProductCodeInter;')
     expect(writes[0]).toContain('font-family:ProductCodeGeistMono;')
-    expect(writes[0]).toContain('--website-font-sans:ProductCodeGeist,system-ui,sans-serif')
+    expect(writes[0]).toContain('--website-font-sans:ProductCodeInter,system-ui,sans-serif')
     expect(writes[0]).toContain('--website-font-mono:ProductCodeGeistMono,ui-monospace,monospace')
     act(() => {
       window.dispatchEvent(

@@ -46,13 +46,13 @@ export function CodeFrame({
         .join('')
       // Opaque-origin srcdoc frames request these same-site font URLs with Origin:null.
       // Their scoped CORS headers allow loading without granting allow-same-origin.
-      const sansURL = new URL('/fonts/product-code/Geist-Variable.woff2', window.location.origin)
+      const sansURL = new URL('/fonts/product-code/InterVariable.woff2', window.location.origin)
         .href
       const monoURL = new URL(
         '/fonts/product-code/GeistMono-Variable.woff2',
         window.location.origin,
       ).href
-      const fontCSS = `@font-face{font-family:ProductCodeGeist;src:url(${JSON.stringify(sansURL)}) format('woff2');font-style:normal;font-weight:100 900;font-display:swap}@font-face{font-family:ProductCodeGeistMono;src:url(${JSON.stringify(monoURL)}) format('woff2');font-style:normal;font-weight:100 900;font-display:swap}:root{--font-geist-sans:ProductCodeGeist;--font-geist-mono:ProductCodeGeistMono;--website-font-sans:ProductCodeGeist,system-ui,sans-serif;--website-font-mono:ProductCodeGeistMono,ui-monospace,monospace}`
+      const fontCSS = `@font-face{font-family:ProductCodeInter;src:url(${JSON.stringify(sansURL)}) format('woff2');font-style:normal;font-weight:100 900;font-display:swap}@font-face{font-family:ProductCodeGeistMono;src:url(${JSON.stringify(monoURL)}) format('woff2');font-style:normal;font-weight:100 900;font-display:swap}:root{--font-inter:ProductCodeInter;--font-geist-mono:ProductCodeGeistMono;--website-font-sans:ProductCodeInter,system-ui,sans-serif;--website-font-mono:ProductCodeGeistMono,ui-monospace,monospace}`
       setMeasurement(null)
       setPreparedSource((previous) => ({
         input: srcDoc,

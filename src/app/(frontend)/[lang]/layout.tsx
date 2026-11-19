@@ -9,7 +9,7 @@ import type { Metadata } from 'next'
 import { getDictionary } from '@/i18n/getDictionary'
 import { cn } from '@/utilities/ui'
 import { GeistMono } from 'geist/font/mono'
-import { GeistSans } from 'geist/font/sans'
+import { Inter } from 'next/font/google'
 import React from 'react'
 
 import { resolveFavicon } from '@/components/Logo/resolveFavicon'
@@ -27,6 +27,13 @@ import { resolveLinkHref } from '@/utilities/resolveLinkHref'
 import '../globals.css'
 import { getI18nSettings } from '@/i18n/getI18nSettings'
 import { notFound } from 'next/navigation'
+
+const inter = Inter({
+  subsets: ['latin', 'latin-ext', 'cyrillic', 'cyrillic-ext', 'greek', 'vietnamese'],
+  axes: ['opsz'],
+  variable: '--font-inter',
+  display: 'swap',
+})
 
 export async function generateMetadata(): Promise<Metadata> {
   const siteSettings = await getCachedSiteSettings()
@@ -58,7 +65,7 @@ export default async function RootLayout({
   const dictionary = await getDictionary(lang)
 
   return (
-    <html className={cn(GeistSans.variable, GeistMono.variable)} lang={lang}>
+    <html className={cn(inter.variable, GeistMono.variable)} lang={lang}>
       <body>
         <LocaleProvider
           i18n={i18n}
