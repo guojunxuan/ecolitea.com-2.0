@@ -17,6 +17,7 @@ function fixture(role = 'admin') {
       collections: { 'payload-jobs': {}, translations: {} },
       config: {
         routes: { admin: '/admin' },
+        collections: [],
         globals: [{ slug: 'site-settings' }],
         jobs: { tasks: [{ slug: 'schedulePublish' }] },
       },
@@ -88,6 +89,15 @@ describe('Admin dashboard queries', () => {
     })).toEqual([{ href: '/admin/collections/media/create', label: 'Upload media' }])
   })
 
+  it('skips translation inventory when the site has no enabled target languages', async () => {
+    const { req, find, findGlobal } = fixture()
+    find.mockResolvedValue({ docs: [] })
+    findGlobal.mockResolvedValue({ languages: [{ code: 'de', status: 'off' }] })
+
+    expect(await getSystemStatus(req)).toMatchObject({ translation: 'Not configured' })
+    expect(findGlobal).not.toHaveBeenCalledWith(expect.objectContaining({ slug: 'translation-usage' }))
+  })
+
   it('summarizes services without credentials and isolates a failed translation lookup', async () => {
     const { req, find, findGlobal } = fixture()
     vi.stubEnv('SMTP_HOST', '')
@@ -95,7 +105,12 @@ describe('Admin dashboard queries', () => {
     try {
       findGlobal.mockImplementation(async ({ slug }) => {
         if (slug === 'translation-usage') throw new Error('translation offline')
-        return { smtpHost: 'private-host', smtpUser: 'private-user', smtpFromAddress: 'test@example.invalid' }
+        return {
+          languages: [{ code: 'de', status: 'live' }],
+          smtpHost: 'private-host',
+          smtpUser: 'private-user',
+          smtpFromAddress: 'test@example.invalid',
+        }
       })
       find.mockImplementation(async ({ collection }) =>
         collection === 'payload-jobs' ? { docs: [{ waitUntil: '2026-11-20T09:00:00.000Z' }] } : { docs: [] },

@@ -1,4 +1,5 @@
 import type { PayloadRequest } from 'payload'
+import { getI18nSettings } from '@/i18n/getI18nSettings'
 import { getEmailConfiguration } from '@/plugins/email/config'
 import { getTranslationStatus } from '@/plugins/translation/admin/getTranslationStatus'
 import { serverEnv } from '@/utilities/env'
@@ -17,6 +18,9 @@ async function emailStatus(req: PayloadRequest) {
 async function translationStatus(req: PayloadRequest) {
   const { payload } = req
   if (!payload.collections.translations) return notConfigured
+  const { targetLocales } = await getI18nSettings(payload, req)
+  if (!targetLocales.length) return notConfigured
+
   const { counts } = await getTranslationStatus(payload, req)
   const enabled = counts.filter(({ status }) => status === 'translating' || status === 'live')
   if (!enabled.length) return notConfigured
