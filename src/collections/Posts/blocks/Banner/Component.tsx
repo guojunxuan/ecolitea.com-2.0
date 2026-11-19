@@ -32,7 +32,7 @@ export const BannerBlock: React.FC<Props> = ({ className, content, style, title 
         role="note"
         aria-label={title || status || 'Note'}
       >
-        <Icon className={styles.icon} aria-hidden="true" size={20} />
+        <Icon strokeWidth={1.5} className={styles.icon} aria-hidden="true" size={20} />
         {title && <h2 className={styles.title}>{title}</h2>}
         <RichText data={content} enableGutter={false} enableProse={false} />
       </div>

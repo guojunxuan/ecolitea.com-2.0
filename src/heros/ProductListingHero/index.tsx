@@ -216,7 +216,7 @@ export const ProductListingHero: React.FC<{ slides: ProductHeroSlide[] }> = ({ s
             aria-label="Previous slide"
             onClick={() => go(-1)}
           >
-            <ChevronLeft aria-hidden="true" />
+            <ChevronLeft strokeWidth={1.5} aria-hidden="true" />
           </button>
           <button
             type="button"
@@ -224,7 +224,7 @@ export const ProductListingHero: React.FC<{ slides: ProductHeroSlide[] }> = ({ s
             aria-label="Next slide"
             onClick={() => go(1)}
           >
-            <ChevronRight aria-hidden="true" />
+            <ChevronRight strokeWidth={1.5} aria-hidden="true" />
           </button>
           <div className={styles.controls}>
             <div className={styles.dots}>

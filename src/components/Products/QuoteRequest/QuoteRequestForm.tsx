@@ -224,13 +224,13 @@ export function QuoteRequestForm({
       <div className={styles.footer}>
         {banner && (
           <p role="alert" className={styles.notice}>
-            <CircleAlert aria-hidden="true" />
+            <CircleAlert strokeWidth={1.5} aria-hidden="true" />
             <span>{banner}</span>
           </p>
         )}
         <Button type="submit" disabled={submitting}>
           {submitting ? copy.sending : copy.send}
-          {!submitting && <ArrowRight aria-hidden="true" />}
+          {!submitting && <ArrowRight strokeWidth={1.5} aria-hidden="true" />}
         </Button>
         <p className={styles.privacy}>{copy.privacy}</p>
       </div>

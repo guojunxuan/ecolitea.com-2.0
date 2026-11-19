@@ -120,7 +120,7 @@ export const OverflowTrack = ({
         onClick={() => scroll(-1)}
         type="button"
       >
-        <ChevronLeft aria-hidden="true" />
+        <ChevronLeft strokeWidth={1.5} aria-hidden="true" />
       </button>
       <button
         className={`${styles.arrow} ${styles.next}`}
@@ -130,7 +130,7 @@ export const OverflowTrack = ({
         onClick={() => scroll(1)}
         type="button"
       >
-        <ChevronRight aria-hidden="true" />
+        <ChevronRight strokeWidth={1.5} aria-hidden="true" />
       </button>
     </div>
   )

@@ -32,7 +32,7 @@ const SelectTrigger: React.FC<React.ComponentProps<typeof SelectPrimitive.Trigge
     >
       {children}
       <SelectPrimitive.Icon asChild>
-        <ChevronDown className={styles.triggerIcon} />
+        <ChevronDown strokeWidth={1.5} className={styles.triggerIcon} />
       </SelectPrimitive.Icon>
     </SelectPrimitive.Trigger>
   )
@@ -90,7 +90,7 @@ const SelectItem: React.FC<React.ComponentProps<typeof SelectPrimitive.Item>> = 
     >
       <span className={styles.itemIndicator}>
         <SelectPrimitive.ItemIndicator>
-          <Check className={styles.icon} />
+          <Check strokeWidth={1.5} className={styles.icon} />
         </SelectPrimitive.ItemIndicator>
       </span>
       <SelectPrimitive.ItemText>{children}</SelectPrimitive.ItemText>
@@ -120,7 +120,7 @@ const SelectScrollUpButton: React.FC<
       className={cn(styles.scrollButton, className)}
       {...props}
     >
-      <ChevronUp className={styles.icon} />
+      <ChevronUp strokeWidth={1.5} className={styles.icon} />
     </SelectPrimitive.ScrollUpButton>
   )
 }
@@ -134,7 +134,7 @@ const SelectScrollDownButton: React.FC<
       className={cn(styles.scrollButton, className)}
       {...props}
     >
-      <ChevronDown className={styles.icon} />
+      <ChevronDown strokeWidth={1.5} className={styles.icon} />
     </SelectPrimitive.ScrollDownButton>
   )
 }

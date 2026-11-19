@@ -57,7 +57,7 @@ const PaginationPrevious = ({
     size="default"
     {...props}
   >
-    <ChevronLeft className={styles.icon} />
+    <ChevronLeft strokeWidth={1.5} className={styles.icon} />
     <span>Previous</span>
   </PaginationLink>
 )
@@ -70,13 +70,13 @@ const PaginationNext = ({ className, ...props }: React.ComponentProps<typeof Pag
     {...props}
   >
     <span>Next</span>
-    <ChevronRight className={styles.icon} />
+    <ChevronRight strokeWidth={1.5} className={styles.icon} />
   </PaginationLink>
 )
 
 const PaginationEllipsis = ({ className, ...props }: React.ComponentProps<'span'>) => (
   <span aria-hidden className={cn(styles.ellipsis, className)} {...props}>
-    <MoreHorizontal className={styles.icon} />
+    <MoreHorizontal strokeWidth={1.5} className={styles.icon} />
     <span className={styles.screenReaderOnly}>More pages</span>
   </span>
 )

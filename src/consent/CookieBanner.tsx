@@ -81,7 +81,7 @@ export function CookieBanner({ cookiePolicyHref }: { cookiePolicyHref?: string |
         aria-label={copy.close}
         onClick={consent.dismissBanner}
       >
-        <X aria-hidden="true" />
+        <X strokeWidth={1.5} aria-hidden="true" />
       </Button>
     </section>
   )

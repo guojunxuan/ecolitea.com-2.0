@@ -76,7 +76,7 @@ export const MobileMenu = ({ items, activeId }: { items: TOCItem[]; activeId?: s
           <span className={styles.current}>
             {items.find((item) => item.id === activeId)?.text ?? items[0]?.text}
           </span>
-          <ChevronDown aria-hidden="true" size={16} />
+          <ChevronDown strokeWidth={1.5} aria-hidden="true" size={16} />
         </button>
       </div>
       <nav

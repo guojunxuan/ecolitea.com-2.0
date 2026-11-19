@@ -53,7 +53,7 @@ export function ProductPreviewGrid({
                 data-product-view-more
               >
                 <span className={styles.moreIcon} aria-hidden="true">
-                  <ChevronRight />
+                  <ChevronRight strokeWidth={1.5} />
                 </span>
                 <span className={`website-type-title ${styles.moreLabel}`}>View More</span>
               </Link>

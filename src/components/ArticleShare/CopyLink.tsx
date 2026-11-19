@@ -32,7 +32,7 @@ export const CopyLink = ({ url }: { url: string }) => {
   return (
     <div className={styles.copy}>
       <button aria-label="Copy link" className={styles.control} onClick={copy} type="button">
-        <Link aria-hidden="true" size={20} />
+        <Link strokeWidth={1.5} aria-hidden="true" size={20} />
       </button>
       <span className={styles.status} role="status" aria-live="polite">
         {message}

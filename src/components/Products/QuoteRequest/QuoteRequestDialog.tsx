@@ -85,7 +85,7 @@ export function QuoteRequestDialog({ product }: { product: QuoteRequestProduct }
               aria-label={copy.close}
               onClick={() => dialog.current?.close()}
             >
-              <X aria-hidden="true" />
+              <X strokeWidth={1.5} aria-hidden="true" />
             </Button>
           </header>
           <div className={styles.body}>
@@ -101,7 +101,7 @@ export function QuoteRequestDialog({ product }: { product: QuoteRequestProduct }
             {view === 'done' && (
               <div className={styles.done}>
                 <div className={styles.successIcon}>
-                  <Check aria-hidden="true" />
+                  <Check strokeWidth={1.5} aria-hidden="true" />
                 </div>
                 <h2 ref={successTitle} id={titleId} tabIndex={-1} className={styles.title}>
                   {copy.successTitle.replace('{name}', () => submittedName)}

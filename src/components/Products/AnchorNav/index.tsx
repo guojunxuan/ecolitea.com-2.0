@@ -183,7 +183,7 @@ export const AnchorNav = ({
             hidden={!edges.previous}
             onClick={() => scroll(-1)}
           >
-            <ChevronLeft aria-hidden="true" size={18} />
+            <ChevronLeft strokeWidth={1.5} aria-hidden="true" size={18} />
           </button>
           <button
             className={`${styles.arrow} ${styles.next}`}
@@ -192,7 +192,7 @@ export const AnchorNav = ({
             hidden={!edges.next}
             onClick={() => scroll(1)}
           >
-            <ChevronRight aria-hidden="true" size={18} />
+            <ChevronRight strokeWidth={1.5} aria-hidden="true" size={18} />
           </button>
         </div>
       </div>

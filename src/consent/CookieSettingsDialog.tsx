@@ -106,7 +106,7 @@ function SettingsPanel() {
             aria-label={copy.close}
             onClick={() => dialog.current?.close()}
           >
-            <X aria-hidden="true" />
+            <X strokeWidth={1.5} aria-hidden="true" />
           </Button>
         </header>
         <div className={styles.body}>

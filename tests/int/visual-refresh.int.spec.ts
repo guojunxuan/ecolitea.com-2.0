@@ -111,4 +111,23 @@ describe('visual refresh contracts', () => {
       expect(css, file).toMatch(/var\(--website-shadow-overlay\)/)
     }
   })
+
+  it('uses the standard easing token instead of literal ease outside the Header', () => {
+    const files = [
+      'src/Footer/index.module.css',
+      'src/consent/CookieSettingsDialog.module.css',
+      'src/blocks/RelatedBlogs/Component.module.css',
+    ]
+    for (const file of files) expect(read(file), file).not.toMatch(/\s(ease|ease-in-out|ease-out)(\s|;|,)/)
+  })
+
+  it('sets frontend icon strokes to 1.5px', () => {
+    for (const [file, icon] of [
+      ['src/Footer/ContactList.tsx', 'MapPin'],
+      ['src/components/ui/select.tsx', 'ChevronDown'],
+      ['src/collections/Blogs/blocks/Banner/Component.tsx', 'Icon'],
+    ]) {
+      expect(read(file), file).toMatch(new RegExp(`<${icon}\\b[^>]*strokeWidth=\\{1\\.5\\}`))
+    }
+  })
 })

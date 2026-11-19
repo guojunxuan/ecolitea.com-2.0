@@ -182,7 +182,7 @@ function ProductOverview({ paragraphs }: { paragraphs: string[] }) {
           aria-controls={id}
         >
           {expanded ? 'Read less' : 'Read more'}
-          <ChevronDown aria-hidden="true" />
+          <ChevronDown strokeWidth={1.5} aria-hidden="true" />
         </Button>
       )}
     </div>

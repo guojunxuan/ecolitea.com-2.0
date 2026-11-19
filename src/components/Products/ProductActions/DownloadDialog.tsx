@@ -48,7 +48,7 @@ export function DownloadDialog({
           title.current?.focus()
         }}
       >
-        <Download aria-hidden="true" />
+        <Download strokeWidth={1.5} aria-hidden="true" />
         Download
       </Button>
       <dialog
@@ -77,7 +77,7 @@ export function DownloadDialog({
               aria-label="Close"
               onClick={() => dialog.current?.close()}
             >
-              <X aria-hidden="true" />
+              <X strokeWidth={1.5} aria-hidden="true" />
             </Button>
           </header>
           <ul className={styles.files}>
@@ -99,7 +99,7 @@ export function DownloadDialog({
                     <span className={styles.fileTitle}>{file.title}</span>
                     {file.meta && <span className={styles.metadata}>{file.meta}</span>}
                   </span>
-                  <Download aria-hidden="true" className={styles.fileIcon} />
+                  <Download strokeWidth={1.5} aria-hidden="true" className={styles.fileIcon} />
                 </a>
               </li>
             ))}

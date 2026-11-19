@@ -17,7 +17,7 @@ const Checkbox: React.FC<React.ComponentProps<typeof CheckboxPrimitive.Root>> = 
     {...props}
   >
     <CheckboxPrimitive.Indicator data-slot="checkbox-indicator" className={styles.indicator}>
-      <Check className={styles.checkIcon} />
+      <Check strokeWidth={1.5} className={styles.checkIcon} />
     </CheckboxPrimitive.Indicator>
   </CheckboxPrimitive.Root>
 )

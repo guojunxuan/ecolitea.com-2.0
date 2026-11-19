@@ -81,7 +81,7 @@ export const Pagination: React.FC<{
                 {linkedPage(
                   page - 1,
                   <>
-                    <ChevronLeft size={16} /> Previous
+                    <ChevronLeft strokeWidth={1.5} size={16} /> Previous
                   </>,
                   'Go to previous page',
                 )}
@@ -104,7 +104,7 @@ export const Pagination: React.FC<{
                 {linkedPage(
                   page + 1,
                   <>
-                    Next <ChevronRight size={16} />
+                    Next <ChevronRight strokeWidth={1.5} size={16} />
                   </>,
                   'Go to next page',
                 )}
