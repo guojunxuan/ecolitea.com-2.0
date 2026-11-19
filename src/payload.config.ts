@@ -50,6 +50,7 @@ export default buildConfig({
       },
     },
     components: {
+      providers: ['@/components/admin/brand/AdminThemeProvider#AdminThemeProvider'],
       graphics: {
         Logo: '@/components/admin/brand/AdminLogo#AdminLogo',
         Icon: adminIcon,

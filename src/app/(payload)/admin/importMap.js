@@ -64,6 +64,7 @@ import { CategoryCarouselStatus as CategoryCarouselStatus_0bbce7c388200caa031ae6
 import { CategoryCarouselRowLabel as CategoryCarouselRowLabel_4c0f2608cd165b7629a279da0b6c6713 } from '@/Settings/components/CategoryCarouselRowLabel'
 import { AdminIcon as AdminIcon_43ccebbe24cad1546463345662fee5cd } from '@/components/admin/brand/AdminIcon'
 import { AdminLogo as AdminLogo_264b34ad43c4732ccbe38b640131fdc5 } from '@/components/admin/brand/AdminLogo'
+import { AdminThemeProvider as AdminThemeProvider_ee13e005482ef10ebd200a39c4ed35d2 } from '@/components/admin/brand/AdminThemeProvider'
 import { FolderIcon as FolderIcon_3817bf644402e67bfe6577f60ef982de } from '@payloadcms/ui'
 import { HierarchySidebarTabServer as HierarchySidebarTabServer_ab83ff7e88da8d3530831f296ec4756a } from '@payloadcms/ui/rsc'
 import { SiteSetup as SiteSetup_b89c900cd6728da8277e8c5aab265775 } from '@/components/admin/dashboard/SiteSetup'
@@ -146,6 +147,7 @@ export const importMap = {
   "@/Settings/components/CategoryCarouselRowLabel#CategoryCarouselRowLabel": CategoryCarouselRowLabel_4c0f2608cd165b7629a279da0b6c6713,
   "@/components/admin/brand/AdminIcon#AdminIcon": AdminIcon_43ccebbe24cad1546463345662fee5cd,
   "@/components/admin/brand/AdminLogo#AdminLogo": AdminLogo_264b34ad43c4732ccbe38b640131fdc5,
+  "@/components/admin/brand/AdminThemeProvider#AdminThemeProvider": AdminThemeProvider_ee13e005482ef10ebd200a39c4ed35d2,
   "@payloadcms/ui#FolderIcon": FolderIcon_3817bf644402e67bfe6577f60ef982de,
   "@payloadcms/ui/rsc#HierarchySidebarTabServer": HierarchySidebarTabServer_ab83ff7e88da8d3530831f296ec4756a,
   "@/components/admin/dashboard/SiteSetup#SiteSetup": SiteSetup_b89c900cd6728da8277e8c5aab265775,
