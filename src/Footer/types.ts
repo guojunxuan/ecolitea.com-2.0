@@ -46,5 +46,5 @@ export type FooterData = {
   contact: ContactData
   newsletter: NewsletterData | null
   legalLinks: FooterLinkData[]
-  copyrightText: string
+  copyrightText: string | null
 }

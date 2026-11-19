@@ -17,6 +17,7 @@ import { getProductListingHero } from '@/utilities/products/getProductListingHer
 import { getProductListingSEO } from '@/utilities/products/getProductListingSEO'
 import { productCategoryPath } from '@/utilities/products/paths'
 import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
+import { getSiteIdentity } from '@/utilities/siteIdentity'
 import styles from './page.module.css'
 
 export const dynamic = 'force-static'
@@ -134,7 +135,8 @@ export async function generateMetadata(args: {
   const seo = await getProductListingSEO(lang)
   const title = seo.title || 'Products'
   const description = seo.description || 'Explore our products.'
-  const openGraph = mergeOpenGraph({
+  const identity = await getSiteIdentity({ locale: lang })
+  const openGraph = mergeOpenGraph(identity, {
     title,
     description,
     url: '/products',

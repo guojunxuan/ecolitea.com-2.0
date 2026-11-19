@@ -1,3 +1,4 @@
+import { formatTitle, getSiteIdentity } from '@/utilities/siteIdentity'
 import { localizeMetadata } from '@/utilities/i18n/seo'
 import { fallbackListingToEnglish } from '@/utilities/i18n/listingAccess'
 import type { Metadata } from 'next/types'
@@ -125,9 +126,10 @@ export async function generateMetadata(args: {
   params: Promise<{ lang: string }>
 }): Promise<Metadata> {
   const lang = (await args?.params)?.lang ?? 'en'
+  const { siteName } = await getSiteIdentity({ locale: lang })
   return localizeMetadata(
     {
-      title: `Payload Website Template Search`,
+      title: formatTitle('Search', siteName),
     },
     { path: '/search', locale: lang },
   )

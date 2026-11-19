@@ -30,6 +30,7 @@ import {
   Settings,
 } from '@/payload-types'
 import { getServerSideURL } from '@/utilities/getURL'
+import { formatTitle, getSiteIdentity } from '@/utilities/siteIdentity'
 import { getContentPath } from '@/utilities/getContentPath'
 import { productsOverviewPath } from '@/utilities/products/paths'
 import { MEDIA_UPLOAD_POLICY } from '@/collections/mediaUploadPolicy'
@@ -39,26 +40,21 @@ import { getFileKey } from '@payloadcms/plugin-cloud-storage/utilities'
 
 type SEOContent = BlogCategory | Blog | CaseStudy | Page | Post | Product | ProductCategory
 
-export const generateTitle: GenerateTitle<SEOContent | Settings> = ({
+export const generateTitle: GenerateTitle<SEOContent | Settings> = async ({
   collectionConfig,
   globalConfig,
   doc,
+  req,
 }) => {
-  if (globalConfig?.slug === 'settings') return 'Blogs'
-  const content = doc as SEOContent
-  if (collectionConfig?.slug === 'blog-categories') {
-    return content?.title ? `${content.title} Blogs | Ecolitea` : 'Ecolitea'
-  }
-  if (collectionConfig?.slug === 'blogs') {
-    return content?.title ? `${content.title} | Ecolitea` : 'Ecolitea'
-  }
-  if (collectionConfig?.slug === 'product-categories') {
-    return content?.title ? `${content.title} Products | Ecolitea` : 'Ecolitea'
-  }
-  if (collectionConfig?.slug === 'products') {
-    return content?.title ? `${content.title} | Ecolitea` : 'Ecolitea'
-  }
-  return content?.title ? `${content.title} | Payload Website Template` : 'Payload Website Template'
+  const { siteName } = await getSiteIdentity({ req })
+  if (globalConfig?.slug === 'settings') return formatTitle('Blogs', siteName)
+
+  const title = (doc as SEOContent)?.title?.trim()
+  if (title && collectionConfig?.slug === 'blog-categories')
+    return formatTitle(`${title} Blogs`, siteName)
+  if (title && collectionConfig?.slug === 'product-categories')
+    return formatTitle(`${title} Products`, siteName)
+  return formatTitle(title, siteName)
 }
 
 export const generateDescription: GenerateDescription<SEOContent | Settings> = ({

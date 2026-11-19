@@ -456,7 +456,7 @@ describe('blog listing routes', () => {
     },
   )
 
-  it('uses category copy and site default image when SEO and descriptions are absent', async () => {
+  it('uses category copy and omits images when SEO and descriptions are absent', async () => {
     const defaultFind = find.getMockImplementation()!
     find.mockImplementation(async (args: { collection: string }) =>
       args.collection === 'blog-categories'
@@ -470,9 +470,7 @@ describe('blog listing routes', () => {
       params: Promise.resolve({ lang: 'en', categorySlug: 'tea-guides' }),
     })
     expect(result.description).toBe('Explore tea guides articles and guides.')
-    expect(result.openGraph).toMatchObject({
-      images: [{ url: expect.stringContaining('/website-template-OG.webp') }],
-    })
+    expect(result.openGraph?.images).toBeUndefined()
     expect(result).not.toHaveProperty('twitter')
   })
 

@@ -15,6 +15,16 @@ const asset = (name: string) => ({
 const page = (slug: string, title: string) => ({ id: slug, slug, title })
 
 describe('adaptFooter', () => {
+  it('omits automatic copyright when both brand names are blank', () => {
+    expect(adaptFooter({} as never, { siteName: ' ', legalCompanyName: ' ' } as never).copyrightText)
+      .toBeNull()
+  })
+
+  it('prefers the configured site name over the legal name for automatic copyright', () => {
+    expect(adaptFooter({} as never, { siteName: ' Tea Studio ', legalCompanyName: 'Example LLC' } as never).copyrightText)
+      .toBe('© Tea Studio')
+  })
+
   it('maps valid non-empty columns and ignores legacy or empty navigation data', () => {
     const footer = {
       id: 'footer',

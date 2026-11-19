@@ -24,6 +24,7 @@ import { getProductStaticParams } from '@/utilities/products/getProductStaticPar
 import { productCategoryPath, productPath } from '@/utilities/products/paths'
 import { getServerSideURL } from '@/utilities/getURL'
 import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
+import { getSiteIdentity } from '@/utilities/siteIdentity'
 import styles from './page.module.css'
 
 type Args = { params: Promise<{ lang: string; category: string; product: string }> }
@@ -145,13 +146,14 @@ export async function generateMetadata({ params }: Args): Promise<Metadata> {
   const description = product.meta.description?.trim() || product.summary
   const canonical = productPath(category, product.slug)
   const image = product.meta.image?.url
+  const identity = await getSiteIdentity({ locale: lang })
   return localizeMetadata(
     {
       title,
       description,
       twitter: null,
       alternates: { canonical },
-      openGraph: mergeOpenGraph({
+      openGraph: mergeOpenGraph(identity, {
         title,
         description: description ?? undefined,
         url: canonical,

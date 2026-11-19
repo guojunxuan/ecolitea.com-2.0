@@ -18,6 +18,7 @@ import { productCategoryPath } from '@/utilities/products/paths'
 import { getMediaUrl } from '@/utilities/getMediaUrl'
 import { getServerSideURL } from '@/utilities/getURL'
 import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
+import { getSiteIdentity } from '@/utilities/siteIdentity'
 import styles from './listing.module.css'
 
 type ListingArgs = { categorySlug: string; page: number; locale?: string }
@@ -118,13 +119,14 @@ export async function productListingMetadata({
   const canonical = productCategoryPath(category.slug, page)
   const image = category.meta.image
   const imageURL = image?.url ? getMediaUrl(image.url, undefined, getServerSideURL()) : seo.imageURL
+  const identity = await getSiteIdentity({ locale: locale })
   return localizeMetadata(
     {
       title,
       description,
       twitter: null,
       alternates: { canonical },
-      openGraph: mergeOpenGraph({
+      openGraph: mergeOpenGraph(identity, {
         title,
         description,
         url: canonical,

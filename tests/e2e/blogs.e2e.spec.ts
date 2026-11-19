@@ -515,7 +515,7 @@ test.describe('Template A existing server', () => {
           })
         } else {
           await route.fulfill({
-            path: path.resolve('public/website-template-OG.webp'),
+            path: path.resolve('tests/fixtures/image-post1.webp'),
             contentType: 'image/webp',
           })
         }

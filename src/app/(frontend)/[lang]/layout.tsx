@@ -22,6 +22,7 @@ import { Header } from '@/Header/Component'
 import { Providers } from '@/providers'
 import { buildSiteMetadata } from '@/utilities/buildSiteMetadata'
 import { getCachedSiteSettings } from '@/utilities/getGlobals'
+import { getSiteIdentity } from '@/utilities/siteIdentity'
 import { resolveLinkHref } from '@/utilities/resolveLinkHref'
 
 import '../globals.css'
@@ -35,10 +36,15 @@ const inter = Inter({
   display: 'swap',
 })
 
-export async function generateMetadata(): Promise<Metadata> {
-  const siteSettings = await getCachedSiteSettings()
-
-  return buildSiteMetadata(resolveFavicon(siteSettings.favicon))
+export async function generateMetadata({ params }: {
+  params: Promise<{ lang: string }>
+}): Promise<Metadata> {
+  const { lang } = await params
+  const [siteSettings, identity] = await Promise.all([
+    getCachedSiteSettings(lang),
+    getSiteIdentity({ locale: lang }),
+  ])
+  return buildSiteMetadata(resolveFavicon(siteSettings.favicon), identity)
 }
 
 export const dynamicParams = true

@@ -48,10 +48,11 @@ describe('Blog category SEO configuration', () => {
     expect(BlogCategories.orderable).toBe(true)
   })
 
-  it('generates category title, description and URL', () => {
+  it('generates category title, description and URL', async () => {
     const args = input({ title: 'Green Tea', slug: 'green-tea', description: 'Tea guidance' })
-    expect(generateTitle(args as never)).toBe('Green Tea Blogs | Ecolitea')
-    expect(generateTitle(input({}) as never)).toBe('Ecolitea')
+    const req = { payload: { findGlobal: async () => ({ siteName: 'Tea Studio' }) } }
+    expect(await generateTitle({ ...args, req } as never)).toBe('Green Tea Blogs | Tea Studio')
+    expect(await generateTitle({ ...input({}), req } as never)).toBe('Tea Studio')
     expect(generateDescription(args as never)).toBe('Tea guidance')
     expect(generateDescription(input({ title: 'Green Tea' }) as never)).toBe(
       'Explore green tea articles and guides.',

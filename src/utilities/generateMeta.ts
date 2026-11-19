@@ -1,22 +1,9 @@
 import { localizeMetadata } from './i18n/seo'
 import type { Metadata } from 'next'
-
-import type { Blog, Media, Page, Post, Config } from '../payload-types'
-
+import type { Blog, Page, Post } from '../payload-types'
 import { mergeOpenGraph } from './mergeOpenGraph'
 import { getServerSideURL } from './getURL'
-
-const getImageURL = (image?: Media | Config['db']['defaultIDType'] | null) => {
-  const serverUrl = getServerSideURL()
-
-  let url = serverUrl + '/website-template-OG.webp'
-
-  if (image && typeof image === 'object' && 'url' in image && image.url) {
-    url = new URL(image.url, serverUrl).toString()
-  }
-
-  return url
-}
+import { formatTitle, getSiteIdentity } from './siteIdentity'
 
 export const generateMeta = async (args: {
   doc: Partial<Page> | Partial<Post> | Partial<Blog> | null
@@ -26,28 +13,29 @@ export const generateMeta = async (args: {
   draft?: boolean
 }): Promise<Metadata> => {
   const { doc } = args
+  const identity = await getSiteIdentity({ locale: args.locale })
+  const { siteName, siteDescription } = identity
+  const image = doc?.meta?.image
+  const ogImage = image && typeof image === 'object' && image.url
+    ? new URL(image.url, getServerSideURL()).toString()
+    : undefined
 
-  const ogImage = getImageURL(doc?.meta?.image)
-
-  const title = doc?.meta?.title
-    ? doc?.meta?.title + ' | Payload Website Template'
-    : 'Payload Website Template'
+  const metaTitle = doc?.meta?.title?.trim()
+  // Titles saved via the SEO generator can already include the current site name.
+  const title = siteName && (metaTitle === siteName || metaTitle?.endsWith(` | ${siteName}`))
+    ? metaTitle
+    : formatTitle(metaTitle, siteName)
+  const description = doc?.meta?.description?.trim() || siteDescription
 
   const metadata: Metadata = {
-    description: doc?.meta?.description,
-    openGraph: mergeOpenGraph({
-      description: doc?.meta?.description || '',
-      images: ogImage
-        ? [
-            {
-              url: ogImage,
-            },
-          ]
-        : undefined,
+    ...(title && { title }),
+    ...(description && { description }),
+    openGraph: mergeOpenGraph(identity, {
+      description,
+      ...(ogImage && { images: [{ url: ogImage }] }),
       title,
-      url: Array.isArray(doc?.slug) ? doc?.slug.join('/') : '/',
+      url: Array.isArray(doc?.slug) ? doc.slug.join('/') : '/',
     }),
-    title,
   }
   return localizeMetadata(metadata, {
     path: args.path ?? (doc?.slug === 'home' ? '/' : `/${doc?.slug ?? ''}`),

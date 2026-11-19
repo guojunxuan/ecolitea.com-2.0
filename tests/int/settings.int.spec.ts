@@ -163,9 +163,10 @@ describe('Settings Global', () => {
     })
   })
 
-  it('generates listing defaults for Settings without changing article generators', () => {
-    const settings = { globalConfig: { slug: 'settings' }, doc: {} } as never
-    expect(generateTitle(settings)).toBe('Blogs')
+  it('generates listing defaults for Settings without changing article generators', async () => {
+    const req = { payload: { findGlobal: async () => ({ siteName: 'Tea Studio' }) } }
+    const settings = { globalConfig: { slug: 'settings' }, doc: {}, req } as never
+    expect(await generateTitle(settings)).toBe('Blogs | Tea Studio')
     expect(generateDescription(settings)).toBe(
       'Explore our latest blog articles, insights, and guides.',
     )
@@ -173,8 +174,9 @@ describe('Settings Global', () => {
     const article = {
       collectionConfig: { slug: 'blogs' },
       doc: { title: 'Tea', excerpt: 'Leaves' },
+      req,
     } as never
-    expect(generateTitle(article)).toBe('Tea | Ecolitea')
+    expect(await generateTitle(article)).toBe('Tea | Tea Studio')
     expect(generateDescription(article)).toBe('Leaves')
     expect(
       generateURL({ collectionConfig: { slug: 'blogs' }, doc: { slug: 'tea' } } as never),

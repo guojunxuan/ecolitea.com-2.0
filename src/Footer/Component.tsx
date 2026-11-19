@@ -90,7 +90,7 @@ export async function Footer({ locale = 'en' }: { locale?: string } = {}) {
         </div>
 
         <div className={styles.bottomBar}>
-          <p>{footer.copyrightText}</p>
+          {footer.copyrightText && <p>{footer.copyrightText}</p>}
           <nav aria-label="Legal">
             <ul className={styles.legalList}>
               {footer.legalLinks.map((link) => (

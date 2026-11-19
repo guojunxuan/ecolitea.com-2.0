@@ -24,6 +24,7 @@ import { getBlogListingSEO } from '@/utilities/blogs/getBlogListingSEO'
 import { getMediaUrl } from '@/utilities/getMediaUrl'
 import { getServerSideURL } from '@/utilities/getURL'
 import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
+import { getSiteIdentity } from '@/utilities/siteIdentity'
 import { publicBlogVisibility } from '@/utilities/blogs/publicVisibility'
 import type { BlogCategory } from '@/payload-types'
 
@@ -229,7 +230,8 @@ export async function blogListingMetadata({
       ? getMediaUrl(categoryImage.url, undefined, getServerSideURL())
       : seo?.imageURL
 
-  const openGraph = mergeOpenGraph({
+  const identity = await getSiteIdentity({ locale: locale })
+  const openGraph = mergeOpenGraph(identity, {
     title,
     description,
     url: canonical,

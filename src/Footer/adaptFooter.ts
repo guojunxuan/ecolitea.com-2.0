@@ -107,7 +107,7 @@ const adaptLegalLink = (value: unknown, label: string): FooterLinkData | null =>
   )
 
 export const adaptFooter = (footer: Footer, siteSettings: SiteSettings): FooterData => {
-  const siteName = text(siteSettings.siteName) ?? text(siteSettings.legalCompanyName) ?? 'Ecolitea'
+  const siteName = text(siteSettings.siteName) ?? text(siteSettings.legalCompanyName)
   const legalLinks = [
     adaptLegalLink(siteSettings.privacyPolicyPage, 'Privacy Policy'),
     adaptLegalLink(siteSettings.cookiePolicyPage, 'Cookie Policy'),
@@ -126,6 +126,6 @@ export const adaptFooter = (footer: Footer, siteSettings: SiteSettings): FooterD
     },
     newsletter: adaptNewsletter(siteSettings.newsletter),
     legalLinks,
-    copyrightText: text(siteSettings.copyrightText) ?? `© ${siteName}`,
+    copyrightText: text(siteSettings.copyrightText) ?? (siteName ? `© ${siteName}` : null),
   }
 }

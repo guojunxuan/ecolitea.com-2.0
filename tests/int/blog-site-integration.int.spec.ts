@@ -43,10 +43,12 @@ describe('Blog site integrations', () => {
     ).toBe(`http://localhost:3000${path}`)
   })
 
-  it('uses Blog title and excerpt for SEO and preserves Page/Post titles', () => {
+  it('applies the request site name to SEO titles and keeps the original title when it is absent', async () => {
+    const findGlobal = vi.fn().mockResolvedValueOnce({ siteName: ' Tea Studio ' }).mockResolvedValue({})
+    const req = { payload: { findGlobal } }
     expect(
-      generateTitle({ collectionConfig: { slug: 'blogs' }, doc: { title: 'Tea Notes' } } as never),
-    ).toBe('Tea Notes | Ecolitea')
+      await generateTitle({ collectionConfig: { slug: 'blogs' }, doc: { title: 'Tea Notes' }, req } as never),
+    ).toBe('Tea Notes | Tea Studio')
     expect(
       generateDescription({
         collectionConfig: { slug: 'blogs' },
@@ -54,11 +56,14 @@ describe('Blog site integrations', () => {
       } as never),
     ).toBe('Fresh leaves')
     expect(
-      generateTitle({ collectionConfig: { slug: 'posts' }, doc: { title: 'News' } } as never),
-    ).toBe('News | Payload Website Template')
+      await generateTitle({ collectionConfig: { slug: 'posts' }, doc: { title: 'News' }, req } as never),
+    ).toBe('News')
     expect(
-      generateTitle({ collectionConfig: { slug: 'pages' }, doc: { title: 'About' } } as never),
-    ).toBe('About | Payload Website Template')
+      await generateTitle({ collectionConfig: { slug: 'pages' }, doc: { title: 'About' }, req } as never),
+    ).toBe('About')
+    expect(findGlobal).toHaveBeenCalledWith(expect.objectContaining({
+      slug: 'site-settings', overrideAccess: false, req,
+    }))
   })
 
   it('allows Blog and Blog Category navigation references', () => {

@@ -167,7 +167,6 @@ describe('buildSiteMetadata', () => {
     expect(metadata.openGraph).toBeDefined()
     expect(metadata.twitter).toEqual({
       card: 'summary_large_image',
-      creator: '@payloadcms',
     })
   })
 

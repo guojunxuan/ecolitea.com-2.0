@@ -14,43 +14,44 @@ describe('Product SEO generation', () => {
     [
       'product-categories',
       { title: 'Green Tea', slug: 'green-tea', description: 'Tea range' },
-      'Green Tea Products | Ecolitea',
+      'Green Tea Products | Tea Studio',
       'Tea range',
       '/products/green-tea',
     ],
     [
       'product-categories',
       { title: 'Green Tea', slug: 'green-tea' },
-      'Green Tea Products | Ecolitea',
+      'Green Tea Products | Tea Studio',
       'Explore our green tea products.',
       '/products/green-tea',
     ],
-    ['product-categories', {}, 'Ecolitea', 'Explore our product range.', '/products'],
+    ['product-categories', {}, 'Tea Studio', 'Explore our product range.', '/products'],
     [
       'products',
       { title: 'Sencha', slug: 'sencha', categorySlug: 'green-tea', summary: 'Fresh leaves' },
-      'Sencha | Ecolitea',
+      'Sencha | Tea Studio',
       'Fresh leaves',
       '/products/green-tea/sencha',
     ],
     [
       'products',
       { title: 'Sencha', slug: 'sencha', summary: 'Fresh leaves' },
-      'Sencha | Ecolitea',
+      'Sencha | Tea Studio',
       'Fresh leaves',
       '/products',
     ],
     [
       'products',
       { title: 'Sencha', categorySlug: 'green-tea' },
-      'Sencha | Ecolitea',
+      'Sencha | Tea Studio',
       '',
       '/products',
     ],
-    ['products', {}, 'Ecolitea', '', '/products'],
-  ] as const)('generates %s SEO from %j', (slug, doc, title, description, path) => {
+    ['products', {}, 'Tea Studio', '', '/products'],
+  ] as const)('generates %s SEO from %j', async (slug, doc, title, description, path) => {
     const args = input(slug, doc)
-    expect(generateTitle(args as never)).toBe(title)
+    const req = { payload: { findGlobal: async () => ({ siteName: 'Tea Studio' }) } }
+    expect(await generateTitle({ ...args, req } as never)).toBe(title)
     expect(generateDescription(args as never)).toBe(description)
     expect(generateURL(args as never)).toBe(`${getServerSideURL()}${path}`)
   })

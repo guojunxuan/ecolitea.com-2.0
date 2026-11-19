@@ -3,13 +3,16 @@ import type { Metadata } from 'next'
 
 import { getServerSideURL } from './getURL'
 import { mergeOpenGraph } from './mergeOpenGraph'
+import type { SiteIdentity } from './siteIdentity'
 
-export const buildSiteMetadata = (favicon: FaviconPresentation | null): Metadata => ({
+export const buildSiteMetadata = (
+  favicon: FaviconPresentation | null,
+  identity: SiteIdentity = {},
+): Metadata => ({
   metadataBase: new URL(getServerSideURL()),
-  openGraph: mergeOpenGraph(),
+  openGraph: mergeOpenGraph(identity),
   twitter: {
     card: 'summary_large_image',
-    creator: '@payloadcms',
   },
   icons: favicon
     ? {
