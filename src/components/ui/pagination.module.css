@@ -12,6 +12,16 @@
   align-items: center;
 }
 
+.content [aria-current='page'] {
+  color: var(--website-color-action-foreground);
+  background-color: var(--website-color-action);
+  border-color: transparent;
+}
+
+.content :where([aria-current='page'], button, a) {
+  font-variant-numeric: tabular-nums;
+}
+
 .item {
   display: list-item;
 }

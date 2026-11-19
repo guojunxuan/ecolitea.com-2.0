@@ -439,3 +439,16 @@ describe('UI style primitives', () => {
     expectModuleClass(ellipsis!)
   })
 })
+
+it('renders buttons as pills with a filled secondary and no outline border', () => {
+  const css = readSource('src/components/ui/button.module.css')
+  expect(css).toMatch(/\.button\s*\{[^}]*border-radius:\s*var\(--website-radius-pill\)/s)
+  expect(css).toMatch(/\.secondary\s*\{[^}]*background-color:\s*var\(--website-color-muted-surface\)/s)
+  expect(css).not.toMatch(/\.secondary\s*\{[^}]*border-color:\s*var\(--website-color-border\)/s)
+})
+it('uses the overlay shadow only for the select popup', () => {
+  const css = readSource('src/components/ui/select.module.css')
+  expect(css).toMatch(/box-shadow:\s*var\(--website-shadow-overlay\)/)
+  expect(css).not.toMatch(/var\(--website-shadow-(subtle|raised)\)/)
+  expect(css).toMatch(/border-radius:\s*var\(--website-radius-content\)/)
+})

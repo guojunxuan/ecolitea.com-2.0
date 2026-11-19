@@ -11,7 +11,7 @@
     align-items: center;
     justify-content: center;
     border: 1px solid transparent;
-    border-radius: var(--website-radius-control);
+    border-radius: var(--website-radius-pill);
     white-space: nowrap;
     transition-property: color, background-color, border-color, box-shadow;
     transition-duration: var(--website-duration-fast);

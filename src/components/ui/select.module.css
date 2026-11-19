@@ -72,9 +72,9 @@
   overflow: hidden;
   color: var(--website-color-foreground);
   border: 1px solid var(--website-color-border);
-  border-radius: var(--website-radius-control);
+  border-radius: var(--website-radius-content);
   background-color: var(--website-color-surface);
-  box-shadow: var(--website-shadow-raised);
+  box-shadow: var(--website-shadow-overlay);
 }
 
 .content[data-state='open'] {
@@ -133,14 +133,14 @@
 }
 
 .label {
+  composes: website-type-body-sm from global;
   padding-block: 0.375rem;
   padding-inline: var(--website-space-2);
-  font-size: 0.875rem;
   font-weight: 600;
-  line-height: 1.25rem;
 }
 
 .selectItem {
+  composes: website-type-body-sm from global;
   position: relative;
   display: flex;
   width: 100%;
@@ -153,8 +153,6 @@
   border-radius: var(--website-radius-control);
   cursor: default;
   user-select: none;
-  font-size: 0.875rem;
-  line-height: 1.25rem;
 }
 
 .selectItem:focus {
@@ -247,6 +245,7 @@
 
 @media (forced-colors: active) {
   .selectItem {
+  composes: website-type-body-sm from global;
     outline: 2px solid transparent;
     outline-offset: 2px;
   }

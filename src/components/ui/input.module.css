@@ -30,9 +30,8 @@
   border-width: 0;
   background-color: transparent;
   color: var(--website-color-foreground);
-  font-size: 0.875rem;
+  font: inherit;
   font-weight: 500;
-  line-height: 1.25rem;
 }
 
 .input[aria-invalid='true'] {

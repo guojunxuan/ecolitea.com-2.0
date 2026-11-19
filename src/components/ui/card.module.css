@@ -1,7 +1,6 @@
 .card {
   color: var(--website-color-foreground);
-  background-color: var(--website-color-surface);
-  border: 1px solid var(--website-color-border);
+  background-color: var(--website-color-muted-surface);
   border-radius: var(--website-radius-content);
 }
 
