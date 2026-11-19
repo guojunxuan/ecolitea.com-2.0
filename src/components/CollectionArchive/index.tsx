@@ -22,7 +22,6 @@ export const CollectionArchive: React.FC<Props> = (props) => {
                 <div
                   className={isBlog ? styles.blogItem : styles.item}
                   data-slot="archive-item"
-                  style={isBlog ? ({ '--stagger-index': index % 12 } as React.CSSProperties) : undefined}
                   key={index}
                 >
                   {props.relationTo === 'blogs' ? (

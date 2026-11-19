@@ -3,12 +3,9 @@
 }
 
 .label {
+  composes: website-type-eyebrow from global;
   margin: 0 0 0.875rem;
   color: var(--website-color-muted-foreground);
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
 }
 
 .links {
@@ -47,9 +44,9 @@
 }
 
 .status {
+  composes: website-type-caption from global;
   position: absolute;
   top: 100%;
   left: 0.625rem;
   color: var(--website-color-muted-foreground);
-  font-size: 0.75rem;
 }

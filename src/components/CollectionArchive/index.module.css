@@ -23,27 +23,8 @@
   gap: var(--website-space-12) var(--website-space-8);
 }
 
-.blogGrid > .blogItem {
-  animation: blogCardFadeInUp 400ms var(--website-easing-standard) backwards;
-  animation-delay: calc(min(var(--stagger-index, 0), 5) * 80ms);
-}
-
-@keyframes blogCardFadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .blogGrid > .blogItem {
-    animation: none;
-  }
+.blogItem {
+  min-width: 0;
 }
 
 @media (width >= 40rem) {

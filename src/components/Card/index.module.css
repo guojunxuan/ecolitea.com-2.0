@@ -14,10 +14,13 @@
 
 .blogCategory {
   composes: website-type-eyebrow from global;
+  font-size: 12px;
+  line-height: 1.33;
+  letter-spacing: 0.125px;
 }
 
 .blogHeading {
-  composes: website-type-title from global;
+  composes: website-type-heading-3 from global;
 }
 
 .blogExcerpt {
@@ -32,7 +35,6 @@
   .card {
     overflow: hidden;
     background-color: var(--website-color-surface);
-    border: 1px solid var(--website-color-border);
     border-radius: var(--website-radius-content);
   }
 
@@ -53,7 +55,6 @@
 
   .categoryLabel {
     margin-bottom: var(--website-space-4);
-    text-transform: uppercase;
   }
 
   .title {
@@ -78,24 +79,14 @@
     position: relative;
     display: flex;
     flex-direction: column;
-    box-shadow: var(--website-shadow-subtle);
-    transition: border-color var(--website-duration-standard) var(--website-easing-standard),
-      box-shadow var(--website-duration-standard) var(--website-easing-standard),
-      transform var(--website-duration-standard) var(--website-easing-standard);
-  }
-
-  .blogCard:hover,
-  .blogCard:focus-within {
-    border-color: var(--website-color-neutral-400);
-    box-shadow: var(--website-shadow-raised);
-    transform: translateY(-2px);
   }
 
   .blogMedia {
     width: 100%;
     aspect-ratio: 16 / 9;
     overflow: hidden;
-    background: var(--website-color-neutral-100);
+    border-radius: var(--website-radius-content);
+    background: var(--website-color-muted-surface);
   }
 
   .blogMedia > div,
@@ -112,8 +103,10 @@
     transition: transform var(--website-duration-slow) var(--website-easing-standard);
   }
 
-  .blogCard:hover .blogMedia img {
-    transform: scale(1.05);
+  @media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+    .blogCard:hover .blogMedia img {
+      transform: scale(1.03);
+    }
   }
 
   .mediaPlaceholder {
@@ -127,7 +120,7 @@
     display: flex;
     flex: 1;
     flex-direction: column;
-    padding: var(--website-space-6);
+    padding-block: var(--website-space-6);
   }
 
   .blogCategory {

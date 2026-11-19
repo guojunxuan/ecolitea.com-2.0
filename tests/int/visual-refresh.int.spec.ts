@@ -35,4 +35,30 @@ describe('visual refresh contracts', () => {
       ]),
     )
   })
+
+  it('removes content-layer shadows, lift and archive stagger', () => {
+    const card = read('src/components/Card/index.module.css')
+    expect(card).not.toMatch(/var\(--website-shadow-(subtle|raised)\)/)
+    expect(card).not.toMatch(/translate(Y)?\(\s*-2px/)
+    expect(card).toMatch(/scale\(1\.03\)/)
+    expect(read('src/components/CollectionArchive/index.module.css')).not.toMatch(/animation|@keyframes/)
+  })
+  it('keeps the production category chip on blog cards', () => {
+    const card = read('src/components/Card/index.module.css')
+    expect(card).toMatch(/background-color:\s*var\(--website-color-category-background\)/)
+    expect(card).toMatch(/background-color:\s*var\(--website-color-category-hover-background\)/)
+  })
+  it('uses solid surfaces for article tools and eyebrow for their labels', () => {
+    for (const file of ['src/components/TableOfContents/index.module.css', 'src/components/BlogCategoryTabs/index.module.css']) {
+      const css = read(file)
+      expect(css, file).not.toMatch(/backdrop-filter/)
+      expect(css, file).not.toMatch(/var\(--website-shadow-subtle\)/)
+    }
+    for (const file of ['src/components/TableOfContents/index.module.css', 'src/components/ArticleShare/index.module.css']) {
+      const css = read(file)
+      expect(css, file).not.toMatch(/text-transform:\s*uppercase/)
+      expect(css, file).not.toMatch(/letter-spacing:/)
+      expect(css, file).toMatch(/website-type-eyebrow/)
+    }
+  })
 })

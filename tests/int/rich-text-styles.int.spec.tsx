@@ -144,8 +144,8 @@ describe('RichText style modes', () => {
     for (const selector of ['h1', 'h2', 'h3', 'h4', 'h5, h6'])
       expect(contentStyles, selector).toContain(`&:where(${selector})`)
     for (const declaration of [
-      'font-size: 16px;',
-      'line-height: 1.5;',
+      'font-size: 17px;',
+      'line-height: 1.6;',
       'overflow-wrap: anywhere;',
       'text-decoration-thickness: 1px;',
       'text-underline-offset: 0.2em;',

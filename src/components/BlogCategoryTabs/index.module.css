@@ -43,7 +43,7 @@
 .mobileLink:focus-visible {
   outline: 2px solid currentColor;
   outline-offset: 3px;
-  border-radius: 2px;
+  border-radius: var(--website-radius-pill);
 }
 
 .tab[aria-current='page']::after {
@@ -90,8 +90,7 @@
   min-height: var(--website-control-target-min);
   padding: var(--website-space-2) var(--website-gutter);
   border-bottom: 1px solid var(--website-color-border);
-  background: color-mix(in srgb, var(--website-color-surface) 92%, transparent);
-  backdrop-filter: blur(8px);
+  background: var(--website-color-surface);
   color: var(--website-color-foreground);
   list-style: none;
   cursor: pointer;
@@ -139,7 +138,7 @@
   overscroll-behavior: contain;
   padding: var(--website-space-6) var(--website-gutter);
   background: var(--website-color-surface);
-  box-shadow: var(--website-shadow-subtle);
+  box-shadow: var(--website-shadow-overlay);
 }
 
 .mobileLink {
