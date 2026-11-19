@@ -20,7 +20,7 @@ import { preventReferencedDelete } from './hooks/preventReferencedDelete'
 export const ProductCategories: CollectionConfig = {
   slug: 'product-categories',
   labels: { singular: 'Product Category', plural: 'Product Categories' },
-  admin: { group: 'Product', useAsTitle: 'title', defaultColumns: ['title', 'slug'] },
+  admin: { group: 'Products', useAsTitle: 'title', defaultColumns: ['title', 'slug'] },
   orderable: true,
   access: { read: anyone, create: authenticated, update: authenticated, delete: authenticated },
   fields: [

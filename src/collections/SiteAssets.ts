@@ -41,7 +41,7 @@ export const SiteAssets: CollectionConfig = {
   slug: 'site-assets',
   labels: { singular: 'Site Asset', plural: 'Site Assets' },
   admin: {
-    hidden: true,
+    group: 'Assets',
     useAsTitle: 'filename',
   },
   access: {

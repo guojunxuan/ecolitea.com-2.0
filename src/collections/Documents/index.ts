@@ -17,6 +17,7 @@ export const Documents: CollectionConfig = {
   defaultSort: '-createdAt',
   disableDuplicate: true,
   admin: {
+    group: 'Assets',
     useAsTitle: 'title',
     description: documentUploadDescription,
     defaultColumns: ['title', 'filename', 'mimeType', 'filesize', '_h_folders', 'updatedAt'],

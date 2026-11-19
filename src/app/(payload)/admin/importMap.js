@@ -1,11 +1,11 @@
-import { NullField as NullField_3817bf644402e67bfe6577f60ef982de } from '@payloadcms/ui'
-import { HierarchyButton as HierarchyButton_ab83ff7e88da8d3530831f296ec4756a } from '@payloadcms/ui/rsc'
+import { SpecificationRowLabel as SpecificationRowLabel_3fde3139b1dca830953e6a07c3633a0a } from '@/collections/Products/admin/SpecificationRowLabel'
+import { SpecificationGroupRowLabel as SpecificationGroupRowLabel_f8ebffbdb8cd5e39184ab703830456ba } from '@/collections/Products/admin/SpecificationGroupRowLabel'
+import { BlockRowLabel as BlockRowLabel_54fe0f316d4b99315c1513bdd1306683 } from '@/blocks/BlockRowLabel'
 import { RscEntryLexicalCell as RscEntryLexicalCell_44fe37237e0ebf4470c9990d8cb7b07e } from '@payloadcms/richtext-lexical/rsc'
 import { RscEntryLexicalField as RscEntryLexicalField_44fe37237e0ebf4470c9990d8cb7b07e } from '@payloadcms/richtext-lexical/rsc'
 import { LexicalDiffComponent as LexicalDiffComponent_44fe37237e0ebf4470c9990d8cb7b07e } from '@payloadcms/richtext-lexical/rsc'
 import { InlineToolbarFeatureClient as InlineToolbarFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { FixedToolbarFeatureClient as FixedToolbarFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
-import { HeadingFeatureClient as HeadingFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { LinkFeatureClient as LinkFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { UnorderedListFeatureClient as UnorderedListFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { OrderedListFeatureClient as OrderedListFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
@@ -13,32 +13,32 @@ import { SubscriptFeatureClient as SubscriptFeatureClient_e70f5e05f09f93e00b997e
 import { SuperscriptFeatureClient as SuperscriptFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { InlineCodeFeatureClient as InlineCodeFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { StrikethroughFeatureClient as StrikethroughFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
+import { UnderlineFeatureClient as UnderlineFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { BoldFeatureClient as BoldFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { ItalicFeatureClient as ItalicFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
-import { UnderlineFeatureClient as UnderlineFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
-import { TableFeatureClient as TableFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
-import { HorizontalRuleFeatureClient as HorizontalRuleFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
-import { BlockquoteFeatureClient as BlockquoteFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { ParagraphFeatureClient as ParagraphFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
-import { BlockRowLabel as BlockRowLabel_54fe0f316d4b99315c1513bdd1306683 } from '@/blocks/BlockRowLabel'
+import { SectionRowLabel as SectionRowLabel_f9b40a829c178a971850247d74ad4f4f } from '@/collections/Products/admin/SectionRowLabel'
 import { OverviewComponent as OverviewComponent_a8a977ebc872c5d5ea7ee689724c0860 } from '@payloadcms/plugin-seo/client'
 import { MetaTitleComponent as MetaTitleComponent_a8a977ebc872c5d5ea7ee689724c0860 } from '@payloadcms/plugin-seo/client'
 import { MetaImageComponent as MetaImageComponent_a8a977ebc872c5d5ea7ee689724c0860 } from '@payloadcms/plugin-seo/client'
 import { MetaDescriptionComponent as MetaDescriptionComponent_a8a977ebc872c5d5ea7ee689724c0860 } from '@payloadcms/plugin-seo/client'
 import { PreviewComponent as PreviewComponent_a8a977ebc872c5d5ea7ee689724c0860 } from '@payloadcms/plugin-seo/client'
+import { HeadingFeatureClient as HeadingFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
+import { TableFeatureClient as TableFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
+import { HorizontalRuleFeatureClient as HorizontalRuleFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
+import { BlockquoteFeatureClient as BlockquoteFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { BlocksFeatureClient as BlocksFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { ArticleBlockEditor as ArticleBlockEditor_4971c3244241ba6cff288a3222e75719 } from '@/blocks/ArticleBlockEditor'
-import { SpecificationRowLabel as SpecificationRowLabel_3fde3139b1dca830953e6a07c3633a0a } from '@/collections/Products/admin/SpecificationRowLabel'
-import { SpecificationGroupRowLabel as SpecificationGroupRowLabel_f8ebffbdb8cd5e39184ab703830456ba } from '@/collections/Products/admin/SpecificationGroupRowLabel'
-import { SectionRowLabel as SectionRowLabel_f9b40a829c178a971850247d74ad4f4f } from '@/collections/Products/admin/SectionRowLabel'
 import { ImageCropControls as ImageCropControls_9959ec1372000a411e6c7216c9e7a00c } from '@/collections/mediaAdmin/ImageCropControls'
 import { UsedInPanel as UsedInPanel_465fcf04887261c29f77ab01f3d2132c } from '@/collections/mediaAdmin/UsedInPanel'
 import { AltPrefill as AltPrefill_0723c172e948fbb481376dc84e2f708c } from '@/collections/mediaAdmin/AltPrefill'
+import { NullField as NullField_3817bf644402e67bfe6577f60ef982de } from '@payloadcms/ui'
 import { UpdatedAtCell as UpdatedAtCell_15ae72ae659ab5de403d241b4bbfc565 } from '@/collections/mediaAdmin/UpdatedAtCell'
 import { FilenameCell as FilenameCell_3d231aca1eef2c75f54cfc956cce307a } from '@/collections/mediaAdmin/FilenameCell'
 import { TypeCell as TypeCell_fa4f997e085f12ecc0525014de6372d8 } from '@/collections/mediaAdmin/TypeCell'
 import { FilesizeCell as FilesizeCell_e4d477bf4c10c20dfb3e3841bcb8bbde } from '@/collections/mediaAdmin/FilesizeCell'
 import { DimensionsCell as DimensionsCell_ed787a5a6cfc7824657cb740abc829c2 } from '@/collections/mediaAdmin/DimensionsCell'
+import { HierarchyButton as HierarchyButton_ab83ff7e88da8d3530831f296ec4756a } from '@payloadcms/ui/rsc'
 import { UsedInPanel as UsedInPanel_e1fb4acb26bb636743c0392dfef3033e } from '@/collections/Documents/admin/UsedInPanel'
 import { TitlePrefill as TitlePrefill_f95324218d1a9f56a6faf266850561af } from '@/collections/Documents/admin/TitlePrefill'
 import { UpdatedAtCell as UpdatedAtCell_30512e5cac6a4a6ee3f69505af4d712f } from '@/collections/Documents/admin/UpdatedAtCell'
@@ -75,14 +75,14 @@ import { RecentlyViewedCollectionsField as RecentlyViewedCollectionsField_3817bf
 
 /** @type import('payload').ImportMap */
 export const importMap = {
-  "@payloadcms/ui#NullField": NullField_3817bf644402e67bfe6577f60ef982de,
-  "@payloadcms/ui/rsc#HierarchyButton": HierarchyButton_ab83ff7e88da8d3530831f296ec4756a,
+  "@/collections/Products/admin/SpecificationRowLabel#SpecificationRowLabel": SpecificationRowLabel_3fde3139b1dca830953e6a07c3633a0a,
+  "@/collections/Products/admin/SpecificationGroupRowLabel#SpecificationGroupRowLabel": SpecificationGroupRowLabel_f8ebffbdb8cd5e39184ab703830456ba,
+  "@/blocks/BlockRowLabel#BlockRowLabel": BlockRowLabel_54fe0f316d4b99315c1513bdd1306683,
   "@payloadcms/richtext-lexical/rsc#RscEntryLexicalCell": RscEntryLexicalCell_44fe37237e0ebf4470c9990d8cb7b07e,
   "@payloadcms/richtext-lexical/rsc#RscEntryLexicalField": RscEntryLexicalField_44fe37237e0ebf4470c9990d8cb7b07e,
   "@payloadcms/richtext-lexical/rsc#LexicalDiffComponent": LexicalDiffComponent_44fe37237e0ebf4470c9990d8cb7b07e,
   "@payloadcms/richtext-lexical/client#InlineToolbarFeatureClient": InlineToolbarFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/richtext-lexical/client#FixedToolbarFeatureClient": FixedToolbarFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
-  "@payloadcms/richtext-lexical/client#HeadingFeatureClient": HeadingFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/richtext-lexical/client#LinkFeatureClient": LinkFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/richtext-lexical/client#UnorderedListFeatureClient": UnorderedListFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/richtext-lexical/client#OrderedListFeatureClient": OrderedListFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
@@ -90,32 +90,32 @@ export const importMap = {
   "@payloadcms/richtext-lexical/client#SuperscriptFeatureClient": SuperscriptFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/richtext-lexical/client#InlineCodeFeatureClient": InlineCodeFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/richtext-lexical/client#StrikethroughFeatureClient": StrikethroughFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
+  "@payloadcms/richtext-lexical/client#UnderlineFeatureClient": UnderlineFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/richtext-lexical/client#BoldFeatureClient": BoldFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/richtext-lexical/client#ItalicFeatureClient": ItalicFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
-  "@payloadcms/richtext-lexical/client#UnderlineFeatureClient": UnderlineFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
-  "@payloadcms/richtext-lexical/client#TableFeatureClient": TableFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
-  "@payloadcms/richtext-lexical/client#HorizontalRuleFeatureClient": HorizontalRuleFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
-  "@payloadcms/richtext-lexical/client#BlockquoteFeatureClient": BlockquoteFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/richtext-lexical/client#ParagraphFeatureClient": ParagraphFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
-  "@/blocks/BlockRowLabel#BlockRowLabel": BlockRowLabel_54fe0f316d4b99315c1513bdd1306683,
+  "@/collections/Products/admin/SectionRowLabel#SectionRowLabel": SectionRowLabel_f9b40a829c178a971850247d74ad4f4f,
   "@payloadcms/plugin-seo/client#OverviewComponent": OverviewComponent_a8a977ebc872c5d5ea7ee689724c0860,
   "@payloadcms/plugin-seo/client#MetaTitleComponent": MetaTitleComponent_a8a977ebc872c5d5ea7ee689724c0860,
   "@payloadcms/plugin-seo/client#MetaImageComponent": MetaImageComponent_a8a977ebc872c5d5ea7ee689724c0860,
   "@payloadcms/plugin-seo/client#MetaDescriptionComponent": MetaDescriptionComponent_a8a977ebc872c5d5ea7ee689724c0860,
   "@payloadcms/plugin-seo/client#PreviewComponent": PreviewComponent_a8a977ebc872c5d5ea7ee689724c0860,
+  "@payloadcms/richtext-lexical/client#HeadingFeatureClient": HeadingFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
+  "@payloadcms/richtext-lexical/client#TableFeatureClient": TableFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
+  "@payloadcms/richtext-lexical/client#HorizontalRuleFeatureClient": HorizontalRuleFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
+  "@payloadcms/richtext-lexical/client#BlockquoteFeatureClient": BlockquoteFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/richtext-lexical/client#BlocksFeatureClient": BlocksFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@/blocks/ArticleBlockEditor#ArticleBlockEditor": ArticleBlockEditor_4971c3244241ba6cff288a3222e75719,
-  "@/collections/Products/admin/SpecificationRowLabel#SpecificationRowLabel": SpecificationRowLabel_3fde3139b1dca830953e6a07c3633a0a,
-  "@/collections/Products/admin/SpecificationGroupRowLabel#SpecificationGroupRowLabel": SpecificationGroupRowLabel_f8ebffbdb8cd5e39184ab703830456ba,
-  "@/collections/Products/admin/SectionRowLabel#SectionRowLabel": SectionRowLabel_f9b40a829c178a971850247d74ad4f4f,
   "@/collections/mediaAdmin/ImageCropControls#ImageCropControls": ImageCropControls_9959ec1372000a411e6c7216c9e7a00c,
   "@/collections/mediaAdmin/UsedInPanel#UsedInPanel": UsedInPanel_465fcf04887261c29f77ab01f3d2132c,
   "@/collections/mediaAdmin/AltPrefill#AltPrefill": AltPrefill_0723c172e948fbb481376dc84e2f708c,
+  "@payloadcms/ui#NullField": NullField_3817bf644402e67bfe6577f60ef982de,
   "@/collections/mediaAdmin/UpdatedAtCell#UpdatedAtCell": UpdatedAtCell_15ae72ae659ab5de403d241b4bbfc565,
   "@/collections/mediaAdmin/FilenameCell#FilenameCell": FilenameCell_3d231aca1eef2c75f54cfc956cce307a,
   "@/collections/mediaAdmin/TypeCell#TypeCell": TypeCell_fa4f997e085f12ecc0525014de6372d8,
   "@/collections/mediaAdmin/FilesizeCell#FilesizeCell": FilesizeCell_e4d477bf4c10c20dfb3e3841bcb8bbde,
   "@/collections/mediaAdmin/DimensionsCell#DimensionsCell": DimensionsCell_ed787a5a6cfc7824657cb740abc829c2,
+  "@payloadcms/ui/rsc#HierarchyButton": HierarchyButton_ab83ff7e88da8d3530831f296ec4756a,
   "@/collections/Documents/admin/UsedInPanel#UsedInPanel": UsedInPanel_e1fb4acb26bb636743c0392dfef3033e,
   "@/collections/Documents/admin/TitlePrefill#TitlePrefill": TitlePrefill_f95324218d1a9f56a6faf266850561af,
   "@/collections/Documents/admin/UpdatedAtCell#UpdatedAtCell": UpdatedAtCell_30512e5cac6a4a6ee3f69505af4d712f,

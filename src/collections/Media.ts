@@ -28,6 +28,7 @@ export const Media: CollectionConfig = {
   select: ({ select }) => (select?.width === true ? { ...select, height: true } : undefined),
   disableDuplicate: true,
   admin: {
+    group: 'Assets',
     defaultColumns: ['filename', 'alt', 'mimeType', 'width', 'filesize', '_h_folders', 'updatedAt'],
     listSearchableFields: ['filename', 'alt'],
   },

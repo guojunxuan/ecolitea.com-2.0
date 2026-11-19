@@ -15,6 +15,7 @@ export const SiteSettings: GlobalConfig = {
   typescript: {
     interface: 'SiteSettings',
   },
+  admin: { group: 'Site' },
   access: {
     read: anyone,
     update: authenticated,

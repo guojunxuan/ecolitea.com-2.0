@@ -49,6 +49,7 @@ export const Posts: CollectionConfig = {
     },
   },
   admin: {
+    group: 'Content',
     defaultColumns: ['title', 'slug', 'updatedAt'],
     livePreview: {
       url: ({ data, req }) =>

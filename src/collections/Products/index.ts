@@ -25,7 +25,7 @@ export const Products: CollectionConfig = {
   slug: 'products',
   labels: { singular: 'Product', plural: 'Products' },
   admin: {
-    group: 'Product',
+    group: 'Products',
     useAsTitle: 'title',
     defaultColumns: ['title', 'category', 'publishedAt', '_status'],
     livePreview: {

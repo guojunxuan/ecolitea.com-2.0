@@ -41,7 +41,7 @@ const afterDelete: CollectionAfterDeleteHook<BlogCategory> = ({ doc, req }) => {
 export const BlogCategories: CollectionConfig = {
   slug: 'blog-categories',
   labels: { singular: 'Blog Category', plural: 'Blog Categories' },
-  admin: { group: 'Blog', useAsTitle: 'title' },
+  admin: { group: 'Content', useAsTitle: 'title' },
   orderable: true,
   access: { read: anyone, create: authenticated, update: authenticated, delete: authenticated },
   fields: [

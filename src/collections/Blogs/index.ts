@@ -19,7 +19,7 @@ import { revalidateBlog, revalidateDelete } from './hooks/revalidateBlog'
 export const Blogs: CollectionConfig = {
   slug: 'blogs',
   admin: {
-    group: 'Blog',
+    group: 'Content',
     useAsTitle: 'title',
     defaultColumns: ['title', 'category', 'publishedAt', '_status'],
     livePreview: {
