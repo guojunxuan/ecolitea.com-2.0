@@ -23,7 +23,6 @@
   top: 0;
   transition:
     background-color var(--website-duration-standard) var(--website-easing-standard),
-    box-shadow var(--website-duration-standard) var(--website-easing-standard),
     border-color var(--website-duration-standard) var(--website-easing-standard);
   z-index: var(--website-z-header);
 }
@@ -43,7 +42,6 @@
 .surface[data-scrolled='true'] {
   background: var(--website-glass-surface);
   border-bottom: 1px solid var(--website-glass-border);
-  box-shadow: var(--website-shadow-subtle);
   backdrop-filter: blur(var(--website-glass-blur)) saturate(var(--website-glass-saturation));
 }
 

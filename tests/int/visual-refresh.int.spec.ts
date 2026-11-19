@@ -97,4 +97,18 @@ describe('visual refresh contracts', () => {
     const css = read('src/heros/ProductListingHero/index.module.css')
     expect(css).toMatch(/\.slide\[data-website-theme='inverse'\][^{]*::after[^{]*\{[^}]*linear-gradient/s)
   })
+
+  it('tightens the footer and keeps the joined newsletter control', () => {
+    const css = read('src/Footer/index.module.css')
+    expect(css).toMatch(/\.newsletterControls\s*\{[^}]*display:\s*grid/s)
+    expect(css).not.toMatch(/var\(--website-space-16\)/)
+    expect(css).toMatch(/min-height:\s*var\(--website-control-target-min\)/)
+  })
+  it('puts consent overlays on the overlay shadow and panel radius', () => {
+    for (const file of ['src/consent/CookieBanner.module.css', 'src/consent/CookieSettingsDialog.module.css']) {
+      const css = read(file)
+      expect(css, file).not.toMatch(/var\(--website-shadow-(subtle|raised)\)/)
+      expect(css, file).toMatch(/var\(--website-shadow-overlay\)/)
+    }
+  })
 })

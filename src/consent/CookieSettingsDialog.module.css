@@ -11,10 +11,10 @@
   color: var(--website-color-foreground);
   box-shadow: var(--website-shadow-overlay);
   overflow: hidden;
-  animation: cookie-panel-in var(--website-duration-standard) ease both;
+  animation: cookie-panel-in var(--website-duration-standard) var(--website-easing-standard) both;
 }
 .dialog::backdrop {
-  animation: cookie-backdrop-in var(--website-duration-standard) ease both;
+  animation: cookie-backdrop-in var(--website-duration-standard) var(--website-easing-standard) both;
   background: color-mix(
     in srgb,
     var(--website-color-brand-black) var(--website-scrim-standard),
@@ -89,16 +89,16 @@
 .explanation {
   padding-block: var(--website-space-2);
   padding-right: var(--website-space-4);
-  /* Smooth disclosure: height and opacity ease while `hidden` toggles.
+  /* Smooth disclosure: height and opacity transition while `hidden` toggles.
      Browsers without interpolate-size fall back to a fade. */
   overflow: hidden;
   interpolate-size: allow-keywords;
   height: auto;
   opacity: 1;
   transition:
-    height var(--website-duration-standard) ease,
-    padding-block var(--website-duration-standard) ease,
-    opacity var(--website-duration-standard) ease,
+    height var(--website-duration-standard) var(--website-easing-standard),
+    padding-block var(--website-duration-standard) var(--website-easing-standard),
+    opacity var(--website-duration-standard) var(--website-easing-standard),
     display var(--website-duration-standard) allow-discrete;
 }
 .explanation[hidden] {
@@ -137,7 +137,7 @@
   height: 1.5px;
   margin: -0.75px 0 0 calc(var(--website-icon-small) / -2);
   background: currentColor;
-  transition: transform var(--website-duration-standard) ease;
+  transition: transform var(--website-duration-standard) var(--website-easing-standard);
 }
 .toggleLine:last-child {
   transform: rotate(90deg);
@@ -159,7 +159,7 @@
   border-radius: var(--website-radius-pill);
   background: var(--website-color-interactive-surface);
   cursor: pointer;
-  transition: background-color var(--website-duration-fast) ease;
+  transition: background-color var(--website-duration-fast) var(--website-easing-standard);
 }
 /* Keep the 44px touch target without enlarging the visible track. */
 .switch::after {
@@ -177,8 +177,7 @@
   height: var(--website-icon-small);
   border-radius: var(--website-radius-circle);
   background: var(--website-color-surface);
-  box-shadow: var(--website-shadow-subtle);
-  transition: transform var(--website-duration-fast) ease;
+  transition: transform var(--website-duration-fast) var(--website-easing-standard);
 }
 .switch[aria-checked='true'] {
   background: var(--website-color-action);
@@ -191,7 +190,6 @@
   background: var(--website-color-disabled-surface);
 }
 .switch:disabled span {
-  box-shadow: none;
   background: var(--website-color-disabled-border);
 }
 .switch:focus-visible {

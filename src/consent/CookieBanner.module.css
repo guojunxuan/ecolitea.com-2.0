@@ -5,7 +5,8 @@
   background: var(--website-color-surface);
   color: var(--website-color-foreground);
   border-top: 1px solid var(--website-color-border);
-  box-shadow: var(--website-shadow-raised);
+  border-radius: var(--website-radius-panel) var(--website-radius-panel) 0 0;
+  box-shadow: var(--website-shadow-overlay);
   max-height: 100svh;
   overflow-y: auto;
 }

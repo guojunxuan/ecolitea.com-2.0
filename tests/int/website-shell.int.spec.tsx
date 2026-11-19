@@ -201,7 +201,9 @@ describe('public website shell', () => {
     expect(navigation).toContain('z-index: var(--website-z-overlay)')
     expect(header).toContain('background: var(--website-glass-surface)')
     expect(header).toContain('border-bottom: 1px solid var(--website-glass-border)')
-    expect(header).toContain('box-shadow: var(--website-shadow-subtle)')
+    expect(header).not.toMatch(/\.surface\[data-scrolled='true'\]\s*\{[^}]*box-shadow/s)
+    expect(header).toMatch(/\.surface\[data-scrolled='true'\]\s*\{[^}]*border-bottom:\s*1px solid var\(--website-glass-border\)/s)
+    expect(header).toMatch(/\.surface\[data-menu-open='true'\]\s*\{[^}]*backdrop-filter:\s*none/s)
     expect(header).toContain(
       'backdrop-filter: blur(var(--website-glass-blur)) saturate(var(--website-glass-saturation))',
     )

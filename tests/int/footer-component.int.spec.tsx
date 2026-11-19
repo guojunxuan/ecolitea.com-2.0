@@ -286,7 +286,7 @@ describe('FooterNavigation', () => {
   it('uses one non-desktop column sequence without a tablet two-column override', () => {
     const css = readFileSync(resolve(process.cwd(), 'src/Footer/index.module.css'), 'utf8')
 
-    expect(css).toContain('min-height: 54px')
+    expect(css).toMatch(/\.accordionTrigger\s*\{[^}]*min-height:\s*var\(--website-control-target-min\)/s)
     expect(css).toMatch(/\.socialLink\s*\{[^}]*min-height:\s*var\(--website-control-target-min\)/s)
     expect(css).toMatch(/\.socialIcon\s*\{[^}]*filter:\s*brightness\(0\) invert\(1\)/s)
     expect(css).toMatch(/\.contactItem\s*\{[^}]*display:\s*grid/s)
@@ -314,10 +314,10 @@ describe('FooterNavigation', () => {
     const css = readFileSync(resolve(process.cwd(), 'src/Footer/index.module.css'), 'utf8')
     for (const [selector, role] of [
       ['description', 'body-sm'],
-      ['desktopHeading', 'caption'],
-      ['accordionTrigger', 'caption'],
+      ['desktopHeading', 'eyebrow'],
+      ['accordionTrigger', 'eyebrow'],
       ['navLink', 'caption'],
-      ['newsletterHeading', 'caption'],
+      ['newsletterHeading', 'eyebrow'],
       ['newsletterDescription', 'caption'],
       ['newsletterInput', 'caption'],
       ['newsletterButton', 'caption'],
@@ -328,12 +328,7 @@ describe('FooterNavigation', () => {
         new RegExp(`\\.${selector}\\s*\\{[^}]*composes: website-type-${role} from global;`, 's'),
       )
     }
-    expect(css).toMatch(/\.desktopHeading\s*\{[^}]*font-weight:\s*600/s)
-    expect(css).toMatch(/\.desktopHeading\s*\{[^}]*letter-spacing:\s*0\.055em/s)
-    expect(css).toMatch(/\.accordionTrigger\s*\{[^}]*letter-spacing:\s*0\.055em/s)
-    expect(css).toMatch(
-      /\.newsletterHeading\s*\{[^}]*font-weight:\s*600[^}]*text-transform:\s*uppercase/s,
-    )
+    expect(css).not.toMatch(/letter-spacing:|text-transform:\s*uppercase/)
     expect(css).toMatch(/\.socialIcon\s*\{[^}]*width:\s*var\(--website-icon-medium\)/s)
     expect(css).toMatch(/\.contactIcon\s*\{[^}]*width:\s*var\(--website-icon-small\)/s)
   })
