@@ -62,7 +62,8 @@ import { ArticleShareURLField as ArticleShareURLField_1245b93634f2f81e3750ee57bc
 import { HeroSlideRowLabel as HeroSlideRowLabel_cd32ae05f5941e1c60a7be80501d1b25 } from '@/Settings/components/HeroSlideRowLabel'
 import { CategoryCarouselStatus as CategoryCarouselStatus_0bbce7c388200caa031ae6b42ce937c9 } from '@/Settings/components/ListingCarouselNotice'
 import { CategoryCarouselRowLabel as CategoryCarouselRowLabel_4c0f2608cd165b7629a279da0b6c6713 } from '@/Settings/components/CategoryCarouselRowLabel'
-import { default as default_8a7ab0eb7ab5c511aba12e68480bfe5e } from '@/components/BeforeLogin'
+import { AdminIcon as AdminIcon_43ccebbe24cad1546463345662fee5cd } from '@/components/admin/brand/AdminIcon'
+import { AdminLogo as AdminLogo_264b34ad43c4732ccbe38b640131fdc5 } from '@/components/admin/brand/AdminLogo'
 import { FolderIcon as FolderIcon_3817bf644402e67bfe6577f60ef982de } from '@payloadcms/ui'
 import { HierarchySidebarTabServer as HierarchySidebarTabServer_ab83ff7e88da8d3530831f296ec4756a } from '@payloadcms/ui/rsc'
 import { CollectionCards as CollectionCards_ab83ff7e88da8d3530831f296ec4756a } from '@payloadcms/ui/rsc'
@@ -138,7 +139,8 @@ export const importMap = {
   "@/Settings/components/HeroSlideRowLabel#HeroSlideRowLabel": HeroSlideRowLabel_cd32ae05f5941e1c60a7be80501d1b25,
   "@/Settings/components/ListingCarouselNotice#CategoryCarouselStatus": CategoryCarouselStatus_0bbce7c388200caa031ae6b42ce937c9,
   "@/Settings/components/CategoryCarouselRowLabel#CategoryCarouselRowLabel": CategoryCarouselRowLabel_4c0f2608cd165b7629a279da0b6c6713,
-  "@/components/BeforeLogin#default": default_8a7ab0eb7ab5c511aba12e68480bfe5e,
+  "@/components/admin/brand/AdminIcon#AdminIcon": AdminIcon_43ccebbe24cad1546463345662fee5cd,
+  "@/components/admin/brand/AdminLogo#AdminLogo": AdminLogo_264b34ad43c4732ccbe38b640131fdc5,
   "@payloadcms/ui#FolderIcon": FolderIcon_3817bf644402e67bfe6577f60ef982de,
   "@payloadcms/ui/rsc#HierarchySidebarTabServer": HierarchySidebarTabServer_ab83ff7e88da8d3530831f296ec4756a,
   "@payloadcms/ui/rsc#CollectionCards": CollectionCards_ab83ff7e88da8d3530831f296ec4756a,

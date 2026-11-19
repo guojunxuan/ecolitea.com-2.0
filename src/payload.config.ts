@@ -35,10 +35,22 @@ export default buildConfig({
   serverURL: getServerSideURL(),
   email: createEmailAdapter(),
   admin: {
+    theme: 'all',
+    meta: {
+      titleSuffix: ' · Admin',
+      defaultOGImageType: 'off',
+      icons: {
+        icon: [
+          { url: '/favicon.ico', sizes: '32x32' },
+          { url: '/favicon.svg', type: 'image/svg+xml' },
+        ],
+      },
+    },
     components: {
-      // The `BeforeLogin` component renders a message that you see while logging into your admin panel.
-      // Feel free to delete this at any time. Simply remove the line below.
-      beforeLogin: ['@/components/BeforeLogin'],
+      graphics: {
+        Logo: '@/components/admin/brand/AdminLogo#AdminLogo',
+        Icon: '@/components/admin/brand/AdminIcon#AdminIcon',
+      },
     },
     importMap: {
       baseDir: path.resolve(dirname),
