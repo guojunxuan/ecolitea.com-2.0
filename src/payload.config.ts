@@ -31,6 +31,7 @@ import { adminDashboard } from './components/admin/dashboard/config'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
+const adminIcon = '@/components/admin/brand/AdminIcon#AdminIcon'
 
 export default buildConfig({
   serverURL: getServerSideURL(),
@@ -51,8 +52,10 @@ export default buildConfig({
     components: {
       graphics: {
         Logo: '@/components/admin/brand/AdminLogo#AdminLogo',
-        Icon: '@/components/admin/brand/AdminIcon#AdminIcon',
+        Icon: adminIcon,
       },
+      // The canary's native sidebar does not render graphics.Icon.
+      beforeNavLinks: [{ path: adminIcon, serverProps: { showName: true } }],
     },
     importMap: {
       baseDir: path.resolve(dirname),
