@@ -119,6 +119,7 @@ describe('Media renderer', () => {
   it('reserves the delivered crop ratio for a non-fill Payload image', () => {
     render(
       <Media
+        pictureClassName="consumer-picture"
         presentation={MEDIA_PRESENTATION.card}
         resource={media({
           alt: 'Cropped tea',
@@ -133,6 +134,8 @@ describe('Media renderer', () => {
     const image = screen.getByRole('img', { name: 'Cropped tea' })
     expect(image.getAttribute('width')).toBe('1200')
     expect(image.getAttribute('height')).toBe('900')
+    expect(image.getAttribute('data-fill')).toBe('false')
+    expect(image.closest('picture')?.className).toBe('consumer-picture')
   })
 
   it('keeps a local static import on the native Next Image path', () => {
@@ -221,11 +224,20 @@ describe('Media renderer', () => {
     expect(container.querySelector('img')?.getAttribute('alt')).toBe(alt)
   })
 
-  it('renders a dimensionless image with explicit fill', () => {
-    const { container } = render(
-      <Media fill resource={media({ mimeType: 'image/jpeg', url: '/tea.jpg' })} />,
+  it('positions the picture for explicit fill while keeping consumer styling', () => {
+    render(
+      <Media
+        fill
+        pictureClassName="consumer-picture"
+        resource={media({ mimeType: 'image/jpeg', url: '/tea.jpg', focalX: 20, focalY: 80 })}
+      />,
     )
-    expect(container.querySelector('img')?.getAttribute('data-fill')).toBe('true')
+    const image = screen.getByRole('img', { name: 'Example media content' })
+    const picture = image.closest('picture')
+    expect(image.getAttribute('data-fill')).toBe('true')
+    expect(picture?.classList).toContain(imageStyles.pictureFill)
+    expect(picture?.classList).toContain('consumer-picture')
+    expect(picture?.style.getPropertyValue('--media-focal-point')).toBe('20% 80%')
   })
 
   it('uses a ratio frame with fill when image dimensions are missing', () => {
@@ -237,6 +249,7 @@ describe('Media renderer', () => {
     )
     const image = container.querySelector('img')
     expect(image?.getAttribute('data-fill')).toBe('true')
+    expect(image?.parentElement?.classList).toContain(imageStyles.pictureFill)
     expect(image?.parentElement?.style.aspectRatio).toBe('4 / 3')
     expect(image?.parentElement?.style.position).toBe('relative')
   })

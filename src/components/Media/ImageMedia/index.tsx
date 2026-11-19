@@ -147,7 +147,7 @@ export const ImageMedia: React.FC<MediaProps> = (props) => {
       : null
 
   return (
-    <picture className={cn(pictureClassName)} style={pictureStyle}>
+    <picture className={cn(imageFill && styles.pictureFill, pictureClassName)} style={pictureStyle}>
       {mobileProps && <source media="(width < 48rem)" srcSet={mobileProps.srcSet} sizes={sizes} />}
       <NextImage
         alt={alt ?? ''}

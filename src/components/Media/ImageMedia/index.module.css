@@ -1,6 +1,12 @@
 @layer base, components, utilities;
 
 @layer components {
+  :where(.pictureFill) {
+    display: block;
+    position: absolute;
+    inset: 0;
+  }
+
   .image {
     display: block;
     max-width: 100%;
