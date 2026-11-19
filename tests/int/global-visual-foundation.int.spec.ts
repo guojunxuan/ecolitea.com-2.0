@@ -3,6 +3,7 @@ import path from 'node:path'
 
 import { describe, expect, it } from 'vitest'
 import { auditCss } from '../helpers/cssAudit'
+import { normalizeComputedColor } from '../helpers/computedColor'
 
 const read = (file: string) => fs.readFileSync(path.join(process.cwd(), file), 'utf8')
 
@@ -125,12 +126,29 @@ describe('global visual foundation', () => {
     const css = read('src/styles/tokens.css')
     for (const declaration of [
       '--website-color-brand-black: #0a0a0a;',
-      '--website-color-neutral-900: #262629;',
-      '--website-color-neutral-600: #76767f;',
+      '--website-color-neutral-900: #111111;',
+      '--website-color-neutral-600: #6b6b6b;',
+      '--website-color-neutral-500: #8f8f8f;',
+      '--website-color-neutral-100: #f5f5f5;',
+      '--website-color-neutral-200: #ebebeb;',
+      '--website-color-neutral-300: #e5e5e5;',
+      '--website-color-neutral-400: #d4d4d4;',
       '--website-color-foreground: var(--website-color-neutral-900);',
-      '--website-color-muted-foreground: var(--website-color-neutral-600);',
-      '--website-radius-control: 8px;',
-      '--website-radius-content: 12px;',
+      '--website-color-muted-foreground: rgb(17 17 17 / 62%);',
+      '--website-color-subtle-foreground: rgb(17 17 17 / 44%);',
+      '--website-color-link: var(--website-color-foreground);',
+      '--website-color-category-background: var(--website-color-neutral-100);',
+      '--website-color-category-hover-background: var(--website-color-brand-black);',
+      '--website-radius-small: 8px;',
+      '--website-radius-control: 12px;',
+      '--website-radius-content: 20px;',
+      '--website-radius-panel: 32px;',
+      '--website-shadow-subtle: none;',
+      '--website-shadow-raised: none;',
+      '--website-shadow-overlay: 0 24px 64px rgb(0 0 0 / 14%), 0 0 0 1px rgb(0 0 0 / 4%);',
+      '--website-glass-surface: rgb(255 255 255 / 80%);',
+      '--website-glass-blur: 24px;',
+      '--website-glass-saturation: 180%;',
       '--website-control-default: 48px;',
       '--website-duration-standard: 240ms;',
       '--website-z-header: 50;',
@@ -148,6 +166,23 @@ describe('global visual foundation', () => {
     expect(inverseTheme).toBeTruthy()
     expect(inverseTheme).toContain('--website-color-foreground: var(--website-color-brand-white);')
     expect(inverseTheme).toContain('--website-color-muted-surface: rgb(255 255 255 / 6%);')
+  })
+
+  it('keeps muted text readable on white and muted surfaces', () => {
+    const css = read('src/styles/tokens.css')
+    const rules = auditCss(css)
+    const color = (name: string) =>
+      rules.declarations.find((entry) => entry.header === ':root' && entry.prop === name)!.value
+    const muted = normalizeComputedColor(color('--website-color-muted-foreground'))!
+    const linear = (value: number) => {
+      const channel = value / 255
+      return channel <= 0.04045 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4
+    }
+    for (const token of ['--website-color-brand-white', '--website-color-neutral-100']) {
+      const gray = Number.parseInt(color(token).slice(1, 3), 16)
+      const composite = muted[0] * muted[3] + gray * (1 - muted[3])
+      expect((linear(gray) + 0.05) / (linear(composite) + 0.05), token).toBeGreaterThanOrEqual(4.5)
+    }
   })
 
   it('keeps RichText code blocks on a readable dark inverse surface in either content theme', () => {

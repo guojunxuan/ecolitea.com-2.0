@@ -1,6 +1,6 @@
 /* Global website tokens. --header-height remains Header-owned. */
 :root {
-  --website-font-sans: var(--font-geist-sans);
+  --website-font-sans: var(--font-inter);
   --website-font-mono: var(--font-geist-mono);
 
   --website-container-site: 76.25rem;
@@ -11,18 +11,18 @@
 
   --website-color-brand-black: #0a0a0a;
   --website-color-brand-white: #ffffff;
-  --website-color-neutral-900: #262629;
-  --website-color-neutral-600: #76767f;
-  --website-color-neutral-500: #9a9aa1;
-  --website-color-neutral-100: #f7f7f8;
-  --website-color-neutral-200: #ededee;
-  --website-color-neutral-300: #e0e0e2;
-  --website-color-neutral-400: #d4d4d7;
+  --website-color-neutral-900: #111111;
+  --website-color-neutral-600: #6b6b6b;
+  --website-color-neutral-500: #8f8f8f;
+  --website-color-neutral-100: #f5f5f5;
+  --website-color-neutral-200: #ebebeb;
+  --website-color-neutral-300: #e5e5e5;
+  --website-color-neutral-400: #d4d4d4;
 
   --website-color-background: var(--website-color-brand-white);
   --website-color-foreground: var(--website-color-neutral-900);
-  --website-color-muted-foreground: var(--website-color-neutral-600);
-  --website-color-subtle-foreground: var(--website-color-neutral-500);
+  --website-color-muted-foreground: rgb(17 17 17 / 62%);
+  --website-color-subtle-foreground: rgb(17 17 17 / 44%);
   --website-color-surface: var(--website-color-brand-white);
   --website-color-muted-surface: var(--website-color-neutral-100);
   --website-color-interactive-surface: var(--website-color-neutral-200);
@@ -38,7 +38,7 @@
   --website-color-code-surface: var(--website-color-brand-black);
   --website-color-code-foreground: var(--website-color-brand-white);
   --website-color-code-border: rgb(255 255 255 / 18%);
-  --website-color-link: #0052d1;
+  --website-color-link: var(--website-color-foreground);
   --website-color-category-background: var(--website-color-neutral-100);
   --website-color-category-foreground: var(--website-color-neutral-900);
   --website-color-category-hover-background: var(--website-color-brand-black);
@@ -74,10 +74,10 @@
   --website-space-30: 120px;
 
   --website-radius-none: 0;
-  --website-radius-small: 4px;
-  --website-radius-control: 8px;
-  --website-radius-content: 12px;
-  --website-radius-panel: 16px;
+  --website-radius-small: 8px;
+  --website-radius-control: 12px;
+  --website-radius-content: 20px;
+  --website-radius-panel: 32px;
   --website-radius-pill: 999px;
   --website-radius-circle: 50%;
 
@@ -91,9 +91,9 @@
   --website-icon-large: 24px;
   --website-icon-xlarge: 32px;
 
-  --website-shadow-subtle: 0 4px 16px rgb(0 0 0 / 8%);
-  --website-shadow-raised: 0 12px 40px rgb(0 0 0 / 12%);
-  --website-shadow-overlay: 0 24px 64px rgb(0 0 0 / 18%);
+  --website-shadow-subtle: none;
+  --website-shadow-raised: none;
+  --website-shadow-overlay: 0 24px 64px rgb(0 0 0 / 14%), 0 0 0 1px rgb(0 0 0 / 4%);
 
   --website-duration-fast: 160ms;
   --website-duration-standard: 240ms;
@@ -112,17 +112,17 @@
   --website-scrim-subtle: 24%;
   --website-scrim-standard: 48%;
   --website-scrim-strong: 72%;
-  --website-glass-surface: rgb(255 255 255 / 90%);
+  --website-glass-surface: rgb(255 255 255 / 80%);
   --website-glass-border: color-mix(in srgb, var(--website-color-foreground) 10%, transparent);
-  --website-glass-blur: 18px;
-  --website-glass-saturation: 115%;
+  --website-glass-blur: 24px;
+  --website-glass-saturation: 180%;
 }
 
 [data-website-theme='default'] {
   --website-color-background: var(--website-color-brand-white);
   --website-color-foreground: var(--website-color-neutral-900);
-  --website-color-muted-foreground: var(--website-color-neutral-600);
-  --website-color-subtle-foreground: var(--website-color-neutral-500);
+  --website-color-muted-foreground: rgb(17 17 17 / 62%);
+  --website-color-subtle-foreground: rgb(17 17 17 / 44%);
   --website-color-surface: var(--website-color-brand-white);
   --website-color-muted-surface: var(--website-color-neutral-100);
   --website-color-interactive-surface: var(--website-color-neutral-200);
@@ -133,7 +133,7 @@
   --website-color-focus: var(--website-color-brand-black);
   --website-color-focus-gap: var(--website-color-brand-white);
   --website-color-disabled-surface: var(--website-color-neutral-100);
-  --website-color-disabled-foreground: var(--website-color-neutral-500);
+  --website-color-disabled-foreground: rgb(17 17 17 / 44%);
   --website-color-disabled-border: var(--website-color-neutral-300);
   --website-color-category-background: var(--website-color-neutral-100);
   --website-color-category-foreground: var(--website-color-neutral-900);
