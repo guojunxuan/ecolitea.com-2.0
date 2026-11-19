@@ -1,7 +1,7 @@
 /* Admin palette. Calibrate these values against the native Admin surfaces. */
 :root {
   --admin-bg: #ffffff;
-  --admin-bg-secondary: #f5f5f7;
+  --admin-bg-secondary: #f4f4f6;
   --admin-bg-tertiary: #ebebed;
   --admin-bg-elevated: #ffffff;
   --admin-hover: rgb(0 0 0 / 5%);
@@ -31,7 +31,7 @@ html[data-theme='dark'] {
   --admin-bg: #1e1e20;
   --admin-bg-secondary: #2a2a2d;
   --admin-bg-tertiary: #3a3a3c;
-  --admin-bg-elevated: #2c2c2e;
+  --admin-bg-elevated: #2b2b2e;
   --admin-hover: rgb(255 255 255 / 8%);
   --admin-pressed: rgb(255 255 255 / 12%);
   --admin-text: #f5f5f7;
