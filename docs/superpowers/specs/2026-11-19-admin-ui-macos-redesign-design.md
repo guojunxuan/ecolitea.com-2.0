@@ -2,7 +2,7 @@
 
 - 日期：2026-11-19
 - 分支：`feature/admin-ui-macos`（基于 `feature/i18n-consent`，依赖其中的 email / translation 插件）
-- 状态：设计已确认，待编写实施计划
+- 状态：已实现（`51ba635`…`57581a0`，计划 `docs/superpowers/plans/2026-11-19-admin-ui-macos-redesign.md`）；实现差异见 §11
 - 后续：`docs/superpowers/specs/2026-11-19-remove-posts-categories-design.md`（同一分支，在本设计完成后执行）
 - 视觉稿：`.superpowers/brainstorm/89787-1795079269/content/admin-demo-v2.html`（本地文件，不提交；浅色/深色 × 概览/列表/编辑）
 - 参考：Apple Human Interface Guidelines（macOS 字号、系统颜色、Tab view/分段控件用法）；macOS 27 UI Kit 未能访问（Figma 登录受限），不影响本设计
@@ -242,3 +242,13 @@ Posts 与 Categories 的移除由 `2026-11-19-remove-posts-categories-design.md`
 ## 10. 发现但不在本次范围内
 
 - 无。前述 Posts/Categories 重叠问题已拆分到后续设计。
+
+## 11. 实现中确认的 canary.29 差异（2026-11-20）
+
+- 原生侧栏不渲染 `graphics.Icon`：品牌图标改为同时注册到公开插槽 `beforeNavLinks`（显示图标 + 站点名）。
+- “创建首个管理员”页没有 Logo 插槽，保持 Payload 原生欢迎页（§4.3 第一行不适用）。
+- 匿名访问时客户端配置缺少 `admin.theme`，自动主题不初始化：新增 `admin.components.providers` 中的 `AdminThemeProvider` + `AnonymousThemeSync`，通过公开的 `useTheme()` 设为 `auto`；用户已手动选择主题时不覆盖。该判断读取 `${cookiePrefix}-theme` cookie，属于 Payload 的约定而非文档 API，升级时需复查。
+- Dashboard 宽度：`large` 为 2/3、`medium` 为 1/2，因此采用 `recent-quotes: large` + `system-status: small`。
+- `public/favicon.svg`、`favicon.ico` 原为模板图标，已替换为中性图标（路径不变，前台无 favicon 时也使用它们）。
+- 已保存在内容中的 SEO 标题可能仍带历史品牌后缀，本次不改写内容数据。
+
