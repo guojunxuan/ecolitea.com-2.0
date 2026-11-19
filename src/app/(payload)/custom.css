@@ -13,8 +13,11 @@
   --admin-brand: #007aff;
   --admin-selection: 12%;
   --admin-success: #34c759;
+  --admin-success-text: #207234;
   --admin-warning: #ff9500;
+  --admin-warning-text: #8b4d00;
   --admin-danger: #ff3b30;
+  --admin-danger-text: #b32219;
   --admin-component: #5856d6;
   --admin-assistive: #ff2d55;
   --admin-font: -apple-system, BlinkMacSystemFont, "Inter", system-ui, sans-serif;
@@ -40,8 +43,11 @@ html[data-theme='dark'] {
   --admin-border: rgb(255 255 255 / 8%);
   --admin-brand: #0a84ff;
   --admin-selection: 24%;
+  --admin-success-text: var(--admin-success);
   --admin-success: #30d158;
+  --admin-warning-text: var(--admin-warning);
   --admin-warning: #ff9f0a;
+  --admin-danger-text: var(--admin-danger);
   --admin-danger: #ff453a;
   --admin-component: #5e5ce6;
   --admin-assistive: #ff375f;
@@ -92,18 +98,18 @@ html[data-theme='dark'] {
   --color-bg-brand-tertiary-hover: var(--color-bg-selected-hover);
 
   --color-bg-success: var(--admin-success);
-  --color-text-success: var(--admin-success);
-  --color-icon-success: var(--admin-success);
+  --color-text-success: var(--admin-success-text);
+  --color-icon-success: var(--admin-success-text);
   --color-bg-success-tertiary: color-mix(in srgb, var(--admin-success) 15%, transparent);
   --color-bg-success-tertiary-hover: color-mix(in srgb, var(--admin-success) 24%, transparent);
   --color-bg-warning: var(--admin-warning);
-  --color-text-warning: var(--admin-warning);
-  --color-icon-warning: var(--admin-warning);
+  --color-text-warning: var(--admin-warning-text);
+  --color-icon-warning: var(--admin-warning-text);
   --color-bg-warning-tertiary: color-mix(in srgb, var(--admin-warning) 16%, transparent);
   --color-bg-warning-tertiary-hover: color-mix(in srgb, var(--admin-warning) 25%, transparent);
   --color-bg-danger: var(--admin-danger);
-  --color-text-danger: var(--admin-danger);
-  --color-icon-danger: var(--admin-danger);
+  --color-text-danger: var(--admin-danger-text);
+  --color-icon-danger: var(--admin-danger-text);
   --color-bg-danger-hover: color-mix(in srgb, var(--admin-danger), var(--admin-text) 8%);
   --color-bg-danger-pressed: color-mix(in srgb, var(--admin-danger), var(--admin-text) 14%);
   --color-bg-danger-tertiary: color-mix(in srgb, var(--admin-danger) 15%, transparent);

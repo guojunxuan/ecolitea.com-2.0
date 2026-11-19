@@ -32,3 +32,23 @@ describe('Admin theme token contract', () => {
     expect(custom).not.toMatch(/!\s*important|Ecolitea|Payload Website Template|@payloadcms'/i)
   })
 })
+
+it('keeps light status text readable on the tinted status backgrounds', () => {
+  const hex = (prop: string) => {
+    const { value = '' } = declarations.find((declaration) => declaration.prop === prop) ?? {}
+    const token = value.match(/^var\((--admin-[\w-]+)\)$/)?.[1] ?? prop
+    const color = declarations.find((declaration) => declaration.prop === token)?.value ?? ''
+    expect(color).toMatch(/^#[0-9a-f]{6}$/)
+    return color.slice(1).match(/../g)!.map((channel) => Number.parseInt(channel, 16) / 255)
+  }
+  const luminance = (channels: number[]) => channels.reduce((sum, channel, index) => {
+    const linear = channel <= 0.04045 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4
+    return sum + linear * [0.2126, 0.7152, 0.0722][index]
+  }, 0)
+
+  for (const [tone, opacity] of [['success', 0.15], ['warning', 0.16], ['danger', 0.15]] as const) {
+    const foreground = luminance(hex(`--color-text-${tone}`))
+    const surface = luminance(hex(`--color-bg-${tone}`).map((channel) => 1 - opacity + channel * opacity))
+    expect((surface + 0.05) / (foreground + 0.05), tone).toBeGreaterThanOrEqual(4.5)
+  }
+})
