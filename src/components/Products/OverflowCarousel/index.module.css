@@ -46,6 +46,7 @@
   border-radius: var(--website-radius-control);
   text-decoration: none;
   color: var(--website-color-foreground);
+  transition: opacity var(--website-duration-fast) var(--website-easing-standard);
 }
 .linkChevron {
   flex-shrink: 0;
@@ -53,8 +54,7 @@
 }
 @media (hover: hover) and (pointer: fine) {
   .link:hover {
-    text-decoration: underline;
-    text-underline-offset: var(--website-space-1);
+    opacity: 0.72;
   }
 }
 .viewport {
@@ -230,7 +230,8 @@
   .track {
     scroll-behavior: auto;
   }
-  .arrow {
+  .arrow,
+  .link {
     transition: none;
   }
 }
