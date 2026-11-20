@@ -8,13 +8,11 @@ import { Blogs } from './collections/Blogs'
 import { BlogCategories } from './collections/BlogCategories'
 import { ProductCategories } from './collections/ProductCategories'
 import { Products } from './collections/Products'
-import { Categories } from './collections/Categories'
 import { SiteAssets } from './collections/SiteAssets'
 import { CaseStudies } from './collections/CaseStudies'
 import { Media } from './collections/Media'
 import { Documents } from './collections/Documents'
 import { Pages } from './collections/Pages'
-import { Posts } from './collections/Posts'
 import { SocialPlatforms } from './collections/SocialPlatforms'
 import { QuoteRequests } from './collections/QuoteRequests'
 import { Users } from './collections/Users'
@@ -105,11 +103,9 @@ export default buildConfig({
     ProductCategories,
     QuoteRequests,
     Pages,
-    Posts,
     Blogs,
     BlogCategories,
     CaseStudies,
-    Categories,
     Media,
     Documents,
     SiteAssets,

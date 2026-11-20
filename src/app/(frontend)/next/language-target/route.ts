@@ -1,6 +1,5 @@
 import { getBlogListing } from '@/utilities/blogs/getBlogListing'
 import { getProductListing } from '@/utilities/products/getProductListing'
-import { readyTranslationFilter } from '@/utilities/i18n/getLocalized'
 import { getI18nSettings } from '@/i18n/getI18nSettings'
 import { localePath, stripLocale } from '@/i18n/paths'
 import { getDocumentBySlug } from '@/utilities/i18n/getDocumentBySlug'
@@ -37,7 +36,7 @@ export async function GET(request: Request): Promise<Response> {
   let ready: unknown = false
   if (
     parts.length === 0 ||
-    (parts.length === 1 && !['products', 'blogs', 'posts', 'search'].includes(parts[0]))
+    (parts.length === 1 && !['products', 'blogs', 'search'].includes(parts[0]))
   ) {
     ready = await getDocumentBySlug('pages', parts[0] ?? 'home', locale)
   } else if (parts[0] === 'products' && parts.length === 3 && parts[2] !== 'page') {
@@ -58,11 +57,9 @@ export async function GET(request: Request): Promise<Response> {
     ready = await getLocalizedDoc(result.docs[0], 'blog-categories', locale, payload)
   } else if (parts[0] === 'blogs' && parts.length === 2)
     ready = await getBlogBySlug(parts[1], false, locale)
-  else if (parts[0] === 'posts' && parts.length === 2)
-    ready = await getDocumentBySlug('posts', parts[1], locale)
   else if (parts[0] === 'case-studies' && parts.length === 2)
     ready = await getDocumentBySlug('case-studies', parts[1], locale)
-  else if (['blogs', 'posts', 'products', 'search'].includes(parts[0])) ready = true
+  else if (['blogs', 'products', 'search'].includes(parts[0])) ready = true
   if (ready && parts[0] === 'blogs' && parts[1] === 'category') {
     const categoryId =
       typeof ready === 'object' && ready && 'id' in ready ? String(ready.id) : undefined
@@ -76,20 +73,6 @@ export async function GET(request: Request): Promise<Response> {
       ready = (await getBlogListing(page, undefined, locale)).docs.length > 0
     else if (parts[0] === 'products' && typeof ready === 'object' && ready && 'id' in ready) {
       ready = (await getProductListing(String(ready.id), page, locale)).docs.length > 0
-    } else if (parts[0] === 'posts') {
-      const payload = await getPayload({ config })
-      ready =
-        (
-          await payload.find({
-            collection: 'posts',
-            draft: false,
-            overrideAccess: false,
-            depth: 0,
-            page,
-            limit: 12,
-            where: { and: await readyTranslationFilter(payload, 'posts', locale) },
-          })
-        ).docs.length > 0
     }
   }
   const href = ready

@@ -9,12 +9,10 @@ module.exports = {
   sourceDir: process.env.PLAYWRIGHT_TEST === 'true' ? '.next-e2e' : '.next',
   generateRobotsTxt: true,
   exclude: [
-    '/posts-sitemap.xml',
     '/pages-sitemap.xml',
     '/blogs-sitemap.xml',
     '/products-sitemap.xml',
     '/*',
-    '/posts/*',
   ],
   robotsTxtOptions: {
     policies: [
@@ -25,7 +23,6 @@ module.exports = {
     ],
     additionalSitemaps: [
       `${SITE_URL}/pages-sitemap.xml`,
-      `${SITE_URL}/posts-sitemap.xml`,
       `${SITE_URL}/blogs-sitemap.xml`,
       `${SITE_URL}/products-sitemap.xml`,
     ],

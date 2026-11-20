@@ -15,7 +15,6 @@ export const revalidateSiteSettings: GlobalAfterChangeHook = ({
     revalidatePath('/(frontend)/[lang]', 'layout')
     for (const path of [
       '/pages-sitemap.xml',
-      '/posts-sitemap.xml',
       '/blogs-sitemap.xml',
       '/products-sitemap.xml',
     ])

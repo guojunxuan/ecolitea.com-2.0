@@ -1,13 +1,11 @@
 import { blogCategoriesRule } from './blogCategories'
 import { blogsRule } from './blogs'
 import { caseStudiesRule } from './caseStudies'
-import { categoriesRule } from './categories'
 import { footerRule } from './footer'
 import { formsRule } from './forms'
 import { headerRule } from './header'
 import { mediaRule } from './media'
 import { pagesRule } from './pages'
-import { postsRule } from './posts'
 import { productCategoriesRule } from './productCategories'
 import { productsRule } from './products'
 import { settingsRule } from './settings'
@@ -23,8 +21,6 @@ export const translationRules: Readonly<Record<string, TranslationRule>> = {
   'product-categories': productCategoriesRule,
   blogs: blogsRule,
   'blog-categories': blogCategoriesRule,
-  posts: postsRule,
-  categories: categoriesRule,
   'case-studies': caseStudiesRule,
   pages: pagesRule,
   forms: formsRule,

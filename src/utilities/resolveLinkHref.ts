@@ -3,9 +3,7 @@ import type {
   Blog,
   BlogCategory,
   CaseStudy,
-  Category,
   Page,
-  Post,
   Product,
   ProductCategory,
 } from '@/payload-types'
@@ -19,16 +17,8 @@ type LinkRelation =
       value: Page | string | number
     }
   | {
-      relationTo: 'posts'
-      value: Post | string | number
-    }
-  | {
       relationTo: 'case-studies'
       value: CaseStudy | string | number
-    }
-  | {
-      relationTo: 'categories'
-      value: Category | string | number
     }
   | {
       relationTo: 'blogs'
@@ -57,7 +47,6 @@ export const resolveLinkHref = ({ reference, type, url }: ResolvableLink, locale
 
   if (!slug) return null
 
-  if (reference.relationTo === 'categories') return localePath(`/posts?category=${encodeURIComponent(slug)}`, locale)
   return getContentPath(
     reference.relationTo,
     slug,

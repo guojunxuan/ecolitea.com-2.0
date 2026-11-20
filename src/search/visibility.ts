@@ -3,7 +3,6 @@ import type { Where } from 'payload'
 // Keep future rows indexed so the date check exposes them when their time arrives.
 export const publicSearchVisibility = (now: Date): Where => ({
   or: [
-    { 'doc.relationTo': { equals: 'posts' } },
     {
       and: [
         { 'doc.relationTo': { equals: 'blogs' } },

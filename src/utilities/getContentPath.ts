@@ -4,7 +4,6 @@ import { productCategoryPath, productPath } from '@/utilities/products/paths'
 
 const contentPrefixes: Partial<Record<CollectionSlug, string>> = {
   pages: '',
-  posts: '/posts',
   blogs: '/blogs',
   'blog-categories': '/blogs/category',
   'case-studies': '/case-studies',

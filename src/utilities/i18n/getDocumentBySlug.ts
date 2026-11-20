@@ -5,7 +5,7 @@ import { getPayload, type DataFromCollectionSlug } from 'payload'
 import config from '@payload-config'
 import { getLocalizedDoc, translationTags } from './getLocalized'
 
-type SourceCollection = 'pages' | 'posts' | 'case-studies'
+type SourceCollection = 'pages' | 'case-studies'
 export const getDocumentBySlug = cache(async <T extends SourceCollection>(collection: T, slug: string, locale = 'en', draft = false): Promise<DataFromCollectionSlug<T> | null> => {
   const payload = await getPayload({ config })
   if (draft) {

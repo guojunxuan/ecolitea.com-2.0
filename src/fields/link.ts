@@ -109,7 +109,7 @@ export const link: LinkType = ({
         } satisfies SingleRelationshipField)
       : ({
           ...referenceProperties,
-          relationTo: relationTo ?? ['pages', 'posts'],
+          relationTo: relationTo ?? ['pages', 'blogs'],
         } satisfies PolymorphicRelationshipField)
 
   const urlField: TextField = deepMerge(

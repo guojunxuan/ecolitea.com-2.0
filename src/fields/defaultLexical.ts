@@ -25,7 +25,6 @@ export const articleLinkFeature = () =>
   LinkFeature({
     enabledCollections: [
       'pages',
-      'posts',
       'blogs',
       'blog-categories',
       'case-studies',

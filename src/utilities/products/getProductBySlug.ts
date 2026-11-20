@@ -24,7 +24,7 @@ export const productDetailPopulate: PopulateType = {
   'product-categories': { title: true, slug: true, description: true, image: true, meta: true },
   products: { slug: true, categorySlug: true },
   pages: { slug: true },
-  posts: { slug: true },
+  blogs: { slug: true },
 }
 
 const normalizeDetail = (product: Product | null): ProductDetail | null =>

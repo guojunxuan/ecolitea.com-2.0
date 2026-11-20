@@ -1,7 +1,7 @@
 import type React from 'react'
 import { stripLocale } from '@/i18n/paths'
 import { resolveLocalizedRedirect } from '@/utilities/i18n/resolveRedirect'
-import type { Page, Post } from '@/payload-types'
+import type { Page } from '@/payload-types'
 
 import { getCachedDocument } from '@/utilities/getDocument'
 import { getCachedRedirects } from '@/utilities/getRedirects'
@@ -59,13 +59,13 @@ export const PayloadRedirects: React.FC<Props> = async ({
         notFound()
       }
 
-      if (collection === 'blogs') {
+      if (collection === 'blogs' || collection === 'blog-categories') {
         // Cached relationships may contain an old populated slug. Resolve the stable
         // ID for every redirect so renames and publication changes take effect.
         const id = typeof reference.value === 'object' ? reference.value.id : reference.value
         const payload = await getPayload({ config: configPromise })
         document = await payload.findByID({
-          collection: 'blogs',
+          collection,
           id,
           depth: 0,
           draft: false,
@@ -74,12 +74,12 @@ export const PayloadRedirects: React.FC<Props> = async ({
           select: { slug: true },
         })
       } else if (typeof reference.value === 'string') {
-        document = (await getCachedDocument(collection, reference.value)()) as Page | Post
+        document = (await getCachedDocument(collection, reference.value)()) as Page | null
       }
 
       const redirectUrl = getContentPath(collection, document?.slug || '')
       if (redirectUrl) {
-        if (collection === 'blogs') permanentRedirect(redirectUrl)
+        if (collection === 'blogs' || collection === 'blog-categories') permanentRedirect(redirectUrl)
         redirect(redirectUrl)
       }
     }

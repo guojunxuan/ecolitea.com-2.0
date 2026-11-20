@@ -1,12 +1,12 @@
 import { localizeMetadata } from './i18n/seo'
 import type { Metadata } from 'next'
-import type { Blog, Page, Post } from '../payload-types'
+import type { Blog, Page } from '../payload-types'
 import { mergeOpenGraph } from './mergeOpenGraph'
 import { getServerSideURL } from './getURL'
 import { formatTitle, getSiteIdentity } from './siteIdentity'
 
 export const generateMeta = async (args: {
-  doc: Partial<Page> | Partial<Post> | Partial<Blog> | null
+  doc: Partial<Page> | Partial<Blog> | null
   locale?: string
   path?: string
   sourceCollection?: string

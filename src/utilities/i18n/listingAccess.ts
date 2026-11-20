@@ -3,7 +3,7 @@ import { readyTranslationFilter } from './getLocalized'
 import { fallbackToEnglish } from './pageAccess'
 import { publicSourceVisibility } from './publicSourceVisibility'
 
-type ListingCollection = 'blogs' | 'posts' | 'products'
+type ListingCollection = 'blogs' | 'products'
 
 /** Test the whole locale, independently of the requested category, page or query. */
 export async function fallbackListingToEnglish(

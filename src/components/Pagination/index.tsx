@@ -34,7 +34,7 @@ export const Pagination: React.FC<{
     className,
     page,
     totalPages,
-    routeBase = '/posts',
+    routeBase = '/blogs',
     firstPageHref,
     linkMode = false,
   } = props

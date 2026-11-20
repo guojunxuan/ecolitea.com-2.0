@@ -1,17 +1,5 @@
 @layer base, components, utilities;
 
-.categoryLabel {
-  composes: website-type-eyebrow from global;
-}
-
-.heading {
-  composes: website-type-heading-3 from global;
-}
-
-.description {
-  composes: website-type-body-md from global;
-}
-
 .blogCategory {
   composes: website-type-eyebrow from global;
   font-size: 12px;
@@ -42,37 +30,6 @@
     .card:hover {
       cursor: pointer;
     }
-  }
-
-  .media {
-    position: relative;
-    width: 100%;
-  }
-
-  .body {
-    padding: var(--website-space-4);
-  }
-
-  .categoryLabel {
-    margin-bottom: var(--website-space-4);
-  }
-
-  .title {
-    max-width: 65ch;
-  }
-
-  .heading {
-    margin: 0;
-    color: inherit;
-  }
-
-  .link {
-    color: inherit;
-    text-decoration: inherit;
-  }
-
-  .description {
-    margin-top: var(--website-space-2);
   }
 
   .blogCard {

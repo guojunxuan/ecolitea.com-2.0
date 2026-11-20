@@ -123,7 +123,7 @@ export const productListingHero = (): CollapsibleField => ({
         },
         link({
           appearances: false,
-          relationTo: ['pages', 'posts', 'products', 'product-categories'],
+          relationTo: ['pages', 'blogs', 'products', 'product-categories'],
           labelOverrides: {
             label: 'Accessible link label',
             hooks: { beforeValidate: [trimText] },

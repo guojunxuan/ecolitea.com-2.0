@@ -9,7 +9,6 @@ import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 import React from 'react'
 import { Search } from '@/search/Component'
-import { CardPostData } from '@/components/Card'
 import { normalizeSearchQuery } from '@/search/query'
 import { publicSearchVisibility } from '@/search/visibility'
 import { getTranslatedSearchResults } from '@/search/getTranslatedSearchResults'
@@ -30,14 +29,11 @@ export default async function Page({ searchParams: searchParamsPromise, params }
   const query = normalizeSearchQuery(q)
   const payload = await getPayload({ config: configPromise })
   let blogResults: CardBlogData[]
-  let postResults: CardPostData[]
   if (lang !== 'en') {
-    const localized = await getTranslatedSearchResults(payload, query, lang)
-    blogResults = localized.blogs
-    postResults = localized.posts
-    if (!blogResults.length && !postResults.length) {
+    blogResults = await getTranslatedSearchResults(payload, query, lang)
+    if (!blogResults.length) {
       await fallbackListingToEnglish(
-        ['blogs', 'posts'],
+        ['blogs'],
         lang,
         query ? `/search?q=${encodeURIComponent(query)}` : '/search',
         payload,
@@ -47,14 +43,8 @@ export default async function Page({ searchParams: searchParamsPromise, params }
     const publicWhere: Where = {
       and: [
         publicSearchVisibility(new Date()),
-        // Constrain before limit: this page currently renders article cards only.
-        // Use `equals`: `in` on the polymorphic `doc.relationTo` path matches nothing.
-        {
-          or: [
-            { 'doc.relationTo': { equals: 'blogs' } },
-            { 'doc.relationTo': { equals: 'posts' } },
-          ],
-        },
+        // Constrain before limit because this page renders article cards.
+        { 'doc.relationTo': { equals: 'blogs' } },
       ],
     }
 
@@ -66,7 +56,6 @@ export default async function Page({ searchParams: searchParamsPromise, params }
         title: true,
         slug: true,
         doc: true,
-        categories: true,
         meta: true,
         excerpt: true,
         category: true,
@@ -95,9 +84,6 @@ export default async function Page({ searchParams: searchParamsPromise, params }
     })
 
     blogResults = await resolveBlogSearchResults(payload, results.docs)
-    postResults = results.docs.filter(
-      (result) => result.doc.relationTo === 'posts',
-    ) as CardPostData[]
   }
 
   return (
@@ -110,11 +96,8 @@ export default async function Page({ searchParams: searchParamsPromise, params }
         </div>
       </div>
 
-      {blogResults.length || postResults.length ? (
-        <>
-          {blogResults.length > 0 && <CollectionArchive posts={blogResults} relationTo="blogs" />}
-          {postResults.length > 0 && <CollectionArchive posts={postResults} />}
-        </>
+      {blogResults.length > 0 ? (
+        <CollectionArchive posts={blogResults} relationTo="blogs" />
       ) : (
         <div className={styles.pageMessage}>No results found.</div>
       )}

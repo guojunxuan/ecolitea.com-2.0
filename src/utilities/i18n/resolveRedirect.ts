@@ -9,7 +9,7 @@ import { isPublicSource, publicSourceVisibility } from './publicSourceVisibility
 
 type Destination = { path: string; permanent: boolean }
 type Document = Record<string, unknown> & { id: string; slug?: string; categorySlug?: string }
-const permanentCollections = ['blogs', 'products', 'product-categories']
+const permanentCollections = ['blogs', 'blog-categories', 'products', 'product-categories']
 
 async function isLegalPage(payload: Payload, collection: string, id: string): Promise<boolean> {
   if (
@@ -104,7 +104,7 @@ export async function resolveLocalizedRedirect(
   if (!parts.length) {
     collection = 'pages'
     slug = 'home'
-  } else if (parts.length === 1 && !['blogs', 'posts', 'products', 'search'].includes(parts[0])) {
+  } else if (parts.length === 1 && !['blogs', 'products', 'search'].includes(parts[0])) {
     collection = 'pages'
     slug = parts[0]
   } else if (
@@ -115,7 +115,7 @@ export async function resolveLocalizedRedirect(
     collection = 'blog-categories'
     slug = parts[2]
     if (parts.length === 5) paginationPath = `/page/${encodeURIComponent(parts[4])}`
-  } else if (parts.length === 2 && ['blogs', 'posts', 'case-studies'].includes(parts[0])) {
+  } else if (parts.length === 2 && ['blogs', 'case-studies'].includes(parts[0])) {
     collection = parts[0] as CollectionSlug
     slug = parts[1]
   } else if (parts[0] === 'products' && parts.length === 3) {

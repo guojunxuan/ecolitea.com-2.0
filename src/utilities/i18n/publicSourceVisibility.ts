@@ -6,7 +6,7 @@ import { publicProductVisibility } from '@/utilities/products/publicVisibility'
 export function publicSourceVisibility(collection: string, now = new Date()): Where {
   if (collection === 'blogs') return publicBlogVisibility(now)
   if (collection === 'products') return publicProductVisibility(now)
-  return ['pages', 'posts', 'case-studies'].includes(collection) ? { _status: { equals: 'published' } } : {}
+  return ['pages', 'case-studies'].includes(collection) ? { _status: { equals: 'published' } } : {}
 }
 
 export function isPublicSource(
@@ -15,7 +15,7 @@ export function isPublicSource(
   now = new Date(),
 ): boolean {
   if (
-    ['pages', 'blogs', 'posts', 'products', 'case-studies'].includes(collection) &&
+    ['pages', 'blogs', 'products', 'case-studies'].includes(collection) &&
     doc._status !== 'published'
   )
     return false

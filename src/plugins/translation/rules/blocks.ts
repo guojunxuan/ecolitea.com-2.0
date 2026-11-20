@@ -30,11 +30,6 @@ export const blogBlockRules: Readonly<Record<string, TranslationRule>> = {
   blogCta: cta,
   blogBanner: banner,
 }
-export const postBlockRules: Readonly<Record<string, TranslationRule>> = {
-  postBanner: banner,
-  postCode: blockRule({ code: 'exclude' }),
-  postMediaBlock: media,
-}
 export const productBlockRules: Readonly<Record<string, TranslationRule>> = {
   productMediaBanner: blockRule({ title: 'translate', body: 'translate' }),
   productMediaCarousel: blockRule({

@@ -34,17 +34,12 @@ describe('Site identity', () => {
   })
 
   it('guards source files from reintroducing legacy brand literals', () => {
-    const legacyPostsTitles: Record<string, string> = {
-      'app/(frontend)/[lang]/posts/page.tsx': 'Payload Website Template Posts',
-      'app/(frontend)/[lang]/posts/page/[pageNumber]/page.tsx': 'Payload Website Template Posts Page',
-    }
     for (const name of readdirSync('src', { recursive: true, withFileTypes: true })) {
       if (!name.isFile()) continue
       const path = `${name.parentPath}/${name.name}`.replace(/^src\//, '')
       if (path === 'payload-types.ts' || path.startsWith('migrations/')) continue
       const source = readFileSync(`src/${path}`, 'utf8')
-      const searchable = legacyPostsTitles[path] ? source.replace(legacyPostsTitles[path], '') : source
-      expect(searchable, path).not.toMatch(/Ecolitea|Payload Website Template|@payloadcms['"]/)
+      expect(source, path).not.toMatch(/Ecolitea|Payload Website Template|@payloadcms['"]/)
     }
   })
 })

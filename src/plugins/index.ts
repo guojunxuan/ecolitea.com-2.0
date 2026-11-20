@@ -1,5 +1,4 @@
 import { formBuilderPlugin } from '@payloadcms/plugin-form-builder'
-import { nestedDocsPlugin } from '@payloadcms/plugin-nested-docs'
 import { redirectsPlugin } from '@payloadcms/plugin-redirects'
 import { seoPlugin } from '@payloadcms/plugin-seo'
 import { searchPlugin } from '@payloadcms/plugin-search'
@@ -24,7 +23,6 @@ import {
   BlogCategory,
   CaseStudy,
   Page,
-  Post,
   Product,
   ProductCategory,
   Settings,
@@ -38,7 +36,7 @@ import { s3Storage, type S3StorageOptions } from '@payloadcms/storage-s3'
 import { serverEnv } from '@/utilities/env'
 import { getFileKey } from '@payloadcms/plugin-cloud-storage/utilities'
 
-type SEOContent = BlogCategory | Blog | CaseStudy | Page | Post | Product | ProductCategory
+type SEOContent = BlogCategory | Blog | CaseStudy | Page | Product | ProductCategory
 
 export const generateTitle: GenerateTitle<SEOContent | Settings> = async ({
   collectionConfig,
@@ -155,8 +153,7 @@ export const generateImage: GenerateImage<SEOContent | Settings> = async ({
         break
       }
       case 'blogs':
-      case 'posts':
-        source = (content as Blog | Post)?.heroImage
+        source = (content as Blog)?.heroImage
         break
       case 'product-categories':
         source = (content as ProductCategory)?.image
@@ -239,7 +236,7 @@ export const plugins: Plugin[] = [
     },
   }).init as unknown as Plugin,
   redirectsPlugin({
-    collections: ['pages', 'posts', 'blogs', 'products', 'product-categories'],
+    collections: ['pages', 'blogs', 'blog-categories', 'products', 'product-categories'],
     overrides: {
       admin: { group: 'Site' },
       // @ts-expect-error - This is a valid override, mapped fields don't resolve to the same type
@@ -260,10 +257,6 @@ export const plugins: Plugin[] = [
         afterChange: [revalidateRedirects],
       },
     },
-  }),
-  nestedDocsPlugin({
-    collections: ['categories'],
-    generateURL: (docs) => docs.reduce((url, doc) => `${url}/${doc.slug}`, ''),
   }),
   seoPlugin({
     generateTitle,
@@ -303,7 +296,7 @@ export const plugins: Plugin[] = [
     },
   }),
   searchPlugin({
-    collections: ['posts', 'blogs', 'products'],
+    collections: ['blogs', 'products'],
     beforeSync: beforeSyncWithSearch,
     searchOverrides: {
       admin: { group: 'Site' },

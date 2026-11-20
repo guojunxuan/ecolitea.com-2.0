@@ -1,5 +1,7 @@
 import { getLocalizedList, readyTranslationFilter } from '@/utilities/i18n/getLocalized'
-import type { Post, PageArchiveBlock as ArchiveBlockProps } from '@/payload-types'
+import { isPublicSource } from '@/utilities/i18n/publicSourceVisibility'
+import { publicBlogVisibility } from '@/utilities/blogs/publicVisibility'
+import type { Blog, PageArchiveBlock as ArchiveBlockProps } from '@/payload-types'
 
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
@@ -14,67 +16,40 @@ export const ArchiveBlock: React.FC<
     id?: string
     locale?: string
   }
-> = async (props) => {
-  const {
-    id,
-    categories,
-    introContent,
-    limit: limitFromProps,
-    populateBy,
-    selectedDocs,
-    locale = 'en',
-  } = props
+> = async ({ id, categories, introContent, limit, populateBy, selectedDocs, locale = 'en' }) => {
+  const now = new Date()
+  let blogs: Blog[]
 
-  const limit = limitFromProps || 3
-
-  let posts: Post[] = []
-
-  if (populateBy === 'collection') {
-    const payload = await getPayload({ config: configPromise })
-
-    const flattenedCategories = categories?.map((category) => {
-      if (typeof category === 'object') return category.id
-      else return category
+  if (populateBy === 'selection') {
+    blogs = (selectedDocs ?? []).flatMap((selection) => {
+      if (selection?.relationTo !== 'blogs') return []
+      const { value } = selection
+      if (!value || typeof value !== 'object') return []
+      return isPublicSource({ _status: value._status, publishedAt: value.publishedAt }, 'blogs', now)
+        ? [value]
+        : []
     })
-
-    const fetchedPosts = await payload.find({
-      collection: 'posts',
-      depth: 1,
-      limit,
-      ...(locale !== 'en'
-        ? {
-            draft: false,
-            overrideAccess: false,
-            where: {
-              and: [
-                ...(await readyTranslationFilter(payload, 'posts', locale)),
-                ...(flattenedCategories?.length
-                  ? [{ categories: { in: flattenedCategories } }]
-                  : []),
-              ],
-            },
-          }
-        : {}),
-      ...(locale === 'en' && flattenedCategories && flattenedCategories.length > 0
-        ? {
-            where: {
-              categories: {
-                in: flattenedCategories,
-              },
-            },
-          }
-        : {}),
-    })
-
-    posts = await getLocalizedList(fetchedPosts.docs, 'posts', locale, payload)
   } else {
-    if (selectedDocs?.length) {
-      const filteredSelectedPosts = selectedDocs.map((post) => {
-        if (typeof post.value === 'object') return post.value
-      }) as Post[]
-
-      posts = filteredSelectedPosts
-    }
+    const payload = await getPayload({ config: configPromise })
+    const categoryIDs = (categories ?? []).filter(Boolean).map((category) =>
+      typeof category === 'object' ? category.id : category,
+    )
+    const { docs } = await payload.find({
+      collection: 'blogs',
+      draft: false,
+      overrideAccess: false,
+      depth: 1,
+      limit: limit || 3,
+      sort: '-publishedAt',
+      where: {
+        and: [
+          publicBlogVisibility(now),
+          ...(locale === 'en' ? [] : await readyTranslationFilter(payload, 'blogs', locale)),
+          ...(categoryIDs.length ? [{ category: { in: categoryIDs } }] : []),
+        ],
+      },
+    })
+    blogs = await getLocalizedList(docs, 'blogs', locale, payload)
   }
 
   return (
@@ -84,7 +59,7 @@ export const ArchiveBlock: React.FC<
           <RichText className={styles.introText} data={introContent} enableGutter={false} />
         </div>
       )}
-      <CollectionArchive posts={posts} />
+      <CollectionArchive posts={blogs} relationTo="blogs" />
     </div>
   )
 }

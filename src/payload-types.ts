@@ -23,10 +23,6 @@ export type HeaderNavItem =
               value: string | Page;
             } | null)
           | ({
-              relationTo: 'posts';
-              value: string | Post;
-            } | null)
-          | ({
               relationTo: 'blogs';
               value: string | Blog;
             } | null)
@@ -37,10 +33,6 @@ export type HeaderNavItem =
           | ({
               relationTo: 'case-studies';
               value: string | CaseStudy;
-            } | null)
-          | ({
-              relationTo: 'categories';
-              value: string | Category;
             } | null);
         url?: string | null;
       };
@@ -67,10 +59,6 @@ export type NavigationColumns =
                 value: string | Page;
               } | null)
             | ({
-                relationTo: 'posts';
-                value: string | Post;
-              } | null)
-            | ({
                 relationTo: 'blogs';
                 value: string | Blog;
               } | null)
@@ -81,10 +69,6 @@ export type NavigationColumns =
             | ({
                 relationTo: 'case-studies';
                 value: string | CaseStudy;
-              } | null)
-            | ({
-                relationTo: 'categories';
-                value: string | Category;
               } | null);
           url?: string | null;
           label: string;
@@ -223,26 +207,6 @@ export type LexicalNodes_67D0DA17 =
   | SerializedQuoteNode<LexicalNodes_67D0DA17>;
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "LexicalNodes_46351820".
- */
-export type LexicalNodes_46351820 =
-  | SerializedTextNode
-  | SerializedTabNode
-  | SerializedLineBreakNode
-  | SerializedParagraphNode<LexicalNodes_46351820>
-  | SerializedHorizontalRuleNode
-  | SerializedBlockNode<PostBannerBlock | PostCodeBlock | PostMediaBlock>
-  | SerializedHeadingNode<LexicalNodes_46351820, 'h1' | 'h2' | 'h3' | 'h4'>
-  | SerializedAutoLinkNode<LexicalNodes_46351820, LexicalLinkFields>
-  | SerializedLinkNode<LexicalNodes_46351820, LexicalLinkFields>
-  | SerializedListNode<LexicalNodes_46351820>
-  | SerializedListItemNode<LexicalNodes_46351820>
-  | SerializedTableNode<LexicalNodes_46351820>
-  | SerializedTableCellNode<LexicalNodes_46351820>
-  | SerializedTableRowNode<LexicalNodes_46351820>
-  | SerializedQuoteNode<LexicalNodes_46351820>;
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "LexicalNodes_C71AFECE".
  */
 export type LexicalNodes_C71AFECE =
@@ -291,11 +255,9 @@ export interface Config {
     'product-categories': ProductCategory;
     'quote-requests': QuoteRequest;
     pages: Page;
-    posts: Post;
     blogs: Blog;
     'blog-categories': BlogCategory;
     'case-studies': CaseStudy;
-    categories: Category;
     media: Media;
     documents: Document;
     'site-assets': SiteAsset;
@@ -327,11 +289,9 @@ export interface Config {
     'product-categories': ProductCategoriesSelect<false> | ProductCategoriesSelect<true>;
     'quote-requests': QuoteRequestsSelect<false> | QuoteRequestsSelect<true>;
     pages: PagesSelect<false> | PagesSelect<true>;
-    posts: PostsSelect<false> | PostsSelect<true>;
     blogs: BlogsSelect<false> | BlogsSelect<true>;
     'blog-categories': BlogCategoriesSelect<false> | BlogCategoriesSelect<true>;
     'case-studies': CaseStudiesSelect<false> | CaseStudiesSelect<true>;
-    categories: CategoriesSelect<false> | CategoriesSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     documents: DocumentsSelect<false> | DocumentsSelect<true>;
     'site-assets': SiteAssetsSelect<false> | SiteAssetsSelect<true>;
@@ -777,8 +737,8 @@ export interface Page {
                   value: string | Page;
                 } | null)
               | ({
-                  relationTo: 'posts';
-                  value: string | Post;
+                  relationTo: 'blogs';
+                  value: string | Blog;
                 } | null);
             url?: string | null;
             label: string;
@@ -809,15 +769,14 @@ export interface Page {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "posts".
+ * via the `definition` "blogs".
  */
-export interface Post {
+export interface Blog {
   id: string;
   title: string;
-  heroImage?: (string | null) | Media;
-  content: LexicalRichText<LexicalNodes_46351820>;
-  relatedPosts?: (string | Post)[] | null;
-  categories?: (string | Category)[] | null;
+  heroImage: string | Media;
+  excerpt: string;
+  content: LexicalRichText<LexicalNodes_C71AFECE>;
   meta?: {
     title?: string | null;
     /**
@@ -826,6 +785,8 @@ export interface Post {
     image?: (string | null) | Media;
     description?: string | null;
   };
+  slug: string;
+  category: string | BlogCategory;
   publishedAt?: string | null;
   authors?: (string | User)[] | null;
   populatedAuthors?:
@@ -834,28 +795,34 @@ export interface Post {
         name?: string | null;
       }[]
     | null;
-  slug: string;
+  relatedBlogs?: (string | Blog)[] | null;
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "categories".
+ * via the `definition` "blog-categories".
  */
-export interface Category {
+export interface BlogCategory {
   id: string;
+  _order?: string | null;
   title: string;
+  description?: string | null;
+  meta?: {
+    title?: string | null;
+    /**
+     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
+     */
+    image?: (string | null) | Media;
+    description?: string | null;
+  };
   slug: string;
-  parent?: (string | null) | Category;
-  breadcrumbs?:
-    | {
-        doc?: (string | null) | Category;
-        url?: string | null;
-        label?: string | null;
-        id?: string | null;
-      }[]
-    | null;
+  blogs?: {
+    docs?: (string | Blog)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
   updatedAt: string;
   createdAt: string;
 }
@@ -908,8 +875,8 @@ export interface PageCallToActionBlock {
                 value: string | Page;
               } | null)
             | ({
-                relationTo: 'posts';
-                value: string | Post;
+                relationTo: 'blogs';
+                value: string | Blog;
               } | null);
           url?: string | null;
           label: string;
@@ -945,8 +912,8 @@ export interface PageContentBlock {
                 value: string | Page;
               } | null)
             | ({
-                relationTo: 'posts';
-                value: string | Post;
+                relationTo: 'blogs';
+                value: string | Blog;
               } | null);
           url?: string | null;
           label: string;
@@ -989,13 +956,13 @@ export interface PageMediaBlock {
 export interface PageArchiveBlock {
   introContent?: LexicalRichText<LexicalNodes_B17D0A84> | null;
   populateBy?: ('collection' | 'selection') | null;
-  relationTo?: 'posts' | null;
-  categories?: (string | Category)[] | null;
+  relationTo?: 'blogs' | null;
+  categories?: (string | BlogCategory)[] | null;
   limit?: number | null;
   selectedDocs?:
     | {
-        relationTo: 'posts';
-        value: string | Post;
+        relationTo: 'blogs';
+        value: string | Blog;
       }[]
     | null;
   id?: string | null;
@@ -1172,65 +1139,6 @@ export interface Textarea {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "blogs".
- */
-export interface Blog {
-  id: string;
-  title: string;
-  heroImage: string | Media;
-  excerpt: string;
-  content: LexicalRichText<LexicalNodes_C71AFECE>;
-  meta?: {
-    title?: string | null;
-    /**
-     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
-     */
-    image?: (string | null) | Media;
-    description?: string | null;
-  };
-  slug: string;
-  category: string | BlogCategory;
-  publishedAt?: string | null;
-  authors?: (string | User)[] | null;
-  populatedAuthors?:
-    | {
-        id?: string | null;
-        name?: string | null;
-      }[]
-    | null;
-  relatedBlogs?: (string | Blog)[] | null;
-  updatedAt: string;
-  createdAt: string;
-  _status?: ('draft' | 'published') | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "blog-categories".
- */
-export interface BlogCategory {
-  id: string;
-  _order?: string | null;
-  title: string;
-  description?: string | null;
-  meta?: {
-    title?: string | null;
-    /**
-     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
-     */
-    image?: (string | null) | Media;
-    description?: string | null;
-  };
-  slug: string;
-  blogs?: {
-    docs?: (string | Blog)[];
-    hasNextPage?: boolean;
-    totalDocs?: number;
-  };
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "case-studies".
  */
 export interface CaseStudy {
@@ -1251,8 +1159,8 @@ export interface CaseStudy {
                   value: string | Page;
                 } | null)
               | ({
-                  relationTo: 'posts';
-                  value: string | Post;
+                  relationTo: 'blogs';
+                  value: string | Blog;
                 } | null);
             url?: string | null;
             label: string;
@@ -1303,8 +1211,8 @@ export interface CaseStudyCallToActionBlock {
                 value: string | Page;
               } | null)
             | ({
-                relationTo: 'posts';
-                value: string | Post;
+                relationTo: 'blogs';
+                value: string | Blog;
               } | null);
           url?: string | null;
           label: string;
@@ -1340,8 +1248,8 @@ export interface CaseStudyContentBlock {
                 value: string | Page;
               } | null)
             | ({
-                relationTo: 'posts';
-                value: string | Post;
+                relationTo: 'blogs';
+                value: string | Blog;
               } | null);
           url?: string | null;
           label: string;
@@ -1432,12 +1340,12 @@ export interface Redirect {
           value: string | Page;
         } | null)
       | ({
-          relationTo: 'posts';
-          value: string | Post;
-        } | null)
-      | ({
           relationTo: 'blogs';
           value: string | Blog;
+        } | null)
+      | ({
+          relationTo: 'blog-categories';
+          value: string | BlogCategory;
         } | null)
       | ({
           relationTo: 'products';
@@ -1481,10 +1389,6 @@ export interface Search {
   priority?: number | null;
   doc:
     | {
-        relationTo: 'posts';
-        value: string | Post;
-      }
-    | {
         relationTo: 'blogs';
         value: string | Blog;
       }
@@ -1508,14 +1412,6 @@ export interface Search {
     description?: string | null;
     image?: (string | null) | Media;
   };
-  categories?:
-    | {
-        relationTo?: string | null;
-        categoryID?: string | null;
-        title?: string | null;
-        id?: string | null;
-      }[]
-    | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -1716,10 +1612,6 @@ export interface PayloadLockedDocument {
         value: string | Page;
       } | null)
     | ({
-        relationTo: 'posts';
-        value: string | Post;
-      } | null)
-    | ({
         relationTo: 'blogs';
         value: string | Blog;
       } | null)
@@ -1730,10 +1622,6 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'case-studies';
         value: string | CaseStudy;
-      } | null)
-    | ({
-        relationTo: 'categories';
-        value: string | Category;
       } | null)
     | ({
         relationTo: 'media';
@@ -2168,36 +2056,6 @@ export interface PageFormBlockSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "posts_select".
- */
-export interface PostsSelect<T extends boolean = true> {
-  title?: T;
-  heroImage?: T;
-  content?: T;
-  relatedPosts?: T;
-  categories?: T;
-  meta?:
-    | T
-    | {
-        title?: T;
-        image?: T;
-        description?: T;
-      };
-  publishedAt?: T;
-  authors?: T;
-  populatedAuthors?:
-    | T
-    | {
-        id?: T;
-        name?: T;
-      };
-  slug?: T;
-  updatedAt?: T;
-  createdAt?: T;
-  _status?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "blogs_select".
  */
 export interface BlogsSelect<T extends boolean = true> {
@@ -2361,25 +2219,6 @@ export interface CaseStudyMediaBlockSelect<T extends boolean = true> {
   width?: T;
   id?: T;
   blockName?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "categories_select".
- */
-export interface CategoriesSelect<T extends boolean = true> {
-  title?: T;
-  slug?: T;
-  parent?: T;
-  breadcrumbs?:
-    | T
-    | {
-        doc?: T;
-        url?: T;
-        label?: T;
-        id?: T;
-      };
-  updatedAt?: T;
-  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -2680,14 +2519,6 @@ export interface SearchSelect<T extends boolean = true> {
         description?: T;
         image?: T;
       };
-  categories?:
-    | T
-    | {
-        relationTo?: T;
-        categoryID?: T;
-        title?: T;
-        id?: T;
-      };
   updatedAt?: T;
   createdAt?: T;
 }
@@ -2824,10 +2655,6 @@ export interface Header {
           value: string | Page;
         } | null)
       | ({
-          relationTo: 'posts';
-          value: string | Post;
-        } | null)
-      | ({
           relationTo: 'blogs';
           value: string | Blog;
         } | null)
@@ -2838,10 +2665,6 @@ export interface Header {
       | ({
           relationTo: 'case-studies';
           value: string | CaseStudy;
-        } | null)
-      | ({
-          relationTo: 'categories';
-          value: string | Category;
         } | null);
     url?: string | null;
     label: string;
@@ -2864,10 +2687,6 @@ export interface HeaderCategoryTabsBlock {
           value: string | Page;
         } | null)
       | ({
-          relationTo: 'posts';
-          value: string | Post;
-        } | null)
-      | ({
           relationTo: 'blogs';
           value: string | Blog;
         } | null)
@@ -2878,10 +2697,6 @@ export interface HeaderCategoryTabsBlock {
       | ({
           relationTo: 'case-studies';
           value: string | CaseStudy;
-        } | null)
-      | ({
-          relationTo: 'categories';
-          value: string | Category;
         } | null);
     url?: string | null;
     label: string;
@@ -2898,10 +2713,6 @@ export interface HeaderCategoryTabsBlock {
             value: string | Page;
           } | null)
         | ({
-            relationTo: 'posts';
-            value: string | Post;
-          } | null)
-        | ({
             relationTo: 'blogs';
             value: string | Blog;
           } | null)
@@ -2912,10 +2723,6 @@ export interface HeaderCategoryTabsBlock {
         | ({
             relationTo: 'case-studies';
             value: string | CaseStudy;
-          } | null)
-        | ({
-            relationTo: 'categories';
-            value: string | Category;
           } | null);
       url?: string | null;
       label: string;
@@ -2932,10 +2739,6 @@ export interface HeaderCategoryTabsBlock {
               value: string | Page;
             } | null)
           | ({
-              relationTo: 'posts';
-              value: string | Post;
-            } | null)
-          | ({
               relationTo: 'blogs';
               value: string | Blog;
             } | null)
@@ -2946,10 +2749,6 @@ export interface HeaderCategoryTabsBlock {
           | ({
               relationTo: 'case-studies';
               value: string | CaseStudy;
-            } | null)
-          | ({
-              relationTo: 'categories';
-              value: string | Category;
             } | null);
         url?: string | null;
       };
@@ -2978,10 +2777,6 @@ export interface HeaderCardGroupBlock {
           value: string | Page;
         } | null)
       | ({
-          relationTo: 'posts';
-          value: string | Post;
-        } | null)
-      | ({
           relationTo: 'blogs';
           value: string | Blog;
         } | null)
@@ -2992,10 +2787,6 @@ export interface HeaderCardGroupBlock {
       | ({
           relationTo: 'case-studies';
           value: string | CaseStudy;
-        } | null)
-      | ({
-          relationTo: 'categories';
-          value: string | Category;
         } | null);
     url?: string | null;
     label: string;
@@ -3012,10 +2803,6 @@ export interface HeaderCardGroupBlock {
             value: string | Page;
           } | null)
         | ({
-            relationTo: 'posts';
-            value: string | Post;
-          } | null)
-        | ({
             relationTo: 'blogs';
             value: string | Blog;
           } | null)
@@ -3026,10 +2813,6 @@ export interface HeaderCardGroupBlock {
         | ({
             relationTo: 'case-studies';
             value: string | CaseStudy;
-          } | null)
-        | ({
-            relationTo: 'categories';
-            value: string | Category;
           } | null);
       url?: string | null;
     };
@@ -3056,10 +2839,6 @@ export interface HeaderLinkGroupBlock {
             value: string | Page;
           } | null)
         | ({
-            relationTo: 'posts';
-            value: string | Post;
-          } | null)
-        | ({
             relationTo: 'blogs';
             value: string | Blog;
           } | null)
@@ -3070,10 +2849,6 @@ export interface HeaderLinkGroupBlock {
         | ({
             relationTo: 'case-studies';
             value: string | CaseStudy;
-          } | null)
-        | ({
-            relationTo: 'categories';
-            value: string | Category;
           } | null);
       url?: string | null;
       label: string;
@@ -3101,10 +2876,6 @@ export interface HeaderRichCardBlock {
           value: string | Page;
         } | null)
       | ({
-          relationTo: 'posts';
-          value: string | Post;
-        } | null)
-      | ({
           relationTo: 'blogs';
           value: string | Blog;
         } | null)
@@ -3115,10 +2886,6 @@ export interface HeaderRichCardBlock {
       | ({
           relationTo: 'case-studies';
           value: string | CaseStudy;
-        } | null)
-      | ({
-          relationTo: 'categories';
-          value: string | Category;
         } | null);
     url?: string | null;
   };
@@ -3389,8 +3156,8 @@ export interface Settings {
                   value: string | Page;
                 } | null)
               | ({
-                  relationTo: 'posts';
-                  value: string | Post;
+                  relationTo: 'blogs';
+                  value: string | Blog;
                 } | null)
               | ({
                   relationTo: 'products';
@@ -3971,11 +3738,9 @@ export interface CollectionQueryWidget {
       | 'product-categories'
       | 'quote-requests'
       | 'pages'
-      | 'posts'
       | 'blogs'
       | 'blog-categories'
       | 'case-studies'
-      | 'categories'
       | 'media'
       | 'documents'
       | 'site-assets'
@@ -4012,11 +3777,9 @@ export interface ActivityWidget {
           | 'product-categories'
           | 'quote-requests'
           | 'pages'
-          | 'posts'
           | 'blogs'
           | 'blog-categories'
           | 'case-studies'
-          | 'categories'
           | 'media'
           | 'documents'
           | 'site-assets'
@@ -4072,10 +3835,6 @@ export interface TaskSchedulePublish {
           value: string | Page;
         } | null)
       | ({
-          relationTo: 'posts';
-          value: string | Post;
-        } | null)
-      | ({
           relationTo: 'blogs';
           value: string | Blog;
         } | null)
@@ -4087,52 +3846,6 @@ export interface TaskSchedulePublish {
     user?: (string | null) | User;
   };
   output?: unknown;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "PostBannerBlock".
- */
-export interface PostBannerBlock {
-  id: string;
-  blockType: 'postBanner';
-  /**
-   * Highlight a helpful note, warning, error, or success message within the article.
-   */
-  style: 'info' | 'warning' | 'error' | 'success';
-  title?: string | null;
-  content: LexicalRichText<LexicalNodes_47D10C91>;
-  blockName?: string | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "PostCodeBlock".
- */
-export interface PostCodeBlock {
-  id: string;
-  blockType: 'postCode';
-  language?: ('typescript' | 'javascript' | 'css') | null;
-  code: string;
-  blockName?: string | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "PostMediaBlock".
- */
-export interface PostMediaBlock {
-  id: string;
-  blockType: 'postMediaBlock';
-  media: string | Media;
-  /**
-   * Overrides the media's default caption for this block only.
-   */
-  caption?: LexicalRichText<LexicalNodes_47D10C91> | null;
-  /**
-   * Original keeps the media proportions. Other ratios crop the image or video to fill the frame.
-   */
-  aspectRatio?: ('original' | '1:1' | '4:3' | '3:2' | '16:9' | '2:1') | null;
-  playback?: ('ambient' | 'player') | null;
-  width?: ('default' | 'wide') | null;
-  blockName?: string | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -4192,8 +3905,8 @@ export interface BlogCallToActionBlock {
                 value: string | Page;
               } | null)
             | ({
-                relationTo: 'posts';
-                value: string | Post;
+                relationTo: 'blogs';
+                value: string | Blog;
               } | null);
           url?: string | null;
           label: string;
