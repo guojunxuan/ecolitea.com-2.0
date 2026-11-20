@@ -190,6 +190,7 @@ export async function runMediaCleanup({
   await payload.delete({
     collection: 'media',
     context: { disableRevalidate: true },
+    overrideAccess: true,
     where: { id: { in: inventory.map(({ id }) => id) } },
   })
 

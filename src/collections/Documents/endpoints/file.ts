@@ -65,7 +65,13 @@ export const documentFileEndpoint: Endpoint = {
     const id = req.routeParams?.id
     if ((typeof id !== 'string' && typeof id !== 'number') || !String(id))
       return failure(400, 'Document ID is required.')
-    const doc = await req.payload.findByID({ collection: 'documents', id, depth: 0, req })
+    const doc = await req.payload.findByID({
+      collection: 'documents',
+      id,
+      depth: 0,
+      overrideAccess: false,
+      req,
+    })
     const source = trustedSource(doc.url, req)
     if (!source) return failure(403, 'Document file source is not allowed.')
     try {

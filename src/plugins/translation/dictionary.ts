@@ -68,6 +68,7 @@ export async function enqueueFrontendDictionary(
         },
         limit: 1,
         depth: 0,
+        overrideAccess: true,
         req,
       })
     ).docs[0]

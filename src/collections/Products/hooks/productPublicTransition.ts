@@ -52,6 +52,7 @@ const capture = async (req: PayloadRequest, id: string) => {
     id,
     draft: false,
     depth: 0,
+    overrideAccess: true,
     req,
     disableErrors: true,
   })
@@ -105,6 +106,7 @@ export const getProductPublicTransition = async (
       id: doc.id,
       draft: false,
       depth: 0,
+      overrideAccess: true,
       req,
       disableErrors: true,
     })

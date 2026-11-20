@@ -61,7 +61,12 @@ export const withTranslationContext = async <T>(
 
 export async function isLegalPage(req: PayloadRequest, id: string): Promise<boolean> {
   if (!req.payload.config.globals.some(({ slug }) => slug === 'site-settings')) return false
-  const settings = await req.payload.findGlobal({ slug: 'site-settings', depth: 0, req })
+  const settings = await req.payload.findGlobal({
+    slug: 'site-settings',
+    depth: 0,
+    overrideAccess: true,
+    req,
+  })
   return [settings.privacyPolicyPage, settings.cookiePolicyPage, settings.termsPage].some(
     (value) => String(value && typeof value === 'object' ? value.id : value) === id,
   )
@@ -96,6 +101,7 @@ export function createTranslationRuntime(options: TranslationOptions = {}) {
         where: identityWhere(input),
         limit: 1,
         depth: 0,
+        overrideAccess: true,
         req,
       })
     ).docs[0]
@@ -180,6 +186,7 @@ export function createTranslationRuntime(options: TranslationOptions = {}) {
         slug,
         depth: 0,
         draft: false,
+        overrideAccess: true,
         req,
       })) as unknown as SourceDocument
     }
@@ -191,6 +198,7 @@ export function createTranslationRuntime(options: TranslationOptions = {}) {
       depth: 0,
       draft: false,
       disableErrors: true,
+      overrideAccess: true,
       req,
     })) as SourceDocument | null
     if (!doc || (collection.versions?.drafts && doc._status !== 'published')) return null
@@ -251,6 +259,7 @@ export function createTranslationRuntime(options: TranslationOptions = {}) {
         queue: TRANSLATION_QUEUE,
         meta: { translationPriority: requestPriority },
         input,
+        overrideAccess: true,
         req,
       })
       return true
@@ -271,7 +280,14 @@ export function createTranslationRuntime(options: TranslationOptions = {}) {
       for (const collection of ['translations', 'translation-search'] as const) {
         let page
         do {
-          page = await req.payload.find({ collection, where, limit: 100, depth: 0, req })
+          page = await req.payload.find({
+            collection,
+            where,
+            limit: 100,
+            depth: 0,
+            overrideAccess: true,
+            req,
+          })
           for (const doc of page.docs) {
             locales.add(doc.locale)
             await req.payload.delete({ collection, id: doc.id, overrideAccess: true, req })
@@ -322,6 +338,7 @@ export function createTranslationRuntime(options: TranslationOptions = {}) {
           where: identityWhere(input),
           limit: 1,
           depth: 0,
+          overrideAccess: true,
           req,
         })
       ).docs[0]
@@ -348,6 +365,7 @@ export function createTranslationRuntime(options: TranslationOptions = {}) {
               where: identityWhere(input),
               limit: 1,
               depth: 0,
+              overrideAccess: true,
               req,
             })
           ).docs[0]
@@ -538,6 +556,7 @@ export function createTranslationRuntime(options: TranslationOptions = {}) {
         limit: 100,
         page,
         depth: 0,
+        overrideAccess: true,
         req,
       })
       waiting.push(...result.docs)

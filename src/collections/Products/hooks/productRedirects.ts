@@ -11,6 +11,7 @@ export const clearOccupiedRedirect = async (req: PayloadRequest, path: string, t
     where: { from: { equals: path } },
     limit: 1,
     depth: 0,
+    overrideAccess: true,
     req,
   })
   for (const item of existing.docs) {
@@ -25,7 +26,7 @@ export const clearOccupiedRedirect = async (req: PayloadRequest, path: string, t
     if (selfReference)
       req.payload.logger.debug(details, 'Removing redirect occupying a live product path')
     else req.payload.logger.warn(details, 'Removing redirect occupying a live product path')
-    await req.payload.delete({ collection: 'redirects', id: item.id, req })
+    await req.payload.delete({ collection: 'redirects', id: item.id, overrideAccess: true, req })
   }
 }
 
@@ -53,6 +54,7 @@ export async function upsertRedirect(
       id: String(to.id),
       depth: 0,
       draft: false,
+      overrideAccess: true,
       req,
     })
     toPath =
@@ -72,6 +74,7 @@ export async function upsertRedirect(
     where: { from: { equals: fromPath } },
     limit: 1,
     depth: 0,
+    overrideAccess: true,
     req,
   })
   const reference: NonNullable<NonNullable<Redirect['to']>['reference']> =
@@ -80,8 +83,20 @@ export async function upsertRedirect(
       : { relationTo: 'product-categories', value: String(to.id) }
   const data = { to: { type: 'reference' as const, reference } }
   if (existing.docs[0])
-    await req.payload.update({ collection: 'redirects', id: existing.docs[0].id, data, req })
-  else await req.payload.create({ collection: 'redirects', data: { from: fromPath, ...data }, req })
+    await req.payload.update({
+      collection: 'redirects',
+      id: existing.docs[0].id,
+      data,
+      overrideAccess: true,
+      req,
+    })
+  else
+    await req.payload.create({
+      collection: 'redirects',
+      data: { from: fromPath, ...data },
+      overrideAccess: true,
+      req,
+    })
 }
 
 export const redirectProduct: CollectionAfterChangeHook<Product> = async ({

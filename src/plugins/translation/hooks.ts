@@ -33,6 +33,7 @@ async function completeDoc(
     id: String(doc.id),
     depth: 0,
     draft: true,
+    overrideAccess: true,
     req,
   })) as unknown as SourceDocument
 }
@@ -77,6 +78,7 @@ export function createCollectionTranslationHooks(
       draft: false,
       depth: 0,
       disableErrors: true,
+      overrideAccess: true,
       req,
     })
     map.set(key, prior?._status === 'published')
@@ -95,6 +97,7 @@ export function createCollectionTranslationHooks(
           draft: false,
           depth: 0,
           disableErrors: true,
+          overrideAccess: true,
           req,
         })
         if (current?._status !== 'published') await runtime.cleanup(req, source, String(doc.id))
@@ -121,7 +124,12 @@ export function createGlobalTranslationHook(
     // restore this Global before making legal classification decisions.
     const changed =
       source === 'global:site-settings' || !doc.updatedAt
-        ? await req.payload.findGlobal({ slug: source.slice(7) as 'site-settings', depth: 0, req })
+        ? await req.payload.findGlobal({
+            slug: source.slice(7) as 'site-settings',
+            depth: 0,
+            overrideAccess: true,
+            req,
+          })
         : doc
     // Reclassifying an existing Page as legal must also remove previously ready
     // translations, even if queueing is disabled. Only plugin-owned rows change.

@@ -10,7 +10,7 @@ export async function getTranslationStatus(
 ) {
   const [{ targetLocales, configuredLocales }, usage, inventory, integrations] = await Promise.all([
     getI18nSettings(payload, req),
-    payload.findGlobal({ slug: 'translation-usage', depth: 0, req }),
+    payload.findGlobal({ slug: 'translation-usage', depth: 0, overrideAccess: true, req }),
     getTranslationInventory(payload, req, now),
     getIntegrations(payload, req),
   ])
@@ -25,6 +25,7 @@ export async function getTranslationStatus(
         collection: 'translations',
         depth: 0,
         pagination: false,
+        overrideAccess: true,
         req,
         where: { locale: { equals: code } },
       })

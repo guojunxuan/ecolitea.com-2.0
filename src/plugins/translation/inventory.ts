@@ -100,7 +100,12 @@ export async function getTranslationInventory(
 
 async function getLegalIDs(payload: Payload, req?: PayloadRequest): Promise<Set<string>> {
   if (!payload.config.globals.some(({ slug }) => slug === 'site-settings')) return new Set()
-  const settings = await payload.findGlobal({ slug: 'site-settings', depth: 0, req })
+  const settings = await payload.findGlobal({
+    slug: 'site-settings',
+    depth: 0,
+    overrideAccess: true,
+    req,
+  })
   return new Set(
     [settings.privacyPolicyPage, settings.cookiePolicyPage, settings.termsPage]
       .filter(Boolean)

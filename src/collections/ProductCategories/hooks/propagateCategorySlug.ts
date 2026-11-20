@@ -45,6 +45,7 @@ export const propagateCategorySlug: CollectionAfterChangeHook<ProductCategory> =
         limit: PAGE_SIZE,
         page,
         sort: 'id',
+        overrideAccess: true,
         req,
       })
       for (const product of result.docs) productIDs.add(String(product.id))
@@ -67,6 +68,7 @@ export const propagateCategorySlug: CollectionAfterChangeHook<ProductCategory> =
     try {
       return await req.payload.update({
         ...options,
+        overrideAccess: true,
         req,
         context: {
           ...originalContext,
@@ -89,6 +91,7 @@ export const propagateCategorySlug: CollectionAfterChangeHook<ProductCategory> =
       id,
       draft: false,
       depth: 0,
+      overrideAccess: true,
       req,
       disableErrors: true,
     })
@@ -97,6 +100,7 @@ export const propagateCategorySlug: CollectionAfterChangeHook<ProductCategory> =
       id,
       draft: true,
       depth: 0,
+      overrideAccess: true,
       req,
       disableErrors: true,
     })
