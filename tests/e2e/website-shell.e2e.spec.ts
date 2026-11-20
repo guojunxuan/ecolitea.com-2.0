@@ -3,6 +3,7 @@ import { getPayload, type Payload } from 'payload'
 import sharp from 'sharp'
 
 import config from '../../src/payload.config.js'
+import { richText } from '../helpers/blogFixtures'
 import { normalizeComputedColor } from '../helpers/computedColor'
 import { assertRunScopedE2EDatabaseURI } from '../helpers/e2eDatabase'
 import { getE2EBaseURL } from '../helpers/e2eBaseURL'
@@ -30,8 +31,12 @@ const slugs = {
   route: `e2e-website-shell-${runID}-route`,
   terms: `e2e-website-shell-${runID}-terms`,
 } as const
-const postHeroSlug = `e2e-website-shell-${runID}-post-hero`
-const postCodeFixture = `const longFixtureLine = '${'x'.repeat(240)}'`
+const blogHeroSlug = `e2e-website-shell-${runID}-blog-hero`
+const blogCategorySlug = `e2e-website-shell-${runID}-blog-category`
+const blogCategoryTitle = 'E2E Website Shell Stories'
+const blogHeroTitle = 'E2E Blog Hero bright collage'
+const blogHeroExcerpt = 'A responsive article cover with the title and excerpt above the image.'
+const blogHeroPublishedAt = '2024-01-15T12:00:00.000Z'
 const fixturePath = `/${slugs.main}`
 const routePath = `/${slugs.route}`
 let payload: Payload
@@ -74,8 +79,13 @@ async function deleteFixtures() {
     ...disableRevalidate,
   })
   await payload.delete({
-    collection: 'posts',
-    where: { slug: { equals: postHeroSlug } },
+    collection: 'blogs',
+    where: { slug: { equals: blogHeroSlug } },
+    ...disableRevalidate,
+  })
+  await payload.delete({
+    collection: 'blog-categories',
+    where: { slug: { equals: blogCategorySlug } },
     ...disableRevalidate,
   })
   await payload.delete({
@@ -173,7 +183,7 @@ async function seedFixtures() {
     }),
   )
   const heroImages = await Promise.all(
-    ['high-impact', 'post-hero'].map((kind) =>
+    ['high-impact', 'blog-hero'].map((kind) =>
       payload.create({
         collection: 'media',
         data: { alt: `${HERO_IMAGE_ALT_PREFIX} ${kind}` },
@@ -257,55 +267,22 @@ async function seedFixtures() {
     },
     ...disableRevalidate,
   })
+  const blogCategory = await payload.create({
+    collection: 'blog-categories',
+    data: { slug: blogCategorySlug, title: blogCategoryTitle },
+    ...disableRevalidate,
+  })
   await payload.create({
-    collection: 'posts',
+    collection: 'blogs',
     data: {
       _status: 'published',
-      content: {
-        root: {
-          children: [
-            {
-              children: [
-                {
-                  detail: 0,
-                  format: 0,
-                  mode: 'normal',
-                  style: '',
-                  text: 'E2E post fixture content.',
-                  type: 'text',
-                  version: 1,
-                },
-              ],
-              direction: 'ltr',
-              format: '',
-              indent: 0,
-              textFormat: 0,
-              textStyle: '',
-              type: 'paragraph',
-              version: 1,
-            },
-            {
-              fields: {
-                blockType: 'postCode',
-                code: postCodeFixture,
-                id: `e2e-code-${runID}`,
-                language: 'javascript',
-              },
-              format: '',
-              type: 'block',
-              version: 1,
-            },
-          ],
-          direction: 'ltr',
-          format: '',
-          indent: 0,
-          type: 'root',
-          version: 1,
-        },
-      },
+      category: blogCategory.id,
+      content: richText('E2E blog fixture content.'),
+      excerpt: blogHeroExcerpt,
       heroImage: heroImages[1]!.id,
-      slug: postHeroSlug,
-      title: 'E2E Post Hero bright collage',
+      publishedAt: blogHeroPublishedAt,
+      slug: blogHeroSlug,
+      title: blogHeroTitle,
     },
     ...disableRevalidate,
   })
@@ -1310,7 +1287,7 @@ test.describe.serial('Responsive website shell', () => {
     ).toEqual([])
   })
 
-  test('HighImpact and PostHero keep text and imagery layered over bright complex media', async ({
+  test('High Impact keeps copy readable and BlogHero renders its cover below article metadata', async ({
     page,
   }, testInfo) => {
     await openFixture(page, 390)
@@ -1383,60 +1360,44 @@ test.describe.serial('Responsive website shell', () => {
     console.log(`HighImpact 1440px rendered text contrast: ${JSON.stringify(desktopContrast)}`)
     expect(desktopContrast.ratio).toBeGreaterThanOrEqual(4.5)
 
-    await page.goto(`${baseURL}/posts/${postHeroSlug}`)
-    const postHero = page.locator('[data-hero="post"]')
-    const postImage = postHero.locator('img')
-    await expect(postHero).toHaveAttribute('data-website-theme', 'inverse')
+    await page.goto(`${baseURL}/blogs/${blogHeroSlug}`)
+    const article = page.locator('main > article')
+    const blogImage = article.getByRole('img', { name: `${HERO_IMAGE_ALT_PREFIX} blog-hero` })
+    const excerpt = article.getByText(blogHeroExcerpt, { exact: true })
+    await expect(article.getByRole('heading', { name: blogHeroTitle, level: 1 })).toBeVisible()
     await expect(
-      postHero.getByRole('heading', { name: 'E2E Post Hero bright collage' }),
-    ).toBeVisible()
-    await expect(postImage).toBeVisible()
+      article.getByRole('navigation', { name: 'Breadcrumb' }).getByRole('link', {
+        name: blogCategoryTitle,
+      }),
+    ).toHaveAttribute('href', `/blogs/category/${blogCategorySlug}`)
+    await expect(article.locator('header time')).toHaveAttribute('datetime', blogHeroPublishedAt)
+    await expect(excerpt).toBeVisible()
+    await expect(blogImage).toBeVisible()
+    await expect(blogImage).toHaveAttribute(
+      'src',
+      /^https:\/\/media\.example\.invalid\/cdn-cgi\/image\/.*e2e-blog-hero-bright-collage\.png/,
+    )
     await expect
-      .poll(() => postImage.evaluate((image) => (image as HTMLImageElement).naturalWidth))
+      .poll(() => blogImage.evaluate((image) => (image as HTMLImageElement).naturalWidth))
       .toBeGreaterThan(0)
-    const postEvidence = await postHero.evaluate((hero) => {
-      const image = hero.querySelector('img')!
-      const content = hero.firstElementChild!
-      const overlay = hero.lastElementChild!.lastElementChild!
-      return {
-        contentZIndex: getComputedStyle(content).zIndex,
-        imageVisibility: getComputedStyle(image).visibility,
-        imageZIndex: getComputedStyle(image).zIndex,
-        overlayZIndex: getComputedStyle(overlay).zIndex,
-        titleColor: getComputedStyle(hero.querySelector('h1')!).color,
-      }
-    })
-    console.log(`PostHero bright-image evidence: ${JSON.stringify(postEvidence)}`)
-    expect(Number(postEvidence.imageZIndex)).toBeLessThan(Number(postEvidence.overlayZIndex))
-    expect(Number(postEvidence.overlayZIndex)).toBeLessThan(Number(postEvidence.contentZIndex))
-    expect(postEvidence.imageVisibility).toBe('visible')
-    const postHeroContrast = await sampleRenderedTextContrast(page, '[data-hero="post"] h1')
-    console.log(`PostHero 1440px rendered title contrast: ${JSON.stringify(postHeroContrast)}`)
-    expect(postHeroContrast.ratio).toBeGreaterThanOrEqual(3)
-    const richText = page.locator('.payload-richtext--content').last()
-    const code = richText.locator('pre[data-website-theme="inverse"]')
-    await expect(code).toBeVisible()
-    for (const parentTheme of ['default', 'inverse']) {
-      await richText.evaluate((element, theme) => {
-        element.setAttribute('data-website-theme', theme)
-      }, parentTheme)
-      const codeStyles = await code.evaluate((element) => {
-        const style = getComputedStyle(element)
-        return {
-          backgroundColor: style.backgroundColor,
-          color: style.color,
-          clientWidth: element.clientWidth,
-          overflowX: style.overflowX,
-          scrollWidth: element.scrollWidth,
-        }
+    for (const viewport of [
+      { width: 1440, height: 900, aspectRatio: 2 },
+      { width: 390, height: 844, aspectRatio: 16 / 9 },
+    ]) {
+      await page.setViewportSize({ width: viewport.width, height: viewport.height })
+      const cover = await blogImage.evaluate((image) => {
+        const { top, width, height } = image.getBoundingClientRect()
+        return { top, aspectRatio: width / height, objectFit: getComputedStyle(image).objectFit }
       })
-      console.log(`RichText code pre under ${parentTheme}: ${JSON.stringify(codeStyles)}`)
-      expect(codeStyles.backgroundColor).toBe('rgb(10, 10, 10)')
-      expect(codeStyles.color).toBe('rgb(255, 255, 255)')
-      expect(codeStyles.overflowX).toBe('auto')
-      expect(codeStyles.scrollWidth).toBeGreaterThan(codeStyles.clientWidth)
+      const excerptBox = (await excerpt.boundingBox())!
+      expect(cover.top).toBeGreaterThanOrEqual(excerptBox.y + excerptBox.height)
+      expect(cover.aspectRatio).toBeCloseTo(viewport.aspectRatio, 1)
+      expect(cover.objectFit).toBe('cover')
+      await expect
+        .poll(() => page.evaluate(() => document.documentElement.scrollWidth <= innerWidth))
+        .toBe(true)
+      await shot(page, testInfo, 'blog-hero-bright')
     }
-    await shot(page, testInfo, 'post-hero-bright')
     await expectNoProductionDomainRequests(page)
   })
 

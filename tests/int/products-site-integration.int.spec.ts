@@ -105,7 +105,6 @@ describe('Products site integration', () => {
     })
     expect(publicSearchVisibility(new Date('2026-01-02'))).toMatchObject({
       or: expect.arrayContaining([
-        { 'doc.relationTo': { equals: 'posts' } },
         {
           and: [
             { 'doc.relationTo': { equals: 'blogs' } },

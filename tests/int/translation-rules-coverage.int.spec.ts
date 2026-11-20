@@ -113,8 +113,6 @@ describe('translation field declarations', () => {
         'product-categories',
         'blogs',
         'blog-categories',
-        'posts',
-        'categories',
         'case-studies',
         'pages',
         'forms',

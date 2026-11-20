@@ -70,7 +70,7 @@ const footerData: FooterData = {
       id: 'resources',
       label: 'Resources',
       navItems: [
-        { id: 'news', link: { href: '/posts', label: 'News', newTab: false, type: 'custom' } },
+        { id: 'news', link: { href: '/blogs', label: 'News', newTab: false, type: 'custom' } },
       ],
     },
     {

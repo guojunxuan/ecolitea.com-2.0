@@ -28,7 +28,6 @@ describe('product paths', () => {
 
   it('keeps existing collection paths unchanged', () => {
     expect(getContentPath('pages', 'about')).toBe('/about')
-    expect(getContentPath('posts', 'news')).toBe('/posts/news')
     expect(getContentPath('blogs', 'tea')).toBe('/blogs/tea')
     expect(getContentPath('blog-categories', 'brewing')).toBe('/blogs/category/brewing')
     expect(getContentPath('case-studies', 'client')).toBe('/case-studies/client')

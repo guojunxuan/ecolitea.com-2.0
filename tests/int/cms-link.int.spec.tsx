@@ -3,7 +3,7 @@ import React from 'react'
 import { afterEach, describe, expect, it } from 'vitest'
 
 import { CMSLink, resolveLinkHref, type CMSLinkType } from '@/components/Link'
-import type { Blog, BlogCategory, CaseStudy, Category, Page, Post } from '@/payload-types'
+import type { Blog, BlogCategory, CaseStudy, Page } from '@/payload-types'
 
 const documentWithSlug = <T,>(slug: string): T => ({ slug }) as T
 
@@ -22,14 +22,6 @@ describe('resolveLinkHref', () => {
         reference: { relationTo: 'pages', value: documentWithSlug<Page>('about') },
       },
       expectedHref: '/about',
-    },
-    {
-      relationTo: 'posts',
-      link: {
-        type: 'reference',
-        reference: { relationTo: 'posts', value: documentWithSlug<Post>('example-post') },
-      },
-      expectedHref: '/posts/example-post',
     },
     {
       relationTo: 'case-studies',
@@ -61,17 +53,6 @@ describe('resolveLinkHref', () => {
       },
       expectedHref: '/blogs/category/brewing',
     },
-    {
-      relationTo: 'categories',
-      link: {
-        type: 'reference',
-        reference: {
-          relationTo: 'categories',
-          value: documentWithSlug<Category>('example-category'),
-        },
-      },
-      expectedHref: '/posts?category=example-category',
-    },
   ]
 
   it.each(relationshipCases)(
@@ -97,7 +78,7 @@ describe('resolveLinkHref', () => {
     expect(
       resolveLinkHref({
         type: 'reference',
-        reference: { relationTo: 'posts', value: {} as Post },
+        reference: { relationTo: 'blogs', value: {} as Blog },
       }),
     ).toBeNull()
   })
@@ -116,18 +97,18 @@ describe('CMSLink', () => {
   it('renders the resolved href and secure new-tab attributes', () => {
     const { getByRole } = render(
       <CMSLink
-        label="Example post"
+        label="Example article"
         newTab
         reference={{
-          relationTo: 'posts',
-          value: documentWithSlug<Post>('example-post'),
+          relationTo: 'blogs',
+          value: documentWithSlug<Blog>('example-article'),
         }}
         type="reference"
       />,
     )
 
-    const link = getByRole('link', { name: 'Example post' })
-    expect(link.getAttribute('href')).toBe('/posts/example-post')
+    const link = getByRole('link', { name: 'Example article' })
+    expect(link.getAttribute('href')).toBe('/blogs/example-article')
     expect(link.getAttribute('target')).toBe('_blank')
     expect(link.getAttribute('rel')).toBe('noopener noreferrer')
   })

@@ -88,7 +88,7 @@ describe('visual refresh contracts', () => {
   })
 
   it('maps hero literal font sizes to roles', () => {
-    for (const file of ['src/heros/PostHero/index.module.css', 'src/heros/BlogHero/index.module.css', 'src/heros/BlogListingHero/index.module.css', 'src/blocks/RelatedBlogs/Component.module.css']) {
+    for (const file of ['src/heros/BlogHero/index.module.css', 'src/heros/BlogListingHero/index.module.css', 'src/blocks/RelatedBlogs/Component.module.css']) {
       expect(read(file), file).not.toMatch(/font-size:\s*(clamp\(|[0-9.]+(px|rem))/)
     }
   })

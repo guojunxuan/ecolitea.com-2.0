@@ -100,7 +100,7 @@ describe('localized public read boundary', () => {
     expect(
       await getLocalizedDoc(
         { id: 'p', _status: 'published', publishedAt: '2999-01-01' },
-        'posts',
+        'case-studies',
         'de',
         payload,
       ),

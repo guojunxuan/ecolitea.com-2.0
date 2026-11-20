@@ -41,7 +41,7 @@ import { Card } from '@/components/Card'
 import cardStyles from '@/components/Card/index.module.css'
 import { HighImpactHero } from '@/heros/HighImpact'
 import { MediumImpactHero } from '@/heros/MediumImpact'
-import { PostHero } from '@/heros/PostHero'
+import { BlogHero } from '@/heros/BlogHero'
 
 const readSource = (relativePath: string) =>
   fs.readFileSync(path.join(process.cwd(), relativePath), 'utf8')
@@ -67,24 +67,23 @@ describe('existing media consumers', () => {
       <Card
         doc={
           {
-            categories: [],
-            meta: { image: media },
+            heroImage: media,
             slug: 'tea',
             title: 'Tea',
           } as never
         }
-        relationTo="posts"
+        relationTo="blogs"
       />,
     )
 
     expect(getMediaBoundary().getAttribute('data-presentation')).toBe(
       '{"image":{"aspectRatio":{"width":4,"height":3},"fit":"cover","quality":85}}',
     )
-    expect(getMediaBoundary().getAttribute('data-size')).toBe('33vw')
+    expect(getMediaBoundary().getAttribute('data-size')).toBe('(max-width: 48rem) 100vw, (max-width: 64rem) 50vw, 33vw')
     expect(screen.getByRole('article').getAttribute('data-slot')).toBe('content-card')
     expect(screen.getByRole('article').classList).toContain(cardStyles.card)
     expect(getMediaBoundary().parentElement?.getAttribute('data-slot')).toBe('content-card-media')
-    expect(getMediaBoundary().parentElement?.classList).toContain(cardStyles.media)
+    expect(getMediaBoundary().parentElement?.classList).toContain(cardStyles.blogMedia)
   })
 
   it('declares original-ratio body presentation for Media Blocks', () => {
@@ -109,16 +108,15 @@ describe('existing media consumers', () => {
         render(<MediumImpactHero headerTheme="light" media={media as never} type="mediumImpact" />),
     ],
     [
-      'post',
+      'blog',
       () =>
         render(
-          <PostHero
-            post={
+          <BlogHero
+            blog={
               {
-                categories: [],
                 createdAt: '2026-09-12T00:00:00.000Z',
                 heroImage: media,
-                id: 'post-id',
+                id: 'blog-id',
                 slug: 'tea',
                 title: 'Tea',
                 updatedAt: '2026-09-12T01:02:03.000Z',
@@ -148,13 +146,13 @@ describe('existing media consumers', () => {
     )
   })
 
-  it('keeps the Post Hero fill image visually cropped beneath its overlay', () => {
-    render(<PostHero post={{ categories: [], heroImage: media, title: 'Tea' } as never} />)
+  it('keeps the Blog Hero image cropped in its media frame', () => {
+    render(<BlogHero blog={{ heroImage: media, title: 'Tea' } as never} />)
 
-    expect(getMediaBoundary().getAttribute('data-fill')).toBe('true')
-    expect(readSource('src/heros/PostHero/index.tsx')).toContain('imgClassName={styles.image}')
-    expect(readSource('src/heros/PostHero/index.module.css')).toMatch(
-      /\.image\s*{[^}]*object-fit:\s*cover;/s,
+    expect(getMediaBoundary().getAttribute('data-fill')).toBe('false')
+    expect(getMediaBoundary().getAttribute('data-size')).toBe('(max-width: 76.25rem) 100vw, 76.25rem')
+    expect(readSource('src/heros/BlogHero/index.module.css')).toMatch(
+      /\.media img,\s*\.media video\s*{[^}]*object-fit:\s*cover;/s,
     )
   })
 })

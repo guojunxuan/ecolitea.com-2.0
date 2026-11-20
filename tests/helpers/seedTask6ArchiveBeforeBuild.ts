@@ -1,7 +1,14 @@
-import { getPayload, type RequiredDataFromCollectionSlug } from 'payload'
+import { getPayload } from 'payload'
+import sharp from 'sharp'
 
 import config from '../../src/payload.config.js'
-import { assertRunScopedE2EDatabaseURI } from './e2eDatabase'
+import {
+  cleanupTask6Archive,
+  fixtureContext,
+  reportBlogEnvironment,
+  richText,
+  task6ArchiveFixture,
+} from './blogFixtures'
 
 const runID = process.env.PLAYWRIGHT_E2E_RUN_ID
 const databaseURI = process.env.DATABASE_URI
@@ -14,99 +21,63 @@ if (process.env.DISABLE_R2_STORAGE !== 'true') {
   throw new Error('DISABLE_R2_STORAGE=true is required for the Task 6 archive seed.')
 }
 
-assertRunScopedE2EDatabaseURI(databaseURI, runID)
-
-const postPrefix = `e2e-task6-matrix-archive-${runID}-post-`
-const postSlugs = Array.from({ length: 13 }, (_, index) => {
-  return `${postPrefix}${String(index + 1).padStart(2, '0')}`
-})
-const matrixPostPrefix = `e2e-task6-matrix-${runID}-post-`
-const matrixPostSlugs = [
-  `${matrixPostPrefix}banners`,
-  ...Array.from(
-    { length: 13 },
-    (_, index) => `${matrixPostPrefix}${String(index + 1).padStart(2, '0')}`,
-  ),
-]
-const disableRevalidate = { context: { disableRevalidate: true } }
-const paragraph = (value: string) => ({
-  children: [
-    {
-      detail: 0,
-      format: 0,
-      mode: 'normal',
-      style: '',
-      text: value,
-      type: 'text',
-      version: 1,
-    },
-  ],
-  direction: 'ltr',
-  format: '',
-  indent: 0,
-  textFormat: 0,
-  textStyle: '',
-  type: 'paragraph',
-  version: 1,
-})
-
-function content(value: string): RequiredDataFromCollectionSlug<'posts'>['content'] {
-  return {
-    root: {
-      children: [paragraph(value)],
-      direction: 'ltr',
-      format: '',
-      indent: 0,
-      type: 'root',
-      version: 1,
-    },
-  } as RequiredDataFromCollectionSlug<'posts'>['content']
-}
-
-console.log(
-  `Task 6 prebuild archive target: ${databaseURI}, run ${runID}; exactly ${postSlugs.length} run-scoped Post slugs; R2 disabled.`,
-)
-
+reportBlogEnvironment(runID)
+const fixture = task6ArchiveFixture(runID)
 const payload = await getPayload({ config })
 
 try {
-  await payload.delete({
-    collection: 'posts',
-    where: { slug: { in: [...postSlugs, ...matrixPostSlugs] } },
-    overrideAccess: true,
-    ...disableRevalidate,
+  await cleanupTask6Archive(payload, runID)
+  const category = await payload.create({
+    collection: 'blog-categories',
+    data: { title: fixture.categoryTitle, slug: fixture.categorySlug, _order: 'a8' },
+    ...fixtureContext,
+  })
+  const image = await sharp({
+    create: { width: 1200, height: 675, channels: 3, background: '#56816e' },
+  })
+    .png()
+    .toBuffer()
+  const heroImage = await payload.create({
+    collection: 'media',
+    data: { alt: fixture.mediaAlt },
+    file: {
+      data: image,
+      mimetype: 'image/png',
+      name: `${fixture.categorySlug}.png`,
+      size: image.length,
+    },
+    ...fixtureContext,
   })
 
-  for (const [index, slug] of postSlugs.entries()) {
-    const suffix = String(index + 1).padStart(2, '0')
-    const title = `E2E Task6 Archive Card ${suffix}`
-
+  for (const blog of fixture.blogs) {
     await payload.create({
-      collection: 'posts',
+      collection: 'blogs',
       data: {
+        ...blog,
         _status: 'published',
-        content: content(`${title} body copy for the static archive fixture.`),
-        slug,
-        title,
+        category: category.id,
+        content: richText(`${blog.title} body copy for the static archive fixture.`),
+        excerpt: 'Representative copy for the static blog archive card.',
+        heroImage: heroImage.id,
       },
-      overrideAccess: true,
-      ...disableRevalidate,
+      ...fixtureContext,
     })
   }
 
-  const seededPosts = await payload.find({
-    collection: 'posts',
-    limit: 20,
-    overrideAccess: true,
-    where: { slug: { in: postSlugs } },
+  const seededBlogs = await payload.count({
+    collection: 'blogs',
+    overrideAccess: false,
+    where: { category: { equals: category.id } },
   })
 
-  if (seededPosts.totalDocs !== 13) {
-    throw new Error(`Expected 13 Task 6 archive posts, found ${seededPosts.totalDocs}.`)
+  if (seededBlogs.totalDocs !== fixture.blogs.length) {
+    throw new Error(
+      `Expected ${fixture.blogs.length} Task 6 archive blogs, found ${seededBlogs.totalDocs}.`,
+    )
   }
 
   console.log(
-    `Task 6 prebuild archive seed: ${seededPosts.totalDocs} posts in ${databaseURI}, run ${runID}`,
+    `Task 6 prebuild archive seed: ${seededBlogs.totalDocs} blogs in ${fixture.categorySlug}.`,
   )
 } finally {
   await payload.destroy()

@@ -109,7 +109,7 @@ describe('link field factory', () => {
   })
 
   describe('reference relationship target', () => {
-    it('defaults the reference relationTo to pages and posts when none is passed', () => {
+    it('defaults the reference relationTo to pages and blogs when none is passed', () => {
       const linkGroup = link()
 
       expect(linkGroup).toMatchObject({
@@ -117,19 +117,19 @@ describe('link field factory', () => {
         type: 'group',
       })
 
-      expect(getReferenceField(linkGroup).relationTo).toEqual(['pages', 'posts'])
+      expect(getReferenceField(linkGroup).relationTo).toEqual(['pages', 'blogs'])
     })
 
     it('applies the full relationTo list when one is passed', () => {
       const linkGroup = link({
-        relationTo: ['pages', 'posts', 'case-studies', 'categories'],
+        relationTo: ['pages', 'blogs', 'case-studies', 'blog-categories'],
       })
 
       expect(getReferenceField(linkGroup).relationTo).toEqual([
         'pages',
-        'posts',
+        'blogs',
         'case-studies',
-        'categories',
+        'blog-categories',
       ])
     })
 

@@ -10,14 +10,13 @@ vi.mock('@/components/Media', () => ({
     <output data-testid="media" data-presentation={JSON.stringify(presentation)} />
   ),
 }))
-vi.mock('@payloadcms/ui/icons/Copy', () => ({ CopyIcon: () => <svg /> }))
 
 import { BannerBlock } from '@/collections/Blogs/blocks/Banner/Component'
 import { MediaBlock } from '@/collections/Blogs/blocks/MediaBlock/Component'
 import { CallToActionBlock } from '@/collections/Blogs/blocks/CallToAction/Component'
 import RichText from '@/components/RichText'
 import { blogBlocks } from '@/collections/Blogs/blocks'
-import { postRichTextBlocks } from '@/collections/Posts/blocks/richTextBlocks'
+import { blogRichTextBlocks } from '@/collections/Blogs/blocks/richTextBlocks'
 
 const components = import.meta.glob('/src/collections/Blogs/blocks/KeyTakeaways/Component.tsx', {
   eager: true,
@@ -270,7 +269,7 @@ describe('editorial block rendering', () => {
     expect(container.querySelector('[data-website-theme="inverse"]')).toBeTruthy()
   })
 
-  it('retains embedded Post Banner, Media and Code converters with upgraded fields', () => {
+  it('renders Blog notices and captions from embedded fields', () => {
     const content = {
       root: {
         type: 'root',
@@ -280,7 +279,7 @@ describe('editorial block rendering', () => {
             type: 'block',
             version: 2,
             fields: {
-              blockType: 'postBanner',
+              blockType: 'blogBanner',
               style: 'info',
               title: 'Embedded notice',
               content: richText('Notice'),
@@ -290,24 +289,18 @@ describe('editorial block rendering', () => {
             type: 'block',
             version: 2,
             fields: {
-              blockType: 'postMediaBlock',
+              blockType: 'blogMediaBlock',
               media,
               caption: richText('Embedded caption'),
               width: 'wide',
             },
           },
-          {
-            type: 'block',
-            version: 2,
-            fields: { blockType: 'postCode', language: 'js', code: 'const tea = true' },
-          },
         ],
       },
     } as never
-    const { container } = render(<RichText data={content} blocks={postRichTextBlocks} />)
+    render(<RichText data={content} blocks={blogRichTextBlocks} context="article" />)
     expect(screen.getByRole('note', { name: 'Embedded notice' })).toBeTruthy()
     expect(screen.getByText('Embedded caption')).toBeTruthy()
-    expect(container.querySelector('pre')?.textContent).toContain('const tea = true')
   })
 
   it.each(['MediaBlock', 'KeyTakeaways', 'CallToAction', 'Banner'])(

@@ -55,7 +55,6 @@ describe('translation lifecycle and real Jobs (isolated MongoDB)', () => {
           afterChange: [revalidateProduct],
         },
       },
-      { slug: 'categories', fields: [{ name: 'title', type: 'text' }] },
       {
         slug: 'media',
         fields: [

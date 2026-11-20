@@ -13,7 +13,6 @@ import { publicSearchVisibility } from '@/search/visibility'
 describe('Blog site integrations', () => {
   it.each([
     ['pages', 'about', '/about'],
-    ['posts', 'news', '/posts/news'],
     ['blogs', 'tea', '/blogs/tea'],
     ['blog-categories', 'brewing', '/blogs/category/brewing'],
     ['case-studies', 'client', '/case-studies/client'],
@@ -34,7 +33,6 @@ describe('Blog site integrations', () => {
 
   it.each([
     ['pages', 'about', '/about'],
-    ['posts', 'tea', '/posts/tea'],
     ['blogs', 'tea', '/blogs/tea'],
     ['case-studies', 'client', '/case-studies/client'],
   ] as const)('generates the canonical %s SEO URL', (slug, docSlug, path) => {
@@ -56,9 +54,6 @@ describe('Blog site integrations', () => {
       } as never),
     ).toBe('Fresh leaves')
     expect(
-      await generateTitle({ collectionConfig: { slug: 'posts' }, doc: { title: 'News' }, req } as never),
-    ).toBe('News')
-    expect(
       await generateTitle({ collectionConfig: { slug: 'pages' }, doc: { title: 'About' }, req } as never),
     ).toBe('About')
     expect(findGlobal).toHaveBeenCalledWith(expect.objectContaining({
@@ -74,7 +69,7 @@ describe('Blog site integrations', () => {
   })
 
   it('registers Blogs for redirects and search indexing', async () => {
-    const collections = ['pages', 'posts', 'blogs'].map((slug) => ({ slug, fields: [] }))
+    const collections = ['pages', 'blogs', 'blog-categories'].map((slug) => ({ slug, fields: [] }))
     const config = { collections, globals: [] }
     const redirects = plugins.find((plugin) => plugin.slug === '@payloadcms/plugin-redirects')!
     const search = plugins.find((plugin) => plugin.slug === '@payloadcms/plugin-search')!
@@ -95,7 +90,6 @@ describe('Blog site integrations', () => {
     const publicWhere = read({ req: {} })
     expect(publicWhere).toMatchObject({
       or: expect.arrayContaining([
-        { 'doc.relationTo': { equals: 'posts' } },
         {
           and: expect.arrayContaining([
             { 'doc.relationTo': { equals: 'blogs' } },
@@ -111,9 +105,8 @@ describe('Blog site integrations', () => {
     const publication = '2026-08-01T00:00:00.000Z'
     const before = publicSearchVisibility(new Date('2026-07-31T23:59:59.000Z'))
     const after = publicSearchVisibility(new Date('2026-08-01T00:00:01.000Z'))
-    expect({ or: before.or?.slice(0, 2) }).toEqual({
+    expect({ or: before.or?.slice(0, 1) }).toEqual({
       or: [
-        { 'doc.relationTo': { equals: 'posts' } },
         {
           and: [
             { 'doc.relationTo': { equals: 'blogs' } },
@@ -122,9 +115,8 @@ describe('Blog site integrations', () => {
         },
       ],
     })
-    expect({ or: after.or?.slice(0, 2) }).toEqual({
+    expect({ or: after.or?.slice(0, 1) }).toEqual({
       or: [
-        { 'doc.relationTo': { equals: 'posts' } },
         {
           and: [
             { 'doc.relationTo': { equals: 'blogs' } },
@@ -246,23 +238,23 @@ describe('Blog site integrations', () => {
     )
   })
 
-  it('preserves Post meta and category search fields', async () => {
+  it('preserves explicit metadata and a populated category on Blog search rows', async () => {
     const result = await beforeSyncWithSearch({
       req: { payload: { findByID: vi.fn() } },
       originalDoc: {
-        id: 'post-1',
+        id: 'blog-1',
         slug: 'news',
         title: 'News',
-        categories: [{ id: 'cat-1', title: 'Updates' }],
-        meta: { title: 'Latest News', description: 'Post summary', image: { id: 'image-1' } },
+        category: { id: 'cat-1', title: 'Updates', slug: 'updates' },
+        meta: { title: 'Latest News', description: 'Blog summary', image: { id: 'image-1' } },
       },
-      searchDoc: { title: 'News', doc: { relationTo: 'posts', value: 'post-1' } },
+      searchDoc: { title: 'News', doc: { relationTo: 'blogs', value: 'blog-1' } },
     } as never)
 
     expect(result).toMatchObject({
       slug: 'news',
-      meta: { title: 'Latest News', description: 'Post summary', image: 'image-1' },
-      categories: [{ relationTo: 'categories', categoryID: 'cat-1', title: 'Updates' }],
+      meta: { title: 'Latest News', description: 'Blog summary', image: 'image-1' },
+      category: { relationTo: 'blog-categories', categoryID: 'cat-1', title: 'Updates', slug: 'updates' },
     })
   })
 

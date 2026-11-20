@@ -44,9 +44,8 @@ vi.mock('@payloadcms/richtext-lexical/react', () => ({
 
     return (
       <div className={className} data-testid="rich-text">
-        {blocks.postBanner?.({ node })}
-        {blocks.postMediaBlock?.({ node })}
-        {blocks.postCode?.({ node })}
+        {blocks.blogBanner?.({ node })}
+        {blocks.blogMediaBlock?.({ node })}
         {blocks.blogCta?.({ node })}
         {renderedTable}
       </div>
@@ -54,9 +53,9 @@ vi.mock('@payloadcms/richtext-lexical/react', () => ({
   },
 }))
 
-vi.mock('@/collections/Posts/blocks/Banner/Component', () => ({
-  BannerBlock: ({ className }: { className?: string }) => (
-    <div className={className} data-testid="embedded-banner">
+vi.mock('@/collections/Blogs/blocks/Banner/Component', () => ({
+  BannerBlock: () => (
+    <div data-testid="embedded-banner">
       <div className="payload-richtext payload-richtext--plain" data-testid="banner-rich-text">
         <p>Banner copy stays plain.</p>
       </div>
@@ -64,22 +63,9 @@ vi.mock('@/collections/Posts/blocks/Banner/Component', () => ({
   ),
 }))
 
-vi.mock('@/collections/Posts/blocks/MediaBlock/Component', () => ({
-  MediaBlock: ({
-    captionClassName,
-    className,
-    imgClassName,
-  }: {
-    captionClassName?: string
-    className?: string
-    imgClassName?: string
-  }) => (
-    <div
-      className={className}
-      data-caption-class={captionClassName}
-      data-image-class={imgClassName}
-      data-testid="embedded-media"
-    >
+vi.mock('@/collections/Blogs/blocks/MediaBlock/Component', () => ({
+  MediaBlock: () => (
+    <div data-testid="embedded-media">
       <div
         className="payload-richtext payload-richtext--content"
         data-testid="media-caption-rich-text"
@@ -90,12 +76,6 @@ vi.mock('@/collections/Posts/blocks/MediaBlock/Component', () => ({
         </p>
       </div>
     </div>
-  ),
-}))
-
-vi.mock('@/collections/Posts/blocks/Code/Component', () => ({
-  CodeBlock: ({ className }: { className?: string }) => (
-    <div className={className} data-testid="embedded-code" />
   ),
 }))
 
@@ -120,9 +100,7 @@ vi.mock('@/heros/HeaderThemeSync', () => ({
 }))
 
 import RichText from '@/components/RichText'
-import { postRichTextBlocks } from '@/collections/Posts/blocks/richTextBlocks'
 import { blogRichTextBlocks } from '@/collections/Blogs/blocks/richTextBlocks'
-const testBlocks = { ...postRichTextBlocks, blogCta: blogRichTextBlocks.blogCta }
 import styles from '@/components/RichText/index.module.css'
 import { HighImpactHero } from '@/heros/HighImpact'
 
@@ -161,7 +139,7 @@ describe('RichText style modes', () => {
   })
 
   it('makes converted tables a named keyboard reachable scroll region', () => {
-    render(<RichText data={data} blocks={testBlocks} />)
+    render(<RichText data={data} blocks={blogRichTextBlocks} />)
     const region = screen.getByRole('region', { name: 'Scrollable table' })
     expect(region.getAttribute('tabindex')).toBe('0')
     expect(region.querySelector('table')).not.toBeNull()
@@ -226,27 +204,17 @@ describe('RichText style modes', () => {
   )
 
   it('keeps every embedded converter behind a stable boundary and CSS Module layout class', () => {
-    render(<RichText data={data} blocks={testBlocks} />)
+    render(<RichText data={data} blocks={blogRichTextBlocks} />)
 
-    const banner = screen.getByTestId('embedded-banner')
-    const media = screen.getByTestId('embedded-media')
-    const code = screen.getByTestId('embedded-code')
-    const ctaBoundary = screen.getByTestId('embedded-cta').parentElement
-
-    expect(banner.classList).toContain('payload-richtext__embedded')
-    expect(banner.classList).toContain(styles.embeddedBanner)
-    expect(media.classList).toContain('payload-richtext__embedded')
-    expect(media.classList).toContain(styles.embeddedMedia)
-    expect(media.getAttribute('data-image-class')).toBe(styles.mediaImage)
-    expect(media.getAttribute('data-caption-class')).toBe(styles.mediaCaption)
-    expect(code.classList).toContain('payload-richtext__embedded')
-    expect(code.classList).toContain(styles.embeddedCode)
-    expect(ctaBoundary?.classList).toContain('payload-richtext__embedded')
-    expect(ctaBoundary?.classList).toContain(styles.articleBlock)
+    for (const id of ['embedded-banner', 'embedded-media', 'embedded-cta']) {
+      const boundary = screen.getByTestId(id).parentElement
+      expect(boundary?.classList).toContain('payload-richtext__embedded')
+      expect(boundary?.classList).toContain(styles.articleBlock)
+    }
   })
 
   it('lets nested content-enabled RichText establish a new content scope inside Block boundaries', () => {
-    render(<RichText data={data} blocks={testBlocks} />)
+    render(<RichText data={data} blocks={blogRichTextBlocks} />)
 
     const mediaCaption = screen.getByTestId('media-caption-rich-text')
     const cta = screen.getByTestId('cta-rich-text')
@@ -272,7 +240,7 @@ describe('RichText style modes', () => {
   it('inherits semantic content colors without requiring a local inverse class', () => {
     render(
       <section data-website-theme="inverse">
-        <RichText data={data} blocks={testBlocks} />
+        <RichText data={data} blocks={blogRichTextBlocks} />
       </section>,
     )
 
@@ -346,11 +314,8 @@ describe('RichText style modes', () => {
       'content',
       'plain',
       'withGutter',
-      'embeddedBanner',
-      'embeddedMedia',
-      'embeddedCode',
-      'mediaImage',
-      'mediaCaption',
+      'articleBlock',
+      'tableScroll',
     ]) {
       expect(source, slot).toContain(`styles.${slot}`)
     }

@@ -59,7 +59,7 @@ describe('Footer validation', () => {
     expect(
       validateFooterNavigationLinks([
         { link: { type: 'reference', reference: { relationTo: 'pages', value: 'shared-id' } } },
-        { link: { type: 'reference', reference: { relationTo: 'posts', value: 'shared-id' } } },
+        { link: { type: 'reference', reference: { relationTo: 'blogs', value: 'shared-id' } } },
       ]),
     ).toBe(true)
   })

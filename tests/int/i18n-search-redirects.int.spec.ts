@@ -37,7 +37,7 @@ describe('translated search and redirect destinations (isolated MongoDB)', () =>
     typescript: { autoGenerate: false },
     db: mongooseAdapter({ url, connectOptions: { serverSelectionTimeoutMS: 3000 } }),
     collections: [
-      ...(['pages', 'blogs', 'posts', 'products'] as const).map((slug) => ({
+      ...(['pages', 'blogs', 'products'] as const).map((slug) => ({
         slug,
         access: { read: authenticatedOrPublished },
         fields: [
@@ -105,7 +105,6 @@ describe('translated search and redirect destinations (isolated MongoDB)', () =>
       'translations',
       'pages',
       'blogs',
-      'posts',
       'products',
       'product-categories',
       'blog-categories',
@@ -113,7 +112,7 @@ describe('translated search and redirect destinations (isolated MongoDB)', () =>
       await payload.delete({ collection, where: {} })
   })
   const source = (
-    collection: 'blogs' | 'posts' | 'pages' | 'products',
+    collection: 'blogs' | 'pages' | 'products',
     title: string,
     options: Record<string, unknown> = {},
   ) =>
@@ -161,7 +160,7 @@ describe('translated search and redirect destinations (isolated MongoDB)', () =>
   it('returns only current public German article checkpoints, retaining a ready result while an update is pending', async () => {
     const { getTranslatedSearchResults } = await import('@/search/getTranslatedSearchResults')
     const blog = await source('blogs', 'Ready')
-    const post = await source('posts', 'News')
+    const pending = await source('blogs', 'News')
     const future = await source('blogs', 'Future', { publishedAt: '2099-01-01T00:00:00Z' })
     const draft = await source('blogs', 'Private', { _status: 'draft' })
     const incomplete = await source('blogs', 'Incomplete')
@@ -170,8 +169,8 @@ describe('translated search and redirect destinations (isolated MongoDB)', () =>
       await checkpoint('blogs', doc.id)
     }
     await index('blogs', incomplete.id)
-    await index('posts', post.id)
-    await checkpoint('posts', post.id, { title: 'Tee Nachrichten' }, 'pending')
+    await index('blogs', pending.id)
+    await checkpoint('blogs', pending.id, { title: 'Tee Nachrichten' }, 'pending')
     await index('pages', (await source('pages', 'Unrenderable')).id)
     const french = await source('blogs', 'French')
     await index('blogs', french.id, 'fr')
@@ -180,9 +179,11 @@ describe('translated search and redirect destinations (isolated MongoDB)', () =>
     await index('blogs', notReady.id, 'de', false)
     await checkpoint('blogs', notReady.id)
     const result = await getTranslatedSearchResults(payload, 'Tee', 'de')
-    expect(result.blogs.map((doc) => [doc.title, doc.slug])).toEqual([['Tee übersetzt', 'ready']])
-    expect(result.posts.map((doc) => [doc.title, doc.slug])).toEqual([['Tee Nachrichten', 'news']])
-    expect(await getTranslatedSearchResults(payload, '', 'fr')).toEqual({ blogs: [], posts: [] })
+    expect(result.map((doc) => [doc.title, doc.slug])).toEqual([
+      ['Tee übersetzt', 'ready'],
+      ['Tee Nachrichten', 'news'],
+    ])
+    expect(await getTranslatedSearchResults(payload, '', 'fr')).toEqual([])
   })
 
   it('filters stale/hidden source hits before applying the twelve-card display limit', async () => {
@@ -192,7 +193,7 @@ describe('translated search and redirect destinations (isolated MongoDB)', () =>
     await index('blogs', blog.id)
     await checkpoint('blogs', blog.id)
     expect(
-      (await getTranslatedSearchResults(payload, '', 'de')).blogs.map((doc) => doc.slug),
+      (await getTranslatedSearchResults(payload, '', 'de')).map((doc) => doc.slug),
     ).toEqual(['afterhidden'])
   })
 
@@ -203,7 +204,7 @@ describe('translated search and redirect destinations (isolated MongoDB)', () =>
       await index('blogs', blog.id)
       await checkpoint('blogs', blog.id)
     }
-    expect((await getTranslatedSearchResults(payload, '', 'de')).blogs).toHaveLength(12)
+    expect(await getTranslatedSearchResults(payload, '', 'de')).toHaveLength(12)
   })
 
   it('resolves reference IDs in the requested locale and temporarily falls back to current English URL when unavailable', async () => {
@@ -337,9 +338,9 @@ describe('translated search and redirect destinations (isolated MongoDB)', () =>
 })
 
 describe('source visibility parity', () => {
-  it('retains status-only Posts and Case Studies while honoring Blog/Product timestamps', () => {
+  it('uses status for Pages and Case Studies and publication dates for Blogs and Products', () => {
     const future = { _status: 'published', publishedAt: '2099-01-01T00:00:00Z' }
-    for (const collection of ['posts', 'case-studies']) {
+    for (const collection of ['pages', 'case-studies']) {
       expect(publicSourceVisibility(collection)).toEqual({ _status: { equals: 'published' } })
       expect(isPublicSource(future, collection)).toBe(true)
     }

@@ -14,7 +14,7 @@ import { HeaderThemeSync } from '@/heros/HeaderThemeSync'
 import { HighImpactHero } from '@/heros/HighImpact'
 import { LowImpactHero } from '@/heros/LowImpact'
 import { MediumImpactHero } from '@/heros/MediumImpact'
-import { PostHero } from '@/heros/PostHero'
+import { BlogHero } from '@/heros/BlogHero'
 import { Providers } from '@/providers'
 import { useHeaderTheme } from '@/providers/HeaderTheme'
 
@@ -36,14 +36,14 @@ const ThemeProbe = () => {
   return <output data-testid="active-header-theme">{headerTheme ?? 'reset'}</output>
 }
 
-const heroDirectories = ['HighImpact', 'LowImpact', 'MediumImpact', 'PostHero'] as const
+const heroDirectories = ['HighImpact', 'LowImpact', 'MediumImpact', 'BlogHero'] as const
 
 const HeroModules = () => (
   <>
     <HighImpactHero headerTheme="dark" type="highImpact" />
     <LowImpactHero headerTheme="light">Low content</LowImpactHero>
     <MediumImpactHero headerTheme="light" type="mediumImpact" />
-    <PostHero post={{ categories: [], title: 'Post title' } as never} />
+    <BlogHero blog={{ title: 'Blog title' } as never} />
   </>
 )
 
@@ -150,9 +150,10 @@ describe('public website shell', () => {
 
   it('keeps all Hero markup on semantic module slots', () => {
     const { container } = render(<HeroModules />)
-    for (const slot of ['high-impact', 'low-impact', 'medium-impact', 'post']) {
+    for (const slot of ['high-impact', 'low-impact', 'medium-impact']) {
       expect(container.querySelector(`[data-hero="${slot}"]`)).not.toBeNull()
     }
+    expect(screen.getByRole('heading', { level: 1, name: 'Blog title' })).toBeTruthy()
     for (const directory of heroDirectories) {
       const source = readSource(`src/heros/${directory}/index.tsx`)
       expect(source).toContain("import styles from './index.module.css'")
@@ -164,7 +165,6 @@ describe('public website shell', () => {
     const high = readSource('src/heros/HighImpact/index.module.css')
     const low = readSource('src/heros/LowImpact/index.module.css')
     const medium = readSource('src/heros/MediumImpact/index.module.css')
-    const post = readSource('src/heros/PostHero/index.module.css')
 
     expect(high).toContain('max-width: 36.5rem;')
     expect(high).toContain('min-height: 80vh;')
@@ -173,21 +173,13 @@ describe('public website shell', () => {
     expect(low).toContain('padding-top: var(--website-section-standard);')
     expect(medium).toContain('padding-top: var(--website-section-standard);')
     expect(medium).toContain('var(--website-container-wide)')
-    expect(post).toContain('grid-template-columns: 1fr 48rem 1fr;')
-    expect(post).toContain('min-height: 80vh;')
-    expect(post).toMatch(
-      /\.overlay\s*{[^}]*height:\s*50%;[^}]*linear-gradient\(to top, rgb\(0 0 0 \/ var\(--website-scrim-strong\)\), transparent\)/s,
-    )
-    // The display-1 role owns the PostHero title scale and its breakpoint step.
-    expect(post).toMatch(/\.title\s*\{\s*composes:\s*website-type-display-1 from global;/)
-    expect(post).not.toMatch(/\.title\s*\{[^}]*font-size/)
+    const blog = readSource('src/heros/BlogHero/index.module.css')
+    expect(blog).toMatch(/\.title\s*\{\s*composes:\s*website-type-heading-1 from global;/)
   })
 
   it('keeps inverse ownership on dark content and local foreground adaptation on the Header', () => {
-    expect(readSource('src/heros/PostHero/index.tsx')).toContain('data-website-theme="inverse"')
-    expect(readSource('src/collections/Posts/blocks/Code/Component.client.tsx')).toContain(
-      'data-website-theme="inverse"',
-    )
+    expect(readSource('src/heros/HighImpact/index.tsx')).toContain('data-website-theme="inverse"')
+    expect(readSource('src/Footer/Component.tsx')).toContain('data-website-theme="inverse"')
     const header = readSource('src/Header/Component.client.tsx')
     expect(header).toContain('data-theme={headerTheme')
     expect(header).not.toContain('data-website-theme')
@@ -212,28 +204,21 @@ describe('public website shell', () => {
     expect(`${header}\n${navigation}`).not.toMatch(/z-index:\s*(?:999|9999)\b/)
   })
 
-  it('uses semantic inverse surfaces for Footer and Code without changing Prism scope', () => {
+  it('uses semantic inverse surfaces for the Footer', () => {
     const footer = readSource('src/Footer/index.module.css')
-    const code = readSource('src/collections/Posts/blocks/Code/Component.module.css')
     expect(footer).toContain('var(--website-color-muted-foreground)')
     expect(footer).toContain('var(--website-color-border)')
     expect(footer).toContain('var(--website-color-disabled-foreground)')
     expect(footer).not.toMatch(/rgb\(255 255 255 \/ \d+%\)/)
     expect(footer).toContain('@media (prefers-reduced-motion: reduce)')
     expect(footer).toContain(".navigation[data-enhanced='true'] .linkPanel")
-    expect(code).toContain('background-color: var(--website-color-background)')
-    expect(code).toContain('color: var(--website-color-foreground)')
-    expect(code).toContain('composes: website-type-code from global;')
-    expect(readSource('src/collections/Posts/blocks/Code/Component.client.tsx')).toContain('themes.vsDark')
   })
 
   it('keeps image overlay coverage local to Heroes and visual navigation cards', () => {
     const high = readSource('src/heros/HighImpact/index.module.css')
-    const post = readSource('src/heros/PostHero/index.module.css')
     const card = readSource('src/Header/Nav/blocks.module.css')
     const markup = readSource('src/Header/Nav/NavigationCard.tsx')
     expect(high).toContain('var(--website-scrim-strong)')
-    expect(post).toContain('height: 50%')
     expect(card).toContain('var(--website-scrim-strong)')
     expect(card).toContain('inset: 65% 0 0')
     expect(markup).toContain("variant === 'visual' ? 'inverse' : undefined")

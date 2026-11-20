@@ -3,7 +3,6 @@ import { describe, expect, it, vi } from 'vitest'
 import { generateImage } from '@/plugins'
 import { blogTab } from '@/Settings/fields/blog'
 import { Blogs } from '@/collections/Blogs'
-import { Posts } from '@/collections/Posts'
 import { Pages } from '@/collections/Pages'
 import { CaseStudies } from '@/collections/CaseStudies'
 import type { Field } from 'payload'
@@ -35,7 +34,7 @@ const request = (mimeType = 'image/jpeg') => ({
 })
 
 describe('SEO Meta Image auto-generation', () => {
-  it.each([Blogs, Posts, Pages, CaseStudies])(
+  it.each([Blogs, Pages, CaseStudies])(
     'enables the collection Meta Image button for $slug',
     (config) => {
       expect(findImageField(config.fields)?.admin?.components?.Field).toMatchObject({
@@ -57,7 +56,6 @@ describe('SEO Meta Image auto-generation', () => {
       { globalConfig: { slug: 'settings' }, doc: { blog: { hero: { image: 'source-image' } } } },
     ],
     ['Blogs', { collectionConfig: { slug: 'blogs' }, doc: { heroImage: 'source-image' } }],
-    ['Posts', { collectionConfig: { slug: 'posts' }, doc: { heroImage: 'source-image' } }],
     [
       'Pages',
       {
@@ -89,7 +87,7 @@ describe('SEO Meta Image auto-generation', () => {
     const req = request('video/mp4')
     expect(
       await generateImage({
-        collectionConfig: { slug: 'posts' },
+        collectionConfig: { slug: 'blogs' },
         doc: {
           heroImage: 'source-image',
           meta: { image: 'existing-image' },
@@ -159,7 +157,7 @@ describe('SEO Meta Image auto-generation', () => {
   it('returns an empty value when neither source nor existing image is set', async () => {
     expect(
       await generateImage({
-        collectionConfig: { slug: 'posts' },
+        collectionConfig: { slug: 'blogs' },
         doc: {},
         req: request(),
       } as never),
@@ -170,7 +168,7 @@ describe('SEO Meta Image auto-generation', () => {
     const req = request()
     expect(
       await generateImage({
-        collectionConfig: { slug: 'posts' },
+        collectionConfig: { slug: 'blogs' },
         doc: {
           heroImage: '',
           meta: { image: 'existing-image' },

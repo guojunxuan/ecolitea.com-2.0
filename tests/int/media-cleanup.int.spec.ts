@@ -68,13 +68,13 @@ describe('development Media cleanup safety', () => {
       collections: {
         'case-studies': [{ id: 'case-1', hero: { media: 'm1' } }],
         pages: [{ id: 'page-1', layout: [{ media: { id: 'm2' } }] }],
-        posts: [{ id: 'post-1', heroImage: 'm3' }],
+        blogs: [{ id: 'blog-1', heroImage: 'm3' }],
         search: [{ id: 'search-1', meta: { image: 'm7' } }],
       },
       versions: {
         'case-studies': [{ id: 'case-version', version: { meta: { image: 'm4' } } }],
         pages: [{ id: 'page-version', version: { meta: { image: 'm5' } } }],
-        posts: [{ id: 'post-version', version: { heroImage: 'm6', _status: 'draft' } }],
+        blogs: [{ id: 'blog-version', version: { heroImage: 'm6', _status: 'draft' } }],
       },
     })
 
@@ -93,8 +93,8 @@ describe('development Media cleanup safety', () => {
       'case-studies:version',
       'pages:current',
       'pages:version',
-      'posts:current',
-      'posts:version',
+      'blogs:current',
+      'blogs:version',
       'search:current',
     ])
     expect(references.map(({ mediaID }) => mediaID)).toEqual([
@@ -109,15 +109,13 @@ describe('development Media cleanup safety', () => {
     expect(payload.find.mock.calls.map(([call]) => call.collection)).toEqual([
       'case-studies',
       'pages',
-      'posts',
-      'search',
       'blogs',
+      'search',
       'site-assets',
     ])
     expect(payload.findVersions.mock.calls.map(([call]) => call.collection)).toEqual([
       'case-studies',
       'pages',
-      'posts',
       'blogs',
     ])
   })
@@ -225,7 +223,11 @@ describe('development Media cleanup safety', () => {
       context: { disableRevalidate: true },
       where: { id: { in: ['m1', 'm2'] } },
     })
-    expect(payload.findVersions).toHaveBeenCalledTimes(4)
+    expect(payload.findVersions.mock.calls.map(([call]) => call.collection)).toEqual([
+      'case-studies',
+      'pages',
+      'blogs',
+    ])
   })
 
   it('does not delete when inspection fails and treats an empty inventory as success', async () => {
@@ -339,14 +341,13 @@ function fakePayload({
         'media',
         'case-studies',
         'pages',
-        'posts',
-        'search',
         'blogs',
+        'search',
         'site-assets',
       ].map((slug) => ({
         slug,
         admin: {},
-        versions: ['case-studies', 'pages', 'posts', 'blogs'].includes(slug),
+        versions: ['case-studies', 'pages', 'blogs'].includes(slug),
       })),
       globals: ['header', 'settings'].map((slug) => ({ slug, versions: slug === 'header' })),
     },

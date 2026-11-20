@@ -100,8 +100,6 @@ vi.mock('@/heros/BlogListingHero', () => ({ BlogListingHero: () => null }))
 vi.mock('@/heros/HeaderThemeSync', () => ({ HeaderThemeSync: () => null }))
 
 import { blogListingMetadata, renderBlogListing } from '@/app/(frontend)/[lang]/blogs/listing'
-import Posts from '@/app/(frontend)/[lang]/posts/page'
-import PostsPage from '@/app/(frontend)/[lang]/posts/page/[pageNumber]/page'
 import Products from '@/app/(frontend)/[lang]/products/page'
 import { renderProductListing } from '@/app/(frontend)/[lang]/products/[category]/listing'
 import Search from '@/app/(frontend)/[lang]/search/page'
@@ -123,7 +121,6 @@ beforeEach(() => {
   fixture.rows = {
     'blog-categories': [{ id: 'tea', slug: 'tea', title: 'Tea', meta: {} }],
     blogs: [{ id: 'blog', title: 'Tea article', slug: 'tea', category: 'tea', ...published }],
-    posts: [{ id: 'post', title: 'Tea post', slug: 'tea', ...published }],
     'product-categories': [{ id: 'tea', slug: 'tea', title: 'Tea', meta: {} }],
     products: [
       {
@@ -139,9 +136,10 @@ beforeEach(() => {
     'translation-search': [],
     search: [
       {
-        id: 'search-post',
-        title: 'Tea post',
-        doc: { relationTo: 'posts', value: 'post' },
+        id: 'search-blog',
+        title: 'Tea article',
+        slug: 'tea',
+        doc: { relationTo: 'blogs', value: 'blog' },
         ...published,
       },
     ],
@@ -167,12 +165,6 @@ const routes = [
     read: (lang: string) => renderBlogListing({ locale: lang, page: 2, categorySlug: 'tea' }),
     paginated: true,
   },
-  { path: '/posts', read: (lang: string) => Posts({ params: Promise.resolve({ lang }) }) },
-  {
-    path: '/posts/page/2',
-    read: (lang: string) => PostsPage({ params: Promise.resolve({ lang, pageNumber: '2' }) }),
-    paginated: true,
-  },
   { path: '/products', read: (lang: string) => Products({ params: Promise.resolve({ lang }) }) },
   {
     path: '/products/tea',
@@ -194,7 +186,7 @@ const routes = [
 ]
 
 function fillPages() {
-  for (const collection of ['blogs', 'posts', 'products']) {
+  for (const collection of ['blogs', 'products']) {
     const source = fixture.rows[collection][0]
     fixture.rows[collection] = Array.from({ length: 13 }, (_, index) => ({
       ...source,
@@ -203,10 +195,10 @@ function fillPages() {
   }
 }
 function translateArticlesAndProducts() {
-  for (const collection of ['blogs', 'posts', 'products']) {
+  for (const collection of ['blogs', 'products']) {
     for (const doc of fixture.rows[collection]) {
       setReady(collection, String(doc.id))
-      if (collection !== 'products')
+      if (collection === 'blogs')
         fixture.rows['translation-search'].push({
           id: `index-${doc.id}`,
           locale: 'de',
@@ -262,19 +254,15 @@ describe('public listing locale fallback', () => {
     ).rejects.toMatchObject({ digest: 'NEXT_REDIRECT;replace;/search;307;' })
   })
 
-  it.each(['blogs', 'posts'])(
-    'keeps German search when only %s has a ready article',
-    async (collection) => {
-      setReady(collection, collection === 'blogs' ? 'blog' : 'post')
-      // A missing/stale search index must not make the whole language unavailable.
-      await expect(
-        Search({
-          params: Promise.resolve({ lang: 'de' }),
-          searchParams: Promise.resolve({ q: 'unmatched' }),
-        }),
-      ).resolves.toBeTruthy()
-    },
-  )
+  it('keeps German search when a ready blog is missing from the index', async () => {
+    setReady('blogs', 'blog')
+    await expect(
+      Search({
+        params: Promise.resolve({ lang: 'de' }),
+        searchParams: Promise.resolve({ q: 'unmatched' }),
+      }),
+    ).resolves.toBeTruthy()
+  })
 
   it('preserves the requested page in a blog category fallback when another category has German content', async () => {
     fixture.rows.blogs.push({
@@ -326,11 +314,6 @@ describe('public listing locale fallback', () => {
       path: '/blogs/page/2',
     },
     {
-      name: 'posts',
-      read: () => PostsPage({ params: Promise.resolve({ lang: 'de', pageNumber: '2' }) }),
-      path: '/posts/page/2',
-    },
-    {
       name: 'products',
       read: () => renderProductListing({ locale: 'de', page: 2, categorySlug: 'tea' }),
       path: '/products/tea/page/2',
@@ -362,7 +345,6 @@ describe('public listing locale fallback', () => {
     'redirects empty German $path even when English has no public content',
     async ({ read, path }) => {
       fixture.rows.blogs = []
-      fixture.rows.posts = []
       fixture.rows.products = []
       await expect(read('de')).rejects.toMatchObject({
         digest: `NEXT_REDIRECT;replace;${path};307;`,

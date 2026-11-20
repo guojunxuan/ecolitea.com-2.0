@@ -8,6 +8,23 @@ export const blogFixture = (runID: string) => ({
   password: 'e2e-blog-preview-only',
   longHeading: `Unbroken${'Tea'.repeat(50)}`,
 })
+export function task6ArchiveFixture(runID: string) {
+  const prefix = `e2e-task6-matrix-archive-${runID}`
+  return {
+    categorySlug: prefix,
+    categoryTitle: 'E2E Task6 Archive',
+    mediaAlt: `${prefix} cover`,
+    blogs: Array.from({ length: 13 }, (_, index) => {
+      const suffix = String(index + 1).padStart(2, '0')
+      return {
+        slug: `${prefix}-blog-${suffix}`,
+        title: `E2E Task6 Archive Card ${suffix}`,
+        // Shared blog fixtures use 2025 dates and retain their listing order.
+        publishedAt: new Date(Date.UTC(2024, 6, index + 1)).toISOString(),
+      }
+    }),
+  }
+}
 export const fixtureContext = { context: { disableRevalidate: true } }
 export const richText = (value: string, heading?: string) =>
   ({
@@ -76,6 +93,29 @@ export function reportBlogEnvironment(runID: string) {
   )
 }
 
+export async function cleanupTask6Archive(payload: Payload, runID: string) {
+  assertRunScopedE2EDatabaseURI(process.env.DATABASE_URI!, runID)
+  if (process.env.DISABLE_R2_STORAGE !== 'true')
+    throw new Error('Task 6 archive cleanup requires the local upload adapter')
+
+  const { blogs, categorySlug, mediaAlt } = task6ArchiveFixture(runID)
+  await payload.delete({
+    collection: 'blogs',
+    where: { slug: { in: blogs.map(({ slug }) => slug) } },
+    ...fixtureContext,
+  })
+  await payload.delete({
+    collection: 'blog-categories',
+    where: { slug: { equals: categorySlug } },
+    ...fixtureContext,
+  })
+  await payload.delete({
+    collection: 'media',
+    where: { alt: { equals: mediaAlt } },
+    ...fixtureContext,
+  })
+}
+
 export async function cleanupBlogs(payload: Payload, runID: string) {
   reportBlogEnvironment(runID)
   const { prefix, email } = blogFixture(runID)
@@ -111,7 +151,7 @@ export async function cleanupBlogs(payload: Payload, runID: string) {
     ...users.docs.map(({ id }) => id),
     ...media.docs.map(({ id }) => id),
   ]
-  for (const collection of ['pages', 'case-studies', 'posts', 'blogs', 'redirects'] as const) {
+  for (const collection of ['pages', 'case-studies', 'blogs', 'redirects'] as const) {
     for (const { draft, versionLabel } of [
       { draft: false, versionLabel: 'published version' },
       { draft: true, versionLabel: 'latest draft' },

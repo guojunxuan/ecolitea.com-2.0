@@ -38,11 +38,6 @@ describe('Blog fixture cleanup reference safety', () => {
           versions: { drafts: true },
         },
         {
-          slug: 'posts',
-          fields: [{ name: 'title', type: 'text' }],
-          versions: { drafts: true },
-        },
-        {
           slug: 'blogs',
           fields: [
             { name: 'slug', type: 'text' },

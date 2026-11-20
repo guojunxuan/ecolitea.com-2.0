@@ -6,7 +6,7 @@ import { BlogCategoryTabs } from '@/components/BlogCategoryTabs'
 import { Card } from '@/components/Card'
 import { CollectionArchive } from '@/components/CollectionArchive'
 import { Pagination } from '@/components/Pagination'
-import type { Blog, Post } from '@/payload-types'
+import type { Blog } from '@/payload-types'
 
 const push = vi.fn()
 vi.mock('next/navigation', () => ({ useRouter: () => ({ push }) }))
@@ -26,28 +26,12 @@ const blog = {
   publishedAt: '2026-09-28T10:00:00.000Z',
 } as Blog
 
-const post = {
-  slug: 'existing-post',
-  title: 'Existing Post',
-  meta: { description: 'Post summary' },
-  categories: [{ title: 'News' }],
-} as Post
-
 afterEach(() => {
   cleanup()
   push.mockReset()
 })
 
 describe('blog listing components', () => {
-  it('preserves the post card URL and summary', () => {
-    render(<Card doc={post} relationTo="posts" showCategories />)
-    expect(screen.getByRole('link', { name: 'Existing Post' }).getAttribute('href')).toBe(
-      '/posts/existing-post',
-    )
-    expect(screen.getByText('Post summary')).toBeTruthy()
-    expect(screen.getByText('News')).toBeTruthy()
-  })
-
   it('renders blog media, excerpt, one linked category and published date', () => {
     render(<Card doc={blog} relationTo="blogs" />)
     expect(screen.getByRole('link', { name: 'Organic Tea' }).getAttribute('href')).toBe(
@@ -120,21 +104,17 @@ describe('blog listing components', () => {
     expect(menu.querySelector('a[aria-current="page"]')?.textContent).toBe('All')
   })
 
-  it('uses the requested pagination base while preserving posts by default', () => {
-    const { rerender } = render(<Pagination page={1} totalPages={3} routeBase="/blogs" />)
+  it('uses the Blog listing by default and accepts a category pagination base', () => {
+    const { rerender } = render(<Pagination page={1} totalPages={3} />)
     fireEvent.click(screen.getByRole('button', { name: '2' }))
     expect(push).toHaveBeenLastCalledWith('/blogs/page/2')
 
     rerender(<Pagination page={1} totalPages={3} routeBase="/blogs/category/tea" />)
     fireEvent.click(screen.getByRole('button', { name: '2' }))
     expect(push).toHaveBeenLastCalledWith('/blogs/category/tea/page/2')
-
-    rerender(<Pagination page={1} totalPages={3} />)
-    fireEvent.click(screen.getByRole('button', { name: '2' }))
-    expect(push).toHaveBeenLastCalledWith('/posts/page/2')
   })
 
-  it('navigates from blog page two to each canonical first page without changing Posts', () => {
+  it('navigates from Blog page two to each canonical first page', () => {
     const { rerender } = render(
       <Pagination page={2} totalPages={3} routeBase="/blogs" firstPageHref="/blogs" />,
     )
@@ -153,10 +133,6 @@ describe('blog listing components', () => {
     )
     fireEvent.click(screen.getByRole('button', { name: 'Go to previous page' }))
     expect(push).toHaveBeenLastCalledWith('/blogs/category/tea')
-
-    rerender(<Pagination page={2} totalPages={3} />)
-    fireEvent.click(screen.getByRole('button', { name: 'Go to previous page' }))
-    expect(push).toHaveBeenLastCalledWith('/posts/page/1')
   })
 
   it('renders canonical blog pagination links for navigation without JavaScript', () => {

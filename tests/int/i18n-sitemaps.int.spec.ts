@@ -69,12 +69,11 @@ beforeEach(() => {
 })
 afterEach(() => vi.unstubAllEnvs())
 describe('translated sitemap HTTP responses', () => {
-  it.each(['pages', 'posts', 'blogs', 'products'])(
+  it.each(['pages', 'blogs', 'products'])(
     'lists ready %s URLs and reciprocal xhtml links only',
     async (kind) => {
       const routes = {
         pages: () => import('@/app/(frontend)/(sitemaps)/pages-sitemap.xml/route'),
-        posts: () => import('@/app/(frontend)/(sitemaps)/posts-sitemap.xml/route'),
         blogs: () => import('@/app/(frontend)/(sitemaps)/blogs-sitemap.xml/route'),
         products: () => import('@/app/(frontend)/(sitemaps)/products-sitemap.xml/route'),
       }

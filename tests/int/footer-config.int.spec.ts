@@ -170,7 +170,7 @@ describe('Footer Global', () => {
       .find((field) => 'name' in field && field.name === 'reference')
 
     expect(relationship).toMatchObject({
-      relationTo: ['pages', 'posts', 'blogs', 'blog-categories', 'case-studies', 'categories'],
+      relationTo: ['pages', 'blogs', 'blog-categories', 'case-studies'],
     })
     expect(navItems.validate).toBe(validateFooterNavigationLinks)
 

@@ -19,9 +19,9 @@ import SearchPage from '@/app/(frontend)/[lang]/search/page'
 afterEach(cleanup)
 
 describe('site search results', () => {
-  it('links Blog results to Blogs and Post results to Posts', async () => {
+  it('links Blog results and searches their excerpt', async () => {
     find.mockResolvedValue({
-      totalDocs: 2,
+      totalDocs: 1,
       docs: [
         {
           title: 'Tea Notes',
@@ -32,13 +32,6 @@ describe('site search results', () => {
           category: { title: 'Brewing', slug: 'brewing' },
           doc: { relationTo: 'blogs', value: 'blog-1' },
         },
-        {
-          title: 'News',
-          slug: 'news',
-          categories: [],
-          meta: { description: 'Latest' },
-          doc: { relationTo: 'posts', value: 'post-1' },
-        },
       ],
     })
 
@@ -47,7 +40,6 @@ describe('site search results', () => {
     expect(screen.getByRole('link', { name: 'Tea Notes' }).getAttribute('href')).toBe(
       '/blogs/tea-notes',
     )
-    expect(screen.getByRole('link', { name: 'News' }).getAttribute('href')).toBe('/posts/news')
     expect(find).toHaveBeenCalledWith(
       expect.objectContaining({
         collection: 'search',
@@ -62,29 +54,6 @@ describe('site search results', () => {
           and: expect.arrayContaining([
             expect.objectContaining({
               or: expect.arrayContaining([{ excerpt: { like: 'oolong' } }]),
-            }),
-            expect.objectContaining({
-              and: expect.arrayContaining([
-                expect.objectContaining({
-                  or: expect.arrayContaining([
-                    expect.objectContaining({
-                      and: expect.arrayContaining([
-                        expect.objectContaining({
-                          publishedAt: expect.objectContaining({
-                            less_than_equal: expect.any(String),
-                          }),
-                        }),
-                      ]),
-                    }),
-                  ]),
-                }),
-                {
-                  or: [
-                    { 'doc.relationTo': { equals: 'blogs' } },
-                    { 'doc.relationTo': { equals: 'posts' } },
-                  ],
-                },
-              ]),
             }),
           ]),
         }),
@@ -124,7 +93,7 @@ describe('site search results', () => {
   )
 
   it.each(['tea', ''])(
-    'fetches renderable results before the limit with product hits ahead (q=%s)',
+    'filters products and future articles before the result limit (q=%s)',
     async (q) => {
       const fixtures = [
         ...Array.from({ length: 13 }, (_, index) => ({
@@ -141,10 +110,10 @@ describe('site search results', () => {
           doc: { relationTo: 'blogs', value: 'blog-article' },
         },
         {
-          title: 'Tea news',
-          slug: 'tea-news',
-          categories: [],
-          doc: { relationTo: 'posts', value: 'post-news' },
+          title: 'Future tea article',
+          slug: 'future-tea-article',
+          publishedAt: '2999-01-01T00:00:00.000Z',
+          doc: { relationTo: 'blogs', value: 'blog-future' },
         },
       ]
       // Apply the actual consumer's predicate BEFORE limit, like the database.
@@ -184,34 +153,15 @@ describe('site search results', () => {
       expect(screen.getByRole('link', { name: 'Tea article' }).getAttribute('href')).toBe(
         '/blogs/tea-article',
       )
-      expect(screen.getByRole('link', { name: 'Tea news' }).getAttribute('href')).toBe(
-        '/posts/tea-news',
-      )
+      expect(screen.queryByRole('link', { name: 'Future tea article' })).toBeNull()
+      expect(screen.queryByRole('link', { name: /Tea product/ })).toBeNull()
       expect(screen.queryByText('No results found.')).toBeNull()
     },
   )
 
-  it('also applies Blog visibility when no query is entered', async () => {
+  it('shows the empty message when there are no matching blogs', async () => {
     find.mockResolvedValue({ totalDocs: 0, docs: [] })
     render(await SearchPage({ searchParams: Promise.resolve({}) }))
-    expect(find).toHaveBeenCalledWith(
-      expect.objectContaining({
-        where: expect.objectContaining({
-          and: expect.arrayContaining([
-            expect.objectContaining({
-              or: expect.arrayContaining([
-                expect.objectContaining({
-                  and: expect.arrayContaining([
-                    expect.objectContaining({
-                      publishedAt: expect.objectContaining({ less_than_equal: expect.any(String) }),
-                    }),
-                  ]),
-                }),
-              ]),
-            }),
-          ]),
-        }),
-      }),
-    )
+    expect(screen.getByText('No results found.')).toBeTruthy()
   })
 })

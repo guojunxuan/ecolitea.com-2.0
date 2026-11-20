@@ -102,7 +102,7 @@ describe('PayloadRedirects', () => {
     expect(permanentRedirect).toHaveBeenLastCalledWith('/blogs/renamed-tea')
   })
 
-  it('keeps explicit URLs and Post destinations temporary', async () => {
+  it('keeps explicit URLs and Page destinations temporary', async () => {
     redirects.mockResolvedValue([{ from: '/external', to: { url: 'https://example.test' } }])
     await expect(PayloadRedirects({ url: '/external' })).rejects.toThrow('TEMPORARY_REDIRECT')
     expect(redirect).toHaveBeenCalledWith('https://example.test')
@@ -110,12 +110,12 @@ describe('PayloadRedirects', () => {
 
     redirects.mockResolvedValue([
       {
-        from: '/old-post',
-        to: { reference: { relationTo: 'posts', value: { slug: 'news' } } },
+        from: '/old-page',
+        to: { reference: { relationTo: 'pages', value: { slug: 'news' } } },
       },
     ])
-    await expect(PayloadRedirects({ url: '/old-post' })).rejects.toThrow('TEMPORARY_REDIRECT')
-    expect(redirect).toHaveBeenLastCalledWith('/posts/news')
+    await expect(PayloadRedirects({ url: '/old-page' })).rejects.toThrow('TEMPORARY_REDIRECT')
+    expect(redirect).toHaveBeenLastCalledWith('/news')
     expect(permanentRedirect).not.toHaveBeenCalled()
   })
 })

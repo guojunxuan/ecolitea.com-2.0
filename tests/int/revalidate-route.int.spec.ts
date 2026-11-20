@@ -42,13 +42,13 @@ describe('authenticated Next revalidation boundary', () => {
     expect(
       (
         await POST(
-          request({ tags: ['translation:pages:1:de'], paths: ['/about', '/posts/[slug]'] }),
+          request({ tags: ['translation:pages:1:de'], paths: ['/about', '/blogs/[slug]'] }),
         )
       ).status,
     ).toBe(204)
     expect(tag).toHaveBeenCalledWith('translation:pages:1:de', { expire: 0 })
     expect(path).toHaveBeenCalledWith('/en/about')
-    expect(path).toHaveBeenCalledWith('/[lang]/posts/[slug]', 'page')
+    expect(path).toHaveBeenCalledWith('/[lang]/blogs/[slug]', 'page')
   })
   it.each([
     null,
@@ -90,7 +90,6 @@ describe('background cache fallback', () => {
     vi.stubGlobal('fetch', http)
     const hooks = [
       (await import('@/collections/Pages/hooks/revalidatePage')).revalidatePage,
-      (await import('@/collections/Posts/hooks/revalidatePost')).revalidatePost,
       (await import('@/collections/CaseStudies/hooks/revalidateCaseStudy')).revalidateCaseStudy,
       (await import('@/collections/Blogs/hooks/revalidateBlog')).revalidateBlog,
     ]
@@ -100,12 +99,12 @@ describe('background cache fallback', () => {
         previousDoc: { id: 'source', slug: 'tea', _status: 'draft' },
         req: { context: {}, payload: { logger: { info: vi.fn() }, findByID: vi.fn() } },
       } as never)
-    expect(http.mock.calls.length).toBeGreaterThanOrEqual(4)
+    expect(http.mock.calls.length).toBeGreaterThanOrEqual(hooks.length)
     const paths = http.mock.calls.flatMap(
       ([, init]) => JSON.parse(init!.body as string).paths as string[],
     )
     expect(paths).toEqual(
-      expect.arrayContaining(['/en/tea', '/en/posts/tea', '/en/case-studies/tea', '/en/blogs/tea']),
+      expect.arrayContaining(['/en/tea', '/en/case-studies/tea', '/en/blogs/tea']),
     )
   })
 

@@ -8,14 +8,12 @@ vi.mock('next/navigation', () => ({ useRouter: () => ({ push }) }))
 // Archive's server-only dependencies are not part of these client contracts.
 vi.mock('@payload-config', () => ({ default: {} }))
 vi.mock('payload', () => ({ getPayload: vi.fn() }))
-vi.mock('@payloadcms/ui/icons/Copy', () => ({ CopyIcon: () => <svg aria-hidden="true" /> }))
 
 import { RenderPageBlocks } from '@/collections/Pages/blocks/RenderPageBlocks'
 import { ContentBlock } from '@/collections/Pages/blocks/Content/Component'
 import { BannerBlock } from '@/collections/Blogs/blocks/Banner/Component'
 import { FormBlock, type FormBlockType } from '@/collections/Pages/blocks/Form/Component'
 import { Width } from '@/collections/Pages/blocks/Form/Width'
-import { CodeBlock } from '@/collections/Posts/blocks/Code/Component'
 import type { Page } from '@/payload-types'
 import RichText from '@/components/RichText'
 import { blogRichTextBlocks } from '@/collections/Blogs/blocks/richTextBlocks'
@@ -26,7 +24,7 @@ const modules = import.meta.glob(['/src/blocks/**/*.module.css', '/src/collectio
   import: 'default',
 }) as Record<string, Record<string, string>>
 const style = (path: string, name: string) => {
-  const owner = path.startsWith('Form/') || path.startsWith('Content/') || path === 'RenderPageBlocks' ? 'Pages' : path.startsWith('Code/') ? 'Posts' : 'Blogs'
+  const owner = path.startsWith('Form/') || path.startsWith('Content/') || path === 'RenderPageBlocks' ? 'Pages' : 'Blogs'
   const className = modules[`/src/collections/${owner}/blocks/${path}.module.css`]?.[name]
   expect(className, `${path} exports ${name}`).toBeTruthy()
   return className
@@ -274,22 +272,6 @@ describe('Block CSS module contracts', () => {
     )
     const banner = screen.getByText('Notice').closest('.payload-richtext')?.parentElement
     expect(banner?.className).toBe(style('Banner/Component', 'surface'))
-  })
-
-  it('retains code token markup, line numbers, scrolling, and copy behavior', async () => {
-    const writeText = vi.fn().mockResolvedValue(undefined)
-    Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText } })
-    const { container } = render(
-      <CodeBlock blockType="postCode" language="js" code="const tea = true" />,
-    )
-    expect(container.querySelector('pre')?.classList).toContain(style('Code/Component', 'code'))
-    expect(container.querySelector('.token.keyword')?.textContent).toBe('const')
-    expect(screen.getByText('1', { selector: 'span' }).classList).toContain(
-      style('Code/Component', 'lineNumber'),
-    )
-    fireEvent.click(screen.getByRole('button', { name: 'Copy' }))
-    await screen.findByRole('button', { name: 'Copied!' })
-    expect(writeText).toHaveBeenCalledWith('const tea = true')
   })
 
   it('preserves MediaBlock border and radius in the image-owned module', () => {

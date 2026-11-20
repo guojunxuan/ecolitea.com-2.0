@@ -5,7 +5,6 @@ import { CallToAction } from '@/collections/Blogs/blocks/CallToAction/config'
 import { MediaBlock } from '@/collections/Blogs/blocks/MediaBlock/config'
 import { hero } from '@/heros/config'
 import { Blogs } from '@/collections/Blogs'
-import { Posts } from '@/collections/Posts'
 import { Pages } from '@/collections/Pages'
 import { CaseStudies } from '@/collections/CaseStudies'
 import { imageField } from '@/Header/blocks/fields'
@@ -39,8 +38,7 @@ describe('Media reference filters', () => {
     ['MediaBlock', MediaBlock.fields, 'media', imageOrVideo],
     ['Hero', 'fields' in hero ? hero.fields : [], 'media', imageOrVideo],
     ['Blogs hero', Blogs.fields, 'heroImage', imageOnly],
-    ['Posts hero', Posts.fields, 'heroImage', imageOnly],
-    ...[Blogs, Posts, Pages, CaseStudies].map((collection) => [
+    ...[Blogs, Pages, CaseStudies].map((collection) => [
       collection.slug,
       collection.fields,
       'meta.image',
@@ -74,8 +72,7 @@ const consumers = [
   find(MediaBlock.fields, 'media'),
   find('fields' in hero ? hero.fields : [], 'media'),
   find(Blogs.fields, 'heroImage'),
-  find(Posts.fields, 'heroImage'),
-  ...[Blogs, Posts, Pages, CaseStudies].map((c) => find(c.fields, 'meta.image')),
+  ...[Blogs, Pages, CaseStudies].map((c) => find(c.fields, 'meta.image')),
   imageField(),
   find(blogTab.fields, 'hero.image'),
   find(blogTab.fields, 'hero.mobileMedia'),

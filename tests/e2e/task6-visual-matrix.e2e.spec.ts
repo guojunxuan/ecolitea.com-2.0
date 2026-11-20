@@ -2,6 +2,7 @@ import { expect, type Page, test, type TestInfo } from '@playwright/test'
 import { getPayload, type Payload } from 'payload'
 
 import config from '../../src/payload.config.js'
+import { task6ArchiveFixture } from '../helpers/blogFixtures'
 import { assertRunScopedE2EDatabaseURI } from '../helpers/e2eDatabase'
 import { getE2EBaseURL } from '../helpers/e2eBaseURL'
 
@@ -9,18 +10,24 @@ const baseURL = getE2EBaseURL()
 const runID = process.env.PLAYWRIGHT_E2E_RUN_ID!
 const hasPreseededArchive = process.env.PLAYWRIGHT_PRESEED_TASK6_ARCHIVE === 'true'
 const pageSlug = `e2e-task6-matrix-${runID}`
-const postPrefix = `e2e-task6-matrix-${runID}-post-`
-const matrixPostSlugs = [
-  `${postPrefix}banners`,
-  ...Array.from({ length: 13 }, (_, index) => `${postPrefix}${String(index + 1).padStart(2, '0')}`),
-]
-const archivePostPrefix = `e2e-task6-matrix-archive-${runID}-post-`
-const archivePostSlugs = Array.from(
-  { length: 13 },
-  (_, index) => `${archivePostPrefix}${String(index + 1).padStart(2, '0')}`,
-)
-const postHeroSlug = `${postPrefix}banners`
-const bannerQuery = 'banners'
+const archiveFixture = task6ArchiveFixture(runID)
+const archivePath = hasPreseededArchive
+  ? `/blogs/category/${archiveFixture.categorySlug}`
+  : '/blogs'
+const archiveHeading = hasPreseededArchive ? `${archiveFixture.categoryTitle} Blogs` : 'Blogs'
+const matrixCategorySlug = `${pageSlug}-stories`
+const matrixCategoryTitle = 'E2E Task6 Matrix Stories'
+const matrixBlogs = Array.from({ length: 3 }, (_, index) => {
+  const number = index + 1
+  return {
+    slug: `${pageSlug}-blog-${number}`,
+    title: `E2E Matrix Archive ${number}`,
+    publishedAt: new Date(Date.UTC(2024, 9, number + 1)).toISOString(),
+  }
+})
+const bannerBlogSlug = `${pageSlug}-blog-banners`
+const bannerBlogTitle = `E2E Banner matrix ${runID}`
+const bannerHeading = 'E2E Inverse Article Action'
 const mediaAlt = `E2E Task6 matrix media ${runID}`
 const formTitle = `E2E Task6 matrix form ${runID}`
 const bannerCopy = {
@@ -280,8 +287,13 @@ async function cleanupFixtures() {
     ...disableRevalidate,
   })
   await payload.delete({
-    collection: 'posts',
-    where: { slug: { in: matrixPostSlugs } },
+    collection: 'blogs',
+    where: { slug: { in: [bannerBlogSlug, ...matrixBlogs.map(({ slug }) => slug)] } },
+    ...disableRevalidate,
+  })
+  await payload.delete({
+    collection: 'blog-categories',
+    where: { slug: { equals: matrixCategorySlug } },
     ...disableRevalidate,
   })
   await payload.delete({
@@ -292,16 +304,6 @@ async function cleanupFixtures() {
   await payload.delete({
     collection: 'media',
     where: { alt: { equals: mediaAlt } },
-    ...disableRevalidate,
-  })
-}
-
-async function cleanupPrebuildArchiveFixtures() {
-  if (!payload) return
-  assertRunScopedE2EDatabaseURI(process.env.DATABASE_URI!, runID)
-  await payload.delete({
-    collection: 'posts',
-    where: { slug: { in: archivePostSlugs } },
     ...disableRevalidate,
   })
 }
@@ -356,6 +358,65 @@ async function seedFixtures() {
   })
   console.log(`Task6 matrix form created: ${form.id}`)
 
+  const category = await payload.create({
+    collection: 'blog-categories',
+    data: { title: matrixCategoryTitle, slug: matrixCategorySlug, _order: 'a9' },
+    ...disableRevalidate,
+  })
+  const bannerNodes = (['info', 'success', 'warning', 'error'] as const).map((style) => ({
+    fields: {
+      blockType: 'blogBanner',
+      content: richText([paragraph(bannerCopy[style])]),
+      id: `banner-${style}-${runID}`,
+      style,
+    },
+    format: '',
+    type: 'block',
+    version: 2,
+  }))
+  await payload.create({
+    collection: 'blogs',
+    data: {
+      _status: 'published',
+      category: category.id,
+      content: richText([
+        paragraph('E2E Banner status matrix.'),
+        ...bannerNodes,
+        {
+          fields: {
+            blockType: 'blogCta',
+            heading: bannerHeading,
+            id: `banner-cta-${runID}`,
+            theme: 'inverse',
+          },
+          format: '',
+          type: 'block',
+          version: 2,
+        },
+      ]),
+      excerpt: 'A visual matrix of the four article notice styles.',
+      heroImage: media.id,
+      publishedAt: '2024-10-01T00:00:00.000Z',
+      slug: bannerBlogSlug,
+      title: bannerBlogTitle,
+    },
+    ...disableRevalidate,
+  })
+  for (const blog of matrixBlogs) {
+    await payload.create({
+      collection: 'blogs',
+      data: {
+        ...blog,
+        _status: 'published',
+        category: category.id,
+        content: richText([paragraph(`${blog.title} body copy.`)]),
+        excerpt: 'Representative copy for the page Archive block.',
+        heroImage: media.id,
+      },
+      ...disableRevalidate,
+    })
+  }
+
   console.log(`Task6 matrix page create: ${pageSlug}`)
   await payload.create({
     collection: 'pages',
@@ -387,7 +448,13 @@ async function seedFixtures() {
         { blockType: 'pageMediaBlock', media: media.id },
         { blockType: 'pageCta', heading: 'E2E CTA heading', description: richText([paragraph('E2E CTA description')]), links: [] },
         { blockType: 'pageFormBlock', form: form.id, enableIntro: false },
-        { blockType: 'pageArchive', populateBy: 'collection', relationTo: 'posts', limit: 3 },
+        {
+          blockType: 'pageArchive',
+          populateBy: 'collection',
+          relationTo: 'blogs',
+          categories: [category.id],
+          limit: 3,
+        },
       ],
       slug: pageSlug,
       title: `E2E Task6 Matrix ${runID}`,
@@ -395,47 +462,6 @@ async function seedFixtures() {
     ...disableRevalidate,
   })
 
-  console.log(`Task6 matrix banner post create: ${postHeroSlug}`)
-  const bannerNodes = (['info', 'success', 'warning', 'error'] as const).map((style) => ({
-    fields: {
-      blockType: 'postBanner',
-      content: richText([paragraph(bannerCopy[style])]),
-      id: `banner-${style}-${runID}`,
-      style,
-    },
-    format: '',
-    type: 'block',
-    version: 1,
-  }))
-  await payload.create({
-    collection: 'posts',
-    data: {
-      _status: 'published',
-      content: richText([paragraph('E2E Banner status matrix.'), ...bannerNodes]),
-      meta: { image: media.id, title: `E2E Banner matrix ${runID}` },
-      slug: postHeroSlug,
-      title: `E2E Banner matrix ${runID}`,
-    },
-    ...disableRevalidate,
-  })
-  await Promise.all(
-    Array.from({ length: 13 }, (_, index) =>
-      payload.create({
-        collection: 'posts',
-        data: {
-          _status: 'published',
-          content: richText([paragraph(`Archive card body ${index + 1}`)]),
-          meta: {
-            image: media.id,
-            title: `E2E Matrix Archive ${String(index + 1).padStart(2, '0')}`,
-          },
-          slug: `${postPrefix}${String(index + 1).padStart(2, '0')}`,
-          title: `E2E Matrix Archive ${String(index + 1).padStart(2, '0')}`,
-        },
-        ...disableRevalidate,
-      }),
-    ),
-  )
 }
 
 async function preparePage(
@@ -475,7 +501,6 @@ test.describe.serial('Task 6 visual matrix fixtures', () => {
   })
   test.afterAll(async () => {
     await cleanupFixtures()
-    await cleanupPrebuildArchiveFixtures()
   })
 
   test('Medium Hero, rich content, embedded media, and table scrolling at key widths', async ({
@@ -500,7 +525,9 @@ test.describe.serial('Task 6 visual matrix fixtures', () => {
       await expect(page.getByText('E2E CTA description', { exact: true })).toBeVisible()
       await expect(page.locator('blockquote')).toContainText('A quote block')
       await expect(page.getByRole('region', { name: 'Scrollable table' })).toBeVisible()
-      await expect(page.locator('main [class*="archive"] article')).toHaveCount(3)
+      await expect(page.locator('main [data-slot="content-card-link"]')).toHaveText(
+        [...matrixBlogs].reverse().map(({ title }) => title),
+      )
       const contentLink = page.locator('main a[href^="https://example.invalid/"]')
       await expect(contentLink).toHaveCount(1)
       await expect(contentLink).toBeVisible()
@@ -617,14 +644,14 @@ test.describe.serial('Task 6 visual matrix fixtures', () => {
     for (const width of [390, 768, 1024, 1440]) {
       const height = width === 390 ? 844 : width === 768 ? 1024 : width === 1024 ? 768 : 900
       await page.setViewportSize({ width, height })
-      await page.goto(`${baseURL}/posts/${postHeroSlug}`)
+      await page.goto(`${baseURL}/blogs/${bannerBlogSlug}`)
+      await expect(page.getByRole('heading', { name: bannerBlogTitle, level: 1 })).toBeVisible()
       for (const copy of Object.values(bannerCopy)) await expect(page.getByText(copy)).toBeVisible()
-      const banners = page.locator('[class*="embeddedBanner"]')
+      const banners = page.locator('[data-slot="blog-article-content"]').getByRole('note')
       await expect(banners).toHaveCount(4)
       const expectedBannerLabels = ['info', 'success', 'warning', 'error']
       for (const [index, banner] of (await banners.all()).entries()) {
-        const colors = await banner.evaluate((element) => {
-          const surface = element.querySelector('[class*="surface"]')!
+        const colors = await banner.evaluate((surface) => {
           return {
             background: getComputedStyle(surface).backgroundColor,
             foreground: getComputedStyle(surface).color,
@@ -635,11 +662,7 @@ test.describe.serial('Task 6 visual matrix fixtures', () => {
               documentWidth: document.documentElement.scrollWidth,
               viewportWidth: innerWidth,
             },
-            accessibleStatus: {
-              ariaLabel: element.getAttribute('aria-label'),
-              ariaLive: element.getAttribute('aria-live'),
-              role: surface.getAttribute('role'),
-            },
+            ariaLive: surface.getAttribute('aria-live'),
           }
         })
         const ratio = contrastRatio(colors.foreground, colors.background)
@@ -649,93 +672,93 @@ test.describe.serial('Task 6 visual matrix fixtures', () => {
         expect(colors.background).not.toBe('rgba(0, 0, 0, 0)')
         expect(colors.foreground).not.toBe('rgba(0, 0, 0, 0)')
         expect(colors.label).toBe(expectedBannerLabels[index])
-        expect(colors.accessibleStatus.role).toBe('note')
-        expect(colors.accessibleStatus.ariaLive).toBeNull()
+        expect(colors.ariaLive).toBeNull()
         expect(colors.layout.scrollWidth).toBeLessThanOrEqual(colors.layout.clientWidth)
         expect(colors.layout.documentWidth).toBeLessThanOrEqual(colors.layout.viewportWidth)
         expect(ratio).toBeGreaterThanOrEqual(4.5)
       }
       if (width === 390 || width === 1440) await save(page, testInfo, 'banners')
 
-      await page.goto(`${baseURL}/posts`)
-      await expect(page.getByRole('heading', { name: 'Posts' })).toBeVisible()
-      const archiveCards = page.locator('[data-slot="content-card"]')
-      const nextPageControl = page.getByRole('button', { name: 'Go to next page' })
+      await page.goto(`${baseURL}${archivePath}`)
+      const listingHeading = page.getByRole('heading', { name: archiveHeading, level: 1 })
+      const archiveCards = page.locator('main [data-slot="content-card"]')
+      const archiveLinks = archiveCards.locator('[data-slot="content-card-link"]')
+      await expect(listingHeading).toBeVisible()
+      await expect(archiveCards).toHaveCount(12)
+      await expect(page.getByRole('link', { name: 'Go to next page' })).toHaveAttribute(
+        'href',
+        `${archivePath}/page/2`,
+      )
       if (hasPreseededArchive) {
-        await expect(archiveCards).toHaveCount(12)
-        await expect(nextPageControl).toBeVisible()
-        const firstCardStyles = await archiveCards.first().evaluate((card) => {
-          const body = card.querySelector('[data-slot="content-card-body"]')
-          const grid = card.parentElement?.parentElement
-          if (!body || !grid) throw new Error('Expected a Card body inside the archive grid.')
-          const cardStyle = getComputedStyle(card)
-          const bodyStyle = getComputedStyle(body)
-          const gridStyle = getComputedStyle(grid)
-          return {
-            background: cardStyle.backgroundColor,
-            borderColor: cardStyle.borderTopColor,
-            borderRadius: cardStyle.borderTopLeftRadius,
-            borderStyle: cardStyle.borderTopStyle,
-            borderWidth: cardStyle.borderTopWidth,
-            bodyPadding: bodyStyle.padding,
-            gridColumns: gridStyle.gridTemplateColumns.split(' ').length,
-          }
-        })
-        const expectedGridColumns = width < 640 ? 4 : width < 1024 ? 8 : 12
-        expect(firstCardStyles).toMatchObject({
-          background: 'rgb(255, 255, 255)',
-          borderColor: 'rgb(224, 224, 226)',
-          borderRadius: '12px',
-          borderStyle: 'solid',
-          borderWidth: '1px',
-          bodyPadding: '16px',
-          gridColumns: expectedGridColumns,
-        })
-        await expect
-          .poll(() => page.evaluate(() => document.documentElement.scrollWidth <= innerWidth))
-          .toBe(true)
-        if (width === 390 || width === 1440) await save(page, testInfo, 'archive-page-1')
-      } else if (width === 390) {
-        test.info().annotations.push({
-          type: 'coverage-gap',
-          description:
-            'Static /posts page-1 card count, Next control, and Card styles require PLAYWRIGHT_PRESEED_TASK6_ARCHIVE=true; dynamic page 2 and search still run.',
-        })
-        console.log(
-          'Skipped static /posts page-1 Card assertions: set PLAYWRIGHT_PRESEED_TASK6_ARCHIVE=true to seed before Next build.',
+        const firstPageBlogs = archiveFixture.blogs.slice(1).reverse()
+        await expect(archiveLinks).toHaveText(firstPageBlogs.map(({ title }) => title))
+        await expect(archiveLinks.first()).toHaveAttribute(
+          'href',
+          `/blogs/${firstPageBlogs[0]!.slug}`,
         )
+        await expect(
+          archiveCards.first().getByRole('link', { name: archiveFixture.categoryTitle }),
+        ).toHaveAttribute('href', archivePath)
+        await expect(
+          archiveCards.first().getByRole('img', { name: archiveFixture.mediaAlt }),
+        ).toBeAttached()
       }
 
-      const pageTwoResponse = await page.goto(`${baseURL}/posts/page/2`)
-      const pageTwoHeading = await page.getByRole('heading', { name: 'Posts' }).count()
-      const previousPageControl = await page
-        .getByRole('button', { name: 'Go to previous page' })
-        .count()
-      const pageTwoCards = await page.locator('[data-slot="content-card"]').count()
-      console.log(
-        `Static posts archive page 2 at ${width}px: ${JSON.stringify({ cards: pageTwoCards, heading: pageTwoHeading, previousPageControl, status: pageTwoResponse?.status() })}`,
-      )
+      const firstCardStyles = await archiveCards.first().evaluate((card) => {
+        const body = card.querySelector('[data-slot="content-card-body"]')
+        const media = card.querySelector('[data-slot="content-card-media"]')
+        const grid = card.closest('[data-slot="archive-item"]')?.parentElement
+        if (!body || !media || !grid) throw new Error('Expected a blog card inside its archive grid.')
+        const cardStyle = getComputedStyle(card)
+        return {
+          background: cardStyle.backgroundColor,
+          borderRadius: cardStyle.borderTopLeftRadius,
+          bodyPadding: getComputedStyle(body).paddingBlock,
+          gridColumns: getComputedStyle(grid).gridTemplateColumns.split(' ').length,
+          mediaAspectRatio: getComputedStyle(media).aspectRatio,
+        }
+      })
+      expect(firstCardStyles).toMatchObject({
+        background: 'rgb(255, 255, 255)',
+        borderRadius: '20px',
+        bodyPadding: '24px',
+        gridColumns: width < 768 ? 1 : width < 1024 ? 2 : 3,
+        mediaAspectRatio: '16 / 9',
+      })
+      await expect
+        .poll(() => page.evaluate(() => document.documentElement.scrollWidth <= innerWidth))
+        .toBe(true)
+      if (width === 390 || width === 1440) await save(page, testInfo, 'archive-page-1')
+
+      const pageTwoResponse = await page.goto(`${baseURL}${archivePath}/page/2`)
       expect(pageTwoResponse?.status()).toBe(200)
-      expect(pageTwoHeading).toBe(1)
-      expect(previousPageControl).toBe(1)
-      expect(pageTwoCards).toBeGreaterThan(0)
+      await expect(listingHeading).toBeVisible()
+      await expect(page.getByRole('link', { name: 'Go to previous page' })).toHaveAttribute(
+        'href',
+        archivePath,
+      )
+      if (hasPreseededArchive) {
+        await expect(archiveLinks).toHaveText([archiveFixture.blogs[0]!.title])
+        await expect(archiveLinks).toHaveAttribute('href', `/blogs/${archiveFixture.blogs[0]!.slug}`)
+      } else {
+        await expect(archiveCards.first()).toBeVisible()
+      }
 
       const searchResponse = await page.goto(
-        `${baseURL}/search?q=${encodeURIComponent(bannerQuery)}`,
+        `${baseURL}/search?q=${encodeURIComponent(bannerBlogTitle)}`,
       )
+      const searchResult = page.getByRole('link', { name: bannerBlogTitle, exact: true })
       await expect(page.getByRole('heading', { name: 'Search' })).toBeVisible()
-      await expect(page.getByRole('textbox', { name: 'Search' })).toBeVisible()
-      const searchResults = await page.getByRole('link', { name: /E2E Banner matrix/ }).count()
+      await expect(page.getByRole('textbox', { name: 'Search' })).toHaveValue(bannerBlogTitle)
+      const searchResults = await searchResult.count()
       const searchContent = (await page.locator('main').innerText()).replace(/\s+/g, ' ').trim()
       const preservedQuery = new URL(page.url()).searchParams.get('q')
       console.log(
         `Run-scoped search fixture at ${width}px: ${JSON.stringify({ status: searchResponse?.status(), url: page.url(), preservedQuery, searchResults, searchContent, browserErrors: browserErrors.slice(-4), failedRequests: failedRequests.slice(-4) })}`,
       )
       expect(searchResponse?.status()).toBe(200)
-      await expect.poll(() => new URL(page.url()).searchParams.get('q')).toBe(bannerQuery)
-      await expect
-        .poll(() => page.getByRole('link', { name: /E2E Banner matrix/ }).count())
-        .toBeGreaterThan(0)
+      await expect.poll(() => new URL(page.url()).searchParams.get('q')).toBe(bannerBlogTitle)
+      await expect(searchResult).toHaveAttribute('href', `/blogs/${bannerBlogSlug}`)
       await expect
         .poll(() => page.evaluate(() => document.documentElement.scrollWidth <= innerWidth))
         .toBe(true)
@@ -780,11 +803,11 @@ test.describe.serial('Task 6 visual matrix fixtures', () => {
           .evaluate((element) => Number.parseFloat(getComputedStyle(element).transitionDuration)),
       )
       .toBeLessThan(0.001)
-    await page.goto(`${baseURL}/posts/${postHeroSlug}`)
-    await expect(page.locator('[data-hero="post"]')).toHaveAttribute(
-      'data-website-theme',
-      'inverse',
-    )
+    await page.goto(`${baseURL}/blogs/${bannerBlogSlug}`)
+    const inverseAction = page.locator('main [data-website-theme="inverse"]').filter({
+      has: page.getByRole('heading', { name: bannerHeading }),
+    })
+    await expect(inverseAction).toHaveCount(1)
     await expect(page.locator('body')).not.toHaveAttribute('data-website-theme', 'inverse')
 
     const touchContext = await browser.newContext({

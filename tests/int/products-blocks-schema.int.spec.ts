@@ -15,7 +15,6 @@ import { productBlocks } from '@/collections/Products/blocks'
 import { pageBlocks } from '@/collections/Pages/blocks'
 import { caseStudyBlocks } from '@/collections/CaseStudies/blocks'
 import { blogBlocks } from '@/collections/Blogs/blocks'
-import { postBlocks } from '@/collections/Posts/blocks'
 import { CardGroup, CategoryTabs, LinkGroup, RichCard } from '@/Header/blocks'
 
 const media = { name: 'media', type: 'upload', relationTo: 'media', filterOptions: imageOrVideo }
@@ -357,7 +356,6 @@ describe('Products Code block and registry', () => {
       ...pageBlocks,
       ...caseStudyBlocks,
       ...blogBlocks,
-      ...postBlocks,
       CategoryTabs,
       CardGroup,
       LinkGroup,

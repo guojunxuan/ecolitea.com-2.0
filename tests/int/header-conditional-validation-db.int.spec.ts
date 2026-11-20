@@ -8,7 +8,7 @@ import { normalizeHeader } from '@/Header/hooks/normalizeHeader'
 import { createIsolatedTestDatabaseURI } from '../helpers/isolatedDatabase'
 
 const relatedCollection = (
-  slug: 'pages' | 'posts' | 'case-studies' | 'categories' | 'blogs' | 'blog-categories',
+  slug: 'pages' | 'case-studies' | 'blogs' | 'blog-categories',
 ): CollectionConfig => ({
   slug,
   fields: [{ name: 'title', type: 'text' }],
@@ -23,7 +23,7 @@ describe('Header conditional validation through the Payload Local API', () => {
     databaseName = `ecolitea2-header-blocks-${randomUUID()}`
     const config = await buildConfig({
       collections: [
-        ...(['pages', 'posts', 'case-studies', 'categories', 'blogs', 'blog-categories'] as const).map(relatedCollection),
+        ...(['pages', 'case-studies', 'blogs', 'blog-categories'] as const).map(relatedCollection),
         {
           slug: 'media',
           fields: [{ name: 'mimeType', type: 'text' }],

@@ -4,7 +4,6 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 
 vi.mock('next/navigation', () => ({ useRouter: () => ({ push: vi.fn() }) }))
 vi.mock('@/components/Media', () => ({ Media: () => <div data-testid="media" /> }))
-vi.mock('@payloadcms/ui/icons/Copy', () => ({ CopyIcon: () => <svg /> }))
 vi.mock('@/collections/Pages/blocks/Archive/Component', () => ({
   ArchiveBlock: () => <div>Archive</div>,
 }))
@@ -13,7 +12,6 @@ import RichText, { richTextEmbedClassNames } from '@/components/RichText'
 import pageStyles from '@/collections/Pages/blocks/RenderPageBlocks.module.css'
 import caseStudyStyles from '@/collections/CaseStudies/blocks/RenderCaseStudyBlocks.module.css'
 import { blogRichTextBlocks } from '@/collections/Blogs/blocks/richTextBlocks'
-import { postRichTextBlocks } from '@/collections/Posts/blocks/richTextBlocks'
 import { RenderPageBlocks } from '@/collections/Pages/blocks/RenderPageBlocks'
 import { RenderCaseStudyBlocks } from '@/collections/CaseStudies/blocks/RenderCaseStudyBlocks'
 
@@ -82,27 +80,7 @@ describe('owner rendering boundaries', () => {
       expect(wrapper.classList).toContain(richTextEmbedClassNames.articleBlock)
     for (const value of ['Blog notice', 'Blog action', 'Blog summary', 'Blog caption'])
       expect(screen.getByText(value)).toBeTruthy()
-  })
-
-  it('renders Post converters through real RichText preserving embedded classes and captions', () => {
-    const { container } = render(
-      <RichText
-        blocks={postRichTextBlocks}
-        data={content([
-          { blockType: 'postBanner', style: 'info', content: text('Post notice') },
-          { blockType: 'postCode', code: 'const tea = true', language: 'typescript' },
-          { blockType: 'postMediaBlock', media: { id: 'image' }, caption: text('Post caption') },
-        ])}
-      />,
-    )
-    expect(container.querySelectorAll('.payload-richtext__embedded')).toHaveLength(3)
-    const wrappers = [...container.querySelectorAll('.payload-richtext__embedded')]
-    expect(wrappers[0].classList).toContain(richTextEmbedClassNames.banner)
-    expect(wrappers[1].classList).toContain(richTextEmbedClassNames.code)
-    expect(wrappers[2].classList).toContain(richTextEmbedClassNames.media)
-    expect(screen.getByText('Post notice')).toBeTruthy()
-    expect(screen.getByText('Post caption').closest('figcaption')).toBeTruthy()
-    expect(container.querySelector('pre')?.textContent).toContain('const tea = true')
+    expect(screen.getByText('Blog caption').closest('figcaption')).toBeTruthy()
   })
 
   it('does not render block nodes without owner converters', () => {

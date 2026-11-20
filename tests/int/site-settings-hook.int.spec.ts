@@ -52,7 +52,6 @@ it('invalidates sitemap caches and the internal locale layout for language and r
   expect(revalidatePath).toHaveBeenCalledWith('/(frontend)/[lang]', 'layout')
   for (const path of [
     '/pages-sitemap.xml',
-    '/posts-sitemap.xml',
     '/blogs-sitemap.xml',
     '/products-sitemap.xml',
   ])

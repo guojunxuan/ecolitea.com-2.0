@@ -68,7 +68,7 @@ describe('Products through isolated Payload Local API', () => {
           ],
           hooks: { afterChange: [revalidateProductDownloads] },
         },
-        ...(['pages', 'posts', 'blogs', 'blog-categories', 'case-studies'] as const).map(
+        ...(['pages', 'blogs', 'blog-categories', 'case-studies'] as const).map(
           (slug) => ({
             slug,
             fields: [

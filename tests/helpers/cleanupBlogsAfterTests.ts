@@ -6,13 +6,16 @@ export default async function cleanupBlogFixtures() {
   process.env.DISABLE_R2_STORAGE = 'true'
   const runID = process.env.PLAYWRIGHT_E2E_RUN_ID!
   reportBlogEnvironment(runID)
-  const [{ getPayload }, { default: config }, { cleanupBlogs }] = await Promise.all([
-    import('payload'),
-    import('../../src/payload.config.js'),
-    import('./blogFixtures'),
-  ])
+  const [{ getPayload }, { default: config }, { cleanupBlogs, cleanupTask6Archive }] =
+    await Promise.all([
+      import('payload'),
+      import('../../src/payload.config.js'),
+      import('./blogFixtures'),
+    ])
   const payload = await getPayload({ config })
   try {
+    if (process.env.PLAYWRIGHT_PRESEED_TASK6_ARCHIVE === 'true')
+      await cleanupTask6Archive(payload, runID)
     await cleanupBlogs(payload, runID)
   } finally {
     await payload.destroy()

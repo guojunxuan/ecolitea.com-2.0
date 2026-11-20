@@ -12,7 +12,6 @@ const moduleRoots = [
   'src/collections/Pages/blocks',
   'src/collections/CaseStudies/blocks',
   'src/collections/Blogs/blocks',
-  'src/collections/Posts/blocks',
   'src/search',
   'src/app/(frontend)',
   'src/Header',
@@ -90,7 +89,6 @@ describe('frontend module visual roles', () => {
     for (const [file, selector, role] of [
       ['src/components/Card/index.module.css', '.card', 'content'],
       ['src/components/ui/card.module.css', '.card', 'content'],
-      ['src/collections/Posts/blocks/Code/Component.module.css', '.code', 'content'],
       ['src/collections/Blogs/blocks/CallToAction/Component.module.css', '.panel', 'panel'],
       ['src/collections/Pages/blocks/Form/Component.module.css', '.panel', 'panel'],
     ]) {
@@ -137,13 +135,12 @@ describe('frontend module visual roles', () => {
 
   it('assigns shared type roles while keeping heading levels in the existing markup', () => {
     for (const [file, selector, role] of [
-      ['src/collections/Posts/blocks/Code/Component.module.css', '.code', 'code'],
-      ['src/components/Card/index.module.css', '.categoryLabel', 'eyebrow'],
-      ['src/components/Card/index.module.css', '.heading', 'heading-3'],
+      ['src/components/Card/index.module.css', '.blogCategory', 'eyebrow'],
+      ['src/components/Card/index.module.css', '.blogHeading', 'heading-3'],
       ['src/components/ui/card.module.css', '.title', 'heading-3'],
       ['src/components/ui/card.module.css', '.description', 'body-sm'],
       ['src/components/PageRange/index.module.css', '.range', 'body-sm'],
-      ['src/components/Card/index.module.css', '.description', 'body-md'],
+      ['src/components/Card/index.module.css', '.blogExcerpt', 'body-md'],
       ['src/components/ui/button.module.css', '.button', 'button'],
       ['src/components/ui/input.module.css', '.input', 'body-md'],
       ['src/components/ui/select.module.css', '.trigger', 'body-md'],
@@ -182,11 +179,9 @@ describe('frontend module visual roles', () => {
       )
     expect(nestedComposes).toEqual([])
     expect(fs.readFileSync(path.join(root, 'src/components/Card/index.tsx'), 'utf8')).toContain(
-      '<h3 className={styles.heading}>',
+      '<h3 className={styles.blogHeading}',
     )
     for (const file of [
-      'src/app/(frontend)/[lang]/posts/page.tsx',
-      'src/app/(frontend)/[lang]/posts/page/[pageNumber]/page.tsx',
       'src/app/(frontend)/[lang]/search/page.tsx',
       'src/app/(frontend)/[lang]/not-found.tsx',
     ])
@@ -228,7 +223,7 @@ describe('frontend module visual roles', () => {
     for (const file of [
       'src/collections/Blogs/blocks/CallToAction/Component.module.css',
       'src/collections/Blogs/blocks/MediaBlock/Component.module.css',
-      'src/blocks/RelatedPosts/Component.module.css',
+      'src/blocks/RelatedBlogs/Component.module.css',
       'src/components/RichText/index.module.css',
     ])
       expect(fs.readFileSync(path.join(root, file), 'utf8'), file).not.toContain('86rem')

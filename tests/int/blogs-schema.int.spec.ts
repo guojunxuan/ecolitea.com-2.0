@@ -42,7 +42,7 @@ describe('Blog collection configuration', () => {
     const blogs = config.collections.find(({ slug }) => slug === 'blogs')
     const categories = config.collections.find(({ slug }) => slug === 'blog-categories')
     expect(blogs).toBeDefined()
-    expect(categories).toMatchObject({ orderable: true, admin: { group: 'Blog' } })
+    expect(categories).toMatchObject({ orderable: true, admin: { group: 'Content' } })
     expect(categories?.fields).toContainEqual(
       expect.objectContaining({ name: 'blogs', type: 'join', collection: 'blogs', on: 'category' }),
     )
@@ -170,9 +170,7 @@ describe('Blogs through the isolated Payload Local API', () => {
         Users,
         ...([
           'pages',
-          'posts',
           'case-studies',
-          'categories',
           'forms',
           'products',
           'product-categories',

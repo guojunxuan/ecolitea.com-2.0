@@ -27,7 +27,6 @@ describe('RichText internal content links', () => {
   it.each([
     ['blogs', 'tea-notes', '/blogs/tea-notes'],
     ['blog-categories', 'brewing', '/blogs/category/brewing'],
-    ['posts', 'news', '/posts/news'],
   ])('links %s to its public route', (relationTo, slug, expected) => {
     render(<RichText data={richTextWithLink(relationTo, slug)} />)
     expect(screen.getByRole('link', { name: 'Read more' }).getAttribute('href')).toBe(expected)

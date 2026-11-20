@@ -270,14 +270,9 @@ describe('UI style primitives', () => {
     ).toBe('var(--website-radius-control)')
   })
 
-  it('keeps Button component defaults in the components layer and migrates the Code copy slot', () => {
+  it('keeps Button component defaults in the components layer', () => {
     const buttonSource = readSource('src/components/ui/button.module.css')
-    const copyButtonSource = readSource('src/collections/Posts/blocks/Code/CopyButton.tsx')
-    const codeSource = readSource('src/collections/Posts/blocks/Code/Component.module.css')
-
     expect(buttonSource).toMatch(/@layer components\s*{\s*\.button\s*{/)
-    expect(copyButtonSource).toContain('className={styles.copyButton}')
-    expect(codeSource).toMatch(/\.copyButton\s*{\s*display: flex;\s*gap: var\(--website-space-1\);/)
   })
 
   it('keeps Pagination edge padding in the components layer so Button icon padding wins', () => {

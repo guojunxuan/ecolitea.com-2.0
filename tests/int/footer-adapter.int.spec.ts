@@ -41,7 +41,7 @@ describe('adaptFooter', () => {
                 label: 'Latest news',
                 type: 'reference',
                 newTab: true,
-                reference: { relationTo: 'posts', value: page('latest', 'Latest news') },
+                reference: { relationTo: 'blogs', value: page('latest', 'Latest news') },
               },
             },
           ],
@@ -84,7 +84,7 @@ describe('adaptFooter', () => {
                 label: 'Sustainability',
                 type: 'reference',
                 reference: {
-                  relationTo: 'categories',
+                  relationTo: 'blog-categories',
                   value: page('sustainability', 'Sustainability'),
                 },
               },
@@ -116,7 +116,7 @@ describe('adaptFooter', () => {
         {
           id: 'reference',
           link: {
-            href: '/posts/latest',
+            href: '/blogs/latest',
             label: 'Latest news',
             newTab: true,
             type: 'reference',
@@ -126,7 +126,7 @@ describe('adaptFooter', () => {
     })
     expect(result.columns[1]?.navItems[0]?.link.href).toBe('/tea-solutions')
     expect(result.columns[2]?.navItems[0]?.link.href).toBe('/case-studies/customer-story')
-    expect(result.columns[2]?.navItems[1]?.link.href).toBe('/posts?category=sustainability')
+    expect(result.columns[2]?.navItems[1]?.link.href).toBe('/blogs/category/sustainability')
     expect(result.columns.find((column) => column.id === 'company')).toBeUndefined()
     expect(JSON.stringify(result)).not.toContain('Legacy')
     expect(result.logo?.src).toContain('/primary.svg')
