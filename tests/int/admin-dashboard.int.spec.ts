@@ -1,10 +1,10 @@
 import type { PayloadRequest } from 'payload'
 import { describe, expect, it, vi } from 'vitest'
-import { getOverview } from '@/components/admin/dashboard/getOverview'
-import { getRecentQuotes } from '@/components/admin/dashboard/getRecentQuotes'
-import { getSystemStatus } from '@/components/admin/dashboard/getSystemStatus'
-import { getSiteSetup } from '@/components/admin/dashboard/getSiteSetup'
-import { getQuickActions } from '@/components/admin/dashboard/getQuickActions'
+import { getOverview } from '@/plugins/adminTheme/dashboard/getOverview'
+import { getRecentQuotes } from '@/plugins/adminTheme/dashboard/getRecentQuotes'
+import { getSystemStatus } from '@/plugins/adminTheme/dashboard/getSystemStatus'
+import { getSiteSetup } from '@/plugins/adminTheme/dashboard/getSiteSetup'
+import { getQuickActions } from '@/plugins/adminTheme/dashboard/getQuickActions'
 
 function fixture(role = 'admin') {
   const count = vi.fn()

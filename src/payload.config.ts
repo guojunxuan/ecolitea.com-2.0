@@ -25,39 +25,15 @@ import { defaultLexical } from '@/fields/defaultLexical'
 import { getServerSideURL } from './utilities/getURL'
 import { serverEnv } from './utilities/env'
 import { createEmailAdapter } from './plugins/email/adapter'
-import { adminDashboard } from './components/admin/dashboard/config'
+import { adminThemePlugin } from './plugins/adminTheme'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
-const adminIcon = '@/components/admin/brand/AdminIcon#AdminIcon'
 
 export default buildConfig({
   serverURL: getServerSideURL(),
   email: createEmailAdapter(),
   admin: {
-    theme: 'all',
-    dashboard: adminDashboard,
-    meta: {
-      titleSuffix: ' · Admin',
-      defaultOGImageType: 'off',
-      description: 'Site administration',
-      openGraph: { siteName: 'Admin', description: 'Site administration' },
-      icons: {
-        icon: [
-          { url: '/favicon.ico', sizes: '32x32' },
-          { url: '/favicon.svg', type: 'image/svg+xml' },
-        ],
-      },
-    },
-    components: {
-      providers: ['@/components/admin/brand/AdminThemeProvider#AdminThemeProvider'],
-      graphics: {
-        Logo: '@/components/admin/brand/AdminLogo#AdminLogo',
-        Icon: adminIcon,
-      },
-      // The canary's native sidebar does not render graphics.Icon.
-      beforeNavLinks: [{ path: adminIcon, serverProps: { showName: true } }],
-    },
     importMap: {
       baseDir: path.resolve(dirname),
     },
@@ -130,7 +106,7 @@ export default buildConfig({
   ],
   cors: [getServerSideURL()].filter(Boolean),
   globals: [Header, Footer, SiteSettings, Settings],
-  plugins,
+  plugins: [...plugins, adminThemePlugin({ enhancedLayout: true })],
   secret: serverEnv.PAYLOAD_SECRET,
   sharp,
   typescript: {

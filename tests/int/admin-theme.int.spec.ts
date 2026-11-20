@@ -4,7 +4,31 @@ import { auditCss } from '../helpers/cssAudit'
 
 const custom = readFileSync('src/app/(payload)/custom.css', 'utf8')
 const installed = readFileSync('node_modules/@payloadcms/ui/dist/styles.css', 'utf8')
-const { blocks, declarations } = auditCss(custom)
+const theme = readFileSync('src/plugins/adminTheme/theme.css', 'utf8')
+const { blocks, declarations } = auditCss(theme)
+
+it('leaves the Payload layout stylesheet empty so removing the plugin removes its theme', () => {
+  expect(custom.trim()).toBe('')
+})
+
+it('depends only on installed sidebar classes for the optional secondary surface', () => {
+  const enhancedCss = readFileSync('src/plugins/adminTheme/enhanced.css', 'utf8')
+  const enhanced = auditCss(enhancedCss)
+  const classes = (header: string) => [...header.matchAll(/\.([_a-zA-Z][\w-]*)/g)]
+    .map(([, name]) => name)
+  const installedClasses = new Set(auditCss(installed).blocks.flatMap(({ header }) => classes(header)))
+
+  expect(enhanced.blocks.map(({ header }) => header)).toEqual(['.nav'])
+  for (const { header } of enhanced.blocks) {
+    for (const name of classes(header)) {
+      expect(installedClasses, `Payload removed .${name} from its CSS. Review enhanced layout.`)
+        .toContain(name)
+    }
+  }
+  expect(enhanced.declarations.map(({ prop, value }) => ({ prop, value }))).toEqual([
+    { prop: 'background-color', value: 'var(--color-bg-secondary)' },
+  ])
+})
 
 describe('Admin theme token contract', () => {
   it('defines an accent for the default and dark themes', () => {
@@ -29,7 +53,7 @@ describe('Admin theme token contract', () => {
       expect(prop).not.toMatch(/^--ramp-/)
       expect(installedTokens, prop).toContain(prop)
     }
-    expect(custom).not.toMatch(/!\s*important|Ecolitea|Payload Website Template|@payloadcms'/i)
+    expect(theme).not.toMatch(/!\s*important|Ecolitea|Payload Website Template|@payloadcms'/i)
   })
 })
 

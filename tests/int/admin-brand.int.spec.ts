@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { resolveAdminBrand } from '@/components/admin/brand/resolveAdminBrand'
+import { resolveAdminBrand } from '@/plugins/adminTheme/brand/resolveAdminBrand'
 import type { SiteAsset } from '@/payload-types'
 
 const asset: SiteAsset = {

@@ -62,16 +62,17 @@ import { ArticleShareURLField as ArticleShareURLField_1245b93634f2f81e3750ee57bc
 import { HeroSlideRowLabel as HeroSlideRowLabel_cd32ae05f5941e1c60a7be80501d1b25 } from '@/Settings/components/HeroSlideRowLabel'
 import { CategoryCarouselStatus as CategoryCarouselStatus_0bbce7c388200caa031ae6b42ce937c9 } from '@/Settings/components/ListingCarouselNotice'
 import { CategoryCarouselRowLabel as CategoryCarouselRowLabel_4c0f2608cd165b7629a279da0b6c6713 } from '@/Settings/components/CategoryCarouselRowLabel'
-import { AdminIcon as AdminIcon_43ccebbe24cad1546463345662fee5cd } from '@/components/admin/brand/AdminIcon'
-import { AdminLogo as AdminLogo_264b34ad43c4732ccbe38b640131fdc5 } from '@/components/admin/brand/AdminLogo'
-import { AdminThemeProvider as AdminThemeProvider_ee13e005482ef10ebd200a39c4ed35d2 } from '@/components/admin/brand/AdminThemeProvider'
+import { AdminIcon as AdminIcon_0f8eaa08281824c0207dba6cab8406e7 } from '@/plugins/adminTheme/brand/AdminIcon'
+import { AdminLogo as AdminLogo_dcf38604fad76820f0bff9e738605a88 } from '@/plugins/adminTheme/brand/AdminLogo'
+import { ThemeStyles as ThemeStyles_4fa6e6c79de32d13956c982c18e67f7f } from '@/plugins/adminTheme/ThemeStyles'
+import { EnhancedLayoutStyles as EnhancedLayoutStyles_dcfdf3711b1e36436fffbae60c1577f5 } from '@/plugins/adminTheme/EnhancedLayoutStyles'
 import { FolderIcon as FolderIcon_3817bf644402e67bfe6577f60ef982de } from '@payloadcms/ui'
 import { HierarchySidebarTabServer as HierarchySidebarTabServer_ab83ff7e88da8d3530831f296ec4756a } from '@payloadcms/ui/rsc'
-import { SiteSetup as SiteSetup_b89c900cd6728da8277e8c5aab265775 } from '@/components/admin/dashboard/SiteSetup'
-import { Overview as Overview_00118b9e4aff0802ed31a23605c4c9de } from '@/components/admin/dashboard/Overview'
-import { RecentQuotes as RecentQuotes_a75ffa188be7e5f540e2feea5d578921 } from '@/components/admin/dashboard/RecentQuotes'
-import { SystemStatus as SystemStatus_2b6b106c1493c5bf354ee48f953c99d8 } from '@/components/admin/dashboard/SystemStatus'
-import { QuickActions as QuickActions_a84bb7252cb03040e3ff136e508268af } from '@/components/admin/dashboard/QuickActions'
+import { SiteSetup as SiteSetup_8ff79254b3ce1c97d64d814ad289ee27 } from '@/plugins/adminTheme/dashboard/SiteSetup'
+import { Overview as Overview_5d599782e9ae147469781aaf973bee72 } from '@/plugins/adminTheme/dashboard/Overview'
+import { RecentQuotes as RecentQuotes_c80633ef38452dfc75c5a59842abace7 } from '@/plugins/adminTheme/dashboard/RecentQuotes'
+import { SystemStatus as SystemStatus_7cefcec040a19adf936a23cf50afff66 } from '@/plugins/adminTheme/dashboard/SystemStatus'
+import { QuickActions as QuickActions_e28178a3e7da7c85e4569888554c9dc5 } from '@/plugins/adminTheme/dashboard/QuickActions'
 import { CollectionCards as CollectionCards_ab83ff7e88da8d3530831f296ec4756a } from '@payloadcms/ui/rsc'
 import { CollectionQueryWidget as CollectionQueryWidget_ab83ff7e88da8d3530831f296ec4756a } from '@payloadcms/ui/rsc'
 import { QueryPresetsWhereField as QueryPresetsWhereField_3817bf644402e67bfe6577f60ef982de } from '@payloadcms/ui'
@@ -145,16 +146,17 @@ export const importMap = {
   "@/Settings/components/HeroSlideRowLabel#HeroSlideRowLabel": HeroSlideRowLabel_cd32ae05f5941e1c60a7be80501d1b25,
   "@/Settings/components/ListingCarouselNotice#CategoryCarouselStatus": CategoryCarouselStatus_0bbce7c388200caa031ae6b42ce937c9,
   "@/Settings/components/CategoryCarouselRowLabel#CategoryCarouselRowLabel": CategoryCarouselRowLabel_4c0f2608cd165b7629a279da0b6c6713,
-  "@/components/admin/brand/AdminIcon#AdminIcon": AdminIcon_43ccebbe24cad1546463345662fee5cd,
-  "@/components/admin/brand/AdminLogo#AdminLogo": AdminLogo_264b34ad43c4732ccbe38b640131fdc5,
-  "@/components/admin/brand/AdminThemeProvider#AdminThemeProvider": AdminThemeProvider_ee13e005482ef10ebd200a39c4ed35d2,
+  "@/plugins/adminTheme/brand/AdminIcon#AdminIcon": AdminIcon_0f8eaa08281824c0207dba6cab8406e7,
+  "@/plugins/adminTheme/brand/AdminLogo#AdminLogo": AdminLogo_dcf38604fad76820f0bff9e738605a88,
+  "@/plugins/adminTheme/ThemeStyles#ThemeStyles": ThemeStyles_4fa6e6c79de32d13956c982c18e67f7f,
+  "@/plugins/adminTheme/EnhancedLayoutStyles#EnhancedLayoutStyles": EnhancedLayoutStyles_dcfdf3711b1e36436fffbae60c1577f5,
   "@payloadcms/ui#FolderIcon": FolderIcon_3817bf644402e67bfe6577f60ef982de,
   "@payloadcms/ui/rsc#HierarchySidebarTabServer": HierarchySidebarTabServer_ab83ff7e88da8d3530831f296ec4756a,
-  "@/components/admin/dashboard/SiteSetup#SiteSetup": SiteSetup_b89c900cd6728da8277e8c5aab265775,
-  "@/components/admin/dashboard/Overview#Overview": Overview_00118b9e4aff0802ed31a23605c4c9de,
-  "@/components/admin/dashboard/RecentQuotes#RecentQuotes": RecentQuotes_a75ffa188be7e5f540e2feea5d578921,
-  "@/components/admin/dashboard/SystemStatus#SystemStatus": SystemStatus_2b6b106c1493c5bf354ee48f953c99d8,
-  "@/components/admin/dashboard/QuickActions#QuickActions": QuickActions_a84bb7252cb03040e3ff136e508268af,
+  "@/plugins/adminTheme/dashboard/SiteSetup#SiteSetup": SiteSetup_8ff79254b3ce1c97d64d814ad289ee27,
+  "@/plugins/adminTheme/dashboard/Overview#Overview": Overview_5d599782e9ae147469781aaf973bee72,
+  "@/plugins/adminTheme/dashboard/RecentQuotes#RecentQuotes": RecentQuotes_c80633ef38452dfc75c5a59842abace7,
+  "@/plugins/adminTheme/dashboard/SystemStatus#SystemStatus": SystemStatus_7cefcec040a19adf936a23cf50afff66,
+  "@/plugins/adminTheme/dashboard/QuickActions#QuickActions": QuickActions_e28178a3e7da7c85e4569888554c9dc5,
   "@payloadcms/ui/rsc#CollectionCards": CollectionCards_ab83ff7e88da8d3530831f296ec4756a,
   "@payloadcms/ui/rsc#CollectionQueryWidget": CollectionQueryWidget_ab83ff7e88da8d3530831f296ec4756a,
   "@payloadcms/ui#QueryPresetsWhereField": QueryPresetsWhereField_3817bf644402e67bfe6577f60ef982de,

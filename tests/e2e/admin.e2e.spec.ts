@@ -46,6 +46,21 @@ async function openSidebar(page: Page) {
   await expect(page.getByText('Phase4 Test', { exact: true })).toBeInViewport()
 }
 
+async function expectSidebarSurface(page: Page) {
+  const surfaces = await page.locator('.nav').evaluate((sidebar) => {
+    const probe = document.createElement('span')
+    document.body.append(probe)
+    probe.style.backgroundColor = 'var(--color-bg-secondary)'
+    const secondary = getComputedStyle(probe).backgroundColor
+    probe.style.backgroundColor = 'var(--color-bg)'
+    const primary = getComputedStyle(probe).backgroundColor
+    probe.remove()
+    return { sidebar: getComputedStyle(sidebar).backgroundColor, primary, secondary }
+  })
+  expect(surfaces.sidebar).toBe(surfaces.secondary)
+  expect(surfaces.sidebar).not.toBe(surfaces.primary)
+}
+
 test.describe('Admin Panel', () => {
   let page: Page
 
@@ -99,7 +114,11 @@ test.describe('Admin Panel', () => {
           await expect(loginPage.getByText('Admin', { exact: true })).toBeVisible()
           await expect(loginPage.locator('meta[property="og:site_name"]')).toHaveAttribute('content', 'Admin')
           await expect(loginPage.locator('meta[property="og:description"]')).toHaveAttribute('content', 'Site administration')
-          await expect(loginPage.locator('link[rel="icon"][href="/favicon.svg"]')).toHaveCount(1)
+          await expect(loginPage.locator('link[rel="icon"][href="/api/admin-icon"]')).toHaveCount(1)
+          const icon = await context.request.get(`${baseURL}/api/admin-icon`, { maxRedirects: 0 })
+          expect(icon.status()).toBe(302)
+          expect(icon.headers()['location']).toBe('/favicon.svg')
+          expect(icon.headers()['cache-control']).toBe('no-store')
           await expect(loginPage.locator('html')).toHaveAttribute('data-theme', colorScheme)
           const color = await loginPage.evaluate(() => {
             const probe = document.createElement('span')
@@ -129,10 +148,31 @@ test.describe('Admin Panel', () => {
     }
   })
 
+  test('redirects the public admin icon to the current Site Settings asset', async ({ request }) => {
+    const payload = await getPayload({ config })
+    const slug = 'site-settings'
+    const { favicon, logo } = await payload.findGlobal({ slug, depth: 1 })
+    if (!logo || typeof logo !== 'object' || !logo.url) throw new Error('Missing logo fixture')
+
+    await payload.db.updateGlobal({ slug, data: { favicon: logo.id } })
+    try {
+      const icon = await request.get(`${baseURL}/api/admin-icon`, { maxRedirects: 0 })
+      const asset = new URL(logo.url, baseURL)
+      const location = new URL(icon.headers()['location']!, baseURL)
+      expect(icon.status()).toBe(302)
+      expect(location.pathname).toBe(asset.pathname)
+      expect(location.search).toBe(`?${encodeURIComponent(logo.updatedAt)}`)
+      expect(icon.headers()['cache-control']).toBe('no-store')
+      expect(await icon.text()).toBe('')
+    } finally {
+      const previous = typeof favicon === 'object' ? favicon?.id : favicon
+      await payload.db.updateGlobal({ slug, data: { favicon: previous ?? null } })
+    }
+  })
+
   test('shows the administrator dashboard and the configured login graphic', async ({ browser }) => {
     test.setTimeout(captureShots ? 60_000 : 30_000)
-    const schemes = captureShots ? (['light', 'dark'] as const) : (['light'] as const)
-    for (const colorScheme of schemes) {
+    for (const colorScheme of ['light', 'dark'] as const) {
       const context = await browser.newContext({ colorScheme, viewport: { width: 1440, height: 1000 } })
       try {
         const admin = await context.newPage()
@@ -142,10 +182,10 @@ test.describe('Admin Panel', () => {
         await expect(admin.getByRole('heading', { name: 'System status' })).toBeVisible()
         await expect(admin.getByText('Phase4 Test', { exact: true })).toBeVisible()
         await expect(admin.getByRole('region', { name: 'Site setup' })).toHaveCount(0)
-        if (!captureShots) continue
-
         await expect(admin.locator('html')).toHaveAttribute('data-theme', colorScheme)
         await openSidebar(admin)
+        await expectSidebarSurface(admin)
+        if (!captureShots) continue
         await capture(admin, `dashboard-${colorScheme}`)
         await admin.goto(`${baseURL}/admin/collections/blogs`)
         await expect(admin.getByRole('heading', { name: 'Blogs', exact: true })).toBeVisible()
