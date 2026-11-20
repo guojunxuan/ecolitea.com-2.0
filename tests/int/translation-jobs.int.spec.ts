@@ -1,7 +1,7 @@
 // @vitest-environment node
 import { randomUUID } from 'node:crypto'
 import { mongooseAdapter, type MongooseAdapter } from '@payloadcms/db-mongodb'
-import { buildConfig, createLocalReq, getPayload, type Payload } from 'payload'
+import { buildConfig, createPayloadRequest, getPayload, type Payload } from 'payload'
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import { translationPlugin } from '@/plugins/translation'
 import { getTranslationRuntime } from '@/plugins/translation/hooks'
@@ -85,7 +85,7 @@ describe('translation lifecycle and real Jobs (isolated MongoDB)', () => {
     ],
     jobs: { deleteJobOnComplete: false },
   })
-  const req = () => createLocalReq({}, payload)
+  const req = () => createPayloadRequest({ payload })
   const runtime = async () => getTranslationRuntime(await req())!
   // These deliberately minimal fixture schemas do not replace the app's generated registry.
   const create = (title: string, status: 'draft' | 'published' = 'published') =>

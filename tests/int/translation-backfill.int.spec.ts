@@ -1,7 +1,7 @@
 // @vitest-environment node
 import { randomUUID } from 'node:crypto'
 import { mongooseAdapter, type MongooseAdapter } from '@payloadcms/db-mongodb'
-import { buildConfig, createLocalReq, getPayload, type Payload } from 'payload'
+import { buildConfig, createPayloadRequest, getPayload, type Payload } from 'payload'
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import { translationPlugin } from '@/plugins/translation'
 import { getTranslationRuntime } from '@/plugins/translation/hooks'
@@ -111,7 +111,7 @@ describe('translation backfill (isolated MongoDB)', () => {
     const backfill = await create('Backfill')
     const fresh = await create('New')
     const update = await create('Updated')
-    const req = await createLocalReq({}, payload)
+    const req = await createPayloadRequest({ payload })
     const runtime = getTranslationRuntime(req)!
     await payload.create({
       collection: 'translations',
@@ -170,7 +170,7 @@ describe('translation backfill (isolated MongoDB)', () => {
       data: { title: 'Legacy', slug: 'legacy', _status: 'published' } as never,
       context: { translationWrite: true },
     })
-    const req = await createLocalReq({}, payload)
+    const req = await createPayloadRequest({ payload })
     const runtime = getTranslationRuntime(req)!
     const input = {
       sourceCollection: 'pages',
@@ -302,7 +302,7 @@ describe('translation backfill (isolated MongoDB)', () => {
         data: { status: 'waiting_quota', updatedAt: '2020-01-01T00:00:00.000Z' } as never,
       })
     await payload.delete({ collection: 'payload-jobs', where: {} })
-    const req = await createLocalReq({}, payload)
+    const req = await createPayloadRequest({ payload })
     now = new Date('2100-01-01T00:00:00Z')
     await getTranslationRuntime(req)!.recover(req)
     const recovered = await payload.find({ collection: 'payload-jobs', limit: 100 })
@@ -327,7 +327,7 @@ describe('translation backfill (isolated MongoDB)', () => {
       },
     })
     now = new Date('2100-01-01T00:00:00Z')
-    const req = await createLocalReq({}, payload)
+    const req = await createPayloadRequest({ payload })
     await getTranslationRuntime(req)!.recover(req)
     expect((await payload.find({ collection: 'payload-jobs' })).docs[0].meta).toMatchObject({
       translationPriority: 2,

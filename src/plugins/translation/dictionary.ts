@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto'
-import { createLocalReq, type Payload } from 'payload'
+import { createPayloadRequest, type Payload } from 'payload'
 import en from '@/i18n/dictionaries/en.json'
 import { serverEnv } from '@/utilities/env'
 import { extract } from './extract'
@@ -53,7 +53,7 @@ export async function enqueueFrontendDictionary(
 ): Promise<void> {
   if (!serverEnv.JOBS_AUTORUN) return
   const { sourceVersion } = getFrontendDictionarySource()
-  const req = await createLocalReq({}, payload)
+  const req = await createPayloadRequest({ payload })
   if (!(await runtime.canQueue(req))) return
   for (const locale of await runtime.getTargets(req)) {
     const existing = (

@@ -1,7 +1,7 @@
 // @vitest-environment node
 import { randomUUID } from 'node:crypto'
 import { mongooseAdapter, type MongooseAdapter } from '@payloadcms/db-mongodb'
-import { buildConfig, createLocalReq, getPayload, type Payload } from 'payload'
+import { buildConfig, createPayloadRequest, getPayload, type Payload } from 'payload'
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import { consentCopy } from '@/consent/copy'
 import { translationPlugin } from '@/plugins/translation'
@@ -254,7 +254,7 @@ describe('dictionary Jobs and last-ready reads (isolated MongoDB)', () => {
   })
 
   it('discards an obsolete dictionary hash before enqueueing', async () => {
-    const req = await createLocalReq({}, payload)
+    const req = await createPayloadRequest({ payload })
     await getTranslationRuntime(req)!.queue(req, {
       sourceCollection: 'dictionary',
       sourceId: 'frontend',

@@ -53,7 +53,7 @@ export const propagateCategorySlug: CollectionAfterChangeHook<ProductCategory> =
     }
   }
 
-  // createLocalReq merges context back onto this SAME req. Restore it after
+  // createPayloadRequest merges context back onto this SAME req. Restore it after
   // each nested write, keeping the request and transaction identity intact.
   const updateProduct = async (options: {
     collection: 'products'

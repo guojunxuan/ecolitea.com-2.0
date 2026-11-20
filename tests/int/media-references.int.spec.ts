@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
 import { randomUUID } from 'node:crypto'
 import { mongooseAdapter, type MongooseAdapter } from '@payloadcms/db-mongodb'
-import { buildConfig, createLocalReq, getPayload, handleEndpoints, type Payload } from 'payload'
+import { buildConfig, createPayloadRequest, getPayload, handleEndpoints, type Payload } from 'payload'
 import { Media } from '@/collections/Media'
 import { createIsolatedTestDatabaseURI } from '../helpers/isolatedDatabase'
 
@@ -442,7 +442,7 @@ describe('Media protection through the real Payload API', () => {
     const endpoint =
       Media.endpoints && Media.endpoints.find(({ path }) => path === '/:id/references')
     if (!endpoint) throw new Error('Reference endpoint missing')
-    const req = await createLocalReq({}, payload)
+    const req = await createPayloadRequest({ payload })
     req.routeParams = { id: mediaID }
     expect((await endpoint!.handler(req)).status).toBe(401)
     req.user = { id: 'test-user', collection: 'users' } as never

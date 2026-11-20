@@ -79,9 +79,9 @@ export async function runTranslationBackfill({
   now?: Date
 }): Promise<BackfillReport> {
   assertTargetLocale(locale, locales ?? (await getI18nSettings(payload)).targetLocales)
-  const { createLocalReq } = await import('payload')
+  const { createPayloadRequest } = await import('payload')
   const { getTranslationRuntime } = await import('../src/plugins/translation/hooks')
-  const req = await createLocalReq({}, payload)
+  const req = await createPayloadRequest({ payload })
   const runtime = getTranslationRuntime(req)
   if (
     !dryRun &&

@@ -1,7 +1,7 @@
 'use client'
 
 import { ArrayField } from '@payloadcms/ui'
-import type { ArrayFieldClientComponent } from 'payload'
+import type { ArrayFieldClientProps } from 'payload'
 import React, { type MouseEvent } from 'react'
 
 import './socialLinksArrayField.scss'
@@ -17,7 +17,7 @@ const markActionPortal = (event: MouseEvent<HTMLDivElement>) => {
   })
 }
 
-export const SocialLinksArrayField: ArrayFieldClientComponent = (props) => (
+export const SocialLinksArrayField: React.FC<ArrayFieldClientProps> = (props) => (
   <div className="site-settings-social-links" onClickCapture={markActionPortal}>
     <ArrayField {...props} />
   </div>

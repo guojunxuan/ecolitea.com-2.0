@@ -1,5 +1,5 @@
 import type { ClientField, Field } from 'payload'
-import { BasePayload, createLocalReq } from 'payload'
+import { BasePayload, createPayloadRequest } from 'payload'
 import { createClientConfig } from 'payload/shared'
 import { describe, expect, it } from 'vitest'
 
@@ -26,7 +26,7 @@ describe('Products sanitized Admin client config', () => {
     // Public request construction initializes real translations without connecting to MongoDB.
     const payload = new BasePayload()
     payload.config = config
-    const req = await createLocalReq({}, payload)
+    const req = await createPayloadRequest({ payload })
     const client = createClientConfig({ config, i18n: req.i18n, importMap: {}, user: true })
     const product = config.collections.find(({ slug }) => slug === 'products')!
     const clientProduct = client.collections.find(({ slug }) => slug === 'products')!

@@ -1,6 +1,6 @@
 vi.mock('payload', async (original) => ({
   ...(await original<object>()),
-  createLocalReq: async (_args: unknown, payload: unknown) => ({ payload }),
+  createPayloadRequest: async ({ payload }: { payload: unknown }) => ({ payload }),
 }))
 import { describe, expect, it, vi } from 'vitest'
 vi.mock('@/plugins/translation/read', () => ({

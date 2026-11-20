@@ -1,7 +1,7 @@
 // @vitest-environment node
 import { randomUUID } from 'node:crypto'
 import { mongooseAdapter, type MongooseAdapter } from '@payloadcms/db-mongodb'
-import { buildConfig, createLocalReq, getPayload, handleEndpoints, type Payload } from 'payload'
+import { buildConfig, createPayloadRequest, getPayload, handleEndpoints, type Payload } from 'payload'
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
 import { Users } from '@/collections/Users'
 import { SiteSettings } from '@/SiteSettings/config'
@@ -19,7 +19,7 @@ describe('integration access through real Payload operations', () => {
   let otherEditor: User
   const cacheKey = `ecolitea2-integrations-int-${randomUUID()}`
   const request = async (user?: User) =>
-    createLocalReq({ user, context: { disableRevalidate: true } }, payload)
+    createPayloadRequest({ user, context: { disableRevalidate: true }, payload })
   beforeAll(async () => {
     vi.stubEnv('SMTP_HOST', '')
     expect(process.env.DISABLE_R2_STORAGE).toBe('true')

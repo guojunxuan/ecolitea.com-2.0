@@ -19,7 +19,7 @@ const getTransitions = (req: PayloadRequest, create = false) => {
   if (container?.[stateKey] instanceof Map) return container[stateKey]
   if (!create) return undefined
   const transitions = new Map<string, PublicTransition>()
-  // A string-keyed context value survives createLocalReq's empty-context check
+  // A string-keyed context value survives createPayloadRequest's empty-context check
   // and spreads; the private Symbol keeps its contents server-owned. The value
   // also survives restoreVersion's request Proxy and concurrent bulk hooks.
   req.context.productPublicTransitions = { [stateKey]: transitions }
@@ -35,7 +35,7 @@ export const captureProductWriteIntent: CollectionBeforeOperationHook<'products'
     getTransitions(req, true)
     const container = req.context.productPublicTransitions as TransitionContainer
     // Public operation args carry draft intent for both REST and Local API;
-    // createLocalReq does not copy the Local API draft option to req.query.
+    // createPayloadRequest does not copy the Local API draft option to req.query.
     // Reset on each write (including restore) so a reused request cannot retain
     // draft intent. Nested reads must leave the write intent intact.
     container[draftWriteKey] = operation === 'update' && args.draft === true

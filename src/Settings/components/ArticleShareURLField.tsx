@@ -1,7 +1,7 @@
 'use client'
 
 import { FieldContext, TextField, useField, useForm, useFormFields } from '@payloadcms/ui'
-import type { TextFieldClientComponent, Validate } from 'payload'
+import type { TextFieldClientProps, Validate } from 'payload'
 import React, { useCallback, useEffect, useRef } from 'react'
 
 import { generateArticleShareURL } from '../fields/articleShareTemplate'
@@ -9,7 +9,7 @@ import { generateArticleShareURL } from '../fields/articleShareTemplate'
 // Weak keys release this editor-only metadata when the Payload form is discarded.
 const generatedTemplates = new WeakMap<object, Map<string, string>>()
 
-export const ArticleShareURLField: TextFieldClientComponent = (props) => {
+export const ArticleShareURLField: React.FC<TextFieldClientProps> = (props) => {
   const { field, path: pathFromProps, readOnly, validate } = props
   const validateText = useCallback<Validate>(
     (value, options) =>

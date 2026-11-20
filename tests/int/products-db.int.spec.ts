@@ -7,7 +7,7 @@ import { beforeSyncWithSearch } from '@/search/beforeSync'
 import { publicSearchVisibility } from '@/search/visibility'
 import { propagateCategorySlug } from '@/collections/ProductCategories/hooks/propagateCategorySlug'
 import { redirectsPlugin } from '@payloadcms/plugin-redirects'
-import { buildConfig, createLocalReq, getPayload, type Payload } from 'payload'
+import { buildConfig, createPayloadRequest, getPayload, type Payload } from 'payload'
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
 import { ProductCategories } from '@/collections/ProductCategories'
 import { Products } from '@/collections/Products'
@@ -499,7 +499,7 @@ describe('Products through isolated Payload Local API', () => {
       config: await testConfig(databaseURL, legacyProducts),
       key: `products-legacy-${randomUUID()}`,
     })
-    const req = await createLocalReq({ context: { taskMarker: 'legacy-rollback' } }, payload)
+    const req = await createPayloadRequest({ context: { taskMarker: 'legacy-rollback' }, payload })
     try {
       const category = await payload.create({
         collection: 'product-categories',
@@ -994,7 +994,7 @@ describe('Products through isolated Payload Local API', () => {
   }, 20_000)
 
   it('uses fresh public state when the same request is reused after suppressed writes and deletion', async () => {
-    const req = await createLocalReq({ context: { taskMarker: 'sequential' } }, payload)
+    const req = await createPayloadRequest({ context: { taskMarker: 'sequential' }, payload })
     const product = await payload.create({
       collection: 'products',
       req,
@@ -1157,7 +1157,7 @@ describe('Products through isolated Payload Local API', () => {
       },
     })
     const originalContext = { taskMarker: 'parent', skipProductRedirect: false }
-    const req = await createLocalReq({ context: originalContext }, payload)
+    const req = await createPayloadRequest({ context: originalContext, payload })
     const updateSpy = vi.spyOn(payload, 'update')
     vi.clearAllMocks()
     const renamed = `${category.slug}-new`
@@ -1200,7 +1200,7 @@ describe('Products through isolated Payload Local API', () => {
     updateSpy.mockRestore()
   }, 20_000)
 
-  it('restores the exact parent context when a nested write throws after createLocalReq mutates req', async () => {
+  it('restores the exact parent context when a nested write throws after createPayloadRequest mutates req', async () => {
     const category = await payload.create({
       collection: 'product-categories',
       data: { title: 'Error scope', slug: `error-${randomUUID()}`, image: mediaID },
@@ -1217,9 +1217,9 @@ describe('Products through isolated Payload Local API', () => {
       },
     })
     const originalContext = { taskMarker: 'error-parent', disableRevalidate: false }
-    const req = await createLocalReq({ context: originalContext }, payload)
+    const req = await createPayloadRequest({ context: originalContext, payload })
     const updateSpy = vi.spyOn(payload, 'update').mockImplementationOnce(async (options) => {
-      await createLocalReq({ req, context: options.context }, payload)
+      await createPayloadRequest({ req, context: options.context, payload })
       throw new Error('Injected nested write failure')
     })
     try {

@@ -1,13 +1,13 @@
 'use client'
 
-import { useTheme } from '@payloadcms/ui'
+import { useRootTheme } from '@payloadcms/ui'
 import { useEffect } from 'react'
 
 export function AnonymousThemeSync() {
-  const { setTheme } = useTheme()
+  const { setTheme } = useRootTheme()
 
   useEffect(() => {
-    // The anonymous canary client config omits admin.theme, disabling its auto-theme initialization.
+    // The anonymous client config omits admin.theme, disabling the root provider's auto-theme initialization.
     setTheme('auto')
   }, [setTheme])
 

@@ -1,6 +1,6 @@
 import type { LexicalRichTextAdapter } from '@payloadcms/richtext-lexical'
 import type { SerializedLexicalNode } from '@payloadcms/richtext-lexical/lexical'
-import { createLocalReq } from 'payload'
+import { createPayloadRequest } from 'payload'
 import type { Field, Payload, Where, PayloadRequest } from 'payload'
 import { mergeTranslation } from '@/plugins/translation/read'
 import { getTranslationRule } from '@/plugins/translation/rules'
@@ -101,7 +101,7 @@ export async function localizePopulated<T>(
     const subFields = features.getSubFields?.get(type)
     const subData = features.getSubFieldsData?.get(type)
     if (subFields && subData) {
-      request ??= createLocalReq({}, payload)
+      request ??= createPayloadRequest({ payload })
       const args = { node: node as unknown as SerializedLexicalNode, req: await request }
       await walk(subData(args), subFields(args) ?? [], depth + 1)
     }

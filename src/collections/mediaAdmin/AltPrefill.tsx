@@ -1,10 +1,10 @@
 'use client'
 
 import { TextField, useField, useFormFields, useFormInitializing } from '@payloadcms/ui'
-import type { TextFieldClientComponent } from 'payload'
+import type { TextFieldClientProps } from 'payload'
 import React, { useEffect, useRef } from 'react'
 
-export const AltPrefill: TextFieldClientComponent = (props) => {
+export const AltPrefill: React.FC<TextFieldClientProps> = (props) => {
   const { value, setValue } = useField<string>({ path: props.path })
   const initializing = useFormInitializing()
   const file = useFormFields(([fields]) => fields.file?.value)
