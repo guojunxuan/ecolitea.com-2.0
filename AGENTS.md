@@ -90,6 +90,21 @@ are compatible with the installed versions.
 - Do not depend on Payload's private DOM structure, generated CSS class names,
   portal placement, or undocumented component internals. Scope any Admin CSS to
   a project-owned class.
+- Keep Payload upgradeable. Never patch, fork, or vendor Payload packages, and
+  never edit generated Payload files by hand. A change must not block pulling the
+  latest compatible Payload release.
+- Package Admin UI customization as a self-contained project plugin under
+  `src/plugins/` that registers itself only through public config (components,
+  providers, dashboard, meta, endpoints). Removing the plugin from `plugins` must
+  restore the native Payload Admin without other code changes. The Admin theme
+  lives in `src/plugins/adminTheme/`.
+- When a requirement cannot be met without going beyond Payload's native
+  architecture (for example styling an undocumented class), first evaluate
+  whether an isolated, independently removable plugin can implement it. Keep such
+  code behind an explicit, default-off plugin option, confined to that plugin,
+  and covered by a contract test that fails when the relied-upon Payload
+  structure changes. If it cannot be isolated this way, do not implement it;
+  report the trade-off instead.
 - Put validation that must protect every write on the server. Client-side UI
   constraints may improve feedback but must not be the only integrity check.
 - Use native field constraints for requirements they can express. Reserve
