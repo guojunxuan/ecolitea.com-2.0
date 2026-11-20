@@ -1,7 +1,7 @@
 # Payload Admin 界面改造（macOS 视觉）— 设计
 
 - 日期：2026-11-19
-- 分支：`feature/admin-ui-macos`（基于 `feature/i18n-consent`，依赖其中的 email / translation 插件）
+- 分支：`feature/admin-ui-macos`，实际创建自 `feature/visual-refresh` 末端 `b45d2d6`（包含其 12 个视觉刷新提交，后者基于 `feature/i18n-consent`）。按 2026-11-20 决定，该分支即为合并单元，视觉刷新随之一起合并
 - 状态：已实现（`51ba635`…`57581a0`，计划 `docs/superpowers/plans/2026-11-19-admin-ui-macos-redesign.md`）；实现差异见 §11
 - 后续：`docs/superpowers/specs/2026-11-19-remove-posts-categories-design.md`（同一分支，在本设计完成后执行）
 - 视觉稿：`.superpowers/brainstorm/89787-1795079269/content/admin-demo-v2.html`（本地文件，不提交；浅色/深色 × 概览/列表/编辑）
