@@ -13,8 +13,7 @@
 }
 
 .cardHeader,
-.banner,
-.actions {
+.banner {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -72,6 +71,18 @@
   font-weight: 650;
   line-height: 1.15;
   font-variant-numeric: tabular-nums;
+}
+
+.metricSuccess {
+  color: var(--color-text-success);
+}
+
+.metricWarning {
+  color: var(--color-text-warning);
+}
+
+.metricBrand {
+  color: var(--color-text-brand);
 }
 
 .detail {
@@ -144,6 +155,22 @@
   background: var(--color-bg-secondary);
   font-weight: 600;
   text-decoration: none;
+}
+
+.actions {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  gap: 12px;
+}
+
+.action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px;
+  text-align: center;
+  overflow-wrap: anywhere;
 }
 
 .action:hover {

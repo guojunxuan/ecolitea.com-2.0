@@ -13,12 +13,14 @@ export async function Overview({ req }: WidgetServerProps) {
         <dl className={styles.metrics}>
           <div className={styles.metric}>
             <dt>Published products</dt>
-            <dd>{number.format(overview.published)}</dd>
+            <dd className={styles.metricSuccess}>{number.format(overview.published)}</dd>
             <dd className={styles.detail}>{number.format(overview.drafts)} drafts</dd>
           </div>
           <div className={styles.metric}>
             <dt>New quote requests</dt>
-            <dd>{number.format(overview.quotes)}</dd>
+            <dd className={overview.quotes > 0 ? styles.metricWarning : undefined}>
+              {number.format(overview.quotes)}
+            </dd>
           </div>
           <div className={styles.metric}>
             <dt>Blog posts</dt>
@@ -26,7 +28,7 @@ export async function Overview({ req }: WidgetServerProps) {
           </div>
           <div className={styles.metric}>
             <dt>Enabled languages</dt>
-            <dd>{number.format(overview.languages)}</dd>
+            <dd className={styles.metricBrand}>{number.format(overview.languages)}</dd>
           </div>
         </dl>
       ) : <p className={styles.card}>Unavailable</p>}
