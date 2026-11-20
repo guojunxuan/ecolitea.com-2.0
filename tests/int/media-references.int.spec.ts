@@ -1,7 +1,13 @@
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
 import { randomUUID } from 'node:crypto'
 import { mongooseAdapter, type MongooseAdapter } from '@payloadcms/db-mongodb'
-import { buildConfig, createPayloadRequest, getPayload, handleEndpoints, type Payload } from 'payload'
+import {
+  buildConfig,
+  createPayloadRequest,
+  getPayload,
+  handleEndpoints,
+  type Payload,
+} from 'payload'
 import { Media } from '@/collections/Media'
 import { createIsolatedTestDatabaseURI } from '../helpers/isolatedDatabase'
 

@@ -1,7 +1,13 @@
 // @vitest-environment node
 import { randomUUID } from 'node:crypto'
 import { mongooseAdapter, type MongooseAdapter } from '@payloadcms/db-mongodb'
-import { buildConfig, createPayloadRequest, getPayload, handleEndpoints, type Payload } from 'payload'
+import {
+  buildConfig,
+  createPayloadRequest,
+  getPayload,
+  handleEndpoints,
+  type Payload,
+} from 'payload'
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
 import { Users } from '@/collections/Users'
 import { SiteSettings } from '@/SiteSettings/config'
