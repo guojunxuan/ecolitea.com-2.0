@@ -343,6 +343,14 @@ describe('Remove Posts and Categories MongoDB migration', () => {
       { _id: 'post-en', sourceCollection: 'posts' },
       { _id: 'blog-en', sourceCollection: 'blogs' },
     ])
+    await collection('searches').insertMany([
+      { _id: 'post-index', doc: post },
+      { _id: 'blog-index', doc: blogDoc },
+    ])
+    await collection('translation-searches').insertMany([
+      { _id: 'post-en', sourceCollection: 'posts' },
+      { _id: 'blog-en', sourceCollection: 'blogs' },
+    ])
     const originalBlog = { _id: 'blog-id', title: 'Blog' }
     await collection('blogs').insertOne(originalBlog)
 
@@ -350,8 +358,8 @@ describe('Remove Posts and Categories MongoDB migration', () => {
     expect(report.blockerCount).toBe(0)
     expect(report.planned).toEqual({
       archiveBlocks: 2,
-      searchRows: 1,
-      translationSearchRows: 1,
+      searchRows: 2,
+      translationSearchRows: 2,
       collections: ['posts', 'categories', '_posts_versions', '_categories_versions'],
     })
     await up(args())
@@ -373,6 +381,8 @@ describe('Remove Posts and Categories MongoDB migration', () => {
         { _id: 'product-index', doc: { relationTo: 'products', value: 'product-id' } },
       ],
       'translation-search': [{ _id: 'blog-en', sourceCollection: 'blogs' }],
+      searches: [{ _id: 'blog-index', doc: blogDoc }],
+      'translation-searches': [{ _id: 'blog-en', sourceCollection: 'blogs' }],
       blogs: [originalBlog],
     })
     await up(args())

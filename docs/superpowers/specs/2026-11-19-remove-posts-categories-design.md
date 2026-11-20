@@ -80,7 +80,7 @@
 ### 4.2 执行（仅在预检通过时）
 
 - 改写 Archive 区块中 `populateBy = 'collection'` 且 `relationTo = 'posts'` 的取值为 `'blogs'`（包括 `_pages_versions`）。这是取值规范化，不删除内容。
-- 删除派生数据：`search` 与 `translation-search` 中 `doc.relationTo` / `sourceCollection` 为 `posts` 的索引记录（可重建的索引）。
+- 删除派生数据：`search` 与 `translation-search` 中 `doc.relationTo` / `sourceCollection` 为 `posts` 的索引记录（可重建的索引）。默认 MongoDB 适配器将这两个 slug 存为 `searches` 与 `translation-searches`，预检和清理同时涵盖单数集合名。
 - 删除空的 `posts`、`categories`、`_posts_versions`、`_categories_versions` 集合。`_posts_versions` 中只有已删除文档的历史版本时视为空（版本所属文档不存在）。
 - 输出执行报告：目标数据库名、改写的区块数、删除的索引数、删除的集合。
 

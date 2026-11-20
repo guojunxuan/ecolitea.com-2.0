@@ -12,10 +12,20 @@ type RetiredCollection = (typeof retired)[number]
 const versionCollectionName = <T extends string>(slug: T): `_${T}_versions` => `_${slug}_versions`
 const retiredVersions = retired.map(versionCollectionName)
 const retiredNamespaces = [...retired, ...retiredVersions]
-const excludedReferenceNamespaces = [...retiredNamespaces, 'search', 'translation-search']
+// The MongoDB adapter pluralizes these slugs unless given a dbName.
+const derivedIndexes = [
+  { names: ['search', 'searches'], filter: { 'doc.relationTo': 'posts' }, count: 'searchRows' },
+  {
+    names: ['translation-search', 'translation-searches'],
+    filter: { sourceCollection: 'posts' },
+    count: 'translationSearchRows',
+  },
+] as const
+const excludedReferenceNamespaces = new Set<string>([
+  ...retiredNamespaces,
+  ...derivedIndexes.flatMap(({ names }) => names),
+])
 const archiveCollections = ['pages', versionCollectionName('pages')]
-const searchRows = { 'doc.relationTo': 'posts' }
-const translationSearchRows = { sourceCollection: 'posts' }
 
 type Location = { collection: string; id: string; globalType?: string }
 type Reference = { path: string; target: RetiredCollection; kind: 'relationship' | 'archive' }
@@ -182,7 +192,7 @@ export async function scanRemovePostsCategories(db: Database) {
   const namespaces = await db.listCollections({}, { nameOnly: true }).toArray()
   const sources = namespaces
     .map(({ name }) => name)
-    .filter((name) => !excludedReferenceNamespaces.includes(name))
+    .filter((name) => !excludedReferenceNamespaces.has(name))
     .sort()
   for (const collection of sources) {
     for await (const document of db.collection<RawDocument>(collection).find().sort({ _id: 1 })) {
@@ -219,6 +229,12 @@ export async function scanRemovePostsCategories(db: Database) {
   }
 
   const existing = new Set(namespaces.map(({ name }) => name))
+  const indexCounts = { searchRows: 0, translationSearchRows: 0 }
+  for (const { names, filter, count } of derivedIndexes) {
+    for (const name of names) {
+      if (existing.has(name)) indexCounts[count] += await db.collection(name).countDocuments(filter)
+    }
+  }
   const blockerCounts = {
     documents: blockers.documents.length,
     relationships: blockers.relationships.length,
@@ -245,10 +261,7 @@ export async function scanRemovePostsCategories(db: Database) {
     },
     planned: {
       archiveBlocks: changes.length,
-      searchRows: await db.collection('search').countDocuments(searchRows),
-      translationSearchRows: await db
-        .collection('translation-search')
-        .countDocuments(translationSearchRows),
+      ...indexCounts,
       collections: retiredNamespaces.filter((name) => existing.has(name)),
     },
   }
@@ -316,16 +329,18 @@ export async function up(args: MigrateUpArgs) {
 
   const { session } = args
   const archiveBlocks = await applyArchiveChanges(db, changes, session)
-  const search = await db.collection('search').deleteMany(searchRows, { session })
-  const translationSearch = await db
-    .collection('translation-search')
-    .deleteMany(translationSearchRows, { session })
+  const indexCounts = { searchRows: 0, translationSearchRows: 0 }
+  for (const { names, filter, count } of derivedIndexes) {
+    for (const name of names) {
+      const result = await db.collection(name).deleteMany(filter, { session })
+      indexCounts[count] += result.deletedCount
+    }
+  }
   args.payload.logger.info({
     msg: `Remove Posts and Categories execution: ${JSON.stringify({
       database: db.databaseName,
       archiveBlocks,
-      searchRows: search.deletedCount,
-      translationSearchRows: translationSearch.deletedCount,
+      ...indexCounts,
       dropped,
     })}`,
   })
