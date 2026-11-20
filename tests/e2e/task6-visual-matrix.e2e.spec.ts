@@ -549,7 +549,8 @@ test.describe.serial('Task 6 visual matrix fixtures', () => {
       console.log(`RichText table at ${viewport.width}px: ${JSON.stringify(metrics)}`)
       expect(metrics.scrollWidth).toBeGreaterThan(metrics.clientWidth)
       await expect.poll(() => table.evaluate((element) => element.scrollLeft)).toBeGreaterThan(0)
-      const media = page.locator('[data-block-type="pageMediaBlock"] img, main img').last()
+      const media = page.locator('main figure[data-width][data-aspect-ratio] img')
+      await media.scrollIntoViewIfNeeded()
       await expect(media).toBeVisible()
       await expect
         .poll(() => media.evaluate((image) => (image as HTMLImageElement).naturalWidth))
@@ -562,7 +563,7 @@ test.describe.serial('Task 6 visual matrix fixtures', () => {
     page,
   }, testInfo) => {
     await preparePage(page, 390, 844, { failMedia: true })
-    const failedImage = page.locator('main img').last()
+    const failedImage = page.locator('main figure[data-width][data-aspect-ratio] img')
     await failedImage.scrollIntoViewIfNeeded()
     await expect
       .poll(() => failedImage.evaluate((image) => (image as HTMLImageElement).complete))
@@ -697,7 +698,7 @@ test.describe.serial('Task 6 visual matrix fixtures', () => {
           `/blogs/${firstPageBlogs[0]!.slug}`,
         )
         await expect(
-          archiveCards.first().getByRole('link', { name: archiveFixture.categoryTitle }),
+          archiveCards.first().getByRole('link', { name: archiveFixture.categoryTitle, exact: true }),
         ).toHaveAttribute('href', archivePath)
         await expect(
           archiveCards.first().getByRole('img', { name: archiveFixture.mediaAlt }),
