@@ -1,4 +1,4 @@
-FROM node:24.15.0-alpine AS base
+FROM node:24.22.3-alpine AS base
 ENV PNPM_HOME=/pnpm PATH=$PNPM_HOME:$PATH NEXT_TELEMETRY_DISABLED=1
 WORKDIR /app
 RUN corepack enable && corepack prepare pnpm@9.15.4 --activate
@@ -17,7 +17,7 @@ RUN pnpm exec payload build --webpack --experimental-build-mode compile \
     # Keep its server manifests in sync with the static files copied below.
     && node scripts/sync-standalone-build.mjs \
     && pnpm prune --prod
-FROM node:24.15.0-alpine AS runner
+FROM node:24.22.3-alpine AS runner
 ENV NODE_ENV=production PORT=3000 HOSTNAME=0.0.0.0 NEXT_TELEMETRY_DISABLED=1
 WORKDIR /app
 RUN addgroup -S ecolitea && adduser -S ecolitea -G ecolitea
