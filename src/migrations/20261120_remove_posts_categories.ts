@@ -12,15 +12,7 @@ type RetiredCollection = (typeof retired)[number]
 const versionCollectionName = <T extends string>(slug: T): `_${T}_versions` => `_${slug}_versions`
 const retiredVersions = retired.map(versionCollectionName)
 const retiredNamespaces = [...retired, ...retiredVersions]
-const contentCollections = [
-  'pages',
-  'blogs',
-  'case-studies',
-  'products',
-  'product-categories',
-  'blog-categories',
-] as const
-const globalTypes = ['header', 'footer', 'settings', 'site-settings'] as const
+const excludedReferenceNamespaces = [...retiredNamespaces, 'search', 'translation-search']
 const archiveCollections = ['pages', versionCollectionName('pages')]
 const searchRows = { 'doc.relationTo': 'posts' }
 const translationSearchRows = { sourceCollection: 'posts' }
@@ -66,6 +58,7 @@ export function planContentDocument(
   direction: Direction = 'up',
 ) {
   const references: Reference[] = []
+  const archiveReferencePaths = new Set<string>()
   const archiveChanges: ArchiveChange[] = []
   const archiveSource = archiveCollections.includes(collection)
 
@@ -98,7 +91,10 @@ export function planContentDocument(
             : value.relationTo === 'blogs'
               ? undefined
               : choice.legacyTarget
-        if (isRetired(target)) references.push({ path: choice.path, target, kind: 'archive' })
+        if (isRetired(target)) {
+          references.push({ path: choice.path, target, kind: 'archive' })
+          archiveReferencePaths.add(choice.path)
+        }
       }
 
       if (value.populateBy === 'collection') {
@@ -111,15 +107,18 @@ export function planContentDocument(
           archiveChanges.push({ path, original: value, relationTo: 'posts' })
         }
       }
-    } else if (
+    }
+
+    // The Archive's own legacy Posts selector is configuration, not a document reference.
+    if (
       isRetired(value.relationTo) &&
-      (Object.hasOwn(value, 'value') || value.type === 'relationship')
+      !(isArchive && value.relationTo === 'posts') &&
+      !archiveReferencePaths.has(path)
     ) {
       references.push({ path, target: value.relationTo, kind: 'relationship' })
     }
 
     for (const [key, child] of Object.entries(value)) {
-      if (isArchive && (key === 'categories' || key === 'selectedDocs')) continue
       visit(child, path ? `${path}.${key}` : key)
     }
   }
@@ -180,17 +179,13 @@ export async function scanRemovePostsCategories(db: Database) {
     }
   }
 
-  const sources = [
-    ...contentCollections.flatMap((slug) => [slug, versionCollectionName(slug)]),
-    'globals',
-    ...globalTypes.map(versionCollectionName),
-  ]
+  const namespaces = await db.listCollections({}, { nameOnly: true }).toArray()
+  const sources = namespaces
+    .map(({ name }) => name)
+    .filter((name) => !excludedReferenceNamespaces.includes(name))
+    .sort()
   for (const collection of sources) {
-    const filter = collection === 'globals' ? { globalType: { $in: globalTypes } } : {}
-    for await (const document of db
-      .collection<RawDocument>(collection)
-      .find(filter)
-      .sort({ _id: 1 })) {
+    for await (const document of db.collection<RawDocument>(collection).find().sort({ _id: 1 })) {
       const id = String(document._id)
       const location: Location = { collection, id }
       if (collection === 'globals' && typeof document.globalType === 'string') {
@@ -198,28 +193,17 @@ export async function scanRemovePostsCategories(db: Database) {
       }
       const plan = planContentDocument(document, collection)
       for (const { kind, path, target } of plan.references) {
-        blockers[kind === 'archive' ? 'archives' : 'relationships'].push({
-          ...location,
-          path,
-          target,
-        })
+        const reference = { ...location, path, target }
+        if (kind === 'archive') blockers.archives.push(reference)
+        else if (collection === 'redirects' && path === 'to.reference') {
+          blockers.redirects.push(reference)
+        } else blockers.relationships.push(reference)
       }
       for (const change of plan.archiveChanges)
         changes.push({ collection, id: document._id, ...change })
     }
   }
 
-  for await (const { _id } of db
-    .collection<RawDocument>('redirects')
-    .find({ 'to.reference.relationTo': 'posts' }, { projection: { _id: 1 } })
-    .sort({ _id: 1 })) {
-    blockers.redirects.push({
-      collection: 'redirects',
-      id: String(_id),
-      path: 'to.reference',
-      target: 'posts',
-    })
-  }
   for await (const { _id, sourceCollection } of db
     .collection<RawDocument>('translations')
     .find({ sourceCollection: { $in: retired } }, { projection: { sourceCollection: 1 } })
@@ -234,11 +218,7 @@ export async function scanRemovePostsCategories(db: Database) {
     }
   }
 
-  const existing = new Set(
-    (
-      await db.listCollections({ name: { $in: retiredNamespaces } }, { nameOnly: true }).toArray()
-    ).map(({ name }) => name),
-  )
+  const existing = new Set(namespaces.map(({ name }) => name))
   const blockerCounts = {
     documents: blockers.documents.length,
     relationships: blockers.relationships.length,

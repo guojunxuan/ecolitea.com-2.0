@@ -72,9 +72,9 @@
 | 检查 | 范围 |
 |---|---|
 | 残留文档 | `posts`、`categories` 中的文档 |
-| 链接引用 | `pages`、`blogs`、`case-studies`、`products`、`product-categories`、`blog-categories` 及其 `_versions`，以及 `header`、`footer`、`settings`、`site-settings` globals 中所有 `relationTo` 为 `posts` 或 `categories` 的链接 / 关系值（含富文本内的 link / relationship 节点） |
+| 链接引用 | 从数据库发现现有集合，递归扫描原始文档，包括版本和所有 globals。逐项报告 `relationTo` 为 `posts` 或 `categories` 的对象及其集合、文档 ID 和点分路径，包括富文本 `fields.doc` 与 relationship 节点。引用扫描排除待移除集合及其版本，以及派生索引 `search` 和 `translation-search`。Archive 自身的旧 `posts` 集合选择器按 §4.2 处理。 |
 | Archive 区块 | `categories` 或 `selectedDocs` 非空且指向 `categories` / `posts` 的 Archive 区块 |
-| 重定向 | `redirects` 中指向 `posts` 的 reference |
+| 重定向 | `redirects` 中指向 `posts` 或 `categories` 的 `to.reference`，由同一递归扫描识别并单列 |
 | 翻译内容 | `translations` 中 `sourceCollection` 为 `posts` 或 `categories` 的记录 |
 
 ### 4.2 执行（仅在预检通过时）

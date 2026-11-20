@@ -75,7 +75,9 @@ describe('Remove Posts and Categories document planner', () => {
       'version.layout.0',
       'version.layout.1',
     ])
-    expect(plan.references).toEqual([])
+    expect(plan.references).toEqual([
+      { path: 'version.layout.4', target: 'posts', kind: 'relationship' },
+    ])
   })
 })
 
@@ -204,7 +206,7 @@ describe('Remove Posts and Categories MongoDB migration', () => {
         { collection: 'translations', id: 'post-en', path: 'sourceCollection', target: 'posts' },
       ],
     })
-    expect(report.blockers.relationships).toHaveLength(17)
+    expect(report.blockers.relationships).toHaveLength(18)
     expect(report.blockers.relationships).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
@@ -225,6 +227,13 @@ describe('Remove Posts and Categories MongoDB migration', () => {
           id: 'settings-version',
           path: 'version.link.reference',
         }),
+        {
+          collection: 'globals',
+          id: 'other',
+          globalType: 'other',
+          path: 'link.reference',
+          target: 'posts',
+        },
       ]),
     )
     expect(report.versions).toEqual({
@@ -237,6 +246,55 @@ describe('Remove Posts and Categories MongoDB migration', () => {
         orphaned: [{ id: 'orphan-category', parent: 'deleted' }],
       },
     })
+  })
+
+  it('blocks rich-text references in media captions, form confirmations, and their versions', async () => {
+    await collection('media').insertOne({
+      _id: 'photo',
+      caption: { root: { children: [{ type: 'link', fields: { doc: post } }] } },
+    })
+    await collection('_forms_versions').insertOne({
+      _id: 'form-version',
+      version: {
+        confirmationMessage: {
+          root: { children: [{ type: 'relationship', relationTo: 'categories' }] },
+        },
+      },
+    })
+    await collection('forms').insertOne({
+      _id: 'form',
+      confirmationMessage: {
+        root: { children: [{ type: 'link', fields: { doc: { relationTo: 'posts' } } }] },
+      },
+    })
+    await collection('search').insertOne({ _id: 'stale-search', doc: post })
+    await collection('translation-search').insertOne({ _id: 'stale-translation', doc: post })
+    const before = await readCollections()
+
+    const { report } = await scanRemovePostsCategories(db())
+    expect(report.blockerCounts.relationships).toBe(3)
+    expect(report.blockers.relationships).toEqual([
+      {
+        collection: '_forms_versions',
+        id: 'form-version',
+        path: 'version.confirmationMessage.root.children.0',
+        target: 'categories',
+      },
+      {
+        collection: 'forms',
+        id: 'form',
+        path: 'confirmationMessage.root.children.0.fields.doc',
+        target: 'posts',
+      },
+      {
+        collection: 'media',
+        id: 'photo',
+        path: 'caption.root.children.0.fields.doc',
+        target: 'posts',
+      },
+    ])
+    await expect(up(args())).rejects.toThrow(/blocked/i)
+    expect(await readCollections()).toEqual(before)
   })
 
   it('refuses an inactive Archive reference before any document update, index removal, or drop', async () => {
