@@ -13,10 +13,11 @@ afterAll(() => {
 })
 
 describe('Site Assets Collection', () => {
-  it('is a hidden native upload collection for supported brand file types', () => {
+  it('is a native upload collection under the Assets group for supported brand file types', () => {
     expect(SiteAssets.slug).toBe('site-assets')
     expect(SiteAssets.labels).toEqual({ singular: 'Site Asset', plural: 'Site Assets' })
-    expect(SiteAssets.admin?.hidden).toBe(true)
+    expect(SiteAssets.admin?.group).toBe('Assets')
+    expect(SiteAssets.admin?.hidden).not.toBe(true)
     expect(SiteAssets.access).toMatchObject({
       create: authenticated,
       delete: authenticated,

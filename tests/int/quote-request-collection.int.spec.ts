@@ -280,8 +280,8 @@ describe('quote-requests collection', () => {
 })
 
 describe('quote-requests admin presentation', () => {
-  it('is listed as Quote Requests in the Product admin group', () => {
-    expect(QuoteRequests.admin?.group).toBe('Product')
+  it('is listed as Quote Requests in the Products admin group', () => {
+    expect(QuoteRequests.admin?.group).toBe('Products')
     expect(QuoteRequests.labels).toEqual({ singular: 'Quote Request', plural: 'Quote Requests' })
   })
 })
