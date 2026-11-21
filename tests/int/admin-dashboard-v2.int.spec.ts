@@ -147,7 +147,7 @@ describe('getDashboardHeader', () => {
       siteName: 'Tea Studio',
       date: '21 Nov 2026',
       dateTime: '2026-11-21',
-      action: { href: '/admin/collections/blogs/create', label: 'New blog' },
+      action: { collection: 'blogs', href: '/admin/collections/blogs/create', label: 'New blog' },
     })
     expect(findGlobal).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({
       slug: 'site-settings', overrideAccess: false, select: { siteName: true }, req,
@@ -161,7 +161,7 @@ describe('getDashboardHeader', () => {
     expect(await getDashboardHeader(req, permissions(), now)).toEqual({ date: '20 Nov 2026', dateTime: '2026-11-20' })
     expect(await getDashboardHeader(req, permissions('products'), now)).toEqual({
       date: '20 Nov 2026', dateTime: '2026-11-20',
-      action: { href: '/admin/collections/products/create', label: 'New product' },
+      action: { collection: 'products', href: '/admin/collections/products/create', label: 'New product' },
     })
   })
 

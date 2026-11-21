@@ -10,6 +10,7 @@ export function getQuickActions(req: PayloadRequest, permissions: SanitizedPermi
   return actions
     .filter(({ collection }) => permissions.collections?.[collection]?.create)
     .map(({ collection, label }) => ({
+      collection,
       label,
       href: `${req.payload.config.routes.admin}/collections/${collection}/create`,
     }))

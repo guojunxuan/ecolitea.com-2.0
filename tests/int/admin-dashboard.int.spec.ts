@@ -86,7 +86,7 @@ describe('Admin dashboard queries', () => {
     const { req } = fixture('editor')
     expect(getQuickActions(req, {
       collections: { blogs: { fields: {}, read: true }, media: { fields: {}, create: true } },
-    })).toEqual([{ href: '/admin/collections/media/create', label: 'Upload media' }])
+    })).toEqual([{ collection: 'media', href: '/admin/collections/media/create', label: 'Upload media' }])
   })
 
   it('skips translation inventory when the site has no enabled target languages', async () => {

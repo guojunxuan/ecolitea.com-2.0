@@ -22,12 +22,17 @@ export async function RecentQuotes({ req }: WidgetServerProps) {
           {quotes.map((quote) => (
             <li key={quote.id}>
               <Link href={`${base}/${encodeURIComponent(quote.id)}`} className={styles.quote}>
-                <span>
-                  <strong>{quote.name}</strong>{' '}
-                  <span className={styles.chip} data-status={quote.status}>{statusLabels[quote.status]}</span>
+                <span className={styles.avatar} data-status={quote.status} aria-hidden="true">
+                  {Array.from(quote.name.trim())[0]?.toLocaleUpperCase('en')}
+                </span>
+                <span className={styles.quoteBody}>
+                  <strong>{quote.name}</strong>
                   <span className={styles.detail}>{[quote.company, quote.product].filter(Boolean).join(' · ')}</span>
                 </span>
-                <time className={styles.detail} dateTime={quote.createdAt}>{quote.relativeTime}</time>
+                <span className={styles.quoteMeta}>
+                  <span className={styles.chip} data-status={quote.status}>{statusLabels[quote.status]}</span>
+                  <time className={styles.detail} dateTime={quote.createdAt}>{quote.relativeTime}</time>
+                </span>
               </Link>
             </li>
           ))}

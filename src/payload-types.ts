@@ -423,9 +423,12 @@ export interface Config {
   };
   locale: null;
   widgets: {
+    'dashboard-header': DashboardHeaderWidget;
     'site-setup': SiteSetupWidget;
     overview: OverviewWidget;
     'recent-quotes': RecentQuotesWidget;
+    translations: TranslationsWidget;
+    'content-activity': ContentActivityWidget;
     'system-status': SystemStatusWidget;
     'quick-actions': QuickActionsWidget;
     welcome: WelcomeWidget;
@@ -4139,6 +4142,16 @@ export interface PayloadJobsStatsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "dashboard-header_widget".
+ */
+export interface DashboardHeaderWidget {
+  data?: {
+    [k: string]: unknown;
+  };
+  width: 'x-small' | 'small' | 'medium' | 'large' | 'x-large' | 'full';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "site-setup_widget".
  */
 export interface SiteSetupWidget {
@@ -4162,6 +4175,26 @@ export interface OverviewWidget {
  * via the `definition` "recent-quotes_widget".
  */
 export interface RecentQuotesWidget {
+  data?: {
+    [k: string]: unknown;
+  };
+  width: 'x-small' | 'small' | 'medium' | 'large' | 'x-large' | 'full';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "translations_widget".
+ */
+export interface TranslationsWidget {
+  data?: {
+    [k: string]: unknown;
+  };
+  width: 'x-small' | 'small' | 'medium' | 'large' | 'x-large' | 'full';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "content-activity_widget".
+ */
+export interface ContentActivityWidget {
   data?: {
     [k: string]: unknown;
   };

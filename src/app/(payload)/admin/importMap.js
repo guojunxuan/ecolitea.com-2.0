@@ -71,9 +71,12 @@ import { ThemeStyles as ThemeStyles_4fa6e6c79de32d13956c982c18e67f7f } from '@/p
 import { EnhancedLayoutStyles as EnhancedLayoutStyles_dcfdf3711b1e36436fffbae60c1577f5 } from '@/plugins/adminTheme/EnhancedLayoutStyles'
 import { FolderIcon as FolderIcon_3817bf644402e67bfe6577f60ef982de } from '@payloadcms/ui'
 import { HierarchySidebarTabServer as HierarchySidebarTabServer_ab83ff7e88da8d3530831f296ec4756a } from '@payloadcms/ui/rsc'
+import { DashboardHeader as DashboardHeader_cc1afd540bd18280e5cdf1e196466d23 } from '@/plugins/adminTheme/dashboard/DashboardHeader'
 import { SiteSetup as SiteSetup_8ff79254b3ce1c97d64d814ad289ee27 } from '@/plugins/adminTheme/dashboard/SiteSetup'
 import { Overview as Overview_5d599782e9ae147469781aaf973bee72 } from '@/plugins/adminTheme/dashboard/Overview'
 import { RecentQuotes as RecentQuotes_c80633ef38452dfc75c5a59842abace7 } from '@/plugins/adminTheme/dashboard/RecentQuotes'
+import { Translations as Translations_032b91c20f86cbf9fcf6e299cf119b27 } from '@/plugins/adminTheme/dashboard/Translations'
+import { ContentActivity as ContentActivity_15ced7d29bd95162854eda8900cdf364 } from '@/plugins/adminTheme/dashboard/ContentActivity'
 import { SystemStatus as SystemStatus_7cefcec040a19adf936a23cf50afff66 } from '@/plugins/adminTheme/dashboard/SystemStatus'
 import { QuickActions as QuickActions_e28178a3e7da7c85e4569888554c9dc5 } from '@/plugins/adminTheme/dashboard/QuickActions'
 import { WelcomeWidget as WelcomeWidget_ab83ff7e88da8d3530831f296ec4756a } from '@payloadcms/ui/rsc'
@@ -161,9 +164,12 @@ export const importMap = {
   "@/plugins/adminTheme/EnhancedLayoutStyles#EnhancedLayoutStyles": EnhancedLayoutStyles_dcfdf3711b1e36436fffbae60c1577f5,
   "@payloadcms/ui#FolderIcon": FolderIcon_3817bf644402e67bfe6577f60ef982de,
   "@payloadcms/ui/rsc#HierarchySidebarTabServer": HierarchySidebarTabServer_ab83ff7e88da8d3530831f296ec4756a,
+  "@/plugins/adminTheme/dashboard/DashboardHeader#DashboardHeader": DashboardHeader_cc1afd540bd18280e5cdf1e196466d23,
   "@/plugins/adminTheme/dashboard/SiteSetup#SiteSetup": SiteSetup_8ff79254b3ce1c97d64d814ad289ee27,
   "@/plugins/adminTheme/dashboard/Overview#Overview": Overview_5d599782e9ae147469781aaf973bee72,
   "@/plugins/adminTheme/dashboard/RecentQuotes#RecentQuotes": RecentQuotes_c80633ef38452dfc75c5a59842abace7,
+  "@/plugins/adminTheme/dashboard/Translations#Translations": Translations_032b91c20f86cbf9fcf6e299cf119b27,
+  "@/plugins/adminTheme/dashboard/ContentActivity#ContentActivity": ContentActivity_15ced7d29bd95162854eda8900cdf364,
   "@/plugins/adminTheme/dashboard/SystemStatus#SystemStatus": SystemStatus_7cefcec040a19adf936a23cf50afff66,
   "@/plugins/adminTheme/dashboard/QuickActions#QuickActions": QuickActions_e28178a3e7da7c85e4569888554c9dc5,
   "@payloadcms/ui/rsc#WelcomeWidget": WelcomeWidget_ab83ff7e88da8d3530831f296ec4756a,

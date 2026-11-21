@@ -1,5 +1,6 @@
 import type { WidgetServerProps } from 'payload'
 import { getOverview } from './getOverview'
+import { DocumentIcon, GlobeIcon, MailIcon, ProductIcon } from './icons'
 import styles from './Dashboard.module.css'
 
 export async function Overview({ req }: WidgetServerProps) {
@@ -10,27 +11,39 @@ export async function Overview({ req }: WidgetServerProps) {
   return (
     <section aria-label="Overview">
       {overview ? (
-        <dl className={styles.metrics}>
-          <div className={styles.metric}>
-            <dt>Published products</dt>
-            <dd className={styles.metricSuccess}>{number.format(overview.published)}</dd>
-            <dd className={styles.detail}>{number.format(overview.drafts)} drafts</dd>
-          </div>
-          <div className={styles.metric}>
-            <dt>New quote requests</dt>
-            <dd className={overview.quotes > 0 ? styles.metricWarning : undefined}>
-              {number.format(overview.quotes)}
-            </dd>
-          </div>
-          <div className={styles.metric}>
-            <dt>Blog posts</dt>
-            <dd>{number.format(overview.blogs)}</dd>
-          </div>
-          <div className={styles.metric}>
-            <dt>Enabled languages</dt>
-            <dd className={styles.metricBrand}>{number.format(overview.languages)}</dd>
-          </div>
-        </dl>
+        <ul className={styles.metrics}>
+          <li className={styles.metric}>
+            <span className={styles.tile} data-tone="success"><ProductIcon /></span>
+            <div>
+              <p className={styles.metricLabel}>Published products</p>
+              <p className={`${styles.metricValue} ${styles.metricSuccess}`}>{number.format(overview.published)}</p>
+              <p className={styles.detail}>{number.format(overview.drafts)} drafts</p>
+            </div>
+          </li>
+          <li className={styles.metric}>
+            <span className={styles.tile} data-tone="warning"><MailIcon /></span>
+            <div>
+              <p className={styles.metricLabel}>New quote requests</p>
+              <p className={`${styles.metricValue} ${overview.quotes > 0 ? styles.metricWarning : ''}`}>
+                {number.format(overview.quotes)}
+              </p>
+            </div>
+          </li>
+          <li className={styles.metric}>
+            <span className={styles.tile} data-tone="component"><DocumentIcon /></span>
+            <div>
+              <p className={styles.metricLabel}>Blog posts</p>
+              <p className={styles.metricValue}>{number.format(overview.blogs)}</p>
+            </div>
+          </li>
+          <li className={styles.metric}>
+            <span className={styles.tile} data-tone="brand"><GlobeIcon /></span>
+            <div>
+              <p className={styles.metricLabel}>Enabled languages</p>
+              <p className={`${styles.metricValue} ${styles.metricBrand}`}>{number.format(overview.languages)}</p>
+            </div>
+          </li>
+        </ul>
       ) : <p className={styles.card}>Unavailable</p>}
     </section>
   )
