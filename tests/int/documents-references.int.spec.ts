@@ -336,7 +336,9 @@ describe('Documents protection through the real Payload API', () => {
                     headers.get('x-test-user') === 'fixture'
                       ? {
                           user: {
-                            id: 'fixture-user',
+                            // Payload 4 stores the signed-in user in authorship fields, so the id must be
+                            // a valid ObjectId for the Mongo adapter.
+                            id: '6a0000000000000000000001',
                             collection: 'users',
                             role: 'editor',
                             email: 'fixture@example.invalid',

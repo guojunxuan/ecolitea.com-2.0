@@ -1373,7 +1373,13 @@ describe('Products through isolated Payload Local API', () => {
       req,
       overrideAccess: true,
     })
-    expect(req.context).toStrictEqual(originalContext)
+    // Payload 4 authorship writes its own bookkeeping keys into the context of every create/update.
+    const payloadContextKeys = new Set(['_isNewDoc', '_submittedAuthorshipFields'])
+    expect(
+      Object.fromEntries(
+        Object.entries(req.context).filter(([key]) => !payloadContextKeys.has(key)),
+      ),
+    ).toStrictEqual(originalContext)
     expect(req.context).not.toHaveProperty('setDerivedCategorySlug')
     expect(req.context).not.toHaveProperty('disableRevalidate')
     expect(updateSpy).toHaveBeenCalledWith(

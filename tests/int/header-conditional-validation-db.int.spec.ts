@@ -26,6 +26,9 @@ describe('Header conditional validation through the Payload Local API', () => {
         ...(['pages', 'case-studies', 'blogs', 'blog-categories'] as const).map(relatedCollection),
         {
           slug: 'media',
+          // Public read like the real Media collection. Payload 4 validates the image relationship's
+          // filterOptions by reading the related document with access control and no user.
+          access: { read: () => true },
           fields: [{ name: 'mimeType', type: 'text' }],
         },
       ],

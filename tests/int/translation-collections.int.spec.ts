@@ -128,8 +128,11 @@ describe('translation collections (isolated MongoDB)', () => {
         } as never),
       ).toBe(false)
     }
+    // Payload adds the timestamps and (Payload 4) the authorship fields when it sanitizes the config.
     const declaredFields = translations.fields.filter(
-      (field) => 'name' in field && !['id', 'createdAt', 'updatedAt'].includes(field.name),
+      (field) =>
+        'name' in field &&
+        !['id', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy'].includes(field.name),
     )
     expect(
       declaredFields.every(
