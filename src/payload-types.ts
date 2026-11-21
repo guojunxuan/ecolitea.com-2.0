@@ -8,6 +8,83 @@
 
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "UploadTransforms".
+ */
+export type UploadTransforms = {
+  /**
+   * Time range on the original, in milliseconds. Start inclusive, end exclusive.
+   */
+  clip?: {
+    endMs: number;
+    startMs: number;
+  };
+  /**
+   * Rectangle in original-file pixels, applied before resize and encoding.
+   */
+  crop?: {
+    height: number;
+    width: number;
+    x: number;
+    y: number;
+  };
+  /**
+   * Encoding settings for the output format. Does not select the format.
+   */
+  encoding?: {
+    [k: string]: unknown;
+  };
+  /**
+   * Mirror the image on one or both axes.
+   */
+  flip?: {
+    horizontal?: boolean;
+    vertical?: boolean;
+  };
+  /**
+   * Preferred point as percentages of the original, from 0 to 100.
+   */
+  focalPoint?: {
+    x: number;
+    y: number;
+  };
+  /**
+   * Keep or remove metadata embedded in the output file.
+   */
+  metadataPolicy?: {
+    mode: 'preserve' | 'strip';
+  };
+  /**
+   * One-based, inclusive page range on the original document.
+   */
+  pageRange?: {
+    endPage: number;
+    startPage: number;
+  };
+  /**
+   * Video frame to use as the poster, in milliseconds on the original.
+   */
+  posterFrame?: {
+    timestampMs: number;
+  };
+  /**
+   * Target size for visual media.
+   */
+  resize?: {
+    fit?: 'contain' | 'cover' | 'fill' | 'inside' | 'outside';
+    height?: number;
+    width?: number;
+    withoutEnlargement?: boolean;
+  };
+  /**
+   * Clockwise rotation in degrees.
+   */
+  rotate?: {
+    angle: number;
+  };
+  [k: string]: unknown;
+} | null;
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "HeaderNavItem".
  */
 export type HeaderNavItem =
@@ -156,94 +233,106 @@ export type SupportedTimezones =
   | 'Pacific/Fiji';
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "LexicalNodes_47D10C91".
+ * via the `definition` "LexicalNodes_4CF76457".
  */
-export type LexicalNodes_47D10C91 =
+export type LexicalNodes_4CF76457 =
   | SerializedTextNode
   | SerializedTabNode
   | SerializedLineBreakNode
-  | SerializedParagraphNode<LexicalNodes_47D10C91>
-  | SerializedAutoLinkNode<LexicalNodes_47D10C91, LexicalLinkFields>
-  | SerializedLinkNode<LexicalNodes_47D10C91, LexicalLinkFields>
-  | SerializedListNode<LexicalNodes_47D10C91>
-  | SerializedListItemNode<LexicalNodes_47D10C91>;
+  | SerializedParagraphNode<LexicalNodes_4CF76457>
+  | SerializedAutoLinkNode<LexicalNodes_4CF76457, LexicalLinkFields>
+  | SerializedLinkNode<LexicalNodes_4CF76457, LexicalLinkFields>
+  | SerializedListNode<LexicalNodes_4CF76457>
+  | SerializedListItemNode<LexicalNodes_4CF76457>;
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "LexicalNodes_B17D0A84".
+ * via the `definition` "LexicalNodes_3269E529".
  */
-export type LexicalNodes_B17D0A84 =
+export type LexicalNodes_3269E529 =
   | SerializedTextNode
   | SerializedTabNode
   | SerializedLineBreakNode
-  | SerializedParagraphNode<LexicalNodes_B17D0A84>
-  | SerializedHeadingNode<LexicalNodes_B17D0A84, 'h1' | 'h2' | 'h3' | 'h4'>
-  | SerializedAutoLinkNode<LexicalNodes_B17D0A84, LexicalLinkFields>
-  | SerializedLinkNode<LexicalNodes_B17D0A84, LexicalLinkFields>
-  | SerializedListNode<LexicalNodes_B17D0A84>
-  | SerializedListItemNode<LexicalNodes_B17D0A84>
-  | SerializedTableNode<LexicalNodes_B17D0A84>
-  | SerializedTableCellNode<LexicalNodes_B17D0A84>
-  | SerializedTableRowNode<LexicalNodes_B17D0A84>
+  | SerializedParagraphNode<LexicalNodes_3269E529>
+  | SerializedHeadingNode<LexicalNodes_3269E529, 'h1' | 'h2' | 'h3' | 'h4'>
+  | SerializedAutoLinkNode<LexicalNodes_3269E529, LexicalLinkFields>
+  | SerializedLinkNode<LexicalNodes_3269E529, LexicalLinkFields>
+  | SerializedListNode<LexicalNodes_3269E529>
+  | SerializedListItemNode<LexicalNodes_3269E529>
+  | SerializedTableNode<LexicalNodes_3269E529>
+  | SerializedTableCellNode<LexicalNodes_3269E529>
+  | SerializedTableRowNode<LexicalNodes_3269E529>
   | SerializedHorizontalRuleNode
-  | SerializedQuoteNode<LexicalNodes_B17D0A84>;
+  | SerializedQuoteNode<LexicalNodes_3269E529>;
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "LexicalNodes_67D0DA17".
+ * via the `definition` "LexicalNodes_7EA6EE45".
  */
-export type LexicalNodes_67D0DA17 =
+export type LexicalNodes_7EA6EE45 =
   | SerializedTextNode
   | SerializedTabNode
   | SerializedLineBreakNode
-  | SerializedParagraphNode<LexicalNodes_67D0DA17>
-  | SerializedHeadingNode<LexicalNodes_67D0DA17, 'h2' | 'h3' | 'h4'>
-  | SerializedAutoLinkNode<LexicalNodes_67D0DA17, LexicalLinkFields>
-  | SerializedLinkNode<LexicalNodes_67D0DA17, LexicalLinkFields>
-  | SerializedListNode<LexicalNodes_67D0DA17>
-  | SerializedListItemNode<LexicalNodes_67D0DA17>
-  | SerializedTableNode<LexicalNodes_67D0DA17>
-  | SerializedTableCellNode<LexicalNodes_67D0DA17>
-  | SerializedTableRowNode<LexicalNodes_67D0DA17>
+  | SerializedParagraphNode<LexicalNodes_7EA6EE45>
+  | SerializedHeadingNode<LexicalNodes_7EA6EE45, 'h2' | 'h3' | 'h4'>
+  | SerializedAutoLinkNode<LexicalNodes_7EA6EE45, LexicalLinkFields>
+  | SerializedLinkNode<LexicalNodes_7EA6EE45, LexicalLinkFields>
+  | SerializedListNode<LexicalNodes_7EA6EE45>
+  | SerializedListItemNode<LexicalNodes_7EA6EE45>
+  | SerializedTableNode<LexicalNodes_7EA6EE45>
+  | SerializedTableCellNode<LexicalNodes_7EA6EE45>
+  | SerializedTableRowNode<LexicalNodes_7EA6EE45>
   | SerializedHorizontalRuleNode
-  | SerializedQuoteNode<LexicalNodes_67D0DA17>;
+  | SerializedQuoteNode<LexicalNodes_7EA6EE45>;
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "LexicalNodes_C71AFECE".
+ * via the `definition` "LexicalNodes_8DB4158C".
  */
-export type LexicalNodes_C71AFECE =
+export type LexicalNodes_8DB4158C =
   | SerializedTextNode
   | SerializedTabNode
   | SerializedLineBreakNode
-  | SerializedParagraphNode<LexicalNodes_C71AFECE>
+  | SerializedParagraphNode<LexicalNodes_8DB4158C>
   | SerializedBlockNode<BlogMediaBlock | BlogKeyTakeawaysBlock | BlogCallToActionBlock | BlogBannerBlock>
-  | SerializedAutoLinkNode<LexicalNodes_C71AFECE, LexicalLinkFields>
-  | SerializedLinkNode<LexicalNodes_C71AFECE, LexicalLinkFields>
-  | SerializedListNode<LexicalNodes_C71AFECE>
-  | SerializedListItemNode<LexicalNodes_C71AFECE>
-  | SerializedTableNode<LexicalNodes_C71AFECE>
-  | SerializedTableCellNode<LexicalNodes_C71AFECE>
-  | SerializedTableRowNode<LexicalNodes_C71AFECE>
+  | SerializedAutoLinkNode<LexicalNodes_8DB4158C, LexicalLinkFields>
+  | SerializedLinkNode<LexicalNodes_8DB4158C, LexicalLinkFields>
+  | SerializedListNode<LexicalNodes_8DB4158C>
+  | SerializedListItemNode<LexicalNodes_8DB4158C>
+  | SerializedTableNode<LexicalNodes_8DB4158C>
+  | SerializedTableCellNode<LexicalNodes_8DB4158C>
+  | SerializedTableRowNode<LexicalNodes_8DB4158C>
   | SerializedHorizontalRuleNode
-  | SerializedQuoteNode<LexicalNodes_C71AFECE>
-  | SerializedHeadingNode<LexicalNodes_C71AFECE, 'h2' | 'h3' | 'h4'>;
+  | SerializedQuoteNode<LexicalNodes_8DB4158C>
+  | SerializedHeadingNode<LexicalNodes_8DB4158C, 'h2' | 'h3' | 'h4'>;
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "LexicalNodes_46081D0A".
+ * via the `definition` "LexicalNodes_D7E310CB".
  */
-export type LexicalNodes_46081D0A =
+export type LexicalNodes_D7E310CB =
   | SerializedTextNode
   | SerializedTabNode
   | SerializedLineBreakNode
-  | SerializedParagraphNode<LexicalNodes_46081D0A>
-  | SerializedAutoLinkNode<LexicalNodes_46081D0A, LexicalLinkFields>
-  | SerializedLinkNode<LexicalNodes_46081D0A, LexicalLinkFields>
-  | SerializedListNode<LexicalNodes_46081D0A>
-  | SerializedListItemNode<LexicalNodes_46081D0A>
-  | SerializedTableNode<LexicalNodes_46081D0A>
-  | SerializedTableCellNode<LexicalNodes_46081D0A>
-  | SerializedTableRowNode<LexicalNodes_46081D0A>
+  | SerializedParagraphNode<LexicalNodes_D7E310CB>
+  | SerializedAutoLinkNode<LexicalNodes_D7E310CB, LexicalLinkFields>
+  | SerializedLinkNode<LexicalNodes_D7E310CB, LexicalLinkFields>
+  | SerializedListNode<LexicalNodes_D7E310CB>
+  | SerializedListItemNode<LexicalNodes_D7E310CB>
+  | SerializedTableNode<LexicalNodes_D7E310CB>
+  | SerializedTableCellNode<LexicalNodes_D7E310CB>
+  | SerializedTableRowNode<LexicalNodes_D7E310CB>
   | SerializedHorizontalRuleNode
-  | SerializedQuoteNode<LexicalNodes_46081D0A>
-  | SerializedHeadingNode<LexicalNodes_46081D0A, 'h2' | 'h3' | 'h4'>;
+  | SerializedQuoteNode<LexicalNodes_D7E310CB>
+  | SerializedHeadingNode<LexicalNodes_D7E310CB, 'h2' | 'h3' | 'h4'>;
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "LexicalNodes_3DE324E4".
+ */
+export type LexicalNodes_3DE324E4 =
+  | SerializedTextNode
+  | SerializedTabNode
+  | SerializedLineBreakNode
+  | SerializedParagraphNode<LexicalNodes_3DE324E4>
+  | SerializedListNode<LexicalNodes_3DE324E4>
+  | SerializedListItemNode<LexicalNodes_3DE324E4>
+  | SerializedHeadingNode<LexicalNodes_3DE324E4, 'h2' | 'h3' | 'h4'>;
 
 export interface Config {
   auth: {
@@ -275,6 +364,7 @@ export interface Config {
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
+    'payload-llm-instructions': PayloadLlmInstruction;
   };
   collectionsJoins: {
     'product-categories': {
@@ -309,6 +399,7 @@ export interface Config {
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
     'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
+    'payload-llm-instructions': PayloadLlmInstructionsSelect<false> | PayloadLlmInstructionsSelect<true>;
   };
   db: {
     defaultIDType: string;
@@ -337,9 +428,11 @@ export interface Config {
     'recent-quotes': RecentQuotesWidget;
     'system-status': SystemStatusWidget;
     'quick-actions': QuickActionsWidget;
+    welcome: WelcomeWidget;
     collections: CollectionsWidget;
     'collection-query': CollectionQueryWidget;
     activity: ActivityWidget;
+    'upload-dropzone': UploadDropzoneWidget;
   };
   user: User;
   jobs: {
@@ -443,6 +536,14 @@ export interface Product {
   categorySlug?: string | null;
   publishedAt?: string | null;
   relatedProducts?: (string | Product)[] | null;
+  createdBy?: {
+    relationTo: 'users';
+    value: string | User;
+  } | null;
+  updatedBy?: {
+    relationTo: 'users';
+    value: string | User;
+  } | null;
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
@@ -463,8 +564,17 @@ export interface Media {
   /**
    * Default caption shown when this media is used in a Media block. A caption set on the block overrides it.
    */
-  caption?: LexicalRichText<LexicalNodes_46081D0A> | null;
+  caption?: LexicalRichText<LexicalNodes_D7E310CB> | null;
   prefix?: string | null;
+  _objectKey?: string | null;
+  createdBy?: {
+    relationTo: 'users';
+    value: string | User;
+  } | null;
+  updatedBy?: {
+    relationTo: 'users';
+    value: string | User;
+  } | null;
   createdAt: string;
   url?: string | null;
   thumbnailURL?: string | null;
@@ -473,6 +583,19 @@ export interface Media {
   filesize?: number | null;
   width?: number | null;
   height?: number | null;
+  _stored?: boolean | null;
+  _transforms?: UploadTransforms;
+  original?: {
+    filename?: string | null;
+    url?: string | null;
+    mimeType?: string | null;
+    filesize?: number | null;
+    width?: number | null;
+    height?: number | null;
+    prefix?: string | null;
+    _objectKey?: string | null;
+    _stored?: boolean | null;
+  };
   focalX?: number | null;
   focalY?: number | null;
 }
@@ -484,10 +607,67 @@ export interface Folder {
   id: string;
   _h_folders?: (string | null) | Folder;
   name: string;
+  createdBy?: {
+    relationTo: 'users';
+    value: string | User;
+  } | null;
+  updatedBy?: {
+    relationTo: 'users';
+    value: string | User;
+  } | null;
   updatedAt: string;
   createdAt: string;
   _h_slugPath?: string | null;
   _h_titlePath?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "users".
+ */
+export interface User {
+  id: string;
+  role: 'admin' | 'editor';
+  name?: string | null;
+  createdBy?: {
+    relationTo: 'users';
+    value: string | User;
+  } | null;
+  updatedBy?: {
+    relationTo: 'users';
+    value: string | User;
+  } | null;
+  updatedAt: string;
+  createdAt: string;
+  email: string;
+  resetPasswordToken?: string | null;
+  resetPasswordExpiration?: string | null;
+  salt?: string | null;
+  hash?: string | null;
+  resetPasswordRequestedAt?: string | null;
+  loginAttempts?: number | null;
+  lockUntil?: string | null;
+  sessions?:
+    | {
+        id: string;
+        createdAt?: string | null;
+        expiresAt: string;
+        refreshCount?: number | null;
+        refreshedAt?: string | null;
+        label?: string | null;
+        type?: string | null;
+        metadata?:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+      }[]
+    | null;
+  password?: string | null;
+  collection: 'users';
 }
 /**
  * Documents: PDF (.pdf), Word (.docx), Excel (.xlsx), PowerPoint (.pptx); maximum 10 MB. Legacy Office formats and documents with macros are not allowed.
@@ -508,6 +688,15 @@ export interface Document {
   _h_folders?: (string | null) | Folder;
   updatedAt?: string | null;
   prefix?: string | null;
+  _objectKey?: string | null;
+  createdBy?: {
+    relationTo: 'users';
+    value: string | User;
+  } | null;
+  updatedBy?: {
+    relationTo: 'users';
+    value: string | User;
+  } | null;
   createdAt: string;
   url?: string | null;
   thumbnailURL?: string | null;
@@ -516,6 +705,19 @@ export interface Document {
   filesize?: number | null;
   width?: number | null;
   height?: number | null;
+  _stored?: boolean | null;
+  _transforms?: UploadTransforms;
+  original?: {
+    filename?: string | null;
+    url?: string | null;
+    mimeType?: string | null;
+    filesize?: number | null;
+    width?: number | null;
+    height?: number | null;
+    prefix?: string | null;
+    _objectKey?: string | null;
+    _stored?: boolean | null;
+  };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -592,7 +794,7 @@ export interface ProductMediaAccordionBlock {
   items?:
     | {
         title: string;
-        body?: LexicalRichText<LexicalNodes_47D10C91> | null;
+        body?: LexicalRichText<LexicalNodes_4CF76457> | null;
         media: string | Media;
         /**
          * Video only. Ambient plays muted on loop; Player shows controls. Ignored for images and GIFs.
@@ -613,7 +815,7 @@ export interface ProductMediaAccordionBlock {
  */
 export interface ProductMediaTextBlock {
   title: string;
-  body?: LexicalRichText<LexicalNodes_47D10C91> | null;
+  body?: LexicalRichText<LexicalNodes_4CF76457> | null;
   media: string | Media;
   /**
    * Video only. Ambient plays muted on loop; Player shows controls. Ignored for images and GIFs.
@@ -684,6 +886,14 @@ export interface ProductCategory {
     hasNextPage?: boolean;
     totalDocs?: number;
   };
+  createdBy?: {
+    relationTo: 'users';
+    value: string | User;
+  } | null;
+  updatedBy?: {
+    relationTo: 'users';
+    value: string | User;
+  } | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -712,6 +922,14 @@ export interface QuoteRequest {
    * Salted hash used only for rate limiting.
    */
   ipHash?: string | null;
+  createdBy?: {
+    relationTo: 'users';
+    value: string | User;
+  } | null;
+  updatedBy?: {
+    relationTo: 'users';
+    value: string | User;
+  } | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -725,7 +943,7 @@ export interface Page {
   hero: {
     type: 'none' | 'highImpact' | 'mediumImpact' | 'lowImpact';
     headerTheme: 'light' | 'dark';
-    richText?: LexicalRichText<LexicalNodes_B17D0A84> | null;
+    richText?: LexicalRichText<LexicalNodes_3269E529> | null;
     links?:
       | {
           link: {
@@ -763,6 +981,14 @@ export interface Page {
   };
   publishedAt?: string | null;
   slug: string;
+  createdBy?: {
+    relationTo: 'users';
+    value: string | User;
+  } | null;
+  updatedBy?: {
+    relationTo: 'users';
+    value: string | User;
+  } | null;
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
@@ -776,7 +1002,7 @@ export interface Blog {
   title: string;
   heroImage: string | Media;
   excerpt: string;
-  content: LexicalRichText<LexicalNodes_C71AFECE>;
+  content: LexicalRichText<LexicalNodes_8DB4158C>;
   meta?: {
     title?: string | null;
     /**
@@ -796,6 +1022,14 @@ export interface Blog {
       }[]
     | null;
   relatedBlogs?: (string | Blog)[] | null;
+  createdBy?: {
+    relationTo: 'users';
+    value: string | User;
+  } | null;
+  updatedBy?: {
+    relationTo: 'users';
+    value: string | User;
+  } | null;
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
@@ -823,35 +1057,16 @@ export interface BlogCategory {
     hasNextPage?: boolean;
     totalDocs?: number;
   };
+  createdBy?: {
+    relationTo: 'users';
+    value: string | User;
+  } | null;
+  updatedBy?: {
+    relationTo: 'users';
+    value: string | User;
+  } | null;
   updatedAt: string;
   createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "users".
- */
-export interface User {
-  id: string;
-  role: 'admin' | 'editor';
-  name?: string | null;
-  updatedAt: string;
-  createdAt: string;
-  email: string;
-  resetPasswordToken?: string | null;
-  resetPasswordExpiration?: string | null;
-  salt?: string | null;
-  hash?: string | null;
-  loginAttempts?: number | null;
-  lockUntil?: string | null;
-  sessions?:
-    | {
-        id: string;
-        createdAt?: string | null;
-        expiresAt: string;
-      }[]
-    | null;
-  password?: string | null;
-  collection: 'users';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -862,7 +1077,7 @@ export interface PageCallToActionBlock {
    * Guide readers to a product, contact page, or download with a title, description, and links.
    */
   heading: string;
-  description?: LexicalRichText<LexicalNodes_47D10C91> | null;
+  description?: LexicalRichText<LexicalNodes_4CF76457> | null;
   media?: (string | null) | Media;
   links?:
     | {
@@ -901,7 +1116,7 @@ export interface PageContentBlock {
   columns?:
     | {
         size?: ('oneThird' | 'half' | 'twoThirds' | 'full') | null;
-        richText?: LexicalRichText<LexicalNodes_67D0DA17> | null;
+        richText?: LexicalRichText<LexicalNodes_7EA6EE45> | null;
         enableLink?: boolean | null;
         link?: {
           type?: ('reference' | 'custom') | null;
@@ -938,7 +1153,7 @@ export interface PageMediaBlock {
   /**
    * Overrides the media's default caption for this block only.
    */
-  caption?: LexicalRichText<LexicalNodes_47D10C91> | null;
+  caption?: LexicalRichText<LexicalNodes_4CF76457> | null;
   /**
    * Original keeps the media proportions. Other ratios crop the image or video to fill the frame.
    */
@@ -954,7 +1169,7 @@ export interface PageMediaBlock {
  * via the `definition` "PageArchiveBlock".
  */
 export interface PageArchiveBlock {
-  introContent?: LexicalRichText<LexicalNodes_B17D0A84> | null;
+  introContent?: LexicalRichText<LexicalNodes_3269E529> | null;
   populateBy?: ('collection' | 'selection') | null;
   relationTo?: 'blogs' | null;
   categories?: (string | BlogCategory)[] | null;
@@ -976,7 +1191,7 @@ export interface PageArchiveBlock {
 export interface PageFormBlock {
   form: string | Form;
   enableIntro?: boolean | null;
-  introContent?: LexicalRichText<LexicalNodes_B17D0A84> | null;
+  introContent?: LexicalRichText<LexicalNodes_3269E529> | null;
   id?: string | null;
   blockName?: string | null;
   blockType: 'pageFormBlock';
@@ -991,7 +1206,7 @@ export interface Form {
   fields?: (Checkbox | Country | Email | Message | Number | Select | State | Text | Textarea)[] | null;
   submitButtonLabel?: string | null;
   confirmationType?: ('message' | 'redirect') | null;
-  confirmationMessage?: LexicalRichText<LexicalNodes_B17D0A84>;
+  confirmationMessage?: LexicalRichText<LexicalNodes_3269E529>;
   redirect?: {
     url: string;
   };
@@ -1003,10 +1218,18 @@ export interface Form {
         replyTo?: string | null;
         emailFrom?: string | null;
         subject: string;
-        message?: LexicalRichText<LexicalNodes_46081D0A> | null;
+        message?: LexicalRichText<LexicalNodes_D7E310CB> | null;
         id?: string | null;
       }[]
     | null;
+  createdBy?: {
+    relationTo: 'users';
+    value: string | User;
+  } | null;
+  updatedBy?: {
+    relationTo: 'users';
+    value: string | User;
+  } | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -1055,7 +1278,7 @@ export interface Email {
  * via the `definition` "Message".
  */
 export interface Message {
-  message?: LexicalRichText<LexicalNodes_46081D0A> | null;
+  message?: LexicalRichText<LexicalNodes_D7E310CB> | null;
   id?: string | null;
   blockName?: string | null;
   blockType: 'message';
@@ -1147,7 +1370,7 @@ export interface CaseStudy {
   hero: {
     type: 'none' | 'highImpact' | 'mediumImpact' | 'lowImpact';
     headerTheme: 'light' | 'dark';
-    richText?: LexicalRichText<LexicalNodes_B17D0A84> | null;
+    richText?: LexicalRichText<LexicalNodes_3269E529> | null;
     links?:
       | {
           link: {
@@ -1185,6 +1408,14 @@ export interface CaseStudy {
   };
   publishedAt?: string | null;
   slug: string;
+  createdBy?: {
+    relationTo: 'users';
+    value: string | User;
+  } | null;
+  updatedBy?: {
+    relationTo: 'users';
+    value: string | User;
+  } | null;
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
@@ -1198,7 +1429,7 @@ export interface CaseStudyCallToActionBlock {
    * Guide readers to a product, contact page, or download with a title, description, and links.
    */
   heading: string;
-  description?: LexicalRichText<LexicalNodes_47D10C91> | null;
+  description?: LexicalRichText<LexicalNodes_4CF76457> | null;
   media?: (string | null) | Media;
   links?:
     | {
@@ -1237,7 +1468,7 @@ export interface CaseStudyContentBlock {
   columns?:
     | {
         size?: ('oneThird' | 'half' | 'twoThirds' | 'full') | null;
-        richText?: LexicalRichText<LexicalNodes_67D0DA17> | null;
+        richText?: LexicalRichText<LexicalNodes_7EA6EE45> | null;
         enableLink?: boolean | null;
         link?: {
           type?: ('reference' | 'custom') | null;
@@ -1274,7 +1505,7 @@ export interface CaseStudyMediaBlock {
   /**
    * Overrides the media's default caption for this block only.
    */
-  caption?: LexicalRichText<LexicalNodes_47D10C91> | null;
+  caption?: LexicalRichText<LexicalNodes_4CF76457> | null;
   /**
    * Original keeps the media proportions. Other ratios crop the image or video to fill the frame.
    */
@@ -1293,6 +1524,15 @@ export interface SiteAsset {
   id: string;
   alt: string;
   prefix?: string | null;
+  _objectKey?: string | null;
+  createdBy?: {
+    relationTo: 'users';
+    value: string | User;
+  } | null;
+  updatedBy?: {
+    relationTo: 'users';
+    value: string | User;
+  } | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -1302,6 +1542,19 @@ export interface SiteAsset {
   filesize?: number | null;
   width?: number | null;
   height?: number | null;
+  _stored?: boolean | null;
+  _transforms?: UploadTransforms;
+  original?: {
+    filename?: string | null;
+    url?: string | null;
+    mimeType?: string | null;
+    filesize?: number | null;
+    width?: number | null;
+    height?: number | null;
+    prefix?: string | null;
+    _objectKey?: string | null;
+    _stored?: boolean | null;
+  };
   focalX?: number | null;
   focalY?: number | null;
 }
@@ -1319,6 +1572,14 @@ export interface SocialPlatform {
    * Upload an SVG icon designed for use on dark backgrounds.
    */
   icon: string | SiteAsset;
+  createdBy?: {
+    relationTo: 'users';
+    value: string | User;
+  } | null;
+  updatedBy?: {
+    relationTo: 'users';
+    value: string | User;
+  } | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -1357,6 +1618,14 @@ export interface Redirect {
         } | null);
     url?: string | null;
   };
+  createdBy?: {
+    relationTo: 'users';
+    value: string | User;
+  } | null;
+  updatedBy?: {
+    relationTo: 'users';
+    value: string | User;
+  } | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -1374,6 +1643,14 @@ export interface FormSubmission {
         id?: string | null;
       }[]
     | null;
+  createdBy?: {
+    relationTo: 'users';
+    value: string | User;
+  } | null;
+  updatedBy?: {
+    relationTo: 'users';
+    value: string | User;
+  } | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -1441,6 +1718,14 @@ export interface Translation {
   error?: string | null;
   characters?: number | null;
   translatedAt?: string | null;
+  createdBy?: {
+    relationTo: 'users';
+    value: string | User;
+  } | null;
+  updatedBy?: {
+    relationTo: 'users';
+    value: string | User;
+  } | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -1458,6 +1743,14 @@ export interface TranslationSearch {
   excerpt?: string | null;
   path: string;
   ready?: boolean | null;
+  createdBy?: {
+    relationTo: 'users';
+    value: string | User;
+  } | null;
+  updatedBy?: {
+    relationTo: 'users';
+    value: string | User;
+  } | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -1715,6 +2008,28 @@ export interface PayloadMigration {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "payload-llm-instructions".
+ */
+export interface PayloadLlmInstruction {
+  id: string;
+  entitySlug: string;
+  title?: string | null;
+  entityType: 'collection' | 'global';
+  additionalInstructions?: LexicalRichText<LexicalNodes_3DE324E4> | null;
+  systemInstructions?: LexicalRichText<LexicalNodes_3DE324E4> | null;
+  createdBy?: {
+    relationTo: 'users';
+    value: string | User;
+  } | null;
+  updatedBy?: {
+    relationTo: 'users';
+    value: string | User;
+  } | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "products_select".
  */
 export interface ProductsSelect<T extends boolean = true> {
@@ -1768,6 +2083,8 @@ export interface ProductsSelect<T extends boolean = true> {
   categorySlug?: T;
   publishedAt?: T;
   relatedProducts?: T;
+  createdBy?: T;
+  updatedBy?: T;
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
@@ -1891,6 +2208,8 @@ export interface ProductCategoriesSelect<T extends boolean = true> {
       };
   slug?: T;
   products?: T;
+  createdBy?: T;
+  updatedBy?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -1909,6 +2228,8 @@ export interface QuoteRequestsSelect<T extends boolean = true> {
   productSlug?: T;
   userAgent?: T;
   ipHash?: T;
+  createdBy?: T;
+  updatedBy?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -1959,6 +2280,8 @@ export interface PagesSelect<T extends boolean = true> {
       };
   publishedAt?: T;
   slug?: T;
+  createdBy?: T;
+  updatedBy?: T;
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
@@ -2081,6 +2404,8 @@ export interface BlogsSelect<T extends boolean = true> {
         name?: T;
       };
   relatedBlogs?: T;
+  createdBy?: T;
+  updatedBy?: T;
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
@@ -2102,6 +2427,8 @@ export interface BlogCategoriesSelect<T extends boolean = true> {
       };
   slug?: T;
   blogs?: T;
+  createdBy?: T;
+  updatedBy?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -2150,6 +2477,8 @@ export interface CaseStudiesSelect<T extends boolean = true> {
       };
   publishedAt?: T;
   slug?: T;
+  createdBy?: T;
+  updatedBy?: T;
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
@@ -2231,6 +2560,9 @@ export interface MediaSelect<T extends boolean = true> {
   updatedAt?: T;
   caption?: T;
   prefix?: T;
+  _objectKey?: T;
+  createdBy?: T;
+  updatedBy?: T;
   createdAt?: T;
   url?: T;
   thumbnailURL?: T;
@@ -2239,6 +2571,21 @@ export interface MediaSelect<T extends boolean = true> {
   filesize?: T;
   width?: T;
   height?: T;
+  _stored?: T;
+  _transforms?: T;
+  original?:
+    | T
+    | {
+        filename?: T;
+        url?: T;
+        mimeType?: T;
+        filesize?: T;
+        width?: T;
+        height?: T;
+        prefix?: T;
+        _objectKey?: T;
+        _stored?: T;
+      };
   focalX?: T;
   focalY?: T;
 }
@@ -2252,6 +2599,9 @@ export interface DocumentsSelect<T extends boolean = true> {
   _h_folders?: T;
   updatedAt?: T;
   prefix?: T;
+  _objectKey?: T;
+  createdBy?: T;
+  updatedBy?: T;
   createdAt?: T;
   url?: T;
   thumbnailURL?: T;
@@ -2260,6 +2610,21 @@ export interface DocumentsSelect<T extends boolean = true> {
   filesize?: T;
   width?: T;
   height?: T;
+  _stored?: T;
+  _transforms?: T;
+  original?:
+    | T
+    | {
+        filename?: T;
+        url?: T;
+        mimeType?: T;
+        filesize?: T;
+        width?: T;
+        height?: T;
+        prefix?: T;
+        _objectKey?: T;
+        _stored?: T;
+      };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -2268,6 +2633,9 @@ export interface DocumentsSelect<T extends boolean = true> {
 export interface SiteAssetsSelect<T extends boolean = true> {
   alt?: T;
   prefix?: T;
+  _objectKey?: T;
+  createdBy?: T;
+  updatedBy?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;
@@ -2277,6 +2645,21 @@ export interface SiteAssetsSelect<T extends boolean = true> {
   filesize?: T;
   width?: T;
   height?: T;
+  _stored?: T;
+  _transforms?: T;
+  original?:
+    | T
+    | {
+        filename?: T;
+        url?: T;
+        mimeType?: T;
+        filesize?: T;
+        width?: T;
+        height?: T;
+        prefix?: T;
+        _objectKey?: T;
+        _stored?: T;
+      };
   focalX?: T;
   focalY?: T;
 }
@@ -2287,6 +2670,8 @@ export interface SiteAssetsSelect<T extends boolean = true> {
 export interface FoldersSelect<T extends boolean = true> {
   _h_folders?: T;
   name?: T;
+  createdBy?: T;
+  updatedBy?: T;
   updatedAt?: T;
   createdAt?: T;
   _h_slugPath?: T;
@@ -2299,6 +2684,8 @@ export interface FoldersSelect<T extends boolean = true> {
 export interface UsersSelect<T extends boolean = true> {
   role?: T;
   name?: T;
+  createdBy?: T;
+  updatedBy?: T;
   updatedAt?: T;
   createdAt?: T;
   email?: T;
@@ -2306,6 +2693,7 @@ export interface UsersSelect<T extends boolean = true> {
   resetPasswordExpiration?: T;
   salt?: T;
   hash?: T;
+  resetPasswordRequestedAt?: T;
   loginAttempts?: T;
   lockUntil?: T;
   sessions?:
@@ -2314,6 +2702,11 @@ export interface UsersSelect<T extends boolean = true> {
         id?: T;
         createdAt?: T;
         expiresAt?: T;
+        refreshCount?: T;
+        refreshedAt?: T;
+        label?: T;
+        type?: T;
+        metadata?: T;
       };
 }
 /**
@@ -2323,6 +2716,8 @@ export interface UsersSelect<T extends boolean = true> {
 export interface SocialPlatformsSelect<T extends boolean = true> {
   platform?: T;
   icon?: T;
+  createdBy?: T;
+  updatedBy?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -2339,6 +2734,8 @@ export interface RedirectsSelect<T extends boolean = true> {
         reference?: T;
         url?: T;
       };
+  createdBy?: T;
+  updatedBy?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -2472,6 +2869,8 @@ export interface FormsSelect<T extends boolean = true> {
         message?: T;
         id?: T;
       };
+  createdBy?: T;
+  updatedBy?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -2488,6 +2887,8 @@ export interface FormSubmissionsSelect<T extends boolean = true> {
         value?: T;
         id?: T;
       };
+  createdBy?: T;
+  updatedBy?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -2539,6 +2940,8 @@ export interface TranslationsSelect<T extends boolean = true> {
   error?: T;
   characters?: T;
   translatedAt?: T;
+  createdBy?: T;
+  updatedBy?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -2555,6 +2958,8 @@ export interface TranslationSearchSelect<T extends boolean = true> {
   excerpt?: T;
   path?: T;
   ready?: T;
+  createdBy?: T;
+  updatedBy?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -2640,6 +3045,22 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "payload-llm-instructions_select".
+ */
+export interface PayloadLlmInstructionsSelect<T extends boolean = true> {
+  id?: T;
+  entitySlug?: T;
+  title?: T;
+  entityType?: T;
+  additionalInstructions?: T;
+  systemInstructions?: T;
+  createdBy?: T;
+  updatedBy?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "header".
  */
 export interface Header {
@@ -2669,6 +3090,14 @@ export interface Header {
     url?: string | null;
     label: string;
   };
+  createdBy?: {
+    relationTo: 'users';
+    value: string | User;
+  } | null;
+  updatedBy?: {
+    relationTo: 'users';
+    value: string | User;
+  } | null;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -2900,6 +3329,14 @@ export interface HeaderRichCardBlock {
 export interface Footer {
   id: string;
   columns?: NavigationColumns;
+  createdBy?: {
+    relationTo: 'users';
+    value: string | User;
+  } | null;
+  updatedBy?: {
+    relationTo: 'users';
+    value: string | User;
+  } | null;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -3051,6 +3488,14 @@ export interface SiteSettings {
         id?: string | null;
       }[]
     | null;
+  createdBy?: {
+    relationTo: 'users';
+    value: string | User;
+  } | null;
+  updatedBy?: {
+    relationTo: 'users';
+    value: string | User;
+  } | null;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -3211,6 +3656,14 @@ export interface Settings {
       image?: (string | null) | Media;
     };
   };
+  createdBy?: {
+    relationTo: 'users';
+    value: string | User;
+  } | null;
+  updatedBy?: {
+    relationTo: 'users';
+    value: string | User;
+  } | null;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -3224,6 +3677,14 @@ export interface TranslationUsage {
   id: string;
   month?: string | null;
   characters?: number | null;
+  createdBy?: {
+    relationTo: 'users';
+    value: string | User;
+  } | null;
+  updatedBy?: {
+    relationTo: 'users';
+    value: string | User;
+  } | null;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -3261,6 +3722,8 @@ export interface HeaderSelect<T extends boolean = true> {
         url?: T;
         label?: T;
       };
+  createdBy?: T;
+  updatedBy?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
@@ -3423,6 +3886,8 @@ export interface HeaderRichCardBlockSelect<T extends boolean = true> {
  */
 export interface FooterSelect<T extends boolean = true> {
   columns?: T | NavigationColumnsSelect<T>;
+  createdBy?: T;
+  updatedBy?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
@@ -3535,6 +4000,8 @@ export interface SiteSettingsSelect<T extends boolean = true> {
         locale?: T;
         id?: T;
       };
+  createdBy?: T;
+  updatedBy?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
@@ -3641,6 +4108,8 @@ export interface SettingsSelect<T extends boolean = true> {
               image?: T;
             };
       };
+  createdBy?: T;
+  updatedBy?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
@@ -3652,6 +4121,8 @@ export interface SettingsSelect<T extends boolean = true> {
 export interface TranslationUsageSelect<T extends boolean = true> {
   month?: T;
   characters?: T;
+  createdBy?: T;
+  updatedBy?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
@@ -3715,6 +4186,16 @@ export interface QuickActionsWidget {
     [k: string]: unknown;
   };
   width: 'x-small' | 'small' | 'medium' | 'large' | 'x-large' | 'full';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "welcome_widget".
+ */
+export interface WelcomeWidget {
+  data?: {
+    [k: string]: unknown;
+  };
+  width: 'full';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -3792,6 +4273,16 @@ export interface ActivityWidget {
         )[]
       | null;
   };
+  width: 'small' | 'medium' | 'large' | 'x-large' | 'full';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "upload-dropzone_widget".
+ */
+export interface UploadDropzoneWidget {
+  data?: {
+    excludedCollections?: ('media' | 'documents' | 'site-assets')[] | null;
+  };
   width: 'x-small' | 'small' | 'medium' | 'large' | 'x-large' | 'full';
 }
 /**
@@ -3843,7 +4334,10 @@ export interface TaskSchedulePublish {
           value: string | CaseStudy;
         } | null);
     global?: string | null;
-    user?: (string | null) | User;
+    user?: {
+      relationTo: 'users';
+      value: string | User;
+    } | null;
   };
   output?: unknown;
 }
@@ -3858,7 +4352,7 @@ export interface BlogMediaBlock {
   /**
    * Overrides the media's default caption for this block only.
    */
-  caption?: LexicalRichText<LexicalNodes_47D10C91> | null;
+  caption?: LexicalRichText<LexicalNodes_4CF76457> | null;
   /**
    * Original keeps the media proportions. Other ratios crop the image or video to fill the frame.
    */
@@ -3878,7 +4372,7 @@ export interface BlogKeyTakeawaysBlock {
    * Highlight the article’s summary, conclusions, or key points.
    */
   label?: string | null;
-  content: LexicalRichText<LexicalNodes_47D10C91>;
+  content: LexicalRichText<LexicalNodes_4CF76457>;
   blockName?: string | null;
 }
 /**
@@ -3892,7 +4386,7 @@ export interface BlogCallToActionBlock {
    * Guide readers to a product, contact page, or download with a title, description, and links.
    */
   heading: string;
-  description?: LexicalRichText<LexicalNodes_47D10C91> | null;
+  description?: LexicalRichText<LexicalNodes_4CF76457> | null;
   media?: (string | null) | Media;
   links?:
     | {
@@ -3933,7 +4427,7 @@ export interface BlogBannerBlock {
    */
   style: 'info' | 'warning' | 'error' | 'success';
   title?: string | null;
-  content: LexicalRichText<LexicalNodes_47D10C91>;
+  content: LexicalRichText<LexicalNodes_4CF76457>;
   blockName?: string | null;
 }
 /**
@@ -3955,6 +4449,7 @@ export interface SerializedLexicalElementBase<TChildren> {
   indent: number;
   textFormat?: number;
   textStyle?: string;
+  /** @deprecated Ignored when loading. Typed as required only to match Lexical's types: rich text sent through the API, CLI or MCP may not contain it. */
   version: number;
 }
 
@@ -3967,6 +4462,7 @@ export interface SerializedTextNode {
   mode: LexicalTextMode;
   style: string;
   text: string;
+  /** @deprecated Ignored when loading. Typed as required only to match Lexical's types: rich text sent through the API, CLI or MCP may not contain it. */
   version: number;
 }
 
@@ -3977,11 +4473,13 @@ export interface SerializedTabNode {
   mode: LexicalTextMode;
   style: string;
   text: string;
+  /** @deprecated Ignored when loading. Typed as required only to match Lexical's types: rich text sent through the API, CLI or MCP may not contain it. */
   version: number;
 }
 
 export interface SerializedLineBreakNode {
   type: 'linebreak';
+  /** @deprecated Ignored when loading. Typed as required only to match Lexical's types: rich text sent through the API, CLI or MCP may not contain it. */
   version: number;
 }
 
@@ -4033,6 +4531,7 @@ export interface LexicalRichText<TNode> {
     format: LexicalElementFormat;
     indent: number;
     type: 'root';
+    /** @deprecated Ignored when loading. Typed as required only to match Lexical's types: rich text sent through the API, CLI or MCP may not contain it. */
     version: number;
   };
 }
@@ -4068,6 +4567,7 @@ export interface SerializedTableCellNode<TChildren> extends SerializedLexicalEle
 
 export interface SerializedHorizontalRuleNode {
   type: 'horizontalrule';
+  /** @deprecated Ignored when loading. Typed as required only to match Lexical's types: rich text sent through the API, CLI or MCP may not contain it. */
   version: number;
 }
 
@@ -4078,11 +4578,13 @@ export interface SerializedQuoteNode<TChildren> extends SerializedLexicalElement
 export type SerializedBlockNode<TFields extends { blockType: string }> = TFields extends unknown ? {
   type: 'block';
   format: LexicalElementFormat;
+  /** @deprecated Ignored when loading. Typed as required only to match Lexical's types: rich text sent through the API, CLI or MCP may not contain it. */
   version: number;
   fields: { id: string; blockName?: string | null } & Omit<TFields, 'id' | 'blockName'>;
 } : never;
 export type SerializedInlineBlockNode<TFields extends { blockType: string }> = TFields extends unknown ? {
   type: 'inlineBlock';
+  /** @deprecated Ignored when loading. Typed as required only to match Lexical's types: rich text sent through the API, CLI or MCP may not contain it. */
   version: number;
   fields: { id: string } & Omit<TFields, 'id'>;
 } : never;
