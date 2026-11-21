@@ -11,23 +11,79 @@ it('leaves the Payload layout stylesheet empty so removing the plugin removes it
   expect(custom.trim()).toBe('')
 })
 
-it('depends only on installed sidebar classes for the optional secondary surface', () => {
+describe('Enhanced layout contract', () => {
   const enhancedCss = readFileSync('src/plugins/adminTheme/enhanced.css', 'utf8')
   const enhanced = auditCss(enhancedCss)
   const classes = (header: string) => [...header.matchAll(/\.([_a-zA-Z][\w-]*)/g)]
     .map(([, name]) => name)
-  const installedClasses = new Set(auditCss(installed).blocks.flatMap(({ header }) => classes(header)))
+  const selectors = enhanced.blocks.filter(({ header }) => !header.startsWith('@'))
+  const installedCss = auditCss(installed)
+  // Payload nests some rules, so a class may only appear inside another block's header.
+  const installedClasses = new Set(installedCss.blocks.flatMap(({ header }) => classes(header)))
 
-  expect(enhanced.blocks.map(({ header }) => header)).toEqual(['.nav'])
-  for (const { header } of enhanced.blocks) {
-    for (const name of classes(header)) {
-      expect(installedClasses, `Payload removed .${name} from its CSS. Review enhanced layout.`)
-        .toContain(name)
+  it('depends only on classes still present in the installed Payload CSS', () => {
+    expect(selectors.length).toBeGreaterThan(0)
+    for (const { header } of selectors) {
+      for (const name of classes(header)) {
+        expect(installedClasses, `Payload removed .${name} from its CSS. Review enhanced layout.`)
+          .toContain(name)
+      }
     }
+  })
+
+  it('references only tokens: no literal colors, shadows or important declarations', () => {
+    expect(enhanced.declarations.length).toBeGreaterThan(0)
+    for (const { header, prop, value } of enhanced.declarations) {
+      expect(value, `${header} { ${prop} }`).not.toMatch(/#[0-9a-f]{3,8}\b|\brgba?\(|\bhsla?\(|\boklch\(|!\s*important/i)
+    }
+    expect(enhancedCss).not.toMatch(/Ecolitea/i)
+  })
+
+  it('changes presentation only: no hidden elements or generated content', () => {
+    for (const { header, prop, value } of enhanced.declarations) {
+      expect(`${prop}: ${value}`, header).not.toMatch(/^(display: none|visibility: hidden|content:)/)
+    }
+  })
+
+  it('gives the window panel its margin, radius and shadow from tokens, and drops them on narrow screens', () => {
+    const panel = enhanced.declarations.filter(({ header, ancestors }) =>
+      header === '.template-default__wrap' && ancestors.length === 1)
+    const value = (prop: string) => panel.find((declaration) => declaration.prop === prop)?.value
+    expect(value('border-radius')).toBe('var(--admin-window-radius)')
+    expect(value('box-shadow')).toBe('var(--admin-window-shadow)')
+    expect(value('margin')).toContain('var(--admin-window-gap)')
+    expect(enhanced.declarations.find(({ header, prop }) =>
+      header === '.template-default' && prop === 'background-color')?.value).toBe('var(--admin-canvas)')
+
+    const narrow = enhanced.declarations.filter(({ header, ancestors }) =>
+      header === '.template-default__wrap' && ancestors[0] === '@media (max-width: 768px)')
+    expect(narrow.map(({ prop, value }) => `${prop}: ${value}`)).toEqual(
+      expect.arrayContaining(['margin: 0', 'border-radius: 0', 'box-shadow: none']),
+    )
+  })
+
+  it('draws the list table as a rounded card with token-sized rows', () => {
+    const get = (header: string, prop: string) =>
+      enhanced.declarations.find((declaration) => declaration.header === header && declaration.prop === prop)?.value
+    expect(get('.collection-list .table', 'border-radius')).toBe('var(--admin-panel-radius)')
+    expect(get('.collection-list .table tbody tr', 'height')).toBe('var(--admin-row-height)')
+    expect(get('.collection-list .table th', 'background-color')).toBe('var(--color-bg-secondary)')
+  })
+})
+
+it('defines the window layout sizes and surfaces as Admin tokens in both palettes', () => {
+  const value = (header: string, prop: string) =>
+    declarations.find((declaration) => declaration.header === header && declaration.prop === prop)?.value
+  expect(value(':root', '--admin-window-gap')).toBe('8px')
+  expect(value(':root', '--admin-window-radius')).toBe('14px')
+  expect(value(':root', '--admin-widget-radius')).toBe('16px')
+  expect(value(':root', '--admin-row-height')).toBe('44px')
+  for (const header of [':root', "html[data-theme='dark']"]) {
+    expect(value(header, '--admin-canvas'), `${header} canvas`).toBeTruthy()
+    expect(value(header, '--admin-window-shadow'), `${header} shadow`).toBeTruthy()
   }
-  expect(enhanced.declarations.map(({ prop, value }) => ({ prop, value }))).toEqual([
-    { prop: 'background-color', value: 'var(--color-bg-secondary)' },
-  ])
+  expect(value(':root', '--admin-canvas')).not.toBe(value(':root', '--admin-bg'))
+  expect(value("html[data-theme='dark']", '--admin-canvas')).not.toBe(value("html[data-theme='dark']", '--admin-bg'))
 })
 
 describe('Admin theme token contract', () => {

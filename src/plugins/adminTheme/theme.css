@@ -25,6 +25,13 @@
   --admin-panel-radius: 12px;
   --admin-chip-radius: 999px;
   --admin-small-text: 10px;
+  /* Window layout (used by enhanced.css and the Dashboard; inert in "tokens only" mode). */
+  --admin-canvas: #ececee;
+  --admin-window-gap: 8px;
+  --admin-window-radius: 14px;
+  --admin-widget-radius: 16px;
+  --admin-row-height: 44px;
+  --admin-window-shadow: 0 0 0 0.5px rgb(0 0 0 / 8%), 0 1px 2px rgb(0 0 0 / 4%), 0 8px 24px rgb(0 0 0 / 4%);
   --admin-tooltip-shadow: 0 2px 8px rgb(0 0 0 / 14%), 0 0 0 0.5px rgb(0 0 0 / 12%);
   --admin-menu-shadow: 0 4px 12px rgb(0 0 0 / 8%), 0 12px 40px rgb(0 0 0 / 14%), 0 0 0 0.5px rgb(0 0 0 / 12%);
   --admin-modal-shadow: 0 8px 24px rgb(0 0 0 / 12%), 0 24px 64px rgb(0 0 0 / 16%), 0 0 0 0.5px rgb(0 0 0 / 12%);
@@ -51,6 +58,8 @@ html[data-theme='dark'] {
   --admin-danger: #ff453a;
   --admin-component: #5e5ce6;
   --admin-assistive: #ff375f;
+  --admin-canvas: #161618;
+  --admin-window-shadow: 0 0 0 0.5px rgb(255 255 255 / 8%), 0 8px 24px rgb(0 0 0 / 30%);
   --admin-tooltip-shadow: 0 2px 8px rgb(0 0 0 / 35%), 0 0 0 0.5px rgb(255 255 255 / 12%);
   --admin-menu-shadow: 0 4px 12px rgb(0 0 0 / 25%), 0 12px 40px rgb(0 0 0 / 50%), 0 0 0 0.5px rgb(255 255 255 / 12%);
   --admin-modal-shadow: 0 8px 24px rgb(0 0 0 / 32%), 0 24px 64px rgb(0 0 0 / 58%), 0 0 0 0.5px rgb(255 255 255 / 12%);
