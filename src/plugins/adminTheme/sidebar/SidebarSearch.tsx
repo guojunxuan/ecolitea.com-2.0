@@ -1,8 +1,14 @@
 'use client'
 
 import { commandPaletteSlug, useModal, useTranslation } from '@payloadcms/ui'
-import { useEffect, useState } from 'react'
+import { useSyncExternalStore } from 'react'
 import styles from './Sidebar.module.css'
+
+// The platform never changes while the page is open, so there is nothing to subscribe to.
+const subscribe = () => () => {}
+const clientShortcut = () => (/Mac|iPhone|iPad/.test(navigator.platform) ? '⌘K' : 'Ctrl K')
+// The server cannot know the platform. It renders the Mac hint, and React corrects it after hydration.
+const serverShortcut = () => '⌘K'
 
 /**
  * Sidebar entry for Payload's native command palette. The palette itself, its ⌘K / Ctrl+K
@@ -11,12 +17,7 @@ import styles from './Sidebar.module.css'
 export function SidebarSearch() {
   const { openModal } = useModal()
   const { t } = useTranslation()
-  // The platform is only known in the browser. Render the Mac hint first so hydration matches.
-  const [shortcut, setShortcut] = useState('⌘K')
-
-  useEffect(() => {
-    if (!/Mac|iPhone|iPad/.test(navigator.platform)) setShortcut('Ctrl K')
-  }, [])
+  const shortcut = useSyncExternalStore(subscribe, clientShortcut, serverShortcut)
 
   return (
     <button
