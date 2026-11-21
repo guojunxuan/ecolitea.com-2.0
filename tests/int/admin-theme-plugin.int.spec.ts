@@ -55,7 +55,9 @@ describe('Admin theme plugin config', () => {
         beforeNavLinks: [
           '/custom/BeforeNav',
           { path: '@/plugins/adminTheme/brand/AdminIcon#AdminIcon', serverProps: { showName: true } },
+          '@/plugins/adminTheme/sidebar/SidebarSearch#SidebarSearch',
         ],
+        afterNav: ['@/plugins/adminTheme/sidebar/UserCard#UserCard'],
         graphics: {
           Logo: '@/plugins/adminTheme/brand/AdminLogo#AdminLogo',
           Icon: '@/plugins/adminTheme/brand/AdminIcon#AdminIcon',

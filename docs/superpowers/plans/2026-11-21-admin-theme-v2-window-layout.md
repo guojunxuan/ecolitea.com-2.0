@@ -31,7 +31,9 @@ beta.10 新增可用项：`.tabs-field__tab-button`、`.tabs__tab-button`、`.ta
 
 ## 设计决策（相对规格的取舍）
 
-1. **搜索数据来源**：用服务端插槽组件接收公开的 `payload / permissions / i18n / user` 属性，调用 `@payloadcms/ui/shared` 的公开 `getVisibleEntities` 与 `groupNavItems` 生成条目，传给纯客户端输入组件。结果与原生导航项逐项一致，无需在客户端拼权限；规格写的“客户端 hook”以“已安装版本为准”处理，偏差写入报告。
+1. **搜索只做原生 CommandPalette 的入口**（取代规格 §4.1 的自建搜索）：beta.10 的 Default 模板无条件挂载 `CommandPalette`，用 ⌘K / Ctrl+K 打开，列出与导航同一可见性规则下的 collections/globals；`CommandPalette`、`commandPaletteSlug`、`useModal` 均为 `@payloadcms/ui` 的公开导出。按 AGENTS.md“优先原生 Admin 行为”，侧栏 `beforeNavLinks` 只放一个触发按钮（`openModal(commandPaletteSlug)`），不自建搜索、不绑定快捷键，避免抢 ⌘K。契约测试断言这三个导出与 Default 模板的挂载仍在。
+   - 规格 §5 中“搜索过滤 / 键盘行为”的组件测试因此不再适用；对应覆盖改为“入口只打开原生面板、不自绑快捷键”与上述契约。
+   - 规格 §4.2 用户卡片：beta.10 的 `afterNav` 渲染在 `.nav__scroll` 滚动区末尾，需 `position: sticky; bottom: 0` 才能固定在可视区底部。
 2. **Dashboard 宽度**：已安装 `WidgetWidth` = x-small 25 / small 33.3 / medium 50 / large 66.7 / x-large 75 / full 100。demo 第 3 行 1.25:1:1 最接近 `small×3`；第 4 行 1:1.25 最接近 `medium×2`。实施时截图确认。非 admin：recent-quotes + content-activity 用 `medium×2`。
 3. **Header 日期**：Site Settings 没有时区字段，用 `payload.config.admin.timezones.defaultTimezone`（若有）否则 UTC 格式化，并在日期旁不加时区缩写。
 4. **translations 汇总口径**：启用语种 = `status` 为 `translating` / `live`（与 system-status 一致）；每语种 `failed>0` → Failed；`ready===total` 且无 failed/waiting → Synced；其余 → In progress。圆环 = Synced / 启用语种。
@@ -74,13 +76,14 @@ beta.10 新增可用项：`.tabs-field__tab-button`、`.tabs__tab-button`、`.ta
 - [ ] 提交 `feat(admin): window-style dashboard widgets`。
 
 ### 5. C 侧栏插槽
-- [ ] 测试：
-  - `getSearchEntries`：只含可见（非 hidden、有 read 权限）collections/globals，label 与分组与原生导航一致，href 为 `${routes.admin}/collections|globals/<slug>`。
-  - `SidebarSearchBox`（组件测试，jsdom）：按 label 模糊匹配；↑/↓/Enter/Esc；`⌘K` 与 `Ctrl+K` 聚焦；无结果提示。
-  - `UserCard`：角色文案 Administrator / Editor（未知角色回退原值）、姓名缺省回退邮箱、首字母、账户链接 `${routes.admin}${routes.account ?? '/account'}`。
-  - 插件注册：`beforeNavLinks` 在既有项之后追加品牌与搜索；`afterNav` 追加用户卡片；`enabled:false` 不变。
-- [ ] 实现 `sidebar/`：`SidebarSearch.tsx`（server）、`SidebarSearchBox.tsx`（client）、`getSearchEntries.ts`、`UserCard.tsx`、`Sidebar.module.css`；`index.ts` 注册；`generate:importmap`。
-- [ ] 提交 `feat(admin): sidebar search and user card slots`。
+- [x] 测试：
+  - 原生面板契约：`CommandPalette`/`commandPaletteSlug`/`useModal` 仍公开导出，Default 模板仍挂载面板，面板仍以 `cmdCtrlKey` + `k` 打开。
+  - `SidebarSearch`：点击只调用 `openModal('command-palette')`；`⌘K`/`Ctrl K` 按平台显示；不自绑键盘快捷键。
+  - `getUserCard`：角色文案 Administrator / Editor（未知角色回退原值）、姓名缺省回退邮箱、首字符大写（含非拉丁）、账户链接用配置的 admin 与 account 路由。
+  - `UserCard`：账户链接、首字母、角色；无用户时不渲染。
+  - 插件注册：`beforeNavLinks` 在既有项之后追加品牌与搜索入口；`afterNav` 追加用户卡片；`enabled:false` 不变。
+- [x] 实现 `sidebar/`：`SidebarSearch.tsx`（client，入口）、`getUserCard.ts`、`UserCard.tsx`（sticky 固定底部）、`Sidebar.module.css`；`index.ts` 注册；`generate:importmap`。
+- [x] 提交 `feat(admin): sidebar search entry and user card slots`。
 
 ### 6. e2e、截图与收尾
 - [ ] 更新 `tests/e2e/admin.e2e.spec.ts`：增强布局下内容面板圆角与外边距、侧栏窗口底色；⌘K 聚焦并跳转；用户卡片；Dashboard 新 widgets；截图分支改指 demo v3 与 `/tmp/themev2-shots`。

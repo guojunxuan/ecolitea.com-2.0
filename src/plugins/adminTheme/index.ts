@@ -43,7 +43,13 @@ export const adminThemePlugin =
             Icon: icon,
           },
           // The native sidebar does not render graphics.Icon in the installed canary.
-          beforeNavLinks: [...(components?.beforeNavLinks ?? []), { path: icon, serverProps: { showName: true } }],
+          // The search entry opens Payload's own command palette; the user card sits below the links.
+          beforeNavLinks: [
+            ...(components?.beforeNavLinks ?? []),
+            { path: icon, serverProps: { showName: true } },
+            `${basePath}/sidebar/SidebarSearch#SidebarSearch`,
+          ],
+          afterNav: [...(components?.afterNav ?? []), `${basePath}/sidebar/UserCard#UserCard`],
         },
       },
       endpoints: [...(config.endpoints ?? []), adminIconEndpoint],
