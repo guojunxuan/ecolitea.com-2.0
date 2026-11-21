@@ -7,23 +7,25 @@ import { serverEnv } from '@/utilities/env'
 const notConfigured = 'Not configured'
 const emailSources = { env: 'Environment variables', settings: 'Site Settings' } as const
 
+// Unconfigured services are neutral. Only a configured service in a bad state needs attention.
 async function emailStatus(req: PayloadRequest) {
   const { source, status } = await getEmailConfiguration(req.payload, req)
-  if (source === 'none') return notConfigured
+  if (source === 'none') return { label: notConfigured, attention: false }
 
   const label = status === 'configured' ? 'Configured' : 'Needs attention'
-  return `${label} · ${emailSources[source]}`
+  return { label: `${label} · ${emailSources[source]}`, attention: status !== 'configured' }
 }
 
 async function translationStatus(req: PayloadRequest) {
   const { payload } = req
-  if (!payload.collections.translations) return notConfigured
+  const neutral = { label: notConfigured, attention: false }
+  if (!payload.collections.translations) return neutral
   const { targetLocales } = await getI18nSettings(payload, req)
-  if (!targetLocales.length) return notConfigured
+  if (!targetLocales.length) return neutral
 
   const { counts } = await getTranslationStatus(payload, req)
   const enabled = counts.filter(({ status }) => status === 'translating' || status === 'live')
-  if (!enabled.length) return notConfigured
+  if (!enabled.length) return neutral
 
   const { totalDocs } = await payload.count({
     collection: 'translations',
@@ -32,7 +34,7 @@ async function translationStatus(req: PayloadRequest) {
     where: { status: { equals: 'pending' }, locale: { in: enabled.map(({ code }) => code) } },
   })
   const failed = enabled.reduce((sum, row) => sum + row.failed, 0)
-  return `${totalDocs} in progress · ${failed} failed`
+  return { label: `${totalDocs} in progress · ${failed} failed`, attention: failed > 0 }
 }
 
 async function scheduleStatus(req: PayloadRequest) {
@@ -63,9 +65,11 @@ async function scheduleStatus(req: PayloadRequest) {
 export async function getSystemStatus(req: PayloadRequest) {
   if (req.user?.role !== 'admin') return null
 
+  // A failed lookup is shown as not configured, the same as before, and counts as neutral.
+  const neutral = { label: notConfigured, attention: false }
   const [email, translation, schedule] = await Promise.all([
-    emailStatus(req).catch(() => notConfigured),
-    translationStatus(req).catch(() => notConfigured),
+    emailStatus(req).catch(() => neutral),
+    translationStatus(req).catch(() => neutral),
     scheduleStatus(req).catch(() => notConfigured),
   ])
   const storage = process.env.DISABLE_R2_STORAGE === 'true'
@@ -74,5 +78,11 @@ export async function getSystemStatus(req: PayloadRequest) {
       ? 'Object storage configured'
       : notConfigured
 
-  return { email, translation, storage, schedule }
+  return {
+    email: email.label,
+    translation: translation.label,
+    storage,
+    schedule,
+    overall: email.attention || translation.attention ? ('attention' as const) : ('normal' as const),
+  }
 }

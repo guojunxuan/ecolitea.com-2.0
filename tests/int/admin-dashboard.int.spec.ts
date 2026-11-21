@@ -120,6 +120,7 @@ describe('Admin dashboard queries', () => {
         translation: 'Not configured',
         storage: 'Local storage',
         schedule: { next: '2026-11-20T09:00:00.000Z' },
+        overall: 'normal',
       })
       expect(find).toHaveBeenCalledWith(expect.objectContaining({
         collection: 'payload-jobs', sort: 'waitUntil', limit: 1, req,
