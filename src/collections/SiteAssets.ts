@@ -40,6 +40,7 @@ export const validateSvgSiteAsset: UploadFieldValidation = async (value, { req }
 export const SiteAssets: CollectionConfig = {
   slug: 'site-assets',
   labels: { singular: 'Site Asset', plural: 'Site Assets' },
+  versions: false,
   admin: {
     group: 'Assets',
     useAsTitle: 'filename',

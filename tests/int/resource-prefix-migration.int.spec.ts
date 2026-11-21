@@ -2,7 +2,9 @@
 import { describe, expect, it, vi } from 'vitest'
 import type { Payload } from 'payload'
 import {
+  assertNoObjectKeyDocuments,
   createInventory,
+  findObjectKeyFields,
   runMigrationStage,
   parseArguments,
   parseMigrationDatabase,
@@ -242,7 +244,9 @@ describe('installed S3 plugin key/URL agreement, no sockets or database', () => 
   it('uses the installed upload hook for explicit, empty and absent prefixes', async () => {
     const { Readable } = await import('node:stream')
     const { s3Storage } = await import('@payloadcms/storage-s3')
-    const { getFileKey } = await import('@payloadcms/plugin-cloud-storage/utilities')
+    const { buildUploadStoragePathData } =
+      await import('@payloadcms/plugin-cloud-storage/utilities')
+    const path = await import('node:path')
     vi.stubEnv('R2_PUBLIC_URL', target.publicURL)
     const { generateR2FileURL, r2StorageCollections } = await import('@/plugins')
     const requests: Array<{ path: string; method: string }> = []
@@ -277,18 +281,28 @@ describe('installed S3 plugin key/URL agreement, no sockets or database', () => 
       })),
     } as never)
     for (const collection of configured.collections!) {
-      for (const prefix of [undefined, '', 'custom/子 路径', '/odd/../path']) {
+      // Payload 4 contains a new upload's prefix under the collection prefix: a prefix outside it
+      // ('custom/…', '/odd/../path') is nested beneath it instead of replacing it.
+      const prefixes = [
+        undefined,
+        '',
+        collection.slug,
+        `${collection.slug}/子 路径`,
+        'custom/子 路径',
+        '/odd/../path',
+      ]
+      for (const prefix of prefixes) {
         const data = {
           id: 'local-doc',
           filename: '图 片.png',
           mimeType: 'image/png',
           ...(prefix === undefined ? {} : { prefix }),
         }
-        const expected = getFileKey({
+        const expected = buildUploadStoragePathData({
           collectionPrefix: collection.slug,
           docPrefix: prefix,
           filename: data.filename,
-        }).fileKey
+        }).storageFilePath
         const req = {
           context: {},
           file: { data: Buffer.from('local'), size: 5 },
@@ -298,19 +312,136 @@ describe('installed S3 plugin key/URL agreement, no sockets or database', () => 
         await hook({ doc: data, operation: 'create', req } as never)
         const uploadedKey = decodeURIComponent(requests.at(-1)!.path.replace('/test-bucket/', ''))
         expect(uploadedKey).toBe(expected)
+        // The document persists the folder the upload used; its URL must name the same object.
+        const persistedPrefix = path.posix.dirname(expected)
         const urlField = collection.fields.find((field) => 'name' in field && field.name === 'url')!
         const generated = await ('hooks' in urlField &&
-          urlField.hooks!.afterRead![0]({ data } as never))
+          urlField.hooks!.afterRead![0]({ data: { ...data, prefix: persistedPrefix } } as never))
         expect(new URL(generated as string).pathname).toBe(
           `/${expected.split('/').map(encodeURIComponent).join('/')}`,
         )
         expect(
-          generateR2FileURL({ filename: data.filename, prefix, collectionPrefix: collection.slug }),
+          generateR2FileURL({
+            filename: data.filename,
+            prefix: persistedPrefix,
+            collectionPrefix: collection.slug,
+          }),
         ).toBe(generated)
       }
     }
-    expect(requests).toHaveLength(12)
+    expect(requests).toHaveLength(18)
     vi.unstubAllEnvs()
+  })
+
+  it('keeps the URL of a pre-upgrade document (no _objectKey) on its old key', async () => {
+    vi.stubEnv('R2_PUBLIC_URL', target.publicURL)
+    const { generateR2FileURL } = await import('@/plugins')
+    const filename = '图 片.png'
+    const cases: Array<[string | undefined, string]> = [
+      [undefined, '/media/%E5%9B%BE%20%E7%89%87.png'],
+      ['', '/media/%E5%9B%BE%20%E7%89%87.png'],
+      ['media', '/media/%E5%9B%BE%20%E7%89%87.png'],
+      ['custom/子 路径', '/custom/%E5%AD%90%20%E8%B7%AF%E5%BE%84/%E5%9B%BE%20%E7%89%87.png'],
+      ['/odd/../path', '/odd/path/%E5%9B%BE%20%E7%89%87.png'],
+    ]
+    for (const [prefix, pathname] of cases) {
+      expect(
+        new URL(generateR2FileURL({ filename, prefix, collectionPrefix: 'media' })).pathname,
+      ).toBe(pathname)
+    }
+    vi.unstubAllEnvs()
+  })
+})
+
+describe('frozen pre-upgrade migration refuses post-upgrade documents', () => {
+  const objectKey = 'b1946ac9-92e1-4ba8-8c3e-0a1b2c3d4e5f'
+  const documents: Array<[string, Record<string, unknown>]> = [
+    ['_objectKey', { _objectKey: objectKey }],
+    ['original._objectKey', { original: { filename: 'photo.jpg', _objectKey: objectKey } }],
+    [
+      'variants.thumbnail._objectKey',
+      { variants: { thumbnail: { filename: 't.jpg', _objectKey: objectKey } } },
+    ],
+    [
+      'sizes.legacy._objectKey',
+      { sizes: { legacy: { filename: 'l.jpg', _objectKey: objectKey } } },
+    ],
+  ]
+
+  it('finds object keys on the document, its original and its variants, and ignores empty ones', () => {
+    for (const [field, extra] of documents) expect(findObjectKeyFields(extra)).toEqual([field])
+    expect(findObjectKeyFields({ _objectKey: '', original: { _objectKey: null } })).toEqual([])
+    expect(findObjectKeyFields({ filename: 'photo.jpg', prefix: 'media' })).toEqual([])
+  })
+
+  for (const [field, extra] of documents) {
+    it(`inventory refuses a Media document with ${field} before reading storage or saving`, async () => {
+      const f = fixture()
+      Object.assign(f.docs.media[0], extra)
+      const head = vi.spyOn(f.services.storage, 'head')
+      const error = await createInventory(f.services).catch((caught: Error) => caught)
+      expect(error).toBeInstanceOf(Error)
+      expect((error as Error).message).toMatch(/non-empty _objectKey/)
+      expect((error as Error).message).toContain(`media/m (${field})`)
+      expect(head).not.toHaveBeenCalled()
+      expect(f.services.save).not.toHaveBeenCalled()
+    })
+  }
+
+  it('inventory refuses a Site Asset with an _objectKey even when Media is clean', async () => {
+    const f = fixture()
+    f.docs['site-assets'].push({
+      id: 's',
+      filename: 'logo.svg',
+      prefix: '',
+      url: `${target.publicURL}/logo.svg`,
+      _objectKey: objectKey,
+    })
+    await expect(createInventory(f.services)).rejects.toThrow(/site-assets\/s \(_objectKey\)/)
+    expect(f.services.save).not.toHaveBeenCalled()
+  })
+
+  it('accepts a pre-upgrade document whose _objectKey is empty or null', async () => {
+    const f = fixture()
+    f.docs.media[0]._objectKey = null
+    f.docs['site-assets'].push({
+      id: 's',
+      filename: 'logo.svg',
+      prefix: '',
+      url: `${target.publicURL}/logo.svg`,
+      _objectKey: '',
+    })
+    f.objects.set('logo.svg', 'logo-bytes')
+    await expect(createInventory(f.services)).resolves.toMatchObject({ version: 1 })
+  })
+
+  it('every executing stage refuses when a document gains an _objectKey after inventory', async () => {
+    const f = fixture()
+    const manifest = await createInventory(f.services)
+    f.docs.media[0]._objectKey = objectKey
+    const saves = vi.mocked(f.services.save).mock.calls.length
+    for (const stage of ['copy', 'update', 'verify', 'remove-originals'] as const)
+      await expect(
+        runMigrationStage(stage, manifest, f.services, {
+          execute: true,
+          confirm: stage === 'remove-originals' ? stage : undefined,
+        }),
+      ).rejects.toThrow(/non-empty _objectKey/)
+    expect(f.services.storage.copy).not.toHaveBeenCalled()
+    expect(f.services.storage.remove).not.toHaveBeenCalled()
+    expect(f.update).not.toHaveBeenCalled()
+    expect(f.services.checkURL).not.toHaveBeenCalled()
+    expect(vi.mocked(f.services.save).mock.calls).toHaveLength(saves)
+  })
+
+  it('assertNoObjectKeyDocuments names at most ten documents and counts the rest', () => {
+    const many = Array.from({ length: 12 }, (_, index) => ({
+      collection: 'media',
+      id: String(index),
+      doc: { _objectKey: objectKey },
+    }))
+    expect(() => assertNoObjectKeyDocuments(many)).toThrow(/12 document\(s\).*and 2 more/)
+    expect(() => assertNoObjectKeyDocuments([])).not.toThrow()
   })
 })
 

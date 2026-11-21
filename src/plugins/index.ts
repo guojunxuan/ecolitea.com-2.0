@@ -2,7 +2,7 @@ import { formBuilderPlugin } from '@payloadcms/plugin-form-builder'
 import { redirectsPlugin } from '@payloadcms/plugin-redirects'
 import { seoPlugin } from '@payloadcms/plugin-seo'
 import { searchPlugin } from '@payloadcms/plugin-search'
-import type { CollectionSlug, Plugin } from 'payload'
+import type { CollectionSlug, Plugin, StorageAdapter } from 'payload'
 import { revalidateRedirects } from '@/hooks/revalidateRedirects'
 import {
   GenerateDescription,
@@ -34,7 +34,7 @@ import { productsOverviewPath } from '@/utilities/products/paths'
 import { MEDIA_UPLOAD_POLICY } from '@/collections/mediaUploadPolicy'
 import { s3Storage, type S3StorageOptions } from '@payloadcms/storage-s3'
 import { serverEnv } from '@/utilities/env'
-import { getFileKey } from '@payloadcms/plugin-cloud-storage/utilities'
+import { buildStoragePathData } from '@payloadcms/plugin-cloud-storage/utilities'
 
 type SEOContent = BlogCategory | Blog | CaseStudy | Page | Product | ProductCategory
 
@@ -202,7 +202,14 @@ export const generateR2FileURL = ({
   prefix?: string
   collectionPrefix?: string
 }) => {
-  const { fileKey } = getFileKey({ filename, docPrefix: prefix, collectionPrefix })
+  // `prefix` arrives as the object's folder: the stored prefix plus any per-upload `_objectKey`.
+  // buildStoragePathData computes the same key as the former getFileKey for pre-upgrade
+  // documents (pinned by tests/int/storage-key-compat.int.spec.ts).
+  const { storageFilePath: fileKey } = buildStoragePathData({
+    filename,
+    docPrefix: prefix,
+    collectionPrefix,
+  })
   return `${serverEnv.R2_PUBLIC_URL}/${fileKey.split('/').map(encodeURIComponent).join('/')}`
 }
 
@@ -219,10 +226,9 @@ export const r2StorageCollections = {
   documents: r2CollectionOptions('documents'),
 } satisfies S3StorageOptions['collections']
 
-export const plugins: Plugin[] = [
+export const storage: StorageAdapter[] = [
   s3Storage({
     enabled: process.env.DISABLE_R2_STORAGE !== 'true',
-    alwaysInsertFields: true,
     collections: r2StorageCollections,
     bucket: serverEnv.R2_BUCKET,
     config: {
@@ -234,7 +240,10 @@ export const plugins: Plugin[] = [
       forcePathStyle: true,
       region: 'auto',
     },
-  }).init as unknown as Plugin,
+  }),
+]
+
+export const plugins: Plugin[] = [
   redirectsPlugin({
     collections: ['pages', 'blogs', 'blog-categories', 'products', 'product-categories'],
     overrides: {

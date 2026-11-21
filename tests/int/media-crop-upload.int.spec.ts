@@ -5,6 +5,7 @@ import path from 'node:path'
 import { randomUUID } from 'node:crypto'
 import { createIsolatedTestDatabaseURI } from '../helpers/isolatedDatabase'
 import { mongooseAdapter, type MongooseAdapter } from '@payloadcms/db-mongodb'
+import { sharpTransformer } from '@payloadcms/transformer-sharp'
 import { buildConfig, getPayload, type Payload } from 'payload'
 import sharp from 'sharp'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
@@ -33,7 +34,8 @@ beforeAll(async () => {
     secret: 'task4-isolated-local-payload-secret-long-enough',
     typescript: { autoGenerate: false },
     db: mongooseAdapter({ url: databaseURL, connectOptions: { serverSelectionTimeoutMS: 3000 } }),
-    sharp,
+    // Payload 4 removed the top-level `sharp` option; image processing is an upload transformer.
+    upload: { transformers: [sharpTransformer({ sharp, collections: { media: {} } })] },
     collections: [
       {
         ...Media,

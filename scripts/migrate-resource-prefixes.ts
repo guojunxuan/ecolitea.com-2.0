@@ -1,11 +1,17 @@
-/** Explicit operational migration. Importing this module never initializes Payload or storage. */
+/**
+ * Explicit operational migration. Importing this module never initializes Payload or storage.
+ *
+ * FROZEN for pre-upgrade data: it understands only the flat layout `<prefix>/<filename>` and legacy
+ * `sizes`. Payload 4.0.0-beta.10 stores new uploads under `<prefix>/<_objectKey>/<filename>`, so every
+ * stage refuses, before touching anything, when a document has a non-empty `_objectKey`.
+ */
 import { createHash } from 'node:crypto'
 import { createRequire } from 'node:module'
 import { readFile, rename, writeFile } from 'node:fs/promises'
 import { execFile } from 'node:child_process'
 import { promisify } from 'node:util'
 import { pathToFileURL } from 'node:url'
-import { getFileKey } from '@payloadcms/plugin-cloud-storage/utilities'
+import { buildStoragePathData } from '@payloadcms/plugin-cloud-storage/utilities'
 import type { CollectionSlug, GlobalSlug, Payload } from 'payload'
 import { findMediaReferences, type MediaReference } from '../src/collections/mediaReferences'
 
@@ -149,6 +155,53 @@ function assertSafeStoragePlan(items: Item[]): void {
 const urlFor = (target: Target, key: string) =>
   `${target.publicURL.replace(/\/+$/, '')}/${key.split('/').map(encodeURIComponent).join('/')}`
 
+/**
+ * Key of a pre-upgrade document: `<docPrefix || collectionPrefix>/<filename>`. This is the formula of
+ * the former `getFileKey`, which Payload 4.0.0-beta.10 removed.
+ * tests/int/storage-key-compat.int.spec.ts pins that `buildStoragePathData` returns identical keys.
+ */
+const legacyFileKey = (args: { filename: string; docPrefix?: string; collectionPrefix?: string }) =>
+  buildStoragePathData(args).storageFilePath
+
+const hasText = (value: unknown) => typeof value === 'string' && value.length > 0
+
+/** Fields holding a Payload 4 per-upload object folder. Every pre-upgrade document has none. */
+export function findObjectKeyFields(doc: Document): string[] {
+  const fields: string[] = []
+  if (hasText(doc._objectKey)) fields.push('_objectKey')
+  if (record(doc.original) && hasText(doc.original._objectKey)) fields.push('original._objectKey')
+  for (const group of ['variants', 'sizes'] as const) {
+    const entries = doc[group]
+    if (record(entries))
+      for (const [name, entry] of Object.entries(entries))
+        if (record(entry) && hasText(entry._objectKey)) fields.push(`${group}.${name}._objectKey`)
+  }
+  return fields
+}
+
+/**
+ * This migration is frozen for the pre-upgrade layout `<prefix>/<filename>`. A document saved after the
+ * Payload 4 upgrade lives in `<prefix>/<_objectKey>/<filename>`, which it cannot move or verify.
+ */
+export function assertNoObjectKeyDocuments(
+  documents: Array<{ collection: string; id: string; doc: Document }>,
+): void {
+  const offenders = documents.flatMap(({ collection, id, doc }) => {
+    const fields = findObjectKeyFields(doc)
+    return fields.length ? [`${collection}/${id} (${fields.join(', ')})`] : []
+  })
+  if (!offenders.length) return
+  const listed = offenders.slice(0, 10).join('; ')
+  const more = offenders.length > 10 ? `; and ${offenders.length - 10} more` : ''
+  throw new Error(
+    `Refusing to run: ${offenders.length} document(s) have a non-empty _objectKey, so they were saved ` +
+      'after the Payload 4 upgrade and store files under per-upload folders ' +
+      '(<prefix>/<_objectKey>/<filename>). This migration is frozen for pre-upgrade documents ' +
+      '(<prefix>/<filename>) and cannot move them. No object was read, copied or removed and no ' +
+      `document was written. Affected: ${listed}${more}.`,
+  )
+}
+
 /** Fail closed on truncated pages, duplicates, concurrent count changes, or invalid metadata. */
 async function allPages(fetchPage: (page: number) => Promise<unknown>): Promise<Document[]> {
   const documents: Document[] = []
@@ -205,12 +258,26 @@ const query = (page: number) => ({
 export async function createInventory(services: MigrationServices): Promise<Manifest> {
   const items: Item[] = []
   const sourceOwners = new Map<string, string>()
-  for (const collection of ['media', 'site-assets'] as const) {
-    const docs = await allPages((page) => services.payload.find({ collection, ...query(page) }))
+  const collections = ['media', 'site-assets'] as const
+  const listed = new Map<Collection, Document[]>()
+  for (const collection of collections)
+    listed.set(
+      collection,
+      await allPages((page) => services.payload.find({ collection, ...query(page) })),
+    )
+  // Refuse before any object is read, so unsupported data never reaches storage or the manifest.
+  assertNoObjectKeyDocuments(
+    collections.flatMap((collection) =>
+      listed.get(collection)!.map((doc) => ({ collection, id: idOf(doc), doc })),
+    ),
+  )
+  for (const collection of collections) {
+    const docs = listed.get(collection)!
     for (const listedDoc of docs) {
       const id = idOf(listedDoc)
       const doc = services.readStored ? await services.readStored(collection, id) : listedDoc
       if (!doc) throw new Error('Document disappeared during inventory.')
+      assertNoObjectKeyDocuments([{ collection, id, doc }])
       if (typeof doc.filename !== 'string' || !doc.filename || typeof doc.url !== 'string')
         throw new Error(`Incomplete inventory: ${collection}/${id} filename or URL absent.`)
       if (doc.prefix !== undefined && doc.prefix !== null && typeof doc.prefix !== 'string')
@@ -220,11 +287,11 @@ export async function createInventory(services: MigrationServices): Promise<Mani
       const files: File[] = []
       const addFile = async (filename: string, oldURL: string, field: string) => {
         // Inventory runs against OLD rules: empty/missing stored prefix means root.
-        const sourceKey = getFileKey({
+        const sourceKey = legacyFileKey({
           filename,
           docPrefix: typeof doc.prefix === 'string' ? doc.prefix : '',
-        }).fileKey
-        const destinationKey = getFileKey({ filename, collectionPrefix: collection }).fileKey
+        })
+        const destinationKey = legacyFileKey({ filename, collectionPrefix: collection })
         if (new URL(oldURL).href !== new URL(urlFor(services.target, sourceKey)).href)
           throw new Error(
             `Source URL/key mismatch for ${collection}/${id}; use old deployment for inventory.`,
@@ -361,6 +428,14 @@ export async function runMigrationStage(
     await checkpoint('Media versions purged.')
     return manifest
   }
+  // A document saved after the upgrade can no longer be moved by this frozen migration. Check every
+  // inventoried record before this stage touches any object or document.
+  const stored: Array<{ collection: string; id: string; doc: Document }> = []
+  for (const item of manifest.items) {
+    const doc = await lookup(services, item)
+    if (doc) stored.push({ collection: item.collection, id: item.id, doc })
+  }
+  assertNoObjectKeyDocuments(stored)
   const missingIDs = options.deleteMissingMedia ?? []
   if (missingIDs.length && stage !== 'remove-originals')
     throw new Error('Missing Media deletion only allowed in remove-originals.')
@@ -704,7 +779,7 @@ async function main() {
   for (const collection of ['media', 'site-assets'] as const) {
     r2StorageCollections[collection].prefix = ''
     r2StorageCollections[collection].generateFileURL = ({ filename, prefix }) =>
-      urlFor(target, getFileKey({ filename, docPrefix: prefix }).fileKey)
+      urlFor(target, legacyFileKey({ filename, docPrefix: prefix }))
   }
   const [{ getPayload }, { default: config }] = await Promise.all([
     import('payload'),

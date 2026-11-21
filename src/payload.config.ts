@@ -1,4 +1,5 @@
 import { mongooseAdapter } from '@payloadcms/db-mongodb'
+import { sharpTransformer } from '@payloadcms/transformer-sharp'
 import sharp from 'sharp'
 import path from 'path'
 import { buildConfig, PayloadRequest } from 'payload'
@@ -20,7 +21,7 @@ import { Footer } from './Footer/config'
 import { Header } from './Header/config'
 import { SiteSettings } from './SiteSettings/config'
 import { Settings } from './Settings/config'
-import { plugins } from './plugins'
+import { plugins, storage } from './plugins'
 import { defaultLexical } from '@/fields/defaultLexical'
 import { getServerSideURL } from './utilities/getURL'
 import { serverEnv } from './utilities/env'
@@ -107,8 +108,15 @@ export default buildConfig({
   cors: [getServerSideURL()].filter(Boolean),
   globals: [Header, Footer, SiteSettings, Settings],
   plugins: [...plugins, adminThemePlugin({ enhancedLayout: true })],
+  storage,
   secret: serverEnv.PAYLOAD_SECRET,
-  sharp,
+  upload: {
+    transformers: [
+      // Image metadata and the Media focal point are processed only for listed collections.
+      // Documents store non-image files and were never processed by the former `sharp` option.
+      sharpTransformer({ sharp, collections: { media: {}, 'site-assets': {} } }),
+    ],
+  },
   typescript: {
     outputFile: path.resolve(dirname, 'payload-types.ts'),
   },

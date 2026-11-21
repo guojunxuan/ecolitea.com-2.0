@@ -1,4 +1,5 @@
 import { mongooseAdapter, type MongooseAdapter } from '@payloadcms/db-mongodb'
+import { sharpTransformer } from '@payloadcms/transformer-sharp'
 import { randomUUID } from 'node:crypto'
 import { mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
@@ -55,7 +56,8 @@ describe('Social Platform database contracts', () => {
         } satisfies GlobalConfig,
       ],
       secret: 'social-platform-test-secret-that-is-at-least-32-characters',
-      sharp,
+      // Payload 4 removed the top-level `sharp` option; image processing is an upload transformer.
+      upload: { transformers: [sharpTransformer({ sharp, collections: { 'site-assets': {} } })] },
     })
     payload = await getPayload({ config, key: databaseName })
     const asset = await withTempUpload(upload('icon.svg'), (file) =>
