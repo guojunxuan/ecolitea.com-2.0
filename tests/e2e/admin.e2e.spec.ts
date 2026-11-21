@@ -1,6 +1,5 @@
 import { test, expect, type Page } from '@playwright/test'
 import { readFileSync } from 'node:fs'
-import { writeFile } from 'node:fs/promises'
 import { getPayload } from 'payload'
 import config from '../../src/payload.config.js'
 import { blogFixture, reportBlogEnvironment } from '../helpers/blogFixtures'
@@ -11,54 +10,56 @@ import { seedTestUser, cleanupTestUser, testUser } from '../helpers/seedUser'
 
 const baseURL = getE2EBaseURL()
 const captureShots = process.env.ADMIN_UI_SCREENSHOTS === 'true'
-const shotDirectory = '/tmp/admin-ui-shots'
+const shotDirectory = '/tmp/themev2-shots'
+const demoPath = '.superpowers/brainstorm/16381-1795180738/content/admin-demo-v3.html'
 
 async function capture(page: Page, name: string) {
   if (!captureShots) return
   await page.mouse.move(0, 0)
   await page.screenshot({ path: `${shotDirectory}/${name}.png`, animations: 'disabled' })
-  const surfaces = await page.evaluate(() => {
-    const probe = document.createElement('span')
-    document.body.append(probe)
-    probe.style.backgroundColor = 'var(--color-bg-secondary)'
-    const secondary = getComputedStyle(probe).backgroundColor
-    probe.style.backgroundColor = 'var(--color-bg-tertiary)'
-    const tertiary = getComputedStyle(probe).backgroundColor
-    probe.remove()
-    const matching: Record<string, string[]> = { [secondary]: [], [tertiary]: [] }
-    for (const element of document.body.querySelectorAll('*')) {
-      if (!element.getClientRects().length) continue
-      const background = getComputedStyle(element).backgroundColor
-      if (background === secondary || background === tertiary) {
-        const classes = element.getAttribute('class')?.split(' ').slice(0, 3).join('.') ?? ''
-        const label = `${element.tagName.toLowerCase()}.${classes}`
-        if (!matching[background].includes(label)) matching[background].push(label)
-      }
-    }
-    return matching
-  })
-  await writeFile(`${shotDirectory}/${name}-surfaces.json`, JSON.stringify(surfaces, null, 2))
 }
 
 async function openSidebar(page: Page) {
   const openMenu = page.getByRole('button', { name: 'Open Menu' })
   if (await openMenu.isVisible()) await openMenu.click()
-  await expect(page.getByText('Phase4 Test', { exact: true })).toBeInViewport()
+  await expect(page.locator('.nav').getByText('Phase4 Test', { exact: true })).toBeInViewport()
 }
 
-async function expectSidebarSurface(page: Page) {
-  const surfaces = await page.locator('.nav').evaluate((sidebar) => {
-    const probe = document.createElement('span')
-    document.body.append(probe)
-    probe.style.backgroundColor = 'var(--color-bg-secondary)'
-    const secondary = getComputedStyle(probe).backgroundColor
-    probe.style.backgroundColor = 'var(--color-bg)'
-    const primary = getComputedStyle(probe).backgroundColor
-    probe.remove()
-    return { sidebar: getComputedStyle(sidebar).backgroundColor, primary, secondary }
+// The enhanced layout puts the sidebar on a gray canvas and floats the content as a rounded panel.
+async function expectWindowLayout(page: Page) {
+  const layout = await page.evaluate(() => {
+    // Anonymous callbacks only: tsx injects a __name helper for named functions, which the page lacks.
+    const [expectedCanvas, expectedPanel] = ['--admin-canvas', '--color-bg'].map((token) => {
+      const probe = document.createElement('span')
+      document.body.append(probe)
+      probe.style.backgroundColor = `var(${token})`
+      const value = getComputedStyle(probe).backgroundColor
+      probe.remove()
+      return value
+    })
+    const panel = document.querySelector('.template-default__wrap')!
+    const style = getComputedStyle(panel)
+    const rect = panel.getBoundingClientRect()
+    return {
+      canvas: getComputedStyle(document.querySelector('.template-default')!).backgroundColor,
+      nav: getComputedStyle(document.querySelector('.nav')!).backgroundColor,
+      panel: style.backgroundColor,
+      radius: style.borderTopLeftRadius,
+      margins: [style.marginTop, style.marginRight, style.marginBottom],
+      gapRight: document.documentElement.clientWidth - rect.right,
+      gapTop: rect.top,
+      expected: { canvas: expectedCanvas, panel: expectedPanel },
+    }
   })
-  expect(surfaces.sidebar).toBe(surfaces.secondary)
-  expect(surfaces.sidebar).not.toBe(surfaces.primary)
+  expect(layout.canvas).toBe(layout.expected.canvas)
+  expect(layout.panel).toBe(layout.expected.panel)
+  expect(layout.canvas).not.toBe(layout.panel)
+  expect(layout.nav).toBe('rgba(0, 0, 0, 0)')
+  expect(layout.radius).toBe('14px')
+  expect(layout.margins).toEqual(['8px', '8px', '8px'])
+  // The panel must end 8px before the viewport edge, not overflow it.
+  expect(layout.gapRight).toBe(8)
+  expect(layout.gapTop).toBe(8)
 }
 
 test.describe('Admin Panel', () => {
@@ -80,10 +81,15 @@ test.describe('Admin Panel', () => {
   test('can navigate to the dashboard and see editor widgets', async () => {
     await page.goto(`${baseURL}/admin`)
     await expect(page).toHaveURL(`${baseURL}/admin`)
+    await expect(page.getByRole('heading', { level: 1, name: 'Dashboard' })).toBeVisible()
     await expect(page.getByRole('region', { name: 'Overview' })).toBeVisible()
     await expect(page.getByRole('heading', { name: 'Recent quote requests' })).toBeVisible()
-    await expect(page.getByRole('link', { name: 'New product', exact: true })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Content activity' })).toBeVisible()
+    // The title row and the quick actions both offer "New product".
+    await expect(page.getByRole('link', { name: 'New product', exact: true })).toHaveCount(2)
+    await expect(page.getByRole('navigation', { name: 'Quick actions' }).getByRole('link', { name: 'New product' })).toBeVisible()
     await expect(page.getByRole('region', { name: 'System status' })).toHaveCount(0)
+    await expect(page.getByRole('region', { name: 'Translations' })).toHaveCount(0)
   })
 
   test('can navigate to list view', async () => {
@@ -180,11 +186,18 @@ test.describe('Admin Panel', () => {
         await expect(admin.getByRole('img', { name: 'Phase4 test logo' })).toBeVisible()
         await login({ page: admin, user: { email: 'phase4-admin@example.invalid', password: 'phase4-test-only' } })
         await expect(admin.getByRole('heading', { name: 'System status' })).toBeVisible()
-        await expect(admin.getByText('Phase4 Test', { exact: true })).toBeVisible()
+        await expect(admin.getByRole('heading', { level: 1, name: 'Dashboard' })).toBeVisible()
+        await expect(admin.locator('[data-site-name]')).toHaveText('Phase4 Test')
+        await expect(admin.getByRole('region', { name: 'Translations' })).toBeVisible()
+        await expect(admin.getByRole('region', { name: 'Content activity' })).toBeVisible()
         await expect(admin.getByRole('region', { name: 'Site setup' })).toHaveCount(0)
         await expect(admin.locator('html')).toHaveAttribute('data-theme', colorScheme)
         await openSidebar(admin)
-        await expectSidebarSurface(admin)
+        await expectWindowLayout(admin)
+        // The user card is pinned in the sidebar and links to the account page.
+        const card = admin.locator('.nav').getByRole('link', { name: /Phase4 editor\s*Administrator/ })
+        await expect(card).toBeInViewport()
+        await expect(card).toHaveAttribute('href', '/admin/account')
         if (!captureShots) continue
         await capture(admin, `dashboard-${colorScheme}`)
         await admin.goto(`${baseURL}/admin/collections/blogs`)
@@ -199,20 +212,52 @@ test.describe('Admin Panel', () => {
           overrideAccess: true,
         })
         await admin.goto(`${baseURL}/admin/collections/blogs/${blog.id}`)
-        await expect(admin.getByRole('textbox', { name: 'Title *', exact: true })).toHaveValue(blog.title)
+        // Payload 4 beta.10 no longer includes the required marker in the field's accessible name.
+        await expect(admin.getByRole('textbox', { name: 'Title', exact: true })).toHaveValue(blog.title)
         await openSidebar(admin)
         await capture(admin, `edit-${colorScheme}`)
 
         const demo = await context.newPage()
-        await demo.setContent(readFileSync('.superpowers/brainstorm/89787-1795079269/content/admin-demo-v2.html', 'utf8'))
-        await demo.locator(`[data-t="${colorScheme}"]`).click()
+        await demo.setContent(readFileSync(demoPath, 'utf8'))
+        await demo.locator(`#st [data-t="${colorScheme}"]`).click()
         for (const [view, label] of [['dash', 'dashboard'], ['list', 'list'], ['edit', 'edit']]) {
-          await demo.locator(`#viewSeg [data-go="${view}"]`).click()
+          await demo.locator(`#sv [data-go="${view}"]`).click()
           await demo.screenshot({ path: `${shotDirectory}/demo-${label}-${colorScheme}.png` })
         }
       } finally {
         await context.close()
       }
     }
+  })
+
+  test('opens Payload’s command palette from the sidebar without a second search', async () => {
+    await page.goto(`${baseURL}/admin`)
+    await openSidebar(page)
+    const palette = page.getByRole('combobox')
+    await expect(palette).toHaveCount(0)
+
+    // The sidebar entry opens the native palette and jumps to a collection.
+    await page.locator('.nav button[aria-haspopup="dialog"]').click()
+    await expect(palette).toBeVisible()
+    await palette.fill('Blogs')
+    await page.getByRole('option', { name: /Blogs/ }).first().click()
+    await expect(page).toHaveURL(/\/admin\/collections\/blogs(\?.*)?$/)
+
+    // The native Ctrl/Cmd+K shortcut still works and is not shadowed by the sidebar.
+    await page.keyboard.press('Control+K')
+    await expect(palette).toBeVisible()
+    await expect(palette).toBeFocused()
+    await page.keyboard.press('Escape')
+    await expect(palette).toHaveCount(0)
+  })
+
+  test('shows the signed-in editor in the sidebar user card', async () => {
+    await page.goto(`${baseURL}/admin`)
+    await openSidebar(page)
+    const card = page.locator('.nav').getByRole('link', { name: new RegExp(`${testUser.email}\\s*Editor`) })
+    await expect(card).toBeInViewport()
+    await expect(card).toHaveAttribute('href', '/admin/account')
+    await card.click()
+    await expect(page).toHaveURL(/\/admin\/account$/)
   })
 })
