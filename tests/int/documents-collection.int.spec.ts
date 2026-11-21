@@ -140,6 +140,7 @@ describe('Documents uploads through real Payload Local API', () => {
       collection: 'documents',
       data: { title: 'Tea certificate with summary', description: 'a'.repeat(300) },
       file: file(),
+      overrideAccess: true,
     })
     expect(doc.description).toHaveLength(300)
     await expect(
@@ -147,6 +148,7 @@ describe('Documents uploads through real Payload Local API', () => {
         collection: 'documents',
         id: doc.id,
         data: { description: 'a'.repeat(301) },
+        overrideAccess: true,
       }),
     ).rejects.toMatchObject({
       data: { errors: expect.arrayContaining([expect.objectContaining({ path: 'description' })]) },
@@ -158,6 +160,7 @@ describe('Documents uploads through real Payload Local API', () => {
         collection: 'documents',
         data: { title: 'Tea certification' },
         file: file(),
+        overrideAccess: true,
       }),
     ).resolves.toMatchObject({ title: 'Tea certification', mimeType: 'application/pdf' })
     for (const extension of Object.keys(officeTypes) as (keyof typeof officeTypes)[]) {
@@ -170,6 +173,7 @@ describe('Documents uploads through real Payload Local API', () => {
             `spec.${extension}`,
             officeTypes[extension].mime,
           ),
+          overrideAccess: true,
         }),
       ).resolves.toMatchObject({
         title: 'Product specification',
@@ -222,6 +226,7 @@ describe('Documents uploads through real Payload Local API', () => {
           collection: 'documents',
           data: { title: 'Tea certification' },
           file: makeFile(),
+          overrideAccess: true,
         }),
       ).rejects
       if (message === 'Invalid PDF file.') {
@@ -242,13 +247,19 @@ describe('Documents uploads through real Payload Local API', () => {
         collection: 'documents',
         data: { title: 'Detailed certification' },
         file: file(bytes),
+        overrideAccess: true,
       }),
     ).resolves.toMatchObject({ filesize: 10_000_000 })
   })
   it('validates new titles before storage writes', async () => {
     const before = await readdir(directory)
     await expect(
-      payload.create({ collection: 'documents', data: { title: 'document1' }, file: file() }),
+      payload.create({
+        collection: 'documents',
+        data: { title: 'document1' },
+        file: file(),
+        overrideAccess: true,
+      }),
     ).rejects.toMatchObject({
       data: {
         errors: [
@@ -267,12 +278,14 @@ describe('Documents uploads through real Payload Local API', () => {
       data: { title: 'Legacy placeholder' },
       file: file(),
       context: { seedLegacyTitle: 'empty' },
+      overrideAccess: true,
     })
     await expect(
       payload.update({
         collection: 'documents',
         id: legacy.id,
         data: { description: 'Historical certificate' },
+        overrideAccess: true,
       }),
     ).resolves.toMatchObject({ title: '', description: 'Historical certificate' })
   })
@@ -282,21 +295,38 @@ describe('Documents uploads through real Payload Local API', () => {
       data: { title: 'document1' },
       file: file(),
       context: { seedLegacyTitle: true },
+      overrideAccess: true,
     })
-    const folder = await payload.create({ collection: 'folders', data: { name: 'Certifications' } })
+    const folder = await payload.create({
+      collection: 'folders',
+      data: { name: 'Certifications' },
+      overrideAccess: true,
+    })
     await expect(
       payload.update({
         collection: 'documents',
         id: legacy.id,
         data: { title: 'document1', description: 'Updated', _h_folders: folder.id },
         depth: 0,
+        overrideAccess: true,
       }),
     ).resolves.toMatchObject({ title: 'document1', description: 'Updated', _h_folders: folder.id })
     await expect(
-      payload.update({ collection: 'documents', id: legacy.id, data: { _h_folders: null } }),
+      payload.update({
+        collection: 'documents',
+        id: legacy.id,
+        data: { _h_folders: null },
+        overrideAccess: true,
+      }),
     ).resolves.toMatchObject({ title: 'document1', _h_folders: null })
     await expect(
-      payload.update({ collection: 'documents', id: legacy.id, data: {}, file: file() }),
+      payload.update({
+        collection: 'documents',
+        id: legacy.id,
+        data: {},
+        file: file(),
+        overrideAccess: true,
+      }),
     ).rejects.toMatchObject({
       data: {
         errors: [
@@ -308,7 +338,12 @@ describe('Documents uploads through real Payload Local API', () => {
       },
     })
     await expect(
-      payload.update({ collection: 'documents', id: legacy.id, data: { title: 'file' } }),
+      payload.update({
+        collection: 'documents',
+        id: legacy.id,
+        data: { title: 'file' },
+        overrideAccess: true,
+      }),
     ).rejects.toMatchObject({
       data: {
         errors: [{ path: 'title', message: 'Title is too generic. Describe the document.' }],

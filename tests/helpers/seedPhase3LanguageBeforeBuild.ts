@@ -17,6 +17,7 @@ try {
     data: { alt: 'Phase4 test logo' },
     file: { data, mimetype: 'image/svg+xml', name: 'phase4-logo.svg', size: data.length },
     ...fixtureContext,
+    overrideAccess: true,
   })
   await payload.create({
     collection: 'users',
@@ -27,6 +28,7 @@ try {
       name: 'Phase4 editor',
     },
     ...fixtureContext,
+    overrideAccess: true,
   })
   await payload.updateGlobal({
     slug: 'site-settings',
@@ -52,6 +54,7 @@ try {
       ],
     },
     ...fixtureContext,
+    overrideAccess: true,
   })
   for (const [slug, title, ready] of [
     ['home', 'Phase3 home', true],
@@ -69,6 +72,7 @@ try {
         _status: 'published',
       },
       ...fixtureContext,
+      overrideAccess: true,
     })
     if (ready) {
       await payload.create({
@@ -87,6 +91,7 @@ try {
           ),
         },
         ...fixtureContext,
+        overrideAccess: true,
       })
     }
   }

@@ -79,22 +79,35 @@ describe('native Media folders', () => {
   it.each(['IMG_1234', ''])(
     'archives and unfiles media with unchanged legacy alt %j',
     async (alt) => {
-      const parent = await payload.create({ collection: 'folders', data: { name: 'Parent' } })
+      const parent = await payload.create({
+        collection: 'folders',
+        data: { name: 'Parent' },
+        overrideAccess: true,
+      })
       const child = await payload.create({
         collection: 'folders',
         data: { name: 'Child', _h_folders: parent.id },
+        overrideAccess: true,
       })
       const media = await payload.create({
         collection: 'media',
         data: { alt: 'Tea garden archive', _h_folders: child.id },
         context: { legacyFixture: alt ? true : 'empty' },
         depth: 0,
+        overrideAccess: true,
       })
       expect(media.alt).toBe(alt)
       expect(media._h_folders).toBe(child.id)
-      await payload.delete({ collection: 'folders', id: parent.id })
-      expect((await payload.find({ collection: 'folders' })).docs).toHaveLength(0)
-      const remaining = await payload.findByID({ collection: 'media', id: media.id, depth: 0 })
+      await payload.delete({ collection: 'folders', id: parent.id, overrideAccess: true })
+      expect(
+        (await payload.find({ collection: 'folders', overrideAccess: true })).docs,
+      ).toHaveLength(0)
+      const remaining = await payload.findByID({
+        collection: 'media',
+        id: media.id,
+        depth: 0,
+        overrideAccess: true,
+      })
       expect(remaining._h_folders ?? null).toBeNull()
       expect(remaining.alt).toBe(alt)
     },

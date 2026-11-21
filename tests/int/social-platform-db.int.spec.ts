@@ -61,11 +61,11 @@ describe('Social Platform database contracts', () => {
     })
     payload = await getPayload({ config, key: databaseName })
     const asset = await withTempUpload(upload('icon.svg'), (file) =>
-      payload.create({ collection: 'site-assets', data: { alt: 'Icon' }, file }),
+      payload.create({ collection: 'site-assets', data: { alt: 'Icon' }, file, overrideAccess: true }),
     )
     svgID = String(asset.id)
     const secondSVG = await withTempUpload(upload('icon-alternate.svg'), (file) =>
-      payload.create({ collection: 'site-assets', data: { alt: 'Alternate Icon' }, file }),
+      payload.create({ collection: 'site-assets', data: { alt: 'Alternate Icon' }, file, overrideAccess: true }),
     )
     secondSVGID = String(secondSVG.id)
     const png = await (payload.db as MongooseAdapter).collections['site-assets'].create({
@@ -88,9 +88,9 @@ describe('Social Platform database contracts', () => {
   })
 
   it('enforces exact-value uniqueness while allowing case-distinct names', async () => {
-    await payload.create({ collection: 'social-platforms', data: { icon: svgID, platform: 'GitHub' } })
+    await payload.create({ collection: 'social-platforms', data: { icon: svgID, platform: 'GitHub' }, overrideAccess: true })
     await expect(
-      payload.create({ collection: 'social-platforms', data: { icon: svgID, platform: 'GitHub' } }),
+      payload.create({ collection: 'social-platforms', data: { icon: svgID, platform: 'GitHub' }, overrideAccess: true }),
     ).rejects.toMatchObject({
       data: {
         errors: [
@@ -101,25 +101,26 @@ describe('Social Platform database contracts', () => {
         ],
       },
     })
-    await expect(payload.create({ collection: 'social-platforms', data: { icon: svgID, platform: 'github' } })).resolves.toMatchObject({ platform: 'github' })
+    await expect(payload.create({ collection: 'social-platforms', data: { icon: svgID, platform: 'github' }, overrideAccess: true })).resolves.toMatchObject({ platform: 'github' })
   })
 
   it('rejects missing, cleared, unresolved, and non-SVG icons and immutable-name updates', async () => {
-    await expect(payload.create({ collection: 'social-platforms', data: { platform: 'Missing' } as never })).rejects.toThrow('The following field is invalid: Icon')
-    await expect(payload.create({ collection: 'social-platforms', data: { icon: '000000000000000000000000', platform: 'Unknown' } })).rejects.toThrow('The following field is invalid: Icon')
-    await expect(payload.create({ collection: 'social-platforms', data: { icon: pngID, platform: 'PNG' } })).rejects.toThrow('The following field is invalid: Icon')
-    const platform = await payload.create({ collection: 'social-platforms', data: { icon: svgID, platform: 'Immutable' } })
-    await expect(payload.update({ collection: 'social-platforms', id: platform.id, data: { platform: 'Changed' } })).rejects.toThrow('Platform cannot be changed after creation.')
-    await expect(payload.update({ collection: 'social-platforms', id: platform.id, data: { icon: pngID } })).rejects.toThrow('The following field is invalid: Icon')
-    await expect(payload.update({ collection: 'social-platforms', id: platform.id, data: { icon: null as never } })).rejects.toThrow('The following field is invalid: Icon')
-    await expect(payload.update({ collection: 'social-platforms', id: platform.id, data: { icon: secondSVGID } })).resolves.toMatchObject({ platform: 'Immutable' })
-    await expect(payload.findByID({ collection: 'site-assets', id: svgID })).resolves.toMatchObject({ id: svgID })
+    await expect(payload.create({ collection: 'social-platforms', data: { platform: 'Missing' } as never, overrideAccess: true })).rejects.toThrow('The following field is invalid: Icon')
+    await expect(payload.create({ collection: 'social-platforms', data: { icon: '000000000000000000000000', platform: 'Unknown' }, overrideAccess: true })).rejects.toThrow('The following field is invalid: Icon')
+    await expect(payload.create({ collection: 'social-platforms', data: { icon: pngID, platform: 'PNG' }, overrideAccess: true })).rejects.toThrow('The following field is invalid: Icon')
+    const platform = await payload.create({ collection: 'social-platforms', data: { icon: svgID, platform: 'Immutable' }, overrideAccess: true })
+    await expect(payload.update({ collection: 'social-platforms', id: platform.id, data: { platform: 'Changed' }, overrideAccess: true })).rejects.toThrow('Platform cannot be changed after creation.')
+    await expect(payload.update({ collection: 'social-platforms', id: platform.id, data: { icon: pngID }, overrideAccess: true })).rejects.toThrow('The following field is invalid: Icon')
+    await expect(payload.update({ collection: 'social-platforms', id: platform.id, data: { icon: null as never }, overrideAccess: true })).rejects.toThrow('The following field is invalid: Icon')
+    await expect(payload.update({ collection: 'social-platforms', id: platform.id, data: { icon: secondSVGID }, overrideAccess: true })).resolves.toMatchObject({ platform: 'Immutable' })
+    await expect(payload.findByID({ collection: 'site-assets', id: svgID, overrideAccess: true })).resolves.toMatchObject({ id: svgID })
   })
 
   it('rejects a repeated Platform relationship through the Local API', async () => {
     const platform = await payload.create({
       collection: 'social-platforms',
       data: { icon: svgID, platform: 'Local API Platform' },
+      overrideAccess: true,
     })
 
     await expect(payload.updateGlobal({
@@ -130,6 +131,7 @@ describe('Social Platform database contracts', () => {
             { platform: platform.id, url: 'https://example.com/two' },
           ],
         },
+        overrideAccess: true,
       })).rejects.toMatchObject({
         data: {
           errors: [
@@ -147,8 +149,9 @@ describe('Social Platform database contracts', () => {
     const platform = await payload.create({
       collection: 'social-platforms',
       data: { icon: svgID, platform: 'Disposable Platform' },
+      overrideAccess: true,
     })
-    await payload.delete({ collection: 'social-platforms', id: platform.id })
-    await expect(payload.findByID({ collection: 'site-assets', id: svgID })).resolves.toMatchObject({ id: svgID })
+    await payload.delete({ collection: 'social-platforms', id: platform.id, overrideAccess: true })
+    await expect(payload.findByID({ collection: 'site-assets', id: svgID, overrideAccess: true })).resolves.toMatchObject({ id: svgID })
   })
 })

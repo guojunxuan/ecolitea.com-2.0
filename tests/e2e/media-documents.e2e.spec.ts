@@ -32,9 +32,14 @@ test.describe('Media and Documents native Admin workflows', () => {
     const existing = await payload.find({
       collection: 'users',
       where: { email: { equals: user.email } },
+      overrideAccess: true,
     })
     if (!existing.totalDocs)
-      await payload.create({ collection: 'users', data: { ...user, role: 'editor' } })
+      await payload.create({
+        collection: 'users',
+        data: { ...user, role: 'editor' },
+        overrideAccess: true,
+      })
   })
   test.beforeEach(async ({ page }) => {
     await page
@@ -55,6 +60,7 @@ test.describe('Media and Documents native Admin workflows', () => {
           where: { filename: { contains: prefix } },
           limit: 100,
           depth: 0,
+          overrideAccess: true,
         })
         for (const document of documents.docs) {
           const deletion = await context.request.delete(
@@ -65,7 +71,11 @@ test.describe('Media and Documents native Admin workflows', () => {
       }
     }
     await context.close()
-    await payload.delete({ collection: 'users', where: { email: { equals: user.email } } })
+    await payload.delete({
+      collection: 'users',
+      where: { email: { equals: user.email } },
+      overrideAccess: true,
+    })
     await payload.destroy()
   })
 
@@ -205,6 +215,7 @@ test.describe('Media and Documents native Admin workflows', () => {
         collection: 'blogs',
         where: { slug: { equals: `e2e-blogs-${runID}-article` } },
         depth: 0,
+        overrideAccess: true,
       })
     ).docs[0]
     const previousImage = blog.heroImage
@@ -214,6 +225,7 @@ test.describe('Media and Documents native Admin workflows', () => {
         id: blog.id,
         data: { heroImage: doc.id },
         context: { disableRevalidate: true },
+        overrideAccess: true,
       })
       await page.reload()
       await expect(
@@ -230,6 +242,7 @@ test.describe('Media and Documents native Admin workflows', () => {
         id: blog.id,
         data: { heroImage: previousImage },
         context: { disableRevalidate: true },
+        overrideAccess: true,
       })
     }
   })
@@ -380,6 +393,7 @@ test.describe('Media and Documents native Admin workflows', () => {
               await payload.count({
                 collection,
                 where: { filename: { contains: `${prefix}-batch-${collection}` } },
+                overrideAccess: true,
               })
             ).totalDocs,
         )
@@ -388,6 +402,7 @@ test.describe('Media and Documents native Admin workflows', () => {
         collection,
         depth: 0,
         where: { filename: { in: names.map((name) => `${name}.${extension}`) } },
+        overrideAccess: true,
       })
       expect(saved.totalDocs).toBe(2)
       for (const [index, name] of names.entries()) {
@@ -407,10 +422,12 @@ test.describe('Media and Documents native Admin workflows', () => {
     const parent = await payload.create({
       collection: 'folders',
       data: { name: `${prefix} archive` },
+      overrideAccess: true,
     })
     const child = await payload.create({
       collection: 'folders',
       data: { name: `${prefix} child`, _h_folders: parent.id },
+      overrideAccess: true,
     })
     const resources: Array<{ collection: 'media' | 'documents'; id: string }> = []
     for (const collection of ['media', 'documents'] as const) {
@@ -444,9 +461,10 @@ test.describe('Media and Documents native Admin workflows', () => {
       await page.getByRole('button', { name: 'Save', exact: true }).click()
       expect((await moved).ok()).toBe(true)
       await expect(page.getByRole('button', { name: `${prefix} child`, exact: true })).toBeVisible()
-      expect((await payload.findByID({ collection, id: doc.id, depth: 0 }))._h_folders).toBe(
-        child.id,
-      )
+      expect(
+        (await payload.findByID({ collection, id: doc.id, depth: 0, overrideAccess: true }))
+          ._h_folders,
+      ).toBe(child.id)
     }
     await page.goto(`${baseURL}/admin/collections/folders/${parent.id}`)
     await page.getByRole('button', { name: 'More options', exact: true }).click()
@@ -459,11 +477,19 @@ test.describe('Media and Documents native Admin workflows', () => {
     await page.getByRole('button', { name: 'Confirm', exact: true }).click()
     expect((await deleted).ok()).toBe(true)
     expect(
-      (await payload.find({ collection: 'folders', where: { id: { in: [parent.id, child.id] } } }))
-        .totalDocs,
+      (
+        await payload.find({
+          collection: 'folders',
+          where: { id: { in: [parent.id, child.id] } },
+          overrideAccess: true,
+        })
+      ).totalDocs,
     ).toBe(0)
     for (const { collection, id } of resources) {
-      expect((await payload.findByID({ collection, id, depth: 0 }))._h_folders ?? null).toBeNull()
+      expect(
+        (await payload.findByID({ collection, id, depth: 0, overrideAccess: true }))._h_folders ??
+          null,
+      ).toBeNull()
       await page.goto(`${baseURL}/admin/collections/${collection}/${id}`)
       await expect(page.getByRole('button', { name: 'None', exact: true })).toBeVisible()
     }

@@ -127,6 +127,7 @@ describe('Blogs through the isolated Payload Local API', () => {
         _status: 'published',
         ...data,
       } as never,
+      overrideAccess: true,
     })
 
   beforeAll(async () => {
@@ -196,12 +197,14 @@ describe('Blogs through the isolated Payload Local API', () => {
         collection: 'blog-categories',
         context,
         data: { title: 'Tea', slug: 'tea' },
+        overrideAccess: true,
       })
     ).id
     mediaID = (
       await payload.create({
         collection: 'media',
         data: { alt: 'Test hero', mimeType: 'image/png' },
+        overrideAccess: true,
       })
     ).id
     user = await payload.create({
@@ -212,6 +215,7 @@ describe('Blogs through the isolated Payload Local API', () => {
         password: 'isolated-test-password',
         name: 'Test Author',
       },
+      overrideAccess: true,
     })
   }, 25_000)
 
@@ -227,6 +231,7 @@ describe('Blogs through the isolated Payload Local API', () => {
       collection: 'blog-categories',
       context,
       data: { title: 'Disposable', slug: 'disposable' },
+      overrideAccess: true,
     })
     expect(category._order).toBeTruthy()
     await expect(
@@ -235,6 +240,7 @@ describe('Blogs through the isolated Payload Local API', () => {
         context,
         id: category.id,
         data: { title: 'Renamed' },
+        overrideAccess: true,
       }),
     ).resolves.toMatchObject({ title: 'Renamed' })
     const blog = await createBlog()
@@ -242,11 +248,17 @@ describe('Blogs through the isolated Payload Local API', () => {
       collection: 'blog-categories',
       id: categoryID,
       depth: 0,
+      overrideAccess: true,
     })
     expect(joined.blogs?.docs).toContain(blog.id)
-    await payload.delete({ collection: 'blog-categories', context, id: category.id })
+    await payload.delete({
+      collection: 'blog-categories',
+      context,
+      id: category.id,
+      overrideAccess: true,
+    })
     await expect(
-      payload.findByID({ collection: 'blog-categories', id: category.id }),
+      payload.findByID({ collection: 'blog-categories', id: category.id, overrideAccess: true }),
     ).rejects.toThrow()
   })
 
@@ -292,6 +304,7 @@ describe('Blogs through the isolated Payload Local API', () => {
       id: draft.id,
       depth: 0,
       draft: true,
+      overrideAccess: true,
     })
     expect(storedDraft.content).toEqual(draft.content)
     expect(
@@ -302,6 +315,7 @@ describe('Blogs through the isolated Payload Local API', () => {
       id: draft.id,
       context,
       data: { _status: 'published' },
+      overrideAccess: true,
     })
     expect(published.category).toMatchObject({ id: categoryID })
     expect(published.content).toEqual(draft.content)
@@ -312,6 +326,7 @@ describe('Blogs through the isolated Payload Local API', () => {
       id: draft.id,
       context,
       data: { excerpt: 'Updated' },
+      overrideAccess: true,
     })
     expect(updated.publishedAt).toBe(published.publishedAt)
     const publicDoc = await payload.findByID({
@@ -332,6 +347,7 @@ describe('Blogs through the isolated Payload Local API', () => {
       id: published.id,
       context: { ...context, testUndatedBlog: true },
       data: { publishedAt: null },
+      overrideAccess: true,
     })
     expect(undated.publishedAt).toBeNull()
     const visible = await createBlog({ publishedAt: '2020-01-01T00:00:00.000Z' })
@@ -372,6 +388,7 @@ describe('Blogs through the isolated Payload Local API', () => {
       collection: 'blog-categories',
       context,
       data: { title: 'Old category', slug: 'old-category' },
+      overrideAccess: true,
     })
     const blog = await createBlog({ category: category.id })
     const indexed = await payload.find({
@@ -389,12 +406,18 @@ describe('Blogs through the isolated Payload Local API', () => {
       id: category.id,
       context,
       data: { title: 'New category', slug: 'new-category' },
+      overrideAccess: true,
     })
     expect((await resolveBlogSearchResults(payload, indexed.docs))[0].category).toMatchObject({
       title: 'New category',
       slug: 'new-category',
     })
-    await payload.delete({ collection: 'blog-categories', id: category.id, context })
+    await payload.delete({
+      collection: 'blog-categories',
+      id: category.id,
+      context,
+      overrideAccess: true,
+    })
     expect((await resolveBlogSearchResults(payload, indexed.docs))[0].category).toBe('')
   })
 
@@ -450,7 +473,7 @@ describe('Blogs through the isolated Payload Local API', () => {
         },
       })
       if (status === 'deleted')
-        await payload.delete({ collection: 'blogs', id: target.id, context })
+        await payload.delete({ collection: 'blogs', id: target.id, context, overrideAccess: true })
       const anonymous = await payload.findByID({
         collection: 'blogs',
         id: parent.id,
@@ -478,6 +501,7 @@ describe('Blogs through the isolated Payload Local API', () => {
         context,
         id: related[0].id,
         data: { relatedBlogs: [related[0].id] },
+        overrideAccess: true,
       }),
     ).rejects.toMatchObject({
       data: { errors: expect.arrayContaining([expect.objectContaining({ path: 'relatedBlogs' })]) },

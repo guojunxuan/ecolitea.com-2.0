@@ -101,7 +101,7 @@ test.describe('Admin Panel', () => {
   test('shows the neutral login brand and follows the dark theme', async ({ browser }) => {
     const payload = await getPayload({ config })
     const slug = 'site-settings'
-    const { siteName, logo, favicon } = await payload.findGlobal({ slug, depth: 0 })
+    const { siteName, logo, favicon } = await payload.findGlobal({ slug, depth: 0, overrideAccess: true })
     // The shared fixture configures branding. Model an unsaved brand for this test
     // in the run-scoped database, bypassing required-field validation only here.
     await payload.db.updateGlobal({ slug, data: { siteName: null, logo: null, favicon: null } })
@@ -151,7 +151,7 @@ test.describe('Admin Panel', () => {
   test('redirects the public admin icon to the current Site Settings asset', async ({ request }) => {
     const payload = await getPayload({ config })
     const slug = 'site-settings'
-    const { favicon, logo } = await payload.findGlobal({ slug, depth: 1 })
+    const { favicon, logo } = await payload.findGlobal({ slug, depth: 1, overrideAccess: true })
     if (!logo || typeof logo !== 'object' || !logo.url) throw new Error('Missing logo fixture')
 
     await payload.db.updateGlobal({ slug, data: { favicon: logo.id } })
@@ -196,6 +196,7 @@ test.describe('Admin Panel', () => {
         const payload = await getPayload({ config })
         const { docs: [blog] } = await payload.find({
           collection: 'blogs', depth: 0, limit: 1, where: { slug: { equals: fixture.slug } },
+          overrideAccess: true,
         })
         await admin.goto(`${baseURL}/admin/collections/blogs/${blog.id}`)
         await expect(admin.getByRole('textbox', { name: 'Title *', exact: true })).toHaveValue(blog.title)

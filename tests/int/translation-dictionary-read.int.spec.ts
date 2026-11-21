@@ -119,12 +119,14 @@ describe('dictionary Jobs and last-ready reads (isolated MongoDB)', () => {
     payload.find({
       collection: 'translations',
       where: { sourceCollection: { equals: 'dictionary' } },
+      overrideAccess: true,
     })
   const jobs = () =>
     payload.find({
       collection: 'payload-jobs',
       where: { queue: { equals: TRANSLATION_QUEUE } },
       limit: 100,
+      overrideAccess: true,
     })
   const startup = () => payload.config.onInit!(payload)
 
@@ -151,8 +153,8 @@ describe('dictionary Jobs and last-ready reads (isolated MongoDB)', () => {
     }
   })
   beforeEach(async () => {
-    await payload.delete({ collection: 'payload-jobs', where: {} })
-    await payload.delete({ collection: 'translations', where: {} })
+    await payload.delete({ collection: 'payload-jobs', where: {}, overrideAccess: true })
+    await payload.delete({ collection: 'translations', where: {}, overrideAccess: true })
     vi.clearAllMocks()
     translate.mockImplementation(stubTranslationProvider.translate)
     invalidate.mockResolvedValue(undefined)
@@ -204,6 +206,7 @@ describe('dictionary Jobs and last-ready reads (isolated MongoDB)', () => {
       collection: 'translations',
       id: pending.id,
       data: { requestedSourceVersion: 'z'.repeat(64) },
+      overrideAccess: true,
     })
     await startup()
     expect((await jobs()).totalDocs).toBe(1)
@@ -223,6 +226,7 @@ describe('dictionary Jobs and last-ready reads (isolated MongoDB)', () => {
           status,
           requestedSourceVersion: dictionaryVersion(),
         },
+        overrideAccess: true,
       })
       await startup()
       expect((await jobs()).totalDocs).toBe(0)
@@ -233,7 +237,12 @@ describe('dictionary Jobs and last-ready reads (isolated MongoDB)', () => {
     serverEnv.JOBS_AUTORUN = true
     translate.mockImplementation(async ({ texts }) => texts.map((text) => `DE ${text}`))
     await startup()
-    await payload.jobs.run({ queue: TRANSLATION_QUEUE, limit: 1, silent: true })
+    await payload.jobs.run({
+      queue: TRANSLATION_QUEUE,
+      limit: 1,
+      silent: true,
+      overrideAccess: true,
+    })
     expect((await rows()).docs[0]).toMatchObject({
       status: 'ready',
       lastReadySourceVersion: dictionaryVersion(),
@@ -242,7 +251,9 @@ describe('dictionary Jobs and last-ready reads (isolated MongoDB)', () => {
         'quote.successTitle': 'DE Thank you, {name}!',
       },
     })
-    expect((await payload.count({ collection: 'translation-search' })).totalDocs).toBe(0)
+    expect(
+      (await payload.count({ collection: 'translation-search', overrideAccess: true })).totalDocs,
+    ).toBe(0)
     expect(invalidate).toHaveBeenCalled()
     const merged = await mergeTranslation(frontendDictionary, {
       sourceCollection: 'dictionary',
@@ -271,7 +282,7 @@ describe('dictionary Jobs and last-ready reads (isolated MongoDB)', () => {
     await startup()
     const job = (await jobs()).docs[0]
     for (let attempt = 0; attempt < 3; attempt++) {
-      await payload.jobs.runByID({ id: job.id, silent: true })
+      await payload.jobs.runByID({ id: job.id, silent: true, overrideAccess: true })
       await new Promise((resolve) => setTimeout(resolve, 8))
     }
     expect((await rows()).docs[0]).toMatchObject({
@@ -302,7 +313,7 @@ describe('dictionary Jobs and last-ready reads (isolated MongoDB)', () => {
     await startup()
     const job = (await jobs()).docs[0]
     for (let attempt = 0; attempt < 3; attempt++) {
-      await payload.jobs.runByID({ id: job.id, silent: true })
+      await payload.jobs.runByID({ id: job.id, silent: true, overrideAccess: true })
       await new Promise((resolve) => setTimeout(resolve, 8))
     }
     expect((await rows()).docs[0]).toMatchObject({
@@ -310,7 +321,9 @@ describe('dictionary Jobs and last-ready reads (isolated MongoDB)', () => {
       error: expect.stringContaining('placeholder'),
     })
     expect((await rows()).docs[0].lastReadySourceVersion).toBeUndefined()
-    expect((await payload.count({ collection: 'translation-search' })).totalDocs).toBe(0)
+    expect(
+      (await payload.count({ collection: 'translation-search', overrideAccess: true })).totalDocs,
+    ).toBe(0)
   })
 
   it('passes English through by reference without touching Payload', async () => {
@@ -340,6 +353,7 @@ describe('dictionary Jobs and last-ready reads (isolated MongoDB)', () => {
         lastReadySourceVersion: 'older-dictionary',
         fields: { 'quote.successTitle': 'Danke, {person}!' },
       },
+      overrideAccess: true,
     })
     expect(
       await mergeTranslation(frontendDictionary, {
@@ -354,6 +368,7 @@ describe('dictionary Jobs and last-ready reads (isolated MongoDB)', () => {
       collection: 'translations',
       id: retained.id,
       data: { fields: { 'quote.successTitle': 'Danke, {name}!' } },
+      overrideAccess: true,
     })
     expect(
       (
@@ -381,6 +396,7 @@ describe('dictionary Jobs and last-ready reads (isolated MongoDB)', () => {
           lastReadySourceVersion: 'old',
           fields: { title: 'Tee', slug: 'unsafe' },
         },
+        overrideAccess: true,
       })
       expect(
         await mergeTranslation(
@@ -408,6 +424,7 @@ describe('dictionary Jobs and last-ready reads (isolated MongoDB)', () => {
         status: 'pending',
         fields: { title: 'unready' },
       },
+      overrideAccess: true,
     })
     expect(await mergeTranslation(doc, { ...identity, locale: 'de' })).toBeNull()
   })

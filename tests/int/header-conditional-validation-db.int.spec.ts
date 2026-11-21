@@ -42,7 +42,7 @@ describe('Header conditional validation through the Payload Local API', () => {
       secret: 'header-block-validation-test-secret-at-least-32-characters',
     })
     payload = await getPayload({ config, key: databaseName })
-    const media = await payload.create({ collection: 'media', data: { mimeType: 'image/png', alt: 'Header example image' } })
+    const media = await payload.create({ collection: 'media', data: { mimeType: 'image/png', alt: 'Header example image' }, overrideAccess: true })
     mediaID = String(media.id)
   }, 15_000)
 
@@ -80,7 +80,7 @@ describe('Header conditional validation through the Payload Local API', () => {
 
   it('preserves incomplete inactive heading and CTA data without validation errors', async () => {
     await expect(
-      payload.updateGlobal({ slug: 'header', data: headerData(false) as never }),
+      payload.updateGlobal({ slug: 'header', data: headerData(false) as never, overrideAccess: true }),
     ).resolves.toMatchObject({
       navItems: [
         {
@@ -99,7 +99,7 @@ describe('Header conditional validation through the Payload Local API', () => {
 
   it('rejects the same incomplete CTA when it is enabled', async () => {
     await expect(
-      payload.updateGlobal({ slug: 'header', data: headerData(true) as never }),
+      payload.updateGlobal({ slug: 'header', data: headerData(true) as never, overrideAccess: true }),
     ).rejects.toMatchObject({
       data: {
         errors: expect.arrayContaining([

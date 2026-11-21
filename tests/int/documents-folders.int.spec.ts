@@ -81,11 +81,16 @@ afterAll(async () => {
   }
 })
 it('archives in the shared native folder tree and unfiles on actual folder deletion despite an invalid legacy title', async () => {
-  const folder = await payload.create({ collection: 'folders', data: { name: 'Certifications' } })
+  const folder = await payload.create({
+    collection: 'folders',
+    data: { name: 'Certifications' },
+    overrideAccess: true,
+  })
   const doc = await payload.create({
     collection: 'documents',
     data: { title: 'document1' },
     context: { seedLegacyTitle: true },
+    overrideAccess: true,
   })
   await expect(
     payload.update({
@@ -93,10 +98,16 @@ it('archives in the shared native folder tree and unfiles on actual folder delet
       id: doc.id,
       data: { _h_folders: folder.id },
       depth: 0,
+      overrideAccess: true,
     }),
   ).resolves.toMatchObject({ title: 'document1', _h_folders: folder.id })
-  await payload.delete({ collection: 'folders', id: folder.id })
-  const unfiled = await payload.findByID({ collection: 'documents', id: doc.id, depth: 0 })
+  await payload.delete({ collection: 'folders', id: folder.id, overrideAccess: true })
+  const unfiled = await payload.findByID({
+    collection: 'documents',
+    id: doc.id,
+    depth: 0,
+    overrideAccess: true,
+  })
   expect(unfiled._h_folders ?? null).toBeNull()
   expect(unfiled.title).toBe('document1')
 })

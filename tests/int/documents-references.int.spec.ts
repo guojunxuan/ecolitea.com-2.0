@@ -386,8 +386,13 @@ describe('Documents protection through the real Payload API', () => {
       }),
     })
     documentID = String(
-      (await payload.create({ collection: 'documents', data: { title: 'Tea garden reference' } }))
-        .id,
+      (
+        await payload.create({
+          collection: 'documents',
+          data: { title: 'Tea garden reference' },
+          overrideAccess: true,
+        })
+      ).id,
     )
   }, 15000)
   afterAll(async () => {
@@ -402,13 +407,15 @@ describe('Documents protection through the real Payload API', () => {
       collection: 'blogs',
       data: { title: 'Localized story', heroImage: documentID } as never,
       locale: 'zh' as never,
+      overrideAccess: true,
     })
-    await expect(payload.delete({ collection: 'documents', id: documentID })).rejects.toThrow(
-      /Can't delete: used in Blog "Localized story".*Remove it there first\./,
-    )
+    await expect(
+      payload.delete({ collection: 'documents', id: documentID, overrideAccess: true }),
+    ).rejects.toThrow(/Can't delete: used in Blog "Localized story".*Remove it there first\./)
     const batch = await payload.delete({
       collection: 'documents',
       where: { id: { equals: documentID } },
+      overrideAccess: true,
     })
     expect(batch.docs).toHaveLength(0)
     expect(batch.errors).toHaveLength(1)
@@ -448,6 +455,7 @@ describe('Documents protection through the real Payload API', () => {
       id: blog.id,
       locale: 'zh' as never,
       data: { heroImage: null } as never,
+      overrideAccess: true,
     })
   })
   it('exposes links and history counts only to authenticated callers, with no caching', async () => {
@@ -468,15 +476,24 @@ describe('Documents protection through the real Payload API', () => {
     await payload.updateGlobal({
       slug: 'header',
       data: { navItems: [{ image: documentID }] } as never,
+      overrideAccess: true,
     })
-    await payload.updateGlobal({ slug: 'settings', data: { image: documentID } as never })
-    await expect(payload.delete({ collection: 'documents', id: documentID })).rejects.toThrow(
-      /Header.*Settings/,
-    )
-    await payload.updateGlobal({ slug: 'header', data: { navItems: [] } })
-    await payload.updateGlobal({ slug: 'settings', data: { image: null } as never })
+    await payload.updateGlobal({
+      slug: 'settings',
+      data: { image: documentID } as never,
+      overrideAccess: true,
+    })
     await expect(
-      payload.delete({ collection: 'documents', id: documentID }),
+      payload.delete({ collection: 'documents', id: documentID, overrideAccess: true }),
+    ).rejects.toThrow(/Header.*Settings/)
+    await payload.updateGlobal({ slug: 'header', data: { navItems: [] }, overrideAccess: true })
+    await payload.updateGlobal({
+      slug: 'settings',
+      data: { image: null } as never,
+      overrideAccess: true,
+    })
+    await expect(
+      payload.delete({ collection: 'documents', id: documentID, overrideAccess: true }),
     ).resolves.toHaveProperty('id', documentID)
   })
   it('ignores a real operational edit lock and permits deletion when no content references remain', async () => {
@@ -487,10 +504,12 @@ describe('Documents protection through the real Payload API', () => {
         email: 'lock-owner@example.invalid',
         password: 'isolated-test-password-123',
       },
+      overrideAccess: true,
     })
     const doc = await payload.create({
       collection: 'documents',
       data: { title: 'Independent certificate' },
+      overrideAccess: true,
     })
     await payload.create({
       collection: 'payload-locked-documents',
@@ -498,12 +517,12 @@ describe('Documents protection through the real Payload API', () => {
         document: { relationTo: 'documents', value: doc.id },
         user: { relationTo: 'users', value: user.id },
       },
+      overrideAccess: true,
     })
     expect(await findDocumentReferences(payload, [doc.id])).toEqual([])
-    await expect(payload.delete({ collection: 'documents', id: doc.id })).resolves.toHaveProperty(
-      'id',
-      doc.id,
-    )
+    await expect(
+      payload.delete({ collection: 'documents', id: doc.id, overrideAccess: true }),
+    ).resolves.toHaveProperty('id', doc.id)
   })
   it('ignores native recent-document preferences while preserving content deletion protection', async () => {
     const user = await payload.create({
@@ -513,10 +532,12 @@ describe('Documents protection through the real Payload API', () => {
         email: 'recent-owner@example.invalid',
         password: 'isolated-test-password-123',
       },
+      overrideAccess: true,
     })
     const doc = await payload.create({
       collection: 'documents',
       data: { title: 'Independent tea certificate' },
+      overrideAccess: true,
     })
     await payload.create({
       collection: 'payload-preferences',
@@ -526,20 +547,26 @@ describe('Documents protection through the real Payload API', () => {
         key: 'recent-documents',
         value: { items: [{ id: doc.id, collectionSlug: 'documents' }] },
       },
+      overrideAccess: true,
     })
     expect(await findDocumentReferences(payload, [doc.id])).toEqual([])
     const blog = await payload.create({
       collection: 'blogs',
       data: { title: 'A real tea story', heroImage: doc.id } as never,
+      overrideAccess: true,
     })
-    await expect(payload.delete({ collection: 'documents', id: doc.id })).rejects.toThrow(
-      /A real tea story/,
-    )
-    await payload.update({ collection: 'blogs', id: blog.id, data: { heroImage: null } as never })
-    await expect(payload.delete({ collection: 'documents', id: doc.id })).resolves.toHaveProperty(
-      'id',
-      doc.id,
-    )
+    await expect(
+      payload.delete({ collection: 'documents', id: doc.id, overrideAccess: true }),
+    ).rejects.toThrow(/A real tea story/)
+    await payload.update({
+      collection: 'blogs',
+      id: blog.id,
+      data: { heroImage: null } as never,
+      overrideAccess: true,
+    })
+    await expect(
+      payload.delete({ collection: 'documents', id: doc.id, overrideAccess: true }),
+    ).resolves.toHaveProperty('id', doc.id)
   })
 
   it.each([false, true])(
@@ -548,10 +575,12 @@ describe('Documents protection through the real Payload API', () => {
       const asset = await payload.create({
         collection: 'documents',
         data: { title: 'Draft tea resource' },
+        overrideAccess: true,
       })
       const owner = await payload.create({
         collection: 'blogs',
         data: { title: 'Draft tea story', _status: 'published' } as never,
+        overrideAccess: true,
       })
       const update = (heroImage: string | null, draft: boolean) =>
         payload.update({
@@ -560,6 +589,7 @@ describe('Documents protection through the real Payload API', () => {
           draft,
           autosave: draft && autosave,
           data: { heroImage, _status: draft ? 'draft' : 'published' } as never,
+          overrideAccess: true,
         })
       const current = async () =>
         (await findDocumentReferences(payload, [asset.id])).filter((ref) => ref.kind === 'current')
@@ -567,12 +597,13 @@ describe('Documents protection through the real Payload API', () => {
       expect(await current()).toEqual([
         expect.objectContaining({ ownerSlug: 'blogs', path: 'heroImage.en' }),
       ])
-      await expect(payload.delete({ collection: 'documents', id: asset.id })).rejects.toThrow(
-        /Remove it there first/,
-      )
+      await expect(
+        payload.delete({ collection: 'documents', id: asset.id, overrideAccess: true }),
+      ).rejects.toThrow(/Remove it there first/)
       const batch = await payload.delete({
         collection: 'documents',
         where: { id: { equals: asset.id } },
+        overrideAccess: true,
       })
       expect(batch.docs).toHaveLength(0)
       expect(batch.errors).toHaveLength(1)
@@ -594,9 +625,9 @@ describe('Documents protection through the real Payload API', () => {
       expect(await current()).toHaveLength(1)
       await update(null, true)
       expect(await current()).toHaveLength(1)
-      await expect(payload.delete({ collection: 'documents', id: asset.id })).rejects.toThrow(
-        /Remove it there first/,
-      )
+      await expect(
+        payload.delete({ collection: 'documents', id: asset.id, overrideAccess: true }),
+      ).rejects.toThrow(/Remove it there first/)
       await update(null, false)
       await update(null, true)
       expect(await current()).toEqual([])
@@ -604,7 +635,7 @@ describe('Documents protection through the real Payload API', () => {
         (await findDocumentReferences(payload, [asset.id])).some((ref) => ref.kind === 'version'),
       ).toBe(true)
       await expect(
-        payload.delete({ collection: 'documents', id: asset.id }),
+        payload.delete({ collection: 'documents', id: asset.id, overrideAccess: true }),
       ).resolves.toHaveProperty('id', asset.id)
     },
   )
@@ -614,10 +645,12 @@ describe('Documents protection through the real Payload API', () => {
       const asset = await payload.create({
         collection: 'documents',
         data: { title: 'Global draft tea resource' },
+        overrideAccess: true,
       })
       await payload.updateGlobal({
         slug: 'header',
         data: { navItems: [], _status: 'published' } as never,
+        overrideAccess: true,
       })
       const update = async (image: string | null, draft: boolean) => {
         const response = await handleEndpoints({
@@ -647,12 +680,13 @@ describe('Documents protection through the real Payload API', () => {
           path: 'navItems[0].image',
         }),
       ])
-      await expect(payload.delete({ collection: 'documents', id: asset.id })).rejects.toThrow(
-        /Remove it there first/,
-      )
+      await expect(
+        payload.delete({ collection: 'documents', id: asset.id, overrideAccess: true }),
+      ).rejects.toThrow(/Remove it there first/)
       const batch = await payload.delete({
         collection: 'documents',
         where: { id: { equals: asset.id } },
+        overrideAccess: true,
       })
       expect(batch.docs).toHaveLength(0)
       expect(batch.errors).toHaveLength(1)
@@ -673,9 +707,9 @@ describe('Documents protection through the real Payload API', () => {
       expect(await current()).toHaveLength(1)
       await update(null, true)
       expect(await current()).toHaveLength(1)
-      await expect(payload.delete({ collection: 'documents', id: asset.id })).rejects.toThrow(
-        /Remove it there first/,
-      )
+      await expect(
+        payload.delete({ collection: 'documents', id: asset.id, overrideAccess: true }),
+      ).rejects.toThrow(/Remove it there first/)
       await update(null, false)
       await update(null, true)
       expect(await current()).toEqual([])
@@ -683,7 +717,7 @@ describe('Documents protection through the real Payload API', () => {
         (await findDocumentReferences(payload, [asset.id])).some((ref) => ref.kind === 'version'),
       ).toBe(true)
       await expect(
-        payload.delete({ collection: 'documents', id: asset.id }),
+        payload.delete({ collection: 'documents', id: asset.id, overrideAccess: true }),
       ).resolves.toHaveProperty('id', asset.id)
     },
   )

@@ -48,6 +48,7 @@ describe('Page reserved slug write boundary (isolated MongoDB)', () => {
         collection: 'pages',
         draft,
         data: { title: 'German', slug: 'de' } as never,
+        overrideAccess: true,
       }),
     ).rejects.toMatchObject({
       data: { errors: [{ path: 'slug', message: expect.stringMatching(/reserved.*language/i) }] },
@@ -60,6 +61,7 @@ describe('Page reserved slug write boundary (isolated MongoDB)', () => {
         collection: 'pages',
         draft: true,
         data: { title: 'DE' } as never,
+        overrideAccess: true,
       }),
     ).rejects.toMatchObject({ data: { errors: [{ path: 'slug' }] } })
   })
@@ -68,6 +70,7 @@ describe('Page reserved slug write boundary (isolated MongoDB)', () => {
     const doc = await payload.create({
       collection: 'pages',
       data: { title: 'Safe', slug: 'safe' } as never,
+      overrideAccess: true,
     })
     await expect(
       payload.update({
@@ -75,16 +78,28 @@ describe('Page reserved slug write boundary (isolated MongoDB)', () => {
         id: doc.id,
         draft: true,
         data: { slug: '  ZH-TW  ' },
+        overrideAccess: true,
       }),
     ).rejects.toMatchObject({ data: { errors: [{ path: 'slug' }] } })
-    expect(await payload.findByID({ collection: 'pages', id: doc.id, draft: true })).toMatchObject({
+    expect(
+      await payload.findByID({
+        collection: 'pages',
+        id: doc.id,
+        draft: true,
+        overrideAccess: true,
+      }),
+    ).toMatchObject({
       slug: 'safe',
     })
   })
 
   it.each(['dev', 'd'])('allows %s through the actual write pipeline', async (slug) => {
     expect(
-      await payload.create({ collection: 'pages', data: { title: slug, slug } as never }),
+      await payload.create({
+        collection: 'pages',
+        data: { title: slug, slug } as never,
+        overrideAccess: true,
+      }),
     ).toMatchObject({ slug })
   })
 })

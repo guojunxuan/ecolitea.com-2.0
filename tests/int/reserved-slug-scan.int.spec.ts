@@ -85,23 +85,33 @@ describe('reserved slug scan (isolated MongoDB)', () => {
     const german = await payload.create({
       collection: 'pages',
       data: { slug: 'de', _status: 'published' } as never,
+      overrideAccess: true,
     })
     const chinese = await payload.create({
       collection: 'pages',
       draft: true,
       data: { slug: 'zh-tw' } as never,
+      overrideAccess: true,
     })
     await payload.create({
       collection: 'pages',
       data: { slug: 'dev', _status: 'published' } as never,
+      overrideAccess: true,
     })
     await payload.update({
       collection: 'pages',
       id: german.id,
       draft: true,
       data: { slug: 'german' },
+      overrideAccess: true,
     })
-    const before = await payload.find({ collection: 'pages', draft: true, depth: 0, sort: 'id' })
+    const before = await payload.find({
+      collection: 'pages',
+      draft: true,
+      depth: 0,
+      sort: 'id',
+      overrideAccess: true,
+    })
     const report = await scanReservedSlugs(payload)
     expect(report).toEqual(
       expect.arrayContaining([
@@ -128,8 +138,14 @@ describe('reserved slug scan (isolated MongoDB)', () => {
       `database=127.0.0.1:27017/${name}; storage=disabled; mode=read-only`,
     )
     expect(output.stdout).toContain(JSON.stringify(report, null, 2))
-    expect(await payload.find({ collection: 'pages', draft: true, depth: 0, sort: 'id' })).toEqual(
-      before,
-    )
+    expect(
+      await payload.find({
+        collection: 'pages',
+        draft: true,
+        depth: 0,
+        sort: 'id',
+        overrideAccess: true,
+      }),
+    ).toEqual(before)
   }, 30000)
 })

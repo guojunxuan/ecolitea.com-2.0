@@ -402,7 +402,13 @@ describe('Media protection through the real Payload API', () => {
       }),
     })
     mediaID = String(
-      (await payload.create({ collection: 'media', data: { alt: 'Tea garden reference' } })).id,
+      (
+        await payload.create({
+          collection: 'media',
+          data: { alt: 'Tea garden reference' },
+          overrideAccess: true,
+        })
+      ).id,
     )
   }, 15000)
   afterAll(async () => {
@@ -417,11 +423,16 @@ describe('Media protection through the real Payload API', () => {
       collection: 'blogs',
       data: { title: 'Localized story', heroImage: mediaID } as never,
       locale: 'zh' as never,
+      overrideAccess: true,
     })
-    await expect(payload.delete({ collection: 'media', id: mediaID })).rejects.toThrow(
-      /Can't delete: used in Blog "Localized story".*Remove it there first\./,
-    )
-    const batch = await payload.delete({ collection: 'media', where: { id: { equals: mediaID } } })
+    await expect(
+      payload.delete({ collection: 'media', id: mediaID, overrideAccess: true }),
+    ).rejects.toThrow(/Can't delete: used in Blog "Localized story".*Remove it there first\./)
+    const batch = await payload.delete({
+      collection: 'media',
+      where: { id: { equals: mediaID } },
+      overrideAccess: true,
+    })
     expect(batch.docs).toHaveLength(0)
     expect(batch.errors).toHaveLength(1)
     const response = await handleEndpoints({
@@ -442,6 +453,7 @@ describe('Media protection through the real Payload API', () => {
       id: blog.id,
       locale: 'zh' as never,
       data: { heroImage: null } as never,
+      overrideAccess: true,
     })
   })
   it('exposes links and history counts only to authenticated callers, with no caching', async () => {
@@ -462,17 +474,25 @@ describe('Media protection through the real Payload API', () => {
     await payload.updateGlobal({
       slug: 'header',
       data: { navItems: [{ image: mediaID }] } as never,
+      overrideAccess: true,
     })
-    await payload.updateGlobal({ slug: 'settings', data: { image: mediaID } as never })
-    await expect(payload.delete({ collection: 'media', id: mediaID })).rejects.toThrow(
-      /Header.*Settings/,
-    )
-    await payload.updateGlobal({ slug: 'header', data: { navItems: [] } })
-    await payload.updateGlobal({ slug: 'settings', data: { image: null } as never })
-    await expect(payload.delete({ collection: 'media', id: mediaID })).resolves.toHaveProperty(
-      'id',
-      mediaID,
-    )
+    await payload.updateGlobal({
+      slug: 'settings',
+      data: { image: mediaID } as never,
+      overrideAccess: true,
+    })
+    await expect(
+      payload.delete({ collection: 'media', id: mediaID, overrideAccess: true }),
+    ).rejects.toThrow(/Header.*Settings/)
+    await payload.updateGlobal({ slug: 'header', data: { navItems: [] }, overrideAccess: true })
+    await payload.updateGlobal({
+      slug: 'settings',
+      data: { image: null } as never,
+      overrideAccess: true,
+    })
+    await expect(
+      payload.delete({ collection: 'media', id: mediaID, overrideAccess: true }),
+    ).resolves.toHaveProperty('id', mediaID)
   })
   it('ignores native recent-document preferences while preserving content deletion protection', async () => {
     const user = await payload.create({
@@ -482,10 +502,12 @@ describe('Media protection through the real Payload API', () => {
         email: 'recent-owner@example.invalid',
         password: 'isolated-test-password-123',
       },
+      overrideAccess: true,
     })
     const doc = await payload.create({
       collection: 'media',
       data: { alt: 'Independent tea certificate' },
+      overrideAccess: true,
     })
     await payload.create({
       collection: 'payload-preferences',
@@ -495,20 +517,26 @@ describe('Media protection through the real Payload API', () => {
         key: 'recent-documents',
         value: { items: [{ id: doc.id, collectionSlug: 'media' }] },
       },
+      overrideAccess: true,
     })
     expect(await (await scanner())(payload, [doc.id])).toEqual([])
     const blog = await payload.create({
       collection: 'blogs',
       data: { title: 'A real tea story', heroImage: doc.id } as never,
+      overrideAccess: true,
     })
-    await expect(payload.delete({ collection: 'media', id: doc.id })).rejects.toThrow(
-      /A real tea story/,
-    )
-    await payload.update({ collection: 'blogs', id: blog.id, data: { heroImage: null } as never })
-    await expect(payload.delete({ collection: 'media', id: doc.id })).resolves.toHaveProperty(
-      'id',
-      doc.id,
-    )
+    await expect(
+      payload.delete({ collection: 'media', id: doc.id, overrideAccess: true }),
+    ).rejects.toThrow(/A real tea story/)
+    await payload.update({
+      collection: 'blogs',
+      id: blog.id,
+      data: { heroImage: null } as never,
+      overrideAccess: true,
+    })
+    await expect(
+      payload.delete({ collection: 'media', id: doc.id, overrideAccess: true }),
+    ).resolves.toHaveProperty('id', doc.id)
   })
 
   it.each([false, true])(
@@ -517,10 +545,12 @@ describe('Media protection through the real Payload API', () => {
       const asset = await payload.create({
         collection: 'media',
         data: { alt: 'Draft tea resource' },
+        overrideAccess: true,
       })
       const owner = await payload.create({
         collection: 'blogs',
         data: { title: 'Draft tea story', _status: 'published' } as never,
+        overrideAccess: true,
       })
       const update = (heroImage: string | null, draft: boolean) =>
         payload.update({
@@ -529,6 +559,7 @@ describe('Media protection through the real Payload API', () => {
           draft,
           autosave: draft && autosave,
           data: { heroImage, _status: draft ? 'draft' : 'published' } as never,
+          overrideAccess: true,
         })
       const current = async () =>
         (await findMediaReferences(payload, [asset.id])).filter((ref) => ref.kind === 'current')
@@ -536,12 +567,13 @@ describe('Media protection through the real Payload API', () => {
       expect(await current()).toEqual([
         expect.objectContaining({ ownerSlug: 'blogs', path: 'heroImage.en' }),
       ])
-      await expect(payload.delete({ collection: 'media', id: asset.id })).rejects.toThrow(
-        /Remove it there first/,
-      )
+      await expect(
+        payload.delete({ collection: 'media', id: asset.id, overrideAccess: true }),
+      ).rejects.toThrow(/Remove it there first/)
       const batch = await payload.delete({
         collection: 'media',
         where: { id: { equals: asset.id } },
+        overrideAccess: true,
       })
       expect(batch.docs).toHaveLength(0)
       expect(batch.errors).toHaveLength(1)
@@ -563,19 +595,18 @@ describe('Media protection through the real Payload API', () => {
       expect(await current()).toHaveLength(1)
       await update(null, true)
       expect(await current()).toHaveLength(1)
-      await expect(payload.delete({ collection: 'media', id: asset.id })).rejects.toThrow(
-        /Remove it there first/,
-      )
+      await expect(
+        payload.delete({ collection: 'media', id: asset.id, overrideAccess: true }),
+      ).rejects.toThrow(/Remove it there first/)
       await update(null, false)
       await update(null, true)
       expect(await current()).toEqual([])
       expect(
         (await findMediaReferences(payload, [asset.id])).some((ref) => ref.kind === 'version'),
       ).toBe(true)
-      await expect(payload.delete({ collection: 'media', id: asset.id })).resolves.toHaveProperty(
-        'id',
-        asset.id,
-      )
+      await expect(
+        payload.delete({ collection: 'media', id: asset.id, overrideAccess: true }),
+      ).resolves.toHaveProperty('id', asset.id)
     },
   )
   it.each([false, true])(
@@ -584,10 +615,12 @@ describe('Media protection through the real Payload API', () => {
       const asset = await payload.create({
         collection: 'media',
         data: { alt: 'Global draft tea resource' },
+        overrideAccess: true,
       })
       await payload.updateGlobal({
         slug: 'header',
         data: { navItems: [], _status: 'published' } as never,
+        overrideAccess: true,
       })
       const update = async (image: string | null, draft: boolean) => {
         const response = await handleEndpoints({
@@ -617,12 +650,13 @@ describe('Media protection through the real Payload API', () => {
           path: 'navItems[0].image',
         }),
       ])
-      await expect(payload.delete({ collection: 'media', id: asset.id })).rejects.toThrow(
-        /Remove it there first/,
-      )
+      await expect(
+        payload.delete({ collection: 'media', id: asset.id, overrideAccess: true }),
+      ).rejects.toThrow(/Remove it there first/)
       const batch = await payload.delete({
         collection: 'media',
         where: { id: { equals: asset.id } },
+        overrideAccess: true,
       })
       expect(batch.docs).toHaveLength(0)
       expect(batch.errors).toHaveLength(1)
@@ -643,19 +677,18 @@ describe('Media protection through the real Payload API', () => {
       expect(await current()).toHaveLength(1)
       await update(null, true)
       expect(await current()).toHaveLength(1)
-      await expect(payload.delete({ collection: 'media', id: asset.id })).rejects.toThrow(
-        /Remove it there first/,
-      )
+      await expect(
+        payload.delete({ collection: 'media', id: asset.id, overrideAccess: true }),
+      ).rejects.toThrow(/Remove it there first/)
       await update(null, false)
       await update(null, true)
       expect(await current()).toEqual([])
       expect(
         (await findMediaReferences(payload, [asset.id])).some((ref) => ref.kind === 'version'),
       ).toBe(true)
-      await expect(payload.delete({ collection: 'media', id: asset.id })).resolves.toHaveProperty(
-        'id',
-        asset.id,
-      )
+      await expect(
+        payload.delete({ collection: 'media', id: asset.id, overrideAccess: true }),
+      ).resolves.toHaveProperty('id', asset.id)
     },
   )
 })

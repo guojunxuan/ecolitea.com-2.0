@@ -44,15 +44,21 @@ describe('translation collections (isolated MongoDB)', () => {
     const doc = await payload.create({
       collection: 'translations',
       data: { ...identity, status: 'pending' },
+      overrideAccess: true,
     })
     expect(doc).toMatchObject(identity)
     await expect(
-      payload.create({ collection: 'translations', data: { ...identity, status: 'pending' } }),
+      payload.create({
+        collection: 'translations',
+        data: { ...identity, status: 'pending' },
+        overrideAccess: true,
+      }),
     ).rejects.toThrow()
     await expect(
       payload.create({
         collection: 'translations',
         data: { ...identity, locale: 'fr', status: 'pending' },
+        overrideAccess: true,
       }),
     ).resolves.toMatchObject({ locale: 'fr' })
   })
@@ -65,10 +71,16 @@ describe('translation collections (isolated MongoDB)', () => {
       path: '/products/tea/source',
       ready: true,
     }
-    await payload.create({ collection: 'translation-search', data })
-    await expect(payload.create({ collection: 'translation-search', data })).rejects.toThrow()
+    await payload.create({ collection: 'translation-search', data, overrideAccess: true })
     await expect(
-      payload.create({ collection: 'translation-search', data: { ...data, locale: 'fr' } }),
+      payload.create({ collection: 'translation-search', data, overrideAccess: true }),
+    ).rejects.toThrow()
+    await expect(
+      payload.create({
+        collection: 'translation-search',
+        data: { ...data, locale: 'fr' },
+        overrideAccess: true,
+      }),
     ).resolves.toMatchObject({ locale: 'fr' })
   })
 
@@ -76,7 +88,7 @@ describe('translation collections (isolated MongoDB)', () => {
     await expect(
       payload.find({ collection: 'translations', overrideAccess: false }),
     ).rejects.toMatchObject({ status: 403 })
-    const result = await payload.find({ collection: 'translations' })
+    const result = await payload.find({ collection: 'translations', overrideAccess: true })
     const id = result.docs[0].id
     await expect(
       payload.create({

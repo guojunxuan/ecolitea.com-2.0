@@ -13,6 +13,7 @@ try {
   const existing = await payload.count({
     collection: 'blogs',
     where: { slug: { contains: fixture.prefix } },
+    overrideAccess: true,
   })
   if (existing.totalDocs)
     throw new Error('Refusing to overwrite existing Blog fixtures; use a fresh run ID')
@@ -26,11 +27,13 @@ try {
     data: { alt: `${fixture.prefix} photograph` },
     file: { data: image, mimetype: 'image/png', name: `${fixture.prefix}.png`, size: image.length },
     ...fixtureContext,
+    overrideAccess: true,
   })
   const author = await payload.create({
     collection: 'users',
     data: { role: 'editor', email: fixture.email, password: fixture.password, name: 'Tea Editor' },
     ...fixtureContext,
+    overrideAccess: true,
   })
   // Three populated categories make the mobile More disclosure a real browser path.
   const categories = []
@@ -45,6 +48,7 @@ try {
           _order: `a${index}`,
         },
         ...fixtureContext,
+        overrideAccess: true,
       }),
     )
   }
@@ -64,6 +68,7 @@ try {
           _status: 'published',
         },
         ...fixtureContext,
+        overrideAccess: true,
       }),
     )
   }
@@ -133,6 +138,7 @@ try {
       })(),
     },
     ...fixtureContext,
+    overrideAccess: true,
   })
   for (const status of ['draft', 'future'] as const) {
     await payload.create({
@@ -148,6 +154,7 @@ try {
         publishedAt: status === 'future' ? '2999-01-01T00:00:00.000Z' : undefined,
       },
       ...fixtureContext,
+      overrideAccess: true,
     })
   }
   console.info(

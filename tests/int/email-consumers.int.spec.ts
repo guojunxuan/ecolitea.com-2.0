@@ -130,6 +130,7 @@ describe('email consumers through installed Payload APIs', () => {
           },
         ],
       },
+      overrideAccess: true,
     })
     formID = remember('forms', form).id
   }, 20000)
@@ -165,6 +166,7 @@ describe('email consumers through installed Payload APIs', () => {
             { field: 'email', value: 'ada@example.invalid' },
           ],
         },
+        overrideAccess: true,
       }),
     )
 
@@ -173,7 +175,13 @@ describe('email consumers through installed Payload APIs', () => {
       expect.arrayContaining([expect.objectContaining({ name: 'emails', type: 'array' })]),
     )
     const saved = await submitForm()
-    expect(await payload.findByID({ collection: 'form-submissions', id: saved.id })).toMatchObject({
+    expect(
+      await payload.findByID({
+        collection: 'form-submissions',
+        id: saved.id,
+        overrideAccess: true,
+      }),
+    ).toMatchObject({
       id: saved.id,
     })
     expect(messages).toHaveLength(1)
@@ -201,6 +209,7 @@ describe('email consumers through installed Payload APIs', () => {
             { field: 'updates', value: 'false' },
           ],
         },
+        overrideAccess: true,
       }),
     )
     expect(saved.submissionData).toEqual([
@@ -226,6 +235,7 @@ describe('email consumers through installed Payload APIs', () => {
             { field: 'updates', value: omittedValue },
           ],
         },
+        overrideAccess: true,
       }),
     )
     expect(saved.submissionData?.map((row) => row.field)).toEqual(['name', 'email'])
@@ -242,6 +252,7 @@ describe('email consumers through installed Payload APIs', () => {
           .create({
             collection: 'form-submissions',
             data: { form: formID, submissionData },
+            overrideAccess: true,
           })
           .then((doc) => remember('form-submissions', doc)),
       ).rejects.toMatchObject({ name: 'ValidationError' })
@@ -273,6 +284,7 @@ describe('email consumers through installed Payload APIs', () => {
             emails: [],
             confirmationMessage: richText('Thank you'),
           },
+          overrideAccess: true,
         }),
       )
       for (const submissionData of [
@@ -284,6 +296,7 @@ describe('email consumers through installed Payload APIs', () => {
             .create({
               collection: 'form-submissions',
               data: { form: form.id, submissionData },
+              overrideAccess: true,
             })
             .then((doc) => remember('form-submissions', doc)),
         ).rejects.toMatchObject({ name: 'ValidationError' })
@@ -301,6 +314,7 @@ describe('email consumers through installed Payload APIs', () => {
               },
             ],
           },
+          overrideAccess: true,
         }),
       )
       expect(saved.id).toBeTruthy()
@@ -311,7 +325,13 @@ describe('email consumers through installed Payload APIs', () => {
     failingTransport = true
     const logger = vi.spyOn(payload.logger, 'error').mockImplementation(() => undefined)
     const saved = await submitForm()
-    expect(await payload.findByID({ collection: 'form-submissions', id: saved.id })).toMatchObject({
+    expect(
+      await payload.findByID({
+        collection: 'form-submissions',
+        id: saved.id,
+        overrideAccess: true,
+      }),
+    ).toMatchObject({
       id: saved.id,
     })
     expect(messages).toHaveLength(1)
@@ -339,9 +359,12 @@ describe('email consumers through installed Payload APIs', () => {
           productSlug: 'bag',
           status: 'new',
         },
+        overrideAccess: true,
       }),
     )
-    expect(await payload.findByID({ collection: 'quote-requests', id: saved.id })).toMatchObject({
+    expect(
+      await payload.findByID({ collection: 'quote-requests', id: saved.id, overrideAccess: true }),
+    ).toMatchObject({
       id: saved.id,
       name: fixtureTag,
     })
@@ -363,9 +386,12 @@ describe('email consumers through installed Payload APIs', () => {
           message: 'Need 500 units',
           status: 'new',
         },
+        overrideAccess: true,
       }),
     )
-    expect(await payload.findByID({ collection: 'quote-requests', id: saved.id })).toMatchObject({
+    expect(
+      await payload.findByID({ collection: 'quote-requests', id: saved.id, overrideAccess: true }),
+    ).toMatchObject({
       id: saved.id,
     })
     expect(messages).toHaveLength(0)
@@ -379,9 +405,14 @@ describe('email consumers through installed Payload APIs', () => {
         password: 'isolated-test-password',
         role: 'editor',
       },
+      overrideAccess: true,
     })
     remember('users', user)
-    const token = await payload.forgotPassword({ collection: 'users', data: { email: user.email } })
+    const token = await payload.forgotPassword({
+      collection: 'users',
+      data: { email: user.email },
+      overrideAccess: true,
+    })
     expect(token).toMatch(/^[a-f0-9]{40}$/)
     expect(messages).toHaveLength(1)
     expect(messages[0].to).toBe(user.email)

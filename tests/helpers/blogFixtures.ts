@@ -103,16 +103,19 @@ export async function cleanupTask6Archive(payload: Payload, runID: string) {
     collection: 'blogs',
     where: { slug: { in: blogs.map(({ slug }) => slug) } },
     ...fixtureContext,
+    overrideAccess: true,
   })
   await payload.delete({
     collection: 'blog-categories',
     where: { slug: { equals: categorySlug } },
     ...fixtureContext,
+    overrideAccess: true,
   })
   await payload.delete({
     collection: 'media',
     where: { alt: { equals: mediaAlt } },
     ...fixtureContext,
+    overrideAccess: true,
   })
 }
 
@@ -133,16 +136,23 @@ export async function cleanupBlogs(payload: Payload, runID: string) {
         ],
       },
     },
+    overrideAccess: true,
   })
   const categories = await payload.find({
     collection: 'blog-categories',
     limit: 100,
     where: { slug: { in: ['brewing', 'sourcing', 'culture'].map((slug) => `${prefix}-${slug}`) } },
+    overrideAccess: true,
   })
-  const users = await payload.find({ collection: 'users', where: { email: { equals: email } } })
+  const users = await payload.find({
+    collection: 'users',
+    where: { email: { equals: email } },
+    overrideAccess: true,
+  })
   const media = await payload.find({
     collection: 'media',
     where: { alt: { equals: `${prefix} photograph` } },
+    overrideAccess: true,
   })
   const ids = blogs.docs.map(({ id }) => id)
   const ownedIDs = [
@@ -157,7 +167,14 @@ export async function cleanupBlogs(payload: Payload, runID: string) {
       { draft: true, versionLabel: 'latest draft' },
     ]) {
       for (let page = 1; ; page++) {
-        const result = await payload.find({ collection, page, limit: 100, depth: 0, draft })
+        const result = await payload.find({
+          collection,
+          page,
+          limit: 100,
+          depth: 0,
+          draft,
+          overrideAccess: true,
+        })
         for (const doc of result.docs) {
           if (
             !ownedIDs.includes(doc.id) &&
@@ -178,11 +195,14 @@ export async function cleanupBlogs(payload: Payload, runID: string) {
     depth: 0,
     limit: 1,
     where: { and: [{ id: { not_in: ids } }, { relatedBlogs: { in: ids } }] },
+    overrideAccess: true,
   })
   if (external.totalDocs)
     throw new Error(`Fixture referenced by Blogs: ${external.docs.map(({ id }) => id).join(', ')}`)
   const references = await Promise.all(
-    (['header', 'footer'] as const).map((slug) => payload.findGlobal({ slug, depth: 0 })),
+    (['header', 'footer'] as const).map((slug) =>
+      payload.findGlobal({ slug, depth: 0, overrideAccess: true }),
+    ),
   )
   for (const reference of references) {
     if (ownedIDs.some((id) => JSON.stringify(reference).includes(id)))
@@ -190,24 +210,46 @@ export async function cleanupBlogs(payload: Payload, runID: string) {
   }
   // Delete dependents before their category/media/user. Only exact IDs discovered under the run prefix.
   for (const blog of blogs.docs)
-    await payload.delete({ collection: 'blogs', id: blog.id, ...fixtureContext })
+    await payload.delete({
+      collection: 'blogs',
+      id: blog.id,
+      ...fixtureContext,
+      overrideAccess: true,
+    })
   for (const category of categories.docs) {
     const refs = await payload.count({
       collection: 'blogs',
       where: { category: { equals: category.id } },
+      overrideAccess: true,
     })
     if (refs.totalDocs) throw new Error(`Category ${category.id} remains referenced`)
-    await payload.delete({ collection: 'blog-categories', id: category.id, ...fixtureContext })
+    await payload.delete({
+      collection: 'blog-categories',
+      id: category.id,
+      ...fixtureContext,
+      overrideAccess: true,
+    })
   }
   for (const user of users.docs)
-    await payload.delete({ collection: 'users', id: user.id, ...fixtureContext })
+    await payload.delete({
+      collection: 'users',
+      id: user.id,
+      ...fixtureContext,
+      overrideAccess: true,
+    })
   // Media cleanup is handled by Payload after all fixture dependents have gone.
   for (const item of media.docs) {
     const refs = await payload.count({
       collection: 'blogs',
       where: { heroImage: { equals: item.id } },
+      overrideAccess: true,
     })
     if (refs.totalDocs) throw new Error(`Media ${item.id} remains referenced`)
-    await payload.delete({ collection: 'media', id: item.id, ...fixtureContext })
+    await payload.delete({
+      collection: 'media',
+      id: item.id,
+      ...fixtureContext,
+      overrideAccess: true,
+    })
   }
 }

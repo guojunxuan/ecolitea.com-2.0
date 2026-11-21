@@ -31,6 +31,7 @@ try {
     collection: 'blog-categories',
     data: { title: fixture.categoryTitle, slug: fixture.categorySlug, _order: 'a8' },
     ...fixtureContext,
+    overrideAccess: true,
   })
   const image = await sharp({
     create: { width: 1200, height: 675, channels: 3, background: '#56816e' },
@@ -47,6 +48,7 @@ try {
       size: image.length,
     },
     ...fixtureContext,
+    overrideAccess: true,
   })
 
   for (const blog of fixture.blogs) {
@@ -61,6 +63,7 @@ try {
         heroImage: heroImage.id,
       },
       ...fixtureContext,
+      overrideAccess: true,
     })
   }
 

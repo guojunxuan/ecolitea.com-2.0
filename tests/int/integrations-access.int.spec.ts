@@ -108,12 +108,14 @@ describe('integration access through real Payload operations', () => {
       const login = await payload.login({
         collection: 'users',
         data: { email: admin.email, password: 'isolated-password' },
+        overrideAccess: true,
       })
       expect(login.user?.id).toBe(admin.id)
       await expect(
         payload.login({
           collection: 'users',
           data: { email: admin.email, password: 'editor-controlled-password' },
+          overrideAccess: true,
         }),
       ).rejects.toMatchObject({ status: 401 })
     })
@@ -129,7 +131,9 @@ describe('integration access through real Payload operations', () => {
             req: await request(editor),
           }),
         ).rejects.toMatchObject({ status: 403 })
-        expect(await payload.findByID({ collection: 'users', id: admin.id })).toMatchObject({
+        expect(
+          await payload.findByID({ collection: 'users', id: admin.id, overrideAccess: true }),
+        ).toMatchObject({
           email: admin.email,
           role: 'admin',
         })
@@ -149,6 +153,7 @@ describe('integration access through real Payload operations', () => {
           await payload.count({
             collection: 'users',
             where: { email: { equals: 'editor-created@example.test' } },
+            overrideAccess: true,
           })
         ).totalDocs,
       ).toBe(0)
@@ -165,7 +170,9 @@ describe('integration access through real Payload operations', () => {
             req: await request(editor),
           }),
         ).rejects.toMatchObject({ status: 403 })
-        expect((await payload.findByID({ collection: 'users', id })).id).toBe(id)
+        expect((await payload.findByID({ collection: 'users', id, overrideAccess: true })).id).toBe(
+          id,
+        )
       },
     )
     it('allows editors to change their own name and password', async () => {
@@ -180,6 +187,7 @@ describe('integration access through real Payload operations', () => {
       const login = await payload.login({
         collection: 'users',
         data: { email: editor.email, password: 'editor-new-password' },
+        overrideAccess: true,
       })
       expect(login.user?.id).toBe(editor.id)
     })
@@ -193,9 +201,9 @@ describe('integration access through real Payload operations', () => {
       })
       expect(changed.errors).toEqual([])
       expect(changed.docs.map(({ id }) => id)).toEqual([editor.id])
-      expect((await payload.findByID({ collection: 'users', id: admin.id })).name).not.toBe(
-        'Editor bulk update',
-      )
+      expect(
+        (await payload.findByID({ collection: 'users', id: admin.id, overrideAccess: true })).name,
+      ).not.toBe('Editor bulk update')
     })
     it('preserves authenticated reads of other accounts', async () => {
       const read = await payload.findByID({
@@ -234,6 +242,7 @@ describe('integration access through real Payload operations', () => {
       const login = await payload.login({
         collection: 'users',
         data: { email: changed.email, password: 'admin-updated-password' },
+        overrideAccess: true,
       })
       expect(login.user?.id).toBe(created.id)
       const deleted = await payload.delete({
@@ -280,7 +289,9 @@ describe('integration access through real Payload operations', () => {
           overrideAccess,
         }),
       ).rejects.toMatchObject({ status: overrideAccess ? 400 : 403 })
-      expect((await payload.findByID({ collection: 'users', id: editor.id })).role).toBe('editor')
+      expect(
+        (await payload.findByID({ collection: 'users', id: editor.id, overrideAccess: true })).role,
+      ).toBe('editor')
     },
   )
   it('allows editor native forms to echo their unchanged role', async () => {
@@ -467,9 +478,9 @@ describe('integration access through real Payload operations', () => {
   it('migrates every existing user to admin', async () => {
     await up({ payload, req: await request() } as Parameters<typeof up>[0])
     expect(
-      (await payload.find({ collection: 'users', pagination: false })).docs.every(
-        (user) => user.role === 'admin',
-      ),
+      (
+        await payload.find({ collection: 'users', pagination: false, overrideAccess: true })
+      ).docs.every((user) => user.role === 'admin'),
     ).toBe(true)
   })
 })

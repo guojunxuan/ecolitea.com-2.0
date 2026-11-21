@@ -92,26 +92,31 @@ describe('translation lifecycle and real Jobs (isolated MongoDB)', () => {
     payload.create({
       collection: 'pages',
       data: { title, slug: title.toLowerCase().replaceAll(' ', '-'), _status: status } as never,
+      overrideAccess: true,
     })
   const rows = (sourceId: string) =>
     payload.find({
       collection: 'translations',
       where: { sourceId: { equals: sourceId } },
       depth: 0,
+      overrideAccess: true,
     })
   const searchRows = (sourceId: string) =>
     payload.find({
       collection: 'translation-search',
       where: { sourceId: { equals: sourceId } },
       depth: 0,
+      overrideAccess: true,
     })
   const jobs = () =>
     payload.find({
       collection: 'payload-jobs',
       where: { queue: { equals: TRANSLATION_QUEUE } },
       limit: 100,
+      overrideAccess: true,
     })
-  const run = () => payload.jobs.run({ queue: TRANSLATION_QUEUE, limit: 1, silent: true })
+  const run = () =>
+    payload.jobs.run({ queue: TRANSLATION_QUEUE, limit: 1, silent: true, overrideAccess: true })
   const runAll = async () => {
     for (let i = 0; i < 30; i++) {
       const result = await run()
@@ -120,7 +125,12 @@ describe('translation lifecycle and real Jobs (isolated MongoDB)', () => {
   }
   const changed = async (id: string, title: string) => {
     await new Promise((resolve) => setTimeout(resolve, 5))
-    return payload.update({ collection: 'pages', id, data: { title, _status: 'published' } })
+    return payload.update({
+      collection: 'pages',
+      id,
+      data: { title, _status: 'published' },
+      overrideAccess: true,
+    })
   }
 
   beforeAll(async () => {
@@ -143,7 +153,7 @@ describe('translation lifecycle and real Jobs (isolated MongoDB)', () => {
     }
   })
   beforeEach(async () => {
-    await payload.delete({ collection: 'payload-jobs', where: {} })
+    await payload.delete({ collection: 'payload-jobs', where: {}, overrideAccess: true })
     vi.clearAllMocks()
     translate.mockImplementation(stubTranslationProvider.translate)
     reserve.mockResolvedValue(true)
@@ -159,6 +169,7 @@ describe('translation lifecycle and real Jobs (isolated MongoDB)', () => {
       draft: true,
       autosave: true,
       data: { title: 'Autosave' },
+      overrideAccess: true,
     })
     expect((await jobs()).totalDocs).toBe(0)
     await payload.update({
@@ -166,12 +177,15 @@ describe('translation lifecycle and real Jobs (isolated MongoDB)', () => {
       id: doc.id,
       select: { title: true },
       data: { _status: 'published' },
+      overrideAccess: true,
     })
     expect((await jobs()).totalDocs).toBe(1)
     await changed(doc.id, 'Again')
     expect((await jobs()).totalDocs).toBe(1)
     expect((await jobs()).docs[0].input).toMatchObject({
-      sourceVersion: (await payload.findByID({ collection: 'pages', id: doc.id })).updatedAt,
+      sourceVersion: (
+        await payload.findByID({ collection: 'pages', id: doc.id, overrideAccess: true })
+      ).updatedAt,
     })
     await payload.update({
       collection: 'pages',
@@ -179,6 +193,7 @@ describe('translation lifecycle and real Jobs (isolated MongoDB)', () => {
       draft: true,
       autosave: true,
       data: { title: 'Private draft', _status: 'draft' },
+      overrideAccess: true,
     })
     expect((await jobs()).totalDocs).toBe(1)
     await payload.update({
@@ -187,6 +202,7 @@ describe('translation lifecycle and real Jobs (isolated MongoDB)', () => {
       draft: true,
       autosave: true,
       data: { _status: 'published' },
+      overrideAccess: true,
     })
     expect((await jobs()).totalDocs).toBe(1)
   })
@@ -196,8 +212,9 @@ describe('translation lifecycle and real Jobs (isolated MongoDB)', () => {
     const job = await payload.jobs.queue({
       task: 'schedulePublish',
       input: { doc: { relationTo: 'pages', value: doc.id }, type: 'publish' },
+      overrideAccess: true,
     })
-    await payload.jobs.runByID({ id: job.id, silent: true })
+    await payload.jobs.runByID({ id: job.id, silent: true, overrideAccess: true })
     expect((await jobs()).totalDocs).toBe(1)
     await runAll()
     expect((await rows(doc.id)).docs[0].status).toBe('ready')
@@ -206,13 +223,15 @@ describe('translation lifecycle and real Jobs (isolated MongoDB)', () => {
       id: doc.id,
       draft: true,
       data: { title: 'Newer private', _status: 'draft' },
+      overrideAccess: true,
     })
     expect((await rows(doc.id)).totalDocs).toBe(1)
     const unpublish = await payload.jobs.queue({
       task: 'schedulePublish',
       input: { doc: { relationTo: 'pages', value: doc.id }, type: 'unpublish' },
+      overrideAccess: true,
     })
-    await payload.jobs.runByID({ id: unpublish.id, silent: true })
+    await payload.jobs.runByID({ id: unpublish.id, silent: true, overrideAccess: true })
     expect((await rows(doc.id)).totalDocs).toBe(0)
     expect((await searchRows(doc.id)).totalDocs).toBe(0)
   })
@@ -227,6 +246,7 @@ describe('translation lifecycle and real Jobs (isolated MongoDB)', () => {
         _status: 'draft',
       } as never,
       context: { disableRevalidate: true },
+      overrideAccess: true,
     })
     const previousSecret = serverEnv.REVALIDATE_SECRET
     serverEnv.REVALIDATE_SECRET = 'phase2-scheduled-only'
@@ -244,10 +264,12 @@ describe('translation lifecycle and real Jobs (isolated MongoDB)', () => {
       const job = await payload.jobs.queue({
         task: 'schedulePublish',
         input: { doc: { relationTo: 'products', value: product.id }, type: 'publish' },
+        overrideAccess: true,
       })
-      await payload.jobs.runByID({ id: job.id, silent: true })
+      await payload.jobs.runByID({ id: job.id, silent: true, overrideAccess: true })
       expect(
-        (await payload.findByID({ collection: 'payload-jobs', id: job.id })).completedAt,
+        (await payload.findByID({ collection: 'payload-jobs', id: job.id, overrideAccess: true }))
+          .completedAt,
       ).toBeTruthy()
       expect((await jobs()).totalDocs).toBe(1)
       const batches = http.mock.calls.map(
@@ -291,12 +313,25 @@ describe('translation lifecycle and real Jobs (isolated MongoDB)', () => {
 
   it('excludes legal pages both at enqueue and when their designation changes during translation', async () => {
     const legal = await create('Legal', 'draft')
-    await payload.updateGlobal({ slug: 'site-settings', data: { privacyPolicyPage: legal.id } })
-    await payload.update({ collection: 'pages', id: legal.id, data: { _status: 'published' } })
+    await payload.updateGlobal({
+      slug: 'site-settings',
+      data: { privacyPolicyPage: legal.id },
+      overrideAccess: true,
+    })
+    await payload.update({
+      collection: 'pages',
+      id: legal.id,
+      data: { _status: 'published' },
+      overrideAccess: true,
+    })
     expect((await rows(legal.id)).totalDocs).toBe(0)
     const doc = await create('Becomes legal')
     translate.mockImplementationOnce(async ({ texts }) => {
-      await payload.updateGlobal({ slug: 'site-settings', data: { privacyPolicyPage: doc.id } })
+      await payload.updateGlobal({
+        slug: 'site-settings',
+        data: { privacyPolicyPage: doc.id },
+        overrideAccess: true,
+      })
       return texts
     })
     await runAll()
@@ -333,6 +368,7 @@ describe('translation lifecycle and real Jobs (isolated MongoDB)', () => {
       slug: 'site-settings',
       select: { tagline: true, updatedAt: true },
       data: { privacyPolicyPage: doc.id },
+      overrideAccess: true,
     })
     expect((await rows(doc.id)).totalDocs).toBe(0)
     expect((await searchRows(doc.id)).totalDocs).toBe(0)
@@ -345,8 +381,13 @@ describe('translation lifecycle and real Jobs (isolated MongoDB)', () => {
       translate.mockImplementationOnce(async ({ texts }) => {
         if (mutation === 'changed') await changed(doc.id, 'New generation')
         else if (mutation === 'unpublished')
-          await payload.update({ collection: 'pages', id: doc.id, data: { _status: 'draft' } })
-        else await payload.delete({ collection: 'pages', id: doc.id })
+          await payload.update({
+            collection: 'pages',
+            id: doc.id,
+            data: { _status: 'draft' },
+            overrideAccess: true,
+          })
+        else await payload.delete({ collection: 'pages', id: doc.id, overrideAccess: true })
         return texts.map((text) => `stale ${text}`)
       })
       await run()
@@ -364,7 +405,7 @@ describe('translation lifecycle and real Jobs (isolated MongoDB)', () => {
     await runAll()
     expect((await rows(old.id)).docs[0].status).toBe('waiting_quota')
     expect((await rows(fresh.id)).docs[0].status).toBe('waiting_quota')
-    await payload.delete({ collection: 'payload-jobs', where: {} })
+    await payload.delete({ collection: 'payload-jobs', where: {}, overrideAccess: true })
     await (await runtime()).recover(await req())
     expect((await jobs()).totalDocs).toBe(0)
     now = new Date('2026-12-01T00:00:00Z')
@@ -373,6 +414,7 @@ describe('translation lifecycle and real Jobs (isolated MongoDB)', () => {
       collection: 'payload-jobs',
       sort: 'createdAt',
       where: { queue: { equals: TRANSLATION_QUEUE } },
+      overrideAccess: true,
     })
     expect(queued.docs.map((job) => (job.input as { sourceId: string }).sourceId)).toEqual([
       old.id,
@@ -390,8 +432,12 @@ describe('translation lifecycle and real Jobs (isolated MongoDB)', () => {
     translate.mockRejectedValue(new Error('Offline provider failed'))
     const job = (await jobs()).docs.find((job) => !job.completedAt)!
     for (let attempt = 1; attempt <= 3; attempt++) {
-      await payload.jobs.runByID({ id: job.id, silent: true })
-      const state = await payload.findByID({ collection: 'payload-jobs', id: job.id })
+      await payload.jobs.runByID({ id: job.id, silent: true, overrideAccess: true })
+      const state = await payload.findByID({
+        collection: 'payload-jobs',
+        id: job.id,
+        overrideAccess: true,
+      })
       expect(state.totalTried).toBe(attempt)
       expect(Boolean(state.hasError)).toBe(attempt === 3)
       await new Promise((resolve) => setTimeout(resolve, 8))
@@ -426,6 +472,7 @@ describe('translation lifecycle and real Jobs (isolated MongoDB)', () => {
         _status: 'published',
       } as never,
       context: { disableRevalidate: true },
+      overrideAccess: true,
     })
     await runAll()
     await payload.update({
@@ -434,6 +481,7 @@ describe('translation lifecycle and real Jobs (isolated MongoDB)', () => {
       draft: true,
       data: { _status: 'draft', title: 'Private' },
       context: { disableRevalidate: true },
+      overrideAccess: true,
     })
     expect((await rows(doc.id)).totalDocs).toBe(1)
     await payload.update({
@@ -441,6 +489,7 @@ describe('translation lifecycle and real Jobs (isolated MongoDB)', () => {
       id: doc.id,
       data: { _status: 'draft' },
       context: { disableRevalidate: true },
+      overrideAccess: true,
     })
     expect((await rows(doc.id)).totalDocs).toBe(0)
     expect((await searchRows(doc.id)).totalDocs).toBe(0)
@@ -461,8 +510,15 @@ describe('translation lifecycle and real Jobs (isolated MongoDB)', () => {
         const result = await originalFind(args)
         if (args.collection === 'translations' && !changed) {
           changed = true
-          if (mutation === 'deleted') await payload.delete({ collection: 'pages', id: doc.id })
-          else await payload.update({ collection: 'pages', id: doc.id, data: { _status: 'draft' } })
+          if (mutation === 'deleted')
+            await payload.delete({ collection: 'pages', id: doc.id, overrideAccess: true })
+          else
+            await payload.update({
+              collection: 'pages',
+              id: doc.id,
+              data: { _status: 'draft' },
+              overrideAccess: true,
+            })
         }
         return result
       }) as Payload['find'])
@@ -482,8 +538,13 @@ describe('translation lifecycle and real Jobs (isolated MongoDB)', () => {
     const media = await payload.create({
       collection: 'media',
       data: { alt: 'Image alt', filename: 'original.jpg' },
+      overrideAccess: true,
     })
-    await payload.updateGlobal({ slug: 'site-settings', data: { tagline: 'Global copy' } })
+    await payload.updateGlobal({
+      slug: 'site-settings',
+      data: { tagline: 'Global copy' },
+      overrideAccess: true,
+    })
     await runAll()
     expect((await rows(media.id)).docs[0]).toMatchObject({
       status: 'ready',
@@ -492,7 +553,12 @@ describe('translation lifecycle and real Jobs (isolated MongoDB)', () => {
     expect((await searchRows(media.id)).totalDocs).toBe(0)
     expect((await rows('site-settings')).docs[0].status).toBe('ready')
     expect((await searchRows('site-settings')).totalDocs).toBe(0)
-    await payload.update({ collection: 'media', id: media.id, data: { alt: 'Updated alt' } })
+    await payload.update({
+      collection: 'media',
+      id: media.id,
+      data: { alt: 'Updated alt' },
+      overrideAccess: true,
+    })
     expect((await rows(media.id)).docs[0].status).toBe('pending')
   })
 
@@ -513,14 +579,16 @@ describe('translation lifecycle and real Jobs (isolated MongoDB)', () => {
     await payload.create({
       collection: 'translations',
       data: { sourceCollection: 'pages', sourceId: doc.id, locale: 'fr', status: 'pending' },
+      overrideAccess: true,
     })
     await payload.update({
       collection: 'pages',
       id: doc.id,
       draft: true,
       data: { _status: 'draft' },
+      overrideAccess: true,
     })
-    await payload.delete({ collection: 'pages', id: doc.id })
+    await payload.delete({ collection: 'pages', id: doc.id, overrideAccess: true })
     expect((await rows(doc.id)).totalDocs).toBe(0)
     expect((await searchRows(doc.id)).totalDocs).toBe(0)
   })
@@ -534,6 +602,7 @@ describe('translation lifecycle and real Jobs (isolated MongoDB)', () => {
         meta: { title: 'Repeated' },
         _status: 'published',
       } as never,
+      overrideAccess: true,
     })
     await runAll()
     expect(translate).toHaveBeenCalledOnce()
@@ -558,7 +627,7 @@ describe('translation lifecycle and real Jobs (isolated MongoDB)', () => {
   it('disables queueing without credentials or targets while still removing every stored locale', async () => {
     const doc = await create('Disabled cleanup')
     await runAll()
-    await payload.delete({ collection: 'payload-jobs', where: {} })
+    await payload.delete({ collection: 'payload-jobs', where: {}, overrideAccess: true })
     const disabled = createTranslationRuntime({ enabled: false, targets: [], invalidate })
     const request = await req()
     await disabled.queue(request, {

@@ -56,7 +56,7 @@ beforeAll(async () => {
 }, 30_000)
 
 afterAll(async () => {
-  if (id) await payload.delete({ collection: 'media', id })
+  if (id) await payload.delete({ collection: 'media', id, overrideAccess: true })
   if (payload) {
     console.info(
       `Task4 cleanup target: ${databaseURL}; ephemeral local upload directory ${uploadDirectory}; R2 disabled`,
@@ -80,6 +80,7 @@ describe('Payload crop before Media validation', () => {
           name: 'unfit-original.jpg',
           size: original.length,
         },
+        overrideAccess: true,
       }),
     ).rejects.toMatchObject({ status: 400 })
     expect(await readdir(uploadDirectory)).toEqual(before)
@@ -104,6 +105,7 @@ describe('Payload crop before Media validation', () => {
           },
         },
       },
+      overrideAccess: true,
     })
     id = doc.id
     expect([doc.width, doc.height]).toEqual([1000, 1000])

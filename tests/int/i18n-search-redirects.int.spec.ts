@@ -99,7 +99,11 @@ describe('translated search and redirect destinations (isolated MongoDB)', () =>
     }
   })
   beforeEach(async () => {
-    await payload.updateGlobal({ slug: 'site-settings', data: { privacyPolicyPage: null } })
+    await payload.updateGlobal({
+      slug: 'site-settings',
+      data: { privacyPolicyPage: null },
+      overrideAccess: true,
+    })
     for (const collection of [
       'translation-search',
       'translations',
@@ -109,7 +113,7 @@ describe('translated search and redirect destinations (isolated MongoDB)', () =>
       'product-categories',
       'blog-categories',
     ] as const)
-      await payload.delete({ collection, where: {} })
+      await payload.delete({ collection, where: {}, overrideAccess: true })
   })
   const source = (
     collection: 'blogs' | 'pages' | 'products',
@@ -125,6 +129,7 @@ describe('translated search and redirect destinations (isolated MongoDB)', () =>
         publishedAt: '2020-01-01T00:00:00Z',
         ...options,
       } as never,
+      overrideAccess: true,
     })
   const checkpoint = (
     collection: string,
@@ -142,6 +147,7 @@ describe('translated search and redirect destinations (isolated MongoDB)', () =>
         lastReadySourceVersion: '2020-01-01T00:00:00Z',
         fields,
       },
+      overrideAccess: true,
     })
   const index = (collection: string, id: string, locale = 'de', ready = true) =>
     payload.create({
@@ -155,6 +161,7 @@ describe('translated search and redirect destinations (isolated MongoDB)', () =>
         title: 'Tee',
         path: '/old-slug',
       },
+      overrideAccess: true,
     })
 
   it('returns only current public German article checkpoints, retaining a ready result while an update is pending', async () => {
@@ -226,7 +233,12 @@ describe('translated search and redirect destinations (isolated MongoDB)', () =>
       path: '/blogs/current',
       permanent: true,
     })
-    await payload.update({ collection: 'blogs', id: blog.id, data: { _status: 'draft' } })
+    await payload.update({
+      collection: 'blogs',
+      id: blog.id,
+      data: { _status: 'draft' },
+      overrideAccess: true,
+    })
     expect(await resolveLocalizedRedirect(payload, item as never, 'de')).toBeNull()
   })
 
@@ -235,6 +247,7 @@ describe('translated search and redirect destinations (isolated MongoDB)', () =>
     const category = await payload.create({
       collection: 'product-categories',
       data: { title: 'Tea', slug: 'tea' } as never,
+      overrideAccess: true,
     })
     const product = await source('products', 'Oolong', {
       category: category.id,
@@ -266,6 +279,7 @@ describe('translated search and redirect destinations (isolated MongoDB)', () =>
       collection: 'products',
       id: product.id,
       data: { publishedAt: '2099-01-01T00:00:00Z' },
+      overrideAccess: true,
     })
     expect(await resolveLocalizedRedirect(payload, productItem as never, 'de')).toBeNull()
     expect(await resolveLocalizedRedirect(payload, categoryItem as never, 'de')).toBeNull()
@@ -276,6 +290,7 @@ describe('translated search and redirect destinations (isolated MongoDB)', () =>
     const category = await payload.create({
       collection: 'blog-categories',
       data: { title: 'Tea', slug: 'tea' } as never,
+      overrideAccess: true,
     })
     const item = { to: { url: '/blogs/category/tea/page/2?q=tea' } }
     expect(await resolveLocalizedRedirect(payload, item, 'de')).toEqual({
@@ -306,7 +321,11 @@ describe('translated search and redirect destinations (isolated MongoDB)', () =>
   it('keeps legal and unavailable explicit document URLs English and leaves external URLs unchanged', async () => {
     const { resolveLocalizedRedirect } = await import('@/utilities/i18n/resolveRedirect')
     const legal = await source('pages', 'Privacy')
-    await payload.updateGlobal({ slug: 'site-settings', data: { privacyPolicyPage: legal.id } })
+    await payload.updateGlobal({
+      slug: 'site-settings',
+      data: { privacyPolicyPage: legal.id },
+      overrideAccess: true,
+    })
     expect(
       await resolveLocalizedRedirect(
         payload,

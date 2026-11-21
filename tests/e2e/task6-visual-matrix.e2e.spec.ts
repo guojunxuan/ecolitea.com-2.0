@@ -285,26 +285,31 @@ async function cleanupFixtures() {
     collection: 'pages',
     where: { slug: { equals: pageSlug } },
     ...disableRevalidate,
+    overrideAccess: true,
   })
   await payload.delete({
     collection: 'blogs',
     where: { slug: { in: [bannerBlogSlug, ...matrixBlogs.map(({ slug }) => slug)] } },
     ...disableRevalidate,
+    overrideAccess: true,
   })
   await payload.delete({
     collection: 'blog-categories',
     where: { slug: { equals: matrixCategorySlug } },
     ...disableRevalidate,
+    overrideAccess: true,
   })
   await payload.delete({
     collection: 'forms',
     where: { title: { equals: formTitle } },
     ...disableRevalidate,
+    overrideAccess: true,
   })
   await payload.delete({
     collection: 'media',
     where: { alt: { equals: mediaAlt } },
     ...disableRevalidate,
+    overrideAccess: true,
   })
 }
 
@@ -320,6 +325,7 @@ async function seedFixtures() {
       size: imagePNG.byteLength,
     },
     ...disableRevalidate,
+    overrideAccess: true,
   })
   if (!media.url?.startsWith(mediaOrigin))
     throw new Error('Expected run-scoped local S3 fixture URL.')
@@ -355,6 +361,7 @@ async function seedFixtures() {
       confirmationMessage: richText([paragraph('Thank you for your request.')]),
     },
     ...disableRevalidate,
+    overrideAccess: true,
   })
   console.log(`Task6 matrix form created: ${form.id}`)
 
@@ -362,6 +369,7 @@ async function seedFixtures() {
     collection: 'blog-categories',
     data: { title: matrixCategoryTitle, slug: matrixCategorySlug, _order: 'a9' },
     ...disableRevalidate,
+    overrideAccess: true,
   })
   const bannerNodes = (['info', 'success', 'warning', 'error'] as const).map((style) => ({
     fields: {
@@ -401,6 +409,7 @@ async function seedFixtures() {
       title: bannerBlogTitle,
     },
     ...disableRevalidate,
+    overrideAccess: true,
   })
   for (const blog of matrixBlogs) {
     await payload.create({
@@ -414,6 +423,7 @@ async function seedFixtures() {
         heroImage: media.id,
       },
       ...disableRevalidate,
+      overrideAccess: true,
     })
   }
 
@@ -460,6 +470,7 @@ async function seedFixtures() {
       title: `E2E Task6 Matrix ${runID}`,
     },
     ...disableRevalidate,
+    overrideAccess: true,
   })
 
 }

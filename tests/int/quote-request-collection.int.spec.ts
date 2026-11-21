@@ -61,6 +61,7 @@ describe('quote-requests collection', () => {
         publishedAt: '2020-01-01T00:00:00.000Z',
         _status: 'published',
       } as RequiredDataFromCollectionSlug<'products'>,
+      overrideAccess: true,
     })
     await payload.create({
       collection: 'products',
@@ -69,6 +70,7 @@ describe('quote-requests collection', () => {
         slug: 'draft',
         _status: 'draft',
       } as RequiredDataFromCollectionSlug<'products'>,
+      overrideAccess: true,
     })
   }, 15_000)
 
@@ -89,7 +91,11 @@ describe('quote-requests collection', () => {
     vi.unstubAllGlobals()
     vi.restoreAllMocks()
     if (!payload) return
-    await payload.delete({ collection: 'quote-requests', where: { id: { exists: true } } })
+    await payload.delete({
+      collection: 'quote-requests',
+      where: { id: { exists: true } },
+      overrideAccess: true,
+    })
   })
 
   const stubTurnstile = (success: boolean) =>
@@ -226,6 +232,7 @@ describe('quote-requests collection', () => {
       payload.create({
         collection: 'quote-requests',
         data: { ...body({ email: `${'a'.repeat(250)}@example.com` }), status: 'new' },
+        overrideAccess: true,
       }),
     ).rejects.toThrow()
   })

@@ -88,15 +88,21 @@ describe('translation backfill (isolated MongoDB)', () => {
     }
   })
   beforeEach(async () => {
-    await payload.delete({ collection: 'payload-jobs', where: {} })
-    await payload.delete({ collection: 'translations', where: {} })
+    await payload.delete({ collection: 'payload-jobs', where: {}, overrideAccess: true })
+    await payload.delete({ collection: 'translations', where: {}, overrideAccess: true })
     await payload.updateGlobal({
       slug: 'site-settings',
       data: { tagline: 'Site words', privacyPolicyPage: null },
       context: { translationWrite: true },
+      overrideAccess: true,
     })
     for (const collection of ['pages', 'blogs', 'media'] as const)
-      await payload.delete({ collection, where: {}, context: { translationWrite: true } })
+      await payload.delete({
+        collection,
+        where: {},
+        context: { translationWrite: true },
+        overrideAccess: true,
+      })
     translate.mockClear()
     now = new Date('2026-11-15T00:00:00Z')
   })
@@ -107,6 +113,7 @@ describe('translation backfill (isolated MongoDB)', () => {
         collection: 'pages',
         data: { title, slug: title, _status: 'published' } as never,
         context: { translationWrite: true },
+        overrideAccess: true,
       })
     const backfill = await create('Backfill')
     const fresh = await create('New')
@@ -123,6 +130,7 @@ describe('translation backfill (isolated MongoDB)', () => {
         lastReadySourceVersion: '2020-01-01T00:00:00.000Z',
         fields: { title: 'Old' },
       },
+      overrideAccess: true,
     })
     await runtime.queue(
       req,
@@ -146,12 +154,21 @@ describe('translation backfill (isolated MongoDB)', () => {
       locale: 'de',
       sourceVersion: update.updatedAt,
     })
-    const jobs = await payload.find({ collection: 'payload-jobs', sort: 'createdAt' })
+    const jobs = await payload.find({
+      collection: 'payload-jobs',
+      sort: 'createdAt',
+      overrideAccess: true,
+    })
     expect(
       jobs.docs.map(({ meta }) => (meta as { translationPriority: number }).translationPriority),
     ).toEqual([2, 1, 0])
     for (let i = 0; i < 3; i++)
-      await payload.jobs.run({ queue: TRANSLATION_QUEUE, limit: 1, silent: true })
+      await payload.jobs.run({
+        queue: TRANSLATION_QUEUE,
+        limit: 1,
+        silent: true,
+        overrideAccess: true,
+      })
     expect(translate.mock.calls.map(([arg]) => arg.texts[0])).toEqual([
       'Updated',
       'New',
@@ -164,11 +181,13 @@ describe('translation backfill (isolated MongoDB)', () => {
       collection: 'pages',
       data: { title: 'Publication', slug: 'publication', _status: 'published' } as never,
       context: { translationWrite: true },
+      overrideAccess: true,
     })
     const legacy = await payload.create({
       collection: 'pages',
       data: { title: 'Legacy', slug: 'legacy', _status: 'published' } as never,
       context: { translationWrite: true },
+      overrideAccess: true,
     })
     const req = await createPayloadRequest({ payload })
     const runtime = getTranslationRuntime(req)!
@@ -180,15 +199,16 @@ describe('translation backfill (isolated MongoDB)', () => {
     }
     await runtime.queue(req, input)
     await runtime.queue(req, input, { backfill: true })
-    const job = (await payload.find({ collection: 'payload-jobs' })).docs[0]
+    const job = (await payload.find({ collection: 'payload-jobs', overrideAccess: true })).docs[0]
     expect(job.meta).toMatchObject({ translationPriority: 1 })
     await payload.jobs.queue({
       task: 'translateDocument',
       queue: TRANSLATION_QUEUE,
       input: { ...input, sourceId: legacy.id, sourceVersion: legacy.updatedAt },
+      overrideAccess: true,
     })
-    await payload.jobs.run({ allQueues: true, limit: 1, silent: true })
-    await payload.jobs.run({ allQueues: true, limit: 1, silent: true })
+    await payload.jobs.run({ allQueues: true, limit: 1, silent: true, overrideAccess: true })
+    await payload.jobs.run({ allQueues: true, limit: 1, silent: true, overrideAccess: true })
     expect(translate.mock.calls.map(([arg]) => arg.texts[0])).toEqual(['Legacy', 'Publication'])
   })
 
@@ -198,21 +218,25 @@ describe('translation backfill (isolated MongoDB)', () => {
       collection: 'pages',
       data: { title: 'Legal', slug: 'legal', _status: 'published' } as never,
       context: { translationWrite: true },
+      overrideAccess: true,
     })
     await payload.updateGlobal({
       slug: 'site-settings',
       data: { privacyPolicyPage: legal.id },
       context: { translationWrite: true },
+      overrideAccess: true,
     })
     await payload.create({
       collection: 'pages',
       data: { title: 'Page', slug: 'page', _status: 'published' } as never,
       context: { translationWrite: true },
+      overrideAccess: true,
     })
     await payload.create({
       collection: 'pages',
       data: { title: 'Private', _status: 'draft' } as never,
       context: { translationWrite: true },
+      overrideAccess: true,
     })
     for (const [title, publishedAt] of [
       ['Visible', '2020-01-01T00:00:00Z'],
@@ -222,11 +246,13 @@ describe('translation backfill (isolated MongoDB)', () => {
         collection: 'blogs',
         data: { title, publishedAt, _status: 'published' } as never,
         context: { translationWrite: true },
+        overrideAccess: true,
       })
     await payload.create({
       collection: 'media',
       data: { alt: 'Alt' },
       context: { translationWrite: true },
+      overrideAccess: true,
     })
     const report = await runTranslationBackfill({ payload, locale: 'de', dryRun: true, locales })
     expect(report).toMatchObject({
@@ -242,8 +268,12 @@ describe('translation backfill (isolated MongoDB)', () => {
       ...new Set(extract(dictionary.doc, dictionary.rule).map(({ source }) => source)),
     ].reduce((count, text) => count + text.length, 0)
     expect(report.estimatedCharacters).toBe(characters + 'PageVisibleAltSite words'.length)
-    expect((await payload.count({ collection: 'translations' })).totalDocs).toBe(0)
-    expect((await payload.count({ collection: 'payload-jobs' })).totalDocs).toBe(0)
+    expect(
+      (await payload.count({ collection: 'translations', overrideAccess: true })).totalDocs,
+    ).toBe(0)
+    expect(
+      (await payload.count({ collection: 'payload-jobs', overrideAccess: true })).totalDocs,
+    ).toBe(0)
     expect(translate).not.toHaveBeenCalled()
   })
 
@@ -266,6 +296,7 @@ describe('translation backfill (isolated MongoDB)', () => {
         },
       } as never,
       context: { translationWrite: true },
+      overrideAccess: true,
     })
     const report = await runTranslationBackfill({ payload, locale: 'de', dryRun: true, locales })
     expect(report.estimatedCharacters - baseline.estimatedCharacters).toBe(
@@ -279,33 +310,48 @@ describe('translation backfill (isolated MongoDB)', () => {
       collection: 'pages',
       data: { title: 'Keep source', slug: 'keep-source', _status: 'published' } as never,
       context: { translationWrite: true },
+      overrideAccess: true,
     })
     const report = await runTranslationBackfill({ payload, locale: 'de', locales })
     expect(report).toMatchObject({ mode: 'execute', total: 3, queued: 3 })
-    const jobs = await payload.find({ collection: 'payload-jobs', limit: 100 })
+    const jobs = await payload.find({
+      collection: 'payload-jobs',
+      limit: 100,
+      overrideAccess: true,
+    })
     expect(jobs.docs).toHaveLength(3)
     expect(
       jobs.docs.every(
         ({ meta }) => (meta as { translationPriority: number }).translationPriority === 2,
       ),
     ).toBe(true)
-    const rows = await payload.find({ collection: 'translations', limit: 100 })
+    const rows = await payload.find({
+      collection: 'translations',
+      limit: 100,
+      overrideAccess: true,
+    })
     expect(rows.docs.every((row) => row.requestPriority === 2)).toBe(true)
-    expect((await payload.findByID({ collection: 'pages', id: page.id })).updatedAt).toBe(
-      page.updatedAt,
-    )
+    expect(
+      (await payload.findByID({ collection: 'pages', id: page.id, overrideAccess: true }))
+        .updatedAt,
+    ).toBe(page.updatedAt)
     expect(translate).not.toHaveBeenCalled()
     for (const row of rows.docs)
       await payload.update({
         collection: 'translations',
         id: row.id,
         data: { status: 'waiting_quota', updatedAt: '2020-01-01T00:00:00.000Z' } as never,
+        overrideAccess: true,
       })
-    await payload.delete({ collection: 'payload-jobs', where: {} })
+    await payload.delete({ collection: 'payload-jobs', where: {}, overrideAccess: true })
     const req = await createPayloadRequest({ payload })
     now = new Date('2100-01-01T00:00:00Z')
     await getTranslationRuntime(req)!.recover(req)
-    const recovered = await payload.find({ collection: 'payload-jobs', limit: 100 })
+    const recovered = await payload.find({
+      collection: 'payload-jobs',
+      limit: 100,
+      overrideAccess: true,
+    })
     expect(recovered.docs).toHaveLength(3)
     expect(
       recovered.docs.every(
@@ -325,11 +371,14 @@ describe('translation backfill (isolated MongoDB)', () => {
         status: 'waiting_quota',
         requestedSourceVersion: getFrontendDictionarySource().sourceVersion,
       },
+      overrideAccess: true,
     })
     now = new Date('2100-01-01T00:00:00Z')
     const req = await createPayloadRequest({ payload })
     await getTranslationRuntime(req)!.recover(req)
-    expect((await payload.find({ collection: 'payload-jobs' })).docs[0].meta).toMatchObject({
+    expect(
+      (await payload.find({ collection: 'payload-jobs', overrideAccess: true })).docs[0].meta,
+    ).toMatchObject({
       translationPriority: 2,
     })
   })

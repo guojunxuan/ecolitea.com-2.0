@@ -77,36 +77,43 @@ async function deleteFixtures() {
     collection: 'pages',
     where: { slug: { in: Object.values(slugs) } },
     ...disableRevalidate,
+    overrideAccess: true,
   })
   await payload.delete({
     collection: 'blogs',
     where: { slug: { equals: blogHeroSlug } },
     ...disableRevalidate,
+    overrideAccess: true,
   })
   await payload.delete({
     collection: 'blog-categories',
     where: { slug: { equals: blogCategorySlug } },
     ...disableRevalidate,
+    overrideAccess: true,
   })
   await payload.delete({
     collection: 'social-platforms',
     where: { platform: { equals: 'E2E LinkedIn' } },
     ...disableRevalidate,
+    overrideAccess: true,
   })
   await payload.delete({
     collection: 'site-assets',
     where: { alt: { equals: 'E2E website shell logo' } },
     ...disableRevalidate,
+    overrideAccess: true,
   })
   await payload.delete({
     collection: 'media',
     where: { alt: { like: NAVIGATION_IMAGE_ALT_PREFIX } },
     ...disableRevalidate,
+    overrideAccess: true,
   })
   await payload.delete({
     collection: 'media',
     where: { alt: { like: HERO_IMAGE_ALT_PREFIX } },
     ...disableRevalidate,
+    overrideAccess: true,
   })
   await payload.db.globals.deleteMany({
     globalType: { $in: ['header', 'footer', 'site-settings'] },
@@ -126,6 +133,7 @@ async function seedFixtures() {
             : {}),
         },
         ...disableRevalidate,
+        overrideAccess: true,
       }),
     ),
   )
@@ -143,6 +151,7 @@ async function seedFixtures() {
       size: logoSVG.byteLength,
     },
     ...disableRevalidate,
+    overrideAccess: true,
   })
   const originalSiteAssetURL = `${E2E_MEDIA_ORIGIN}/site-assets/e2e-website-shell-logo.svg`
   if (logo.url !== originalSiteAssetURL) {
@@ -152,10 +161,12 @@ async function seedFixtures() {
     collection: 'social-platforms',
     data: { icon: logo.id, platform: 'E2E LinkedIn' },
     ...disableRevalidate,
+    overrideAccess: true,
   })
   const persistedLogo = await payload.findByID({
     collection: 'site-assets',
     id: logo.id,
+    overrideAccess: true,
   })
   if (persistedLogo.url !== originalSiteAssetURL) {
     throw new Error('E2E storage must persist the controlled Site Asset original URL.')
@@ -175,6 +186,7 @@ async function seedFixtures() {
           size: navigationImagePNG.byteLength,
         },
         ...disableRevalidate,
+        overrideAccess: true,
       })
       if (!image.url?.startsWith(E2E_MEDIA_ORIGIN)) {
         throw new Error('E2E storage must return controlled Media original URLs.')
@@ -194,6 +206,7 @@ async function seedFixtures() {
           size: brightCollagePNG.byteLength,
         },
         ...disableRevalidate,
+        overrideAccess: true,
       }),
     ),
   )
@@ -266,11 +279,13 @@ async function seedFixtures() {
       },
     },
     ...disableRevalidate,
+    overrideAccess: true,
   })
   const blogCategory = await payload.create({
     collection: 'blog-categories',
     data: { slug: blogCategorySlug, title: blogCategoryTitle },
     ...disableRevalidate,
+    overrideAccess: true,
   })
   await payload.create({
     collection: 'blogs',
@@ -285,6 +300,7 @@ async function seedFixtures() {
       title: blogHeroTitle,
     },
     ...disableRevalidate,
+    overrideAccess: true,
   })
   const card = (title: string, index: number) => ({
     image: media[index]!.id,
@@ -368,6 +384,7 @@ async function seedFixtures() {
       ],
     },
     ...disableRevalidate,
+    overrideAccess: true,
   })
   await payload.updateGlobal({
     slug: 'footer',
@@ -378,6 +395,7 @@ async function seedFixtures() {
       })),
     },
     ...disableRevalidate,
+    overrideAccess: true,
   })
   await payload.updateGlobal({
     slug: 'site-settings',
@@ -403,6 +421,7 @@ async function seedFixtures() {
       termsPage: bySlug[slugs.terms]!.id,
     },
     ...disableRevalidate,
+    overrideAccess: true,
   })
 }
 

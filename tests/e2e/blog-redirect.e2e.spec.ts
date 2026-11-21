@@ -37,12 +37,14 @@ test.describe.serial('Blog reference redirect', () => {
       data: { alt: `Blog redirect ${runID}` },
       file: { data: imageData, mimetype: 'image/png', name: `${slug}.png`, size: imageData.length },
       context: { disableRevalidate: true },
+      overrideAccess: true,
     })
     mediaID = media.id
     const category = await payload.create({
       collection: 'blog-categories',
       data: { title: `Redirect ${runID}`, slug: `redirect-${runID}` },
       context: { disableRevalidate: true },
+      overrideAccess: true,
     })
     categoryID = category.id
     const blog = await payload.create({
@@ -57,6 +59,7 @@ test.describe.serial('Blog reference redirect', () => {
         _status: 'published',
       },
       context: { disableRevalidate: true },
+      overrideAccess: true,
     })
     blogID = blog.id
     const redirect = await payload.create({
@@ -66,6 +69,7 @@ test.describe.serial('Blog reference redirect', () => {
         to: { type: 'reference', reference: { relationTo: 'blogs', value: blog.id } },
       },
       context: { disableRevalidate: true },
+      overrideAccess: true,
     })
     redirectID = redirect.id
   })
@@ -77,24 +81,28 @@ test.describe.serial('Blog reference redirect', () => {
         collection: 'redirects',
         id: redirectID,
         context: { disableRevalidate: true },
+        overrideAccess: true,
       })
     if (blogID)
       await payload.delete({
         collection: 'blogs',
         id: blogID,
         context: { disableRevalidate: true },
+        overrideAccess: true,
       })
     if (categoryID)
       await payload.delete({
         collection: 'blog-categories',
         id: categoryID,
         context: { disableRevalidate: true },
+        overrideAccess: true,
       })
     if (mediaID)
       await payload.delete({
         collection: 'media',
         id: mediaID,
         context: { disableRevalidate: true },
+        overrideAccess: true,
       })
   })
 
@@ -171,6 +179,7 @@ test.describe.serial('Blog reference redirect', () => {
       id: categoryID,
       data: { title: `Renamed ${runID}`, slug: `renamed-${runID}` },
       context: { disableRevalidate: true },
+      overrideAccess: true,
     })
     await page.goto(searchURL)
     await expect(page.getByRole('link', { name: `Renamed ${runID}`, exact: true })).toHaveAttribute(
@@ -181,6 +190,7 @@ test.describe.serial('Blog reference redirect', () => {
       collection: 'blog-categories',
       id: categoryID,
       context: { disableRevalidate: true },
+      overrideAccess: true,
     })
     categoryID = undefined
     await page.goto(searchURL)

@@ -145,6 +145,7 @@ describe('Media reference constraints through Local API', () => {
         await payload.create({
           collection: 'media',
           data: { mimeType: 'video/mp4', alt: 'Test video' } as never,
+          overrideAccess: true,
         })
       ).id,
     )
@@ -153,6 +154,7 @@ describe('Media reference constraints through Local API', () => {
         await payload.create({
           collection: 'media',
           data: { mimeType: 'application/pdf', alt: 'Legacy document' } as never,
+          overrideAccess: true,
         })
       ).id,
     )
@@ -174,7 +176,9 @@ describe('Media reference constraints through Local API', () => {
     }
   })
   it('enforces alt on create and allows untouched legacy alt on update', async () => {
-    await expect(payload.create({ collection: 'media', data: { alt: '' } })).rejects.toMatchObject({
+    await expect(
+      payload.create({ collection: 'media', data: { alt: '' }, overrideAccess: true }),
+    ).rejects.toMatchObject({
       status: 400,
       data: { errors: [{ path: 'alt', message: 'Alt text is required.' }] },
     })
@@ -182,12 +186,23 @@ describe('Media reference constraints through Local API', () => {
       collection: 'media',
       context: { legacyFixture: true },
       data: { alt: 'Valid initial description' },
+      overrideAccess: true,
     })
     await expect(
-      payload.update({ collection: 'media', id: legacy.id, data: { alt: 'IMG_1234' } }),
+      payload.update({
+        collection: 'media',
+        id: legacy.id,
+        data: { alt: 'IMG_1234' },
+        overrideAccess: true,
+      }),
     ).resolves.toHaveProperty('alt', 'IMG_1234')
     await expect(
-      payload.update({ collection: 'media', id: legacy.id, data: { alt: 'photo' } }),
+      payload.update({
+        collection: 'media',
+        id: legacy.id,
+        data: { alt: 'photo' },
+        overrideAccess: true,
+      }),
     ).rejects.toMatchObject({ status: 400 })
   })
   it('preserves a historical empty alt during unrelated updates but rejects clearing or replacing it', async () => {
@@ -195,30 +210,46 @@ describe('Media reference constraints through Local API', () => {
       collection: 'media',
       data: { alt: 'Valid initial description' },
       context: { legacyFixture: 'empty' },
+      overrideAccess: true,
     })
     expect(legacy.alt).toBe('')
     await expect(
-      payload.update({ collection: 'media', id: legacy.id, data: {} }),
+      payload.update({ collection: 'media', id: legacy.id, data: {}, overrideAccess: true }),
     ).resolves.toHaveProperty('alt', '')
     await expect(
-      payload.update({ collection: 'media', id: legacy.id, data: { alt: '' } }),
+      payload.update({
+        collection: 'media',
+        id: legacy.id,
+        data: { alt: '' },
+        overrideAccess: true,
+      }),
     ).resolves.toHaveProperty('alt', '')
     await expect(
       payload.update({
         collection: 'media',
         id: legacy.id,
         data: { alt: 'Clear tea garden view' },
+        overrideAccess: true,
       }),
     ).resolves.toHaveProperty('alt', 'Clear tea garden view')
     await expect(
-      payload.update({ collection: 'media', id: legacy.id, data: { alt: '' } }),
+      payload.update({
+        collection: 'media',
+        id: legacy.id,
+        data: { alt: '' },
+        overrideAccess: true,
+      }),
     ).rejects.toMatchObject({ status: 400 })
   })
   it.each(consumers.map((_, index) => [index]))(
     'rejects PDFs through consumer %s',
     async (index) => {
       await expect(
-        payload.create({ collection: 'pages', data: { [`consumer${index}`]: pdfID } as never }),
+        payload.create({
+          collection: 'pages',
+          data: { [`consumer${index}`]: pdfID } as never,
+          overrideAccess: true,
+        }),
       ).rejects.toMatchObject({ status: 400 })
     },
   )
@@ -226,13 +257,21 @@ describe('Media reference constraints through Local API', () => {
     'rejects video in image-only consumer %s',
     async (index) => {
       await expect(
-        payload.create({ collection: 'pages', data: { [`consumer${index}`]: videoID } as never }),
+        payload.create({
+          collection: 'pages',
+          data: { [`consumer${index}`]: videoID } as never,
+          overrideAccess: true,
+        }),
       ).rejects.toMatchObject({ status: 400 })
     },
   )
   it.each([1, 2])('accepts video in consumer %s', async (index) => {
     await expect(
-      payload.create({ collection: 'pages', data: { [`consumer${index}`]: videoID } as never }),
+      payload.create({
+        collection: 'pages',
+        data: { [`consumer${index}`]: videoID } as never,
+        overrideAccess: true,
+      }),
     ).resolves.toHaveProperty(`consumer${index}`)
   })
 })
@@ -273,7 +312,13 @@ describe('Media upload errors through the real Local API pipeline', () => {
       }),
     })
     mediaID = String(
-      (await payload.create({ collection: 'media', data: { alt: 'Existing source image' } })).id,
+      (
+        await payload.create({
+          collection: 'media',
+          data: { alt: 'Existing source image' },
+          overrideAccess: true,
+        })
+      ).id,
     )
   }, 15000)
   afterAll(async () => {
@@ -299,12 +344,18 @@ describe('Media upload errors through the real Local API pipeline', () => {
       const message = 'Unsupported file type. Use JPEG, PNG, WebP, AVIF, GIF or MP4.'
       const result =
         operation === 'create'
-          ? payload.create({ collection: 'media', data: { alt: 'Rejected source file' }, file })
+          ? payload.create({
+              collection: 'media',
+              data: { alt: 'Rejected source file' },
+              file,
+              overrideAccess: true,
+            })
           : payload.update({
               collection: 'media',
               id: mediaID,
               data: { alt: 'Rejected replacement file' },
               file,
+              overrideAccess: true,
             })
       await expect(result).rejects.toThrow(message)
     },

@@ -99,23 +99,27 @@ describe('Products through isolated Payload Local API', () => {
         email: 'products-editor@example.test',
         password: 'isolated-test-password',
       },
+      overrideAccess: true,
     })
     mediaID = (
       await payload.create({
         collection: 'media',
         data: { alt: 'Test image', mimeType: 'image/png' },
+        overrideAccess: true,
       })
     ).id
     firstCategoryID = (
       await payload.create({
         collection: 'product-categories',
         data: { title: 'Green Tea', slug: 'green-tea', image: mediaID, meta: { image: mediaID } },
+        overrideAccess: true,
       })
     ).id
     secondCategoryID = (
       await payload.create({
         collection: 'product-categories',
         data: { title: 'Black Tea', slug: 'black-tea', image: mediaID },
+        overrideAccess: true,
       })
     ).id
   }, 25_000)
@@ -146,6 +150,7 @@ describe('Products through isolated Payload Local API', () => {
           { label: 'Custom', theme: 'default', anchor: 'chosen-anchor' },
         ],
       },
+      overrideAccess: true,
     })
     expect(product.sections?.map((row) => row.anchor)).toEqual(['tea-materials', 'chosen-anchor'])
     const update = (data: unknown, draft = false) =>
@@ -155,6 +160,7 @@ describe('Products through isolated Payload Local API', () => {
         depth: 0,
         data: data as never,
         draft,
+        overrideAccess: true,
       })
     const invalid = async (sections: unknown, path: string) => {
       try {
@@ -215,7 +221,9 @@ describe('Products through isolated Payload Local API', () => {
     await update({ _status: 'published', sections: [{ label: 'Empty section', blocks: [] }] })
     const { toProductDetail } = await import('@/utilities/products/shared')
     expect(
-      toProductDetail(await payload.findByID({ collection: 'products', id: product.id })).sections,
+      toProductDetail(
+        await payload.findByID({ collection: 'products', id: product.id, overrideAccess: true }),
+      ).sections,
     ).toEqual([
       {
         label: 'Empty section',
@@ -226,17 +234,19 @@ describe('Products through isolated Payload Local API', () => {
         blocks: [],
       },
     ])
-    await payload.delete({ collection: 'products', id: product.id })
+    await payload.delete({ collection: 'products', id: product.id, overrideAccess: true })
   })
 
   it('populates ordered downloads and invalidates referencing published products when a document changes', async () => {
     const first = await payload.create({
       collection: 'documents',
       data: { title: 'Guide', url: '/files/guide.pdf', mimeType: 'application/pdf' },
+      overrideAccess: true,
     })
     const second = await payload.create({
       collection: 'documents',
       data: { title: 'Sheet', url: '/files/sheet.pdf', mimeType: 'application/pdf' },
+      overrideAccess: true,
     })
     const base = {
       title: 'Product downloads',
@@ -254,10 +264,12 @@ describe('Products through isolated Payload Local API', () => {
         resources: [second.id, first.id],
         specifications: [{ group: 'Details', items: [{ label: 'Origin', value: 'China' }] }],
       },
+      overrideAccess: true,
     })
     const unrelated = await payload.create({
       collection: 'products',
       data: { ...base, slug: `unrelated-${randomUUID()}`, resources: [second.id] },
+      overrideAccess: true,
     })
     const { productDetailPopulate } = await import('@/utilities/products/getProductBySlug')
     const { toProductDetail } = await import('@/utilities/products/shared')
@@ -267,6 +279,7 @@ describe('Products through isolated Payload Local API', () => {
         id: product.id,
         depth: 2,
         populate: productDetailPopulate,
+        overrideAccess: true,
       }),
     )
     expect(detail.overview).toEqual(['First paragraph', 'Second paragraph'])
@@ -278,10 +291,15 @@ describe('Products through isolated Payload Local API', () => {
       { title: 'Guide', url: '/files/guide.pdf' },
     ])
     vi.mocked(revalidateTag).mockClear()
-    await payload.update({ collection: 'documents', id: first.id, data: { title: 'New guide' } })
+    await payload.update({
+      collection: 'documents',
+      id: first.id,
+      data: { title: 'New guide' },
+      overrideAccess: true,
+    })
     expect(revalidateTag).toHaveBeenCalledExactlyOnceWith(`product-${product.id}`, { expire: 0 })
-    await payload.delete({ collection: 'products', id: product.id })
-    await payload.delete({ collection: 'products', id: unrelated.id })
+    await payload.delete({ collection: 'products', id: product.id, overrideAccess: true })
+    await payload.delete({ collection: 'products', id: unrelated.id, overrideAccess: true })
   }, 20_000)
 
   it('does no public product reads or redirects queries for native draft saves and autosaves', async () => {
@@ -296,6 +314,7 @@ describe('Products through isolated Payload Local API', () => {
         summary: 'Live',
         _status: 'published',
       },
+      overrideAccess: true,
     })
     const findByID = vi.spyOn(payload, 'findByID')
     const find = vi.spyOn(payload, 'find')
@@ -309,6 +328,7 @@ describe('Products through isolated Payload Local API', () => {
           draft: true,
           autosave,
           data: { slug: `private-${randomUUID()}` },
+          overrideAccess: true,
         })
         expect(
           findByID.mock.calls.filter(
@@ -324,11 +344,18 @@ describe('Products through isolated Payload Local API', () => {
       find.mockRestore()
     }
     expect(
-      await payload.findByID({ collection: 'products', id: product.id, draft: false, depth: 0 }),
+      await payload.findByID({
+        collection: 'products',
+        id: product.id,
+        draft: false,
+        depth: 0,
+        overrideAccess: true,
+      }),
     ).toMatchObject({ slug: product.slug, _status: 'published' })
     const versions = await payload.findVersions({
       collection: 'products',
       where: { parent: { equals: product.id } },
+      overrideAccess: true,
     })
     expect(
       versions.docs.some(
@@ -352,23 +379,27 @@ describe('Products through isolated Payload Local API', () => {
           summary: 'Live version',
           _status: 'published',
         },
+        overrideAccess: true,
       })
       await payload.update({
         collection: 'products',
         id: product.id,
         draft: true,
         data: { slug: `private-${randomUUID()}`, category: secondCategoryID },
+        overrideAccess: true,
       })
       const livePath = `/products/${product.categorySlug}/${product.slug}`
       const redirect = await payload.create({
         collection: 'redirects',
         data: { from: livePath, to: { type: 'custom', url: '/keep-this-redirect' } },
+        overrideAccess: true,
       })
       const job =
         mode === 'scheduled'
           ? await payload.jobs.queue({
               task: 'schedulePublish',
               input: { type: 'unpublish', doc: { relationTo: 'products', value: product.id } },
+              overrideAccess: true,
             })
           : null
       const findByID = vi.spyOn(payload, 'findByID')
@@ -379,13 +410,14 @@ describe('Products through isolated Payload Local API', () => {
       try {
         vi.clearAllMocks()
         if (job) {
-          const result = await payload.jobs.runByID({ id: job.id })
+          const result = await payload.jobs.runByID({ id: job.id, overrideAccess: true })
           expect(result.jobStatus?.[job.id]).toEqual({ status: 'success' })
         } else {
           await payload.update({
             collection: 'products',
             id: product.id,
             data: { _status: 'draft' },
+            overrideAccess: true,
           })
         }
         expect(revalidatePath).toHaveBeenCalledWith(`/en${livePath}`)
@@ -410,10 +442,21 @@ describe('Products through isolated Payload Local API', () => {
         for (const spy of [findByID, find, create, update, remove]) spy.mockRestore()
       }
       expect(
-        await payload.findByID({ collection: 'products', id: product.id, draft: false, depth: 0 }),
+        await payload.findByID({
+          collection: 'products',
+          id: product.id,
+          draft: false,
+          depth: 0,
+          overrideAccess: true,
+        }),
       ).toMatchObject({ _status: 'draft' })
       expect(
-        await payload.findByID({ collection: 'redirects', id: redirect.id, depth: 0 }),
+        await payload.findByID({
+          collection: 'redirects',
+          id: redirect.id,
+          depth: 0,
+          overrideAccess: true,
+        }),
       ).toMatchObject({
         from: livePath,
         to: { type: 'custom', url: '/keep-this-redirect' },
@@ -433,6 +476,7 @@ describe('Products through isolated Payload Local API', () => {
         summary: 'Scheduled public product',
         _status: 'published',
       },
+      overrideAccess: true,
     })
     const slug = `schedule-next-${randomUUID()}`
     await payload.update({
@@ -440,6 +484,7 @@ describe('Products through isolated Payload Local API', () => {
       id: product.id,
       draft: true,
       data: { slug, category: secondCategoryID },
+      overrideAccess: true,
     })
     const job = await payload.jobs.queue({
       task: 'schedulePublish',
@@ -447,12 +492,19 @@ describe('Products through isolated Payload Local API', () => {
         type: 'publish',
         doc: { relationTo: 'products', value: product.id },
       },
+      overrideAccess: true,
     })
     vi.clearAllMocks()
-    const result = await payload.jobs.runByID({ id: job.id })
+    const result = await payload.jobs.runByID({ id: job.id, overrideAccess: true })
     expect(result.jobStatus?.[job.id]).toEqual({ status: 'success' })
     expect(
-      await payload.findByID({ collection: 'products', id: product.id, depth: 0, draft: false }),
+      await payload.findByID({
+        collection: 'products',
+        id: product.id,
+        depth: 0,
+        draft: false,
+        overrideAccess: true,
+      }),
     ).toMatchObject({ slug, categorySlug: 'black-tea', _status: 'published' })
     const oldPath = `/products/${product.categorySlug}/${product.slug}`
     expect(
@@ -461,6 +513,7 @@ describe('Products through isolated Payload Local API', () => {
           collection: 'redirects',
           depth: 0,
           where: { from: { equals: oldPath } },
+          overrideAccess: true,
         })
       ).docs[0],
     ).toMatchObject({ to: { reference: { value: product.id } } })
@@ -505,6 +558,7 @@ describe('Products through isolated Payload Local API', () => {
         collection: 'product-categories',
         req,
         data: { title: 'Legacy category', slug: `legacy-${randomUUID()}`, image: mediaID },
+        overrideAccess: true,
       })
       const valid = await payload.create({
         collection: 'products',
@@ -517,6 +571,7 @@ describe('Products through isolated Payload Local API', () => {
           summary: 'Valid',
           _status: 'published',
         },
+        overrideAccess: true,
       })
       const invalid = await legacy.create({
         collection: 'products',
@@ -528,10 +583,18 @@ describe('Products through isolated Payload Local API', () => {
           summary: 'Legacy missing title',
           _status: 'published',
         } as never,
+        overrideAccess: true,
       })
       const before = await Promise.all(
         [valid.id, invalid.id].map((id) =>
-          payload.findByID({ collection: 'products', req, id, draft: false, depth: 0 }),
+          payload.findByID({
+            collection: 'products',
+            req,
+            id,
+            draft: false,
+            depth: 0,
+            overrideAccess: true,
+          }),
         ),
       )
       const redirectsBefore = await payload.find({
@@ -539,6 +602,7 @@ describe('Products through isolated Payload Local API', () => {
         req,
         depth: 0,
         pagination: false,
+        overrideAccess: true,
       })
       const nestedReqs: unknown[] = []
       const update = payload.update.bind(payload)
@@ -553,6 +617,7 @@ describe('Products through isolated Payload Local API', () => {
             id: category.id,
             req,
             data: { slug: `${category.slug}-new` },
+            overrideAccess: true,
           }),
         ).rejects.toMatchObject({ name: 'ValidationError' })
         expect(nestedReqs.length).toBeGreaterThanOrEqual(2)
@@ -566,17 +631,33 @@ describe('Products through isolated Payload Local API', () => {
           id: category.id,
           req,
           depth: 0,
+          overrideAccess: true,
         }),
       ).toMatchObject({ slug: category.slug })
       expect(
         await Promise.all(
           [valid.id, invalid.id].map((id) =>
-            payload.findByID({ collection: 'products', req, id, draft: false, depth: 0 }),
+            payload.findByID({
+              collection: 'products',
+              req,
+              id,
+              draft: false,
+              depth: 0,
+              overrideAccess: true,
+            }),
           ),
         ),
       ).toEqual(before)
       expect(
-        (await payload.find({ collection: 'redirects', req, depth: 0, pagination: false })).docs,
+        (
+          await payload.find({
+            collection: 'redirects',
+            req,
+            depth: 0,
+            pagination: false,
+            overrideAccess: true,
+          })
+        ).docs,
       ).toEqual(redirectsBefore.docs)
       expect(req.context.taskMarker).toBe('legacy-rollback')
       expect(req.context.disableRevalidate).toBeUndefined()
@@ -590,6 +671,7 @@ describe('Products through isolated Payload Local API', () => {
       const category = await payload.create({
         collection: 'product-categories',
         data: { title: `Delete ${state}`, slug: `delete-category-${randomUUID()}`, image: mediaID },
+        overrideAccess: true,
       })
       const other =
         state === 'split'
@@ -600,6 +682,7 @@ describe('Products through isolated Payload Local API', () => {
                 slug: `delete-other-${randomUUID()}`,
                 image: mediaID,
               },
+              overrideAccess: true,
             })
           : null
       const product = await payload.create({
@@ -613,6 +696,7 @@ describe('Products through isolated Payload Local API', () => {
           summary: 'Reference',
           _status: state === 'draft' ? 'draft' : 'published',
         },
+        overrideAccess: true,
       })
       if (other)
         await payload.update({
@@ -620,26 +704,43 @@ describe('Products through isolated Payload Local API', () => {
           id: product.id,
           draft: true,
           data: { category: other.id, title: 'Private reference' },
+          overrideAccess: true,
         })
       const before = await Promise.all(
         [false, true].map((draft) =>
-          payload.findByID({ collection: 'products', id: product.id, draft, depth: 0 }),
+          payload.findByID({
+            collection: 'products',
+            id: product.id,
+            draft,
+            depth: 0,
+            overrideAccess: true,
+          }),
         ),
       )
       for (const target of [category, ...(other ? [other] : [])]) {
         await expect(
-          payload.delete({ collection: 'product-categories', id: target.id }),
+          payload.delete({ collection: 'product-categories', id: target.id, overrideAccess: true }),
         ).rejects.toMatchObject({
           status: 400,
           message: expect.stringContaining('1 products still use it'),
         })
         expect(
-          await payload.findByID({ collection: 'product-categories', id: target.id }),
+          await payload.findByID({
+            collection: 'product-categories',
+            id: target.id,
+            overrideAccess: true,
+          }),
         ).toMatchObject({ id: target.id })
       }
       const after = await Promise.all(
         [false, true].map((draft) =>
-          payload.findByID({ collection: 'products', id: product.id, draft, depth: 0 }),
+          payload.findByID({
+            collection: 'products',
+            id: product.id,
+            draft,
+            depth: 0,
+            overrideAccess: true,
+          }),
         ),
       )
       expect(after).toEqual(before)
@@ -647,8 +748,15 @@ describe('Products through isolated Payload Local API', () => {
     const empty = await payload.create({
       collection: 'product-categories',
       data: { title: 'Empty', slug: `empty-${randomUUID()}`, image: mediaID },
+      overrideAccess: true,
     })
-    expect(await payload.delete({ collection: 'product-categories', id: empty.id })).toMatchObject({
+    expect(
+      await payload.delete({
+        collection: 'product-categories',
+        id: empty.id,
+        overrideAccess: true,
+      }),
+    ).toMatchObject({
       id: empty.id,
     })
   }, 20_000)
@@ -670,7 +778,14 @@ describe('Products through isolated Payload Local API', () => {
     })
     expect(product.categorySlug).toBe('green-tea')
     expect(
-      (await payload.findByID({ collection: 'products', id: product.id, depth: 0 })).categorySlug,
+      (
+        await payload.findByID({
+          collection: 'products',
+          id: product.id,
+          depth: 0,
+          overrideAccess: true,
+        })
+      ).categorySlug,
     ).toBe('green-tea')
 
     await payload.update({
@@ -681,7 +796,14 @@ describe('Products through isolated Payload Local API', () => {
       data: { categorySlug: 'forged-update' } as never,
     })
     expect(
-      (await payload.findByID({ collection: 'products', id: product.id, depth: 0 })).categorySlug,
+      (
+        await payload.findByID({
+          collection: 'products',
+          id: product.id,
+          depth: 0,
+          overrideAccess: true,
+        })
+      ).categorySlug,
     ).toBe('green-tea')
 
     await payload.update({
@@ -692,7 +814,14 @@ describe('Products through isolated Payload Local API', () => {
       data: { category: secondCategoryID, categorySlug: 'forged-change' } as never,
     })
     expect(
-      (await payload.findByID({ collection: 'products', id: product.id, depth: 0 })).categorySlug,
+      (
+        await payload.findByID({
+          collection: 'products',
+          id: product.id,
+          depth: 0,
+          overrideAccess: true,
+        })
+      ).categorySlug,
     ).toBe('black-tea')
   }, 15_000)
 
@@ -710,6 +839,7 @@ describe('Products through isolated Payload Local API', () => {
           _status: state === 'draft' ? 'draft' : 'published',
           publishedAt: state === 'future' ? '2099-01-01T00:00:00.000Z' : '2020-01-01T00:00:00.000Z',
         },
+        overrideAccess: true,
       })
       ids.push(product.id)
     }
@@ -739,6 +869,7 @@ describe('Products through isolated Payload Local API', () => {
     const saved = await payload.create({
       collection: 'products',
       data: { ...valid, slug: `renamed-fields-${randomUUID()}` },
+      overrideAccess: true,
     })
     expect(saved).toMatchObject({ summary: 'Valid', specifications: valid.specifications })
     expect(saved).not.toHaveProperty('excerpt')
@@ -762,6 +893,7 @@ describe('Products through isolated Payload Local API', () => {
             slug: `validation-${randomUUID()}`,
             ...invalid,
           } as never,
+          overrideAccess: true,
         }),
       ).rejects.toThrow()
     }
@@ -778,18 +910,21 @@ describe('Products through isolated Payload Local API', () => {
         summary: 'Public summary',
         _status: 'published',
       },
+      overrideAccess: true,
     })
     await payload.update({
       collection: 'products',
       id: product.id,
       draft: true,
       data: { title: 'Unpublished title', summary: 'Private draft summary' },
+      overrideAccess: true,
     })
     const beforeDraft = await payload.findByID({
       collection: 'products',
       id: product.id,
       draft: true,
       depth: 0,
+      overrideAccess: true,
     })
     expect(beforeDraft.title).toBe('Unpublished title')
     const beforePublic = await payload.findByID({
@@ -797,6 +932,7 @@ describe('Products through isolated Payload Local API', () => {
       id: product.id,
       draft: false,
       depth: 0,
+      overrideAccess: true,
     })
     expect(beforePublic).toMatchObject({ title: 'Published title', _status: 'published' })
 
@@ -804,18 +940,21 @@ describe('Products through isolated Payload Local API', () => {
       collection: 'product-categories',
       id: firstCategoryID,
       data: { slug: 'green-tea-renamed' },
+      overrideAccess: true,
     })
     const published = await payload.findByID({
       collection: 'products',
       id: product.id,
       draft: false,
       depth: 0,
+      overrideAccess: true,
     })
     const draft = await payload.findByID({
       collection: 'products',
       id: product.id,
       draft: true,
       depth: 0,
+      overrideAccess: true,
     })
     expect(published).toMatchObject({
       title: 'Published title',
@@ -832,6 +971,7 @@ describe('Products through isolated Payload Local API', () => {
       collection: 'redirects',
       where: { from: { equals: `/products/green-tea/${product.slug}` } },
       depth: 0,
+      overrideAccess: true,
     })
     expect(redirect.docs[0]).toMatchObject({
       to: { type: 'reference', reference: { relationTo: 'products', value: product.id } },
@@ -849,6 +989,7 @@ describe('Products through isolated Payload Local API', () => {
         summary: 'Live',
         _status: 'published',
       },
+      overrideAccess: true,
     })
     const oldPath = `/products/${product.categorySlug}/${product.slug}`
     const draftSlug = `draft-${randomUUID()}`
@@ -858,17 +999,30 @@ describe('Products through isolated Payload Local API', () => {
       id: product.id,
       draft: true,
       data: { slug: draftSlug, category: secondCategoryID, title: 'Draft version' },
+      overrideAccess: true,
     })
     expect(revalidatePath).not.toHaveBeenCalled()
     expect(
-      (await payload.find({ collection: 'redirects', where: { from: { equals: oldPath } } })).docs,
+      (
+        await payload.find({
+          collection: 'redirects',
+          where: { from: { equals: oldPath } },
+          overrideAccess: true,
+        })
+      ).docs,
     ).toHaveLength(0)
     vi.clearAllMocks()
-    await payload.update({ collection: 'products', id: product.id, data: { _status: 'published' } })
+    await payload.update({
+      collection: 'products',
+      id: product.id,
+      data: { _status: 'published' },
+      overrideAccess: true,
+    })
     const redirect = await payload.find({
       collection: 'redirects',
       where: { from: { equals: oldPath } },
       depth: 0,
+      overrideAccess: true,
     })
     expect(redirect.docs[0]).toMatchObject({
       to: { reference: { relationTo: 'products', value: product.id } },
@@ -892,6 +1046,7 @@ describe('Products through isolated Payload Local API', () => {
           summary: 'Public bulk product',
           _status: 'published',
         },
+        overrideAccess: true,
       })
       const draftSlug = `bulk-draft-${randomUUID()}`
       await payload.update({
@@ -899,6 +1054,7 @@ describe('Products through isolated Payload Local API', () => {
         id: product.id,
         draft: true,
         data: { slug: draftSlug, category: secondCategoryID },
+        overrideAccess: true,
       })
       products.push({ ...product, draftSlug })
     }
@@ -908,6 +1064,7 @@ describe('Products through isolated Payload Local API', () => {
       where: { id: { in: products.map(({ id }) => id) } },
       draft: true,
       data: { _status: 'published' },
+      overrideAccess: true,
     })
     expect(result.errors).toEqual([])
     expect(result.docs).toHaveLength(2)
@@ -917,6 +1074,7 @@ describe('Products through isolated Payload Local API', () => {
         collection: 'redirects',
         depth: 0,
         where: { from: { equals: oldPath } },
+        overrideAccess: true,
       })
       expect(redirect.docs[0]).toMatchObject({
         to: { reference: { relationTo: 'products', value: product.id } },
@@ -941,6 +1099,7 @@ describe('Products through isolated Payload Local API', () => {
         summary: 'Historical public product',
         _status: 'published',
       },
+      overrideAccess: true,
     })
     const versions = await payload.findVersions({
       collection: 'products',
@@ -951,6 +1110,7 @@ describe('Products through isolated Payload Local API', () => {
           { 'version.slug': { equals: historical.slug } },
         ],
       },
+      overrideAccess: true,
     })
     const historicalVersion = versions.docs.find(({ version }) => version._status === 'published')!
     expect(historicalVersion).toBeDefined()
@@ -958,17 +1118,20 @@ describe('Products through isolated Payload Local API', () => {
       collection: 'products',
       id: historical.id,
       data: { slug: `current-${randomUUID()}`, category: firstCategoryID },
+      overrideAccess: true,
     })
     await payload.update({
       collection: 'products',
       id: historical.id,
       draft: true,
       data: { slug: `private-${randomUUID()}`, title: 'Private draft' },
+      overrideAccess: true,
     })
     vi.clearAllMocks()
     const restored = await payload.restoreVersion({
       collection: 'products',
       id: historicalVersion.id,
+      overrideAccess: true,
     })
     expect(restored).toMatchObject({ slug: historical.slug, _status: 'published' })
     const oldPath = `/products/${current.categorySlug}/${current.slug}`
@@ -976,6 +1139,7 @@ describe('Products through isolated Payload Local API', () => {
       collection: 'redirects',
       depth: 0,
       where: { from: { equals: oldPath } },
+      overrideAccess: true,
     })
     expect(redirect.docs[0]).toMatchObject({
       to: { reference: { relationTo: 'products', value: historical.id } },
@@ -1006,6 +1170,7 @@ describe('Products through isolated Payload Local API', () => {
         summary: 'Reused public product',
         _status: 'published',
       },
+      overrideAccess: true,
     })
     const suppressedSlug = `suppressed-${randomUUID()}`
     await payload.update({
@@ -1014,6 +1179,7 @@ describe('Products through isolated Payload Local API', () => {
       req,
       context: { disableRevalidate: true, skipProductRedirect: true },
       data: { slug: suppressedSlug },
+      overrideAccess: true,
     })
     const nextSlug = `next-${randomUUID()}`
     vi.clearAllMocks()
@@ -1023,6 +1189,7 @@ describe('Products through isolated Payload Local API', () => {
       req,
       context: { disableRevalidate: false, skipProductRedirect: false },
       data: { slug: nextSlug },
+      overrideAccess: true,
     })
     const suppressedPath = `/products/${product.categorySlug}/${suppressedSlug}`
     expect(
@@ -1032,6 +1199,7 @@ describe('Products through isolated Payload Local API', () => {
           req,
           depth: 0,
           where: { from: { equals: suppressedPath } },
+          overrideAccess: true,
         })
       ).docs[0],
     ).toMatchObject({ to: { reference: { value: product.id } } })
@@ -1042,9 +1210,10 @@ describe('Products through isolated Payload Local API', () => {
       req,
       draft: true,
       data: { slug: `reuse-draft-${randomUUID()}` },
+      overrideAccess: true,
     })
     vi.clearAllMocks()
-    await payload.delete({ collection: 'products', id: product.id, req })
+    await payload.delete({ collection: 'products', id: product.id, req, overrideAccess: true })
     expect(revalidatePath).toHaveBeenCalledWith(`/en/products/${product.categorySlug}/${nextSlug}`)
     expect(req.context.taskMarker).toBe('sequential')
   }, 20_000)
@@ -1053,10 +1222,12 @@ describe('Products through isolated Payload Local API', () => {
     const publicCategory = await payload.create({
       collection: 'product-categories',
       data: { title: 'Public C', slug: `public-${randomUUID()}`, image: mediaID },
+      overrideAccess: true,
     })
     const draftCategory = await payload.create({
       collection: 'product-categories',
       data: { title: 'Draft D', slug: `draft-${randomUUID()}`, image: mediaID },
+      overrideAccess: true,
     })
     const product = await payload.create({
       collection: 'products',
@@ -1068,24 +1239,39 @@ describe('Products through isolated Payload Local API', () => {
         summary: 'Live',
         _status: 'published',
       },
+      overrideAccess: true,
     })
     await payload.update({
       collection: 'products',
       id: product.id,
       draft: true,
       data: { category: draftCategory.id, title: 'Private product' },
+      overrideAccess: true,
     })
     const newPublicSlug = `${publicCategory.slug}-renamed`
     await payload.update({
       collection: 'product-categories',
       id: publicCategory.id,
       data: { slug: newPublicSlug },
+      overrideAccess: true,
     })
     expect(
-      await payload.findByID({ collection: 'products', id: product.id, draft: false, depth: 0 }),
+      await payload.findByID({
+        collection: 'products',
+        id: product.id,
+        draft: false,
+        depth: 0,
+        overrideAccess: true,
+      }),
     ).toMatchObject({ title: 'Public product', categorySlug: newPublicSlug, _status: 'published' })
     expect(
-      await payload.findByID({ collection: 'products', id: product.id, draft: true, depth: 0 }),
+      await payload.findByID({
+        collection: 'products',
+        id: product.id,
+        draft: true,
+        depth: 0,
+        overrideAccess: true,
+      }),
     ).toMatchObject({
       title: 'Private product',
       categorySlug: draftCategory.slug,
@@ -1094,6 +1280,7 @@ describe('Products through isolated Payload Local API', () => {
     const liveRedirect = await payload.find({
       collection: 'redirects',
       where: { from: { equals: `/products/${publicCategory.slug}/${product.slug}` } },
+      overrideAccess: true,
     })
     expect(liveRedirect.docs).toHaveLength(1)
 
@@ -1102,16 +1289,30 @@ describe('Products through isolated Payload Local API', () => {
       collection: 'product-categories',
       id: draftCategory.id,
       data: { slug: newDraftSlug },
+      overrideAccess: true,
     })
     expect(
-      await payload.findByID({ collection: 'products', id: product.id, draft: false, depth: 0 }),
+      await payload.findByID({
+        collection: 'products',
+        id: product.id,
+        draft: false,
+        depth: 0,
+        overrideAccess: true,
+      }),
     ).toMatchObject({ title: 'Public product', categorySlug: newPublicSlug, _status: 'published' })
     expect(
-      await payload.findByID({ collection: 'products', id: product.id, draft: true, depth: 0 }),
+      await payload.findByID({
+        collection: 'products',
+        id: product.id,
+        draft: true,
+        depth: 0,
+        overrideAccess: true,
+      }),
     ).toMatchObject({ title: 'Private product', categorySlug: newDraftSlug, _status: 'draft' })
     const draftRedirect = await payload.find({
       collection: 'redirects',
       where: { from: { equals: `/products/${draftCategory.slug}/${product.slug}` } },
+      overrideAccess: true,
     })
     expect(draftRedirect.docs).toHaveLength(0)
   }, 20_000)
@@ -1127,6 +1328,7 @@ describe('Products through isolated Payload Local API', () => {
         summary: 'Live',
         _status: 'published',
       },
+      overrideAccess: true,
     })
     const oldPath = `/products/${product.categorySlug}/${product.slug}`
     await payload.update({
@@ -1134,9 +1336,10 @@ describe('Products through isolated Payload Local API', () => {
       id: product.id,
       draft: true,
       data: { title: 'Draft only' },
+      overrideAccess: true,
     })
     vi.clearAllMocks()
-    await payload.delete({ collection: 'products', id: product.id })
+    await payload.delete({ collection: 'products', id: product.id, overrideAccess: true })
     expect(revalidatePath).toHaveBeenCalledWith(`/en${oldPath}`)
     expect(revalidateTag).toHaveBeenCalledWith(`product-${product.id}`, 'max')
   }, 20_000)
@@ -1144,6 +1347,7 @@ describe('Products through isolated Payload Local API', () => {
     const category = await payload.create({
       collection: 'product-categories',
       data: { title: 'Scoped', slug: `scope-${randomUUID()}`, image: mediaID },
+      overrideAccess: true,
     })
     const product = await payload.create({
       collection: 'products',
@@ -1155,6 +1359,7 @@ describe('Products through isolated Payload Local API', () => {
         summary: 'Scoped summary',
         _status: 'published',
       },
+      overrideAccess: true,
     })
     const originalContext = { taskMarker: 'parent', skipProductRedirect: false }
     const req = await createPayloadRequest({ context: originalContext, payload })
@@ -1166,6 +1371,7 @@ describe('Products through isolated Payload Local API', () => {
       id: category.id,
       data: { slug: renamed },
       req,
+      overrideAccess: true,
     })
     expect(req.context).toStrictEqual(originalContext)
     expect(req.context).not.toHaveProperty('setDerivedCategorySlug')
@@ -1190,6 +1396,7 @@ describe('Products through isolated Payload Local API', () => {
       collection: 'search',
       depth: 0,
       where: { 'doc.value': { equals: product.id } },
+      overrideAccess: true,
     })
     expect(search.docs[0]).toMatchObject({
       categorySlug: renamed,
@@ -1204,6 +1411,7 @@ describe('Products through isolated Payload Local API', () => {
     const category = await payload.create({
       collection: 'product-categories',
       data: { title: 'Error scope', slug: `error-${randomUUID()}`, image: mediaID },
+      overrideAccess: true,
     })
     await payload.create({
       collection: 'products',
@@ -1215,6 +1423,7 @@ describe('Products through isolated Payload Local API', () => {
         summary: 'Scoped error',
         _status: 'published',
       },
+      overrideAccess: true,
     })
     const originalContext = { taskMarker: 'error-parent', disableRevalidate: false }
     const req = await createPayloadRequest({ context: originalContext, payload })

@@ -64,11 +64,13 @@ describe('Blog fixture cleanup reference safety', () => {
       await payload.create({
         collection: 'media',
         data: { alt: `${fixturePrefix} photograph` },
+        overrideAccess: true,
       })
     ).id
     const page = await payload.create({
       collection: 'pages',
       data: { title: 'Published page', mediaReference: mediaID } as never,
+      overrideAccess: true,
     })
     pageID = page.id
     await payload.update({
@@ -76,6 +78,7 @@ describe('Blog fixture cleanup reference safety', () => {
       id: pageID,
       draft: true,
       data: { title: 'New draft without media', mediaReference: null } as never,
+      overrideAccess: true,
     })
   }, 25_000)
 
@@ -96,18 +99,22 @@ describe('Blog fixture cleanup reference safety', () => {
       id: pageID,
       draft: false,
       depth: 0,
+      overrideAccess: true,
     })
     const latestDraft = await payload.findByID({
       collection: 'pages',
       id: pageID,
       draft: true,
       depth: 0,
+      overrideAccess: true,
     })
     expect((published as unknown as { mediaReference: string | null }).mediaReference).toBe(mediaID)
     expect((latestDraft as unknown as { mediaReference: string | null }).mediaReference).toBeNull()
 
     await expect(cleanupBlogs(payload, runID)).rejects.toThrow(/referenced by pages\/.*published/i)
-    await expect(payload.findByID({ collection: 'media', id: mediaID })).resolves.toMatchObject({
+    await expect(
+      payload.findByID({ collection: 'media', id: mediaID, overrideAccess: true }),
+    ).resolves.toMatchObject({
       alt: `e2e-blogs-${runID} photograph`,
     })
   })
