@@ -31,6 +31,8 @@
   --admin-window-radius: 14px;
   --admin-widget-radius: 16px;
   --admin-row-height: 44px;
+  --admin-group-padding: 14px 16px;
+  --admin-group-gap: 14px;
   --admin-window-shadow: 0 0 0 0.5px rgb(0 0 0 / 8%), 0 1px 2px rgb(0 0 0 / 4%), 0 8px 24px rgb(0 0 0 / 4%);
   --admin-tooltip-shadow: 0 2px 8px rgb(0 0 0 / 14%), 0 0 0 0.5px rgb(0 0 0 / 12%);
   --admin-menu-shadow: 0 4px 12px rgb(0 0 0 / 8%), 0 12px 40px rgb(0 0 0 / 14%), 0 0 0 0.5px rgb(0 0 0 / 12%);

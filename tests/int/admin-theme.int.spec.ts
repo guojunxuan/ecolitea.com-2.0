@@ -31,6 +31,41 @@ describe('Enhanced layout contract', () => {
     }
   })
 
+  it('styles tab buttons through the ARIA contract that the installed Tabs element still renders', () => {
+    const tabs = readFileSync('node_modules/@payloadcms/ui/dist/elements/Tabs/index.js', 'utf8')
+    expect(tabs).toContain('role: "tab"')
+    expect(tabs).toContain('"aria-selected": isActive')
+    const headers = selectors.map(({ header }) => header)
+    expect(headers).toEqual(expect.arrayContaining([
+      '.tabs-field__tabs',
+      ".tabs-field__tabs [role='tab']",
+      ".tabs-field__tabs [role='tab'][aria-selected='true']",
+    ]))
+    for (const header of headers.filter((item) => item.includes('[role='))) {
+      expect(header.startsWith('.tabs-field__tabs '), header).toBe(true)
+    }
+  })
+
+  it('only sets Payload custom properties that the installed CSS still reads', () => {
+    const readsNative = (name: string) => installed.includes(`var(${name}`)
+    const custom = enhanced.declarations.filter(({ prop }) => prop.startsWith('--') && !prop.startsWith('--admin-'))
+    expect(custom.map(({ prop }) => prop)).toEqual(expect.arrayContaining(['--color-bg', '--field-tabs-edge-display']))
+    for (const { prop } of custom) expect(readsNative(prop), `${prop} is no longer read by Payload`).toBe(true)
+  })
+
+  it('groups fields on the secondary surface and keeps nested collapsibles distinct', () => {
+    const get = (selector: string, prop: string) =>
+      enhanced.declarations.find((declaration) =>
+        declaration.header.split(',').map((item) => item.trim()).includes(selector) && declaration.prop === prop)?.value
+    for (const header of ['.group-field', '.collapsible']) {
+      expect(get(header, 'background-color'), header).toBe('var(--color-bg-secondary)')
+      expect(get(header, 'border-radius'), header).toBe('var(--admin-panel-radius)')
+    }
+    expect(get('.group-field', 'padding')).toBe('var(--admin-group-padding)')
+    expect(get('.collapsible .collapsible', 'background-color')).toBe('var(--color-bg)')
+    expect(get('.group-field .collapsible', 'background-color')).toBe('var(--color-bg)')
+  })
+
   it('references only tokens: no literal colors, shadows or important declarations', () => {
     expect(enhanced.declarations.length).toBeGreaterThan(0)
     for (const { header, prop, value } of enhanced.declarations) {
@@ -78,6 +113,8 @@ it('defines the window layout sizes and surfaces as Admin tokens in both palette
   expect(value(':root', '--admin-window-radius')).toBe('14px')
   expect(value(':root', '--admin-widget-radius')).toBe('16px')
   expect(value(':root', '--admin-row-height')).toBe('44px')
+  expect(value(':root', '--admin-group-padding')).toBe('14px 16px')
+  expect(value(':root', '--admin-group-gap')).toBe('14px')
   for (const header of [':root', "html[data-theme='dark']"]) {
     expect(value(header, '--admin-canvas'), `${header} canvas`).toBeTruthy()
     expect(value(header, '--admin-window-shadow'), `${header} shadow`).toBeTruthy()

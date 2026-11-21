@@ -71,6 +71,65 @@
   background-color: var(--color-bg-hover);
 }
 
+/* Edit view: tab fields become a segmented control. The selection state comes from
+   aria-selected, which Payload renders on every tab button, not from generated class names. */
+.tabs-field {
+  --field-tabs-edge-display: none;
+}
+
+.tabs-field__tabs-wrap {
+  margin-bottom: var(--admin-group-gap);
+}
+
+.tabs-field__tabs {
+  min-width: 0;
+  width: fit-content;
+  gap: 2px;
+  padding: 2px;
+  margin-inline-start: calc(var(--gutter-h) * var(--field-border-bleed, 1));
+  border-radius: var(--admin-control-radius);
+  background-color: var(--color-bg-tertiary);
+  box-shadow: none;
+}
+
+.tabs-field__tabs [role='tab'] {
+  margin: 0;
+  padding: 5px 16px;
+  border-radius: calc(var(--admin-control-radius) - 1px);
+  color: var(--color-text-secondary);
+  font-weight: 500;
+}
+
+/* Replace the native underline indicator with the raised segment. */
+.tabs-field__tabs [role='tab']::after {
+  opacity: 0;
+}
+
+.tabs-field__tabs [role='tab'][aria-selected='true'] {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  box-shadow: 0 0 0 0.5px var(--color-border), 0 1px 2px var(--color-border);
+}
+
+/* Edit view: groups and collapsibles become rounded sections on the secondary surface. */
+.group-field,
+.collapsible {
+  border-radius: var(--admin-panel-radius);
+  background-color: var(--color-bg-secondary);
+}
+
+/* A collapsible already pads its own toggle and content; a group has no chrome of its own. */
+.group-field {
+  padding: var(--admin-group-padding);
+}
+
+.group-field .group-field,
+.group-field .collapsible,
+.collapsible .group-field,
+.collapsible .collapsible {
+  background-color: var(--color-bg);
+}
+
 @media (max-width: 768px) {
   .template-default__wrap {
     margin: 0;
