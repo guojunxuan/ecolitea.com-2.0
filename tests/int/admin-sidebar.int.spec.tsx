@@ -84,12 +84,19 @@ describe('getUserCard', () => {
 describe('UserCard', () => {
   const payload = { config: { routes: { admin: '/admin' }, admin: { routes: { account: '/account' } } } }
 
-  it('renders an account link with the initial, name and role', () => {
+  it('shows the initial and role, keeping the name only in the accessible name', () => {
     render(UserCard({ user: { name: 'Jason Li', email: 'j@example.invalid', role: 'admin' }, payload } as never) as React.ReactElement)
-    const link = screen.getByRole('link', { name: /Jason Li/ })
+    const link = screen.getByRole('link', { name: 'Jason Li, Administrator' })
     expect(link.getAttribute('href')).toBe('/admin/account')
-    expect(link.textContent).toContain('Administrator')
+    // Payload's user menu already shows the name; the card must not repeat it visibly.
+    expect(link.textContent).toBe('JAdministrator')
     expect(link.querySelector('[aria-hidden="true"]')?.textContent).toBe('J')
+  })
+
+  it('falls back to the name alone as the accessible name without a role', () => {
+    render(UserCard({ user: { name: 'Mei', email: 'mei@example.invalid' }, payload } as never) as React.ReactElement)
+    const link = screen.getByRole('link', { name: 'Mei' })
+    expect(link.textContent).toBe('M')
   })
 
   it('renders nothing without a user', () => {

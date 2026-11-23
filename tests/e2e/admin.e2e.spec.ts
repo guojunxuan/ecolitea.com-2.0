@@ -195,8 +195,10 @@ test.describe('Admin Panel', () => {
         await openSidebar(admin)
         await expectWindowLayout(admin)
         // The user card is pinned in the sidebar and links to the account page.
-        const card = admin.locator('.nav').getByRole('link', { name: /Phase4 editor\s*Administrator/ })
+        const card = admin.locator('.nav').getByRole('link', { name: 'Phase4 editor, Administrator' })
         await expect(card).toBeInViewport()
+        // The name is shown once, by Payload's user menu, not again in the card.
+        await expect(card).toHaveText('PAdministrator')
         await expect(card).toHaveAttribute('href', '/admin/account')
         if (!captureShots) continue
         await capture(admin, `dashboard-${colorScheme}`)
@@ -254,7 +256,7 @@ test.describe('Admin Panel', () => {
   test('shows the signed-in editor in the sidebar user card', async () => {
     await page.goto(`${baseURL}/admin`)
     await openSidebar(page)
-    const card = page.locator('.nav').getByRole('link', { name: new RegExp(`${testUser.email}\\s*Editor`) })
+    const card = page.locator('.nav').getByRole('link', { name: `${testUser.email}, Editor` })
     await expect(card).toBeInViewport()
     await expect(card).toHaveAttribute('href', '/admin/account')
     await card.click()

@@ -71,19 +71,10 @@
 }
 
 .userText {
-  display: flex;
-  flex-direction: column;
   min-width: 0;
-}
-
-.userText strong,
-.userText small {
   overflow: hidden;
+  color: var(--color-text-secondary);
+  font-size: 12px;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-
-.userText small {
-  color: var(--color-text-tertiary);
-  font-size: 11px;
 }
