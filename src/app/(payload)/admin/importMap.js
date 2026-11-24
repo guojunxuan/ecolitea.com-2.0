@@ -67,7 +67,6 @@ import { CategoryCarouselStatus as CategoryCarouselStatus_0bbce7c388200caa031ae6
 import { CategoryCarouselRowLabel as CategoryCarouselRowLabel_4c0f2608cd165b7629a279da0b6c6713 } from '@/Settings/components/CategoryCarouselRowLabel'
 import { AdminIcon as AdminIcon_0f8eaa08281824c0207dba6cab8406e7 } from '@/plugins/adminTheme/brand/AdminIcon'
 import { AdminLogo as AdminLogo_dcf38604fad76820f0bff9e738605a88 } from '@/plugins/adminTheme/brand/AdminLogo'
-import { UserCard as UserCard_de321fb8efdd882dc98f97f1c5e16390 } from '@/plugins/adminTheme/sidebar/UserCard'
 import { SidebarSearch as SidebarSearch_2ba434a9ff292d5941ff5113a1b0717f } from '@/plugins/adminTheme/sidebar/SidebarSearch'
 import { ThemeStyles as ThemeStyles_4fa6e6c79de32d13956c982c18e67f7f } from '@/plugins/adminTheme/ThemeStyles'
 import { EnhancedLayoutStyles as EnhancedLayoutStyles_dcfdf3711b1e36436fffbae60c1577f5 } from '@/plugins/adminTheme/EnhancedLayoutStyles'
@@ -162,7 +161,6 @@ export const importMap = {
   "@/Settings/components/CategoryCarouselRowLabel#CategoryCarouselRowLabel": CategoryCarouselRowLabel_4c0f2608cd165b7629a279da0b6c6713,
   "@/plugins/adminTheme/brand/AdminIcon#AdminIcon": AdminIcon_0f8eaa08281824c0207dba6cab8406e7,
   "@/plugins/adminTheme/brand/AdminLogo#AdminLogo": AdminLogo_dcf38604fad76820f0bff9e738605a88,
-  "@/plugins/adminTheme/sidebar/UserCard#UserCard": UserCard_de321fb8efdd882dc98f97f1c5e16390,
   "@/plugins/adminTheme/sidebar/SidebarSearch#SidebarSearch": SidebarSearch_2ba434a9ff292d5941ff5113a1b0717f,
   "@/plugins/adminTheme/ThemeStyles#ThemeStyles": ThemeStyles_4fa6e6c79de32d13956c982c18e67f7f,
   "@/plugins/adminTheme/EnhancedLayoutStyles#EnhancedLayoutStyles": EnhancedLayoutStyles_dcfdf3711b1e36436fffbae60c1577f5,

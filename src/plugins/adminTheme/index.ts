@@ -43,13 +43,13 @@ export const adminThemePlugin =
             Icon: icon,
           },
           // The native sidebar does not render graphics.Icon in the installed canary.
-          // The search entry opens Payload's own command palette; the user card sits below the links.
+          // The search entry opens Payload's own command palette. The signed-in user is shown by
+          // Payload's own account menu in the top bar, so the theme adds no user card.
           beforeNavLinks: [
             ...(components?.beforeNavLinks ?? []),
             { path: icon, serverProps: { showName: true } },
             `${basePath}/sidebar/SidebarSearch#SidebarSearch`,
           ],
-          afterNav: [...(components?.afterNav ?? []), `${basePath}/sidebar/UserCard#UserCard`],
         },
       },
       endpoints: [...(config.endpoints ?? []), adminIconEndpoint],

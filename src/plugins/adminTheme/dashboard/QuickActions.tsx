@@ -8,7 +8,8 @@ const tones = { products: 'success', blogs: 'component', media: 'brand' } as con
 
 export function QuickActions({ req, permissions }: WidgetServerProps) {
   if (!req.user) return null
-  const actions = getQuickActions(req, permissions)
+  // The first action is the primary button in the dashboard title row; do not repeat it here.
+  const actions = getQuickActions(req, permissions).slice(1)
   if (!actions.length) return null
 
   return (

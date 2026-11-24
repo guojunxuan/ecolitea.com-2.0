@@ -85,9 +85,9 @@ test.describe('Admin Panel', () => {
     await expect(page.getByRole('region', { name: 'Overview' })).toBeVisible()
     await expect(page.getByRole('heading', { name: 'Recent quote requests' })).toBeVisible()
     await expect(page.getByRole('heading', { name: 'Content activity' })).toBeVisible()
-    // The title row and the quick actions both offer "New product".
-    await expect(page.getByRole('link', { name: 'New product', exact: true })).toHaveCount(2)
-    await expect(page.getByRole('navigation', { name: 'Quick actions' }).getByRole('link', { name: 'New product' })).toBeVisible()
+    // "New product" is offered once, as the title-row button, not again in quick actions.
+    await expect(page.getByRole('link', { name: 'New product', exact: true })).toHaveCount(1)
+    await expect(page.getByRole('navigation', { name: 'Quick actions' }).getByRole('link', { name: 'New blog' })).toBeVisible()
     await expect(page.getByRole('region', { name: 'System status' })).toHaveCount(0)
     await expect(page.getByRole('region', { name: 'Translations' })).toHaveCount(0)
   })
@@ -194,12 +194,8 @@ test.describe('Admin Panel', () => {
         await expect(admin.locator('html')).toHaveAttribute('data-theme', colorScheme)
         await openSidebar(admin)
         await expectWindowLayout(admin)
-        // The user card is pinned in the sidebar and links to the account page.
-        const card = admin.locator('.nav').getByRole('link', { name: 'Phase4 editor, Administrator' })
-        await expect(card).toBeInViewport()
-        // The name is shown once, by Payload's user menu, not again in the card.
-        await expect(card).toHaveText('PAdministrator')
-        await expect(card).toHaveAttribute('href', '/admin/account')
+        // Payload's own account menu shows the user; the theme adds no sidebar user card.
+        await expect(admin.locator('.nav').getByRole('link', { name: /Administrator/ })).toHaveCount(0)
         if (!captureShots) continue
         await capture(admin, `dashboard-${colorScheme}`)
         await admin.goto(`${baseURL}/admin/collections/blogs`)
@@ -251,15 +247,5 @@ test.describe('Admin Panel', () => {
     await expect(palette).toBeFocused()
     await page.keyboard.press('Escape')
     await expect(palette).toHaveCount(0)
-  })
-
-  test('shows the signed-in editor in the sidebar user card', async () => {
-    await page.goto(`${baseURL}/admin`)
-    await openSidebar(page)
-    const card = page.locator('.nav').getByRole('link', { name: `${testUser.email}, Editor` })
-    await expect(card).toBeInViewport()
-    await expect(card).toHaveAttribute('href', '/admin/account')
-    await card.click()
-    await expect(page).toHaveURL(/\/admin\/account$/)
   })
 })

@@ -203,11 +203,11 @@ describe('SystemStatus', () => {
 })
 
 describe('QuickActions and RecentQuotes', () => {
-  it('renders permitted actions as icon cards', () => {
+  it('renders the permitted actions after the title-row action as icon cards', () => {
     const { container } = render(QuickActions(props) as React.ReactElement)
     const nav = screen.getByRole('navigation', { name: 'Quick actions' })
-    expect(within(nav).getAllByRole('link').map((link) => link.textContent)).toEqual(['New product', 'New blog', 'Upload media'])
-    expect(container.querySelectorAll('svg[aria-hidden="true"]')).toHaveLength(3)
+    expect(within(nav).getAllByRole('link').map((link) => link.textContent)).toEqual(['New blog', 'Upload media'])
+    expect(container.querySelectorAll('svg[aria-hidden="true"]')).toHaveLength(2)
   })
 
   it('keeps the recent quotes states', async () => {

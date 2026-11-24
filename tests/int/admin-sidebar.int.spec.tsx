@@ -1,6 +1,6 @@
 import { cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { readFileSync } from 'node:fs'
-import type { Config, ServerProps } from 'payload'
+import type { Config } from 'payload'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 const ui = vi.hoisted(() => ({ openModal: vi.fn() }))
@@ -12,8 +12,6 @@ vi.mock('@payloadcms/ui', () => ({
 
 import { adminThemePlugin } from '@/plugins/adminTheme'
 import { SidebarSearch } from '@/plugins/adminTheme/sidebar/SidebarSearch'
-import { UserCard } from '@/plugins/adminTheme/sidebar/UserCard'
-import { getUserCard } from '@/plugins/adminTheme/sidebar/getUserCard'
 
 beforeEach(() => ui.openModal.mockReset())
 afterEach(() => {
@@ -59,51 +57,6 @@ describe('SidebarSearch', () => {
   })
 })
 
-describe('getUserCard', () => {
-  const config = { routes: { admin: '/admin' }, admin: { routes: { account: '/account' } } } as unknown as ServerProps['payload']['config']
-
-  it('maps known roles to readable labels and links to the account page', () => {
-    expect(getUserCard({ name: 'Jason Li', email: 'jason@example.invalid', role: 'admin' }, config)).toEqual({
-      name: 'Jason Li', initial: 'J', role: 'Administrator', href: '/admin/account',
-    })
-    expect(getUserCard({ name: 'Mei', email: 'mei@example.invalid', role: 'editor' }, config)).toMatchObject({ role: 'Editor' })
-  })
-
-  it('falls back to the email, the raw role, and no role', () => {
-    expect(getUserCard({ name: '  ', email: 'zoe@example.invalid', role: 'reviewer' }, config))
-      .toMatchObject({ name: 'zoe@example.invalid', initial: 'Z', role: 'reviewer' })
-    expect(getUserCard({ email: 'a@example.invalid' }, config).role).toBeUndefined()
-  })
-
-  it('uses the configured admin and account routes, and the first character of non-Latin names', () => {
-    const custom = { routes: { admin: '/cms' }, admin: { routes: { account: '/me' } } } as unknown as typeof config
-    expect(getUserCard({ name: '李明', email: 'li@example.invalid' }, custom)).toMatchObject({ initial: '李', href: '/cms/me' })
-  })
-})
-
-describe('UserCard', () => {
-  const payload = { config: { routes: { admin: '/admin' }, admin: { routes: { account: '/account' } } } }
-
-  it('shows the initial and role, keeping the name only in the accessible name', () => {
-    render(UserCard({ user: { name: 'Jason Li', email: 'j@example.invalid', role: 'admin' }, payload } as never) as React.ReactElement)
-    const link = screen.getByRole('link', { name: 'Jason Li, Administrator' })
-    expect(link.getAttribute('href')).toBe('/admin/account')
-    // Payload's user menu already shows the name; the card must not repeat it visibly.
-    expect(link.textContent).toBe('JAdministrator')
-    expect(link.querySelector('[aria-hidden="true"]')?.textContent).toBe('J')
-  })
-
-  it('falls back to the name alone as the accessible name without a role', () => {
-    render(UserCard({ user: { name: 'Mei', email: 'mei@example.invalid' }, payload } as never) as React.ReactElement)
-    const link = screen.getByRole('link', { name: 'Mei' })
-    expect(link.textContent).toBe('M')
-  })
-
-  it('renders nothing without a user', () => {
-    expect(UserCard({ user: undefined, payload } as never)).toBeNull()
-  })
-})
-
 describe('sidebar slot registration', () => {
   const base: Config = {
     secret: 'config-contract',
@@ -112,7 +65,7 @@ describe('sidebar slot registration', () => {
   }
   const brand = { path: '@/plugins/adminTheme/brand/AdminIcon#AdminIcon', serverProps: { showName: true } }
 
-  it('appends the search under the brand and the user card after the nav, keeping existing slots', () => {
+  it('appends the search under the brand and leaves afterNav untouched', () => {
     const config: Config = {
       ...base,
       admin: { ...base.admin, components: { beforeNavLinks: ['/custom/Before'], afterNav: ['/custom/After'] } },
@@ -121,7 +74,7 @@ describe('sidebar slot registration', () => {
     expect(components?.beforeNavLinks).toEqual([
       '/custom/Before', brand, '@/plugins/adminTheme/sidebar/SidebarSearch#SidebarSearch',
     ])
-    expect(components?.afterNav).toEqual(['/custom/After', '@/plugins/adminTheme/sidebar/UserCard#UserCard'])
+    expect(components?.afterNav).toEqual(['/custom/After'])
     expect(config.admin?.components?.afterNav).toEqual(['/custom/After'])
   })
 
