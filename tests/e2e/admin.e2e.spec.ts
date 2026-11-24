@@ -198,6 +198,17 @@ test.describe('Admin Panel', () => {
         await expect(admin.locator('.nav').getByRole('link', { name: /Administrator/ })).toHaveCount(0)
         // The native account menu sits in the top bar, and the sidebar copy is hidden.
         await expect(admin.locator('.app-header .user-menu')).toBeVisible()
+        // The top bar shows Payload's avatar on the menu button, not the username.
+        const trigger = admin.locator('.app-header .user-menu').getByRole('button', { name: 'Account' })
+        await expect(trigger).toBeVisible()
+        await expect(trigger).toHaveText('')
+        const avatar = admin.locator('.app-header .admin-account-menu__avatar')
+        await expect(avatar.locator('svg, img').first()).toBeVisible()
+        const [avatarBox, triggerBox] = await Promise.all([avatar.boundingBox(), trigger.boundingBox()])
+        expect(avatarBox!.x).toBeGreaterThanOrEqual(triggerBox!.x)
+        expect(avatarBox!.x + avatarBox!.width).toBeLessThanOrEqual(triggerBox!.x + triggerBox!.width)
+        // Only the avatar shows: Payload's chevron icon is hidden.
+        await expect(trigger.locator('.btn__icon')).toBeHidden()
         await expect(admin.locator('.nav .user-menu')).toBeHidden()
         await admin.locator('.app-header .user-menu').getByRole('button').first().click()
         await expect(admin.getByRole('menuitem', { name: 'Log out' })).toBeVisible()

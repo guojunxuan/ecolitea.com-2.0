@@ -111,10 +111,13 @@ describe('Header account menu contract', () => {
   const classes = (header: string) => [...header.matchAll(/\.([_a-zA-Z][\w-]*)/g)].map(([, name]) => name)
   const installedClasses = new Set(auditCss(installed).blocks.flatMap(({ header }) => classes(header)))
 
-  it('hides only classes still present in the installed Payload CSS', () => {
+  it('depends only on Payload classes still present in the installed Payload CSS', () => {
     const selectors = auditCss(accountCss).blocks.filter(({ header }) => !header.startsWith('@'))
-    expect(selectors.map(({ header }) => header.trim())).toEqual(['.nav .user-menu'])
-    for (const name of ['nav', 'user-menu']) {
+    expect(selectors.map(({ header }) => header.trim())).toContain('.nav .user-menu')
+    const payloadClasses = new Set(selectors.flatMap(({ header }) => classes(header))
+      .filter((name) => !name.startsWith('admin-account-menu')))
+    expect([...payloadClasses].sort()).toEqual(['btn__icon', 'nav', 'user-menu', 'user-menu__trigger'])
+    for (const name of payloadClasses) {
       expect(installedClasses, `Payload removed .${name}. Review the header account menu.`).toContain(name)
     }
   })
@@ -122,11 +125,13 @@ describe('Header account menu contract', () => {
   it('relies on Payload still exporting UserMenu and rendering it in the sidebar', () => {
     const client = readFileSync('node_modules/@payloadcms/ui/dist/exports/client/index.d.ts', 'utf8')
     expect(client).toMatch(/export \{ UserMenu \}/)
+    expect(client).toMatch(/export \{ Account \}/)
     const nav = readFileSync('node_modules/@payloadcms/ui/dist/elements/Nav/index.js', 'utf8')
     expect(nav, 'Payload no longer renders UserMenu in the sidebar. Review the header account menu.')
       .toMatch(/_jsx\(UserMenu,/)
     const userMenu = readFileSync('node_modules/@payloadcms/ui/dist/elements/UserMenu/index.js', 'utf8')
     expect(userMenu).toMatch(/const baseClass = 'user-menu'/)
+    expect(userMenu).toMatch(/__trigger/)
   })
 })
 

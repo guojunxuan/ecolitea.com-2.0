@@ -1,9 +1,48 @@
 /*
  * Loaded only when adminThemePlugin({ accountMenuInHeader: true }). The account menu is rendered in
- * the top bar, so the copy Payload renders at the top of the sidebar is hidden. `.nav` and
- * `.user-menu` are Payload class names, not a public API; tests/int/admin-theme.int.spec.ts checks
- * that both still exist in the installed Payload CSS.
+ * the top bar, so the copy Payload renders at the top of the sidebar is hidden. `.nav`, `.user-menu`,
+ * `.user-menu__trigger` and `.btn__icon` are Payload class names, not a public API;
+ * tests/int/admin-theme.int.spec.ts checks that they still exist in the installed Payload CSS.
  */
 .nav .user-menu {
+  display: none;
+}
+
+/* Payload's Account avatar laid over the native menu button, which becomes a round avatar-sized
+   target. Its chevron icon is hidden; the button, its popup and keyboard behavior stay native. */
+.admin-account-menu {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.admin-account-menu__avatar {
+  position: absolute;
+  z-index: 1;
+  top: 50%;
+  display: flex;
+  width: 28px;
+  height: 28px;
+  overflow: hidden;
+  border-radius: 50%;
+  inset-inline-start: 4px;
+  pointer-events: none;
+  transform: translateY(-50%);
+}
+
+.admin-account-menu__avatar > * {
+  width: 100%;
+  height: 100%;
+}
+
+.admin-account-menu .user-menu__trigger {
+  width: 36px;
+  min-width: 36px;
+  height: 36px;
+  padding: 0;
+  border-radius: 50%;
+}
+
+.admin-account-menu .user-menu__trigger .btn__icon {
   display: none;
 }
