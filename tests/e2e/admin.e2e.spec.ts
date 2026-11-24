@@ -196,6 +196,12 @@ test.describe('Admin Panel', () => {
         await expectWindowLayout(admin)
         // Payload's own account menu shows the user; the theme adds no sidebar user card.
         await expect(admin.locator('.nav').getByRole('link', { name: /Administrator/ })).toHaveCount(0)
+        // The native account menu sits in the top bar, and the sidebar copy is hidden.
+        await expect(admin.locator('.app-header .user-menu')).toBeVisible()
+        await expect(admin.locator('.nav .user-menu')).toBeHidden()
+        await admin.locator('.app-header .user-menu').getByRole('button').first().click()
+        await expect(admin.getByRole('menuitem', { name: 'Log out' })).toBeVisible()
+        await admin.keyboard.press('Escape')
         if (!captureShots) continue
         await capture(admin, `dashboard-${colorScheme}`)
         await admin.goto(`${baseURL}/admin/collections/blogs`)

@@ -107,7 +107,7 @@ export default buildConfig({
   ],
   cors: [getServerSideURL()].filter(Boolean),
   globals: [Header, Footer, SiteSettings, Settings],
-  plugins: [...plugins, adminThemePlugin({ enhancedLayout: true })],
+  plugins: [...plugins, adminThemePlugin({ enhancedLayout: true, accountMenuInHeader: true })],
   storage,
   secret: serverEnv.PAYLOAD_SECRET,
   upload: {

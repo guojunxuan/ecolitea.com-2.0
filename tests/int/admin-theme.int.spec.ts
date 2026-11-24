@@ -106,6 +106,30 @@ describe('Enhanced layout contract', () => {
   })
 })
 
+describe('Header account menu contract', () => {
+  const accountCss = readFileSync('src/plugins/adminTheme/header/accountMenu.css', 'utf8')
+  const classes = (header: string) => [...header.matchAll(/\.([_a-zA-Z][\w-]*)/g)].map(([, name]) => name)
+  const installedClasses = new Set(auditCss(installed).blocks.flatMap(({ header }) => classes(header)))
+
+  it('hides only classes still present in the installed Payload CSS', () => {
+    const selectors = auditCss(accountCss).blocks.filter(({ header }) => !header.startsWith('@'))
+    expect(selectors.map(({ header }) => header.trim())).toEqual(['.nav .user-menu'])
+    for (const name of ['nav', 'user-menu']) {
+      expect(installedClasses, `Payload removed .${name}. Review the header account menu.`).toContain(name)
+    }
+  })
+
+  it('relies on Payload still exporting UserMenu and rendering it in the sidebar', () => {
+    const client = readFileSync('node_modules/@payloadcms/ui/dist/exports/client/index.d.ts', 'utf8')
+    expect(client).toMatch(/export \{ UserMenu \}/)
+    const nav = readFileSync('node_modules/@payloadcms/ui/dist/elements/Nav/index.js', 'utf8')
+    expect(nav, 'Payload no longer renders UserMenu in the sidebar. Review the header account menu.')
+      .toMatch(/_jsx\(UserMenu,/)
+    const userMenu = readFileSync('node_modules/@payloadcms/ui/dist/elements/UserMenu/index.js', 'utf8')
+    expect(userMenu).toMatch(/const baseClass = 'user-menu'/)
+  })
+})
+
 it('defines the window layout sizes and surfaces as Admin tokens in both palettes', () => {
   const value = (header: string, prop: string) =>
     declarations.find((declaration) => declaration.header === header && declaration.prop === prop)?.value

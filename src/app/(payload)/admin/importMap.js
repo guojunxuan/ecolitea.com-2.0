@@ -67,9 +67,11 @@ import { CategoryCarouselStatus as CategoryCarouselStatus_0bbce7c388200caa031ae6
 import { CategoryCarouselRowLabel as CategoryCarouselRowLabel_4c0f2608cd165b7629a279da0b6c6713 } from '@/Settings/components/CategoryCarouselRowLabel'
 import { AdminIcon as AdminIcon_0f8eaa08281824c0207dba6cab8406e7 } from '@/plugins/adminTheme/brand/AdminIcon'
 import { AdminLogo as AdminLogo_dcf38604fad76820f0bff9e738605a88 } from '@/plugins/adminTheme/brand/AdminLogo'
+import { HeaderAccountMenu as HeaderAccountMenu_5d50e9d0330eb7b9c62be7fce8e15312 } from '@/plugins/adminTheme/header/HeaderAccountMenu'
 import { SidebarSearch as SidebarSearch_2ba434a9ff292d5941ff5113a1b0717f } from '@/plugins/adminTheme/sidebar/SidebarSearch'
 import { ThemeStyles as ThemeStyles_4fa6e6c79de32d13956c982c18e67f7f } from '@/plugins/adminTheme/ThemeStyles'
 import { EnhancedLayoutStyles as EnhancedLayoutStyles_dcfdf3711b1e36436fffbae60c1577f5 } from '@/plugins/adminTheme/EnhancedLayoutStyles'
+import { AccountMenuStyles as AccountMenuStyles_64744dc397a547d6953b6c53d0b6a0ab } from '@/plugins/adminTheme/header/AccountMenuStyles'
 import { FolderIcon as FolderIcon_3817bf644402e67bfe6577f60ef982de } from '@payloadcms/ui'
 import { HierarchySidebarTabServer as HierarchySidebarTabServer_ab83ff7e88da8d3530831f296ec4756a } from '@payloadcms/ui/rsc'
 import { DashboardHeader as DashboardHeader_cc1afd540bd18280e5cdf1e196466d23 } from '@/plugins/adminTheme/dashboard/DashboardHeader'
@@ -161,9 +163,11 @@ export const importMap = {
   "@/Settings/components/CategoryCarouselRowLabel#CategoryCarouselRowLabel": CategoryCarouselRowLabel_4c0f2608cd165b7629a279da0b6c6713,
   "@/plugins/adminTheme/brand/AdminIcon#AdminIcon": AdminIcon_0f8eaa08281824c0207dba6cab8406e7,
   "@/plugins/adminTheme/brand/AdminLogo#AdminLogo": AdminLogo_dcf38604fad76820f0bff9e738605a88,
+  "@/plugins/adminTheme/header/HeaderAccountMenu#HeaderAccountMenu": HeaderAccountMenu_5d50e9d0330eb7b9c62be7fce8e15312,
   "@/plugins/adminTheme/sidebar/SidebarSearch#SidebarSearch": SidebarSearch_2ba434a9ff292d5941ff5113a1b0717f,
   "@/plugins/adminTheme/ThemeStyles#ThemeStyles": ThemeStyles_4fa6e6c79de32d13956c982c18e67f7f,
   "@/plugins/adminTheme/EnhancedLayoutStyles#EnhancedLayoutStyles": EnhancedLayoutStyles_dcfdf3711b1e36436fffbae60c1577f5,
+  "@/plugins/adminTheme/header/AccountMenuStyles#AccountMenuStyles": AccountMenuStyles_64744dc397a547d6953b6c53d0b6a0ab,
   "@payloadcms/ui#FolderIcon": FolderIcon_3817bf644402e67bfe6577f60ef982de,
   "@payloadcms/ui/rsc#HierarchySidebarTabServer": HierarchySidebarTabServer_ab83ff7e88da8d3530831f296ec4756a,
   "@/plugins/adminTheme/dashboard/DashboardHeader#DashboardHeader": DashboardHeader_cc1afd540bd18280e5cdf1e196466d23,

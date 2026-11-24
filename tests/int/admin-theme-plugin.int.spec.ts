@@ -82,6 +82,21 @@ describe('Admin theme plugin config', () => {
     expect(adminThemePlugin({ enhancedLayout: true })(nativeConfig).admin?.components?.providers)
       .toEqual([baseProvider, enhancedProvider])
   })
+
+  it('moves the account menu to the top bar only when explicitly enabled, keeping existing actions', () => {
+    const accountStyles = '@/plugins/adminTheme/header/AccountMenuStyles#AccountMenuStyles'
+    const accountMenu = '@/plugins/adminTheme/header/HeaderAccountMenu#HeaderAccountMenu'
+    const withAction: Config = { ...nativeConfig, admin: { ...nativeConfig.admin, components: { actions: ['/custom/Action'] } } }
+
+    const off = adminThemePlugin()(withAction).admin?.components
+    expect(off?.actions).toEqual(['/custom/Action'])
+    expect(off?.providers).not.toContain(accountStyles)
+
+    const on = adminThemePlugin({ accountMenuInHeader: true })(withAction).admin?.components
+    expect(on?.actions).toEqual(['/custom/Action', accountMenu])
+    expect(on?.providers).toContain(accountStyles)
+    expect(withAction.admin?.components?.actions).toEqual(['/custom/Action'])
+  })
 })
 
 describe('Admin favicon endpoint', () => {

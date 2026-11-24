@@ -9,7 +9,7 @@ const icon = `${basePath}/brand/AdminIcon#AdminIcon`
 const description = 'Site administration'
 
 export const adminThemePlugin =
-  ({ enabled = true, enhancedLayout = false }: AdminThemeOptions = {}) =>
+  ({ enabled = true, enhancedLayout = false, accountMenuInHeader = false }: AdminThemeOptions = {}) =>
   (config: Config): Config => {
     if (!enabled) return config
 
@@ -36,7 +36,11 @@ export const adminThemePlugin =
             ...(components?.providers ?? []),
             `${basePath}/ThemeStyles#ThemeStyles`,
             ...(enhancedLayout ? [`${basePath}/EnhancedLayoutStyles#EnhancedLayoutStyles`] : []),
+            ...(accountMenuInHeader ? [`${basePath}/header/AccountMenuStyles#AccountMenuStyles`] : []),
           ],
+          ...(accountMenuInHeader && {
+            actions: [...(components?.actions ?? []), `${basePath}/header/HeaderAccountMenu#HeaderAccountMenu`],
+          }),
           graphics: {
             ...components?.graphics,
             Logo: `${basePath}/brand/AdminLogo#AdminLogo`,

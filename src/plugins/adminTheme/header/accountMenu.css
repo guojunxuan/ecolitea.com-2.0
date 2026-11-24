@@ -1,0 +1,9 @@
+/*
+ * Loaded only when adminThemePlugin({ accountMenuInHeader: true }). The account menu is rendered in
+ * the top bar, so the copy Payload renders at the top of the sidebar is hidden. `.nav` and
+ * `.user-menu` are Payload class names, not a public API; tests/int/admin-theme.int.spec.ts checks
+ * that both still exist in the installed Payload CSS.
+ */
+.nav .user-menu {
+  display: none;
+}
