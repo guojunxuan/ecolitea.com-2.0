@@ -116,8 +116,13 @@ describe('Header account menu contract', () => {
     expect(selectors.map(({ header }) => header.trim())).toContain('.nav .user-menu')
     const payloadClasses = new Set(selectors.flatMap(({ header }) => classes(header))
       .filter((name) => !name.startsWith('admin-account-menu')))
-    expect([...payloadClasses].sort()).toEqual(['btn__icon', 'nav', 'user-menu', 'user-menu__trigger'])
-    for (const name of payloadClasses) {
+    expect([...payloadClasses].sort()).toEqual(['btn__icon', 'nav', 'nav__header', 'user-menu', 'user-menu__trigger'])
+    // Payload's Nav stylesheet is loaded per component, not from styles.css.
+    const navCss = readFileSync('node_modules/@payloadcms/ui/dist/elements/Nav/index.css', 'utf8')
+    const navJs = readFileSync('node_modules/@payloadcms/ui/dist/elements/Nav/index.js', 'utf8')
+    expect(navCss, 'Payload removed .nav__header. Review the header account menu.').toMatch(/\.nav__header\s*\{/)
+    expect(navJs).toMatch(/className: `\$\{baseClass\}__header`/)
+    for (const name of [...payloadClasses].filter((name) => name !== 'nav__header')) {
       expect(installedClasses, `Payload removed .${name}. Review the header account menu.`).toContain(name)
     }
   })

@@ -210,6 +210,10 @@ test.describe('Admin Panel', () => {
         // Only the avatar shows: Payload's chevron icon is hidden.
         await expect(trigger.locator('.btn__icon')).toBeHidden()
         await expect(admin.locator('.nav .user-menu')).toBeHidden()
+        // The sidebar header is a short row with only the collapse toggle and no divider.
+        const navHeader = admin.locator('.nav__header')
+        await expect(navHeader).toHaveCSS('border-bottom-width', '0px')
+        expect((await navHeader.boundingBox())!.height).toBeLessThan(48)
         await admin.locator('.app-header .user-menu').getByRole('button').first().click()
         await expect(admin.getByRole('menuitem', { name: 'Log out' })).toBeVisible()
         await admin.keyboard.press('Escape')

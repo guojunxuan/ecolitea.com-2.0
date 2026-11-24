@@ -8,6 +8,15 @@
   display: none;
 }
 
+/* With the account menu gone, the sidebar header holds only the collapse toggle: compress it into a
+   short row without the divider. `.nav__header` is declared in Payload's Nav stylesheet
+   (elements/Nav/index.css), which the contract test checks. */
+.nav__header {
+  justify-content: flex-start;
+  padding-block: var(--spacer-1);
+  border-bottom: 0;
+}
+
 /* Payload's Account avatar laid over the native menu button, which becomes a round avatar-sized
    target. Its chevron icon is hidden; the button, its popup and keyboard behavior stay native. */
 .admin-account-menu {
