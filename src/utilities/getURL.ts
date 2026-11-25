@@ -1,12 +1,15 @@
 import canUseDOM from './canUseDOM'
 
+// A computed key keeps Next from inlining the build-time NEXT_PUBLIC_* value into server bundles,
+// so a prebuilt image uses the URL from its runtime environment.
+const runtimeEnv = (key: 'NEXT_PUBLIC_SERVER_URL' | 'VERCEL_PROJECT_PRODUCTION_URL') =>
+  process.env[key]?.trim() || undefined
+
 export const getServerSideURL = () => {
-  return (
-    process.env.NEXT_PUBLIC_SERVER_URL ||
-    (process.env.VERCEL_PROJECT_PRODUCTION_URL
-      ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
-      : 'http://localhost:3000')
-  )
+  const serverURL = runtimeEnv('NEXT_PUBLIC_SERVER_URL')
+  if (serverURL) return serverURL.replace(/\/+$/, '')
+  const vercelURL = runtimeEnv('VERCEL_PROJECT_PRODUCTION_URL')
+  return vercelURL ? `https://${vercelURL}` : 'http://localhost:3000'
 }
 
 export const getClientSideURL = () => {

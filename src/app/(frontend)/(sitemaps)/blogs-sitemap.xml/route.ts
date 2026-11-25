@@ -1,3 +1,4 @@
+import { getServerSideURL } from '@/utilities/getURL'
 import { localizeSitemap, sitemapLocaleKey, sitemapLocaleTags } from '@/utilities/i18n/seo'
 import config from '@payload-config'
 import { unstable_cache } from 'next/cache'
@@ -24,10 +25,7 @@ const validLastmod = (value: string | null | undefined, fallback: string) =>
 const getBlogsSitemap = unstable_cache(
   async () => {
     const payload = await getPayload({ config })
-    const siteURL =
-      process.env.NEXT_PUBLIC_SERVER_URL ||
-      process.env.VERCEL_PROJECT_PRODUCTION_URL ||
-      'https://example.com'
+    const siteURL = getServerSideURL()
     const now = new Date()
     const fallback = now.toISOString()
 

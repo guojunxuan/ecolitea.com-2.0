@@ -1,15 +1,13 @@
-import { timingSafeEqual } from 'node:crypto'
 import { revalidateTag } from 'next/cache'
 import { revalidateLocalizedPath as revalidatePath } from '@/utilities/i18n/revalidatePaths'
 import { serverEnv } from '@/utilities/env'
+import { secretsMatch } from '@/utilities/secretsMatch'
 import { REVALIDATION_LIMIT } from '@/plugins/translation/revalidate'
 
 export async function POST(request: Request): Promise<Response> {
   const secret = serverEnv.REVALIDATE_SECRET
   if (!secret) return new Response(null, { status: 503 })
-  const expected = Buffer.from(`Bearer ${secret}`)
-  const supplied = Buffer.from(request.headers.get('authorization') ?? '')
-  if (supplied.length !== expected.length || !timingSafeEqual(supplied, expected)) {
+  if (!secretsMatch(request.headers.get('authorization'), `Bearer ${secret}`)) {
     return new Response(null, { status: 401 })
   }
   const body: unknown = await request.json().catch(() => null)

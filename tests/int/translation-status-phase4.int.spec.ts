@@ -70,18 +70,28 @@ it('shows an empty usage track at zero and a proportional fill at one quarter', 
   } as unknown as Payload
   const summary = await getTranslationStatus(payload)
   try {
-    render(await TranslationStatus({ payload, user: { id: 'test' } as never }))
+    render(await TranslationStatus({ payload, user: { id: 'test', role: 'admin' } as never }))
     expect(screen.getByRole('progressbar').getAttribute('aria-valuenow')).toBe('0')
     expect(
       (document.querySelector('[data-translation-usage-fill]') as HTMLElement).style.width,
     ).toBe('0%')
     cleanup()
     characters = summary.limit / 4
-    render(await TranslationStatus({ payload, user: { id: 'test' } as never }))
+    render(await TranslationStatus({ payload, user: { id: 'test', role: 'admin' } as never }))
     expect(
       (document.querySelector('[data-translation-usage-fill]') as HTMLElement).style.width,
     ).toBe('25%')
   } finally {
     cleanup()
   }
+})
+
+it('hides translation usage from editors because it reads with overrideAccess', async () => {
+  const find = vi.fn(async () => ({ docs: [] }))
+  const payload = { findGlobal: vi.fn(), find } as unknown as Payload
+  expect(
+    await TranslationStatus({ payload, user: { id: 'e', role: 'editor' } as never }),
+  ).toBeNull()
+  expect(await TranslationStatus({ payload, user: undefined })).toBeNull()
+  expect(find).not.toHaveBeenCalled()
 })

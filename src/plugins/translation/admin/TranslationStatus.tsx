@@ -15,7 +15,8 @@ export async function TranslationStatus({
   user,
   req,
 }: Pick<ServerProps, 'payload' | 'user'> & { req?: PayloadRequest }) {
-  if (!user) return null
+  // Usage and job rows are read with overrideAccess; match the admin-only dashboard widgets.
+  if (user?.role !== 'admin') return null
   const summary = await getTranslationStatus(payload, req)
   return (
     <div className="translation-status">

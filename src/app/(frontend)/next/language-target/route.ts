@@ -45,16 +45,20 @@ export async function GET(request: Request): Promise<Response> {
   } else if (parts[0] === 'products' && parts.length >= 2) {
     ready = await getProductCategoryBySlug(parts[1], locale)
   } else if (parts[0] === 'blogs' && parts[1] === 'category') {
-    const payload = await getPayload({ config })
-    const result = await payload.find({
-      collection: 'blog-categories',
-      draft: false,
-      overrideAccess: false,
-      depth: 0,
-      limit: 1,
-      where: { slug: { equals: parts[2] } },
-    })
-    ready = await getLocalizedDoc(result.docs[0], 'blog-categories', locale, payload)
+    // '/blogs/category' alone is not a page; without a slug it stays unavailable.
+    if (!parts[2]) ready = false
+    else {
+      const payload = await getPayload({ config })
+      const result = await payload.find({
+        collection: 'blog-categories',
+        draft: false,
+        overrideAccess: false,
+        depth: 0,
+        limit: 1,
+        where: { slug: { equals: parts[2] } },
+      })
+      ready = await getLocalizedDoc(result.docs[0], 'blog-categories', locale, payload)
+    }
   } else if (parts[0] === 'blogs' && parts.length === 2)
     ready = await getBlogBySlug(parts[1], false, locale)
   else if (parts[0] === 'case-studies' && parts.length === 2)

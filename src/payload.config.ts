@@ -25,6 +25,7 @@ import { plugins, storage } from './plugins'
 import { defaultLexical } from '@/fields/defaultLexical'
 import { getServerSideURL } from './utilities/getURL'
 import { serverEnv } from './utilities/env'
+import { secretsMatch } from './utilities/secretsMatch'
 import { createEmailAdapter } from './plugins/email/adapter'
 import { adminThemePlugin } from './plugins/adminTheme'
 
@@ -134,8 +135,7 @@ export default buildConfig({
         // If there is no logged in user, then check
         // for the Vercel Cron secret to be present as an
         // Authorization header:
-        const authHeader = req.headers.get('authorization')
-        return authHeader === `Bearer ${secret}`
+        return secretsMatch(req.headers.get('authorization'), `Bearer ${secret}`)
       },
     },
     tasks: [],

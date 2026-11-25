@@ -6,6 +6,7 @@ import { redirect } from 'next/navigation'
 import { NextRequest } from 'next/server'
 
 import configPromise from '@payload-config'
+import { secretsMatch } from '@/utilities/secretsMatch'
 
 export type PreviewSearchParams = {
   path: string
@@ -20,7 +21,7 @@ export async function GET(req: NextRequest): Promise<Response> {
   const path = searchParams.get('path')
   const previewSecret = searchParams.get('previewSecret')
 
-  if (previewSecret !== process.env.PREVIEW_SECRET) {
+  if (!secretsMatch(previewSecret, process.env.PREVIEW_SECRET)) {
     return new Response('You are not allowed to preview this page', { status: 403 })
   }
 
@@ -28,7 +29,8 @@ export async function GET(req: NextRequest): Promise<Response> {
     return new Response('Insufficient search params', { status: 404 })
   }
 
-  if (!path.startsWith('/')) {
+  // Same-origin paths only: '//host' and '/\\host' are protocol-relative redirects to another site.
+  if (!path.startsWith('/') || path.startsWith('//') || path.startsWith('/\\')) {
     return new Response('This endpoint can only be used for relative previews', { status: 500 })
   }
 

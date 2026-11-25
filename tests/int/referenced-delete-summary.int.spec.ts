@@ -88,3 +88,31 @@ for (const [name, hook, scan, idField] of [
     })
   })
 }
+
+describe('Site Assets deletion guard', () => {
+  it('scans references for Site Assets, skipping only its own collection', async () => {
+    const { SiteAssets } = await import('@/collections/SiteAssets')
+    const [hook] = SiteAssets.hooks?.beforeDelete ?? []
+    const req = {
+      payload: {
+        config: { collections: [], globals: [{ slug: 'site-settings', label: 'Site Settings' }] },
+      },
+    }
+    scanners.media.mockReset()
+    scanners.media.mockResolvedValue([
+      {
+        ownerType: 'global',
+        ownerSlug: 'site-settings',
+        kind: 'current',
+        title: 'Site',
+        path: 'logo',
+      },
+    ])
+    await expect(hook({ id: 'logo-asset', req } as never)).rejects.toThrow(
+      "Can't delete: used in Site Settings. Remove it there first.",
+    )
+    expect(scanners.media).toHaveBeenCalledWith(req.payload, ['logo-asset'], req, 'site-assets')
+    scanners.media.mockResolvedValue([])
+    await expect(hook({ id: 'unused', req } as never)).resolves.toBeUndefined()
+  })
+})

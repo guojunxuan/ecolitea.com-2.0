@@ -61,7 +61,12 @@ beforeEach(() => {
       return {
         docs: collection.endsWith('categories')
           ? [{ ...doc, slug: 'green' }]
-          : [doc, { ...doc, id: 'unready', slug: 'unready' }],
+          : [
+              doc,
+              // A ready non-legal page; /search is no longer listed (noindex).
+              ...(collection === 'pages' ? [{ ...doc, id: 'about', slug: 'about' }] : []),
+              { ...doc, id: 'unready', slug: 'unready' },
+            ],
         hasNextPage: false,
       }
     },

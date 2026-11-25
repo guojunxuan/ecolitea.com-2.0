@@ -41,4 +41,10 @@ describe('public language switch destination', () => {
     expect((await GET(request('/%ZZ'))).status).toBe(400)
     expect((await GET(request('/about', 'xx'))).status).toBe(400)
   })
+  it('treats a blog category path without a slug as unavailable without querying', async () => {
+    const { getPayload } = await import('payload')
+    const response = await GET(request('/blogs/category'))
+    expect(await response.json()).toEqual({ href: '/de?unavailable=de' })
+    expect(getPayload).not.toHaveBeenCalled()
+  })
 })

@@ -1,5 +1,4 @@
 import { localeCatalog } from '@/i18n/config'
-import { createRequire } from 'node:module'
 import { beforeEach, afterEach, describe, expect, it, vi } from 'vitest'
 const { find, cache } = vi.hoisted(() => ({ find: vi.fn(), cache: vi.fn((fn) => fn) }))
 vi.mock('payload', () => ({
@@ -11,7 +10,7 @@ vi.mock('payload', () => ({
 }))
 vi.mock('@payload-config', () => ({ default: Promise.resolve({}) }))
 vi.mock('next/cache', () => ({ unstable_cache: cache }))
-const sitemapConfig = createRequire(import.meta.url)('../../next-sitemap.config.cjs')
+import robots from '@/app/robots'
 beforeEach(() => {
   vi.stubEnv('NEXT_PUBLIC_SERVER_URL', 'https://products.example.test')
   find.mockReset()
@@ -28,11 +27,8 @@ const entries = (xml: string) => {
   }))
 }
 describe('Products sitemap', () => {
-  it('registers and excludes the endpoint', () => {
-    expect(sitemapConfig.exclude).toContain('/products-sitemap.xml')
-    expect(sitemapConfig.robotsTxtOptions.additionalSitemaps).toContain(
-      `${sitemapConfig.siteUrl}/products-sitemap.xml`,
-    )
+  it('is advertised by robots.txt with the runtime site URL', () => {
+    expect(robots().sitemap).toContain('https://products.example.test/products-sitemap.xml')
   })
   it('paginates both collections and emits only three URL kinds with updatedAt dates', async () => {
     find.mockImplementation(async ({ collection, page, where, overrideAccess, draft }) => {
@@ -117,5 +113,21 @@ describe('Products sitemap', () => {
       'https://products.example.test?x=1&y=2/products/tea%26coffee',
       'https://products.example.test?x=1&y=2/products/tea%26coffee/cup%26tea',
     ])
+  })
+})
+
+describe('robots.txt', () => {
+  it('blocks the Admin and is rendered per request', async () => {
+    const mod = await import('@/app/robots')
+    expect(mod.dynamic).toBe('force-dynamic')
+    expect(mod.default().rules).toEqual({ userAgent: '*', disallow: '/admin/' })
+  })
+})
+
+describe('server URL', () => {
+  it('reads the runtime environment and trims trailing slashes', async () => {
+    vi.stubEnv('NEXT_PUBLIC_SERVER_URL', 'https://runtime.example.test/')
+    const { getServerSideURL } = await import('@/utilities/getURL')
+    expect(getServerSideURL()).toBe('https://runtime.example.test')
   })
 })

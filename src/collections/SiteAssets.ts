@@ -3,6 +3,8 @@ import type { CollectionConfig, UploadFieldValidation } from 'payload'
 import { anyone } from '@/access/anyone'
 import { authenticated } from '@/access/authenticated'
 
+import { preventReferencedUploadDelete } from './mediaHooks/preventReferencedDelete'
+
 export const siteAssetMimeTypes = [
   'image/svg+xml',
   'image/png',
@@ -50,6 +52,10 @@ export const SiteAssets: CollectionConfig = {
     delete: authenticated,
     read: anyone,
     update: authenticated,
+  },
+  hooks: {
+    // Logos, favicons and social icons point here; deleting one in use would break the site shell.
+    beforeDelete: [preventReferencedUploadDelete('site-assets')],
   },
   fields: [
     {

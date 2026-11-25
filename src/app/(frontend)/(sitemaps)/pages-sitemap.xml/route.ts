@@ -1,3 +1,4 @@
+import { getServerSideURL } from '@/utilities/getURL'
 import { localizeSitemap, sitemapLocaleKey, sitemapLocaleTags } from '@/utilities/i18n/seo'
 import { getServerSideSitemap } from 'next-sitemap'
 import { getPayload } from 'payload'
@@ -7,10 +8,7 @@ import { unstable_cache } from 'next/cache'
 const getPagesSitemap = unstable_cache(
   async () => {
     const payload = await getPayload({ config })
-    const SITE_URL =
-      process.env.NEXT_PUBLIC_SERVER_URL ||
-      process.env.VERCEL_PROJECT_PRODUCTION_URL ||
-      'https://example.com'
+    const SITE_URL = getServerSideURL()
 
     const results = await payload.find({
       collection: 'pages',
@@ -32,13 +30,6 @@ const getPagesSitemap = unstable_cache(
 
     const dateFallback = new Date().toISOString()
 
-    const defaultSitemap = [
-      {
-        loc: `${SITE_URL}/search`,
-        lastmod: dateFallback,
-      },
-    ]
-
     const sitemap = results.docs
       ? results.docs
           .filter((page) => Boolean(page?.slug))
@@ -54,7 +45,7 @@ const getPagesSitemap = unstable_cache(
           })
       : []
 
-    return localizeSitemap([...defaultSitemap.map((entry) => ({ entry })), ...sitemap], payload)
+    return localizeSitemap(sitemap, payload)
   },
   ['pages-sitemap', ...sitemapLocaleKey()],
   {

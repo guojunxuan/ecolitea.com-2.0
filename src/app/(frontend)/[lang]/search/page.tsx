@@ -113,6 +113,8 @@ export async function generateMetadata(args: {
   return localizeMetadata(
     {
       title: formatTitle('Search', siteName),
+      // Result pages are query-driven and thin; keep them out of search engines.
+      robots: { index: false, follow: true },
     },
     { path: '/search', locale: lang },
   )

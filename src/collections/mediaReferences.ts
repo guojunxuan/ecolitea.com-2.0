@@ -42,6 +42,8 @@ export async function findMediaReferences(
   payload: Payload,
   ids: readonly (string | number)[],
   req?: PayloadRequest,
+  /** Upload collection that owns `ids`; it is skipped so a file never counts as its own use. */
+  uploadCollection: CollectionSlug = 'media',
 ): Promise<MediaReference[]> {
   if (!ids.length) return []
   const targets = new Set(ids.map(String))
@@ -113,7 +115,7 @@ export async function findMediaReferences(
   for (const collection of payload.config.collections) {
     // Native edit locks and recent-document preferences are editor state, not content use.
     if (
-      collection.slug === 'media' ||
+      collection.slug === uploadCollection ||
       collection.slug === 'payload-locked-documents' ||
       collection.slug === 'payload-preferences'
     )
