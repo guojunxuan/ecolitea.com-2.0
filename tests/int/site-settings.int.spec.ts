@@ -252,7 +252,7 @@ describe('Site Settings Global', () => {
     expect(await readAccess(guestAccessArgs)).toBe(true)
     expect(await updateAccess(guestAccessArgs)).toBe(false)
     expect(await updateAccess(authenticatedAccessArgs)).toBe(true)
-    expect(SiteSettings.admin?.group).toBeUndefined()
+    expect(SiteSettings.admin?.group).toBe('Site')
     expect(SiteSettings.fields).toEqual([siteSettingsTabs])
     expect(SiteSettings.hooks?.afterChange).toEqual([revalidateSiteSettings])
     expect(SiteSettings.versions).toBe(false)

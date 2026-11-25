@@ -2,23 +2,15 @@
 
 import { ArrayField } from '@payloadcms/ui'
 import type { ArrayFieldClientProps } from 'payload'
-import React, { type MouseEvent } from 'react'
+import React from 'react'
 
 import './socialLinksArrayField.scss'
 
-const markActionPortal = (event: MouseEvent<HTMLDivElement>) => {
-  if (!(event.target as Element).closest('.array-actions__button')) return
-
-  requestAnimationFrame(() => {
-    const popup = [...document.querySelectorAll<HTMLElement>('.popup__content')].find((candidate) =>
-      candidate.querySelector('.array-actions__action'),
-    )
-    popup?.classList.add('site-settings-social-links-actions')
-  })
-}
-
+// Copy, paste and duplicate are hidden for Social Links rows in CSS while one of this field's row
+// menus is open. The menu is portaled and Payload re-renders its className, so the field never
+// mutates Payload-managed DOM.
 export const SocialLinksArrayField: React.FC<ArrayFieldClientProps> = (props) => (
-  <div className="site-settings-social-links" onClickCapture={markActionPortal}>
+  <div className="site-settings-social-links">
     <ArrayField {...props} />
   </div>
 )

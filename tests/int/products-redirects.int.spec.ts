@@ -39,6 +39,7 @@ describe('product redirects', () => {
     expect(req.payload.delete).toHaveBeenCalledExactlyOnceWith({
       collection: 'redirects',
       id: 'occupied',
+      overrideAccess: true,
       req,
     })
     expect(req.payload.logger.debug).not.toHaveBeenCalled()

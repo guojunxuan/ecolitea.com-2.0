@@ -221,6 +221,7 @@ describe('development Media cleanup safety', () => {
     expect(payload.delete).toHaveBeenCalledWith({
       collection: 'media',
       context: { disableRevalidate: true },
+      overrideAccess: true,
       where: { id: { in: ['m1', 'm2'] } },
     })
     expect(payload.findVersions.mock.calls.map(([call]) => call.collection)).toEqual([

@@ -1,5 +1,6 @@
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { cleanup, fireEvent, render, screen } from '@testing-library/react'
 import React from 'react'
+import { readFileSync } from 'node:fs'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 const adminState = vi.hoisted(() => ({
@@ -223,11 +224,9 @@ describe('Social Link admin components', () => {
     expect(otherHeaderAction?.closest('.site-settings-social-links')).toBeNull()
 
     fireEvent.click(screen.getByRole('button', { name: 'socialLinks row actions' }))
-    await waitFor(() => {
-      expect(document.querySelector('.site-settings-social-links-actions')).toBeTruthy()
-    })
     const socialPopup = document.querySelector<HTMLElement>('[data-field="socialLinks"]')!
-    expect(socialPopup.classList.contains('site-settings-social-links-actions')).toBe(true)
+    // The portaled popup is Payload-managed; hiding is pure CSS, so the field must not mutate it.
+    expect(socialPopup.className).toBe('popup__content test-array-popup')
     expect(socialPopup.querySelector('.array-actions__duplicate')).toBeTruthy()
     expect(socialPopup.querySelector('.array-actions__copy')).toBeTruthy()
     expect(socialPopup.querySelector('.array-actions__paste-below')).toBeTruthy()
@@ -237,12 +236,42 @@ describe('Social Link admin components', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'otherArray row actions' }))
     const otherPopup = document.querySelector<HTMLElement>('[data-field="otherArray"]')!
-    expect(otherPopup.classList.contains('site-settings-social-links-actions')).toBe(false)
+    expect(otherPopup.className).toBe('popup__content test-array-popup')
     expect(otherPopup.querySelector('.array-actions__duplicate')).toBeTruthy()
   })
 
   it('keeps the Platform name read-only while editing', () => {
     render(<SocialPlatformNameField field={{ name: 'platform' } as never} path="platform" />)
     expect(screen.getByRole('textbox', { name: 'Platform' }).hasAttribute('readonly')).toBe(true)
+  })
+})
+
+// socialLinksArrayField.scss hides row actions with Payload's runtime class and ARIA conventions.
+// These read the installed Payload dist so an upgrade that renames them fails here, not silently.
+describe('Social Links row-action CSS contract', () => {
+  const ui = (file: string) => readFileSync(`node_modules/@payloadcms/ui/dist/${file}`, 'utf8')
+
+  it('relies on Payload array action, popup, and header-action class names', () => {
+    const arrayAction = ui('elements/ArrayAction/index.js')
+    expect(arrayAction).toMatch(/const baseClass = 'array-actions'/)
+    for (const action of ['duplicate', 'copy', 'paste-below', 'paste']) {
+      expect(arrayAction, `Payload renamed array-actions__${action}. Review socialLinksArrayField.scss.`)
+        .toContain(`\${baseClass}__${action}\``)
+    }
+    expect(ui('elements/Popup/index.js')).toMatch(/const baseClass = 'popup'[\s\S]*\$\{baseClass\}__content/)
+    const arrayField = ui('fields/Array/index.js')
+    expect(arrayField).toMatch(/const baseClass = 'array-field'/)
+    expect(arrayField).toContain('${baseClass}__header-action`')
+  })
+
+  it('relies on the popup trigger exposing aria-expanded', () => {
+    expect(ui('elements/Popup/PopupTrigger/index.js')).toMatch(/['"]?aria-expanded['"]?: active/)
+  })
+
+  it('keeps the scss selectors aligned with those conventions', () => {
+    const scss = readFileSync('src/SiteSettings/components/socialLinksArrayField.scss', 'utf8')
+    expect(scss).toContain(".site-settings-social-links .array-actions [aria-expanded='true']")
+    expect(scss).toContain('.popup__content')
+    expect(scss).toContain('.site-settings-social-links .array-field__header-action')
   })
 })

@@ -29,6 +29,11 @@ const adminHooks: Record<string, Set<string>> = {
   ]),
   'src/plugins/email/admin/EmailStatus.tsx': new Set(['email-status']),
   'src/plugins/email/admin/TestEmailButton.tsx': new Set(['email-test']),
+  // Styled together with Payload's account-menu classes in the opt-in accountMenu.css.
+  'src/plugins/adminTheme/header/HeaderAccountMenu.tsx': new Set([
+    'admin-account-menu',
+    'admin-account-menu__avatar',
+  ]),
 }
 
 describe('frontend style architecture', () => {

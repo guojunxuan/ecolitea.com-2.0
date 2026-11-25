@@ -16,4 +16,11 @@ export const mediaRule: TranslationRule = {
   focalX: 'exclude',
   focalY: 'exclude',
   durationSeconds: 'exclude',
+  // Payload 4 upload storage metadata (hidden, read-only, owned by the upload adapter).
+  _objectKey: 'exclude',
+  'original.filename': 'exclude',
+  'original.url': 'exclude',
+  'original.mimeType': 'exclude',
+  'original.prefix': 'exclude',
+  'original._objectKey': 'exclude',
 }

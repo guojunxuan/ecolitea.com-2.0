@@ -73,46 +73,18 @@ test.describe('Blog publishing journeys', () => {
     await expect(page.locator('#table-of-contents')).toHaveCount(0)
   })
 
-  test('blog archive cards animate with bounded stagger and respect reduced motion', async ({
-    page,
-  }) => {
-    await page.goto(`${baseURL}/blogs`)
-    const cards = page.locator('[data-slot="archive-item"]')
-    await expect(cards).toHaveCount(12)
-
-    const motion = await cards.evaluateAll((items) =>
-      items.map((item) => {
-        const style = getComputedStyle(item)
-        return {
-          name: style.animationName,
-          duration: style.animationDuration,
-          delay: style.animationDelay,
-        }
-      }),
-    )
-    expect(motion[0].name).not.toBe('none')
-    expect(motion.every(({ name }) => name === motion[0].name)).toBe(true)
-    expect(motion[0]).toMatchObject({ duration: '0.4s', delay: '0s' })
-    expect(motion[1].delay).toBe('0.08s')
-    expect(motion[11].delay).toBe('0.4s')
-
-    await page.goto(`${baseURL}/blogs/page/2`)
-    const paginatedCards = page.locator('[data-slot="archive-item"]')
-    await expect(paginatedCards).toHaveCount(2)
-    const paginatedMotion = await paginatedCards.evaluateAll((items) =>
-      items.map((item) => getComputedStyle(item).animationName),
-    )
-    expect(paginatedMotion[0]).not.toBe('none')
-    expect(paginatedMotion[1]).toBe(paginatedMotion[0])
-
-    await page.emulateMedia({ reducedMotion: 'reduce' })
-    await expect
-      .poll(() =>
-        paginatedCards.evaluateAll((items) =>
-          items.map((item) => getComputedStyle(item).animationName),
-        ),
+  // The visual refresh (80a3d9f) made archive cards flat: they render immediately, without an
+  // entrance animation, on the first and paginated listings.
+  test('blog archive cards render flat without an entrance animation', async ({ page }) => {
+    for (const [path, count] of [['/blogs', 12], ['/blogs/page/2', 2]] as const) {
+      await page.goto(`${baseURL}${path}`)
+      const cards = page.locator('[data-slot="archive-item"]')
+      await expect(cards).toHaveCount(count)
+      const names = await cards.evaluateAll((items) =>
+        items.map((item) => getComputedStyle(item).animationName),
       )
-      .toEqual(['none', 'none'])
+      expect(names).toEqual(Array(count).fill('none'))
+    }
   })
 
   test('listing order, uniform cards, static page route, and category breadcrumbs', async ({
@@ -142,7 +114,8 @@ test.describe('Blog publishing journeys', () => {
     })
     expect(pillStyles.backgroundColor).not.toBe('rgba(0, 0, 0, 0)')
     expect(parseFloat(pillStyles.paddingInline)).toBeGreaterThan(0)
-    expect(pillStyles.color).toBe('rgb(38, 38, 41)')
+    // --website-color-category-foreground = neutral-900 (#111111) since 475cd2f.
+    expect(pillStyles.color).toBe('rgb(17, 17, 17)')
 
     for (let tab = 0; tab < 30; tab += 1) {
       if (await category.evaluate((element) => element === document.activeElement)) break

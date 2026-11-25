@@ -34,6 +34,11 @@ vi.mock('@/utilities/products/getProductStaticParams', () => ({
   getProductStaticParams: async () => ({ categories: [], products: [] }),
 }))
 vi.mock('next/headers', () => ({ draftMode: mocks.draft }))
+// Metadata reads the brand from cached Site Settings; keep it out of these route tests.
+vi.mock('@/utilities/siteIdentity', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@/utilities/siteIdentity')>()),
+  getSiteIdentity: async () => ({ siteName: 'Test Site' }),
+}))
 vi.mock('next/navigation', () => ({
   notFound: () => {
     throw new Error('404')

@@ -14,7 +14,7 @@ describe('Product category configuration', () => {
       slug: 'product-categories',
       labels: { singular: 'Product Category', plural: 'Product Categories' },
       admin: {
-        group: 'Product',
+        group: 'Products',
         useAsTitle: 'title',
         defaultColumns: ['title', 'slug'],
       },
@@ -131,7 +131,7 @@ describe('Products configuration', () => {
     expect(products).toMatchObject({
       labels: { singular: 'Product', plural: 'Products' },
       admin: {
-        group: 'Product',
+        group: 'Products',
         useAsTitle: 'title',
         defaultColumns: ['title', 'category', 'publishedAt', '_status'],
       },
