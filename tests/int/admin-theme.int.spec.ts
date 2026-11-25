@@ -97,6 +97,21 @@ describe('Enhanced layout contract', () => {
     )
   })
 
+  it('never fixes the panel height, so the stacked edit layout can still scroll the page', () => {
+    // A fixed height plus overflow: clip hid fields below the fold on edit views under 1024px.
+    for (const { header, prop } of enhanced.declarations)
+      if (header.includes('.template-default__wrap'))
+        expect(prop, header).not.toMatch(/^(height|max-height)$/)
+    const wide = enhanced.declarations.find(({ header, ancestors, prop }) =>
+      header === '.collection-edit__main-wrapper--scroll-fields-only' && prop === 'height' &&
+      ancestors[0] === '@container edit-main (min-width: 1024px)')
+    expect(wide?.value).toContain('2 * var(--admin-window-gap)')
+    // Same container and query Payload uses for its fields-only scrolling layout.
+    const editCss = readFileSync('node_modules/@payloadcms/ui/dist/views/Edit/index.css', 'utf8')
+    expect(editCss).toContain('container-name: edit-main')
+    expect(editCss).toMatch(/@container edit-main \(min-width: 1024px\)[\s\S]*\.collection-edit__main-wrapper--scroll-fields-only \{\s*height: calc\(/)
+  })
+
   it('draws the list table as a rounded card with token-sized rows', () => {
     const get = (header: string, prop: string) =>
       enhanced.declarations.find((declaration) => declaration.header === header && declaration.prop === prop)?.value

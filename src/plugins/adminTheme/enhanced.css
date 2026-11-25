@@ -39,9 +39,16 @@
   margin-inline-start: var(--admin-window-gap);
 }
 
-/* Payload fixes the panel height when only the fields scroll. Keep it inside the gap. */
-.template-default__wrap:has(.collection-edit__main-wrapper--scroll-fields-only) {
-  height: calc(100dvh - 2 * var(--admin-window-gap));
+/* On wide edit views Payload sizes the scrolling fields area to the viewport. Shorten it by
+   the panel gaps so the panel fits. The panel itself keeps an automatic height: fixing it
+   would clip the stacked (narrow) edit layout, which relies on the page scrolling. */
+@container edit-main (min-width: 1024px) {
+  .collection-edit__main-wrapper--scroll-fields-only {
+    height: calc(
+      100dvh - var(--app-header-height, 0px) - var(--doc-controls-height, 0px) -
+        var(--doc-header-height, 0px) - 2 * var(--admin-window-gap)
+    );
+  }
 }
 
 /* List view: the header and toolbar sit on the panel without divider lines; the table
@@ -108,7 +115,9 @@
 .tabs-field__tabs [role='tab'][aria-selected='true'] {
   background-color: var(--color-bg);
   color: var(--color-text);
-  box-shadow: 0 0 0 0.5px var(--color-border), 0 1px 2px var(--color-border);
+  box-shadow:
+    0 0 0 0.5px var(--color-border),
+    0 1px 2px var(--color-border);
 }
 
 /* Edit view: groups and collapsibles become rounded sections on the secondary surface. */
@@ -139,10 +148,6 @@
 
   .template-default:not(.template-default--nav-open) .template-default__wrap {
     margin-inline-start: 0;
-  }
-
-  .template-default__wrap:has(.collection-edit__main-wrapper--scroll-fields-only) {
-    height: 100dvh;
   }
 
   .collection-list .table {

@@ -172,9 +172,10 @@ test.describe('Media and Documents native Admin workflows', () => {
     await expect(page.getByRole('region', { name: 'Used in', exact: true })).toContainText(
       'Not used anywhere. It can be deleted.',
     )
+    // Payload 4 beta.10's native file toolbar downloads the stored file URL.
     await expect(page.getByRole('link', { name: 'Download', exact: true })).toHaveAttribute(
       'href',
-      `${baseURL}/api/media/${doc.id}/file`,
+      `${baseURL}/api/media/file/${encodeURIComponent(doc.filename)}`,
     )
     const download = page.waitForEvent('download', { timeout: 15_000 })
     const originalURL = page.url()
@@ -202,13 +203,18 @@ test.describe('Media and Documents native Admin workflows', () => {
         async () => await (await page.request.get(`${baseURL}/api/media/${doc.id}?depth=0`)).json(),
       )
       .toMatchObject({ focalX: 30, focalY: 70 })
+    // Payload re-uploads the image when the focal point is saved, so the stored file name
+    // changes; wait for the native toolbar to point at the current file before opening it.
+    const current = await (await page.request.get(`${baseURL}/api/media/${doc.id}?depth=0`)).json()
+    const openLink = page.getByRole('link', { name: /open in new tab/i })
+    await expect(openLink).toHaveAttribute('href', current.url)
     const popup = page.waitForEvent('popup')
-    await page.getByRole('link', { name: /open in new tab/i }).click()
+    await openLink.click()
     const original = await popup
     await original.waitForLoadState()
     expect((await original.request.get(original.url())).status()).toBe(200)
     await expect(original.locator('img')).toBeVisible()
-    await expect(original).toHaveURL(`${baseURL}/api/media/${doc.id}/file`)
+    await expect(original).toHaveURL(current.url)
     await original.close()
     const blog = (
       await payload.find({
@@ -270,7 +276,7 @@ test.describe('Media and Documents native Admin workflows', () => {
     await expect(page.getByRole('button', { name: 'Crop image', exact: true })).toHaveCount(0)
     await expect(page.getByRole('dialog')).toHaveCount(0)
     await page.getByRole('button', { name: doc.filename, exact: true }).click()
-    await page.getByRole('button', { name: 'Replace file', exact: true }).click()
+    await page.getByRole('menuitem', { name: 'Replace file', exact: true }).click()
     const replacement = await sharp({
       create: { width: 1000, height: 210, channels: 3, background: '#5f805a' },
     })
@@ -375,15 +381,15 @@ test.describe('Media and Documents native Admin workflows', () => {
       const field = page.locator(`input[name=${collection === 'media' ? 'alt' : 'title'}]`)
       await expect(field).toHaveValue(names[0])
       // Exercise the native row selection after permissions initialize.
-      await page.getByRole('button', { name: new RegExp(`${names[1]}[.]${extension}`) }).click()
+      await page.getByRole('button', { name: new RegExp(`^${names[1]}[.]${extension}`) }).click()
       await expect(field).toHaveValue(names[1])
-      await page.getByRole('button', { name: new RegExp(`${names[0]}[.]${extension}`) }).click()
+      await page.getByRole('button', { name: new RegExp(`^${names[0]}[.]${extension}`) }).click()
       await expect(field).toHaveValue(names[0])
       await expect(field).toBeEnabled()
       await field.fill('A carefully edited tea resource')
-      await page.getByRole('button', { name: new RegExp(`${names[1]}[.]${extension}`) }).click()
+      await page.getByRole('button', { name: new RegExp(`^${names[1]}[.]${extension}`) }).click()
       await expect(field).toHaveValue(names[1])
-      await page.getByRole('button', { name: new RegExp(`${names[0]}[.]${extension}`) }).click()
+      await page.getByRole('button', { name: new RegExp(`^${names[0]}[.]${extension}`) }).click()
       await expect(field).toHaveValue('A carefully edited tea resource')
       await page.getByRole('button', { name: 'Save', exact: true }).click()
       await expect
@@ -446,13 +452,11 @@ test.describe('Media and Documents native Admin workflows', () => {
       await page.locator(`input[name=${isImage ? 'alt' : 'title'}]`).fill('Tea archive resource')
       const doc = await save(page, collection)
       resources.push({ collection, id: doc.id })
-      await page.getByRole('button', { name: 'None', exact: true }).click()
-      await page.getByRole('button', { name: `${prefix} archive`, exact: true }).click()
-      await page
-        .getByRole('button', { name: `${prefix} child`, exact: true })
-        .getByRole('checkbox')
-        .check()
-      await page.getByRole('button', { name: 'Select', exact: true }).click()
+      await page.getByRole('button', { name: 'Folder location: None', exact: true }).click()
+      const picker = page.getByRole('dialog', { name: 'Select a value' })
+      await picker.getByRole('button', { name: `${prefix} archive`, exact: true }).click()
+      await picker.getByRole('checkbox', { name: `${prefix} child`, exact: true }).check()
+      await picker.getByRole('button', { name: 'Confirm', exact: true }).click()
       const moved = page.waitForResponse(
         (r) =>
           r.request().method() === 'PATCH' &&
@@ -460,15 +464,17 @@ test.describe('Media and Documents native Admin workflows', () => {
       )
       await page.getByRole('button', { name: 'Save', exact: true }).click()
       expect((await moved).ok()).toBe(true)
-      await expect(page.getByRole('button', { name: `${prefix} child`, exact: true })).toBeVisible()
+      await expect(
+        page.getByRole('button', { name: `Folder location: ${prefix} child`, exact: true }),
+      ).toBeVisible()
       expect(
         (await payload.findByID({ collection, id: doc.id, depth: 0, overrideAccess: true }))
           ._h_folders,
       ).toBe(child.id)
     }
     await page.goto(`${baseURL}/admin/collections/folders/${parent.id}`)
-    await page.getByRole('button', { name: 'More options', exact: true }).click()
-    await page.getByRole('button', { name: 'Delete', exact: true }).click()
+    await page.getByRole('button', { name: 'More options: Document', exact: true }).click()
+    await page.getByRole('menuitem', { name: 'Delete', exact: true }).click()
     const deleted = page.waitForResponse(
       (r) =>
         r.request().method() === 'DELETE' &&
@@ -491,7 +497,9 @@ test.describe('Media and Documents native Admin workflows', () => {
           null,
       ).toBeNull()
       await page.goto(`${baseURL}/admin/collections/${collection}/${id}`)
-      await expect(page.getByRole('button', { name: 'None', exact: true })).toBeVisible()
+      await expect(
+        page.getByRole('button', { name: 'Folder location: None', exact: true }),
+      ).toBeVisible()
     }
   })
 

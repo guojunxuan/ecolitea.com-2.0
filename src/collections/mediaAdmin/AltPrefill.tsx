@@ -1,12 +1,19 @@
 'use client'
 
-import { TextField, useField, useFormFields, useFormInitializing } from '@payloadcms/ui'
+import {
+  TextField,
+  useDocumentInfo,
+  useField,
+  useFormFields,
+  useFormInitializing,
+} from '@payloadcms/ui'
 import type { TextFieldClientProps } from 'payload'
 import React, { useEffect, useRef } from 'react'
 
 export const AltPrefill: React.FC<TextFieldClientProps> = (props) => {
   const { value, setValue } = useField<string>({ path: props.path })
   const initializing = useFormInitializing()
+  const { hasSavePermission, isTrashed } = useDocumentInfo()
   const file = useFormFields(([fields]) => fields.file?.value)
   const selectedFile = useRef<unknown>(undefined)
   useEffect(() => {
@@ -16,5 +23,8 @@ export const AltPrefill: React.FC<TextFieldClientProps> = (props) => {
       setValue(file.name.replace(/\.[^.]+$/, ''))
     }
   }, [file, initializing, value, setValue])
-  return <TextField {...props} validate={() => true} />
+  // Bulk Upload renders this server component before its shared permissions load, so the
+  // server-computed readOnly stays true. Derive it from the live document permissions instead.
+  const readOnly = Boolean(props.field?.admin?.readOnly || isTrashed || !hasSavePermission)
+  return <TextField {...props} readOnly={readOnly} validate={() => true} />
 }
