@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto'
 import type { MigrateDownArgs, MigrateUpArgs, MongooseAdapter } from '@payloadcms/db-mongodb'
 
-import { assertProductMigrationTarget } from './20261023_products_model_redesign'
+import { getProductMigrationTarget } from './20261023_products_model_redesign'
 
 type RecordValue = Record<string, unknown>
 type Direction = 'up' | 'down'
@@ -253,7 +253,7 @@ export async function scanProductDetailMigration(
   direction: Direction,
   options: Options = {},
 ) {
-  const target = assertProductMigrationTarget(adapter)
+  const target = getProductMigrationTarget(adapter)
   const { EJSON } = adapter.connection.base.mongo.BSON
   const snapshots: string[] = []
   const collections = []

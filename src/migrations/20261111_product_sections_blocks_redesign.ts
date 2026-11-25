@@ -1,6 +1,6 @@
 import { isDeepStrictEqual } from 'node:util'
 import type { MigrateDownArgs, MigrateUpArgs, MongooseAdapter } from '@payloadcms/db-mongodb'
-import { assertProductMigrationTarget } from './20261023_products_model_redesign'
+import { getProductMigrationTarget } from './20261023_products_model_redesign'
 
 type RecordValue = Record<string, unknown>
 type Issue = { path: string; reason: string }
@@ -246,7 +246,7 @@ export async function scanProductSectionsBlocksRedesign(
   adapter: MongooseAdapter,
   options: Options = {},
 ) {
-  const target = assertProductMigrationTarget(adapter)
+  const target = getProductMigrationTarget(adapter)
   const report = {
     target,
     storage: 'not accessed' as const,
@@ -303,7 +303,7 @@ export async function scanProductSectionsBlocksRedesign(
 
 export async function up(args: MigrateUpArgs) {
   const adapter = args.payload.db as MongooseAdapter
-  const target = assertProductMigrationTarget(adapter)
+  const target = getProductMigrationTarget(adapter)
   args.payload.logger.info({
     msg: `Product sections redesign: ${target.host}:${target.port}/${target.databaseName}; storage: not accessed`,
     target,
@@ -361,7 +361,7 @@ export async function up(args: MigrateUpArgs) {
 
 /** Deleted legacy values cannot be reconstructed; restore the local backup and matching application code. */
 export async function down({ payload }: MigrateDownArgs) {
-  const target = assertProductMigrationTarget(payload.db as MongooseAdapter)
+  const target = getProductMigrationTarget(payload.db as MongooseAdapter)
   payload.logger.info({
     msg: 'Product sections redesign rollback unavailable; storage: not accessed',
     target,

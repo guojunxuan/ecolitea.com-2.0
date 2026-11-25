@@ -300,11 +300,11 @@ describe('Product blocks revision migration', () => {
     expect(doc.sections[0].label).toBe('Concurrent')
     expect(doc.sections[0].blocks[0]).toHaveProperty('content', 'Banner')
   })
-  it('rejects unsafe targets before reads', async () => {
+  it('runs on any connected database and writes nothing when no product needs changes', async () => {
     const f = fixture()
     f.payload.db.connection.host = 'remote'
-    await expect(up({ payload: f.payload } as never)).rejects.toThrow(/local/)
-    for (const h of Object.values(f.handles)) expect(h.find).not.toHaveBeenCalled()
+    await up({ payload: f.payload } as never)
+    for (const h of Object.values(f.handles)) expect(h.bulkWrite).not.toHaveBeenCalled()
   })
   it('allows empty drafts and rejects missing document identifiers', () => {
     for (const sections of [undefined, null, []])

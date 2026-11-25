@@ -238,13 +238,7 @@ async function migrate(args: MigrateUpArgs | MigrateDownArgs, direction: Directi
   const adapter = args.payload.db as MongooseAdapter
   const db = adapter.connection.db
   if (!db) throw new Error('Block slug migration requires an open MongoDB connection')
-  // This migration is deliberately restricted to the explicit local development target.
-  if (
-    adapter.connection.host !== '127.0.0.1' ||
-    adapter.connection.port !== 27017 ||
-    !['ecolitea2', 'ecolitea2-test'].includes(db.databaseName)
-  )
-    throw new Error('Block slug migration refuses a non-local development database')
+  // Scans before writing and aborts on unknown slugs; already-migrated data plans no writes.
   args.payload.logger.info({
     msg: `Block slug migration (${direction}) target: ${adapter.connection.host}:${adapter.connection.port}/${db.databaseName}; storage: unchanged`,
   })

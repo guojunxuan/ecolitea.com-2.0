@@ -173,27 +173,19 @@ function snapshotFilter(document: RecordValue, version: boolean): RecordValue {
   return { _id: document._id, $and: conditions }
 }
 
-export function assertProductMigrationTarget(adapter: MongooseAdapter) {
-  const target = {
-    host: adapter.connection.host,
-    port: adapter.connection.port,
-    databaseName: adapter.connection.db?.databaseName,
-  }
-  if (
-    process.env.NODE_ENV === 'production' ||
-    target.host !== '127.0.0.1' ||
-    target.port !== 27017 ||
-    !target.databaseName ||
-    !['ecolitea2', 'ecolitea2-test'].includes(target.databaseName)
-  )
-    throw new Error(
-      'Product model migration requires an allowlisted local development/test database',
-    )
-  return { ...target, databaseName: target.databaseName }
+/**
+ * Identifies the database for migration logs and reports. Every product migration scans first and
+ * aborts before writes on unknown or conflicting data; already-migrated data plans no writes, so the
+ * migrations are safe to run on any environment's database.
+ */
+export function getProductMigrationTarget(adapter: MongooseAdapter) {
+  const databaseName = adapter.connection.db?.databaseName
+  if (!databaseName) throw new Error('Product model migration requires an open MongoDB connection')
+  return { host: adapter.connection.host, port: adapter.connection.port, databaseName }
 }
 
 export type ProductModelReport = {
-  target: ReturnType<typeof assertProductMigrationTarget>
+  target: ReturnType<typeof getProductMigrationTarget>
   direction: Direction
   storage: 'not accessed'
   allowedToWrite: boolean
@@ -221,7 +213,7 @@ export async function scanProductModelMigration(
   direction: Direction,
   options: Options = {},
 ) {
-  const target = assertProductMigrationTarget(adapter)
+  const target = getProductMigrationTarget(adapter)
   const report: ProductModelReport = {
     target,
     direction,
@@ -303,7 +295,7 @@ export async function scanProductModelMigration(
 
 async function migrate(args: MigrateUpArgs | MigrateDownArgs, direction: Direction) {
   const adapter = args.payload.db as MongooseAdapter
-  const target = assertProductMigrationTarget(adapter)
+  const target = getProductMigrationTarget(adapter)
   args.payload.logger.info({
     msg: `Product model migration (${direction}) target: ${target.host}:${target.port}/${target.databaseName}; storage: not accessed`,
   })

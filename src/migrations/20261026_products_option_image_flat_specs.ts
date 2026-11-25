@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto'
 import { isDeepStrictEqual } from 'node:util'
 import type { MigrateDownArgs, MigrateUpArgs, MongooseAdapter } from '@payloadcms/db-mongodb'
-import { assertProductMigrationTarget } from './20261023_products_model_redesign'
+import { getProductMigrationTarget } from './20261023_products_model_redesign'
 
 type RecordValue = Record<string, unknown>
 type Direction = 'up' | 'down'
@@ -206,7 +206,7 @@ export async function scanProductOptionImageMigration(
   options: Options = {},
   allowDemoRepair = false,
 ) {
-  const target = assertProductMigrationTarget(adapter)
+  const target = getProductMigrationTarget(adapter)
   const collections = []
   const writes: { collection: RawCollection; operations: Operation[] }[] = []
   const snapshots: string[] = []

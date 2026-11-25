@@ -475,12 +475,17 @@ describe('integration access through real Payload operations', () => {
     expect(cleared.smtpPasswordEncrypted).toBeNull()
     expect(cleared.smtpPasswordLast4).toBeNull()
   })
-  it('migrates every existing user to admin', async () => {
+  it('gives role-less legacy users admin and keeps existing roles', async () => {
+    // Model-level update casts the string id; simulates an account created before roles existed.
+    const users = (payload.db as MongooseAdapter).collections.users
+    await users.updateOne({ _id: admin.id }, { $unset: { role: '' } })
     await up({ payload, req: await request() } as Parameters<typeof up>[0])
-    expect(
+    const roles = Object.fromEntries(
       (
         await payload.find({ collection: 'users', pagination: false, overrideAccess: true })
-      ).docs.every((user) => user.role === 'admin'),
-    ).toBe(true)
+      ).docs.map((user) => [String(user.id), user.role]),
+    )
+    expect(roles[String(admin.id)]).toBe('admin')
+    expect(roles[String(editor.id)]).toBe('editor')
   })
 })

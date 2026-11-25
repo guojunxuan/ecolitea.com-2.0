@@ -11,7 +11,9 @@ function target(payload: MigrateUpArgs['payload']) {
 }
 
 export async function up({ payload }: MigrateUpArgs): Promise<void> {
-  await target(payload).updateMany({}, { $set: { role: 'admin' } })
+  // Existing accounts predate roles and keep full access; users that already have a role
+  // (created after the deploy, or on a re-run) are left unchanged.
+  await target(payload).updateMany({ role: { $exists: false } }, { $set: { role: 'admin' } })
 }
 
 export async function down({ payload }: MigrateDownArgs): Promise<void> {

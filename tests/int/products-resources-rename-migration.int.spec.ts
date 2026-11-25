@@ -78,9 +78,8 @@ describe('product resources rename scan', () => {
     ])
   })
 
-  it('rejects databases outside the local allowlist', async () => {
-    await expect(scanResourcesRename(fakeAdapter([], [], 'production'), 'up')).rejects.toThrow(
-      /allowlisted local/,
-    )
+  it('scans any connected database', async () => {
+    const report = await scanResourcesRename(fakeAdapter([], [], 'production'), 'up')
+    expect(report.allowedToWrite).toBe(true)
   })
 })

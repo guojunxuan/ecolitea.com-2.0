@@ -779,31 +779,25 @@ describe('Product sections redesign runner', () => {
     )
   })
 
-  it.each([
-    { host: 'remote' },
-    { host: 'localhost' },
-    { port: 27018 },
-    { db: { databaseName: 'other' } },
-    { db: { databaseName: '' } },
-  ])('rejects an unsafe target before any reads: %j', async (target) => {
-    const f = fixture()
-    Object.assign(f.payload.db.connection, target)
-    await expect(up({ payload: f.payload } as never)).rejects.toThrow(/allowlisted local/)
-    await expect(scan(f.payload.db as never)).rejects.toThrow(/allowlisted local/)
-    for (const handle of Object.values(f.handles)) {
-      expect(handle.find).not.toHaveBeenCalled()
-      expect(handle.bulkWrite).not.toHaveBeenCalled()
-    }
-  })
+  it.each([{ host: 'remote' }, { port: 27018 }, { db: { databaseName: 'other' } }])(
+    'scans any connected database: %j',
+    async (target) => {
+      const f = fixture()
+      vi.stubEnv('NODE_ENV', 'production')
+      try {
+        Object.assign(f.payload.db.connection, target)
+        await expect(scan(f.payload.db as never)).resolves.toBeTruthy()
+      } finally {
+        vi.unstubAllEnvs()
+      }
+    },
+  )
 
-  it('rejects production before any reads or writes', async () => {
+  it('requires an open database connection before any reads', async () => {
     const f = fixture()
-    vi.stubEnv('NODE_ENV', 'production')
-    await expect(up({ payload: f.payload } as never)).rejects.toThrow(/allowlisted local/)
-    for (const handle of Object.values(f.handles)) {
-      expect(handle.find).not.toHaveBeenCalled()
-      expect(handle.bulkWrite).not.toHaveBeenCalled()
-    }
+    Object.assign(f.payload.db.connection, { db: { databaseName: '' } })
+    await expect(up({ payload: f.payload } as never)).rejects.toThrow(/open MongoDB connection/)
+    for (const handle of Object.values(f.handles)) expect(handle.find).not.toHaveBeenCalled()
   })
 
   it.each(['products', '_products_versions'])(

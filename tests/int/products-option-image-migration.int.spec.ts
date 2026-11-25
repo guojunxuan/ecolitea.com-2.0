@@ -217,11 +217,11 @@ describe('product option image / flat specifications migration', () => {
     })
     await expect(up({ payload: f.payload } as never)).rejects.toThrow('Concurrent change')
   })
-  it('aborts malformed versions and nonlocal targets', async () => {
+  it('aborts malformed versions on any connected database', async () => {
     const f = fixture([], [{ _id: 'v', version: null }])
     expect((await scan(f.payload.db as never, 'up')).allowedToWrite).toBe(false)
     f.payload.db.connection.host = 'remote'
-    await expect(scan(f.payload.db as never, 'up')).rejects.toThrow('allowlisted')
+    expect((await scan(f.payload.db as never, 'up')).allowedToWrite).toBe(false)
   })
 })
 

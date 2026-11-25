@@ -1,6 +1,6 @@
 import { isDeepStrictEqual } from 'node:util'
 import type { MigrateDownArgs, MigrateUpArgs, MongooseAdapter } from '@payloadcms/db-mongodb'
-import { assertProductMigrationTarget } from './20261023_products_model_redesign'
+import { getProductMigrationTarget } from './20261023_products_model_redesign'
 
 type RecordValue = Record<string, unknown>
 type Direction = 'up' | 'down'
@@ -171,7 +171,7 @@ export async function scanProductBlocksRevision(
   direction: Direction,
   options: Options = {},
 ) {
-  const target = assertProductMigrationTarget(adapter)
+  const target = getProductMigrationTarget(adapter)
   const report = {
     target,
     direction,
@@ -237,7 +237,7 @@ export async function scanProductBlocksRevision(
 
 async function migrate(args: MigrateUpArgs | MigrateDownArgs, direction: Direction) {
   const adapter = args.payload.db as MongooseAdapter
-  const target = assertProductMigrationTarget(adapter)
+  const target = getProductMigrationTarget(adapter)
   args.payload.logger.info({
     msg: `Product blocks revision (${direction}): ${target.host}:${target.port}/${target.databaseName}; storage: not accessed`,
   })

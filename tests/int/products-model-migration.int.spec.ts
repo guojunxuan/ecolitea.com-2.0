@@ -516,32 +516,27 @@ describe('read-only CLI and target guard', () => {
       expect(() => assertLocalDatabaseURI(uri)).toThrow()
   })
 
-  it('rejects a production runtime even for a local allowlisted target', async () => {
-    vi.stubEnv('NODE_ENV', 'production')
-    try {
-      const f = fixture([{ _id: 'p', ...legacy }])
-      expect(() => assertLocalDatabaseURI('mongodb://127.0.0.1:27017/ecolitea2')).toThrow()
-      await expect(up({ payload: f.payload } as never)).rejects.toThrow(/local/)
-      expect(f.handles.products.find).not.toHaveBeenCalled()
-    } finally {
-      vi.unstubAllEnvs()
-    }
-  })
+  it.each([{ host: 'remote' }, { port: 27018 }, { db: { databaseName: 'production' } }])(
+    'runs on any connected database and plans no writes for current data: %j',
+    async (connection) => {
+      vi.stubEnv('NODE_ENV', 'production')
+      try {
+        const f = fixture([])
+        Object.assign(f.payload.db.connection, connection)
+        await up({ payload: f.payload } as never)
+        const report = await buildProductModelReport(f.payload.db as never)
+        expect(report.target.databaseName).toBe(f.payload.db.connection.db.databaseName)
+        for (const h of Object.values(f.handles)) expect(h.bulkWrite).not.toHaveBeenCalled()
+      } finally {
+        vi.unstubAllEnvs()
+      }
+    },
+  )
 
-  it.each([
-    { host: 'remote' },
-    { port: 27018 },
-    { db: { databaseName: 'production' } },
-    { db: { databaseName: 'ecolitea2-test-production' } },
-  ])('rejects unsafe connected targets before scanning: %j', async (connection) => {
+  it('requires an open database connection before scanning', async () => {
     const f = fixture([{ _id: 'p', ...legacy }])
-    Object.assign(f.payload.db.connection, connection)
-    await expect(up({ payload: f.payload } as never)).rejects.toThrow(/local/)
-    await expect(down({ payload: f.payload } as never)).rejects.toThrow(/local/)
-    await expect(buildProductModelReport(f.payload.db as never)).rejects.toThrow(/local/)
-    for (const h of Object.values(f.handles)) {
-      expect(h.find).not.toHaveBeenCalled()
-      expect(h.bulkWrite).not.toHaveBeenCalled()
-    }
+    Object.assign(f.payload.db.connection, { db: undefined })
+    await expect(up({ payload: f.payload } as never)).rejects.toThrow(/open MongoDB connection/)
+    for (const h of Object.values(f.handles)) expect(h.find).not.toHaveBeenCalled()
   })
 })
