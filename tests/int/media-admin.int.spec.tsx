@@ -4,14 +4,16 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 
 let file: File | undefined
 let initializing = false
+let documentInfo = { hasSavePermission: true, isTrashed: false }
 let alt = ''
 const setValue = vi.fn((value: string) => {
   alt = value
 })
 vi.mock('@payloadcms/ui', () => ({
   useFormInitializing: () => initializing,
-  TextField: (props: { validate?: () => boolean }) => (
-    <output data-validation={String(props.validate?.())} />
+  useDocumentInfo: () => documentInfo,
+  TextField: (props: { readOnly?: boolean; validate?: () => boolean }) => (
+    <output data-readonly={String(props.readOnly)} data-validation={String(props.validate?.())} />
   ),
   useFormFields: (selector: (state: unknown[]) => unknown) => selector([{ file: { value: file } }]),
   useField: () => ({ value: alt, setValue }),
@@ -26,6 +28,7 @@ afterEach(() => {
   alt = ''
   file = undefined
   initializing = false
+  documentInfo = { hasSavePermission: true, isTrashed: false }
   vi.clearAllMocks()
 })
 describe('Media Admin fields', () => {
@@ -45,6 +48,38 @@ describe('Media Admin fields', () => {
     render(<AltPrefill path="alt" field={{ name: 'alt', type: 'text' }} />)
     expect(setValue).toHaveBeenCalledWith('tea.garden.hero')
     expect(document.querySelector('output')?.dataset.validation).toBe('true')
+    expect(screen.getByRole('status').dataset.readonly).toBe('false')
+  })
+  it.each([
+    { hasSavePermission: false, isTrashed: false },
+    { hasSavePermission: true, isTrashed: true },
+  ])(
+    'keeps alt read-only with hasSavePermission=$hasSavePermission and isTrashed=$isTrashed',
+    (state) => {
+      documentInfo = state
+      render(<AltPrefill path="alt" readOnly={false} field={{ name: 'alt', type: 'text' }} />)
+      expect(screen.getByRole('status').dataset.readonly).toBe('true')
+    },
+  )
+  it('uses live save permissions when the server-computed readOnly stays true', () => {
+    documentInfo.hasSavePermission = false
+    const view = render(
+      <AltPrefill path="alt" readOnly={true} field={{ name: 'alt', type: 'text' }} />,
+    )
+    expect(screen.getByRole('status').dataset.readonly).toBe('true')
+    documentInfo.hasSavePermission = true
+    view.rerender(<AltPrefill path="alt" readOnly={true} field={{ name: 'alt', type: 'text' }} />)
+    expect(screen.getByRole('status').dataset.readonly).toBe('false')
+  })
+  it('honors field-level readOnly even when the document can be saved', () => {
+    render(
+      <AltPrefill
+        path="alt"
+        readOnly={false}
+        field={{ name: 'alt', type: 'text', admin: { readOnly: true } }}
+      />,
+    )
+    expect(screen.getByRole('status').dataset.readonly).toBe('true')
   })
   it('preserves editor text', () => {
     alt = 'Tea in the morning'
