@@ -127,6 +127,12 @@ export const serverEnv = parseServerEnv(
     : process.env,
 )
 
+// Preserve the validated startup origin, including normalization and requiredness.
+// Reflect.get prevents generate-env from replacing public properties on serverEnv.
+export function getConfiguredServerURL(): string {
+  return Reflect.get(serverEnv, 'NEXT_PUBLIC_SERVER_URL') as string
+}
+
 // Read on the server during dynamic rendering and pass only the public key to clients.
 // Reflect.get survives minification without becoming a NEXT_PUBLIC_* property read
 // that Next's generate-env step could replace with a build-time value.

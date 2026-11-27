@@ -4,7 +4,7 @@ import { authenticated } from '@/access/authenticated'
 import { DOCUMENT_UPLOAD_POLICY, documentUploadDescription } from './uploadPolicy'
 import { validateDocumentUpload, validateDocumentUploadEarly } from './validateDocumentUpload'
 import { validateTitle, validateTitleField } from './validateTitle'
-import { serverEnv } from '@/utilities/env'
+import { getConfiguredServerURL } from '@/utilities/env'
 import { documentFileEndpoint } from './endpoints/file'
 import { documentReferencesEndpoint } from './endpoints/references'
 import { preventReferencedDelete } from './hooks/preventReferencedDelete'
@@ -89,7 +89,7 @@ export const Documents: CollectionConfig = {
   upload: {
     adminThumbnail: ({ doc }) =>
       doc.id
-        ? `${serverEnv.NEXT_PUBLIC_SERVER_URL}/api/documents/${encodeURIComponent(String(doc.id))}/file`
+        ? `${getConfiguredServerURL()}/api/documents/${encodeURIComponent(String(doc.id))}/file`
         : null,
     mimeTypes: Object.values(DOCUMENT_UPLOAD_POLICY.types).map(({ mimeType }) => mimeType),
     crop: false,

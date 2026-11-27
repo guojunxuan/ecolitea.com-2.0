@@ -1,4 +1,4 @@
-import { serverEnv } from '@/utilities/env'
+import { getConfiguredServerURL, serverEnv } from '@/utilities/env'
 import { revalidateTag } from 'next/cache'
 import { revalidatePath } from 'next/cache'
 import { internalLocalePaths } from '@/utilities/i18n/revalidatePaths'
@@ -19,7 +19,7 @@ export async function requestRevalidation(invalidation: TranslationInvalidation)
       const batch: Required<TranslationInvalidation> = { tags: [], paths: [] }
       for (const entry of entries.slice(index, index + REVALIDATION_LIMIT))
         batch[entry.kind].push(entry.value)
-      const response = await fetch(`${serverEnv.NEXT_PUBLIC_SERVER_URL}/next/revalidate`, {
+      const response = await fetch(`${getConfiguredServerURL()}/next/revalidate`, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${serverEnv.REVALIDATE_SECRET}`,
