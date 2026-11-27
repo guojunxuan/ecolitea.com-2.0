@@ -26,8 +26,10 @@ Use Caddy with `deploy/Caddyfile.example` to proxy the public hostname to `127.0
 configuration. Keep each environment's database, bucket and credentials isolated. Local development
 reads the project `.env`. Compose reads its `.env` for substitutions and explicitly forwards server
 values to the application. Recreate the application container after a runtime change; `docker compose
-restart` alone does not apply changed Compose environment values. Public browser values are frozen
-at image build time and require a rebuild. See [Next.js environment variables](https://nextjs.org/docs/app/guides/environment-variables).
+restart` alone does not apply changed Compose environment values. Release images use isolated build
+placeholders and require no deployment-specific build arguments. The Turnstile site key is read on
+the server for each product-detail request and passed to the client form. See
+[Next.js environment variables](https://nextjs.org/docs/app/guides/environment-variables).
 
 | Variable | Group | Required | Where set | Apply change |
 |---|---|---|---|---|
@@ -40,7 +42,7 @@ at image build time and require a rebuild. See [Next.js environment variables](h
 | `R2_ACCESS_KEY_ID` | Server runtime | Yes in the server parser | Local `.env` / Compose `.env` | Restart / recreate |
 | `R2_SECRET_ACCESS_KEY` | Server runtime | Yes in the server parser | Local `.env` / Compose `.env` | Restart / recreate |
 | `R2_ENDPOINT` | Server runtime | Yes in the server parser | Local `.env` / Compose `.env` | Restart / recreate |
-| `R2_PUBLIC_URL` | Server runtime / build | Yes | Local `.env`, Compose `.env`, Docker build argument | Recreate and rebuild: image host allowlist is build configuration |
+| `R2_PUBLIC_URL` | Server runtime | Yes | Local `.env` / Compose `.env` | Restart / recreate; no rebuild |
 | `TURNSTILE_SECRET_KEY` | Optional server feature | Required for quote submissions | Local `.env` / Compose `.env` | Restart / recreate |
 | `QUOTE_IP_HASH_SALT` | Optional server feature | Required for quote submissions | Local `.env` / Compose `.env` | Restart / recreate |
 | `REVALIDATE_SECRET` | Optional server feature | Required for background invalidation and scheduled publication | Local `.env` / Compose `.env` | Restart / recreate every worker and serving instance |
@@ -52,7 +54,7 @@ at image build time and require a rebuild. See [Next.js environment variables](h
 | `SMTP_PASSWORD` | Optional server SMTP override | Only if the SMTP service requires authentication | Local `.env` / Compose `.env`; server secret, read only when `SMTP_HOST` is non-empty | Restart / recreate every sending instance |
 | `SMTP_FROM_ADDRESS` | Optional server SMTP override | Required for a configured env sender | Local `.env` / Compose `.env`; valid email, read only when `SMTP_HOST` is non-empty | Restart / recreate every sending instance |
 | `SMTP_FROM_NAME` | Optional server SMTP override | No; optional sender display name | Local `.env` / Compose `.env`; read only when `SMTP_HOST` is non-empty | Restart / recreate every sending instance |
-| `NEXT_PUBLIC_TURNSTILE_SITE_KEY` | Public build-time | Required to show the quote challenge | Local `.env` before build / Docker build argument | Rebuild and redeploy |
+| `NEXT_PUBLIC_TURNSTILE_SITE_KEY` | Server runtime / public quote challenge | Required to show the quote challenge | Local `.env` / Compose `.env` | Restart / recreate; no rebuild |
 | `MONGODB_URI` | Deployment-only | Yes for Compose | Compose `.env`; use the `mongodb` service hostname and appropriate credentials | Recreate application container |
 | `MONGO_INITDB_ROOT_USERNAME` | Deployment-only | Yes for a new Compose database | Compose `.env` | Initializes a new MongoDB volume only; existing users need a separate credential change |
 | `MONGO_INITDB_ROOT_PASSWORD` | Deployment-only | Yes for a new Compose database | Compose `.env` | Initializes a new MongoDB volume only; existing users need a separate credential change |
@@ -68,6 +70,16 @@ at image build time and require a rebuild. See [Next.js environment variables](h
 
 The table and actual application consumers define the supported configuration contract.
 Do not put secrets in Docker build arguments or public variables.
+
+R2 images use the shared media renderer's custom loader, and Admin brand images are unoptimized.
+Next's built-in image optimizer has no remote host allowlist; its local upload path rule remains
+`/api/media/file/**`, including cache-tag query strings. Product-detail pages explicitly call
+`await connection()` before reading the site key, outside the product data cache. Reading
+`draftMode().isEnabled` alone does not prevent prerendering in the installed Next.js version.
+The page renders per request, so neither a build-time key nor an absent build-time value is
+cached in the page. Product data retains its existing tagged cache; listing pages retain their
+existing ISR. The key reader uses `Reflect.get` so minification cannot turn the lookup into a
+direct `NEXT_PUBLIC_*` property access that Next's environment generation step would inline.
 
 ## Migration checks
 

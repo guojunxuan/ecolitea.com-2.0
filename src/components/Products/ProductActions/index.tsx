@@ -28,13 +28,15 @@ function describeDownload({ url, mimeType, filesize }: ProductDownload) {
 export function ProductActions({
   downloads,
   product,
+  siteKey,
 }: {
   downloads: ProductDownload[]
   product: QuoteRequestProduct
+  siteKey: string | undefined
 }) {
   return (
     <div className={styles.actions}>
-      <QuoteRequestDialog product={product} />
+      <QuoteRequestDialog product={product} siteKey={siteKey} />
       {downloads.length > 0 && (
         <DownloadDialog
           productSlug={product.slug}

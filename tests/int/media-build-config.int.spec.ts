@@ -3,6 +3,11 @@ import { describe, expect, it } from 'vitest'
 import nextConfig from '../../next.config'
 
 describe('native upload file reader build boundary', () => {
+  it('keeps deployment hosts out of the optimizer while allowing local uploads with cache tags', () => {
+    expect(nextConfig.images?.remotePatterns).toEqual([])
+    expect(nextConfig.images?.localPatterns).toEqual([{ pathname: '/api/media/file/**' }])
+  })
+
   it('externalizes Payload with its transitive file reader for standalone tracing while preserving build configuration', () => {
     const configure = (isServer: boolean) =>
       nextConfig.webpack!({ externals: ['existing-external'], resolve: {} }, {

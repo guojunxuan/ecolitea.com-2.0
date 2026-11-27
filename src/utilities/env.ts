@@ -85,8 +85,11 @@ export function parseServerEnv(env: Partial<NodeJS.ProcessEnv>): ServerEnv {
     if (!value?.trim()) throw new Error(`Missing required environment variable: ${key}`)
     out[key] = value.trim()
   }
-  out.R2_PUBLIC_URL = out.R2_PUBLIC_URL.replace(/\/+$/, '')
-  out.NEXT_PUBLIC_SERVER_URL = out.NEXT_PUBLIC_SERVER_URL.replace(/\/+$/, '')
+  // Keep public property reads and assignment targets computed: generate-env also
+  // replaces direct NEXT_PUBLIC_* accesses on objects other than process.env.
+  for (const key of ['R2_PUBLIC_URL', 'NEXT_PUBLIC_SERVER_URL'] as const) {
+    out[key] = out[key].replace(/\/+$/, '')
+  }
   const result: ServerEnv = {
     ...out,
     JOBS_AUTORUN: env.JOBS_AUTORUN === 'true',
@@ -124,9 +127,10 @@ export const serverEnv = parseServerEnv(
     : process.env,
 )
 
-// Public build-time values use literal reads so Next can inline them. Keep this
-// model separate from the server contract; client components must not import
-// this module because serverEnv validates server-only configuration on load.
-export const publicEnv = {
-  NEXT_PUBLIC_TURNSTILE_SITE_KEY: process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY,
+// Read on the server during dynamic rendering and pass only the public key to clients.
+// Reflect.get survives minification without becoming a NEXT_PUBLIC_* property read
+// that Next's generate-env step could replace with a build-time value.
+export function getTurnstileSiteKey(): string | undefined {
+  const value = Reflect.get(process.env, 'NEXT_PUBLIC_TURNSTILE_SITE_KEY') as string | undefined
+  return value?.trim() || undefined
 }

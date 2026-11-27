@@ -15,7 +15,13 @@ type View = 'closed' | 'form' | 'done'
  * Same native-dialog behaviour as DownloadDialog. The form mounts only while open, so the
  * Turnstile script loads on demand and reopening always starts from a clean form.
  */
-export function QuoteRequestDialog({ product }: { product: QuoteRequestProduct }) {
+export function QuoteRequestDialog({
+  product,
+  siteKey,
+}: {
+  product: QuoteRequestProduct
+  siteKey: string | undefined
+}) {
   const { quote: copy } = useDictionary()
   const dialog = useRef<HTMLDialogElement>(null)
   const titleId = useId()
@@ -92,6 +98,7 @@ export function QuoteRequestDialog({ product }: { product: QuoteRequestProduct }
             {view === 'form' && (
               <QuoteRequestForm
                 product={product}
+                siteKey={siteKey}
                 onSuccess={(name) => {
                   setSubmittedName(name)
                   setView('done')

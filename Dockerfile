@@ -6,11 +6,8 @@ FROM base AS deps
 COPY package.json pnpm-lock.yaml ./
 RUN pnpm install --frozen-lockfile
 FROM deps AS builder
-ARG R2_PUBLIC_URL
-ARG NEXT_PUBLIC_TURNSTILE_SITE_KEY
-RUN : "${R2_PUBLIC_URL:?R2_PUBLIC_URL build argument is required}"
 COPY . .
-ENV NODE_ENV=production PAYLOAD_SECRET=build-only-payload-secret-that-is-at-least-32-characters DATABASE_URI=mongodb://localhost:27017/build R2_BUCKET=build-only R2_ACCESS_KEY_ID=build-only R2_SECRET_ACCESS_KEY=build-only R2_ENDPOINT=https://example.invalid NEXT_PUBLIC_SERVER_URL=http://localhost:3000 CRON_SECRET=build-only PREVIEW_SECRET=build-only R2_PUBLIC_URL=$R2_PUBLIC_URL NEXT_PUBLIC_TURNSTILE_SITE_KEY=$NEXT_PUBLIC_TURNSTILE_SITE_KEY
+ENV NODE_ENV=production PAYLOAD_SECRET=build-only-payload-secret-that-is-at-least-32-characters DATABASE_URI=mongodb://localhost:27017/build R2_BUCKET=build-only R2_ACCESS_KEY_ID=build-only R2_SECRET_ACCESS_KEY=build-only R2_ENDPOINT=https://example.invalid NEXT_PUBLIC_SERVER_URL=http://localhost:3000 CRON_SECRET=build-only PREVIEW_SECRET=build-only R2_PUBLIC_URL=https://media.example.invalid
 RUN pnpm exec payload build --webpack --experimental-build-mode compile \
     && pnpm exec next build --webpack --experimental-build-mode generate-env \
     # generate-env updates chunk hashes after compile has created standalone.

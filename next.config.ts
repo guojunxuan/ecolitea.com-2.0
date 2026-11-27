@@ -4,11 +4,6 @@ import path from 'path'
 import { fileURLToPath } from 'url'
 const dirname = path.dirname(fileURLToPath(import.meta.url))
 import { redirects } from './redirects'
-import { serverEnv } from './src/utilities/env'
-
-const NEXT_PUBLIC_SERVER_URL = process.env.VERCEL_PROJECT_PRODUCTION_URL
-  ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
-  : process.env.__NEXT_PRIVATE_ORIGIN || 'http://localhost:3000'
 
 const nextConfig: NextConfig = {
   // Extra local hostnames (comma-separated) for dev-only features bound to a domain, e.g. Turnstile.
@@ -29,16 +24,9 @@ const nextConfig: NextConfig = {
       },
     ],
     qualities: [100],
-    remotePatterns: [
-      ...[NEXT_PUBLIC_SERVER_URL, serverEnv.R2_PUBLIC_URL].map((item) => {
-        const url = new URL(item)
-
-        return {
-          hostname: url.hostname,
-          protocol: url.protocol.replace(':', '') as 'http' | 'https',
-        }
-      }),
-    ],
+    // Remote media uses ImageMedia's custom loader; Admin brand images are unoptimized.
+    // Keep deployment hosts out of the built-in optimizer's build-time configuration.
+    remotePatterns: [],
   },
   // Payload's file-type dependency uses dynamic Node imports. Externalize the
   // root package so standalone tracing includes its transitive runtime modules

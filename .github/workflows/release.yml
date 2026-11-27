@@ -108,10 +108,6 @@ jobs:
           network: host
           allow: network.host
           push: false
-          build-args: |
-            R2_PUBLIC_URL=${{ vars.R2_PUBLIC_URL }}
-            NEXT_PUBLIC_TURNSTILE_SITE_KEY=${{ vars.NEXT_PUBLIC_TURNSTILE_SITE_KEY }}
-            DATABASE_URI=mongodb://127.0.0.1:27017/ecolitea-ci
 
   publish:
     name: Tag, publish image, and create release
@@ -162,10 +158,6 @@ jobs:
             ghcr.io/${{ github.repository }}:${{ inputs.version }}
             ghcr.io/${{ github.repository }}:sha-${{ steps.commit.outputs.short_sha }}
             ghcr.io/${{ github.repository }}:latest
-          build-args: |
-            R2_PUBLIC_URL=${{ vars.R2_PUBLIC_URL }}
-            NEXT_PUBLIC_TURNSTILE_SITE_KEY=${{ vars.NEXT_PUBLIC_TURNSTILE_SITE_KEY }}
-            DATABASE_URI=mongodb://127.0.0.1:27017/ecolitea-ci
 
       - name: Create GitHub Release
         env:

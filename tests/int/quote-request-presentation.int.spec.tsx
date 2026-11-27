@@ -1,8 +1,9 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { cleanup, render } from '@testing-library/react'
 
-const mocks = vi.hoisted(() => ({ product: vi.fn(), actions: vi.fn() }))
+const mocks = vi.hoisted(() => ({ product: vi.fn(), actions: vi.fn(), connection: vi.fn() }))
 vi.mock('next/headers', () => ({ draftMode: async () => ({ isEnabled: false }) }))
+vi.mock('next/server', () => ({ connection: mocks.connection }))
 vi.mock('@/utilities/products/getProductBySlug', () => ({ getProductBySlug: mocks.product }))
 vi.mock('@/utilities/products/getRelatedProducts', () => ({ getRelatedProducts: async () => [] }))
 vi.mock('@/utilities/products/getProductStaticParams', () => ({ getProductStaticParams: vi.fn() }))
@@ -19,6 +20,7 @@ import Detail from '@/app/(frontend)/[lang]/products/[category]/[product]/page'
 afterEach(() => {
   cleanup()
   vi.clearAllMocks()
+  vi.unstubAllEnvs()
 })
 
 describe('Quote request product presentation boundary', () => {
@@ -45,14 +47,31 @@ describe('Quote request product presentation boundary', () => {
         sections: [],
       })
       mocks.actions.mockReturnValue(null)
-      render(await Detail({ params: Promise.resolve({ lang: 'en', category: 'packaging', product: 'bag' }) }))
-      expect(mocks.actions).toHaveBeenCalled()
-      expect(mocks.actions.mock.calls[0][0].product).toEqual({
-        title: 'Paper Bag',
-        slug: 'bag',
-        categoryTitle: hasMedia ? 'Packaging' : undefined,
-        thumbnail: hasMedia ? first : undefined,
-      })
+      for (const siteKey of ['first-request-key', 'second-request-key', undefined]) {
+        // Update the env only when the request boundary resolves, after the page module loaded.
+        vi.stubEnv('NEXT_PUBLIC_TURNSTILE_SITE_KEY', 'stale-key')
+        mocks.connection.mockImplementationOnce(async () => {
+          vi.stubEnv('NEXT_PUBLIC_TURNSTILE_SITE_KEY', siteKey)
+        })
+        render(
+          await Detail({
+            params: Promise.resolve({ lang: 'en', category: 'packaging', product: 'bag' }),
+          }),
+        )
+        expect(mocks.actions).toHaveBeenLastCalledWith(
+          expect.objectContaining({
+            siteKey,
+            product: {
+              title: 'Paper Bag',
+              slug: 'bag',
+              categoryTitle: hasMedia ? 'Packaging' : undefined,
+              thumbnail: hasMedia ? first : undefined,
+            },
+          }),
+          undefined,
+        )
+        cleanup()
+      }
     },
   )
 })

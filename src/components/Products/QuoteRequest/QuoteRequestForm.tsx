@@ -34,14 +34,15 @@ const emptyValues: Record<QuoteField, string> = { name: '', email: '', company: 
 export function QuoteRequestForm({
   product,
   onSuccess,
+  siteKey,
 }: {
   product: QuoteRequestProduct
   onSuccess: (name: string) => void
+  siteKey: string | undefined
 }) {
   const { quote: copy } = useDictionary()
   const messages = { ...copy.errors, rate_limited: copy.errors.rateLimited }
   const id = useId()
-  const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY
   const [values, setValues] = useState(emptyValues)
   const [errors, setErrors] = useState<QuoteFieldErrors>({})
   const [token, setToken] = useState<string | null>(null)

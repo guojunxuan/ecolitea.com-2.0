@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { isLocaleSegment, sourceLocale } from '@/i18n/config'
-import { parseServerEnv } from '@/utilities/env'
+import { getTurnstileSiteKey, parseServerEnv } from '@/utilities/env'
 
 import { normalizeI18nSettings } from '@/i18n/settings'
 const defaults = normalizeI18nSettings({})
@@ -99,16 +99,20 @@ describe('server environment', () => {
   })
 })
 
-describe('public environment', () => {
+describe('runtime public environment', () => {
   afterEach(() => {
     vi.unstubAllEnvs()
-    vi.resetModules()
   })
 
-  it('exposes the public Turnstile site key without exposing server secrets', async () => {
-    vi.stubEnv('NEXT_PUBLIC_TURNSTILE_SITE_KEY', 'public-test-site-key')
-    vi.resetModules()
-    const { publicEnv } = await import('@/utilities/env')
-    expect(publicEnv).toEqual({ NEXT_PUBLIC_TURNSTILE_SITE_KEY: 'public-test-site-key' })
+  it('reads the current public Turnstile site key on every call without reimporting', () => {
+    vi.stubEnv('NEXT_PUBLIC_TURNSTILE_SITE_KEY', ' first-deployment-key ')
+    expect(getTurnstileSiteKey()).toBe('first-deployment-key')
+    vi.stubEnv('NEXT_PUBLIC_TURNSTILE_SITE_KEY', 'second-deployment-key')
+    expect(getTurnstileSiteKey()).toBe('second-deployment-key')
+  })
+
+  it.each([undefined, '', ' \t '])('treats an unconfigured key (%s) as unavailable', (key) => {
+    vi.stubEnv('NEXT_PUBLIC_TURNSTILE_SITE_KEY', key)
+    expect(getTurnstileSiteKey()).toBeUndefined()
   })
 })

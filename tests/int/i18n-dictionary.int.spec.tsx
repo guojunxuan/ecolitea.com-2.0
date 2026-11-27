@@ -73,7 +73,6 @@ describe('frontend dictionary delivery', () => {
     expect(await getDictionary('de', { payload })).toEqual(en)
   })
   it('delivers translated copy to consent and Quote clients, including validation', async () => {
-    vi.stubEnv('NEXT_PUBLIC_TURNSTILE_SITE_KEY', '')
     const { payload } = translations({
       'consent.settings': 'Cookie-Einstellungen',
       'quote.trigger': 'Angebot anfordern',
@@ -86,7 +85,7 @@ describe('frontend dictionary delivery', () => {
       <DictionaryProvider dictionary={await getDictionary('de', { payload })}>
         <ConsentProvider gtmDisabled>
           <CookieSettingsButton />
-          <QuoteRequestDialog product={{ title: 'Tee', slug: 'tea' }} />
+          <QuoteRequestDialog siteKey={undefined} product={{ title: 'Tee', slug: 'tea' }} />
         </ConsentProvider>
       </DictionaryProvider>,
     )
@@ -97,7 +96,6 @@ describe('frontend dictionary delivery', () => {
     expect(screen.getByText('Name ist erforderlich.')).toBeTruthy()
   })
   it('preserves translated confirmation templates and product emphasis', async () => {
-    vi.stubEnv('NEXT_PUBLIC_TURNSTILE_SITE_KEY', 'stub-key')
     vi.stubGlobal(
       'fetch',
       vi.fn(async () => ({ ok: true, json: async () => ({ ok: true }) })),
@@ -108,7 +106,7 @@ describe('frontend dictionary delivery', () => {
     })
     render(
       <DictionaryProvider dictionary={await getDictionary('de', { payload })}>
-        <QuoteRequestDialog product={{ title: 'Tee', slug: 'tea' }} />
+        <QuoteRequestDialog siteKey="stub-key" product={{ title: 'Tee', slug: 'tea' }} />
       </DictionaryProvider>,
     )
     fireEvent.click(screen.getByRole('button', { name: 'Request a quote' }))
