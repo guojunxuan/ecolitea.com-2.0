@@ -1,11 +1,17 @@
 import type { CollectionAfterChangeHook } from 'payload'
 
-import { revalidateTag } from 'next/cache'
+import { createRevalidation } from '@/plugins/translation/revalidate'
 
-export const revalidateRedirects: CollectionAfterChangeHook = ({ doc, req: { payload } }) => {
+export const revalidateRedirects: CollectionAfterChangeHook = ({
+  doc,
+  req: { context, payload },
+}) => {
+  if (context.disableRevalidate) return doc
   payload.logger.info(`Revalidating redirects`)
 
-  revalidateTag('redirects', 'max')
+  const cache = createRevalidation()
+  cache.revalidateTag('redirects', 'max')
 
-  return doc
+  const pending = cache.flush()
+  return pending ? pending.then(() => doc) : doc
 }

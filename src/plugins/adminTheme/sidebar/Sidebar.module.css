@@ -1,0 +1,36 @@
+/* Sidebar slots. --color-bg is rebound to the canvas inside the nav by enhanced.css, so
+   raised surfaces here use --color-bg-elevated, which stays white (light) / elevated (dark). */
+.search {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  width: calc(100% - 4px);
+  padding: 6px 9px;
+  margin: 0 2px 8px;
+  border: 0;
+  border-radius: var(--radius-medium);
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-tertiary);
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+}
+
+.search:hover {
+  background: color-mix(in srgb, var(--color-bg-tertiary), var(--color-text) 6%);
+}
+
+.search svg {
+  flex: none;
+}
+
+.shortcut {
+  padding: 0 5px;
+  margin-inline-start: auto;
+  border-radius: 4px;
+  background: var(--color-bg-elevated);
+  box-shadow: 0 0 0 0.5px var(--color-border);
+  color: var(--color-text-tertiary);
+  font: inherit;
+  font-size: 11px;
+}

@@ -1,0 +1,42 @@
+@layer base, components, utilities;
+
+@layer components {
+  .adminBar {
+    padding-block: var(--website-space-2);
+    background-color: var(--website-color-brand-black);
+    color: var(--website-color-brand-white);
+  }
+
+  .visible {
+    display: block;
+  }
+
+  .hidden {
+    display: none;
+  }
+
+  .container {
+    width: min(100% - (2 * var(--website-gutter)), var(--website-container-site));
+    margin-inline: auto;
+  }
+
+  .bar {
+    padding-block: var(--website-space-2);
+    color: var(--website-color-brand-white);
+  }
+
+  .controls {
+    color: var(--website-color-brand-white);
+    font-weight: 500;
+  }
+
+  .text {
+    color: var(--website-color-brand-white);
+  }
+
+  @media (max-width: 768px) {
+    .adminBar {
+      display: none;
+    }
+  }
+}

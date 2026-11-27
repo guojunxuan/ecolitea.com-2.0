@@ -1,0 +1,71 @@
+.root {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  align-items: flex-end;
+  min-height: clamp(22rem, 55vh, 42rem);
+  overflow: hidden;
+  background: var(--website-color-muted-surface);
+  color: var(--website-color-foreground);
+}
+
+.root[data-website-theme='inverse'] {
+  background: var(--website-color-brand-black);
+  color: var(--website-color-brand-white);
+}
+
+.mediaFrame {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  user-select: none;
+}
+
+.image {
+  object-fit: cover;
+  object-position: var(--hero-focal-point, center);
+}
+
+.scrim {
+  position: absolute;
+  inset: 0;
+  /* The theme background token makes one Scrim fit both light and inverse Heroes. */
+  background: linear-gradient(
+    to top,
+    color-mix(in srgb, var(--website-color-background) var(--website-scrim-strong), transparent),
+    color-mix(in srgb, var(--website-color-background) var(--website-scrim-subtle), transparent)
+  );
+}
+
+.content {
+  position: relative;
+  width: min(100% - (2 * var(--website-gutter)), var(--website-container-site));
+  min-width: 0;
+  margin-inline: auto;
+  padding-block: var(--website-space-20) var(--website-space-8);
+  overflow-wrap: anywhere;
+}
+
+.heading {
+  composes: website-type-heading-1 from global;
+  margin: 0;
+}
+
+.description {
+  composes: website-type-body-md from global;
+  max-width: 42rem;
+  margin: var(--website-space-4) 0 0;
+}
+
+@media (width >= 48rem) {
+  .content {
+    padding-bottom: var(--website-space-16);
+  }
+}
+
+@media (width < 48rem) {
+  .image {
+    object-position: var(--hero-mobile-focal-point, center);
+  }
+}

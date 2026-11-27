@@ -1,0 +1,11 @@
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 480 320"
+  role="img"
+  aria-label="product code block preview"
+>
+  <g fill="none" stroke="#262629" stroke-width="8">
+    <rect x="48" y="48" width="384" height="224" />
+    <path d="m184 120-44 40 44 40m112-80 44 40-44 40m-36-92-40 104" />
+  </g>
+</svg>

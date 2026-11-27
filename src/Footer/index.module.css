@@ -1,0 +1,275 @@
+.footer {
+  background: var(--website-color-background);
+  color: var(--website-color-foreground);
+  margin-top: auto;
+}
+.primaryGrid {
+  display: grid;
+  gap: var(--website-space-8);
+  padding-block: var(--website-space-8);
+}
+.brand,
+.engagement,
+.newsletter {
+  min-width: 0;
+}
+.brandLink {
+  align-items: center;
+  display: inline-flex;
+  min-height: 2.375rem;
+  width: min(100%, 10.5rem);
+}
+.logo {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+.description,
+.information {
+  color: var(--website-color-muted-foreground);
+}
+/* Supporting and legal copy sits one tier below navigation. */
+.newsletterDescription,
+.bottomBar {
+  color: var(--website-color-subtle-foreground);
+}
+.description {
+  composes: website-type-body-sm from global;
+  margin-top: var(--website-space-2);
+  max-width: 22rem;
+}
+.socialList {
+  /* The 44px targets carry their own padding, so the row sits closer to the
+     description and the first icon is pulled back into optical alignment. */
+  margin-top: var(--website-space-2);
+  margin-inline-start: calc(-1 * var(--website-space-2));
+  gap: 0;
+}
+.navigation {
+  display: grid;
+}
+.column {
+  border-top: 1px solid var(--website-color-border);
+}
+.accordionTrigger {
+  composes: website-type-eyebrow from global;
+  display: none;
+  width: 100%;
+  min-height: var(--website-control-target-min);
+  align-items: center;
+  justify-content: space-between;
+  color: inherit;
+  text-align: left;
+}
+.accordionIcon {
+  composes: website-type-title from global;
+  font-weight: 400;
+  transition: transform var(--website-duration-standard) var(--website-easing-standard);
+}
+.accordionTrigger[aria-expanded='true'] .accordionIcon {
+  transform: rotate(45deg);
+}
+.desktopHeading {
+  composes: website-type-eyebrow from global;
+  display: block;
+  padding-block: 1rem 0.5rem;
+}
+.navigation[data-enhanced='true'] .desktopHeading {
+  display: none;
+}
+.navigation[data-enhanced='true'] .accordionTrigger {
+  display: flex;
+}
+.linkPanel {
+  display: block;
+}
+.navigation[data-enhanced='true'] .linkPanel {
+  display: grid;
+  grid-template-rows: 0fr;
+  visibility: hidden;
+  transition:
+    grid-template-rows var(--website-duration-standard) var(--website-easing-standard),
+    visibility var(--website-duration-standard) var(--website-easing-standard);
+}
+.navigation[data-enhanced='true'] .linkPanel[data-open='true'] {
+  grid-template-rows: 1fr;
+  visibility: visible;
+}
+.linkList {
+  display: grid;
+  min-height: 0;
+  gap: var(--website-space-2);
+  overflow: hidden;
+}
+.navLink {
+  composes: website-type-caption from global;
+  display: inline-flex;
+  min-height: var(--website-control-target-min);
+  align-items: center;
+  color: var(--website-color-muted-foreground);
+  transition: color var(--website-duration-fast) var(--website-easing-standard);
+}
+@media (hover: hover) and (pointer: fine) {
+  .navLink:hover {
+    color: var(--website-color-foreground);
+  }
+}
+.newsletterHeading {
+  composes: website-type-eyebrow from global;
+}
+.newsletterDescription {
+  composes: website-type-caption from global;
+  margin-top: 0.5rem;
+}
+.newsletterControls {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  margin-top: 1.25rem;
+}
+.newsletterInput,
+.newsletterButton {
+  font-size: 14px;
+  line-height: 1.43;
+  min-height: var(--website-control-compact);
+  border: 1px solid var(--website-color-input);
+}
+.newsletterInput {
+  composes: website-type-caption from global;
+  min-width: 0;
+  border-radius: var(--website-radius-control) 0 0 var(--website-radius-control);
+  padding-inline: 0.875rem;
+  background: transparent;
+  color: var(--website-color-disabled-foreground);
+}
+.newsletterButton {
+  composes: website-type-caption from global;
+  border-left: 0;
+  border-radius: 0 var(--website-radius-control) var(--website-radius-control) 0;
+  padding-inline: 1rem;
+  background: var(--website-color-disabled-surface);
+  color: var(--website-color-disabled-foreground);
+}
+.information {
+  composes: website-type-caption from global;
+  display: grid;
+  gap: var(--website-space-3);
+  /* Separated by whitespace rather than a rule; .bottomBar keeps the only
+     divider so the Footer reads as one block instead of stacked slabs. */
+  margin-top: var(--website-space-6);
+  font-style: normal;
+}
+.socialList,
+.legalList {
+  display: flex;
+  flex-wrap: wrap;
+}
+.legalList {
+  gap: 0.75rem 1.25rem;
+}
+.contactList {
+  display: grid;
+  gap: var(--website-space-3);
+}
+.contactItem {
+  display: grid;
+  grid-template-columns: var(--website-icon-small) minmax(0, 1fr);
+  gap: 0.625rem;
+  align-items: start;
+}
+.contactIcon {
+  width: var(--website-icon-small);
+  height: var(--website-icon-small);
+  margin-top: 0.2em;
+  color: inherit;
+}
+.information a,
+.bottomBar a {
+  color: inherit;
+}
+@media (hover: hover) and (pointer: fine) {
+  .information a:hover,
+  .bottomBar a:hover {
+    color: var(--website-color-foreground);
+  }
+}
+.socialIcon {
+  width: var(--website-icon-medium);
+  height: var(--website-icon-medium);
+  object-fit: contain;
+  /* Uploaded brand marks are dark; the Footer is pinned to the inverse theme. */
+  filter: brightness(0) invert(1);
+  opacity: 0.68;
+  transition: opacity var(--website-duration-fast) var(--website-easing-standard);
+}
+.socialLink {
+  display: flex;
+  /* Width stays at 36px so five icons still fit the brand column at 1170px;
+     height carries the touch target. */
+  width: 36px;
+  min-height: var(--website-control-target-min);
+  align-items: center;
+  justify-content: center;
+}
+@media (hover: hover) and (pointer: fine) {
+  .socialLink:hover .socialIcon {
+    opacity: 1;
+  }
+}
+.bottomBar {
+  composes: website-type-caption from global;
+  display: flex;
+  flex-direction: column;
+  gap: var(--website-space-3);
+  border-top: 1px solid var(--website-color-border);
+  padding-block: var(--website-space-4) var(--website-space-6);
+}
+
+@media (width >= 48rem) {
+  .bottomBar {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+@media (width >= 73.125rem) {
+  .primaryGrid {
+    grid-template-columns: minmax(0, 20fr) minmax(0, 55fr) minmax(0, 25fr);
+    padding-block: var(--website-space-12);
+  }
+  .navigation {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--website-space-6);
+  }
+  .column {
+    border-top: 0;
+  }
+  .navigation[data-enhanced='true'] .accordionTrigger {
+    display: none;
+  }
+  .desktopHeading,
+  .navigation[data-enhanced='true'] .desktopHeading {
+    display: block;
+    padding-block: 0;
+    margin-bottom: var(--website-space-3);
+  }
+  .linkPanel,
+  .navigation[data-enhanced='true'] .linkPanel,
+  .navigation[data-enhanced='true'] .linkPanel[data-open='true'] {
+    display: block;
+    visibility: visible;
+  }
+  .linkList {
+    overflow: visible;
+  }
+  .navLink {
+    min-height: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .accordionIcon,
+  .navigation[data-enhanced='true'] .linkPanel {
+    transition-duration: 0.01ms;
+  }
+}

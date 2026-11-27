@@ -1,29 +1,112 @@
-import { getCachedGlobal } from '@/utilities/getGlobals'
-import Link from 'next/link'
+import { getCachedFooter, getCachedSiteSettings } from '@/utilities/getGlobals'
+import Link from '@/components/LocaleLink'
 import React from 'react'
 
-import { ThemeSelector } from '@/providers/Theme/ThemeSelector'
-import { CMSLink } from '@/components/Link'
 import { Logo } from '@/components/Logo/Logo'
+import { CookieSettingsButton } from '@/consent/CookieSettingsButton'
+import { adaptFooter } from './adaptFooter'
+import { ContactList } from './ContactList'
+import styles from './index.module.css'
+import { FooterNavigation } from './Navigation.client'
 
-export async function Footer() {
-  const footerData = await getCachedGlobal('footer', 1)()
-
-  const navItems = footerData?.navItems || []
+export async function Footer({ locale = 'en' }: { locale?: string } = {}) {
+  const [footerGlobal, siteSettings] = await Promise.all([
+    getCachedFooter(locale),
+    getCachedSiteSettings(locale),
+  ])
+  const footer = adaptFooter(footerGlobal, siteSettings)
 
   return (
-    <footer className="mt-auto border-t border-border bg-black dark:bg-card text-white">
-      <div className="container py-8 gap-8 flex flex-col md:flex-row md:justify-between">
-        <Link className="flex items-center" href="/">
-          <Logo />
-        </Link>
+    <footer className={styles.footer} data-website-theme="inverse">
+      <div className="site-container">
+        <div className={styles.primaryGrid}>
+          <section aria-label="Brand" className={styles.brand} data-footer-content="brand">
+            {footer.logo && (
+              <Link className={styles.brandLink} href="/">
+                <Logo image={footer.logo} className={styles.logo} />
+              </Link>
+            )}
+            {footer.siteDescription && (
+              <p className={styles.description}>{footer.siteDescription}</p>
+            )}
+            {footer.socialLinks.length > 0 && (
+              <ul
+                aria-label="Social media"
+                className={styles.socialList}
+                data-footer-content="social"
+              >
+                {footer.socialLinks.map((social) => (
+                  <li key={social.id}>
+                    <a
+                      aria-label={social.platform}
+                      className={styles.socialLink}
+                      href={social.url}
+                      rel="noopener noreferrer"
+                      target="_blank"
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        alt=""
+                        className={styles.socialIcon}
+                        height={social.icon.height}
+                        src={social.icon.src}
+                        width={social.icon.width}
+                      />
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
 
-        <div className="flex flex-col-reverse items-start md:flex-row gap-4 md:items-center">
-          <ThemeSelector />
-          <nav className="flex flex-col md:flex-row gap-4">
-            {navItems.map(({ link }, i) => {
-              return <CMSLink className="text-white" key={i} {...link} />
-            })}
+          <FooterNavigation columns={footer.columns} />
+
+          <div className={styles.engagement}>
+            {footer.newsletter && (
+              <section
+                aria-label="Newsletter"
+                className={styles.newsletter}
+                data-footer-content="newsletter"
+              >
+                <h2 className={styles.newsletterHeading}>{footer.newsletter.heading}</h2>
+                <p className={styles.newsletterDescription}>{footer.newsletter.description}</p>
+                <div className={styles.newsletterControls}>
+                  <input
+                    aria-label={footer.newsletter.emailPlaceholder}
+                    className={styles.newsletterInput}
+                    disabled
+                    placeholder={footer.newsletter.emailPlaceholder}
+                    type="email"
+                  />
+                  <button className={styles.newsletterButton} disabled type="button">
+                    {footer.newsletter.buttonLabel}
+                  </button>
+                </div>
+              </section>
+            )}
+
+            <ContactList contact={footer.contact} />
+          </div>
+        </div>
+
+        <div className={styles.bottomBar}>
+          {footer.copyrightText && <p>{footer.copyrightText}</p>}
+          <nav aria-label="Legal">
+            <ul className={styles.legalList}>
+              {footer.legalLinks.map((link) => (
+                <li key={`${link.href}-${link.label}`}>
+                  <Link
+                    href={link.href}
+                    {...(link.newTab ? { rel: 'noopener noreferrer', target: '_blank' } : {})}
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+              <li>
+                <CookieSettingsButton />
+              </li>
+            </ul>
           </nav>
         </div>
       </div>

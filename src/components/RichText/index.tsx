@@ -1,80 +1,122 @@
-import { MediaBlock } from '@/blocks/MediaBlock/Component'
-import {
-  SerializedBlockNode,
-  SerializedLinkNode,
-  WithDefaultNodes,
-} from '@payloadcms/richtext-lexical'
+import LocaleLink from '@/components/LocaleLink'
+import { SerializedLinkNode } from '@payloadcms/richtext-lexical'
 import type { SerializedEditorState } from '@payloadcms/richtext-lexical/lexical'
 import {
   JSXConvertersFunction,
-  LinkJSXConverter,
   RichText as ConvertRichText,
 } from '@payloadcms/richtext-lexical/react'
-
-import { CodeBlock, CodeBlockProps } from '@/blocks/Code/Component'
-
-import type {
-  BannerBlock as BannerBlockProps,
-  CallToActionBlock as CTABlockProps,
-  MediaBlock as MediaBlockProps,
-} from '@/payload-types'
-import { BannerBlock } from '@/blocks/Banner/Component'
-import { CallToActionBlock } from '@/blocks/CallToAction/Component'
 import { cn } from '@/utilities/ui'
+import { getHeadingText, slugifyHeadingText } from '@/utilities/blogs/extractTOC'
+import { getContentPath } from '@/utilities/getContentPath'
+import type { CollectionSlug } from 'payload'
+import styles from './index.module.css'
 
-type NodeTypes = WithDefaultNodes<
-  | SerializedBlockNode<BannerBlockProps>
-  | SerializedBlockNode<CTABlockProps>
-  | SerializedBlockNode<CodeBlockProps>
-  | SerializedBlockNode<MediaBlockProps>
->
-
-const internalDocToHref = ({ linkNode }: { linkNode: SerializedLinkNode }) => {
-  const { value, relationTo } = linkNode.fields.doc!
-  if (typeof value !== 'object') {
-    throw new Error('Expected value to be an object')
-  }
-  const slug = value.slug
-  return relationTo === 'posts' ? `/posts/${slug}` : `/${slug}`
+type RichTextContext = 'page' | 'article'
+export type RichTextBlockConverters = NonNullable<ReturnType<JSXConvertersFunction>['blocks']>
+export const richTextEmbedClassNames = {
+  marker: 'payload-richtext__embedded',
+  banner: styles.embeddedBanner,
+  media: styles.embeddedMedia,
+  mediaImage: styles.mediaImage,
+  mediaCaption: styles.mediaCaption,
+  code: styles.embeddedCode,
+  articleBlock: styles.articleBlock,
 }
 
-const jsxConverters: JSXConvertersFunction<NodeTypes> = ({ defaultConverters }) => ({
-  ...defaultConverters,
-  ...LinkJSXConverter({ internalDocToHref }),
-  blocks: {
-    banner: ({ node }) => <BannerBlock className="col-start-2 mb-4" {...node.fields} />,
-    mediaBlock: ({ node }) => (
-      <MediaBlock
-        className="col-start-1 col-span-3"
-        imgClassName="m-0"
-        {...node.fields}
-        captionClassName="mx-auto max-w-[48rem]"
-        enableGutter={false}
-        disableInnerContainer={true}
-      />
-    ),
-    code: ({ node }) => <CodeBlock className="col-start-2" {...node.fields} />,
-    cta: ({ node }) => <CallToActionBlock {...node.fields} />,
-  },
-})
+export const internalDocToHref = ({ linkNode }: { linkNode: SerializedLinkNode }) => {
+  const { value, relationTo } = linkNode.fields.doc ?? {}
+  // Payload preserves IDs when a relationship is unavailable to this reader.
+  if (!value || typeof value !== 'object') return '#'
+  const slug = value.slug
+  return typeof slug === 'string'
+    ? getContentPath(
+        relationTo as CollectionSlug,
+        slug,
+        relationTo === 'products'
+          ? { categorySlug: typeof value.categorySlug === 'string' ? value.categorySlug : null }
+          : undefined,
+      ) || '#'
+    : '#'
+}
+
+const jsxConverters =
+  (blocks: RichTextBlockConverters, headingIds?: readonly string[]): JSXConvertersFunction =>
+  ({ defaultConverters }) => {
+    let headingIndex = 0
+    return {
+      ...defaultConverters,
+      link: ({ node, nodesToJSX }) => (
+        <LocaleLink href={node.fields.linkType === 'internal' ? internalDocToHref({ linkNode: node }) : node.fields.url ?? '#'}
+          rel={node.fields.newTab ? 'noopener noreferrer' : undefined} target={node.fields.newTab ? '_blank' : undefined}>
+          {nodesToJSX({ nodes: node.children })}
+        </LocaleLink>
+      ),
+      autolink: ({ node, nodesToJSX }) => (
+        <LocaleLink href={node.fields.url ?? '#'} rel={node.fields.newTab ? 'noopener noreferrer' : undefined} target={node.fields.newTab ? '_blank' : undefined}>
+          {nodesToJSX({ nodes: node.children })}
+        </LocaleLink>
+      ),
+      ...(headingIds
+        ? ({
+            heading: ({ node, nodesToJSX, parent }) => {
+              const Tag = node.tag
+              const eligible =
+                parent.type === 'root' &&
+                (Tag === 'h2' || Tag === 'h3') &&
+                slugifyHeadingText(getHeadingText(node))
+              const id = eligible ? headingIds[headingIndex++] : undefined
+              return <Tag id={id}>{nodesToJSX({ nodes: node.children })}</Tag>
+            },
+          } satisfies ReturnType<JSXConvertersFunction>)
+        : {}),
+      table: ({ node, nodesToJSX }) => (
+        <div
+          aria-label="Scrollable table"
+          className={cn('payload-richtext__table-scroll', styles.tableScroll)}
+          role="region"
+          tabIndex={0}
+        >
+          <table>
+            <tbody>{nodesToJSX({ nodes: node.children })}</tbody>
+          </table>
+        </div>
+      ),
+      blocks,
+    }
+  }
 
 type Props = {
+  blocks?: RichTextBlockConverters
+  context?: RichTextContext
   data: SerializedEditorState
   enableGutter?: boolean
   enableProse?: boolean
+  headingIds?: readonly string[]
 } & React.HTMLAttributes<HTMLDivElement>
 
 export default function RichText(props: Props) {
-  const { className, enableProse = true, enableGutter = true, ...rest } = props
+  const {
+    className,
+    blocks = {},
+    context = 'page',
+    enableProse = true,
+    enableGutter = true,
+    headingIds,
+    ...rest
+  } = props
   return (
     <ConvertRichText
-      converters={jsxConverters}
+      converters={jsxConverters(blocks, headingIds)}
       className={cn(
         'payload-richtext',
+        styles.root,
         {
-          container: enableGutter,
-          'max-w-none': !enableGutter,
-          'mx-auto prose md:prose-md dark:prose-invert': enableProse,
+          'payload-richtext--content': enableProse,
+          'payload-richtext--plain': !enableProse,
+          [styles.content]: enableProse,
+          [styles.plain]: !enableProse,
+          [styles.withGutter]: enableGutter,
+          [styles.article]: context === 'article',
         },
         className,
       )}

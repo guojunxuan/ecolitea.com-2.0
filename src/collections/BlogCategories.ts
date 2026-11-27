@@ -1,0 +1,87 @@
+import {
+  MetaDescriptionField,
+  MetaImageField,
+  MetaTitleField,
+  OverviewField,
+  PreviewField,
+} from '@payloadcms/plugin-seo/fields'
+import { imageOnly } from '@/collections/mediaUploadPolicy'
+import type {
+  CollectionConfig,
+  CollectionAfterChangeHook,
+  CollectionAfterDeleteHook,
+} from 'payload'
+import { revalidateTag } from 'next/cache'
+import { revalidateLocalizedPath as revalidatePath } from '@/utilities/i18n/revalidatePaths'
+import { anyone } from '@/access/anyone'
+import { authenticated } from '@/access/authenticated'
+import type { BlogCategory } from '@/payload-types'
+
+const invalidateCategory = (doc: BlogCategory, previousDoc?: BlogCategory) => {
+  for (const category of [doc, previousDoc]) {
+    if (category?.slug) revalidatePath(`/blogs/category/${category.slug}`)
+  }
+  revalidatePath('/blogs')
+  revalidatePath('/search')
+  revalidateTag(`blog-category-${doc.id}`, 'max')
+  revalidateTag('blog-categories', 'max')
+  revalidateTag('blogs-list', 'max')
+  revalidateTag('blogs-sitemap', 'max')
+}
+
+const afterChange: CollectionAfterChangeHook<BlogCategory> = ({ doc, previousDoc, req }) => {
+  if (!req.context.disableRevalidate) invalidateCategory(doc, previousDoc)
+  return doc
+}
+const afterDelete: CollectionAfterDeleteHook<BlogCategory> = ({ doc, req }) => {
+  if (!req.context.disableRevalidate) invalidateCategory(doc)
+  return doc
+}
+
+export const BlogCategories: CollectionConfig = {
+  slug: 'blog-categories',
+  labels: { singular: 'Blog Category', plural: 'Blog Categories' },
+  admin: { group: 'Content', useAsTitle: 'title' },
+  orderable: true,
+  access: { read: anyone, create: authenticated, update: authenticated, delete: authenticated },
+  fields: [
+    {
+      type: 'tabs',
+      tabs: [
+        {
+          label: 'Content',
+          fields: [
+            { name: 'title', type: 'text', required: true },
+            { name: 'description', type: 'textarea' },
+          ],
+        },
+        {
+          name: 'meta',
+          label: 'SEO',
+          fields: [
+            OverviewField({
+              titlePath: 'meta.title',
+              descriptionPath: 'meta.description',
+              imagePath: 'meta.image',
+            }),
+            MetaTitleField({ hasGenerateFn: true }),
+            MetaImageField({
+              relationTo: 'media',
+              hasGenerateFn: true,
+              overrides: { filterOptions: imageOnly },
+            }),
+            MetaDescriptionField({ hasGenerateFn: true }),
+            PreviewField({
+              hasGenerateFn: true,
+              titlePath: 'meta.title',
+              descriptionPath: 'meta.description',
+            }),
+          ],
+        },
+      ],
+    },
+    { name: 'slug', type: 'slug', useAsSlug: 'title', admin: { position: 'sidebar' } },
+    { name: 'blogs', type: 'join', collection: 'blogs', on: 'category' },
+  ],
+  hooks: { afterChange: [afterChange], afterDelete: [afterDelete] },
+}

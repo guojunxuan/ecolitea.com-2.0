@@ -1,4 +1,12 @@
-import type { Field, GroupField } from 'payload'
+import type {
+  CollectionSlug,
+  Field,
+  GroupField,
+  PolymorphicRelationshipField,
+  RadioField,
+  SingleRelationshipField,
+  TextField,
+} from 'payload'
 
 import deepMerge from '@/utilities/deepMerge'
 
@@ -18,10 +26,22 @@ export const appearanceOptions: Record<LinkAppearances, { label: string; value: 
 type LinkType = (options?: {
   appearances?: LinkAppearances[] | false
   disableLabel?: boolean
+  labelOverrides?: Partial<TextField>
   overrides?: Partial<GroupField>
+  relationTo?: CollectionSlug | CollectionSlug[]
+  typeOverrides?: Partial<RadioField>
+  urlOverrides?: Partial<TextField>
 }) => Field
 
-export const link: LinkType = ({ appearances, disableLabel = false, overrides = {} } = {}) => {
+export const link: LinkType = ({
+  appearances,
+  disableLabel = false,
+  labelOverrides = {},
+  overrides = {},
+  relationTo,
+  typeOverrides = {},
+  urlOverrides = {},
+} = {}) => {
   const linkResult: GroupField = {
     name: 'link',
     type: 'group',
@@ -32,25 +52,28 @@ export const link: LinkType = ({ appearances, disableLabel = false, overrides = 
       {
         type: 'row',
         fields: [
-          {
-            name: 'type',
-            type: 'radio',
-            admin: {
-              layout: 'horizontal',
-              width: '50%',
-            },
-            defaultValue: 'reference',
-            options: [
-              {
-                label: 'Internal link',
-                value: 'reference',
+          deepMerge(
+            {
+              name: 'type',
+              type: 'radio',
+              admin: {
+                layout: 'horizontal',
+                width: '50%',
               },
-              {
-                label: 'Custom URL',
-                value: 'custom',
-              },
-            ],
-          },
+              defaultValue: 'reference',
+              options: [
+                {
+                  label: 'Internal link',
+                  value: 'reference',
+                },
+                {
+                  label: 'Custom URL',
+                  value: 'custom',
+                },
+              ],
+            } satisfies RadioField,
+            typeOverrides,
+          ),
           {
             name: 'newTab',
             type: 'checkbox',
@@ -67,50 +90,61 @@ export const link: LinkType = ({ appearances, disableLabel = false, overrides = 
     ],
   }
 
-  const linkTypes: Field[] = [
-    {
-      name: 'reference',
-      type: 'relationship',
-      admin: {
-        condition: (_, siblingData) => siblingData?.type === 'reference',
-      },
-      label: 'Document to link to',
-      relationTo: ['pages', 'posts'],
-      required: true,
+  const referenceProperties = {
+    name: 'reference',
+    type: 'relationship',
+    admin: {
+      condition: (_, siblingData) => siblingData?.type === 'reference',
+      ...(!disableLabel && { width: '50%' }),
     },
+    label: 'Document to link to',
+    required: true,
+  } satisfies Omit<SingleRelationshipField, 'relationTo'>
+
+  const referenceField =
+    typeof relationTo === 'string'
+      ? ({
+          ...referenceProperties,
+          relationTo,
+        } satisfies SingleRelationshipField)
+      : ({
+          ...referenceProperties,
+          relationTo: relationTo ?? ['pages', 'blogs'],
+        } satisfies PolymorphicRelationshipField)
+
+  const urlField: TextField = deepMerge(
     {
       name: 'url',
       type: 'text',
       admin: {
         condition: (_, siblingData) => siblingData?.type === 'custom',
+        ...(!disableLabel && { width: '50%' }),
       },
       label: 'Custom URL',
       required: true,
-    },
-  ]
+    } satisfies TextField,
+    urlOverrides,
+  )
+
+  const linkTypes: Field[] = [referenceField, urlField]
 
   if (!disableLabel) {
-    linkTypes.map((linkType) => ({
-      ...linkType,
-      admin: {
-        ...linkType.admin,
-        width: '50%',
-      },
-    }))
-
     linkResult.fields.push({
       type: 'row',
       fields: [
         ...linkTypes,
-        {
-          name: 'label',
-          type: 'text',
-          admin: {
-            width: '50%',
+        deepMerge(
+          {
+            name: 'label',
+            type: 'text',
+            admin: {
+              width: '50%',
+            },
+            label: 'Label',
+            required: true,
           },
-          label: 'Label',
-          required: true,
-        },
+          labelOverrides,
+        ),
       ],
     })
   } else {

@@ -1,6 +1,7 @@
 import { Field } from 'payload'
 
 export const searchFields: Field[] = [
+  { name: 'categorySlug', type: 'text', admin: { readOnly: true } },
   {
     name: 'slug',
     type: 'text',
@@ -8,6 +9,34 @@ export const searchFields: Field[] = [
     admin: {
       readOnly: true,
     },
+  },
+  // Shared search projection: Products.summary and Blogs.excerpt feed this field.
+  {
+    name: 'excerpt',
+    type: 'textarea',
+    admin: { readOnly: true },
+  },
+  {
+    name: 'heroImage',
+    type: 'upload',
+    relationTo: 'media',
+    admin: { readOnly: true },
+  },
+  {
+    name: 'publishedAt',
+    type: 'date',
+    admin: { readOnly: true },
+  },
+  {
+    name: 'category',
+    type: 'group',
+    admin: { readOnly: true },
+    fields: [
+      { name: 'relationTo', type: 'text' },
+      { name: 'categoryID', type: 'text' },
+      { name: 'title', type: 'text' },
+      { name: 'slug', type: 'text' },
+    ],
   },
   {
     name: 'meta',
@@ -33,28 +62,6 @@ export const searchFields: Field[] = [
         label: 'Image',
         type: 'upload',
         relationTo: 'media',
-      },
-    ],
-  },
-  {
-    label: 'Categories',
-    name: 'categories',
-    type: 'array',
-    admin: {
-      readOnly: true,
-    },
-    fields: [
-      {
-        name: 'relationTo',
-        type: 'text',
-      },
-      {
-        name: 'categoryID',
-        type: 'text',
-      },
-      {
-        name: 'title',
-        type: 'text',
       },
     ],
   },

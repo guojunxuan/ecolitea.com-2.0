@@ -1,0 +1,101 @@
+.banner {
+  position: relative;
+  color: var(--website-color-foreground);
+  background: var(--website-color-background);
+  isolation: isolate;
+  width: 100%;
+  overflow: hidden;
+  border-radius: var(--website-radius-none);
+}
+.media {
+  border-radius: var(--website-radius-none);
+}
+.media[data-aspect-ratio='21:9'] {
+  max-height: calc(var(--website-container-wide) * 9 / 21);
+}
+.banner[data-ratio='full-screen'] .media {
+  height: max(0px, calc(100svh - var(--header-height) - var(--website-anchor-nav-height)));
+  aspect-ratio: auto;
+}
+.banner[data-ratio='full-screen'] .media img,
+.banner[data-ratio='full-screen'] .media video {
+  height: 100%;
+  object-fit: cover;
+}
+.banner::after {
+  position: absolute;
+  z-index: 0;
+  content: '';
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--website-color-background) var(--website-scrim-strong), transparent),
+    transparent 70%
+  );
+  pointer-events: none;
+}
+.copy {
+  position: absolute;
+  z-index: 1;
+  top: var(--website-space-6);
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(calc(100% - var(--website-gutter) * 2), var(--website-container-reading));
+  text-align: center;
+  pointer-events: none;
+}
+.copy p {
+  margin: var(--website-space-3) 0 0;
+}
+.copy > div {
+  margin-bottom: 0;
+}
+.preview[data-player] {
+  filter: brightness(0.65);
+}
+.watch {
+  position: absolute;
+  z-index: 1;
+  inset: 50% auto auto 50%;
+  transform: translate(-50%, -50%);
+}
+.dialog {
+  width: min(calc(100% - 2 * var(--website-gutter)), var(--website-container-site));
+  max-height: calc(100svh - 2 * var(--website-gutter));
+  padding: var(--website-space-6);
+  border: 0;
+  border-radius: var(--website-radius-content);
+  background: var(--website-color-background);
+  color: var(--website-color-foreground);
+}
+.dialog::backdrop {
+  background: color-mix(
+    in srgb,
+    var(--website-color-foreground) var(--website-scrim-strong),
+    transparent
+  );
+}
+.close {
+  display: flex;
+  margin-inline-start: auto;
+  margin-bottom: var(--website-space-4);
+}
+@media (width < 48rem) {
+  .banner:not([data-ratio='full-screen']) .media {
+    aspect-ratio: 4 / 5;
+    height: auto;
+    max-height: none;
+  }
+  .banner:not([data-ratio='full-screen']) .preview[data-mobile-video] .media {
+    aspect-ratio: 16 / 9;
+  }
+  .banner .media img,
+  .banner .media video {
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+  }
+  .dialog {
+    padding: var(--website-space-4);
+  }
+}

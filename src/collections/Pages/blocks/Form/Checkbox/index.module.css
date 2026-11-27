@@ -1,0 +1,13 @@
+.required {
+  display: inline;
+}
+
+.requiredText {
+  composes: visually-hidden from global;
+}
+
+.control {
+  display: flex;
+  align-items: center;
+  gap: var(--website-space-2);
+}

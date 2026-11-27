@@ -1,0 +1,59 @@
+.pagination {
+  display: flex;
+  width: 100%;
+  margin-inline: auto;
+  justify-content: center;
+}
+
+.content {
+  display: flex;
+  flex-direction: row;
+  gap: var(--website-space-1);
+  align-items: center;
+}
+
+.content [aria-current='page'] {
+  color: var(--website-color-action-foreground);
+  background-color: var(--website-color-action);
+  border-color: transparent;
+}
+
+.content :where([aria-current='page'], button, a) {
+  font-variant-numeric: tabular-nums;
+}
+
+.item {
+  display: list-item;
+}
+
+@layer base, components, utilities;
+
+@layer components {
+  .previous {
+    gap: var(--website-space-1);
+    padding-left: 0.625rem;
+  }
+
+  .next {
+    gap: var(--website-space-1);
+    padding-right: 0.625rem;
+  }
+}
+
+.ellipsis {
+  display: flex;
+  width: 2.25rem;
+  height: 2.25rem;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon {
+  width: var(--website-icon-small);
+  height: var(--website-icon-small);
+  color: currentColor;
+}
+
+.screenReaderOnly {
+  composes: visually-hidden from global;
+}

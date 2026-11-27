@@ -1,0 +1,14 @@
+.site-settings-social-links .array-field__header-action {
+  display: none;
+}
+
+// Only one row menu is open at a time; while it belongs to Social Links, hide the clipboard and
+// duplicate actions in the portaled popup.
+body:has(.site-settings-social-links .array-actions [aria-expanded='true']) .popup__content {
+  .array-actions__duplicate,
+  .array-actions__copy,
+  .array-actions__paste-below,
+  .array-actions__paste {
+    display: none;
+  }
+}

@@ -1,0 +1,4 @@
+.notice {
+  margin-block: 0;
+  padding-block: calc(var(--header-height) + var(--website-space-4)) var(--website-space-4);
+}

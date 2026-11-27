@@ -4,24 +4,32 @@ node_modules
 .DS_Store
 .env
 .next
+.next-e2e
 next-env.d.ts
 .vercel
 
 # Local isolated implementation workspaces
 .worktrees/
 .superpowers/
-docs/
 
 # Payload default media upload directory
 public/media/
+
+# Payload local fallback brand asset upload directory
+/brand-assets/
 
 public/robots.txt
 public/sitemap*.xml
 
 
 # Playwright
+/output/
+/.playwright-cli/
 node_modules/
 /test-results/
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+
+# TypeScript incremental build cache
+*.tsbuildinfo

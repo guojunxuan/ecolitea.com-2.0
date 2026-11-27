@@ -1,0 +1,89 @@
+.dialog {
+  composes: dialog from '../ProductActions/DownloadDialog.module.css';
+}
+.surface {
+  composes: surface from '../ProductActions/DownloadDialog.module.css';
+}
+.header {
+  flex-shrink: 0;
+  composes: header from '../ProductActions/DownloadDialog.module.css';
+  align-items: flex-start;
+  border-bottom: 0;
+}
+.intro {
+  display: grid;
+  gap: var(--website-space-2);
+  padding-top: var(--website-space-2);
+  min-width: 0;
+}
+.eyebrow {
+  composes: website-type-eyebrow from global;
+  color: var(--website-color-muted-foreground);
+  margin: 0;
+}
+.description {
+  composes: website-type-body-sm from global;
+  color: var(--website-color-muted-foreground);
+  margin: 0;
+}
+.close {
+  flex-shrink: 0;
+  margin-left: auto;
+}
+.title {
+  composes: title from '../ProductActions/DownloadDialog.module.css';
+}
+.trigger:not(:disabled) {
+  color: var(--website-color-action-foreground);
+  border-color: transparent;
+  background: var(--website-color-action);
+}
+.body {
+  display: flex;
+  min-height: 0;
+  overflow: hidden;
+}
+.done {
+  padding: 0 var(--website-space-6) var(--website-space-8);
+  padding-bottom: max(var(--website-space-8), env(safe-area-inset-bottom));
+  overflow-y: auto;
+  display: grid;
+  gap: var(--website-space-4);
+  justify-items: center;
+  width: 100%;
+  min-width: 0;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+.successIcon {
+  display: grid;
+  place-items: center;
+  width: var(--website-space-16);
+  height: var(--website-space-16);
+  border-radius: var(--website-radius-circle);
+  background: var(--website-status-success-background);
+  color: var(--website-status-success-accent);
+}
+.successIcon svg {
+  width: var(--website-icon-xlarge);
+  height: var(--website-icon-xlarge);
+}
+.confirmation {
+  composes: website-type-body-md from global;
+  margin: 0;
+  color: var(--website-color-muted-foreground);
+}
+.doneClose {
+  width: 100%;
+  margin-top: var(--website-space-2);
+}
+
+@media (width < 48rem) {
+  .dialog {
+    width: 100%;
+    max-width: 100%;
+    max-height: 100svh;
+    margin: auto 0 0;
+    border-radius: var(--website-radius-panel) var(--website-radius-panel) 0 0;
+  }
+}

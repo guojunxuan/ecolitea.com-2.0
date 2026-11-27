@@ -1,4 +1,6 @@
 'use client'
+import { useLocale } from '@/i18n/LocaleProvider'
+import { localePath } from '@/i18n/paths'
 import {
   Pagination as PaginationComponent,
   PaginationContent,
@@ -9,32 +11,120 @@ import {
   PaginationPrevious,
 } from '@/components/ui/pagination'
 import { cn } from '@/utilities/ui'
+import { buttonVariants } from '@/components/ui/button'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
+import Link from '@/components/LocaleLink'
 import { useRouter } from 'next/navigation'
 import React from 'react'
+
+import styles from './index.module.css'
 
 export const Pagination: React.FC<{
   className?: string
   page: number
   totalPages: number
+  routeBase?: string
+  firstPageHref?: string
+  linkMode?: boolean
 }> = (props) => {
   const router = useRouter()
+  const locale = useLocale()
 
-  const { className, page, totalPages } = props
+  const {
+    className,
+    page,
+    totalPages,
+    routeBase = '/blogs',
+    firstPageHref,
+    linkMode = false,
+  } = props
+  const pageHref = (pageNumber: number) =>
+    pageNumber === 1 && firstPageHref
+      ? firstPageHref
+      : `${routeBase.replace(/\/$/, '')}/page/${pageNumber}`
   const hasNextPage = page < totalPages
   const hasPrevPage = page > 1
 
   const hasExtraPrevPages = page - 1 > 1
   const hasExtraNextPages = page + 1 < totalPages
+  const linkedPage = (
+    pageNumber: number,
+    label: React.ReactNode,
+    ariaLabel?: string,
+    active = false,
+  ) => (
+    <Link
+      href={pageHref(pageNumber)}
+      aria-label={ariaLabel}
+      aria-current={active ? 'page' : undefined}
+      className={buttonVariants({
+        size: ariaLabel ? 'default' : 'icon',
+        variant: active ? 'outline' : 'ghost',
+      })}
+    >
+      {label}
+    </Link>
+  )
+
+  if (linkMode) {
+    // Always expose the first and last pages so crawlers and readers can jump to either end.
+    const pages = [...new Set([1, page - 1, page, page + 1, totalPages])]
+      .filter((pageNumber) => pageNumber >= 1 && pageNumber <= totalPages)
+      .sort((a, b) => a - b)
+
+    return (
+      <div className={cn(styles.pagination, className)}>
+        <PaginationComponent>
+          <PaginationContent>
+            {hasPrevPage && (
+              <PaginationItem>
+                {linkedPage(
+                  page - 1,
+                  <>
+                    <ChevronLeft strokeWidth={1.5} size={16} /> Previous
+                  </>,
+                  'Go to previous page',
+                )}
+              </PaginationItem>
+            )}
+            {pages.map((pageNumber, index) => (
+              <React.Fragment key={pageNumber}>
+                {index > 0 && pageNumber - pages[index - 1]! > 1 && (
+                  <PaginationItem>
+                    <PaginationEllipsis />
+                  </PaginationItem>
+                )}
+                <PaginationItem>
+                  {linkedPage(pageNumber, pageNumber, undefined, pageNumber === page)}
+                </PaginationItem>
+              </React.Fragment>
+            ))}
+            {hasNextPage && (
+              <PaginationItem>
+                {linkedPage(
+                  page + 1,
+                  <>
+                    Next <ChevronRight strokeWidth={1.5} size={16} />
+                  </>,
+                  'Go to next page',
+                )}
+              </PaginationItem>
+            )}
+          </PaginationContent>
+        </PaginationComponent>
+      </div>
+    )
+  }
 
   return (
-    <div className={cn('my-12', className)}>
+    <div className={cn(styles.pagination, className)}>
       <PaginationComponent>
         <PaginationContent>
           <PaginationItem>
             <PaginationPrevious
               disabled={!hasPrevPage}
               onClick={() => {
-                router.push(`/posts/page/${page - 1}`)
+                router.push(localePath(pageHref(page - 1), locale))
               }}
             />
           </PaginationItem>
@@ -49,7 +139,7 @@ export const Pagination: React.FC<{
             <PaginationItem>
               <PaginationLink
                 onClick={() => {
-                  router.push(`/posts/page/${page - 1}`)
+                  router.push(localePath(pageHref(page - 1), locale))
                 }}
               >
                 {page - 1}
@@ -61,7 +151,7 @@ export const Pagination: React.FC<{
             <PaginationLink
               isActive
               onClick={() => {
-                router.push(`/posts/page/${page}`)
+                router.push(localePath(pageHref(page), locale))
               }}
             >
               {page}
@@ -72,7 +162,7 @@ export const Pagination: React.FC<{
             <PaginationItem>
               <PaginationLink
                 onClick={() => {
-                  router.push(`/posts/page/${page + 1}`)
+                  router.push(localePath(pageHref(page + 1), locale))
                 }}
               >
                 {page + 1}
@@ -90,7 +180,7 @@ export const Pagination: React.FC<{
             <PaginationNext
               disabled={!hasNextPage}
               onClick={() => {
-                router.push(`/posts/page/${page + 1}`)
+                router.push(localePath(pageHref(page + 1), locale))
               }}
             />
           </PaginationItem>

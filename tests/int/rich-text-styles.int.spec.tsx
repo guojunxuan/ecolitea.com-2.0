@@ -1,0 +1,327 @@
+import { cleanup, render, screen } from '@testing-library/react'
+import fs from 'node:fs'
+import path from 'node:path'
+import { auditCss } from '../helpers/cssAudit'
+import React from 'react'
+import { afterEach, describe, expect, it, vi } from 'vitest'
+
+vi.mock('@payloadcms/richtext-lexical/react', () => ({
+  JSXConvertersFunction: {},
+  LinkJSXConverter: () => ({}),
+  RichText: ({
+    className,
+    converters,
+    data,
+  }: {
+    className?: string
+    data?: { root?: { children?: Array<{ type: string }> } }
+    converters: (args: { defaultConverters: Record<string, never> }) => {
+      blocks: Record<string, (args: { node: { fields: Record<string, never> } }) => React.ReactNode>
+      table?: (args: {
+        node: { children: never[] }
+        nodesToJSX: () => React.ReactNode
+      }) => React.ReactNode
+    }
+  }) => {
+    const { blocks, table } = converters({ defaultConverters: {} })
+    const node = { fields: {} }
+    const renderedTable = table?.({
+      node: { children: [] },
+      nodesToJSX: () => (
+        <tr>
+          <th scope="col">Title</th>
+        </tr>
+      ),
+    })
+
+    if (data?.root?.children?.some((child) => child.type === 'table')) {
+      return (
+        <div className={className} data-testid="rich-text">
+          {renderedTable}
+        </div>
+      )
+    }
+
+    return (
+      <div className={className} data-testid="rich-text">
+        {blocks.blogBanner?.({ node })}
+        {blocks.blogMediaBlock?.({ node })}
+        {blocks.blogCta?.({ node })}
+        {renderedTable}
+      </div>
+    )
+  },
+}))
+
+vi.mock('@/collections/Blogs/blocks/Banner/Component', () => ({
+  BannerBlock: () => (
+    <div data-testid="embedded-banner">
+      <div className="payload-richtext payload-richtext--plain" data-testid="banner-rich-text">
+        <p>Banner copy stays plain.</p>
+      </div>
+    </div>
+  ),
+}))
+
+vi.mock('@/collections/Blogs/blocks/MediaBlock/Component', () => ({
+  MediaBlock: () => (
+    <div data-testid="embedded-media">
+      <div
+        className="payload-richtext payload-richtext--content"
+        data-testid="media-caption-rich-text"
+      >
+        <h2>Caption heading</h2>
+        <p>
+          Caption with <a href="https://example.com/caption">a link</a>.
+        </p>
+      </div>
+    </div>
+  ),
+}))
+
+vi.mock('@/collections/Blogs/blocks/CallToAction/Component', () => ({
+  CallToActionBlock: () => (
+    <div data-testid="embedded-cta">
+      <div className="payload-richtext payload-richtext--content" data-testid="cta-rich-text">
+        <h2>CTA heading</h2>
+        <p>
+          CTA body with <strong>emphasis</strong>.
+        </p>
+        <ul>
+          <li>CTA list item</li>
+        </ul>
+      </div>
+    </div>
+  ),
+}))
+
+vi.mock('@/heros/HeaderThemeSync', () => ({
+  HeaderThemeSync: () => null,
+}))
+
+import RichText from '@/components/RichText'
+import { blogRichTextBlocks } from '@/collections/Blogs/blocks/richTextBlocks'
+import styles from '@/components/RichText/index.module.css'
+import { HighImpactHero } from '@/heros/HighImpact'
+
+afterEach(cleanup)
+
+const data = { root: { children: [], type: 'root', version: 1 } } as never
+const source = fs.readFileSync(
+  path.join(process.cwd(), 'src/components/RichText/index.tsx'),
+  'utf8',
+)
+const richTextStyles = fs.readFileSync(
+  path.join(process.cwd(), 'src/components/RichText/index.module.css'),
+  'utf8',
+)
+const contentStyles = fs.readFileSync(path.join(process.cwd(), 'src/styles/content.css'), 'utf8')
+
+describe('RichText style modes', () => {
+  it('provides scoped heading rhythm, readable links, and long-content safeguards', () => {
+    for (const selector of ['h1', 'h2', 'h3', 'h4', 'h5, h6'])
+      expect(contentStyles, selector).toContain(`&:where(${selector})`)
+    for (const declaration of [
+      'font-size: 17px;',
+      'line-height: 1.6;',
+      'overflow-wrap: anywhere;',
+      'text-decoration-thickness: 1px;',
+      'text-underline-offset: 0.2em;',
+      'max-inline-size: 100%;',
+      'margin-block-start: 0;',
+      'margin-block-end: 0;',
+      'list-style-type: decimal;',
+      'list-style-type: disc;',
+    ])
+      expect(contentStyles, declaration).toContain(declaration)
+    expect(contentStyles).toContain('to (.payload-richtext__embedded)')
+    expect(contentStyles).toContain('overflow-x: auto;')
+  })
+
+  it('makes converted tables a named keyboard reachable scroll region', () => {
+    render(<RichText data={data} blocks={blogRichTextBlocks} />)
+    const region = screen.getByRole('region', { name: 'Scrollable table' })
+    expect(region.getAttribute('tabindex')).toBe('0')
+    expect(region.querySelector('table')).not.toBeNull()
+    expect(region.querySelector('th[scope="col"]')).not.toBeNull()
+    expect(richTextStyles).toContain('overflow-x: auto;')
+  })
+
+  it('trims table-only content at both outer edges while keeping adjacent-table rhythm', () => {
+    const tableOnly = { root: { children: [{ type: 'table' }], type: 'root', version: 1 } } as never
+    render(<RichText data={tableOnly} />)
+    const root = screen.getByTestId('rich-text')
+    const wrapper = screen.getByRole('region', { name: 'Scrollable table' })
+    expect(root.firstElementChild).toBe(wrapper)
+    expect(root.lastElementChild).toBe(wrapper)
+    expect(wrapper.classList).toContain('payload-richtext__table-scroll')
+
+    const declarations = auditCss(contentStyles).declarations
+    const forSelector = (selector: string) =>
+      declarations
+        .filter((entry) => entry.header === selector)
+        .map(({ prop, value }) => `${prop}: ${value}`)
+
+    expect(forSelector('&:where(table)')).not.toContain('margin-block-start: 2em')
+    expect(forSelector('&:where(table)')).not.toContain('margin-block-end: 2em')
+    expect(forSelector('&:where(.payload-richtext__table-scroll)')).toEqual(
+      expect.arrayContaining(['margin-block-start: 2em', 'margin-block-end: 2em']),
+    )
+    expect(forSelector(':scope > :where(:first-child)')).toContain('margin-block-start: 0')
+    expect(forSelector(':scope > :where(:last-child)')).toContain('margin-block-end: 0')
+  })
+
+  it.each([
+    { enableGutter: true, enableProse: true },
+    { enableGutter: true, enableProse: false },
+    { enableGutter: false, enableProse: true },
+    { enableGutter: false, enableProse: false },
+  ])(
+    'keeps explicit content and gutter semantics for $enableGutter/$enableProse',
+    ({ enableGutter, enableProse }) => {
+      render(
+        <RichText
+          className="consumer-class"
+          data={data}
+          enableGutter={enableGutter}
+          enableProse={enableProse}
+        />,
+      )
+
+      const root = screen.getByTestId('rich-text')
+
+      expect(root.classList).toContain('payload-richtext')
+      expect(root.classList).toContain(styles.root)
+      expect(root.classList).toContain('consumer-class')
+      expect(root.classList.contains(styles.withGutter)).toBe(enableGutter)
+      expect(root.classList.contains(styles.content)).toBe(enableProse)
+      expect(root.classList.contains('payload-richtext--content')).toBe(enableProse)
+      expect(root.classList.contains('payload-richtext--plain')).toBe(!enableProse)
+      expect(root.classList.contains(styles.plain)).toBe(!enableProse)
+      expect(root.classList.contains('container')).toBe(false)
+      expect(root.classList.contains('prose')).toBe(false)
+    },
+  )
+
+  it('keeps every embedded converter behind a stable boundary and CSS Module layout class', () => {
+    render(<RichText data={data} blocks={blogRichTextBlocks} />)
+
+    for (const id of ['embedded-banner', 'embedded-media', 'embedded-cta']) {
+      const boundary = screen.getByTestId(id).parentElement
+      expect(boundary?.classList).toContain('payload-richtext__embedded')
+      expect(boundary?.classList).toContain(styles.articleBlock)
+    }
+  })
+
+  it('lets nested content-enabled RichText establish a new content scope inside Block boundaries', () => {
+    render(<RichText data={data} blocks={blogRichTextBlocks} />)
+
+    const mediaCaption = screen.getByTestId('media-caption-rich-text')
+    const cta = screen.getByTestId('cta-rich-text')
+    const banner = screen.getByTestId('banner-rich-text')
+
+    expect(mediaCaption.closest('.payload-richtext__embedded')).not.toBeNull()
+    expect(mediaCaption.classList).toContain('payload-richtext--content')
+    expect(mediaCaption.querySelector('h2')?.textContent).toBe('Caption heading')
+    expect(mediaCaption.querySelector('a')?.getAttribute('href')).toBe(
+      'https://example.com/caption',
+    )
+    expect(cta.closest('.payload-richtext__embedded')).not.toBeNull()
+    expect(cta.classList).toContain('payload-richtext--content')
+    expect(cta.querySelector('strong')?.textContent).toBe('emphasis')
+    expect(cta.querySelector('li')?.textContent).toBe('CTA list item')
+    expect(banner.classList).toContain('payload-richtext--plain')
+    expect(banner.classList).not.toContain('payload-richtext--content')
+    expect(contentStyles).toMatch(
+      /@scope\s*\([^)]*\.payload-richtext--content[^)]*\)\s*to\s*\(\.payload-richtext__embedded\)/,
+    )
+  })
+
+  it('inherits semantic content colors without requiring a local inverse class', () => {
+    render(
+      <section data-website-theme="inverse">
+        <RichText data={data} blocks={blogRichTextBlocks} />
+      </section>,
+    )
+
+    const outer = screen.getByTestId('rich-text')
+    const nestedCaption = screen.getByTestId('media-caption-rich-text')
+    const nestedCTA = screen.getByTestId('cta-rich-text')
+
+    expect(outer.closest('[data-website-theme="inverse"]')).not.toBeNull()
+    expect(outer.classList).not.toContain('payload-richtext--inverse')
+    expect(nestedCaption.classList).not.toContain('payload-richtext--inverse')
+    expect(nestedCTA.classList).not.toContain('payload-richtext--inverse')
+    expect(contentStyles).not.toContain('--payload-richtext-')
+    expect(contentStyles).toMatch(/:scope\s*{[^}]*color:\s*inherit;/s)
+    expect(contentStyles).not.toMatch(/--website-richtext-(?:body|headings):\s*inherit;/)
+    expect(contentStyles).not.toContain(':scope:where(.payload-richtext--inverse)')
+    expect(contentStyles).not.toMatch(/(?:oklch\(|#fff\b|rgb\(255 255 255)/)
+    expect(contentStyles).toContain(
+      '--website-richtext-lead: var(--website-color-muted-foreground);',
+    )
+    expect(contentStyles).toContain('--website-richtext-bold: var(--website-color-foreground);')
+  })
+
+  it('keeps root-level prose spacing attached to the content scope', () => {
+    const stylesheet = auditCss(contentStyles)
+    const rootLevelRules: string[] = []
+
+    for (const rule of stylesheet.blocks) {
+      if (rule.header.includes(':scope >')) {
+        rootLevelRules.push(rule.header)
+        expect(rule.ancestors.at(-1)).toMatch(/^@scope\b/)
+      }
+    }
+
+    expect(rootLevelRules).toHaveLength(9)
+  })
+
+  it('preserves distinct gutter widths for content and plain modes', () => {
+    expect(richTextStyles).toMatch(/\.root\s*{[^}]*max-width:\s*none;/s)
+    expect(richTextStyles).toMatch(/\.withGutter\.content\s*{[^}]*max-width:\s*65ch;/s)
+    for (const width of [40, 48, 64, 80]) {
+      expect(richTextStyles, `${width}rem container maximum`).toMatch(
+        new RegExp(
+          `@media \\(width >= ${width}rem\\)[^{}]*\\{[^{}]*\\.withGutter\\.plain\\s*\\{[^}]*max-width:\\s*${width}rem;`,
+          's',
+        ),
+      )
+    }
+    expect(richTextStyles).not.toMatch(
+      /\.withGutter\s*{[^}]*max-width:\s*var\(--website-container-site\)/s,
+    )
+  })
+
+  it('uses the migrated inverse content contract for the real HighImpact consumer', () => {
+    render(<HighImpactHero headerTheme="dark" richText={data} type="highImpact" />)
+
+    expect(screen.getByTestId('rich-text').closest('[data-website-theme="inverse"]')).not.toBeNull()
+    expect(screen.getByTestId('rich-text').classList).not.toContain('payload-richtext--inverse')
+    expect(contentStyles).toContain('--website-richtext-links: var(--website-color-foreground);')
+    expect(contentStyles).toContain('--website-richtext-pre-bg: var(--website-color-code-surface);')
+    expect(contentStyles).toContain(
+      '--website-richtext-pre-code: var(--website-color-code-foreground);',
+    )
+    expect(contentStyles).toContain(
+      '--website-richtext-pre-border: var(--website-color-code-border);',
+    )
+  })
+
+  it('wires every RichText layout boundary through semantic CSS Module exports', () => {
+    for (const slot of [
+      'root',
+      'content',
+      'plain',
+      'withGutter',
+      'articleBlock',
+      'tableScroll',
+    ]) {
+      expect(source, slot).toContain(`styles.${slot}`)
+    }
+
+    expect(source.replace(/\/\/[^\n]*|\/\*[\s\S]*?\*\//g, '')).not.toMatch(
+      /(?:prose|md:prose-md|max-w-none|mx-auto|col-start-|col-span-|mb-4|max-w-\[48rem\])/,
+    )
+  })
+})

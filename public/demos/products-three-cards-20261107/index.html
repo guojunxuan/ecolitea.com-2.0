@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="robots" content="noindex,nofollow" />
+    <title>产品总览、分类与详情页 · 统一卡片 UI 稿</title>
+    <link rel="stylesheet" href="/demos/products-b2b-concepts-20261104/tokens.css" />
+    <style>
+      @font-face {
+        font-family: Geist;
+        src: url('/demos/products-b2b-concepts-20261104/Geist-Regular.woff2') format('woff2');
+        font-display: swap;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font:
+          13px/1.4 Geist,
+          sans-serif;
+        color: var(--website-color-foreground);
+        background: var(--website-color-background);
+      }
+      iframe {
+        display: block;
+        width: 100%;
+        height: 100dvh;
+        border: 0;
+      }
+      .tools {
+        position: fixed;
+        right: 16px;
+        bottom: 16px;
+        z-index: 100;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        align-items: center;
+        max-width: calc(100vw - 32px);
+        padding: 8px;
+        border: 1px solid var(--website-color-border);
+        border-radius: var(--website-radius-content);
+        background: var(--website-color-surface);
+        box-shadow: var(--website-shadow-subtle);
+      }
+      .tools p {
+        margin: 0 8px;
+      }
+      .tools p span {
+        display: block;
+        margin-top: 2px;
+        color: var(--website-color-muted-foreground);
+        font-size: 11px;
+      }
+      button {
+        min-height: 44px;
+        padding: 8px 12px;
+        border: 1px solid var(--website-color-border);
+        border-radius: var(--website-radius-control);
+        font: inherit;
+        color: var(--website-color-foreground);
+        background: var(--website-color-surface);
+        cursor: pointer;
+      }
+      button[aria-pressed='true'] {
+        border-color: var(--website-color-action);
+        background: var(--website-color-action);
+        color: var(--website-color-action-foreground);
+      }
+      button:disabled {
+        opacity: 0.5;
+        cursor: default;
+      }
+      button:focus-visible {
+        outline: 2px solid var(--website-color-focus);
+        outline-offset: 3px;
+      }
+      .tools.compact > :not(#collapse) {
+        display: none;
+      }
+      @media (width < 48rem) {
+        .tools {
+          right: 8px;
+          bottom: 8px;
+          left: 8px;
+          max-width: none;
+        }
+        .tools p {
+          flex-basis: 100%;
+          margin: 0;
+        }
+        .tools.compact {
+          left: auto;
+        }
+      }
+    </style>
+    <script src="preview.js?revision=svg-chevron" defer></script>
+  </head>
+  <body>
+    <iframe id="page" title="产品总览、分类与详情页的统一产品卡片 UI 稿"></iframe>
+    <aside class="tools" aria-label="三卡 UI 稿预览工具">
+      <p>统一产品卡片<span id="status" role="status">正在读取当前页面…</span></p>
+      <button id="overview" type="button" aria-pressed="true" disabled>产品总览</button>
+      <button id="category" type="button" aria-pressed="false" disabled>产品分类页</button>
+      <button id="detail" type="button" aria-pressed="false" disabled>产品详情页</button>
+      <button id="design" type="button" aria-pressed="true" disabled>三卡方案</button>
+      <button id="original" type="button" aria-pressed="false" disabled>当前正式版</button>
+      <button id="restore" type="button" hidden>返回产品总览</button>
+      <button id="collapse" type="button" aria-expanded="true">收起</button>
+    </aside>
+  </body>
+</html>

@@ -1,0 +1,8 @@
+.label {
+  composes: website-type-caption from global;
+  color: var(--website-color-foreground);
+}
+
+:global(.peer):disabled ~ .label {
+  cursor: not-allowed;
+}

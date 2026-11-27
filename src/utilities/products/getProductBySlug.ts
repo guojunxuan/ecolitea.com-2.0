@@ -1,0 +1,84 @@
+import { getLocalizedDoc, translationTags } from '../i18n/getLocalized'
+import type { PopulateType } from 'payload'
+import { headers } from 'next/headers'
+import type { Product } from '@/payload-types'
+import type { ProductDetail } from './models'
+import { cached, client, toProductDetail, visible } from './shared'
+
+export const productDetailPopulate: PopulateType = {
+  media: {
+    alt: true,
+    url: true,
+    thumbnailURL: true,
+    filename: true,
+    mimeType: true,
+    filesize: true,
+    width: true,
+    height: true,
+    focalX: true,
+    focalY: true,
+    createdAt: true,
+    updatedAt: true,
+  },
+  documents: { title: true, url: true, filename: true, mimeType: true, filesize: true },
+  'product-categories': { title: true, slug: true, description: true, image: true, meta: true },
+  products: { slug: true, categorySlug: true },
+  pages: { slug: true },
+  blogs: { slug: true },
+}
+
+const normalizeDetail = (product: Product | null): ProductDetail | null =>
+  product ? toProductDetail(product) : null
+
+export async function getProductBySlug(
+  slug: string,
+  { draft = false, locale = 'en' }: { draft?: boolean; locale?: string } = {},
+): Promise<ProductDetail | null> {
+  if (draft) {
+    const payload = await client()
+    const { user } = await payload.auth({ headers: await headers() })
+    if (!user) return null
+    const result = await payload.find({
+      collection: 'products',
+      depth: 2,
+      populate: productDetailPopulate,
+      draft: true,
+      overrideAccess: false,
+      user,
+      limit: 1,
+      where: { slug: { equals: slug } },
+    })
+    return normalizeDetail(result.docs[0] ?? null)
+  }
+  // Resolve the current slug before caching by stable ID, as in Blogs.
+  const lookupPayload = await client()
+  const lookup = await lookupPayload.find({
+    collection: 'products',
+    depth: 0,
+    draft: false,
+    overrideAccess: false,
+    limit: 1,
+    select: {},
+    where: visible([{ slug: { equals: slug } }]),
+  })
+  const id = lookup.docs[0]?.id
+  if (!id) return null
+  const product = await cached(
+    ['product-detail-v2', id, locale],
+    [`product-${id}`, 'products-list', 'product-categories', ...translationTags('products', id, locale)],
+    async () => {
+      const payload = await client()
+      const result = await payload.find({
+        collection: 'products',
+        depth: 2,
+        populate: productDetailPopulate,
+        draft: false,
+        overrideAccess: false,
+        limit: 1,
+        where: visible([{ id: { equals: id } }]),
+      })
+      return getLocalizedDoc(result.docs[0], 'products', locale, payload)
+    },
+  )
+  return normalizeDetail(product)
+}

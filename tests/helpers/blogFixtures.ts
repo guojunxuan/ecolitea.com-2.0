@@ -1,0 +1,255 @@
+import type { Payload } from 'payload'
+import { assertRunScopedE2EDatabaseURI } from './e2eDatabase'
+
+export const blogFixture = (runID: string) => ({
+  prefix: `e2e-blogs-${runID}`,
+  slug: `e2e-blogs-${runID}-article`,
+  email: `blogs-${runID}@example.invalid`,
+  password: 'e2e-blog-preview-only',
+  longHeading: `Unbroken${'Tea'.repeat(50)}`,
+})
+export function task6ArchiveFixture(runID: string) {
+  const prefix = `e2e-task6-matrix-archive-${runID}`
+  return {
+    categorySlug: prefix,
+    categoryTitle: 'E2E Task6 Archive',
+    mediaAlt: `${prefix} cover`,
+    blogs: Array.from({ length: 13 }, (_, index) => {
+      const suffix = String(index + 1).padStart(2, '0')
+      return {
+        slug: `${prefix}-blog-${suffix}`,
+        title: `E2E Task6 Archive Card ${suffix}`,
+        // Shared blog fixtures use 2025 dates and retain their listing order.
+        publishedAt: new Date(Date.UTC(2024, 6, index + 1)).toISOString(),
+      }
+    }),
+  }
+}
+export const fixtureContext = { context: { disableRevalidate: true } }
+export const richText = (value: string, heading?: string) =>
+  ({
+    root: {
+      type: 'root',
+      version: 1,
+      direction: 'ltr' as const,
+      format: '' as const,
+      indent: 0,
+      children: [
+        ...(heading
+          ? [
+              {
+                type: 'heading',
+                tag: 'h2',
+                version: 1,
+                direction: 'ltr',
+                format: '',
+                indent: 0,
+                children: [
+                  {
+                    type: 'text',
+                    version: 1,
+                    text: heading,
+                    format: 0,
+                    detail: 0,
+                    mode: 'normal',
+                    style: '',
+                  },
+                ],
+              },
+            ]
+          : []),
+        {
+          type: 'paragraph',
+          version: 1,
+          direction: 'ltr',
+          format: '',
+          indent: 0,
+          textFormat: 0,
+          textStyle: '',
+          children: [
+            {
+              type: 'text',
+              version: 1,
+              text: value,
+              format: 0,
+              detail: 0,
+              mode: 'normal',
+              style: '',
+            },
+          ],
+        },
+      ],
+    },
+  }) as never
+
+export function reportBlogEnvironment(runID: string) {
+  const uri = process.env.DATABASE_URI!
+  assertRunScopedE2EDatabaseURI(uri, runID)
+  const target = new URL(uri)
+  if (!['127.0.0.1', 'localhost'].includes(target.hostname))
+    throw new Error('Blog fixtures require local MongoDB')
+  console.info(
+    `Blog fixture target: ${target.host}${target.pathname}; DISABLE_R2_STORAGE=${process.env.DISABLE_R2_STORAGE}; local test files only`,
+  )
+}
+
+export async function cleanupTask6Archive(payload: Payload, runID: string) {
+  assertRunScopedE2EDatabaseURI(process.env.DATABASE_URI!, runID)
+  if (process.env.DISABLE_R2_STORAGE !== 'true')
+    throw new Error('Task 6 archive cleanup requires the local upload adapter')
+
+  const { blogs, categorySlug, mediaAlt } = task6ArchiveFixture(runID)
+  await payload.delete({
+    collection: 'blogs',
+    where: { slug: { in: blogs.map(({ slug }) => slug) } },
+    ...fixtureContext,
+    overrideAccess: true,
+  })
+  await payload.delete({
+    collection: 'blog-categories',
+    where: { slug: { equals: categorySlug } },
+    ...fixtureContext,
+    overrideAccess: true,
+  })
+  await payload.delete({
+    collection: 'media',
+    where: { alt: { equals: mediaAlt } },
+    ...fixtureContext,
+    overrideAccess: true,
+  })
+}
+
+export async function cleanupBlogs(payload: Payload, runID: string) {
+  reportBlogEnvironment(runID)
+  const { prefix, email } = blogFixture(runID)
+  const blogs = await payload.find({
+    collection: 'blogs',
+    limit: 100,
+    depth: 0,
+    where: {
+      slug: {
+        in: [
+          `${prefix}-article`,
+          `${prefix}-draft`,
+          `${prefix}-future`,
+          ...Array.from({ length: 13 }, (_, index) => `${prefix}-${index + 1}`),
+        ],
+      },
+    },
+    overrideAccess: true,
+  })
+  const categories = await payload.find({
+    collection: 'blog-categories',
+    limit: 100,
+    where: { slug: { in: ['brewing', 'sourcing', 'culture'].map((slug) => `${prefix}-${slug}`) } },
+    overrideAccess: true,
+  })
+  const users = await payload.find({
+    collection: 'users',
+    where: { email: { equals: email } },
+    overrideAccess: true,
+  })
+  const media = await payload.find({
+    collection: 'media',
+    where: { alt: { equals: `${prefix} photograph` } },
+    overrideAccess: true,
+  })
+  const ids = blogs.docs.map(({ id }) => id)
+  const ownedIDs = [
+    ...ids,
+    ...categories.docs.map(({ id }) => id),
+    ...users.docs.map(({ id }) => id),
+    ...media.docs.map(({ id }) => id),
+  ]
+  for (const collection of ['pages', 'case-studies', 'blogs', 'redirects'] as const) {
+    for (const { draft, versionLabel } of [
+      { draft: false, versionLabel: 'published version' },
+      { draft: true, versionLabel: 'latest draft' },
+    ]) {
+      for (let page = 1; ; page++) {
+        const result = await payload.find({
+          collection,
+          page,
+          limit: 100,
+          depth: 0,
+          draft,
+          overrideAccess: true,
+        })
+        for (const doc of result.docs) {
+          if (
+            !ownedIDs.includes(doc.id) &&
+            ownedIDs.some((id) => JSON.stringify(doc).includes(id))
+          ) {
+            throw new Error(
+              `Fixture referenced by ${collection}/${doc.id} (${versionLabel}); refusing cleanup`,
+            )
+          }
+        }
+        if (!result.hasNextPage) break
+      }
+    }
+  }
+  // Refuse to remove content referenced outside this fixture.
+  const external = await payload.find({
+    collection: 'blogs',
+    depth: 0,
+    limit: 1,
+    where: { and: [{ id: { not_in: ids } }, { relatedBlogs: { in: ids } }] },
+    overrideAccess: true,
+  })
+  if (external.totalDocs)
+    throw new Error(`Fixture referenced by Blogs: ${external.docs.map(({ id }) => id).join(', ')}`)
+  const references = await Promise.all(
+    (['header', 'footer'] as const).map((slug) =>
+      payload.findGlobal({ slug, depth: 0, overrideAccess: true }),
+    ),
+  )
+  for (const reference of references) {
+    if (ownedIDs.some((id) => JSON.stringify(reference).includes(id)))
+      throw new Error('Fixture referenced by navigation')
+  }
+  // Delete dependents before their category/media/user. Only exact IDs discovered under the run prefix.
+  for (const blog of blogs.docs)
+    await payload.delete({
+      collection: 'blogs',
+      id: blog.id,
+      ...fixtureContext,
+      overrideAccess: true,
+    })
+  for (const category of categories.docs) {
+    const refs = await payload.count({
+      collection: 'blogs',
+      where: { category: { equals: category.id } },
+      overrideAccess: true,
+    })
+    if (refs.totalDocs) throw new Error(`Category ${category.id} remains referenced`)
+    await payload.delete({
+      collection: 'blog-categories',
+      id: category.id,
+      ...fixtureContext,
+      overrideAccess: true,
+    })
+  }
+  for (const user of users.docs)
+    await payload.delete({
+      collection: 'users',
+      id: user.id,
+      ...fixtureContext,
+      overrideAccess: true,
+    })
+  // Media cleanup is handled by Payload after all fixture dependents have gone.
+  for (const item of media.docs) {
+    const refs = await payload.count({
+      collection: 'blogs',
+      where: { heroImage: { equals: item.id } },
+      overrideAccess: true,
+    })
+    if (refs.totalDocs) throw new Error(`Media ${item.id} remains referenced`)
+    await payload.delete({
+      collection: 'media',
+      id: item.id,
+      ...fixtureContext,
+      overrideAccess: true,
+    })
+  }
+}

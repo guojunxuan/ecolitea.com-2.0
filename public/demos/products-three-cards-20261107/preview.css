@@ -1,0 +1,173 @@
+/* Design-only overrides of the current site's project-owned preview roots. */
+.three-card-preview [data-three-section-link] {
+  min-height: var(--website-control-target-min);
+  border-radius: var(--website-radius-control);
+}
+body:not(.three-card-preview) [data-three-link-chevron] {
+  display: none;
+}
+.three-card-preview [data-three-link-chevron] {
+  flex-shrink: 0;
+}
+.three-card-preview [data-three-section-link]:hover {
+  text-decoration: underline;
+  text-underline-offset: var(--website-space-1);
+}
+.three-card-preview [data-three-section-eyebrow],
+.three-card-preview [data-three-section-link] > svg:not([data-three-link-chevron]),
+.three-card-preview [data-three-range-caption] > svg {
+  display: none;
+}
+.three-card-preview [data-three-range-card] {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--website-radius-content);
+}
+.three-card-preview [data-three-range-cover] {
+  aspect-ratio: 16 / 9;
+}
+.three-card-preview [data-three-range-caption] {
+  position: absolute;
+  inset: auto 0 0;
+  padding: var(--website-space-12) var(--website-space-6) var(--website-space-6);
+  color: var(--website-color-brand-white);
+  background: linear-gradient(
+    to top,
+    color-mix(in srgb, var(--website-color-brand-black) var(--website-scrim-strong), transparent),
+    transparent
+  );
+  pointer-events: none;
+}
+.three-card-preview [data-three-carousel='ranges'] {
+  --carousel-media-center: calc(var(--carousel-card-width) * 0.28125 + var(--website-space-1));
+}
+body:not(.three-card-preview) [data-three-added-action] {
+  display: none;
+}
+.three-card-preview [data-three-added-action] {
+  display: flex;
+}
+.three-card-preview [data-three-related] {
+  --preview-gutter: max(var(--website-gutter), calc((100vw - var(--website-container-site)) / 2));
+  --preview-content: min(calc(100vw - 2 * var(--website-gutter)), var(--website-container-site));
+  --preview-gap: var(--website-space-3);
+  --preview-card: calc((var(--preview-content) - var(--preview-gap)) / 2);
+  --carousel-card-width: var(--preview-card);
+}
+@media (width < 24rem) {
+  .three-card-preview [data-three-related] {
+    --product-card-content-padding-inline: var(--website-space-3);
+  }
+}
+@media (width < 48rem) {
+  .three-card-preview [data-three-range-caption] {
+    padding: var(--website-space-8) var(--website-space-4) var(--website-space-4);
+  }
+}
+body.three-card-preview [data-three-carousel] > button[data-three-arrow] {
+  background: color-mix(in srgb, var(--website-color-brand-black) 30%, transparent);
+  color: var(--website-color-brand-white);
+  transition:
+    opacity var(--website-duration-fast) var(--website-easing-standard),
+    background-color var(--website-duration-fast) var(--website-easing-standard);
+}
+body.three-card-preview [data-three-carousel] > button[data-three-arrow]:hover {
+  background: color-mix(in srgb, var(--website-color-brand-black) 45%, transparent);
+}
+@media (prefers-reduced-motion: reduce) {
+  body.three-card-preview [data-three-carousel] > button[data-three-arrow] {
+    transition: none;
+  }
+}
+@media (width >= 48rem) {
+  .three-card-preview :is([data-product-preview], [data-three-related]) {
+    --three-preview-peek: var(--website-space-20);
+  }
+  .three-card-preview [data-three-related] {
+    --preview-gap: var(--website-space-6);
+    --preview-card: calc(
+      (var(--preview-content) - var(--website-space-16) - 2 * var(--preview-gap)) / 2
+    );
+  }
+  .three-card-preview [data-product-preview][data-three-count] [role='region'] {
+    /* Keep the aligned start, with scrolling cards visible in both outer gutters. */
+    width: 100%;
+    margin-inline: 0;
+    padding-inline: var(--preview-gutter);
+    scroll-padding-inline: var(--preview-gutter);
+  }
+  .three-card-preview
+    [data-product-preview]:is([data-three-count='1'], [data-three-count='2'])
+    [role='region'] {
+    width: var(--preview-content);
+    margin-inline: var(--preview-gutter) 0;
+    padding-inline: 0;
+    scroll-padding-inline: 0;
+  }
+  .three-card-preview [data-three-cover] {
+    aspect-ratio: 5 / 4;
+  }
+  .three-card-preview [data-product-preview] [data-three-more-icon] {
+    top: calc(var(--preview-card) * 0.4);
+  }
+  .three-card-preview [data-three-carousel] {
+    --three-arrow-radius: calc(var(--website-control-default) / 2);
+    --three-arrow-offset: calc(var(--three-arrow-radius) + var(--website-space-2));
+  }
+  .three-card-preview [data-three-carousel='products'] {
+    --three-content-start: var(--preview-gutter);
+    --three-content-end: calc(
+      var(--preview-gutter) + 3 * var(--preview-card) + 2 * var(--preview-gap)
+    );
+  }
+  .three-card-preview [data-three-carousel='ranges'] {
+    --three-content-start: var(--carousel-gutter);
+    --three-content-end: calc(100% - var(--carousel-gutter));
+  }
+  body.three-card-preview [data-three-carousel] > button[data-three-arrow] {
+    /* Exclude the track's top/bottom padding from the card-row midpoint. */
+    top: calc((100% + var(--website-space-1) - var(--website-space-6)) / 2);
+    right: auto;
+    transform: translate(-50%, -50%);
+  }
+  body.three-card-preview [data-three-carousel] > button[data-three-arrow='previous'] {
+    left: max(
+      var(--three-arrow-offset),
+      calc(var(--three-content-start) - var(--three-arrow-offset))
+    );
+  }
+  body.three-card-preview [data-three-carousel] > button[data-three-arrow='next'] {
+    left: min(
+      calc(100% - var(--three-arrow-offset)),
+      calc(var(--three-content-end) + var(--three-arrow-offset))
+    );
+  }
+}
+.three-card-category-preview [data-three-category-grid] {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--website-space-6);
+}
+@media (width < 64rem) {
+  .three-card-category-preview [data-three-category-grid] {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (width < 48rem) {
+  .three-card-category-preview [data-three-category-grid] {
+    gap: var(--website-space-3);
+  }
+}
+@media (width < 24rem) {
+  .three-card-category-preview [data-three-category-grid] {
+    --product-card-content-padding-inline: var(--website-space-3);
+  }
+}
+@media (width >= 64rem) {
+  .three-card-preview :is([data-product-preview], [data-three-related]) {
+    --preview-card: min(
+      calc((var(--preview-content) - 2 * var(--preview-gap)) / 3),
+      calc((100vw - var(--preview-gutter) - var(--three-preview-peek) - 3 * var(--preview-gap)) / 3)
+    );
+  }
+}

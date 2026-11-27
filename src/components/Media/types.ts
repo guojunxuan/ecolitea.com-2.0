@@ -3,6 +3,35 @@ import type { ElementType, Ref } from 'react'
 
 import type { Media as MediaType } from '@/payload-types'
 
+export type AspectRatio = {
+  width: number
+  height: number
+}
+
+export type FocalPoint = { x: number; y: number }
+
+export type MediaFit = 'cover' | 'contain' | 'scale-down'
+
+export type ImagePresentation = {
+  aspectRatio?: AspectRatio
+  /** Crop override for mobileResource below 48rem. */
+  mobileAspectRatio?: AspectRatio
+  fit?: MediaFit
+  quality?: number
+}
+
+export type VideoPresentation = {
+  playback?: 'ambient' | 'player'
+  width?: number
+  height?: number
+  fit?: MediaFit
+}
+
+export type MediaPresentation = {
+  image?: ImagePresentation
+  video?: VideoPresentation
+}
+
 export interface Props {
   alt?: string
   className?: string
@@ -12,11 +41,17 @@ export interface Props {
   imgClassName?: string
   onClick?: () => void
   onLoad?: () => void
+  /** Controls ambient video playback; omitted preserves the normal Media behavior. */
+  paused?: boolean
   loading?: 'lazy' | 'eager' // for NextImage only
   priority?: boolean // for NextImage only
+  presentation?: MediaPresentation
   ref?: Ref<HTMLImageElement | HTMLVideoElement | null>
+  mobileResource?: MediaType | null // Optional image art direction below 48rem
   resource?: MediaType | string | number | null // for Payload media
   size?: string // for NextImage only
   src?: StaticImageData // for static media
   videoClassName?: string
+  /** Native source selection before the client knows its responsive breakpoint. */
+  videoSourceMedia?: string
 }

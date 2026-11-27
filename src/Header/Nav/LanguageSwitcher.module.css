@@ -1,0 +1,238 @@
+.trigger,
+.region,
+.groups,
+.body,
+.short,
+.heading {
+  --header-type-body-sm-size: 15px;
+  --header-type-body-sm-leading: 1.33;
+  --header-type-body-sm-weight: 400;
+  --header-type-body-sm-tracking: 0;
+  --header-type-caption-size: 14px;
+  --header-type-caption-leading: 1.43;
+  --header-type-caption-weight: 400;
+  --header-type-caption-tracking: 0;
+  --header-type-title-size: 20px;
+  --header-type-title-leading: 1.4;
+  --header-type-title-weight: 600;
+  --header-type-title-tracking: -0.125px;
+  --header-type-eyebrow-size: 12px;
+  --header-type-eyebrow-leading: 1.33;
+  --header-type-eyebrow-weight: 600;
+  --header-type-eyebrow-tracking: 0.125px;
+}
+
+.trigger,
+.region,
+.body > [role='alert'] {
+  font-size: var(--header-type-body-sm-size);
+  line-height: var(--header-type-body-sm-leading);
+  font-weight: var(--header-type-body-sm-weight);
+  letter-spacing: var(--header-type-body-sm-tracking);
+}
+
+.short {
+  font-size: var(--header-type-caption-size);
+  line-height: var(--header-type-caption-leading);
+  font-weight: var(--header-type-caption-weight);
+  letter-spacing: var(--header-type-caption-tracking);
+}
+
+.heading h2 {
+  font-size: var(--header-type-title-size);
+  line-height: var(--header-type-title-leading);
+  font-weight: var(--header-type-title-weight);
+  letter-spacing: var(--header-type-title-tracking);
+  text-wrap: wrap;
+}
+
+.groups h3 {
+  font-size: var(--header-type-eyebrow-size);
+  line-height: var(--header-type-eyebrow-leading);
+  font-weight: var(--header-type-eyebrow-weight);
+  letter-spacing: var(--header-type-eyebrow-tracking);
+  text-transform: none;
+}
+
+.root {
+  position: relative;
+}
+.trigger {
+  composes: website-type-body-sm from global;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--website-space-1);
+  min-height: var(--website-control-target-min);
+  padding: 0;
+  color: inherit;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  white-space: nowrap;
+}
+/* The globe's circle fills more of its box than the search glyph; these sizes match
+   its outline to the search circle (desktop search 19px). */
+.trigger svg {
+  width: 17px;
+  height: 17px;
+}
+/* Compact, restrained panel: content-sized, plain list rows, no cards. */
+.panel {
+  margin: auto;
+  width: min(36rem, calc(100% - var(--website-space-12)));
+  max-height: min(36rem, calc(100dvh - var(--website-space-12)));
+  padding: 0;
+  border: 1px solid var(--website-color-border);
+  border-radius: var(--website-radius-panel);
+  background: var(--website-color-surface);
+  color: var(--website-color-foreground);
+  box-shadow: var(--website-shadow-overlay);
+  overflow: hidden;
+  animation: language-panel-in var(--website-duration-standard) ease both;
+}
+.panel::backdrop {
+  animation: language-backdrop-in var(--website-duration-standard) ease both;
+  background: color-mix(
+    in srgb,
+    var(--website-color-brand-black) var(--website-scrim-standard),
+    transparent
+  );
+}
+.surface {
+  display: flex;
+  flex-direction: column;
+  max-height: inherit;
+}
+.heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--website-space-4);
+  flex-shrink: 0;
+  padding: var(--website-space-3) var(--website-space-3) var(--website-space-3) var(--website-space-6);
+}
+.heading h2 {
+  margin: 0;
+}
+.body {
+  padding: 0 var(--website-space-6) var(--website-space-6);
+  min-height: 0;
+  overflow-y: auto;
+}
+.groups {
+  display: grid;
+  gap: var(--website-space-8);
+}
+.groups h3 {
+  margin: 0 0 var(--website-space-3);
+  color: var(--website-color-muted-foreground);
+}
+.entries {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: var(--website-space-6);
+}
+.region {
+  composes: website-type-body-sm from global;
+  width: 100%;
+  min-height: var(--website-control-target-min);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--website-space-4);
+  padding: var(--website-space-2) 0;
+  text-align: left;
+  color: var(--website-color-muted-foreground);
+  border: 0;
+  border-bottom: 1px solid var(--website-color-border);
+  background: transparent;
+  cursor: pointer;
+}
+.region[aria-pressed='true'] {
+  color: var(--website-color-foreground);
+}
+@media (hover: hover) and (pointer: fine) {
+  .region:hover {
+    color: var(--website-color-foreground);
+  }
+}
+.region:focus-visible {
+  outline: 2px solid var(--website-color-focus);
+  outline-offset: 2px;
+}
+.selection {
+  display: flex;
+  align-items: center;
+  gap: var(--website-space-2);
+  flex-shrink: 0;
+}
+.short {
+  composes: website-type-caption from global;
+  color: var(--website-color-muted-foreground);
+}
+.region:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+@media (width < 48rem) {
+  /* Bottom sheet sized to its content instead of a full-screen takeover. */
+  .panel {
+    margin: auto 0 0;
+    width: 100%;
+    max-width: none;
+    max-height: 80dvh;
+    border: 0;
+    border-radius: var(--website-radius-panel) var(--website-radius-panel) 0 0;
+  }
+  .heading {
+    padding-left: var(--website-gutter);
+  }
+  .body {
+    padding: 0 var(--website-gutter) calc(var(--website-space-6) + env(safe-area-inset-bottom));
+  }
+  .entries {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* Open effect: the scrim fades in and the panel rises slightly; mobile slides up as a bottom sheet. */
+@keyframes language-panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(var(--website-space-3)) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes language-panel-sheet-in {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: none;
+  }
+}
+@keyframes language-backdrop-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@media (width < 48rem) {
+  .panel {
+    animation-name: language-panel-sheet-in;
+    animation-duration: var(--website-duration-slow);
+    animation-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .panel,
+  .panel::backdrop {
+    animation: none;
+  }
+}

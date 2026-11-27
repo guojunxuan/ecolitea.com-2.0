@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="robots" content="noindex,nofollow" />
+    <title>Products · B2B AB 融合草稿</title>
+    <link rel="stylesheet" href="tokens.css" />
+    <link rel="stylesheet" href="layout.css" />
+    <link rel="stylesheet" href="concepts.css" />
+    <style>
+      body {
+        background: var(--website-color-muted-surface);
+      }
+      .review-header {
+        padding: 24px 32px;
+        background: var(--website-color-surface);
+        border-bottom: 1px solid var(--website-color-border);
+      }
+      .review-top,
+      .review-controls {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 24px;
+      }
+      .review-top {
+        margin-bottom: 20px;
+      }
+      .review-top h1 {
+        font-size: 22px;
+        letter-spacing: -0.4px;
+      }
+      .review-top p {
+        font-size: 13px;
+        color: var(--website-color-muted-foreground);
+        margin-top: 6px;
+      }
+      .review-controls nav,
+      .devices {
+        display: flex;
+        gap: 8px;
+      }
+      .review-controls nav {
+        flex-wrap: wrap;
+      }
+      button {
+        font: inherit;
+        cursor: pointer;
+        min-height: 44px;
+        padding: 10px 16px;
+        background: var(--website-color-surface);
+        color: var(--website-color-foreground);
+        border: 1px solid var(--website-color-border);
+        border-radius: var(--website-radius-control);
+        font-size: 14px;
+        white-space: nowrap;
+      }
+      button[aria-selected='true'],
+      button[aria-pressed='true'] {
+        background: var(--website-color-action);
+        color: var(--website-color-action-foreground);
+        border-color: var(--website-color-action);
+      }
+      #description {
+        max-width: 80ch;
+        font-size: 14px;
+        margin-top: 16px;
+        color: var(--website-color-muted-foreground);
+      }
+      .review-frame {
+        margin: 24px auto;
+        width: min(calc(100% - 48px), 1440px);
+        height: calc(100vh - 260px);
+        min-height: 480px;
+        transition: width 160ms ease;
+      }
+      .review-frame.mobile {
+        width: min(390px, calc(100% - 24px));
+        height: 844px;
+        max-height: calc(100vh - 260px);
+      }
+      iframe {
+        display: block;
+        width: 100%;
+        height: 100%;
+        border: 1px solid var(--website-color-border);
+        border-radius: var(--website-radius-content);
+        background: var(--website-color-surface);
+      }
+      .review-note {
+        text-align: center;
+        color: var(--website-color-muted-foreground);
+        font-size: 12px;
+        margin: 0 16px 20px;
+      }
+      .open-link {
+        font-size: 14px;
+        text-decoration: underline;
+        text-underline-offset: 4px;
+        flex-shrink: 0;
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+      }
+      @media (width<48rem) {
+        .review-header {
+          padding: 16px;
+        }
+        .review-top {
+          align-items: flex-start;
+          gap: 12px;
+          margin-bottom: 16px;
+        }
+        .review-top h1 {
+          font-size: 19px;
+        }
+        .review-top p {
+          font-size: 12px;
+        }
+        .review-controls {
+          align-items: flex-start;
+          gap: 12px;
+          flex-direction: column;
+        }
+        .review-controls nav {
+          display: grid;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          width: 100%;
+        }
+        button {
+          padding: 8px 10px;
+          font-size: 12px;
+        }
+        .devices {
+          align-self: flex-end;
+        }
+        #description {
+          font-size: 12px;
+          line-height: 1.6;
+          margin-top: 12px;
+        }
+        .review-frame {
+          width: calc(100% - 24px);
+          margin-top: 16px;
+          min-height: 520px;
+          height: calc(100vh - 300px);
+        }
+        .review-note {
+          line-height: 1.6;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .review-frame {
+          transition: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="review-header">
+      <div class="review-top">
+        <div>
+          <h1>Products · B2B 产品展示</h1>
+          <p>AB 融合草稿 / 范围：分类图片轮播下方的内容</p>
+        </div>
+        <a id="open" class="open-link" href="ab-hybrid.html" target="_blank" rel="noopener"
+          >独立打开</a
+        >
+      </div>
+      <div class="review-controls">
+        <nav role="tablist" aria-label="设计方案">
+          <button
+            role="tab"
+            id="tab-ab"
+            aria-selected="true"
+            aria-controls="preview"
+            data-design="ab"
+          >
+            AB · 融合版
+          </button>
+          <button
+            role="tab"
+            id="tab-a"
+            aria-selected="false"
+            aria-controls="preview"
+            data-design="a"
+            tabindex="-1"
+          >
+            A · 系列目录
+          </button>
+          <button
+            role="tab"
+            id="tab-b"
+            aria-selected="false"
+            aria-controls="preview"
+            data-design="b"
+            tabindex="-1"
+          >
+            B · 应用展示
+          </button>
+          <button
+            role="tab"
+            id="tab-c"
+            aria-selected="false"
+            aria-controls="preview"
+            data-design="c"
+            tabindex="-1"
+          >
+            C · 选型目录
+          </button>
+        </nav>
+        <div class="devices" aria-label="预览宽度">
+          <button aria-pressed="true" data-device="desktop">桌面</button>
+          <button aria-pressed="false" data-device="mobile">手机</button>
+        </div>
+      </div>
+      <p id="description" aria-live="polite">
+        AB · 保留 A 的系列目录，在网格上方加入 B
+        的重点产品展示。大图突出一个型号，其余型号紧凑排列，不重复展示主推产品。
+      </p>
+    </header>
+    <div id="preview" class="review-frame" role="tabpanel" aria-labelledby="tab-ab">
+      <iframe id="frame" src="ab-hybrid.html" title="AB 融合版预览"></iframe>
+    </div>
+    <p class="review-note">
+      预览内可滚动；产品链接会在新标签页打开现有详情。当前使用示例素材，未改动正式 /products 页面。
+    </p>
+    <script>
+      const designs = {
+        ab: {
+          file: 'ab-hybrid.html',
+          label: 'AB 融合版预览',
+          description:
+            'AB · 保留 A 的系列目录，在网格上方加入 B 的重点产品展示。大图突出一个型号，其余型号紧凑排列，不重复展示主推产品。',
+        },
+        a: {
+          file: 'a-catalog.html',
+          label: 'A 系列目录预览',
+          description:
+            'A · 推荐。紧凑分类标题 + 产品网格，快速看清整个系列。适合型号较多、以产品目录为主的 B2B 官网。',
+        },
+        b: {
+          file: 'b-showcase.html',
+          label: 'B 应用展示预览',
+          description:
+            'B · 左侧系列介绍 + 右侧主推产品 + 辅助产品行。适合需要先建立产品认知、强调应用场景的 B2B 展示，页面会比 A 更长。',
+        },
+        c: {
+          file: 'c-selection.html',
+          label: 'C 选型目录预览',
+          description:
+            'C · 系列侧栏 + 型号列表 + 规格入口。信息密度最高，适合带着型号与技术需求来浏览的采购人员。草稿只使用当前已有信息，未虚构参数。',
+        },
+      }
+      function choose(key) {
+        const design = designs[key]
+        document.querySelectorAll('[data-design]').forEach((button) => {
+          const active = button.dataset.design === key
+          button.setAttribute('aria-selected', String(active))
+          button.tabIndex = active ? 0 : -1
+        })
+        document.getElementById('frame').src = design.file
+        document.getElementById('frame').title = design.label
+        document.getElementById('open').href = design.file
+        document.getElementById('description').textContent = design.description
+        document.getElementById('preview').setAttribute('aria-labelledby', 'tab-' + key)
+        history.replaceState(null, '', '#' + key)
+      }
+      document.querySelectorAll('[data-design]').forEach((button) => {
+        button.addEventListener('click', () => choose(button.dataset.design))
+        button.addEventListener('keydown', (event) => {
+          if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return
+          event.preventDefault()
+          const tabs = [...document.querySelectorAll('[data-design]')]
+          let index = tabs.indexOf(button)
+          index =
+            event.key === 'Home'
+              ? 0
+              : event.key === 'End'
+                ? tabs.length - 1
+                : (index + (event.key === 'ArrowRight' ? 1 : -1) + tabs.length) % tabs.length
+          choose(tabs[index].dataset.design)
+          tabs[index].focus()
+        })
+      })
+      document.querySelectorAll('[data-device]').forEach((button) =>
+        button.addEventListener('click', () => {
+          const mobile = button.dataset.device === 'mobile'
+          document.getElementById('preview').classList.toggle('mobile', mobile)
+          document
+            .querySelectorAll('[data-device]')
+            .forEach((item) => item.setAttribute('aria-pressed', String(item === button)))
+        }),
+      )
+      if (designs[location.hash.slice(1)]) choose(location.hash.slice(1))
+    </script>
+  </body>
+</html>

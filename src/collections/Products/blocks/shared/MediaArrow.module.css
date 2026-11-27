@@ -1,0 +1,38 @@
+.arrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 var(--website-control-default);
+  width: var(--website-control-default);
+  height: var(--website-control-default);
+  padding: 0;
+  border: 0;
+  border-radius: var(--website-radius-circle);
+  background: var(--website-color-muted-surface);
+  color: var(--website-color-foreground);
+  cursor: pointer;
+  transition: background var(--website-duration-fast) var(--website-easing-standard);
+}
+.arrow:hover {
+  background: var(--website-color-border);
+}
+.arrow svg {
+  width: var(--website-icon-medium);
+  height: var(--website-icon-medium);
+}
+.arrow:focus-visible {
+  outline: 2px solid var(--website-color-focus);
+  outline-offset: var(--website-space-1);
+}
+.arrow:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.arrow[data-overlay] {
+  background: color-mix(in srgb, var(--website-color-background) 80%, transparent);
+}
+@media (prefers-reduced-motion: reduce) {
+  .arrow {
+    transition: none;
+  }
+}

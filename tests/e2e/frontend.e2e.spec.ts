@@ -1,48 +1,53 @@
-import { test, expect, Page } from '@playwright/test'
-import {
-  cleanupRelatedPosts,
-  relatedPostsFixture,
-  seedRelatedPosts,
-} from '../helpers/seedRelatedPosts'
+import { test, expect } from '@playwright/test'
+import { getE2EBaseURL } from '../helpers/e2eBaseURL'
+import { assertRunScopedE2EDatabaseURI } from '../helpers/e2eDatabase'
+
+const baseURL = getE2EBaseURL()
 
 test.describe('Frontend', () => {
-  let page: Page
-
-  test.beforeAll(async ({ browser }, testInfo) => {
-    const context = await browser.newContext()
-    page = await context.newPage()
-  })
-
-  test('can load homepage', async ({ page }) => {
-    await page.goto('http://localhost:3000')
-    await expect(page).toHaveTitle(/Payload Website Template/)
-    const heading = page.locator('h1').first()
-    await expect(heading).toHaveText('Payload Website Template')
-  })
-
-  test.describe('post detail', () => {
-    test.beforeAll(async () => {
-      await seedRelatedPosts()
+  test('returns the intentional not-found page at the removed template homepage', async ({
+    page,
+    request,
+  }) => {
+    const runID = process.env.PLAYWRIGHT_E2E_RUN_ID!
+    assertRunScopedE2EDatabaseURI(process.env.DATABASE_URI!, runID)
+    console.info(`Homepage absence fixture target: ${process.env.DATABASE_URI}; storage unchanged.`)
+    const homes = await request.get(`${baseURL}/api/pages?where[slug][equals]=home&depth=0`)
+    expect(homes.ok()).toBe(true)
+    const { docs } = await homes.json()
+    expect(docs).toHaveLength(1)
+    const homepage = docs[0] as { id: string; slug: string; title: string }
+    expect(homepage).toMatchObject({ slug: 'home', title: 'Phase3 home' })
+    const login = await request.post(`${baseURL}/api/users/login`, {
+      data: { email: 'phase4-admin@example.invalid', password: 'phase4-test-only' },
     })
-
-    test.afterAll(async () => {
-      await cleanupRelatedPosts()
-    })
-
-    test('should render related post cards with their image and category', async ({ page }) => {
-      await page.goto(`http://localhost:3000/posts/${relatedPostsFixture.postSlug}`)
-
-      await expect(page.locator('h1')).toHaveText(relatedPostsFixture.postTitle)
-
-      const postCards = page.locator('article article')
-
-      const relatedCard = postCards.filter({
-        has: page.getByRole('link', { name: relatedPostsFixture.relatedPostTitle }),
+    expect(login.ok()).toBe(true)
+    const moveHomepage = async (slug: string) => {
+      const update = await request.patch(`${baseURL}/api/pages/${homepage.id}`, {
+        headers: { Origin: baseURL },
+        data: { slug },
       })
-
-      await expect(relatedCard).toHaveCount(1)
-      await expect(relatedCard.locator('img')).toBeAttached()
-      await expect(relatedCard).toContainText(relatedPostsFixture.categoryTitle)
-    })
+      expect(update.ok(), await update.text()).toBe(true)
+      // This fixture changes what '/' resolves to; expire its prebuilt output.
+      const invalidation = await request.post(`${baseURL}/next/revalidate`, {
+        headers: { Authorization: `Bearer ${process.env.REVALIDATE_SECRET}` },
+        data: { paths: ['/'] },
+      })
+      expect(invalidation.status()).toBe(204)
+    }
+    // Shared language fixtures publish a real CMS homepage. Temporarily move
+    // only that document to exercise the missing-home contract, then restore it
+    // without unpublishing/deleting its ready translations.
+    try {
+      await moveHomepage(`e2e-absent-home-${runID}`)
+      const response = await page.goto(baseURL)
+      expect(response?.status()).toBe(404)
+      await expect(page.locator('h1').first()).toHaveText('404')
+    } finally {
+      await moveHomepage(homepage.slug)
+    }
+    expect((await page.goto(baseURL))?.status()).toBe(200)
+    await expect(page.getByRole('heading', { name: 'Phase3 home', level: 2 })).toBeVisible()
+    expect((await request.get(`${baseURL}/de`, { maxRedirects: 0 })).status()).toBe(200)
   })
 })

@@ -1,0 +1,23 @@
+@layer base, components, utilities;
+
+.label {
+  composes: website-type-heading-3 from global;
+}
+
+@layer components {
+  .takeaways {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: var(--website-container-reading);
+    margin-inline: auto;
+    padding: var(--website-space-6);
+    border: 1px solid var(--website-color-border);
+    border-radius: var(--website-radius-content);
+    color: var(--website-color-foreground);
+    background-color: var(--website-color-muted-surface);
+  }
+
+  .label {
+    margin-block: 0 var(--website-space-4);
+  }
+}

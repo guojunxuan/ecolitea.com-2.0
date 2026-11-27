@@ -1,41 +1,62 @@
 'use client'
-import { useHeaderTheme } from '@/providers/HeaderTheme'
-import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import Link from '@/components/LocaleLink'
 import React, { useEffect, useState } from 'react'
 
-import type { Header } from '@/payload-types'
-
 import { Logo } from '@/components/Logo/Logo'
+import type { LogoImage } from '@/components/Logo/types'
+import { useHeaderTheme } from '@/providers/HeaderTheme'
 import { HeaderNav } from './Nav'
+import type { HeaderNavigationData } from './Nav/types'
+import styles from './Component.module.css'
 
-interface HeaderClientProps {
-  data: Header
+interface HeaderClientProps extends HeaderNavigationData {
+  logo: LogoImage | null
+  siteName: string
 }
 
-export const HeaderClient: React.FC<HeaderClientProps> = ({ data }) => {
-  /* Storing the value in a useState to avoid hydration errors */
-  const [theme, setTheme] = useState<string | null>(null)
-  const { headerTheme, setHeaderTheme } = useHeaderTheme()
-  const pathname = usePathname()
+export const HeaderClient: React.FC<HeaderClientProps> = ({
+  logo,
+  menuCta,
+  navItems,
+  siteName,
+}) => {
+  const { headerTheme } = useHeaderTheme()
+  const [scrolled, setScrolled] = useState(false)
+  const [desktopMenuOpen, setDesktopMenuOpen] = useState(false)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   useEffect(() => {
-    setHeaderTheme(null)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pathname])
-
-  useEffect(() => {
-    if (headerTheme && headerTheme !== theme) setTheme(headerTheme)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [headerTheme])
+    const update = () => setScrolled(window.scrollY > 30)
+    update()
+    window.addEventListener('scroll', update, { passive: true })
+    return () => window.removeEventListener('scroll', update)
+  }, [])
 
   return (
-    <header className="container relative z-20   " {...(theme ? { 'data-theme': theme } : {})}>
-      <div className="py-8 flex justify-between">
-        <Link href="/">
-          <Logo loading="eager" priority="high" className="invert dark:invert-0" />
-        </Link>
-        <HeaderNav data={data} />
+    <header className={styles.header}>
+      <div
+        className={styles.surface}
+        data-theme={headerTheme ?? 'light'}
+        data-menu-open={desktopMenuOpen || mobileMenuOpen ? 'true' : 'false'}
+        data-scrolled={scrolled ? 'true' : 'false'}
+      >
+        <div className={`site-container ${styles.inner}`}>
+          <Link className={styles.desktopBrandLink} href="/">
+            {logo ? (
+              <Logo image={logo} className={styles.desktopLogo} />
+            ) : (
+              <span className={styles.desktopBrandFallback}>{siteName}</span>
+            )}
+          </Link>
+          <HeaderNav
+            logo={logo}
+            menuCta={menuCta}
+            navItems={navItems}
+            onDesktopOpenChange={setDesktopMenuOpen}
+            onMobileOpenChange={setMobileMenuOpen}
+            siteName={siteName}
+          />
+        </div>
       </div>
     </header>
   )

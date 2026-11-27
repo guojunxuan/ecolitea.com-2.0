@@ -1,0 +1,12 @@
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 480 320"
+  role="img"
+  aria-label="product media carousel block preview"
+>
+  <g fill="none" stroke="#262629" stroke-width="8">
+    <path d="M56 76H16v164h40M424 76h40v164h-40" />
+    <rect x="76" y="52" width="328" height="200" />
+    <path d="M172 284h36m16 0h36m16 0h36" />
+  </g>
+</svg>

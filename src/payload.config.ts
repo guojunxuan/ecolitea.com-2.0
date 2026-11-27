@@ -1,35 +1,41 @@
 import { mongooseAdapter } from '@payloadcms/db-mongodb'
+import { sharpTransformer } from '@payloadcms/transformer-sharp'
 import sharp from 'sharp'
 import path from 'path'
 import { buildConfig, PayloadRequest } from 'payload'
 import { fileURLToPath } from 'url'
 
-import { Categories } from './collections/Categories'
+import { Blogs } from './collections/Blogs'
+import { BlogCategories } from './collections/BlogCategories'
+import { ProductCategories } from './collections/ProductCategories'
+import { Products } from './collections/Products'
+import { SiteAssets } from './collections/SiteAssets'
 import { CaseStudies } from './collections/CaseStudies'
 import { Media } from './collections/Media'
+import { Documents } from './collections/Documents'
 import { Pages } from './collections/Pages'
-import { Posts } from './collections/Posts'
+import { SocialPlatforms } from './collections/SocialPlatforms'
+import { QuoteRequests } from './collections/QuoteRequests'
 import { Users } from './collections/Users'
 import { Footer } from './Footer/config'
 import { Header } from './Header/config'
-import { plugins } from './plugins'
+import { SiteSettings } from './SiteSettings/config'
+import { Settings } from './Settings/config'
+import { plugins, storage } from './plugins'
 import { defaultLexical } from '@/fields/defaultLexical'
 import { getServerSideURL } from './utilities/getURL'
 import { serverEnv } from './utilities/env'
+import { secretsMatch } from './utilities/secretsMatch'
+import { createEmailAdapter } from './plugins/email/adapter'
+import { adminThemePlugin } from './plugins/adminTheme'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 
 export default buildConfig({
+  serverURL: getServerSideURL(),
+  email: createEmailAdapter(),
   admin: {
-    components: {
-      // The `BeforeLogin` component renders a message that you see while logging into your admin panel.
-      // Feel free to delete this at any time. Simply remove the line below.
-      beforeLogin: ['@/components/BeforeLogin'],
-      // The `BeforeDashboard` component renders the 'welcome' block that you see after logging into your admin panel.
-      // Feel free to delete this at any time. Simply remove the line below.
-      beforeDashboard: ['@/components/BeforeDashboard'],
-    },
     importMap: {
       baseDir: path.resolve(dirname),
     },
@@ -61,12 +67,31 @@ export default buildConfig({
   editor: defaultLexical,
   db: mongooseAdapter({
     url: serverEnv.DATABASE_URI,
+    afterCreateConnection: (adapter) => {
+      // Payload sets this flag before initializing CLI migrations, after loading this config.
+      // Prevent Mongoose from creating the rename destination before migration preflight.
+      if (process.env.PAYLOAD_MIGRATING === 'true') {
+        adapter.collectionsSchemaOptions ??= {}
+        adapter.collectionsSchemaOptions['site-assets'] = { autoCreate: false, autoIndex: false }
+      }
+    },
   }),
   collections: [
+    Products,
+    ProductCategories,
+    QuoteRequests,
+    Pages,
+    Blogs,
+    BlogCategories,
+    CaseStudies,
+    Media,
+    Documents,
+    SiteAssets,
     {
       slug: 'folders',
       folders: true,
       admin: {
+        group: 'Assets',
         useAsTitle: 'name',
       },
       fields: [
@@ -78,22 +103,27 @@ export default buildConfig({
         },
       ],
     },
-    Pages,
-    Posts,
-    Media,
-    Categories,
-    CaseStudies,
     Users,
+    SocialPlatforms,
   ],
   cors: [getServerSideURL()].filter(Boolean),
-  globals: [Header, Footer],
-  plugins,
+  globals: [Header, Footer, SiteSettings, Settings],
+  plugins: [...plugins, adminThemePlugin({ enhancedLayout: true, accountMenuInHeader: true })],
+  storage,
   secret: serverEnv.PAYLOAD_SECRET,
-  sharp,
+  upload: {
+    transformers: [
+      // Image metadata and the Media focal point are processed only for listed collections.
+      // Documents store non-image files and were never processed by the former `sharp` option.
+      sharpTransformer({ sharp, collections: { media: {}, 'site-assets': {} } }),
+    ],
+  },
   typescript: {
     outputFile: path.resolve(dirname, 'payload-types.ts'),
   },
   jobs: {
+    // One designated Node process; all queues also includes native schedulePublish.
+    autoRun: serverEnv.JOBS_AUTORUN ? [{ cron: '*/5 * * * * *', allQueues: true, limit: 1 }] : [],
     access: {
       run: ({ req }: { req: PayloadRequest }): boolean => {
         // Allow logged in users to execute this endpoint (default)
@@ -105,8 +135,7 @@ export default buildConfig({
         // If there is no logged in user, then check
         // for the Vercel Cron secret to be present as an
         // Authorization header:
-        const authHeader = req.headers.get('authorization')
-        return authHeader === `Bearer ${secret}`
+        return secretsMatch(req.headers.get('authorization'), `Bearer ${secret}`)
       },
     },
     tasks: [],

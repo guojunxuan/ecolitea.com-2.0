@@ -1,0 +1,195 @@
+/* A presentation experiment inside the preview iframe; the site CSS stays intact. */
+.sim-more-item,
+.sim-rail [data-sim-arrow] {
+  display: none !important;
+}
+.products-rail-preview .sim-rail {
+  --rail-gutter: max(var(--website-gutter), calc((100vw - var(--website-container-site)) / 2));
+  --rail-content: min(calc(100vw - 2 * var(--website-gutter)), var(--website-container-site));
+  --rail-gap: var(--website-space-6);
+  --rail-card: min(
+    calc((var(--rail-content) - 3 * var(--rail-gap)) / 4),
+    calc((100vw - var(--rail-gutter) - var(--website-space-16) - 4 * var(--rail-gap)) / 4)
+  );
+  position: relative;
+}
+.products-rail-preview .sim-rail::before,
+.products-rail-preview .sim-rail::after {
+  content: none;
+}
+.products-rail-preview .sim-track {
+  display: flex;
+  width: min(
+    calc(100% - var(--rail-gutter)),
+    calc(var(--rail-content) + var(--rail-gap) + var(--website-space-16))
+  );
+  margin-inline: var(--rail-gutter) 0;
+  gap: var(--rail-gap);
+  padding: var(--website-space-1) var(--website-space-1) var(--website-space-6) 0;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  cursor: grab;
+}
+.products-rail-preview .sim-track::-webkit-scrollbar {
+  display: none;
+}
+.products-rail-preview .sim-track > li {
+  display: block !important;
+  flex: 0 0 var(--rail-card);
+  min-width: 0;
+  scroll-snap-align: start;
+}
+.products-rail-preview .sim-track > li[data-sim-excluded] {
+  display: none !important;
+}
+.products-rail-preview
+  .sim-rail:is([data-sim-count='1'], [data-sim-count='2'], [data-sim-count='3'])
+  .sim-track {
+  width: var(--rail-content);
+  padding-inline: 0;
+}
+.products-rail-preview .sim-rail:not([data-scrollable]) .sim-track {
+  cursor: auto;
+}
+.products-rail-preview .sim-track:focus-visible {
+  outline: 2px solid var(--website-color-focus);
+  outline-offset: -2px;
+}
+.products-rail-preview .sim-track.is-dragging {
+  cursor: grabbing;
+  scroll-snap-type: none;
+  user-select: none;
+}
+.products-rail-preview .sim-more-card {
+  position: relative;
+  align-items: center;
+  justify-content: flex-end;
+  padding: var(--website-space-8) var(--website-space-6);
+  border: 1px solid transparent;
+  background: color-mix(
+    in srgb,
+    var(--website-color-surface) 65%,
+    var(--website-color-muted-surface)
+  );
+  text-align: center;
+  transition:
+    background-color var(--website-duration-standard) var(--website-easing-standard),
+    border-color var(--website-duration-standard) var(--website-easing-standard),
+    box-shadow var(--website-duration-standard) var(--website-easing-standard);
+}
+.products-rail-preview .sim-more-icon {
+  display: grid;
+  place-items: center;
+  position: absolute;
+  top: calc(var(--rail-card) / 2);
+  transform: translateY(-50%);
+  width: var(--website-space-16);
+  height: var(--website-space-16);
+  border: 1px solid currentColor;
+  border-radius: var(--website-radius-circle);
+  color: var(--website-color-muted-foreground);
+  transition:
+    background-color var(--website-duration-standard) var(--website-easing-standard),
+    color var(--website-duration-standard) var(--website-easing-standard);
+}
+.products-rail-preview .sim-more-icon svg {
+  width: var(--website-icon-large);
+  height: var(--website-icon-large);
+  transition: transform var(--website-duration-standard) var(--website-easing-standard);
+}
+.products-rail-preview .sim-more-label {
+  margin-bottom: var(--website-space-6);
+}
+.products-rail-preview .sim-more-card:is(:hover, :focus-visible) {
+  border-color: var(--website-color-border);
+  background: var(--website-color-surface);
+}
+.products-rail-preview .sim-more-card:is(:hover, :focus-visible) .sim-more-icon {
+  color: var(--website-color-foreground);
+  background: var(--website-color-interactive-surface);
+}
+.products-rail-preview .sim-more-card:is(:hover, :focus-visible) .sim-more-icon svg {
+  transform: translateX(calc(var(--website-space-1) / 2));
+}
+.products-rail-preview .sim-rail [data-sim-arrow] {
+  display: grid !important;
+  top: calc(var(--rail-card) / 2);
+}
+.products-rail-preview .sim-rail [data-sim-arrow='previous'] {
+  left: calc(var(--rail-gutter) + var(--website-space-4));
+}
+.products-rail-preview .sim-rail [data-sim-arrow='next'] {
+  right: var(--website-space-8);
+}
+.products-rail-preview .sim-rail [data-sim-arrow][hidden] {
+  display: none !important;
+}
+@media (width < 64rem) {
+  .products-rail-preview .sim-rail {
+    --rail-card: calc((var(--rail-content) - var(--website-space-16) - 2 * var(--rail-gap)) / 2);
+  }
+}
+@media (width <= 1170px) {
+  .products-rail-preview .sim-rail [data-sim-arrow] {
+    display: none !important;
+  }
+}
+@media (width < 48rem) {
+  .products-rail-preview .sim-rail {
+    --rail-gap: var(--website-space-3);
+    --rail-card: calc((var(--rail-content) - var(--rail-gap)) / 2);
+  }
+  .products-rail-preview .sim-track {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: var(--rail-content);
+    margin-inline: auto;
+    padding-inline: 0;
+    overflow: visible;
+    scroll-snap-type: none;
+    cursor: auto;
+  }
+  .products-rail-preview .sim-track > li:nth-child(n + 4):not(.sim-more-item) {
+    display: none !important;
+  }
+  .products-rail-preview .sim-more-card {
+    padding-inline: var(--website-space-4);
+  }
+  .products-rail-preview .sim-more-icon {
+    width: var(--website-control-large);
+    height: var(--website-control-large);
+  }
+  .products-rail-preview .sim-rail[data-sim-count='2'] .sim-more-item {
+    grid-column: 1 / -1;
+  }
+  .products-rail-preview .sim-rail[data-sim-count='2'] .sim-more-card {
+    flex-direction: row-reverse;
+    justify-content: space-between;
+    min-height: var(--website-space-20);
+    padding: var(--website-space-4) var(--website-space-6);
+  }
+  .products-rail-preview .sim-rail[data-sim-count='2'] .sim-more-icon {
+    position: static;
+    transform: none;
+    width: var(--website-control-target-min);
+    height: var(--website-control-target-min);
+  }
+  .products-rail-preview .sim-rail[data-sim-count='2'] .sim-more-label {
+    margin: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .products-rail-preview .sim-track {
+    scroll-behavior: auto;
+  }
+  .products-rail-preview .sim-more-card,
+  .products-rail-preview .sim-more-icon,
+  .products-rail-preview .sim-more-icon svg {
+    transition: none;
+  }
+  .products-rail-preview .sim-more-card:is(:hover, :focus-visible) .sim-more-icon svg {
+    transform: none;
+  }
+}

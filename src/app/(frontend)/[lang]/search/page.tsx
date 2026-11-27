@@ -1,0 +1,121 @@
+import { formatTitle, getSiteIdentity } from '@/utilities/siteIdentity'
+import { localizeMetadata } from '@/utilities/i18n/seo'
+import { fallbackListingToEnglish } from '@/utilities/i18n/listingAccess'
+import type { Metadata } from 'next/types'
+import type { Where } from 'payload'
+
+import { CollectionArchive } from '@/components/CollectionArchive'
+import configPromise from '@payload-config'
+import { getPayload } from 'payload'
+import React from 'react'
+import { Search } from '@/search/Component'
+import { normalizeSearchQuery } from '@/search/query'
+import { publicSearchVisibility } from '@/search/visibility'
+import { getTranslatedSearchResults } from '@/search/getTranslatedSearchResults'
+import type { CardBlogData } from '@/components/Card'
+import { resolveBlogSearchResults } from '@/search/resolveBlogSearchResults'
+
+import styles from '../pages.module.css'
+
+type Args = {
+  params?: Promise<{ lang: string }>
+  searchParams: Promise<{
+    q?: string | string[]
+  }>
+}
+export default async function Page({ searchParams: searchParamsPromise, params }: Args) {
+  const { lang = 'en' } = params ? await params : {}
+  const { q } = await searchParamsPromise
+  const query = normalizeSearchQuery(q)
+  const payload = await getPayload({ config: configPromise })
+  let blogResults: CardBlogData[]
+  if (lang !== 'en') {
+    blogResults = await getTranslatedSearchResults(payload, query, lang)
+    if (!blogResults.length) {
+      await fallbackListingToEnglish(
+        ['blogs'],
+        lang,
+        query ? `/search?q=${encodeURIComponent(query)}` : '/search',
+        payload,
+      )
+    }
+  } else {
+    const publicWhere: Where = {
+      and: [
+        publicSearchVisibility(new Date()),
+        // Constrain before limit because this page renders article cards.
+        { 'doc.relationTo': { equals: 'blogs' } },
+      ],
+    }
+
+    const results = await payload.find({
+      collection: 'search',
+      depth: 1,
+      limit: 12,
+      select: {
+        title: true,
+        slug: true,
+        doc: true,
+        meta: true,
+        excerpt: true,
+        category: true,
+        heroImage: true,
+        publishedAt: true,
+      },
+      // pagination: false reduces overhead if you don't need totalDocs
+      pagination: false,
+      overrideAccess: false,
+      where: query
+        ? {
+            and: [
+              publicWhere,
+              {
+                or: [
+                  { title: { like: query } },
+                  { 'meta.description': { like: query } },
+                  { 'meta.title': { like: query } },
+                  { excerpt: { like: query } },
+                  { slug: { like: query } },
+                ],
+              },
+            ],
+          }
+        : publicWhere,
+    })
+
+    blogResults = await resolveBlogSearchResults(payload, results.docs)
+  }
+
+  return (
+    <div className={styles.pageSection}>
+      <div className={styles.pageHeaderCentered}>
+        <h1 className={styles.pageTitle}>Search</h1>
+
+        <div className={styles.searchField}>
+          <Search initialQuery={query} />
+        </div>
+      </div>
+
+      {blogResults.length > 0 ? (
+        <CollectionArchive posts={blogResults} relationTo="blogs" />
+      ) : (
+        <div className={styles.pageMessage}>No results found.</div>
+      )}
+    </div>
+  )
+}
+
+export async function generateMetadata(args: {
+  params: Promise<{ lang: string }>
+}): Promise<Metadata> {
+  const lang = (await args?.params)?.lang ?? 'en'
+  const { siteName } = await getSiteIdentity({ locale: lang })
+  return localizeMetadata(
+    {
+      title: formatTitle('Search', siteName),
+      // Result pages are query-driven and thin; keep them out of search engines.
+      robots: { index: false, follow: true },
+    },
+    { path: '/search', locale: lang },
+  )
+}

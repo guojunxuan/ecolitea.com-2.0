@@ -1,0 +1,123 @@
+/* Top-layer modal. Closed dialogs are display:none, so exit needs discrete transitions;
+   browsers without them simply close instantly. */
+.dialog {
+  width: min(32rem, calc(100vw - 2 * var(--website-gutter)));
+  max-height: min(80svh, 40rem);
+  margin: auto;
+  padding: 0;
+  overflow: hidden;
+  color: var(--website-color-foreground);
+  border: 1px solid var(--website-color-border);
+  border-radius: var(--website-radius-panel);
+  background: var(--website-color-surface);
+  box-shadow: var(--website-shadow-overlay);
+  overscroll-behavior: contain;
+  opacity: 0;
+  transform: translateY(var(--website-space-2)) scale(0.98);
+  transition:
+    opacity var(--website-duration-standard) var(--website-easing-standard),
+    transform var(--website-duration-standard) var(--website-easing-standard),
+    overlay var(--website-duration-standard) allow-discrete,
+    display var(--website-duration-standard) allow-discrete;
+}
+.dialog[open] {
+  opacity: 1;
+  transform: none;
+}
+@starting-style {
+  .dialog[open] {
+    opacity: 0;
+    transform: translateY(var(--website-space-2)) scale(0.98);
+  }
+}
+.dialog::backdrop {
+  background: color-mix(
+    in srgb,
+    var(--website-color-brand-black) var(--website-scrim-standard),
+    transparent
+  );
+  opacity: 0;
+  transition:
+    opacity var(--website-duration-standard) var(--website-easing-standard),
+    overlay var(--website-duration-standard) allow-discrete,
+    display var(--website-duration-standard) allow-discrete;
+}
+.dialog[open]::backdrop {
+  opacity: 1;
+}
+@starting-style {
+  .dialog[open]::backdrop {
+    opacity: 0;
+  }
+}
+
+.surface {
+  display: flex;
+  flex-direction: column;
+  max-height: inherit;
+}
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--website-space-4);
+  padding: var(--website-space-4) var(--website-space-4) var(--website-space-3)
+    var(--website-space-6);
+  border-bottom: 1px solid var(--website-color-border);
+}
+.title {
+  composes: website-type-title from global;
+  margin: 0;
+}
+.title:focus {
+  outline: none;
+}
+.files {
+  margin: 0;
+  padding: var(--website-space-2);
+  list-style: none;
+  overflow-y: auto;
+}
+.file {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--website-space-4);
+  min-height: var(--website-control-target-min);
+  padding: var(--website-space-3) var(--website-space-4);
+  border-radius: var(--website-radius-control);
+  transition: background-color var(--website-duration-fast) var(--website-easing-standard);
+}
+.file:hover,
+.file:focus-visible {
+  background: var(--website-color-interactive-surface);
+}
+.fileText {
+  display: grid;
+  gap: var(--website-space-1);
+  min-width: 0;
+}
+.fileTitle {
+  composes: website-type-body-md from global;
+  overflow-wrap: anywhere;
+}
+.metadata {
+  composes: website-type-caption from global;
+  color: var(--website-color-muted-foreground);
+}
+.fileIcon {
+  width: var(--website-icon-medium);
+  height: var(--website-icon-medium);
+  color: var(--website-color-muted-foreground);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dialog,
+  .dialog::backdrop,
+  .file {
+    transition: none;
+  }
+  .dialog {
+    transform: none;
+  }
+}

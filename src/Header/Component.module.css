@@ -1,0 +1,112 @@
+.desktopBrandFallback {
+  --header-type-body-md-size: 16px;
+  --header-type-body-md-leading: 1.5;
+}
+
+.desktopBrandFallback {
+  font-size: var(--header-type-body-md-size);
+  line-height: var(--header-type-body-md-leading);
+}
+
+.header {
+  height: 0;
+  position: relative;
+  z-index: var(--website-z-header);
+}
+
+.surface {
+  background: transparent;
+  color: var(--website-color-foreground);
+  left: 0;
+  position: fixed;
+  right: 0;
+  top: 0;
+  transition:
+    background-color var(--website-duration-standard) var(--website-easing-standard),
+    border-color var(--website-duration-standard) var(--website-easing-standard);
+  z-index: var(--website-z-header);
+}
+
+.surface[data-theme='dark'] {
+  --website-color-action: var(--website-color-brand-white);
+  --website-color-action-foreground: var(--website-color-brand-black);
+  color: var(--website-color-brand-white);
+}
+
+:global(body:has(main [data-header-theme='dark'])) .surface:not([data-scrolled='true']):not([data-menu-open='true']) {
+  --website-color-action: var(--website-color-brand-white);
+  --website-color-action-foreground: var(--website-color-brand-black);
+  color: var(--website-color-brand-white);
+}
+
+.surface[data-scrolled='true'] {
+  background: var(--website-glass-surface);
+  border-bottom: 1px solid var(--website-glass-border);
+  backdrop-filter: blur(var(--website-glass-blur)) saturate(var(--website-glass-saturation));
+}
+
+.surface[data-scrolled='true'],
+.surface[data-menu-open='true'] {
+  --website-color-action: var(--website-color-brand-black);
+  --website-color-action-foreground: var(--website-color-brand-white);
+  color: var(--website-color-foreground);
+}
+
+.surface[data-menu-open='true'] {
+  background: var(--website-glass-surface);
+  backdrop-filter: none;
+  border-bottom-color: transparent;
+  box-shadow: none;
+}
+
+.inner {
+  align-items: center;
+  display: flex;
+  gap: var(--website-space-6);
+  height: var(--header-height);
+  justify-content: space-between;
+}
+
+.desktopLogo {
+  height: 2.4375rem;
+  width: 8.125rem;
+}
+
+.desktopBrandLink {
+  flex-shrink: 0;
+}
+
+.desktopBrandFallback {
+  composes: website-type-body-md from global;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+}
+
+@media (width <= 1170px) {
+  .surface[data-scrolled='true'] {
+    background: var(--website-glass-surface);
+  }
+  /* Open mobile menu: solid toolbar that matches the menu surface, no glass. */
+  .surface[data-menu-open='true'] {
+    background: var(--website-color-background);
+  }
+}
+
+@supports not (backdrop-filter: blur(1px)) {
+  .surface[data-scrolled='true'],
+  .surface[data-menu-open='true'] {
+    background: var(--website-color-brand-white);
+  }
+}
+
+@media (width < 1170px) {
+  .desktopBrandLink {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .surface {
+    transition-duration: 0.01ms;
+  }
+}

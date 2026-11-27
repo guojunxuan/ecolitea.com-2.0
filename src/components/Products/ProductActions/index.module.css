@@ -1,0 +1,18 @@
+.actions {
+  display: flex;
+  gap: var(--website-space-3);
+  margin-top: var(--website-space-6);
+}
+@media (width < 48rem) {
+  .actions:has(> :nth-child(2)) {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (width < 22.5rem) {
+  .actions,
+  .actions:has(> :nth-child(2)) {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

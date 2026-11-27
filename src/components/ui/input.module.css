@@ -1,0 +1,56 @@
+.input {
+  composes: website-type-body-md from global;
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  height: var(--website-control-default);
+  padding-block: var(--website-space-1);
+  padding-inline: var(--website-space-3);
+  border: 1px solid var(--website-color-input);
+  border-radius: var(--website-radius-control);
+  background-color: var(--website-color-surface);
+  color: var(--website-color-foreground);
+  transition-property: color, background-color, border-color;
+  transition-duration: var(--website-duration-fast);
+  transition-timing-function: var(--website-easing-standard);
+}
+
+.input::placeholder {
+  color: var(--website-color-muted-foreground);
+}
+
+.input::selection {
+  color: var(--website-color-action-foreground);
+  background-color: var(--website-color-action);
+}
+
+.input::file-selector-button {
+  display: inline-flex;
+  height: 1.75rem;
+  border-width: 0;
+  background-color: transparent;
+  color: var(--website-color-foreground);
+  font: inherit;
+  font-weight: 500;
+}
+
+.input[aria-invalid='true'] {
+  border-color: var(--website-status-error-accent);
+}
+
+.input:disabled {
+  pointer-events: none;
+  cursor: not-allowed;
+  color: var(--website-color-disabled-foreground);
+  border-color: var(--website-color-disabled-border);
+  background-color: var(--website-color-disabled-surface);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .input:not(:disabled):not([aria-invalid='true']):hover {
+    border-color: var(--website-color-foreground);
+  }
+}
+
+@media (width >= 48rem) {
+}

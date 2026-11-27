@@ -1,0 +1,6 @@
+.range {
+  composes: website-type-body-sm from global;
+
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}

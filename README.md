@@ -8,7 +8,7 @@ R2 stores uploaded media.
 
 - Next.js 16 and React 19
 - Payload CMS 4
-- TypeScript and Tailwind CSS
+- TypeScript, shared CSS foundations, and CSS Modules
 - MongoDB 7
 - Cloudflare R2 media storage
 - Docker Compose and Caddy for production
@@ -41,23 +41,230 @@ DATABASE_URI=mongodb://127.0.0.1:27017/ecolitea2 corepack pnpm dev
 
 Keep the terminal running while developing. Press `Ctrl+C` to stop the service.
 
+### Media delivery in development
+
+Payload and the Admin UI keep and preview the uploaded original URL. R2 stores one original/master
+object for each `media` upload; generated image sizes and Transformation URLs are not stored in
+Payload or R2.
+
+`R2_PUBLIC_URL` is the single public origin for those originals and for public render-time media
+delivery. To use Transformations in development, configure that value with the approved development
+origin, `https://media-dev.ecolitea.com`, and ensure the development custom domain supports the
+Cloudflare Transformation paths before exercising public media rendering.
+
+- Public raster Media uses `/cdn-cgi/image/` at render time. It does not use Next's `/_next/image`
+  endpoint.
+- A validated MP4 at most 60 seconds long uses `/cdn-cgi/media/` at render time. A longer video, or
+  one with missing duration metadata, keeps its original URL.
+- Documents use their direct original CDN URL. Site Assets (logos, social icons, and favicons) also
+  remain on their original URLs.
+
+Media uploads accept raster images at `1:1`, `4:3`, `3:2`, `16:9`, `9:16`, or `4:5` (within 1%).
+Video uploads must be MP4/H.264 with AAC or MP3 audio when present, no larger than 100 MB, and no
+longer than 10 minutes.
+
 ## Common commands
 
 ```bash
 corepack pnpm dev                 # Start the development server
+corepack pnpm mail:up             # Start local Mailpit (SMTP 127.0.0.1:1025, UI http://localhost:8025)
+corepack pnpm mail:down           # Stop local Mailpit
 corepack pnpm test:int            # Run integration tests
-corepack pnpm test:e2e            # Run Playwright end-to-end tests
+corepack pnpm test:e2e:all        # Run both Playwright storage profiles
 corepack pnpm exec tsc --noEmit   # Type-check the project
 corepack pnpm lint                # Run ESLint
 corepack pnpm build               # Create a production build
 corepack pnpm start               # Start a completed production build
 ```
 
+The full browser command runs two profiles sequentially: `test:e2e:storage` uses the local S3 emulator
+for website/storage workflows, while `test:e2e:resources` uses local files for Media and Documents
+Admin preview/download workflows. CI and release validation run both profiles, each with its own
+run-scoped database. The direct `test:e2e` command remains available for focused checks.
+
+For Media and Documents regression checks (MongoDB and Chromium required):
+
+```bash
+DISABLE_R2_STORAGE=true corepack pnpm test:e2e tests/e2e/media-documents.e2e.spec.ts --project=chromium
+```
+
+Playwright prints its unique test database before seeding, uses local uploads and builds a separate
+standalone application at the test origin. See the [Media upgrade checklist](docs/architecture/media-upgrade-checklist.md)
+for focused integration commands and the Payload native UI/storage contracts to recheck after upgrades.
+
+## Payload migrations
+
+Migration files live in `src/migrations`; production migrations are run manually. The Site Assets
+migration renames `brand-assets` to `site-assets`, updates document locks and preference keys,
+and reports the untouched `_brand-assets_versions` collection. File URLs and storage objects do
+not change. Existing destination collections abort the migration, including empty collections.
+
+The Blog settings migration moves `blog.listing.hero`, `blog.listing.seo`, and
+`blog.article.share` to `blog.hero`, `blog.seo`, and `blog.share` in the Settings Global. It
+preserves the existing field values, refuses to overwrite an occupied destination, and does not
+touch storage. Apply this migration before serving code that reads the new field paths.
+
+Run the migration before serving the new code, with application writes paused. Verify and report
+the database host/name and storage environment before running commands. For the local development
+database (`127.0.0.1:27017/ecolitea2`):
+
+```bash
+DATABASE_URI=mongodb://127.0.0.1:27017/ecolitea2 corepack pnpm payload migrate:status
+DATABASE_URI=mongodb://127.0.0.1:27017/ecolitea2 corepack pnpm payload migrate
+```
+
+Verify Site Assets, Logo, Favicon and Footer icons after migration. To roll back the latest batch,
+coordinate the old application code with `corepack pnpm payload migrate:down` against the same
+explicit database URI. Collection renames and reference updates run outside a MongoDB transaction;
+keep writes paused until verification completes. If execution fails after the rename, inspect the
+collection and reference state before retrying or rolling back.
+
+Production execution requires separate user approval and a database backup. Use the approved
+production environment configuration; never run the development URI against production, and never
+move or delete remote storage files during this migration. CLI migration initialization suppresses
+automatic creation and indexing of Site Assets so the collision check sees the existing database.
+
+### Collection-owned block slugs (20261021)
+
+This migration prefixes Block slugs by owner. It scans exactly nine targets: Pages,
+Case Studies, Blogs and Posts main collections and all four version collections
+(including drafts, autosaves, scheduled versions and trash), plus only the Header
+Global in the Globals collection. Collection names come from the MongoDB adapter.
+Form Builder fields and other collections are outside this migration. GraphQL Block
+type names also change (for example, `FormBlock` becomes `PageFormBlock`).
+
+Both directions first scan every target, then write only changed top-level fields in
+batches of 250. Unknown or cross-owner slugs, inline Lexical Blocks, or unexpected
+Header versions abort before any document writes. Existing BSON values, document
+metadata and remote storage are preserved. Repeating either direction is idempotent;
+`down` reverses the same mapping.
+
+For this refactor, only `mongodb://127.0.0.1:27017/ecolitea2` is permitted; never
+execute it against production or a remote database. Before running commands, resolve
+and report the exact host, port, database and storage environment. Stop `next dev`
+and close Admin editing tabs (autosave can otherwise restore old slugs). Back up the
+same local database with `mongodump --uri="<explicit local URI>" --out=<local backup>`.
+Do not commit the backup.
+
+Run this read-only report before migration, review its per-target `scanned`,
+`toMigrate.documents`, `toMigrate.blocks`, `alreadyMigrated` (Block count), `unknown`
+and `headerVersions`, and obtain user confirmation before executing any migration:
+
+```bash
+DATABASE_URI=mongodb://127.0.0.1:27017/ecolitea2 DISABLE_R2_STORAGE=true corepack pnpm exec cross-env NODE_OPTIONS=--no-deprecation tsx scripts/report-collection-owned-block-slugs.ts
+```
+
+The report disables storage, startup hooks, automatic type generation and MongoDB
+collection/index creation. Importing its helpers does not initialize Payload. It
+never invokes write APIs. Unknown arguments are rejected; append `--direction=down`
+for a read-only rollback estimate. A blocked report exits with status 1.
+
+After confirmation, check `payload migrate:status` with the same explicit URI and
+`DISABLE_R2_STORAGE=true`; stop if unrelated migrations are pending. Run
+`payload migrate`, then repeat the report and require `toMigrate` to be zero and
+`unknown` empty. **Migrate before starting the new application code:** old slugs
+otherwise render as missing Blocks and appear as unknown Blocks in Admin. With
+writes still paused, clear `.next/cache` before building and restarting so raw
+MongoDB writes cannot leave cached Header/pages behind.
+
+To roll back, pause writes, back up, inspect the `--direction=down` report and run
+`payload migrate:down` for this migration against the same local URI; then return
+to the old code and clear the cache before restarting. No production execution is
+authorized as part of this task.
+
+### Product section themes and block fields (20261111)
+
+`20261111_product_sections_blocks_redesign` scans every document in `products` and
+`_products_versions`, including drafts, autosaves and trash, before any writes. It moves
+the first explicit block theme (`default` counts; missing/null does not) to its section,
+or sets the section to `default` when no block has a theme. An existing valid section
+theme is preserved when recovering or rerunning mixed data. Every differing block
+theme is logged as a conflict with the chosen section theme; these resolved conflicts
+do not block migration.
+
+The migration removes block `eyebrow` and `theme`, fills only absent/null Accordion
+item media from the original `defaultMedia`, then removes `defaultMedia`. It changes
+Banner `original` ratios to `16:9` and MediaText `original` ratios to `4:3`. It does not
+generate section titles/descriptions or invent media. Unknown structures, invalid
+values, or an Accordion item without usable item/default media abort all writes after
+both collections have been scanned. BSON relationships, row IDs, order, timestamps
+and unrelated metadata are preserved; no content hooks, uploads or storage operations run.
+
+Execution is restricted to non-production `127.0.0.1:27017/ecolitea2` or
+`127.0.0.1:27017/ecolitea2-test`. Resolve and report the exact host, port, database and
+storage environment first; use the development content database for content migration.
+Pause `next dev` and Admin editing/autosave, back up that same local database, and keep
+writes paused through verification. Keep backups and logs outside Git. Run with an
+explicit URI and `DISABLE_R2_STORAGE=true`:
+
+```bash
+DATABASE_URI=mongodb://127.0.0.1:27017/ecolitea2 DISABLE_R2_STORAGE=true corepack pnpm payload migrate:status
+DATABASE_URI=mongodb://127.0.0.1:27017/ecolitea2 DISABLE_R2_STORAGE=true corepack pnpm payload migrate
+```
+
+The installed CLI discovers migration files in `src/migrations` without a registry.
+Its `migrate` command runs all pending migrations and does not support selecting one
+by name. Run it only when this migration is the sole pending migration; stop if any
+unrelated migration is pending. The installed public adapter also supports
+`payload.db.migrate({ migrations: [{ name: '20261111_product_sections_blocks_redesign', up, down }] })`.
+Use that selective API in a local operational runner when historical migrations are pending;
+retain the same target checks, disabled storage, paused writers and pre-migration BSON backup.
+It records this migration through Payload's migration collection and leaves other pending
+migrations untouched. Preflight runs inside `up`; this migration does not
+require the separate confirmation workflow described for the older block-slug migration.
+
+Logs identify the target and `storage: not accessed` before reads, then list each
+`planned` change with its collection, original `_id`, full field path, kind and
+before/after values. `{ absent: true }` and `{ removed: true }` preserve missing values
+in serialized logs. A change is marked `applied` only after its entire batch matches;
+when a session exists, `transaction: pending commit` means the CLI must still commit
+the transaction. Preserve the CLI outcome and verify the database rather than treating
+these events as proof of a committed transaction.
+
+Updates use the complete original sections snapshot (`sections` or `version.sections`)
+as an optimistic guard, in batches of 250. A concurrent edit or unmatched batch stops
+execution; earlier batches and the failed batch may be partially applied without a
+transaction. Rerun the exported read-only `scanProductSectionsBlocksRedesign` against
+the same adapter/target before retrying. Reruns preserve existing section themes and
+filled media. After success, require both collections to report
+`toChangeDocuments: 0`, `unknown: []` and `changes: []`, and confirm `migrate:status`
+records the migration before resuming application writes.
+
+`down` deliberately refuses to read or write documents: removed eyebrows, conflicting
+block themes, default-media provenance and original ratios cannot be reconstructed.
+Restore the pre-migration local database backup together with the matching application
+revision to roll back. This migration is irreversible; do not use `migrate:down`,
+`migrate:refresh` or `migrate:reset` expecting it to restore the old content.
+
+## Styling ownership
+
+The public website uses native CSS custom properties and CSS Modules; it does not use Tailwind.
+`src/app/(frontend)/globals.css` is the website-only entry point for the shared foundations in
+`src/styles/`. Those files own stable cross-module tokens, base styles, typography, rich-text
+content rules, layout primitives, and a small set of semantic utilities. Components, Blocks,
+Heroes, Header, and Footer keep their structure, composition, and local states in colocated CSS
+Modules.
+
+Payload Admin has a separate styling boundary. It uses Payload's own CSS plus
+`src/app/(payload)/custom.css`; public website foundations and component CSS Modules must not be
+imported into the Admin route group.
+
 Integration and end-to-end tests require MongoDB. Playwright also requires its Chromium browser:
 
 ```bash
 corepack pnpm exec playwright install chromium
 ```
+
+The static `/posts` first-page Card and pagination visual checks require content before Next.js
+builds the page. Run the opt-in matrix against Playwright's run-scoped test database with:
+
+```bash
+PLAYWRIGHT_PRESEED_TASK6_ARCHIVE=true corepack pnpm test:e2e tests/e2e/task6-visual-matrix.e2e.spec.ts
+```
+
+Without this flag, the matrix still checks Banner, dynamic archive page 2, and search, but
+explicitly annotates the static first-page checks as a coverage gap. The opt-in seed uses no R2
+storage and only replaces Posts with slugs generated for that isolated E2E run.
 
 ## Environment configuration
 
@@ -66,6 +273,8 @@ Copy `.env.example` to `.env` and replace its placeholders. The main configurati
 - Application: `DATABASE_URI`, `PAYLOAD_SECRET`, `NEXT_PUBLIC_SERVER_URL`
 - Payload operations: `CRON_SECRET`, `PREVIEW_SECRET`
 - R2 storage: `R2_BUCKET`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_ENDPOINT`, `R2_PUBLIC_URL`
+- Request a quote: `NEXT_PUBLIC_TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY`, `QUOTE_IP_HASH_SALT` (use Cloudflare's test keys locally; separate keys per environment; the proxy must overwrite `X-Forwarded-For`)
+- Google integrations: set the optional GTM container ID, translation key and monthly budget in **Site Settings → Integrations**. Configure consent-aware tags and the emergency switch as described in [deployment](docs/deployment.md#cookie-consent-and-google-tag-manager).
 - Public URLs and optional integrations: see `.env.example`
 
 Never commit `.env`, database credentials, Payload secrets, or R2 access keys.
@@ -75,11 +284,21 @@ Never commit `.env`, database credentials, Payload secrets, or R2 access keys.
 GitHub Actions starts a disposable MongoDB 7 service, installs locked dependencies, and runs
 integration tests, Playwright tests, type checking, and the production build.
 
-Validation jobs set `DISABLE_R2_STORAGE=true`, so test uploads use local temporary storage and
-never contact production R2. Docker image builds and production runtime do not set this flag;
-R2 remains enabled there.
+Integration tests use `DISABLE_R2_STORAGE=true`. Browser validation runs both local-file and
+S3-adapter profiles; the latter uses placeholder credentials and a loopback S3 emulator, never
+production R2. Docker image builds and production runtime keep the configured R2 adapter.
 
 The CI and release workflows are manually triggered with `workflow_dispatch`.
+
+For read-only Blog Template A checks against the existing development server on port 3001,
+use the sample article `small-details-better-everyday-products` and run:
+
+```bash
+BLOG_DETAIL_EXISTING_SERVER=true DISABLE_R2_STORAGE=true corepack pnpm exec playwright test --config=playwright.blog-detail.config.ts
+```
+
+This focused configuration launches no server, runs no database fixtures or teardown, and
+replaces external browser resources with local test files. It checks 1440, 1152, 768 and 390px.
 
 ## Production architecture
 

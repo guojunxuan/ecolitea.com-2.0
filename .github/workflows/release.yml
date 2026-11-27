@@ -19,7 +19,7 @@ concurrency:
 jobs:
   checks:
     name: Test, type-check, and build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     services:
       mongodb:
@@ -39,26 +39,12 @@ jobs:
       NEXT_PUBLIC_SERVER_URL: http://localhost:3000
       CRON_SECRET: ci-only-cron-secret
       PREVIEW_SECRET: ci-only-preview-secret
-      NEXT_PUBLIC_SITE_URL: ${{ vars.NEXT_PUBLIC_SITE_URL }}
-      NEXT_PUBLIC_CMS_URL: ${{ vars.NEXT_PUBLIC_CMS_URL }}
-      PAYLOAD_PUBLIC_APP_URL: ${{ vars.NEXT_PUBLIC_SITE_URL }}
       R2_BUCKET: ci-only-bucket
       R2_ACCESS_KEY_ID: ci-only-access-key
       R2_SECRET_ACCESS_KEY: ci-only-secret-key
       R2_ENDPOINT: https://ci-only-account.r2.cloudflarestorage.com
       R2_PUBLIC_URL: https://media.example.invalid
       DISABLE_R2_STORAGE: "true"
-      NEXT_PUBLIC_ENABLE_CLOUD: "false"
-      NEXT_PUBLIC_ENABLE_DOCS: "false"
-      NEXT_PUBLIC_ENABLE_COMMUNITY_HELP: "false"
-      NEXT_PUBLIC_ENABLE_PARTNERS: "false"
-      NEXT_PUBLIC_ENABLE_STYLEGUIDE: "false"
-      NEXT_PUBLIC_SKIP_BUILD_DOCS: "true"
-      NEXT_PUBLIC_SKIP_BUILD_HELPS: "true"
-      NEXT_PRIVATE_DRAFT_SECRET: ci-only-draft-secret
-      NEXT_PRIVATE_REVALIDATION_KEY: ci-only-revalidation-secret
-      REVALIDATION_KEY: ci-only-revalidation-secret
-      GA_USE_DEMO_DATA: "false"
 
     steps:
       - name: Check out the selected branch
@@ -87,7 +73,7 @@ jobs:
       - name: Set up Node.js 24
         uses: actions/setup-node@v4
         with:
-          node-version: 24.15.0
+          node-version: 24.22.3
 
       - name: Enable Corepack
         run: corepack enable
@@ -101,8 +87,8 @@ jobs:
       - name: Run integration tests
         run: corepack pnpm test:int
 
-      - name: Run end-to-end tests
-        run: corepack pnpm test:e2e
+      - name: Run end-to-end tests (emulated storage and native files)
+        run: corepack pnpm test:e2e:all
 
       - name: Type-check
         run: corepack pnpm exec tsc --noEmit --incremental false
@@ -123,20 +109,15 @@ jobs:
           allow: network.host
           push: false
           build-args: |
-            NEXT_PUBLIC_SITE_URL=${{ vars.NEXT_PUBLIC_SITE_URL }}
-            NEXT_PUBLIC_CMS_URL=${{ vars.NEXT_PUBLIC_CMS_URL }}
             R2_PUBLIC_URL=${{ vars.R2_PUBLIC_URL }}
-            NEXT_PUBLIC_GA_MEASUREMENT_ID=${{ vars.NEXT_PUBLIC_GA_MEASUREMENT_ID }}
-            NEXT_PUBLIC_GTM_MEASUREMENT_ID=${{ vars.NEXT_PUBLIC_GTM_MEASUREMENT_ID }}
-            NEXT_PUBLIC_FACEBOOK_PIXEL_ID=${{ vars.NEXT_PUBLIC_FACEBOOK_PIXEL_ID }}
-            NEXT_PUBLIC_RECAPTCHA_SITE_KEY=${{ vars.NEXT_PUBLIC_RECAPTCHA_SITE_KEY }}
+            NEXT_PUBLIC_TURNSTILE_SITE_KEY=${{ vars.NEXT_PUBLIC_TURNSTILE_SITE_KEY }}
             DATABASE_URI=mongodb://127.0.0.1:27017/ecolitea-ci
 
   publish:
     name: Tag, publish image, and create release
     if: ${{ inputs.version != '' && github.ref == 'refs/heads/main' }}
     needs: checks
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       contents: write
       packages: write
@@ -182,13 +163,8 @@ jobs:
             ghcr.io/${{ github.repository }}:sha-${{ steps.commit.outputs.short_sha }}
             ghcr.io/${{ github.repository }}:latest
           build-args: |
-            NEXT_PUBLIC_SITE_URL=${{ vars.NEXT_PUBLIC_SITE_URL }}
-            NEXT_PUBLIC_CMS_URL=${{ vars.NEXT_PUBLIC_CMS_URL }}
             R2_PUBLIC_URL=${{ vars.R2_PUBLIC_URL }}
-            NEXT_PUBLIC_GA_MEASUREMENT_ID=${{ vars.NEXT_PUBLIC_GA_MEASUREMENT_ID }}
-            NEXT_PUBLIC_GTM_MEASUREMENT_ID=${{ vars.NEXT_PUBLIC_GTM_MEASUREMENT_ID }}
-            NEXT_PUBLIC_FACEBOOK_PIXEL_ID=${{ vars.NEXT_PUBLIC_FACEBOOK_PIXEL_ID }}
-            NEXT_PUBLIC_RECAPTCHA_SITE_KEY=${{ vars.NEXT_PUBLIC_RECAPTCHA_SITE_KEY }}
+            NEXT_PUBLIC_TURNSTILE_SITE_KEY=${{ vars.NEXT_PUBLIC_TURNSTILE_SITE_KEY }}
             DATABASE_URI=mongodb://127.0.0.1:27017/ecolitea-ci
 
       - name: Create GitHub Release

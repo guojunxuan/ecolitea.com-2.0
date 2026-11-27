@@ -1,0 +1,34 @@
+.card {
+  color: var(--website-color-foreground);
+  background-color: var(--website-color-muted-surface);
+  border-radius: var(--website-radius-content);
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--website-space-2);
+  padding: var(--website-space-6);
+}
+
+.title {
+  composes: website-type-heading-3 from global;
+}
+
+.description {
+  composes: website-type-body-sm from global;
+
+  color: var(--website-color-muted-foreground);
+}
+
+.content {
+  padding: var(--website-space-6);
+  padding-top: 0;
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  padding: var(--website-space-6);
+  padding-top: 0;
+}

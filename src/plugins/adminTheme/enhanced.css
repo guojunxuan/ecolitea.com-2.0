@@ -1,0 +1,158 @@
+/*
+ * Enhanced layout: a gray window canvas with a floating, rounded content panel.
+ * Loaded only when adminThemePlugin({ enhancedLayout: true }). It depends on Payload
+ * class names, which are not a public API, so tests/int/admin-theme.int.spec.ts checks
+ * every class used here against the installed Payload CSS. Presentation only:
+ * no DOM changes, nothing hidden, values come from --admin-* and Payload tokens.
+ */
+
+/* Window canvas, shared by the sidebar and the gap around the panel. */
+.template-default {
+  background-color: var(--admin-canvas);
+}
+
+/* The sidebar sits directly on the canvas. Scoping --color-bg to the nav keeps its native
+   header and tab bar consistent without naming Payload's internal nav classes. */
+.nav {
+  --color-bg: var(--admin-canvas);
+  background-color: transparent;
+  border-right: 0;
+}
+
+.nav-group {
+  border-top-color: transparent;
+}
+
+/* Floating content panel. `clip` rounds the corners without creating a scroll container,
+   so Payload's sticky document controls keep working. */
+.template-default__wrap {
+  /* Payload sets width: 100%, which would overflow the grid track once margins are added. */
+  width: auto;
+  margin: var(--admin-window-gap) var(--admin-window-gap) var(--admin-window-gap) 0;
+  min-height: calc(100dvh - 2 * var(--admin-window-gap));
+  border-radius: var(--admin-window-radius);
+  box-shadow: var(--admin-window-shadow);
+  overflow: clip;
+}
+
+.template-default:not(.template-default--nav-open) .template-default__wrap {
+  margin-inline-start: var(--admin-window-gap);
+}
+
+/* On wide edit views Payload sizes the scrolling fields area to the viewport. Shorten it by
+   the panel gaps so the panel fits. The panel itself keeps an automatic height: fixing it
+   would clip the stacked (narrow) edit layout, which relies on the page scrolling. */
+@container edit-main (min-width: 1024px) {
+  .collection-edit__main-wrapper--scroll-fields-only {
+    height: calc(
+      100dvh - var(--app-header-height, 0px) - var(--doc-controls-height, 0px) -
+        var(--doc-header-height, 0px) - 2 * var(--admin-window-gap)
+    );
+  }
+}
+
+/* List view: the header and toolbar sit on the panel without divider lines; the table
+   becomes a rounded card. */
+.collection-list .list-header,
+.collection-list .list-controls {
+  border-bottom: 0;
+}
+
+.collection-list .table {
+  margin-inline: var(--gutter-h);
+  border-radius: var(--admin-panel-radius);
+  box-shadow: 0 0 0 0.5px var(--color-border);
+  overflow: clip;
+}
+
+.collection-list .table th {
+  background-color: var(--color-bg-secondary);
+  color: var(--color-text-secondary);
+}
+
+.collection-list .table tbody tr {
+  height: var(--admin-row-height);
+}
+
+.collection-list .table tbody tr:hover td {
+  background-color: var(--color-bg-hover);
+}
+
+/* Edit view: tab fields become a segmented control. The selection state comes from
+   aria-selected, which Payload renders on every tab button, not from generated class names. */
+.tabs-field {
+  --field-tabs-edge-display: none;
+}
+
+.tabs-field__tabs-wrap {
+  margin-bottom: var(--admin-group-gap);
+}
+
+.tabs-field__tabs {
+  min-width: 0;
+  width: fit-content;
+  gap: 2px;
+  padding: 2px;
+  margin-inline-start: calc(var(--gutter-h) * var(--field-border-bleed, 1));
+  border-radius: var(--admin-control-radius);
+  background-color: var(--color-bg-tertiary);
+  box-shadow: none;
+}
+
+.tabs-field__tabs [role='tab'] {
+  margin: 0;
+  padding: 5px 16px;
+  border-radius: calc(var(--admin-control-radius) - 1px);
+  color: var(--color-text-secondary);
+  font-weight: 500;
+}
+
+/* Replace the native underline indicator with the raised segment. */
+.tabs-field__tabs [role='tab']::after {
+  opacity: 0;
+}
+
+.tabs-field__tabs [role='tab'][aria-selected='true'] {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  box-shadow:
+    0 0 0 0.5px var(--color-border),
+    0 1px 2px var(--color-border);
+}
+
+/* Edit view: groups and collapsibles become rounded sections on the secondary surface. */
+.group-field,
+.collapsible {
+  border-radius: var(--admin-panel-radius);
+  background-color: var(--color-bg-secondary);
+}
+
+/* A collapsible already pads its own toggle and content; a group has no chrome of its own. */
+.group-field {
+  padding: var(--admin-group-padding);
+}
+
+.group-field .group-field,
+.group-field .collapsible,
+.collapsible .group-field,
+.collapsible .collapsible {
+  background-color: var(--color-bg);
+}
+
+@media (max-width: 768px) {
+  .template-default__wrap {
+    margin: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .template-default:not(.template-default--nav-open) .template-default__wrap {
+    margin-inline-start: 0;
+  }
+
+  .collection-list .table {
+    margin-inline: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+}

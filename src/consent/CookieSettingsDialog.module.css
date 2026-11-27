@@ -1,0 +1,266 @@
+.dialog {
+  margin: auto;
+  /* Same compact frame as the location panel. */
+  width: min(36rem, calc(100% - var(--website-space-12)));
+  max-width: none;
+  max-height: min(40rem, calc(100svh - var(--website-space-12)));
+  padding: 0;
+  border: 1px solid var(--website-color-border);
+  border-radius: var(--website-radius-panel);
+  background: var(--website-color-surface);
+  color: var(--website-color-foreground);
+  box-shadow: var(--website-shadow-overlay);
+  overflow: hidden;
+  animation: cookie-panel-in var(--website-duration-standard) var(--website-easing-standard) both;
+}
+.dialog::backdrop {
+  animation: cookie-backdrop-in var(--website-duration-standard) var(--website-easing-standard) both;
+  background: color-mix(
+    in srgb,
+    var(--website-color-brand-black) var(--website-scrim-standard),
+    transparent
+  );
+}
+.surface {
+  display: flex;
+  flex-direction: column;
+  max-height: inherit;
+}
+.header,
+.actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--website-space-4);
+  padding: var(--website-space-4) var(--website-space-6);
+  flex-shrink: 0;
+}
+.header {
+  padding: var(--website-space-3) var(--website-space-3) var(--website-space-3) var(--website-space-6);
+}
+.header h2,
+.introduction p,
+.category h3,
+.category p {
+  margin: 0;
+}
+.introduction p,
+.category p {
+  color: var(--website-color-muted-foreground);
+}
+.introduction {
+  margin-bottom: var(--website-space-4);
+}
+.description[data-expanded='false'] {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+.readMore {
+  min-height: var(--website-control-target-min);
+  padding: 0;
+  text-decoration: underline;
+}
+.body {
+  overflow-y: auto;
+  min-height: 0;
+  padding: 0 var(--website-space-6) var(--website-space-6);
+}
+.categories {
+  display: grid;
+}
+.category {
+  padding-block: var(--website-space-1);
+}
+.category + .category {
+  border-top: 1px solid var(--website-color-border);
+}
+.row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: var(--website-space-3);
+  min-height: var(--website-control-target-min);
+}
+.badge {
+  color: var(--website-color-muted-foreground);
+}
+.explanation {
+  padding-block: var(--website-space-2);
+  padding-right: var(--website-space-4);
+  /* Smooth disclosure: height and opacity transition while `hidden` toggles.
+     Browsers without interpolate-size fall back to a fade. */
+  overflow: hidden;
+  interpolate-size: allow-keywords;
+  height: auto;
+  opacity: 1;
+  transition:
+    height var(--website-duration-standard) var(--website-easing-standard),
+    padding-block var(--website-duration-standard) var(--website-easing-standard),
+    opacity var(--website-duration-standard) var(--website-easing-standard),
+    display var(--website-duration-standard) allow-discrete;
+}
+.explanation[hidden] {
+  display: none;
+  height: 0;
+  padding-block: 0;
+  opacity: 0;
+}
+@starting-style {
+  .explanation:not([hidden]) {
+    height: 0;
+    padding-block: 0;
+    opacity: 0;
+  }
+}
+.preference {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--website-space-4);
+  margin-top: var(--website-space-2);
+}
+.actions {
+  border-top: 1px solid var(--website-color-border);
+  background: var(--website-color-surface);
+}
+/* Expand toggle: two lines form +, rotate to × when expanded (mirrors the mobile menu button). */
+.toggle {
+  position: relative;
+}
+.toggleLine {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: var(--website-icon-small);
+  height: 1.5px;
+  margin: -0.75px 0 0 calc(var(--website-icon-small) / -2);
+  background: currentColor;
+  transition: transform var(--website-duration-standard) var(--website-easing-standard);
+}
+.toggleLine:last-child {
+  transform: rotate(90deg);
+}
+.toggle[aria-expanded='true'] .toggleLine:first-child {
+  transform: rotate(45deg);
+}
+.toggle[aria-expanded='true'] .toggleLine:last-child {
+  transform: rotate(135deg);
+}
+/* Native switch: neutral track off, brand action track on; the thumb slides. */
+.switch {
+  position: relative;
+  flex-shrink: 0;
+  width: calc(var(--website-icon-small) * 2 + 4px);
+  height: calc(var(--website-icon-small) + 4px);
+  padding: 0;
+  border: 0;
+  border-radius: var(--website-radius-pill);
+  background: var(--website-color-interactive-surface);
+  cursor: pointer;
+  transition: background-color var(--website-duration-fast) var(--website-easing-standard);
+}
+/* Keep the 44px touch target without enlarging the visible track. */
+.switch::after {
+  content: '';
+  position: absolute;
+  inset: 50% 0 auto;
+  height: var(--website-control-target-min);
+  transform: translateY(-50%);
+}
+.switch span {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: var(--website-icon-small);
+  height: var(--website-icon-small);
+  border-radius: var(--website-radius-circle);
+  background: var(--website-color-surface);
+  transition: transform var(--website-duration-fast) var(--website-easing-standard);
+}
+.switch[aria-checked='true'] {
+  background: var(--website-color-action);
+}
+.switch[aria-checked='true'] span {
+  transform: translateX(var(--website-icon-small));
+}
+.switch:disabled {
+  cursor: not-allowed;
+  background: var(--website-color-disabled-surface);
+}
+.switch:disabled span {
+  background: var(--website-color-disabled-border);
+}
+.switch:focus-visible {
+  outline: 2px solid var(--website-color-focus);
+  outline-offset: 2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .switch,
+  .switch span,
+  .toggleLine,
+  .explanation {
+    transition: none;
+  }
+}
+@media (width < 48rem) {
+  /* Bottom sheet sized to its content, matching the location panel. */
+  .dialog {
+    width: 100%;
+    max-height: 85dvh;
+    margin: auto 0 0;
+    border: 0;
+    border-radius: var(--website-radius-panel) var(--website-radius-panel) 0 0;
+    animation-name: cookie-sheet-in;
+    animation-duration: var(--website-duration-slow);
+    animation-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  .header {
+    padding-left: var(--website-gutter);
+  }
+  .body {
+    padding-inline: var(--website-gutter);
+  }
+  .actions {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--website-space-2);
+    padding: var(--website-space-4) var(--website-gutter) max(var(--website-space-4), env(safe-area-inset-bottom));
+  }
+  .actions button {
+    width: 100%;
+  }
+}
+@keyframes cookie-panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(var(--website-space-3)) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes cookie-sheet-in {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: none;
+  }
+}
+@keyframes cookie-backdrop-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .dialog,
+  .dialog::backdrop {
+    animation: none;
+  }
+}

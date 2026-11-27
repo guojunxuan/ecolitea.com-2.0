@@ -1,0 +1,617 @@
+import fs from 'node:fs'
+import path from 'node:path'
+
+import { describe, expect, it } from 'vitest'
+
+import { auditCss, cssTerms } from '../helpers/cssAudit'
+import { scanShellClasses, scanShellCss } from '../helpers/shellStyleAudit'
+
+const read = (relativePath: string) =>
+  fs.readFileSync(path.join(process.cwd(), relativePath), 'utf8')
+
+const listFiles = (relativePath: string, suffix: string): string[] =>
+  fs.statSync(path.join(process.cwd(), relativePath)).isDirectory()
+    ? fs
+        .readdirSync(path.join(process.cwd(), relativePath))
+        .flatMap((entry) => listFiles(path.join(relativePath, entry), suffix))
+    : relativePath.endsWith(suffix)
+      ? [relativePath]
+      : []
+
+const shellFiles = (suffix: string) =>
+  ['src/Header', 'src/Footer'].flatMap((directory) => listFiles(directory, suffix))
+
+// These Payload component hooks belong to Admin, not the website stylesheet
+// contract. Permit each hook only in its owning file; keep scanning its TSX.
+const adminHooks: Record<string, Set<string>> = {
+  'src/SiteSettings/components/GoogleTranslateKeyStatus.tsx': new Set([
+    'google-translate-key-status',
+  ]),
+  'src/plugins/email/admin/EmailStatus.tsx': new Set(['email-status']),
+  'src/plugins/email/admin/TestEmailButton.tsx': new Set(['email-test']),
+  // Styled together with Payload's account-menu classes in the opt-in accountMenu.css.
+  'src/plugins/adminTheme/header/HeaderAccountMenu.tsx': new Set([
+    'admin-account-menu',
+    'admin-account-menu__avatar',
+  ]),
+}
+
+describe('frontend style architecture', () => {
+  it('recognizes all approved global typography roles in component classes', () => {
+    const roles = new Set(
+      auditCss(read('src/styles/typography.css')).blocks.flatMap(({ header }) =>
+        header.startsWith('.website-type-') ? [header.slice(1)] : [],
+      ),
+    )
+    expect(roles.size).toBeGreaterThan(0)
+    for (const role of roles) {
+      expect(
+        scanShellClasses(
+          'src/Header/test.tsx',
+          `const View = () => <div className="${role}" />`,
+        ),
+        role,
+      ).toEqual([])
+    }
+  })
+
+  it('resolves every cva variant map and class-value reference', () => {
+    for (const expression of [
+      'intents',
+      'registry.intents',
+      "registry['intents']",
+      '{ intent: intentMap }',
+      '{ intent: registry.maps[0] }',
+    ]) {
+      const fixture = (value: string) => `
+        import styles from './example.module.css'
+        const localStyles = styles
+        const moduleClass = localStyles['root']
+        const values = { entries: [${value}] }
+        const intentMap = { primary: values.entries[0] }
+        const intents = { intent: intentMap }
+        const registry = { intents, maps: [intentMap] }
+        const variant = cva(styles.root, { variants: ${expression}, defaultVariants: { intent: 'primary' } })
+        const View = () => <div className={variant({ intent: 'primary' })} />
+      `
+      expect(
+        scanShellClasses(
+          'test.tsx',
+          fixture("active ? ['md:flex', 'hover:bg-black'] : 'lg:grid'"),
+        ).map((entry) => entry.split(': ').at(-1)),
+        expression,
+      ).toEqual(['md:flex', 'hover:bg-black', 'lg:grid'])
+      expect(
+        scanShellClasses(
+          'test.tsx',
+          fixture("active ? ['site-container', moduleClass] : styles.active"),
+        ),
+        expression,
+      ).toEqual([])
+    }
+  })
+
+  it('fails closed for unresolved cva variant configurations and values', () => {
+    for (const expression of ['external.maps', 'registry[key]', 'loadVariants()', 'cycle']) {
+      for (const variants of [
+        expression,
+        `{ intent: ${expression} }`,
+        `{ intent: { primary: ${expression} } }`,
+      ]) {
+        expect(
+          scanShellClasses(
+            'test.tsx',
+            `
+          import styles from './example.module.css'
+          const registry = { maps: {} }
+          const cycle = cycle
+          const variant = cva(styles.root, { variants: ${variants} })
+          const View = () => <div className={variant()} />
+        `,
+          ),
+          variants,
+        ).toEqual([expect.stringContaining('unresolved class configuration')])
+      }
+    }
+  })
+
+  it('inspects nested object values flowing into unknown class helpers', () => {
+    const source = `
+      const unrelated = { mode: 'compact', classLabels: ['md:grid'] }
+      configure({ mode: 'desktop' })
+      const nested = { 'site-container': [{ 'visually-hidden': active ? 'lg:grid' : ['hover:bg-black'] }] }
+      const View = () => <>
+        <div className={join({ 'site-container': 'md:flex' })} />
+        <div className={join(nested)} />
+        <div className={join(active && { 'site-container': [{ 'visually-hidden': 'xl:flex' }] })} />
+        <div className={join({ 'site-container': ['site-container', active ? styles.active : 'visually-hidden'] })} />
+        <div className={join({ 'md:grid': true })} />
+      </>
+    `
+    expect(scanShellClasses('test.tsx', source).map((entry) => entry.split(': ').at(-1))).toEqual([
+      'md:flex',
+      'lg:grid',
+      'hover:bg-black',
+      'xl:flex',
+      'md:grid',
+    ])
+  })
+
+  it('resolves compound variant property chains and rejects opaque configuration', () => {
+    const fixture = (value: string) => `
+      const registry = { entries: [{ intent: 'primary', class: ${value} }], nested: { lists: [[{ class: ${value} }]] } }
+      const key = 'lists'
+      const compounds = registry.entries
+      const deep = registry.nested[key][0]
+      const variants = cva(styles.root, { compoundVariants: [...compounds, ...deep] })
+      const View = () => <div className={variants({ intent: 'primary' })} />
+    `
+    expect(
+      scanShellClasses('test.tsx', fixture("'md:flex'")).map((entry) => entry.split(': ').at(-1)),
+    ).toEqual(['md:flex', 'md:flex'])
+    expect(scanShellClasses('test.tsx', fixture("['site-container', styles.root]"))).toEqual([])
+    for (const expression of [
+      'external.entries',
+      'registry[unknownKey]',
+      'loadCompounds()',
+      'cyclic',
+    ]) {
+      expect(
+        scanShellClasses(
+          'test.tsx',
+          `
+        const registry = { entries: [] }
+        const cyclic = cyclic
+        const variants = cva(styles.root, { compoundVariants: ${expression} })
+        const View = () => <div className={variants()} />
+      `,
+        ),
+        expression,
+      ).toEqual([expect.stringContaining('unresolved class configuration')])
+    }
+  })
+
+  it('audits literal-producing arguments of unknown class helpers', () => {
+    const source = `
+      const forbidden = 'rounded-[19px]'
+      const View = () => <>
+        <div className={join('site-container', 'md:flex')} />
+        <div className={helpers.join(styles.root, active ? forbidden : ['hover:bg-black'])} />
+        <div className={join('site-container', styles.root, active && 'visually-hidden')} />
+      </>
+    `
+    expect(scanShellClasses('test.tsx', source).map((entry) => entry.split(': ').at(-1))).toEqual([
+      'md:flex',
+      'rounded-[19px]',
+      'hover:bg-black',
+    ])
+    expect(
+      scanShellClasses('test.tsx', '<div className={join("site-container", styles.root)} />'),
+    ).toEqual([])
+  })
+
+  it('audits cva compound class fields through arrays, conditions, and local references', () => {
+    const source = `
+      import styles from './example.module.css'
+      const extra = ['lg:grid', active && 'text-white']
+      const compound = { intent: ['small', 'large'], class: extra }
+      const compounds = [compound, active ? { class: 'p-4' } : { className: ['md:flex', styles.root] }]
+      const options = {
+        variants: { intent: { small: styles.small } },
+        compoundVariants: compounds,
+        defaultVariants: { intent: 'small' },
+      }
+      const variants = cva(styles.root, options)
+      const View = () => <div className={variants({ intent: 'small' })} />
+    `
+    expect(
+      new Set(scanShellClasses('test.tsx', source).map((entry) => entry.split(': ').at(-1))),
+    ).toEqual(new Set(['lg:grid', 'text-white', 'p-4', 'md:flex']))
+    expect(
+      scanShellClasses(
+        'test.tsx',
+        `
+      const variants = cva(styles.root, {
+        compoundVariants: [{ intent: ['small', 'large'], class: ['site-container', styles.small], className: active ? 'visually-hidden' : styles.hidden }],
+      })
+      const View = () => <div className={variants({ intent: 'small', class: styles.root })} />
+    `,
+      ),
+    ).toEqual([])
+  })
+
+  it('preserves the native-element reset after removing the utility framework', () => {
+    const declarations = auditCss(read('src/styles/base.css')).declarations
+    for (const [selector, prop, value] of [
+      ['*', 'padding', '0'],
+      ['*', 'margin', '0'],
+      ['button', 'background-color', 'transparent'],
+      ['button', 'border-radius', '0'],
+      ['button', 'opacity', '1'],
+      ['html', 'tab-size', '4'],
+      ['code', 'font-size', '1em'],
+      ['textarea', 'resize', 'vertical'],
+      ['[hidden]', 'display', 'none !important'],
+    ]) {
+      expect(
+        declarations.some(
+          (decl) => decl.header.includes(selector!) && decl.prop === prop && decl.value === value,
+        ),
+        `${selector}: ${prop}`,
+      ).toBe(true)
+    }
+  })
+
+  it('visits nested CSS without treating comments or quoted delimiters as syntax', () => {
+    const source = String.raw`
+      /* .fake { color: white; } */
+      @media (width > 30rem) {
+        @scope (.payload-richtext--content) {
+          .example[data-label="};"] {
+            content: "escaped \" ; { }";
+            background: url("data:image/svg+xml;a:b{c}");
+            color: /* comment ; } */ white;
+            &::before { color: rgb(1 2 3 / 50%) }
+          }
+        }
+      }
+    `
+    const parsed = auditCss(source)
+    expect(parsed.blocks).toHaveLength(4)
+    expect(parsed.declarations.map(({ prop }) => prop)).toEqual([
+      'content',
+      'background',
+      'color',
+      'color',
+    ])
+    expect(parsed.declarations.at(-1)?.ancestors).toHaveLength(4)
+    expect(cssTerms('white linear-gradient(white, transparent), rgb(1 2 3 / 50%)')).toEqual([
+      'white',
+      'linear-gradient(white, transparent)',
+      'rgb(1 2 3 / 50%)',
+    ])
+    expect(
+      scanShellCss('src/Header/test.module.css', source, read('src/styles/tokens.css')),
+    ).toEqual([])
+    expect(
+      scanShellCss(
+        'src/Header/test.module.css',
+        source.replace('color: /* comment ; } */ white', 'background: /* comment ; } */ white'),
+        read('src/styles/tokens.css'),
+      ),
+    ).toEqual([expect.stringContaining('raw default background')])
+    expect(() => auditCss('.broken { color: white;')).toThrow('Unclosed CSS block')
+  })
+
+  it('has no obsolete build configuration or direct styling dependencies', () => {
+    const manifest = JSON.parse(read('package.json'))
+    const dependencies = { ...manifest.dependencies, ...manifest.devDependencies }
+    expect(
+      Object.keys(dependencies).filter((name) =>
+        /tailwind|^tw-animate-css$|^autoprefixer$|^postcss$/.test(name),
+      ),
+    ).toEqual([])
+    for (const file of ['tailwind.config.mjs', 'postcss.config.js', 'components.json']) {
+      expect(fs.existsSync(path.join(process.cwd(), file)), file).toBe(false)
+    }
+  })
+
+  it('has no Tailwind directives, package imports, or legacy token consumers', () => {
+    const files = listFiles('src', '').concat(listFiles('tests', ''), listFiles('scripts', ''))
+    const violations = files.flatMap((file) => {
+      const source = read(file)
+      return [
+        ...(file.startsWith('src/')
+          ? source.matchAll(/@(?:apply|theme|source|config|plugin|custom-variant)\b/g)
+          : []),
+        ...source.matchAll(
+          /(?:from\s*|@import\s*|import\s*\()['"](?:tailwind[^'"]*|@tailwindcss[^'"]*|tw-animate-css|postcss)['"]|var\(--(?:background|foreground|card|popover|primary|secondary|muted|accent|border|input|ring|radius|success|warning|error|site-max-width|wide-max-width|reading-max-width|site-gutter|section-space-(?:compact|standard|spacious))(?:-foreground)?\)/g,
+        ),
+      ].map((match) => `${file}: ${match[0]}`)
+    })
+    expect(violations).toEqual([])
+  })
+  it('loads the focused frontend stylesheets in dependency order', () => {
+    const source = read('src/app/(frontend)/globals.css')
+    const imports = [
+      "@import '../../styles/tokens.css';",
+      "@import '../../styles/base.css';",
+      "@import '../../styles/typography.css';",
+      "@import '../../styles/content.css';",
+      "@import '../../styles/layout.css';",
+      "@import '../../styles/utilities.css';",
+    ]
+
+    expect(source.trim()).toBe(imports.join('\n'))
+  })
+
+  it('owns tokens exclusively in the website namespace apart from Header height', () => {
+    const source = read('src/styles/tokens.css')
+    for (const [, name] of source.matchAll(/--([\w-]+):\s*([^;]+);/g)) {
+      expect(name.startsWith('website-') || name === 'header-height', name).toBe(true)
+    }
+    expect(source).toContain('--website-container-site: 76.25rem;')
+    expect(source).toContain('--website-container-reading: 46rem;')
+    expect(source).not.toContain('--website-gutter:')
+    expect(read('src/styles/layout.css')).toContain('--website-gutter: clamp(40px, 4vw, 48px);')
+    expect(source).toContain('--header-height: 3.75rem;')
+    expect(source).toContain('--header-height: 4rem;')
+    expect(source).toContain('--header-height: 4.5rem;')
+    expect(source).toContain("[data-website-theme='inverse']")
+    expect(source).not.toContain('[data-theme=')
+  })
+
+  it('gates every content rule behind the explicit RichText content mode', () => {
+    const source = read('src/styles/content.css')
+    const ungatedRules = auditCss(source).blocks.filter(
+      ({ header, ancestors }) =>
+        !header.startsWith('@') &&
+        ![header, ...ancestors].some((selector) => selector.includes('.payload-richtext--content')),
+    )
+    expect(ungatedRules).toEqual([])
+    expect(source).toContain('.payload-richtext--content')
+    expect(source).toMatch(
+      /@scope\s*\(\.payload-richtext\.payload-richtext--content\)\s*to\s*\(\.payload-richtext__embedded\)/,
+    )
+    expect(source).toContain('.payload-richtext__embedded')
+    expect(source).not.toContain('--tw-prose-')
+    expect(source).not.toContain('--payload-richtext-')
+    expect(source).toContain('--website-richtext-')
+    expect(source).not.toContain('.not-prose')
+    expect(read('src/components/RichText/index.tsx')).toContain('payload-richtext--content')
+    expect(read('src/components/RichText/index.tsx')).toContain('payload-richtext--plain')
+  })
+
+  it('keeps frontend and Payload global styles isolated', () => {
+    expect(read('src/app/(frontend)/[lang]/layout.tsx')).toContain("import '../globals.css'")
+    expect(read('src/app/(payload)/layout.tsx')).toContain("import './custom.css'")
+    expect(read('src/app/(payload)/layout.tsx')).not.toContain('frontend/globals.css')
+  })
+
+  it('keeps the existing route groups as separate root layouts', () => {
+    const frontend = read('src/app/(frontend)/[lang]/layout.tsx')
+    const payload = read('src/app/(payload)/layout.tsx')
+
+    expect(frontend).toContain('<html')
+    expect(frontend).toContain('<body')
+    expect(payload).toContain('@payloadcms/next/layouts')
+  })
+
+  it('keeps Header and Footer on exact website tokens while retaining local geometry', () => {
+    const files = shellFiles('.module.css')
+    const tokens = read('src/styles/tokens.css')
+    const violations = files.flatMap((file) => scanShellCss(file, read(file), tokens))
+
+    expect(violations).toEqual([])
+    expect(read('src/Header/Component.module.css')).toContain(
+      'var(--website-duration-standard) var(--website-easing-standard)',
+    )
+    expect(read('src/Header/Nav/index.module.css')).toContain('(width > 1170px)')
+    expect(read('src/Footer/index.module.css')).toContain(
+      'grid-template-columns: minmax(0, 20fr) minmax(0, 55fr) minmax(0, 25fr)',
+    )
+    expect(read('src/Footer/index.module.css')).toContain(
+      'var(--website-duration-fast) var(--website-easing-standard)',
+    )
+    expect(read('src/Footer/index.module.css')).toContain(
+      'var(--website-duration-standard) var(--website-easing-standard)',
+    )
+  })
+
+  it('keeps all owned TSX free of utility and unknown literal classes', async () => {
+    // Phase 2 Admin component classes belong to Payload, outside the public shell.
+    const translationAdmin = path.join('src', 'plugins', 'translation', 'admin') + path.sep
+    const files = listFiles('src', '.tsx').filter((file) => !file.startsWith(translationAdmin))
+    const violations = (
+      await Promise.all(files.map((file) => scanShellClasses(file, read(file), adminHooks[file])))
+    ).flat()
+
+    expect(violations).toEqual([])
+  })
+
+  it('keeps Admin hook exceptions scoped and still rejects utilities and unknown classes', () => {
+    for (const [file, allowed] of Object.entries(adminHooks)) {
+      const hook = [...allowed][0]
+      expect(
+        scanShellClasses(file, `<div className="${hook} flex unknown-hook" />`, allowed),
+      ).toEqual([expect.stringContaining(': flex'), expect.stringContaining(': unknown-hook')])
+      expect(scanShellClasses('src/components/Other.tsx', `<div className="${hook}" />`)).toEqual([
+        expect.stringContaining(`: ${hook}`),
+      ])
+    }
+  })
+
+  it('detects equivalent inverse colors, radii, durations, and shared shadows', () => {
+    const tokens = `${read('src/styles/tokens.css')}\n:root { --website-shadow-card: 0 1px 2px rgb(0 0 0 / 10%); }`
+    const footer = scanShellCss(
+      'src/Footer/test.module.css',
+      `
+      .example {
+        background: rgb(10, 10, 10);
+        color: rgba(255, 255, 255, .68);
+        border-block-color: rgba(255, 255, 255, .18);
+        border-radius: 12px;
+        transition: opacity .16s ease;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, .1);
+      }
+      .strong { color: white; border-radius: 999.0px; transition: opacity .36s ease; }
+    `,
+      tokens,
+    )
+    const header = scanShellCss(
+      'src/Header/test.module.css',
+      `
+      .example {
+        background: rgb(255 255 255);
+        color: rgb(17 17 17);
+        border-radius: 20px;
+        transition-duration: 0.36s;
+      }
+      .shorthand { background: white no-repeat; }
+      .gradient { background: linear-gradient(white, transparent); }
+    `,
+      tokens,
+    )
+
+    expect(footer).toEqual(
+      expect.arrayContaining([
+        expect.stringContaining('inverse background'),
+        expect.stringContaining('inverse muted foreground'),
+        expect.stringContaining('inverse foreground'),
+        expect.stringContaining('inverse border'),
+        expect.stringContaining('control radius'),
+        expect.stringContaining('pill radius'),
+        expect.stringContaining('fast duration'),
+        expect.stringContaining('slow duration'),
+        expect.stringContaining('shared shadow'),
+      ]),
+    )
+    expect(header).toEqual(
+      expect.arrayContaining([
+        expect.stringContaining('default background'),
+        expect.stringContaining('default foreground'),
+        expect.stringContaining('content radius'),
+        expect.stringContaining('slow duration'),
+      ]),
+    )
+    expect(header.filter((violation) => violation.includes('default background'))).toHaveLength(2)
+  })
+
+  it('finds raw scheme colors through chained primitive and semantic aliases', () => {
+    const tokens = `
+      :root {
+        --website-color-brand-white: #ffffff;
+        --website-color-brand-black: #0a0a0a;
+        --website-color-base: var(--website-color-brand-white);
+        --website-color-background: var(--website-color-base);
+      }
+      [data-website-theme='inverse'] {
+        --website-color-base: var(--website-color-brand-black);
+        --website-color-background: var(--website-color-base);
+      }
+    `
+    expect(
+      scanShellCss('src/Header/test.module.css', '.sample { background: white; }', tokens),
+    ).toEqual([expect.stringContaining('raw default background')])
+    expect(
+      scanShellCss('src/Footer/test.module.css', '.sample { background: rgb(10 10 10); }', tokens),
+    ).toEqual([expect.stringContaining('raw inverse background')])
+  })
+
+  it('allows documented local Header and Footer values', () => {
+    const tokens = read('src/styles/tokens.css')
+    expect(
+      scanShellCss(
+        'src/Header/test.module.css',
+        `
+      @media (width < 1170px) {
+        .brand { transition: opacity 260ms ease; border-radius: .5rem; box-shadow: 0 1px 2px rgb(0 0 0 / 7%); }
+      }
+    `,
+        tokens,
+      ),
+    ).toEqual([])
+    expect(
+      scanShellCss(
+        'src/Footer/test.module.css',
+        `
+      .footer { grid-template-columns: minmax(0, 20fr) minmax(0, 55fr) minmax(0, 25fr); transition: opacity 180ms ease, transform .2s ease; border-radius: 50%; color: rgb(255 255 255 / 72%); }
+      .unique { border-color: #ffffff2e; border-radius: 10px; }
+    `,
+        tokens,
+      ),
+    ).toEqual([])
+  })
+
+  it('detects Tailwind utilities across JSX class expressions and permits project hooks', async () => {
+    const source = `
+      const utility = 'shrink-0'
+      const View = ({ active }) => <>
+        <div className="site-container flex" />
+        <div className={'bg-black'} />
+        <div className={\`site-container \${active ? 'mt-auto' : ''}\`} />
+        <div className={clsx(styles.root, active && 'text-white', ['font-semibold'])} />
+        <div className={cn({ 'max-[1170px]:hidden': active })} />
+        <div className={clsx('group', 'peer', 'group/menu', 'peer/input', 'aspect-video', 'object-cover', 'animate-spin', 'ring-2', 'size-4', 'md:flex', 'hover:bg-black', 'group-hover:opacity-50', 'peer-checked:block', 'w-[37px]', '[color:red]', 'bg-card', 'prose', 'not-prose')} />
+        <div className={utility} data-hook="custom-hook" />
+      </>
+    `
+    const detected = (await scanShellClasses('test.tsx', source)).map((violation) =>
+      violation.split(': ').at(-1),
+    )
+    expect(detected).toEqual(
+      expect.arrayContaining([
+        'flex',
+        'bg-black',
+        'mt-auto',
+        'text-white',
+        'font-semibold',
+        'max-[1170px]:hidden',
+        'shrink-0',
+        'group',
+        'peer',
+        'group/menu',
+        'peer/input',
+        'aspect-video',
+        'object-cover',
+        'animate-spin',
+        'ring-2',
+        'size-4',
+        'md:flex',
+        'hover:bg-black',
+        'group-hover:opacity-50',
+        'peer-checked:block',
+        'w-[37px]',
+        '[color:red]',
+        'bg-card',
+        'prose',
+        'not-prose',
+      ]),
+    )
+    expect(
+      await scanShellClasses('test.tsx', '<div className="site-container" data-hook="bg-black" />'),
+    ).toEqual([])
+  })
+
+  it('rejects obsolete animation utilities without loading an animation plugin', async () => {
+    const source = `
+      <div className={clsx('animate-in fade-in-0 slide-in-from-top-4',
+        active && 'animation-duration-300 zoom-out-95',
+        ['hover:slide-in-from-right-2', 'md:animate-out'])} />
+    `
+    const detected = (await scanShellClasses('test.tsx', source)).map((violation) =>
+      violation.split(': ').at(-1),
+    )
+
+    expect(detected).toEqual([
+      'animate-in',
+      'fade-in-0',
+      'slide-in-from-top-4',
+      'animation-duration-300',
+      'zoom-out-95',
+      'hover:slide-in-from-right-2',
+      'md:animate-out',
+    ])
+  })
+
+  it('checks class maps, variant factories, and alternate class props without inspecting conditions', () => {
+    const source = `
+      import styles from './example.module.css'
+      const choices = { active: 'rounded-[17px]', idle: 'md:flex' }
+      const variants = cva('grid', { variants: { intent: { small: 'p-4' } }, defaultVariants: { intent: 'small' } })
+      const View = () => <>
+        <div className={clsx({ flex: active, [styles.active]: active }, choices[state], variants({ intent: 'small' }))} />
+        <Media imgClassName="object-cover" />
+        <div className={mode === 'compact' ? styles.compact : styles.root} />
+      </>
+    `
+    expect(scanShellClasses('test.tsx', source).map((entry) => entry.split(': ').at(-1))).toEqual([
+      'flex',
+      'rounded-[17px]',
+      'md:flex',
+      'grid',
+      'p-4',
+      'object-cover',
+    ])
+  })
+})

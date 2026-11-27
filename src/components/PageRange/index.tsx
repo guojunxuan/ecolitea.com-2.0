@@ -1,14 +1,18 @@
 import React from 'react'
 
+import { cn } from '@/utilities/ui'
+
+import styles from './index.module.css'
+
 const defaultLabels = {
   plural: 'Docs',
   singular: 'Doc',
 }
 
 const defaultCollectionLabels = {
-  posts: {
-    plural: 'Posts',
-    singular: 'Post',
+  blogs: {
+    plural: 'Blogs',
+    singular: 'Blog',
   },
 }
 
@@ -21,6 +25,7 @@ export const PageRange: React.FC<{
   }
   currentPage?: number
   limit?: number
+  loadedCount?: number
   totalDocs?: number
 }> = (props) => {
   const {
@@ -29,13 +34,15 @@ export const PageRange: React.FC<{
     collectionLabels: collectionLabelsFromProps,
     currentPage,
     limit,
+    loadedCount,
     totalDocs,
   } = props
 
   let indexStart = (currentPage ? currentPage - 1 : 1) * (limit || 1) + 1
   if (totalDocs && indexStart > totalDocs) indexStart = 0
 
-  let indexEnd = (currentPage || 1) * (limit || 1)
+  let indexEnd =
+    loadedCount === undefined ? (currentPage || 1) * (limit || 1) : indexStart + loadedCount - 1
   if (totalDocs && indexEnd > totalDocs) indexEnd = totalDocs
 
   const { plural, singular } =
@@ -45,7 +52,7 @@ export const PageRange: React.FC<{
     {}
 
   return (
-    <div className={[className, 'font-semibold'].filter(Boolean).join(' ')}>
+    <div className={cn(styles.range, className)}>
       {(typeof totalDocs === 'undefined' || totalDocs === 0) && 'Search produced no results.'}
       {typeof totalDocs !== 'undefined' &&
         totalDocs > 0 &&

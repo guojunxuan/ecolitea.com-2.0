@@ -1,0 +1,10 @@
+import type { BlogKeyTakeawaysBlock as Props } from '@/payload-types'
+import RichText from '@/components/RichText'
+import styles from './Component.module.css'
+
+export const KeyTakeawaysBlock = ({ label, content }: Props) => (
+  <aside className={styles.takeaways} aria-label={label || 'Key Points'}>
+    {label && <h2 className={styles.label}>{label}</h2>}
+    <RichText data={content} enableGutter={false} />
+  </aside>
+)

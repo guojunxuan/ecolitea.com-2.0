@@ -1,30 +1,26 @@
-'use client'
-import { useHeaderTheme } from '@/providers/HeaderTheme'
-import React, { useEffect } from 'react'
+import React from 'react'
 
 import type { Page } from '@/payload-types'
 
 import { CMSLink } from '@/components/Link'
 import { Media } from '@/components/Media'
+import { MEDIA_PRESENTATION } from '@/components/Media/config'
 import RichText from '@/components/RichText'
+import { HeaderThemeSync } from '@/heros/HeaderThemeSync'
 
-export const HighImpactHero: React.FC<Page['hero']> = ({ links, media, richText }) => {
-  const { setHeaderTheme } = useHeaderTheme()
+import styles from './index.module.css'
 
-  useEffect(() => {
-    setHeaderTheme('dark')
-  })
-
+export const HighImpactHero: React.FC<Page['hero']> = ({ headerTheme, links, media, richText }) => {
   return (
-    <div
-      className="relative -mt-[10.4rem] flex items-center justify-center text-white"
-      data-theme="dark"
-    >
-      <div className="container mb-8 z-10 relative flex items-center justify-center">
-        <div className="max-w-[36.5rem] md:text-center">
-          {richText && <RichText className="mb-6" data={richText} enableGutter={false} />}
+    <div className={styles.root} data-hero="high-impact" data-website-theme="inverse">
+      <HeaderThemeSync theme={headerTheme} />
+      <div className={styles.content}>
+        <div className={styles.intro}>
+          {richText && (
+            <RichText className={styles.richText} data={richText} enableGutter={false} />
+          )}
           {Array.isArray(links) && links.length > 0 && (
-            <ul className="flex md:justify-center gap-4">
+            <ul className={styles.links}>
               {links.map(({ link }, i) => {
                 return (
                   <li key={i}>
@@ -36,9 +32,15 @@ export const HighImpactHero: React.FC<Page['hero']> = ({ links, media, richText 
           )}
         </div>
       </div>
-      <div className="min-h-[80vh] select-none">
+      <div className={styles.mediaFrame}>
         {media && typeof media === 'object' && (
-          <Media fill imgClassName="-z-10 object-cover" priority resource={media} />
+          <Media
+            fill
+            imgClassName={styles.image}
+            presentation={MEDIA_PRESENTATION.hero}
+            priority
+            resource={media}
+          />
         )}
       </div>
     </div>

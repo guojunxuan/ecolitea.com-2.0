@@ -1,0 +1,115 @@
+.container {
+  width: min(calc(100% - var(--website-gutter) * 2), var(--website-container-site));
+  margin-inline: auto;
+  color: var(--website-color-foreground);
+}
+.mediaArea {
+  position: relative;
+}
+.arrows {
+  position: absolute;
+  inset: 50% var(--website-space-4) auto;
+  transform: translateY(-50%);
+  display: flex;
+  justify-content: space-between;
+  pointer-events: none;
+}
+.arrows > button {
+  pointer-events: auto;
+}
+.navigation {
+  margin-top: var(--website-space-4);
+}
+.tablist {
+  display: flex;
+  position: relative;
+  width: fit-content;
+  max-width: 100%;
+  margin-inline: auto;
+  gap: var(--website-space-8);
+  overflow-x: auto;
+  border-bottom: 2px solid var(--website-color-border);
+  scrollbar-width: none;
+}
+.tablist button {
+  flex-shrink: 0;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: var(--website-color-muted-foreground);
+  padding: var(--website-space-3) 0;
+  min-height: var(--website-control-target-min);
+  cursor: pointer;
+}
+.tablist button[aria-selected='true'] {
+  color: var(--website-color-foreground);
+}
+.tablist:not([data-measured='true']) button[aria-selected='true'] {
+  border-bottom-color: currentColor;
+}
+.line {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 2px;
+  background: var(--website-color-foreground);
+  transition:
+    transform var(--website-duration-standard) var(--website-easing-standard),
+    width var(--website-duration-standard) var(--website-easing-standard);
+}
+.panels {
+  display: grid;
+}
+.panel {
+  grid-area: 1 / 1;
+  min-width: 0;
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity var(--website-duration-standard) var(--website-easing-standard),
+    visibility var(--website-duration-standard);
+}
+.panel[data-active='true'] {
+  opacity: 1;
+  visibility: visible;
+}
+.descriptions {
+  margin-top: var(--website-space-3);
+  display: grid;
+  text-align: center;
+  color: var(--website-color-muted-foreground);
+}
+.descriptions p {
+  grid-area: 1 / 1;
+  margin: 0;
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity var(--website-duration-standard) var(--website-easing-standard);
+}
+.descriptions p[data-active='true'] {
+  opacity: 1;
+  visibility: visible;
+}
+@media (width < 48rem) {
+  .media[data-aspect-ratio='21:9'] {
+    aspect-ratio: 16 / 9;
+  }
+  .tablist {
+    width: 100%;
+    margin-inline: 0;
+    gap: var(--website-space-6);
+  }
+  .descriptions {
+    text-align: left;
+  }
+  .arrows {
+    inset-inline: var(--website-space-3);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .line,
+  .panel,
+  .descriptions p {
+    transition: none;
+  }
+}

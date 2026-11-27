@@ -1,0 +1,36 @@
+.group + .group {
+  border-top: 1px solid var(--website-color-border);
+}
+.groupTitle {
+  composes: website-type-eyebrow from global;
+  margin: 0;
+  padding-top: var(--website-space-3);
+  color: var(--website-color-subtle-foreground);
+  overflow-wrap: anywhere;
+}
+.list {
+  composes: website-type-caption from global;
+  margin: 0;
+}
+.row {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+  gap: var(--website-space-4);
+  padding-block: 9px;
+  overflow-wrap: anywhere;
+}
+.row + .row {
+  border-top: 1px solid var(--website-color-border);
+}
+.row dt {
+  color: var(--website-color-muted-foreground);
+}
+.row dd {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+.toggle {
+  padding-inline: 0;
+  min-height: var(--website-control-target-min);
+  text-align: start;
+}

@@ -1,0 +1,491 @@
+import { readFileSync } from 'node:fs'
+import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import React from 'react'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+
+const { push } = vi.hoisted(() => ({ push: vi.fn() }))
+vi.mock('next/navigation', () => ({ useRouter: () => ({ push }) }))
+// Archive's server-only dependencies are not part of these client contracts.
+vi.mock('@payload-config', () => ({ default: {} }))
+vi.mock('payload', () => ({ getPayload: vi.fn() }))
+
+import { RenderPageBlocks } from '@/collections/Pages/blocks/RenderPageBlocks'
+import { ContentBlock } from '@/collections/Pages/blocks/Content/Component'
+import { BannerBlock } from '@/collections/Blogs/blocks/Banner/Component'
+import { FormBlock, type FormBlockType } from '@/collections/Pages/blocks/Form/Component'
+import { Width } from '@/collections/Pages/blocks/Form/Width'
+import type { Page } from '@/payload-types'
+import RichText from '@/components/RichText'
+import { blogRichTextBlocks } from '@/collections/Blogs/blocks/richTextBlocks'
+
+// The glob lets missing migration modules fail assertions rather than module resolution.
+const modules = import.meta.glob(['/src/blocks/**/*.module.css', '/src/collections/*/blocks/**/*.module.css'], {
+  eager: true,
+  import: 'default',
+}) as Record<string, Record<string, string>>
+const style = (path: string, name: string) => {
+  const owner = path.startsWith('Form/') || path.startsWith('Content/') || path === 'RenderPageBlocks' ? 'Pages' : 'Blogs'
+  const className = modules[`/src/collections/${owner}/blocks/${path}.module.css`]?.[name]
+  expect(className, `${path} exports ${name}`).toBeTruthy()
+  return className
+}
+const richText = (text: string) =>
+  ({
+    root: {
+      type: 'root',
+      version: 1,
+      direction: null,
+      format: '',
+      indent: 0,
+      children: [
+        {
+          type: 'paragraph',
+          version: 1,
+          children: [
+            { type: 'text', version: 1, text, format: 0, detail: 0, mode: 'normal', style: '' },
+          ],
+        },
+      ],
+    },
+  }) as never
+
+const form = (overrides: Partial<FormBlockType['form']> = {}): FormBlockType['form'] =>
+  ({
+    id: 'contact-form',
+    title: 'Contact',
+    submitButtonLabel: 'Send',
+    confirmationType: 'message',
+    confirmationMessage: richText('Thank you'),
+    fields: [
+      { blockType: 'text', name: 'name', label: 'Name', required: true, width: 50 },
+      { blockType: 'email', name: 'email', label: 'Email', required: true },
+      { blockType: 'number', name: 'quantity', label: 'Quantity' },
+      { blockType: 'textarea', name: 'notes', label: 'Notes' },
+      { blockType: 'checkbox', name: 'consent', label: 'Consent', required: true },
+      {
+        blockType: 'select',
+        name: 'tea',
+        label: 'Tea',
+        defaultValue: 'green',
+        options: [{ label: 'Green', value: 'green' }],
+      },
+      { blockType: 'country', name: 'country', label: 'Country' },
+      { blockType: 'state', name: 'state', label: 'State' },
+      { blockType: 'message', message: richText('Tell us about your tea') },
+    ],
+    ...overrides,
+  }) as FormBlockType['form']
+
+beforeEach(() => {
+  vi.stubGlobal(
+    'ResizeObserver',
+    class {
+      observe() {}
+      unobserve() {}
+      disconnect() {}
+    },
+  )
+})
+afterEach(() => {
+  cleanup()
+  vi.useRealTimers()
+  vi.unstubAllGlobals()
+  vi.clearAllMocks()
+})
+
+describe('Block CSS module contracts', () => {
+  it('renders typed page blocks with one page wrapper and keeps keyed nodes stable', () => {
+    const first: Page['layout'] = [
+      { id: 'first', blockType: 'pageContent', columns: [] },
+      { id: 'second', blockType: 'pageMediaBlock', media: 'missing' },
+    ]
+    const { container, rerender } = render(<RenderPageBlocks blocks={first} />)
+    const originalNodes = [...container.children]
+    expect(originalNodes).toHaveLength(2)
+    expect(
+      originalNodes.every((node) => node.classList.contains(style('RenderPageBlocks', 'section'))),
+    ).toBe(true)
+    rerender(<RenderPageBlocks blocks={[first[1], first[0]]} />)
+    expect(container.children[0]).toBe(originalNodes[1])
+    expect(container.children[1]).toBe(originalNodes[0])
+  })
+
+  it('renders article blocks inside rich-text embedded containers with article widths', () => {
+    const block = (id: string, fields: Record<string, unknown>) => ({
+      type: 'block',
+      version: 2,
+      format: '',
+      fields: { id, ...fields },
+    })
+    const content = {
+      root: {
+        type: 'root',
+        version: 1,
+        direction: null,
+        format: '',
+        indent: 0,
+        children: [
+          block('media', { blockType: 'blogMediaBlock', media: 'missing', width: 'wide' }),
+          block('takeaways', { blockType: 'blogKeyTakeaways', content: richText('Summary') }),
+          block('banner', { blockType: 'blogBanner', style: 'info', content: richText('Notice') }),
+          block('cta', { blockType: 'blogCta', heading: 'Explore more', theme: 'inverse' }),
+        ],
+      },
+    } as never
+    const { container } = render(<RichText data={content} context="article" blocks={blogRichTextBlocks} />)
+    expect(container.querySelectorAll('.payload-richtext__embedded')).toHaveLength(4)
+    expect(screen.getByText('Summary')).toBeTruthy()
+    expect(screen.getByText('Notice')).toBeTruthy()
+    expect(screen.getByText('Explore more')).toBeTruthy()
+    expect(container.querySelector('figure')?.classList).toContain(
+      style('MediaBlock/Component', 'article'),
+    )
+    expect(readFileSync('src/components/RichText/index.module.css', 'utf8')).toMatch(
+      /\.article > :global\(\.payload-richtext__embedded\) > \*\s*\{[^}]*margin-block:\s*0/s,
+    )
+    expect(readFileSync('src/collections/Blogs/blocks/MediaBlock/Component.module.css', 'utf8')).toMatch(
+      /\.article\.wide\s*,\s*\.article\.fullWidth\s*\{[^}]*max-width:\s*none/,
+    )
+    expect(readFileSync('src/collections/Pages/blocks/RenderPageBlocks.module.css', 'utf8')).not.toContain(
+      "data-block-context='article'",
+    )
+  })
+
+  it('lets CTA inherit a parent theme unless its theme is explicitly selected', () => {
+    const content = {
+      root: {
+        type: 'root',
+        version: 1,
+        direction: null,
+        format: '',
+        indent: 0,
+        children: [
+          ...(['inherited', 'inverse', 'default'] as const).map((id) => ({
+            type: 'block',
+            version: 2,
+            format: '',
+            fields: {
+              id,
+              blockType: 'blogCta',
+              heading: id,
+              ...(id === 'inherited' ? {} : { theme: id }),
+            },
+          })),
+        ],
+      },
+    } as never
+    const { container } = render(
+      <div data-website-theme="inverse">
+        <RichText data={content} context="article" blocks={blogRichTextBlocks} />
+      </div>,
+    )
+    const panels = [
+      ...container.querySelectorAll(`.${style('CallToAction/Component', 'container')}`),
+    ]
+    expect(panels.map((panel) => panel.getAttribute('data-website-theme'))).toEqual([
+      null,
+      'inverse',
+      'default',
+    ])
+  })
+
+  it.each(['info', 'warning', 'error', 'success'] as const)(
+    'defines %s Banner colors in default and inverse theme scopes',
+    (status) => {
+      const css = readFileSync('src/styles/tokens.css', 'utf8')
+      const root = css.match(/:root\s*\{([^}]+)\}/)?.[1] || ''
+      const inverse = css.match(/\[data-website-theme='inverse'\]\s*\{([^}]+)\}/)?.[1] || ''
+      const explicitDefault = css.match(/\[data-website-theme='default'\]\s*\{([^}]+)\}/)?.[1] || ''
+      for (const part of ['accent', 'background', 'foreground', 'border']) {
+        const token = `--website-status-${status}-${part}:`
+        expect(root, `default ${token}`).toContain(token)
+        expect(explicitDefault, `nested default ${token}`).toContain(token)
+        expect(inverse, `inverse ${token}`).toContain(token)
+      }
+    },
+  )
+
+  it('adds exactly one standard section wrapper per supported Block', () => {
+    const { container } = render(
+      <RenderPageBlocks
+        blocks={[
+          { blockType: 'pageContent', columns: [] },
+          { blockType: 'pageMediaBlock', media: 'missing' },
+        ]}
+      />,
+    )
+    expect(container.children).toHaveLength(2)
+    for (const wrapper of container.children) {
+      expect(wrapper.classList).toContain(style('RenderPageBlocks', 'section'))
+      expect(wrapper.children).toHaveLength(1)
+      expect(wrapper.firstElementChild?.classList).not.toContain(style('RenderPageBlocks', 'section'))
+    }
+  })
+
+  it.each(['full', 'half', 'oneThird', 'twoThirds'] as const)(
+    'maps the %s column without dynamic utility classes',
+    (size) => {
+      render(<ContentBlock blockType="pageContent" columns={[{ size, richText: richText(size) }]} />)
+      const column = screen.getByText(size).closest('.payload-richtext')?.parentElement
+      expect(column?.classList).toContain(style('Content/Component', size))
+      expect(column?.classList).toContain(style('Content/Component', 'column'))
+    },
+  )
+
+  it('preserves the medium half-width fallback for an unspecified column size', () => {
+    render(<ContentBlock blockType="pageContent" columns={[{ richText: richText('Fallback') }]} />)
+    expect(
+      screen.getByText('Fallback').closest('.payload-richtext')?.parentElement?.classList,
+    ).toContain(style('Content/Component', 'partial'))
+  })
+
+  it.each(['info', 'warning', 'error', 'success'] as const)(
+    'maps Banner %s status and keeps nested RichText plain',
+    (status) => {
+      render(
+        <BannerBlock
+          id={`banner-${status}`}
+          blockType="blogBanner"
+          style={status}
+          content={richText('Notice')}
+        />,
+      )
+      const content = screen.getByText('Notice').closest('.payload-richtext')!
+      expect(content.classList).toContain('payload-richtext--plain')
+      expect(content.parentElement?.classList).toContain(style('Banner/Component', status))
+      const banner = screen.getByRole('note')
+      expect(banner.getAttribute('aria-label')).toBe(status)
+      expect(banner.querySelector('svg[aria-hidden="true"]')).not.toBeNull()
+      expect(banner.contains(content)).toBe(true)
+      expect(banner.getAttribute('aria-live')).toBeNull()
+    },
+  )
+
+  it('keeps unknown Banner styles unstyled beyond the base surface', () => {
+    render(
+      <BannerBlock
+        id="banner-unknown"
+        blockType="blogBanner"
+        style={'unknown' as never}
+        content={richText('Notice')}
+      />,
+    )
+    const banner = screen.getByText('Notice').closest('.payload-richtext')?.parentElement
+    expect(banner?.className).toBe(style('Banner/Component', 'surface'))
+  })
+
+  it('preserves MediaBlock border and radius in the image-owned module', () => {
+    expect(style('MediaBlock/Component', 'image')).toBeTruthy()
+    if (!style('MediaBlock/Component', 'image')) return
+    const css = readFileSync('src/collections/Blogs/blocks/MediaBlock/Component.module.css', 'utf8')
+    expect(css).toMatch(/border:\s*1px solid var\(--website-color-border\)/)
+    expect(css).toMatch(/border-radius:\s*var\(--website-radius-content\)/)
+  })
+})
+
+describe('Form behavior across the style migration', () => {
+  it('preserves every field renderer, labels, required text, native types, and widths', () => {
+    const { container } = render(<FormBlock enableIntro={false} form={form()} />)
+    const name = screen.getByRole('textbox', { name: /Name/ })
+    expect(name.parentElement?.classList).toContain(style('Form/Width/index', 'width'))
+    expect((name.parentElement as HTMLElement).style.getPropertyValue('--form-field-width')).toBe(
+      '50%',
+    )
+    expect(screen.getByRole('textbox', { name: /Email/ }).getAttribute('type')).toBe('text')
+    expect(screen.getByRole('spinbutton', { name: 'Quantity' }).getAttribute('name')).toBe(
+      'quantity',
+    )
+    expect(screen.getByRole('textbox', { name: 'Notes' }).getAttribute('rows')).toBe('3')
+    expect(screen.getByRole('checkbox', { name: /Consent/ }).getAttribute('aria-checked')).toBe(
+      'false',
+    )
+    const controls = [
+      name,
+      screen.getByRole('textbox', { name: /Email/ }),
+      screen.getByRole('spinbutton', { name: 'Quantity' }),
+      screen.getByRole('textbox', { name: 'Notes' }),
+      screen.getByRole('checkbox', { name: /Consent/ }),
+      ...screen.getAllByRole('combobox'),
+    ]
+    expect(screen.getAllByRole('combobox')).toHaveLength(3)
+    expect(new Set(controls.map((control) => control.id)).size).toBe(controls.length)
+    for (const control of controls) {
+      expect(control.id).toBeTruthy()
+      expect(control.id).not.toBe(control.getAttribute('name'))
+      expect(container.querySelector(`label[for="${control.id}"]`)).not.toBeNull()
+    }
+    expect(screen.getByText('Tell us about your tea')).toBeTruthy()
+    const requiredText = screen.getAllByText('(required)', { selector: 'span' })
+    expect(requiredText).toHaveLength(3)
+    for (const [path, visuallyHiddenText] of [
+      ['Form/Text/index', requiredText[0]],
+      ['Form/Email/index', requiredText[1]],
+      ['Form/Checkbox/index', requiredText[2]],
+    ] as const) {
+      expect(visuallyHiddenText.parentElement?.classList).toContain(style(path, 'required'))
+      expect(visuallyHiddenText.parentElement?.classList).not.toContain('required')
+    }
+    for (const path of ['Form/Text/index', 'Form/Email/index', 'Form/Checkbox/index']) {
+      const css = readFileSync(`src/collections/Pages/blocks/${path}.module.css`, 'utf8')
+      expect(css).toContain('composes: visually-hidden from global;')
+    }
+    expect(screen.getByRole('button', { name: 'Send' }).getAttribute('form')).toBe('contact-form')
+  })
+
+  it.each([undefined, 0, 33, '75', '0'])(
+    'preserves the configured width %s and its fallback',
+    (width) => {
+      const { container } = render(<Width width={width}>Field</Width>)
+      expect(container.firstElementChild?.classList).toContain(style('Form/Width/index', 'width'))
+      expect(
+        (container.firstElementChild as HTMLElement).style.getPropertyValue('--form-field-width'),
+      ).toBe(width ? `${width}%` : '')
+    },
+  )
+
+  it('keeps required validation and does not submit invalid fields', async () => {
+    const fetchMock = vi.fn()
+    vi.stubGlobal('fetch', fetchMock)
+    render(<FormBlock enableIntro={false} form={form()} />)
+    fireEvent.click(screen.getByRole('button', { name: 'Send' }))
+    expect(await screen.findAllByText('This field is required')).toHaveLength(3)
+    expect(fetchMock).not.toHaveBeenCalled()
+    for (const error of screen.getAllByText('This field is required'))
+      expect(error.classList).toContain(style('Form/Error/index', 'error'))
+
+    for (const control of [
+      screen.getByRole('textbox', { name: /Name/ }),
+      screen.getByRole('textbox', { name: /Email/ }),
+      screen.getByRole('checkbox', { name: /Consent/ }),
+    ]) {
+      const errorID = control.getAttribute('aria-describedby')
+      expect(control.getAttribute('aria-invalid')).toBe('true')
+      expect(errorID).toBeTruthy()
+      const error = document.getElementById(errorID!)
+      expect(error?.getAttribute('role')).toBe('alert')
+      expect(error?.textContent).toBe('This field is required')
+    }
+  })
+
+  it('scopes repeated field names and errors to each rendered Form Block', async () => {
+    const repeatedField = (label: string): FormBlockType['form']['fields'] => [
+      { blockType: 'text', name: 'shared-name', label, required: true },
+    ]
+    render(
+      <>
+        <FormBlock
+          enableIntro={false}
+          form={form({ id: 'first-form', fields: repeatedField('First shared field') })}
+        />
+        <FormBlock
+          enableIntro={false}
+          form={form({ id: 'second-form', fields: repeatedField('Second shared field') })}
+        />
+      </>,
+    )
+
+    const initialControlIDs = screen.getAllByRole('textbox').map((control) => control.id)
+    for (const button of screen.getAllByRole('button', { name: 'Send' })) fireEvent.click(button)
+    expect(await screen.findAllByText('This field is required')).toHaveLength(2)
+
+    const controls = screen.getAllByRole('textbox')
+    expect(controls).toHaveLength(2)
+    expect(controls.map((control) => control.id)).toEqual(initialControlIDs)
+    expect(controls.map((control) => control.getAttribute('name'))).toEqual([
+      'shared-name',
+      'shared-name',
+    ])
+    expect(new Set(controls.map((control) => control.id)).size).toBe(2)
+
+    const errorIDs = controls.map((control) => control.getAttribute('aria-describedby'))
+    expect(errorIDs.every(Boolean)).toBe(true)
+    expect(new Set(errorIDs).size).toBe(2)
+    for (const [index, control] of controls.entries()) {
+      const label = screen.getByText(index === 0 ? 'First shared field' : 'Second shared field')
+      expect(label.getAttribute('for')).toBe(control.id)
+      const error = document.getElementById(errorIDs[index]!)
+      expect(error?.getAttribute('role')).toBe('alert')
+      expect(error?.textContent).toBe('This field is required')
+    }
+  })
+
+  it('posts registered values, preserves delayed loading and enabled submit, then shows confirmation', async () => {
+    vi.useFakeTimers()
+    let resolve!: (response: Response) => void
+    const fetchMock = vi.fn(
+      () =>
+        new Promise<Response>((done) => {
+          resolve = done
+        }),
+    )
+    vi.stubGlobal('fetch', fetchMock)
+    render(
+      <FormBlock
+        enableIntro
+        introContent={richText('Contact us')}
+        form={form({
+          fields: [{ blockType: 'text', name: 'name', label: 'Name', required: true }],
+        })}
+      />,
+    )
+    fireEvent.change(screen.getByRole('textbox', { name: /Name/ }), { target: { value: 'Jason' } })
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: 'Send' }))
+    })
+    expect(fetchMock).toHaveBeenCalledOnce()
+    const [url, options] = fetchMock.mock.calls[0] as unknown as [string, RequestInit]
+    expect(url).toMatch(/\/api\/form-submissions$/)
+    expect(options.method).toBe('POST')
+    expect(options.headers).toEqual({ 'Content-Type': 'application/json' })
+    expect(JSON.parse(options.body as string)).toMatchObject({
+      form: 'contact-form',
+      submissionData: expect.arrayContaining([{ field: 'name', value: 'Jason' }]),
+    })
+    expect(screen.queryByText('Loading, please wait...')).toBeNull()
+    await act(async () => {
+      vi.advanceTimersByTime(1000)
+    })
+    expect(screen.getByRole('status').textContent).toBe('Loading, please wait...')
+    const submit = screen.getByRole('button', { name: 'Send' })
+    expect(submit.getAttribute('aria-busy')).toBe('true')
+    expect((submit as HTMLButtonElement).disabled).toBe(false)
+    await act(async () => {
+      resolve(new Response(JSON.stringify({ doc: { id: 'submission' } }), { status: 201 }))
+    })
+    expect(screen.getByText('Thank you')).toBeTruthy()
+    expect(screen.queryByRole('button', { name: 'Send' })).toBeNull()
+    expect(screen.queryByText('Contact us')).toBeNull()
+    expect(screen.queryByText('Loading, please wait...')).toBeNull()
+  })
+
+  it('preserves server errors and allows another submission', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue(
+        new Response(JSON.stringify({ errors: [{ message: 'Try later' }], status: '429' }), {
+          status: 429,
+        }),
+      ),
+    )
+    render(<FormBlock enableIntro={false} form={form({ fields: [] })} />)
+    fireEvent.click(screen.getByRole('button', { name: 'Send' }))
+    expect((await screen.findByRole('alert')).textContent).toBe('429: Try later')
+    expect((screen.getByRole('button', { name: 'Send' }) as HTMLButtonElement).disabled).toBe(false)
+  })
+
+  it('preserves redirect confirmation wiring', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response('{}', { status: 201 })))
+    render(
+      <FormBlock
+        enableIntro={false}
+        form={form({
+          fields: [],
+          confirmationType: 'redirect',
+          redirect: { type: 'custom', url: '/thanks' },
+        })}
+      />,
+    )
+    fireEvent.click(screen.getByRole('button', { name: 'Send' }))
+    await waitFor(() => expect(push).toHaveBeenCalledWith('/thanks'))
+  })
+})

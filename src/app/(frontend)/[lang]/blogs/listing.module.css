@@ -1,0 +1,58 @@
+.page {
+  padding-block: var(--website-section-spacious);
+}
+
+.hasHero {
+  padding-top: 0;
+}
+
+.hasHero .tabs {
+  margin-top: var(--website-section-standard);
+}
+
+/* Below the tab breakpoint the category band attaches to the Hero as its sub-navigation. */
+@media (width < 48rem) {
+  .tabs {
+    position: sticky;
+    top: var(--header-height);
+    z-index: var(--website-z-raised);
+  }
+
+  .hasHero .tabs {
+    margin-top: 0;
+  }
+}
+
+.header,
+.tabs,
+.empty,
+.pagination {
+  width: min(100% - (2 * var(--website-gutter)), var(--website-container-site));
+  margin-inline: auto;
+}
+
+.header {
+  margin-bottom: var(--website-section-standard);
+}
+
+.title {
+  composes: website-type-heading-1 from global;
+  margin: 0;
+}
+
+.breadcrumb {
+  margin-bottom: var(--website-space-8);
+}
+
+.description {
+  max-width: 42rem;
+  margin-block: var(--website-space-4) 0;
+}
+
+.tabs {
+  margin-bottom: var(--website-space-8);
+}
+
+.empty {
+  text-align: center;
+}

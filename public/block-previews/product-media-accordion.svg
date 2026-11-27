@@ -1,0 +1,11 @@
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 480 320"
+  role="img"
+  aria-label="product media accordion block preview"
+>
+  <g fill="none" stroke="#262629" stroke-width="8">
+    <path d="M40 68h160M40 100h136M40 124h112M40 176h160M40 220h160M40 264h160" />
+    <rect x="240" y="60" width="200" height="200" />
+  </g>
+</svg>

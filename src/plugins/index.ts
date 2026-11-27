@@ -1,45 +1,253 @@
 import { formBuilderPlugin } from '@payloadcms/plugin-form-builder'
-import { nestedDocsPlugin } from '@payloadcms/plugin-nested-docs'
 import { redirectsPlugin } from '@payloadcms/plugin-redirects'
 import { seoPlugin } from '@payloadcms/plugin-seo'
 import { searchPlugin } from '@payloadcms/plugin-search'
-import { Plugin } from 'payload'
+import type { CollectionSlug, Plugin, StorageAdapter } from 'payload'
 import { revalidateRedirects } from '@/hooks/revalidateRedirects'
-import { GenerateTitle, GenerateURL } from '@payloadcms/plugin-seo/types'
+import {
+  GenerateDescription,
+  GenerateImage,
+  GenerateTitle,
+  GenerateURL,
+} from '@payloadcms/plugin-seo/types'
 import { FixedToolbarFeature, HeadingFeature, lexicalEditor } from '@payloadcms/richtext-lexical'
 import { searchFields } from '@/search/fieldOverrides'
 import { beforeSyncWithSearch } from '@/search/beforeSync'
+import { publicBlogVisibility } from '@/utilities/blogs/publicVisibility'
+import { publicSearchVisibility } from '@/search/visibility'
+import { translationPlugin } from './translation'
+import { validateSubmission } from './formBuilder/validateSubmission'
 
-import { Page, Post } from '@/payload-types'
+import {
+  Blog,
+  BlogCategory,
+  CaseStudy,
+  Page,
+  Product,
+  ProductCategory,
+  Settings,
+} from '@/payload-types'
 import { getServerSideURL } from '@/utilities/getURL'
-import { s3Storage } from '@payloadcms/storage-s3'
+import { formatTitle, getSiteIdentity } from '@/utilities/siteIdentity'
+import { getContentPath } from '@/utilities/getContentPath'
+import { productsOverviewPath } from '@/utilities/products/paths'
+import { MEDIA_UPLOAD_POLICY } from '@/collections/mediaUploadPolicy'
+import { s3Storage, type S3StorageOptions } from '@payloadcms/storage-s3'
 import { serverEnv } from '@/utilities/env'
+import { buildStoragePathData } from '@payloadcms/plugin-cloud-storage/utilities'
 
-const generateTitle: GenerateTitle<Post | Page> = ({ doc }) => {
-  return doc?.title ? `${doc.title} | Payload Website Template` : 'Payload Website Template'
+type SEOContent = BlogCategory | Blog | CaseStudy | Page | Product | ProductCategory
+
+export const generateTitle: GenerateTitle<SEOContent | Settings> = async ({
+  collectionConfig,
+  globalConfig,
+  doc,
+  req,
+}) => {
+  const { siteName } = await getSiteIdentity({ req })
+  if (globalConfig?.slug === 'settings') return formatTitle('Blogs', siteName)
+
+  const title = (doc as SEOContent)?.title?.trim()
+  if (title && collectionConfig?.slug === 'blog-categories')
+    return formatTitle(`${title} Blogs`, siteName)
+  if (title && collectionConfig?.slug === 'product-categories')
+    return formatTitle(`${title} Products`, siteName)
+  return formatTitle(title, siteName)
 }
 
-const generateURL: GenerateURL<Post | Page> = ({ doc }) => {
+export const generateDescription: GenerateDescription<SEOContent | Settings> = ({
+  collectionConfig,
+  globalConfig,
+  doc,
+}) => {
+  if (globalConfig?.slug === 'settings')
+    return 'Explore our latest blog articles, insights, and guides.'
+  const content = doc as SEOContent
+  if (collectionConfig?.slug === 'blog-categories') {
+    const category = content as BlogCategory
+    if (category?.description) return category.description
+    return category?.title
+      ? `Explore ${category.title.toLowerCase()} articles and guides.`
+      : 'Explore our latest blog articles, insights, and guides.'
+  }
+  if (collectionConfig?.slug === 'blogs') return (content as Blog)?.excerpt || ''
+  if (collectionConfig?.slug === 'product-categories') {
+    const category = content as ProductCategory
+    if (category?.description) return category.description
+    return category?.title
+      ? `Explore our ${category.title.toLowerCase()} products.`
+      : 'Explore our product range.'
+  }
+  if (collectionConfig?.slug === 'products') return (content as Product)?.summary || ''
+  return content?.meta?.description || ''
+}
+
+export const generateURL: GenerateURL<SEOContent | Settings> = ({
+  collectionConfig,
+  globalConfig,
+  doc,
+}) => {
   const url = getServerSideURL()
-
-  return doc?.slug ? `${url}/${doc.slug}` : url
+  if (globalConfig?.slug === 'settings') return new URL('/blogs', url).toString()
+  const content = doc as SEOContent
+  if (collectionConfig?.slug === 'blog-categories') {
+    return `${url}/blogs${content?.slug ? `/category/${content.slug}` : ''}`
+  }
+  if (collectionConfig?.slug === 'product-categories' || collectionConfig?.slug === 'products') {
+    const path = content?.slug
+      ? getContentPath(collectionConfig.slug, content.slug, {
+          categorySlug:
+            collectionConfig.slug === 'products' ? (content as Product).categorySlug : undefined,
+        })
+      : null
+    return `${url}${path ?? productsOverviewPath}`
+  }
+  const path =
+    collectionConfig?.slug && content?.slug
+      ? getContentPath(collectionConfig.slug as CollectionSlug, content.slug)
+      : null
+  return path ? `${url}${path}` : url
 }
 
-export const plugins: Plugin[] = [
+const mediaID = (value: unknown): string | number | undefined => {
+  if (value === '' || value === 0) return undefined
+  if (typeof value === 'string' || typeof value === 'number') return value
+  if (value && typeof value === 'object' && 'id' in value) {
+    const id = value.id
+    if ((typeof id === 'string' && id !== '') || (typeof id === 'number' && id !== 0)) return id
+  }
+  return undefined
+}
+
+export const generateImage: GenerateImage<SEOContent | Settings> = async ({
+  collectionConfig,
+  globalConfig,
+  doc,
+  req,
+}) => {
+  let source: unknown
+  let current: unknown
+
+  if (globalConfig?.slug === 'settings') {
+    const blog = (doc as Settings)?.blog
+    source = blog?.hero?.image
+    current = blog?.seo?.image
+  } else {
+    const content = doc as SEOContent
+    current = content?.meta?.image
+    switch (collectionConfig?.slug) {
+      case 'blog-categories': {
+        if (!content?.id) break
+        const blogs = await req.payload.find({
+          collection: 'blogs',
+          depth: 0,
+          draft: false,
+          limit: 1,
+          sort: '-publishedAt',
+          overrideAccess: false,
+          req,
+          select: { heroImage: true },
+          where: { and: [{ category: { equals: content.id } }, publicBlogVisibility(new Date())] },
+        })
+        source = blogs.docs[0]?.heroImage
+        break
+      }
+      case 'blogs':
+        source = (content as Blog)?.heroImage
+        break
+      case 'product-categories':
+        source = (content as ProductCategory)?.image
+        break
+      case 'products':
+        source = (content as Product)?.gallery?.[0]
+        break
+      case 'pages':
+      case 'case-studies': {
+        const hero = (content as Page | CaseStudy)?.hero
+        if (hero?.type === 'highImpact' || hero?.type === 'mediumImpact') source = hero.media
+        break
+      }
+    }
+  }
+
+  const fallback = mediaID(current) ?? ''
+  const id = mediaID(source)
+  if (id === undefined) return fallback
+
+  try {
+    const media = await req.payload.findByID({
+      collection: 'media',
+      id: String(id),
+      depth: 0,
+      overrideAccess: false,
+      req,
+    })
+    return media?.mimeType &&
+      MEDIA_UPLOAD_POLICY.image.mimeTypes.some((type) => type === media.mimeType)
+      ? id
+      : fallback
+  } catch (error) {
+    const status = (error as { status?: number })?.status
+    if (status === 403 || status === 404) return fallback
+    throw error
+  }
+}
+
+export const generateR2FileURL = ({
+  filename,
+  prefix,
+  collectionPrefix,
+}: {
+  filename: string
+  prefix?: string
+  collectionPrefix?: string
+}) => {
+  // `prefix` arrives as the object's folder: the stored prefix plus any per-upload `_objectKey`.
+  // buildStoragePathData computes the same key as the former getFileKey for pre-upgrade
+  // documents (pinned by tests/int/storage-key-compat.int.spec.ts).
+  const { storageFilePath: fileKey } = buildStoragePathData({
+    filename,
+    docPrefix: prefix,
+    collectionPrefix,
+  })
+  return `${serverEnv.R2_PUBLIC_URL}/${fileKey.split('/').map(encodeURIComponent).join('/')}`
+}
+
+const r2CollectionOptions = (collectionPrefix: string) => ({
+  prefix: collectionPrefix,
+  disablePayloadAccessControl: true as const,
+  generateFileURL: ({ filename, prefix }: { filename: string; prefix?: string }) =>
+    generateR2FileURL({ filename, prefix, collectionPrefix }),
+})
+
+export const r2StorageCollections = {
+  media: r2CollectionOptions('media'),
+  'site-assets': r2CollectionOptions('site-assets'),
+  documents: r2CollectionOptions('documents'),
+} satisfies S3StorageOptions['collections']
+
+export const storage: StorageAdapter[] = [
   s3Storage({
     enabled: process.env.DISABLE_R2_STORAGE !== 'true',
-    collections: { media: true },
+    collections: r2StorageCollections,
     bucket: serverEnv.R2_BUCKET,
     config: {
-      credentials: { accessKeyId: serverEnv.R2_ACCESS_KEY_ID, secretAccessKey: serverEnv.R2_SECRET_ACCESS_KEY },
+      credentials: {
+        accessKeyId: serverEnv.R2_ACCESS_KEY_ID,
+        secretAccessKey: serverEnv.R2_SECRET_ACCESS_KEY,
+      },
       endpoint: serverEnv.R2_ENDPOINT,
       forcePathStyle: true,
       region: 'auto',
     },
-  }).init as unknown as Plugin,
+  }),
+]
+
+export const plugins: Plugin[] = [
   redirectsPlugin({
-    collections: ['pages', 'posts'],
+    collections: ['pages', 'blogs', 'blog-categories', 'products', 'product-categories'],
     overrides: {
+      admin: { group: 'Site' },
       // @ts-expect-error - This is a valid override, mapped fields don't resolve to the same type
       fields: ({ defaultFields }) => {
         return defaultFields.map((field) => {
@@ -59,19 +267,22 @@ export const plugins: Plugin[] = [
       },
     },
   }),
-  nestedDocsPlugin({
-    collections: ['categories'],
-    generateURL: (docs) => docs.reduce((url, doc) => `${url}/${doc.slug}`, ''),
-  }),
   seoPlugin({
     generateTitle,
     generateURL,
+    generateDescription,
+    generateImage,
   }),
   formBuilderPlugin({
     fields: {
       payment: false,
     },
+    formSubmissionOverrides: {
+      admin: { group: 'Content' },
+      hooks: { beforeValidate: [validateSubmission] },
+    },
     formOverrides: {
+      admin: { group: 'Content' },
       fields: ({ defaultFields }) => {
         return defaultFields.map((field) => {
           if ('name' in field && field.name === 'confirmationMessage') {
@@ -94,12 +305,15 @@ export const plugins: Plugin[] = [
     },
   }),
   searchPlugin({
-    collections: ['posts'],
+    collections: ['blogs', 'products'],
     beforeSync: beforeSyncWithSearch,
     searchOverrides: {
+      admin: { group: 'Site' },
+      access: { read: () => publicSearchVisibility(new Date()) },
       fields: ({ defaultFields }) => {
         return [...defaultFields, ...searchFields]
       },
     },
   }),
+  translationPlugin(),
 ]

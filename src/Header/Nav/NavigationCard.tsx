@@ -1,0 +1,74 @@
+import React from 'react'
+
+import { Media } from '@/components/Media'
+
+import type { HeaderCardData } from './types'
+import styles from './blocks.module.css'
+import { NavigationLink } from './NavigationLink'
+
+export type NavigationCardVariant = 'product' | 'visual' | 'rich'
+
+type NavigationCardProps = {
+  card: HeaderCardData
+  description?: string | null
+  mode?: 'compact' | 'desktop'
+  size?: string
+  variant?: NavigationCardVariant
+}
+
+const titleRole: Record<NavigationCardVariant, string | undefined> = {
+  product: styles.productCardTitle,
+  rich: undefined,
+  visual: styles.visualCardTitle,
+}
+
+const cardSize = (variant: NavigationCardVariant, mode: 'compact' | 'desktop') => {
+  if (variant === 'rich') return '(max-width: 1170px) 100vw, 50vw'
+  if (mode === 'compact') {
+    return '(max-width: 360px) 100vw, (max-width: 1170px) 50vw, 25vw'
+  }
+  return '25vw'
+}
+
+export const NavigationCard: React.FC<NavigationCardProps> = ({
+  card,
+  description,
+  mode = 'desktop',
+  size,
+  variant = 'product',
+}) => {
+  const imagePresentation =
+    variant === 'visual'
+      ? { image: { aspectRatio: { width: 16, height: 9 }, fit: 'cover' as const } }
+      : variant === 'rich'
+        ? { image: { aspectRatio: { width: 16, height: 9 }, fit: 'contain' as const } }
+        : {
+            image: {
+              // Matches the 2:1 desktop and 4:3 compact product frames in blocks.module.css.
+              aspectRatio: mode === 'compact' ? { width: 4, height: 3 } : { width: 2, height: 1 },
+              fit: 'contain' as const,
+            },
+          }
+
+  return (
+    <NavigationLink
+      className={`${styles.navigationCard} ${styles[`navigationCard${variant[0].toUpperCase()}${variant.slice(1)}`]}`}
+      link={card.link}
+    >
+      <span className={styles.navigationCardImage}>
+        <Media
+          alt=""
+          htmlElement={null}
+          presentation={imagePresentation}
+          resource={card.image}
+          size={size ?? cardSize(variant, mode)}
+        />
+        {variant === 'visual' && <span aria-hidden="true" className={styles.navigationCardGradient} />}
+      </span>
+      <span className={styles.navigationCardBody} data-website-theme={variant === 'visual' ? 'inverse' : undefined}>
+        <span className={`${styles.navigationCardTitle} ${titleRole[variant] ?? ''}`}>{card.title}</span>
+        {variant !== 'product' && description ? <span className={styles.navigationCardDescription}>{description}</span> : null}
+      </span>
+    </NavigationLink>
+  )
+}

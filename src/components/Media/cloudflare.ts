@@ -1,0 +1,185 @@
+import { MEDIA_PRESENTATION_DEFAULTS } from './config'
+import type { FocalPoint, ImagePresentation, MediaFit, VideoPresentation } from './types'
+
+type ImageURLArgs = {
+  source: string
+  width: number
+  quality?: number
+  presentation?: ImagePresentation
+  focalPoint?: FocalPoint
+}
+
+type VideoURLArgs = {
+  source: string
+  presentation?: VideoPresentation
+}
+
+const CLOUDFLARE_VIDEO_DIMENSION = {
+  minimum: 10,
+  maximum: 2000,
+} as const
+
+export const CLOUDFLARE_VIDEO_MAX_DURATION_SECONDS = 60
+
+const IMAGE_QUALITY = {
+  minimum: 1,
+  maximum: 100,
+} as const
+
+const MEDIA_FITS = new Set<MediaFit>(['cover', 'contain', 'scale-down'])
+
+const parseTransformSource = (source: string): URL | undefined => {
+  let sourceURL: URL
+
+  try {
+    sourceURL = new URL(source)
+  } catch {
+    return undefined
+  }
+
+  if (
+    (sourceURL.protocol !== 'http:' && sourceURL.protocol !== 'https:') ||
+    sourceURL.pathname.startsWith('/cdn-cgi/')
+  ) {
+    return undefined
+  }
+
+  return sourceURL
+}
+
+const isFinitePositive = (value: number): boolean => Number.isFinite(value) && value > 0
+
+const normalizeInteger = (value: number): number => Math.round(value)
+
+const normalizeFit = (fit: MediaFit | undefined): MediaFit | undefined =>
+  fit && MEDIA_FITS.has(fit) ? fit : undefined
+
+const clampInteger = (value: number, minimum: number, maximum: number): number =>
+  Math.min(maximum, Math.max(minimum, normalizeInteger(value)))
+
+const encodePathname = (pathname: string): string | undefined => {
+  try {
+    return pathname
+      .split('/')
+      .map((segment) => encodeURIComponent(decodeURIComponent(segment)))
+      .join('/')
+  } catch {
+    return undefined
+  }
+}
+
+export const buildCloudflareImageURL = ({
+  source,
+  width,
+  quality,
+  presentation,
+  focalPoint,
+}: ImageURLArgs): string => {
+  const sourceURL = parseTransformSource(source)
+  const encodedPathname = sourceURL && encodePathname(sourceURL.pathname)
+
+  if (!sourceURL || !encodedPathname || !isFinitePositive(width)) return source
+
+  const normalizedWidth = normalizeInteger(width)
+  if (normalizedWidth < 1) return source
+
+  const ratio = presentation?.aspectRatio
+  if (
+    ratio &&
+    (!isFinitePositive(ratio.width) ||
+      !isFinitePositive(ratio.height) ||
+      normalizeInteger((normalizedWidth * ratio.height) / ratio.width) < 1)
+  ) {
+    return source
+  }
+
+  const fit = normalizeFit(presentation?.fit ?? MEDIA_PRESENTATION_DEFAULTS.image.fit)
+  if (!fit) return source
+
+  const requestedQuality =
+    quality ?? presentation?.quality ?? MEDIA_PRESENTATION_DEFAULTS.image.quality
+  if (!Number.isFinite(requestedQuality)) return source
+
+  const options = [`width=${normalizedWidth}`]
+  if (ratio) {
+    options.push(`height=${normalizeInteger((normalizedWidth * ratio.height) / ratio.width)}`)
+  }
+  options.push(
+    `fit=${fit}`,
+    `quality=${clampInteger(requestedQuality, IMAGE_QUALITY.minimum, IMAGE_QUALITY.maximum)}`,
+    'format=auto',
+  )
+
+  if (
+    focalPoint &&
+    [focalPoint.x, focalPoint.y].every(
+      (value) => Number.isFinite(value) && value >= 0 && value <= 100,
+    )
+  ) {
+    options.push(`gravity=${focalPoint.x / 100}x${focalPoint.y / 100}`)
+  }
+
+  return `${sourceURL.origin}/cdn-cgi/image/${options.join(',')}${encodedPathname}${sourceURL.search}`
+}
+
+export const isCloudflareVideoEligible = ({
+  source,
+  durationSeconds,
+}: {
+  source: string
+  durationSeconds?: number | null
+}): boolean =>
+  Boolean(parseTransformSource(source)) &&
+  typeof durationSeconds === 'number' &&
+  Number.isFinite(durationSeconds) &&
+  durationSeconds > 0 &&
+  durationSeconds <= CLOUDFLARE_VIDEO_MAX_DURATION_SECONDS
+
+const buildCloudflareVideoTransformURL = (
+  { source, presentation }: VideoURLArgs,
+  mode: 'video' | 'frame',
+): string | undefined => {
+  const sourceURL = parseTransformSource(source)
+  if (!sourceURL) return undefined
+
+  const { width, height } = presentation ?? {}
+  if (
+    (width !== undefined && !isFinitePositive(width)) ||
+    (height !== undefined && !isFinitePositive(height))
+  ) {
+    return undefined
+  }
+
+  const fit = normalizeFit(presentation?.fit)
+  if (presentation?.fit !== undefined && !fit) return undefined
+
+  const options = [`mode=${mode}`]
+  if (mode === 'frame') options.push('time=1s')
+  if (width !== undefined) {
+    options.push(
+      `width=${clampInteger(
+        width,
+        CLOUDFLARE_VIDEO_DIMENSION.minimum,
+        CLOUDFLARE_VIDEO_DIMENSION.maximum,
+      )}`,
+    )
+  }
+  if (height !== undefined) {
+    options.push(
+      `height=${clampInteger(
+        height,
+        CLOUDFLARE_VIDEO_DIMENSION.minimum,
+        CLOUDFLARE_VIDEO_DIMENSION.maximum,
+      )}`,
+    )
+  }
+  if (fit) options.push(`fit=${fit}`)
+
+  return `${sourceURL.origin}/cdn-cgi/media/${options.join(',')}/${sourceURL.href}`
+}
+
+export const buildCloudflareVideoURL = (args: VideoURLArgs): string =>
+  buildCloudflareVideoTransformURL(args, 'video') ?? args.source
+
+export const buildCloudflareVideoPosterURL = (args: VideoURLArgs): string | undefined =>
+  buildCloudflareVideoTransformURL(args, 'frame')

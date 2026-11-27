@@ -1,33 +1,28 @@
 'use client'
 
-import type { Theme } from '@/providers/Theme/types'
+import React, { createContext, use, useCallback, useState } from 'react'
 
-import React, { createContext, useCallback, use, useState } from 'react'
+export type HeaderTheme = 'light' | 'dark'
 
-import canUseDOM from '@/utilities/canUseDOM'
-
-export interface ContextType {
-  headerTheme?: Theme | null
-  setHeaderTheme: (theme: Theme | null) => void
+interface HeaderThemeContextValue {
+  headerTheme: HeaderTheme | null
+  setHeaderTheme: (theme: HeaderTheme | null) => void
 }
 
-const initialContext: ContextType = {
-  headerTheme: undefined,
-  setHeaderTheme: () => null,
-}
-
-const HeaderThemeContext = createContext(initialContext)
+const HeaderThemeContext = createContext<HeaderThemeContextValue>({
+  headerTheme: null,
+  setHeaderTheme: () => undefined,
+})
 
 export const HeaderThemeProvider = ({ children }: { children: React.ReactNode }) => {
-  const [headerTheme, setThemeState] = useState<Theme | undefined | null>(
-    canUseDOM ? (document.documentElement.getAttribute('data-theme') as Theme) : undefined,
+  const [headerTheme, setThemeState] = useState<HeaderTheme | null>(null)
+  const setHeaderTheme = useCallback((theme: HeaderTheme | null) => setThemeState(theme), [])
+
+  return (
+    <HeaderThemeContext value={{ headerTheme, setHeaderTheme }}>
+      {children}
+    </HeaderThemeContext>
   )
-
-  const setHeaderTheme = useCallback((themeToSet: Theme | null) => {
-    setThemeState(themeToSet)
-  }, [])
-
-  return <HeaderThemeContext value={{ headerTheme, setHeaderTheme }}>{children}</HeaderThemeContext>
 }
 
-export const useHeaderTheme = (): ContextType => use(HeaderThemeContext)
+export const useHeaderTheme = () => use(HeaderThemeContext)

@@ -1,0 +1,109 @@
+.form {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-height: 0;
+}
+.fields {
+  display: grid;
+  gap: var(--website-space-4);
+  min-height: 0;
+  padding: var(--website-space-6);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.footer {
+  display: grid;
+  flex-shrink: 0;
+  gap: var(--website-space-3);
+  padding: var(--website-space-4) var(--website-space-6);
+  padding-bottom: max(var(--website-space-4), env(safe-area-inset-bottom));
+  border-top: 1px solid var(--website-color-border);
+  background: var(--website-color-surface);
+}
+.product {
+  display: flex;
+  align-items: center;
+  gap: var(--website-space-3);
+  padding: var(--website-space-4);
+  border-radius: var(--website-radius-content);
+  background: var(--website-color-muted-surface);
+}
+.thumbnail {
+  position: relative;
+  flex-shrink: 0;
+  width: var(--website-space-12);
+  height: var(--website-space-12);
+  overflow: hidden;
+  border-radius: var(--website-radius-small);
+}
+.thumbnailImage {
+  object-fit: contain;
+}
+.productText {
+  display: grid;
+  gap: var(--website-space-1);
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.productTitle {
+  composes: website-type-body-md from global;
+  margin: 0;
+  font-weight: 600;
+}
+.category {
+  composes: website-type-eyebrow from global;
+  margin: 0;
+  color: var(--website-color-muted-foreground);
+}
+.row {
+  display: grid;
+  gap: var(--website-space-4);
+}
+.field {
+  display: grid;
+  gap: var(--website-space-2);
+  min-width: 0;
+}
+.count,
+.privacy {
+  composes: website-type-caption from global;
+  margin: 0;
+  color: var(--website-color-muted-foreground);
+}
+.count {
+  text-align: right;
+}
+.privacy {
+  text-align: center;
+}
+.error {
+  composes: website-type-caption from global;
+  margin: 0;
+  color: var(--website-status-error-inline-foreground);
+}
+.notice {
+  composes: website-type-caption from global;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--website-space-2);
+  margin: 0;
+  padding: var(--website-space-3);
+  border: 1px solid var(--website-status-error-border);
+  border-radius: var(--website-radius-control);
+  background: var(--website-status-error-background);
+  color: var(--website-status-error-foreground);
+  overflow-wrap: anywhere;
+}
+.notice svg {
+  flex-shrink: 0;
+  width: var(--website-icon-medium);
+  height: var(--website-icon-medium);
+}
+
+@media (width >= 48rem) {
+  .row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+  }
+}

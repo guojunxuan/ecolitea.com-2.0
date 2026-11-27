@@ -1,0 +1,4 @@
+.root {
+  --product-block-header-gap: var(--website-space-6);
+  color: var(--website-color-foreground);
+}

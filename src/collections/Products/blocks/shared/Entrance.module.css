@@ -1,0 +1,19 @@
+:global(html[data-motion='ready']) .entrance[data-entrance-state='playing'] {
+  animation: entrance var(--website-duration-slow) var(--website-easing-standard) both;
+  animation-delay: calc(var(--product-entrance-order, 0) * var(--website-duration-fast) / 2);
+}
+@keyframes entrance {
+  from {
+    opacity: 0;
+    transform: translateY(var(--website-space-4));
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  :global(html[data-motion='ready']) .entrance[data-entrance-state='playing'] {
+    animation: none;
+  }
+}

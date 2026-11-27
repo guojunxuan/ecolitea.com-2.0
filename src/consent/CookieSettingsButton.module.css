@@ -1,0 +1,19 @@
+/* Rendered inside the Footer legal list; mirror the sibling legal links' interaction. */
+.button {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  text-align: inherit;
+}
+@media (hover: hover) and (pointer: fine) {
+  .button:hover {
+    color: var(--website-color-foreground);
+  }
+}
+.button:focus-visible {
+  outline: 2px solid var(--website-color-focus);
+  outline-offset: var(--website-space-1);
+}

@@ -1,0 +1,7 @@
+.required {
+  display: inline;
+}
+
+.requiredText {
+  composes: visually-hidden from global;
+}

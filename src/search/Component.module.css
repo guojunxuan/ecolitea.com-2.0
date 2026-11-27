@@ -1,0 +1,7 @@
+.form {
+  display: block;
+}
+
+.visuallyHidden {
+  composes: visually-hidden from global;
+}

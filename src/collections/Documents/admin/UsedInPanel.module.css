@@ -1,0 +1,10 @@
+.heading {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.loading {
+  display: grid;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}

@@ -1,0 +1,168 @@
+.root {
+  composes: root from '../OverflowCarousel/productRow.module.css';
+}
+.root .viewport::before,
+.root .viewport::after {
+  content: none;
+}
+.root .viewport .track {
+  display: block;
+  width: 100%;
+  padding: var(--website-space-1) var(--product-row-gutter) var(--website-space-6);
+  scroll-padding-inline: var(--product-row-gutter);
+  scroll-snap-type: x mandatory;
+  mask-image: none;
+  cursor: grab;
+}
+.root:is([data-count='1'], [data-count='2']) .viewport .track {
+  width: var(--product-row-content);
+  margin-inline: var(--product-row-gutter) 0;
+  padding-inline: 0;
+  scroll-padding-inline: 0;
+}
+.root .viewport:not([data-overflow-start]):not([data-overflow-end]) .track {
+  cursor: auto;
+}
+.root .viewport .track[data-dragging] {
+  cursor: grabbing;
+  user-select: none;
+  scroll-snap-type: none;
+}
+.grid {
+  display: flex;
+  gap: var(--product-row-gap);
+  width: max-content;
+  min-width: 100%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.item {
+  width: var(--product-row-card);
+  flex: 0 0 var(--product-row-card);
+  min-width: 0;
+  scroll-snap-align: start;
+}
+.moreCard {
+  display: flex;
+  position: relative;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  height: 100%;
+  padding: var(--website-space-8) var(--website-space-6);
+  border: 1px solid transparent;
+  border-radius: var(--website-radius-content);
+  color: var(--website-color-foreground);
+  background: color-mix(
+    in srgb,
+    var(--website-color-surface) 65%,
+    var(--website-color-muted-surface)
+  );
+  text-align: center;
+  text-decoration: none;
+  transition:
+    background-color var(--website-duration-standard) var(--website-easing-standard),
+    border-color var(--website-duration-standard) var(--website-easing-standard);
+}
+.moreCard:focus-visible {
+  outline: 2px solid var(--website-color-focus);
+  outline-offset: -4px;
+}
+.moreIcon {
+  display: grid;
+  place-items: center;
+  position: absolute;
+  top: calc(var(--product-row-card) * 0.4);
+  transform: translateY(-50%);
+  width: var(--website-space-16);
+  height: var(--website-space-16);
+  border: 1px solid currentColor;
+  border-radius: var(--website-radius-circle);
+  color: var(--website-color-muted-foreground);
+  transition:
+    background-color var(--website-duration-standard) var(--website-easing-standard),
+    color var(--website-duration-standard) var(--website-easing-standard);
+}
+.moreIcon svg {
+  width: var(--website-icon-large);
+  height: var(--website-icon-large);
+  transition: transform var(--website-duration-standard) var(--website-easing-standard);
+}
+.moreLabel {
+  margin-bottom: var(--website-space-6);
+}
+.moreCard:is(:hover, :focus-visible) {
+  border-color: var(--website-color-border);
+  background: var(--website-color-surface);
+}
+.moreCard:is(:hover, :focus-visible) .moreIcon {
+  color: var(--website-color-foreground);
+  background: var(--website-color-interactive-surface);
+}
+.moreCard:is(:hover, :focus-visible) .moreIcon svg {
+  transform: translateX(calc(var(--website-space-1) / 2));
+}
+@media (width < 48rem) {
+  .root {
+    --product-card-media-ratio: 5 / 4;
+  }
+  .root .viewport .track {
+    width: var(--product-row-content);
+    margin-inline: auto;
+    padding-inline: 0;
+    overflow: visible;
+    scroll-snap-type: none;
+    cursor: auto;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    width: auto;
+    min-width: 0;
+  }
+  .item {
+    width: auto;
+  }
+  .item:nth-child(n + 4):not(.moreItem) {
+    display: none;
+  }
+  .moreCard {
+    flex-direction: row-reverse;
+    justify-content: space-between;
+    min-height: var(--website-space-20);
+    padding: var(--website-space-4) var(--website-space-6);
+  }
+  .moreIcon {
+    position: static;
+    transform: none;
+    width: var(--website-control-target-min);
+    height: var(--website-control-target-min);
+  }
+  .moreLabel {
+    margin: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .moreCard,
+  .moreIcon,
+  .moreIcon svg {
+    transition: none;
+  }
+  .moreCard:is(:hover, :focus-visible) .moreIcon svg {
+    transform: none;
+  }
+}
+
+/* Trackpads need small horizontal gestures to remain where the user stops. */
+@media (pointer: fine) {
+  .root .viewport .track {
+    scroll-snap-type: none;
+  }
+}
+
+@media (width >= 48rem) {
+  .moreItem[data-mobile-only] {
+    display: none;
+  }
+}

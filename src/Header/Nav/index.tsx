@@ -1,25 +1,47 @@
 'use client'
 
-import React from 'react'
+import React, { useRef } from 'react'
 
-import type { Header as HeaderType } from '@/payload-types'
+import type { LogoImage } from '@/components/Logo/types'
+import { DesktopNav } from './DesktopNav'
+import { MobileNav } from './MobileNav'
+import type { HeaderNavigationData } from './types'
 
-import { CMSLink } from '@/components/Link'
-import Link from 'next/link'
-import { SearchIcon } from 'lucide-react'
+type HeaderNavProps = HeaderNavigationData & {
+  logo: LogoImage | null
+  onDesktopOpenChange?: (open: boolean) => void
+  onMobileOpenChange?: (open: boolean) => void
+  siteName: string
+}
 
-export const HeaderNav: React.FC<{ data: HeaderType }> = ({ data }) => {
-  const navItems = data?.navItems || []
+export const HeaderNav: React.FC<HeaderNavProps> = ({
+  logo,
+  menuCta,
+  navItems,
+  onDesktopOpenChange,
+  onMobileOpenChange,
+  siteName,
+}) => {
+  const navigation = { menuCta, navItems }
+  const desktopRootRef = useRef<HTMLDivElement>(null)
+  const mobileTriggerRef = useRef<HTMLButtonElement>(null)
 
   return (
-    <nav className="flex gap-3 items-center">
-      {navItems.map(({ link }, i) => {
-        return <CMSLink key={i} {...link} appearance="link" />
-      })}
-      <Link href="/search">
-        <span className="sr-only">Search</span>
-        <SearchIcon className="w-5 text-primary" />
-      </Link>
-    </nav>
+    <>
+      <DesktopNav
+        {...navigation}
+        compactFocusTargetRef={mobileTriggerRef}
+        onOpenChange={onDesktopOpenChange}
+        rootElementRef={desktopRootRef}
+      />
+      <MobileNav
+        {...navigation}
+        desktopNavigationRef={desktopRootRef}
+        logo={logo}
+        onOpenChange={onMobileOpenChange}
+        siteName={siteName}
+        triggerRef={mobileTriggerRef}
+      />
+    </>
   )
 }

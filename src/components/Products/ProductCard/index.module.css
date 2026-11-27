@@ -1,0 +1,107 @@
+.card {
+  container-type: inline-size;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  color: var(--website-color-foreground);
+  background: var(--website-color-surface);
+  border-radius: var(--website-radius-content);
+  text-decoration: none;
+}
+.card:focus-visible {
+  outline: 2px solid var(--website-color-focus);
+  outline-offset: 4px;
+}
+.cover {
+  position: relative;
+  aspect-ratio: 5 / 4;
+  flex-shrink: 0;
+  overflow: hidden;
+  border-radius: var(--website-radius-content);
+  background: var(--website-color-muted-surface);
+}
+.placeholder {
+  background: var(--website-color-muted-surface);
+}
+.image {
+  object-fit: contain;
+}
+.content {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  padding: 0 var(--product-card-content-padding-inline, var(--website-space-6))
+    var(--website-space-6);
+  padding-top: var(--website-space-3);
+}
+.actions {
+  display: flex;
+  flex-shrink: 0;
+  margin-top: auto;
+  padding-top: var(--website-space-6);
+}
+.action {
+  width: 100%;
+}
+.title {
+  composes: website-type-title from global;
+  margin: 0;
+}
+.summary {
+  composes: website-type-caption from global;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin: var(--website-space-2) 0 0;
+  color: var(--website-color-muted-foreground);
+}
+@media (width < 48rem) {
+  .cover {
+    aspect-ratio: var(--product-card-media-ratio, 5 / 4);
+  }
+  .actions {
+    padding-top: var(--website-space-4);
+  }
+}
+@media (width < 24rem) {
+  .card {
+    --product-card-content-padding-inline: var(--website-space-3);
+  }
+}
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .image {
+    transition: transform var(--website-duration-slow) var(--website-easing-standard);
+  }
+
+  .card:hover .image {
+    transform: scale(1.03);
+  }
+}
+
+/* Narrow cards (tablet rails and grids, small desktop rows) get a shorter, tighter body so
+   they read as 3:4 instead of tall slabs. The mobile layout above is left as it is. */
+@media (width >= 48rem) {
+  @container (width < 21.25rem) {
+    .cover {
+      aspect-ratio: 4 / 3;
+    }
+    .content {
+      padding-inline: calc(var(--website-space-4) + var(--website-space-1));
+      padding-bottom: calc(var(--website-space-4) + var(--website-space-1));
+    }
+    .title {
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .actions {
+      padding-top: var(--website-space-4);
+    }
+    .action {
+      height: var(--website-control-compact);
+    }
+  }
+}

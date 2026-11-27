@@ -1,0 +1,351 @@
+# Website Shell Responsive Design
+
+**Date:** 2026-09-06
+
+## Objective
+
+Replace the inherited Payload Website Template frontend shell with a responsive Ecolitea website framework. The new shell includes the global layout system, Header, desktop Mega Menu, shared Tablet/Mobile full-screen navigation, Footer, and a disabled newsletter placeholder.
+
+The former Ecolitea project at `/Users/jason/ecolitea.com` is a visual and interaction reference only. Implementation remains native to the current Next.js 16, Payload 4, React 19, and Tailwind 4 repository and follows its existing module boundaries.
+
+## Scope
+
+### Included
+
+- Remove the frontend `AdminBar` from the Website layout without changing Payload Admin.
+- Remove public light/dark/auto theme switching and section-driven Header theme changes.
+- Introduce shared responsive layout tokens and container primitives.
+- Adapt the existing Header Global to stable frontend render data without renaming Payload concepts.
+- Build a fixed desktop Header with a full-width Mega Menu.
+- Build one shared full-screen, three-level sliding navigation for Tablet and Mobile.
+- Adapt the existing Footer and Site Settings Globals to a responsive Footer.
+- Add a visually complete but disabled newsletter placeholder.
+- Preserve Draft Mode and Live Preview independently of the removed Admin Bar.
+- Add responsive, interaction, accessibility, and data-adaptation tests.
+
+### Excluded
+
+- Changes to the Header, Footer, Site Settings, or Social Platforms Payload schemas.
+- Copying the former project's SCSS architecture, grid utilities, aliases, or component tree.
+- A functional newsletter subscription API, persistence, consent flow, or third-party integration.
+- A new Top Bar Global or frontend Top Bar.
+- Public dark-mode variants. The Footer remains a deliberately dark brand surface, not a selectable theme.
+- Redesigning page-specific Heroes, Blocks, Posts, or Case Studies beyond adopting the new shell contracts.
+- Editing or staging the existing unrelated Social Platform worktree changes.
+
+## Design Principles
+
+1. Preserve the former site's recognizable proportions, technical grid character, restrained palette, and typography while simplifying its implementation.
+2. Treat the current repository as the only code architecture. Old code informs behavior but is not copied.
+3. Keep server data loading, data adaptation, client interaction, and presentation separate.
+4. Share one responsive breakpoint model across Header, content, and Footer.
+5. Keep Tablet and Mobile structurally identical where agreed; vary only dimensions and spacing.
+6. Consume every valid state the current Payload Globals can store, including maximum row counts and inactive conditional data.
+7. Prefer accessible native semantics and progressive enhancement over visually convenient but fragile interactions.
+8. Use one controlled public brand theme rather than asking visitors to select a presentation mode.
+9. Improve modularity only where a boundary has a clear owner, input, and output. Do not introduce a parallel design system, generic framework layer, or speculative abstraction.
+10. Follow the current repository's directory, casing, import, component, hook, and utility conventions. Extend an existing owner before creating a new top-level module.
+11. Preserve Payload's official vocabulary in stored fields, generated types, component props, and public helper APIs wherever it already describes the business concept.
+
+## Repository and Naming Conventions
+
+The current repository is the architectural source of truth. Implementation starts by extending the modules that already own each responsibility:
+
+- `src/Header/` owns Header data loading and Header-specific behavior;
+- `src/Header/Nav/` owns navigation presentation and its focused adapters/state helpers;
+- `src/Footer/` owns Footer data loading, presentation, and responsive navigation behavior;
+- `src/components/Link/` owns reusable CMS link rendering;
+- `src/components/Logo/` owns brand-asset selection and Logo rendering;
+- `src/utilities/` owns only behavior shared by more than one domain;
+- `src/app/(frontend)/globals.css` owns public layout tokens and global primitives;
+- `src/providers/` contains only state that genuinely crosses otherwise independent component boundaries.
+
+New top-level directories such as `SiteShell`, `design-system`, or a second generic `navigation` framework are not introduced unless implementation demonstrates a responsibility that no existing module can own. Small pure modules remain colocated with their consumer instead of being promoted preemptively.
+
+Payload vocabulary remains stable across the backend/frontend boundary. Use established names including `navItems`, `navigationType`, `dropdown`, `items`, `link`, `reference`, `url`, `newTab`, `menuCta`, `columns`, and `siteSettings`. Frontend-only types may narrow validated data for rendering, but must not rename these concepts merely to create a separate dialect.
+
+Reusable functions accept focused option objects consistent with the repository's existing field-factory and component patterns. Avoid positional boolean parameters, duplicate aliases for Payload fields, or broad configuration objects whose options are not required by the current shell.
+
+## Global Website Shell
+
+The frontend Root Layout remains a Server Component and composes only the providers still needed by the public Website, Header, page content, and Footer. It no longer mounts `AdminBar` or the theme initialization script.
+
+```text
+Root Layout
+├── Providers
+├── Header
+├── Main content
+└── Footer
+```
+
+The body remains a vertical flex container with a minimum viewport height so the Footer reaches the bottom of short pages. The fixed Header establishes a shared top-offset variable for the main content. A global client wrapper around the entire site is not introduced.
+
+Draft Mode and page-level `LivePreviewListener` behavior remain available. Removing the Admin Bar removes only the visible frontend editing toolbar.
+
+## Single Public Brand Theme
+
+The public Website uses one fixed brand presentation. The content surface and Header are light, while the Footer is an explicitly styled dark brand region. The Footer does not opt the document or a subtree into a second semantic theme.
+
+The redesign removes the theme feature rather than merely hiding its selector:
+
+- remove the Theme Selector from the Footer;
+- remove local-storage persistence and operating-system color-scheme detection;
+- remove the pre-hydration theme initialization script;
+- remove the public Theme Provider when no remaining frontend consumer requires it;
+- remove the Header Theme Provider and page/Hero effects that set Header light or dark state;
+- replace `data-theme`, `dark:` variants, and duplicated dark token sets in the migrated Website shell with explicit component colors;
+- remove the document opacity gate that waits for a theme attribute.
+
+High-impact Heroes and other dark visual sections may still use local, explicit foreground and background colors. They do not change the global page theme or Header palette. The fixed Header remains opaque enough to preserve Logo, navigation, and control contrast over every page section.
+
+Payload Admin theming is outside the public Website shell and remains unchanged.
+
+### Blocks and dependency boundary
+
+Frontend Blocks do not store a light/dark/auto selection in Payload. Their connection to the theme feature is limited to shared semantic color tokens and a small number of Tailwind `dark:` variants in Rich Text and form-oriented UI primitives.
+
+The migration keeps the Blocks and their Payload field schemas intact. It retains one light public token set for names such as background, foreground, card, border, input, ring, success, warning, and error; removes only the public dark token set and `dark:` alternatives; and gives intentionally dark components such as the Footer explicit local colors.
+
+No dependency change is required. Tailwind CSS, `@tailwindcss/typography`, Radix UI packages, `tw-animate-css`, and the existing component utilities remain installed. The Code Block's Prism `vsDark` syntax-highlighting palette also remains because it styles code content and is not a Website theme mode. The implementation must not edit `package.json` or the lockfile solely for theme removal.
+
+## Responsive Model
+
+The site uses four layout ranges with one structural navigation handoff:
+
+| Range | Width | Structure |
+| --- | --- | --- |
+| Mobile | below 768px | single-column content; full-screen navigation; accordion Footer |
+| Tablet | 768px–1169px | wider content grid; same full-screen navigation and Footer structure as Mobile |
+| Desktop | 1170px–1439px | desktop Header, Mega Menu, and three-zone Footer |
+| Wide | 1440px and above | desktop structure with increased outer whitespace |
+
+The `1170px` handoff is shared by Header and Footer. Components must not invent nearby breakpoint values that create mismatched modes.
+
+## Container and Spacing System
+
+The former site's 1220px content width remains the visual baseline, implemented through current Tailwind 4 and CSS-variable conventions rather than copied SCSS utilities.
+
+Four semantic widths are available:
+
+- `viewport`: full-bleed backgrounds and visual treatments.
+- `site`: Header, Footer, ordinary page sections, and Mega Menu content; approximately 1220px maximum.
+- `wide`: selected media and Hero treatments that intentionally exceed the ordinary site container.
+- `reading`: long-form text, approximately 720–760px maximum.
+
+Horizontal gutters scale from approximately 16px on Mobile to 32px on Tablet and 40–48px on Desktop. They use a small set of CSS variables and `clamp()` where useful instead of the former project's nine-breakpoint gutter cascade.
+
+Vertical rhythm uses semantic `compact`, `standard`, and `spacious` section spacing. Existing page components and Blocks migrate incrementally away from unrelated local values such as repeated `my-16`; this shell task establishes the contract and updates only the components needed for a coherent initial shell.
+
+## Header Architecture
+
+The current module boundary remains authoritative:
+
+```text
+src/Header/
+├── Component.tsx
+├── Component.client.tsx
+├── Nav/
+│   ├── desktop presentation
+│   ├── Mega Menu presentation
+│   ├── Tablet/Mobile presentation
+│   ├── Payload-to-render-data adapter
+│   ├── mobile navigation reducer
+│   └── focused frontend types
+└── existing config, fields, hooks, and validators
+```
+
+Exact component file granularity may be consolidated when a file remains focused. Frontend behavior does not move into Payload field configuration or validation modules.
+
+`Component.tsx` fetches Header and Site Settings concurrently, resolves brand assets, and adapts the raw Header document before passing it across the client boundary. Presentation components consume stable render data rather than interpreting Payload conditional branches independently. The adapter preserves Payload field vocabulary and is colocated under the existing `Header/Nav` owner; it is not a second navigation framework.
+
+## Header Data Adaptation
+
+The adapter reads only the active discriminator branch and ignores preserved inactive Admin values.
+
+| Payload shape | Frontend meaning |
+| --- | --- |
+| `directLink` | top-level direct destination |
+| `dropdown` | top-level menu trigger |
+| `directLinkAndDropdown` | hybrid destination and menu trigger |
+| `dropdown.description` | menu introduction |
+| `descriptionLinks` | supporting menu links |
+| `defaultItem` | direct item within level two |
+| `featuredItem` | emphasized branch with optional rich content and a third level |
+| `listItem` | labeled branch with a third-level link list |
+| `landingLink` | branch overview destination |
+| `menuCta` | primary Header action when enabled |
+
+Top-level unlabeled links use the Navigation Item `label`. Featured and List landing links use their `tag`. Optional Featured `label` content remains Lexical Rich Text and renders through the existing Rich Text system with Header-specific styling.
+
+The href resolver supports all Header-configured internal relationship targets: Pages, Posts, Case Studies, and Categories. It replaces the current frontend assumption that CMS links target only Pages or Posts. Invalid or unresolved individual destinations are omitted without failing the entire Header.
+
+The optional CTA is emitted only when `enableMenuCta` is true and its destination resolves.
+
+## Desktop Header and Mega Menu
+
+At 1170px and above, the Header is fixed and approximately 88–90px tall. Its content aligns with the shared `site` container:
+
+```text
+Logo | Navigation | Search + optional CTA
+```
+
+The Header uses a stable light brand surface across pages so it never depends on Hero or section background colors. Scrolling may add a subtle divider or elevation cue, and opening a menu preserves the same surface. Page authors do not select a Header theme or manually calculate Header offsets.
+
+Direct links navigate immediately. Dropdown-only items open their Mega Menu. For `directLinkAndDropdown`, the text activates the direct destination and a separate, labeled chevron button opens the menu. Pointer hover may enhance desktop behavior, but click and keyboard interaction remain complete.
+
+The Mega Menu uses a full-viewport background while its content aligns to the 1220px `site` container. Description content, Description Links, Default items, Featured items, and List items use a restrained editorial grid rather than a collection of generic cards.
+
+The Header Global permits up to eight top-level items. The frontend must consume all valid items. When available width cannot fit every item beside the Logo, search, and CTA, trailing items move into an accessible `More` menu rather than overflowing or disappearing.
+
+Only one Mega Menu is open at a time. It closes on outside activation, Escape, route changes, focus leaving the interaction boundary when appropriate, or transition to the non-desktop breakpoint.
+
+## Tablet and Mobile Full-Screen Navigation
+
+Below 1170px, Tablet and Mobile use the same full-screen navigation structure and interaction. Tablet uses an approximately 64px Header and 32px horizontal gutter; Mobile uses an approximately 60px Header and 16px gutter.
+
+Opening the menu covers the viewport, locks background scrolling, and keeps the Logo and close action visible. The navigation viewport contains three horizontally animated panels:
+
+```text
+Level 1: Navigation Items
+Level 2: selected Dropdown
+Level 3: selected Featured or List branch
+```
+
+A pure reducer or equivalent explicit state machine stores the active level, top-level item, and branch. It does not infer navigation state from DOM position.
+
+- A Direct Link activates from level one.
+- A Dropdown enters level two.
+- A Direct Link + Dropdown enters level two and exposes its direct destination as `Overview` near the top.
+- A Default item activates directly from level two.
+- A Featured or List item enters level three.
+- A Featured/List Landing Link appears at the top of level three as `View all` or an equivalent context-specific label.
+- Back performs the inverse horizontal transition and returns focus to the originating row.
+
+Each panel owns its scrolling region. Rows provide at least a 48px touch target. The menu resets to level one when closed, after navigation, or when crossing to Desktop. Escape closes the overlay, focus is contained while open and restored on close, and `prefers-reduced-motion` removes nonessential sliding motion.
+
+## Footer Architecture and Data
+
+The Footer remains server-rendered. It uses explicit dark-surface styles rather than a global dark theme, fetches Footer and Site Settings concurrently, and builds a presentation model from:
+
+- Site name, Logo, dark-background Logo, and site description.
+- Social links and their related Social Platform definitions.
+- Sales email, phone, WhatsApp, address, and business hours.
+- Footer navigation columns.
+- Copyright text and configured Privacy/Terms pages.
+
+A small client boundary owns only the non-desktop navigation accordion. Data loading and the full Footer do not become client-rendered.
+
+Missing optional data removes only its own row. Missing Logo data falls back to the Site Name. A missing dark-background Logo falls back to the primary Logo. Empty navigation columns and unresolved links are omitted. An invalid social relationship or URL does not break the Footer.
+
+## Desktop Footer
+
+At 1170px and above, the Footer is a near-black full-width surface whose content aligns to the shared 1220px container. It uses three flexible zones visually equivalent to the former site's 20/55/25 relationship:
+
+```text
+Brand and social | up to four navigation columns | newsletter placeholder and contact
+```
+
+The lower utility row contains copyright information and configured legal links. The layout remains stable with fewer than four navigation columns and with optional contact fields absent.
+
+## Shared Tablet and Mobile Footer
+
+Below 1170px, Tablet and Mobile use the same single-column DOM order and accordion behavior:
+
+```text
+Brand
+Description
+Social links
+Navigation accordion
+Newsletter placeholder
+Contact details
+Legal links
+Copyright
+```
+
+Tablet does not use a two-by-two navigation grid. It differs from Mobile only through gutter, maximum readable width, and spacing.
+
+Navigation uses a single-open accordion with trigger rows at least 54px tall. Its server-rendered baseline keeps links accessible when client enhancement is unavailable. Long labels, URLs, and addresses wrap without causing horizontal scrolling. Social controls provide at least a 44px touch area.
+
+## Newsletter Placeholder
+
+The first phase includes a visually complete but nonfunctional subscription area. It contains a module-owned heading, short description, email placeholder, and Subscribe button. These values are frontend constants because the current Globals contain no Newsletter fields.
+
+The input and button are disabled and excluded from meaningless keyboard interaction. The placeholder performs no request, stores no address, creates no consent state, and displays no false success or error feedback. Its module boundary permits a later CMS or provider integration without distributing placeholder copy through Footer JSX.
+
+## Visual Direction
+
+The shell uses the former site's engineering character without reproducing its implementation:
+
+- refined grotesk typography based on the existing Ecolitea Untitled Sans direction;
+- near-black, warm white, graphite, and restrained ecological green;
+- strict alignment, fine dividers, sparse shadows, and limited corner rounding;
+- strong type hierarchy and generous negative space;
+- no gradients, glassmorphism, decorative dashboard cards, or pill-heavy controls.
+
+Final implementation uses the configured Site Settings SVG assets and Social Platform icons. Concept-image substitute marks are not production assets.
+
+## Accessibility and Interaction Safety
+
+- Header, primary navigation, Footer navigation, and legal navigation use distinct semantic labels.
+- Menu buttons expose `aria-expanded` and `aria-controls`.
+- Full-screen navigation behaves as a modal surface with intentional focus entry, containment, and restoration.
+- Mega Menu and overflow actions remain usable by keyboard without pointer hover.
+- Escape closes the active overlay or menu.
+- Visible focus treatments meet contrast requirements on light and dark surfaces.
+- Touch targets meet the defined minimum sizes.
+- Reduced-motion preference removes sliding and other nonessential transitions.
+- Body scroll locking restores the previous state on every close and unmount path.
+- Public rendering does not read or write a theme preference and does not vary with the operating-system color scheme.
+
+## Error Handling
+
+The frontend adapter treats Payload validation as the primary data guarantee but remains defensive at the rendering boundary:
+
+- unknown discriminators are omitted;
+- incomplete active items are omitted at the smallest possible scope;
+- unresolved references do not produce empty anchors;
+- missing optional content collapses cleanly;
+- one malformed navigation or contact item does not prevent the remaining shell from rendering.
+
+Development diagnostics may identify rejected items without exposing CMS internals to visitors.
+
+## Testing
+
+### Pure unit coverage
+
+- Header discriminator-to-render-data mapping.
+- Ignoring inactive conditional branches.
+- Display-label synthesis for top-level and landing links.
+- href resolution for Pages, Posts, Case Studies, Categories, and Custom URLs.
+- optional CTA behavior.
+- Mobile navigation reducer transitions and reset behavior.
+- Footer data adaptation and optional-field omission.
+- accordion single-open behavior.
+
+### Component coverage
+
+- Desktop direct, dropdown, and hybrid interactions.
+- Mega Menu open/close and keyboard behavior.
+- overflow collection into `More` without losing items.
+- three-level non-desktop navigation, reverse transitions, and focus restoration.
+- Footer Desktop structure and shared Tablet/Mobile accordion structure.
+- disabled Newsletter controls.
+- missing Logo and partial contact fallbacks.
+- absence of Theme Selector, theme initialization, and Header theme context behavior.
+
+### End-to-end coverage
+
+- Desktop, Tablet, and Mobile breakpoint handoffs.
+- fixed Header and main-content offset.
+- route changes close and reset navigation.
+- background scroll locking and restoration.
+- Escape and outside-close behavior.
+- no horizontal overflow at representative viewports.
+- Header and Footer consume the current Global shapes without runtime errors.
+- public colors remain stable under both light and dark operating-system preferences.
+
+Visual verification uses representative Mobile, Tablet, Desktop, and Wide viewports and confirms that Tablet and Mobile share the same Footer structure.
+
+## Success Criteria
+
+The public website has one coherent responsive shell; no frontend Admin Bar or unsupported Top Bar appears; public light/dark/auto switching and section-driven Header theming are removed without changing Payload Admin; the content surface and Header use one stable light brand presentation while the Footer uses explicit dark-surface styling; Header, content, and Footer share the same container and breakpoint language; Desktop provides a robust Header and Mega Menu; Tablet and Mobile provide one accessible full-screen three-level navigation; all valid current Header data shapes have an explicit frontend representation; Footer consumes current Footer and Site Settings data; Tablet and Mobile share a single-column accordion Footer; the newsletter area is visibly disabled and performs no data operation; configured brand assets and social icons replace concept placeholders; and the implementation follows the current repository's architecture without importing the former project's structural debt.
