@@ -18,7 +18,7 @@ import {
 import { validateMediaAlt, validateMediaAltField } from './mediaAlt'
 import { preventReferencedDelete } from './mediaHooks/preventReferencedDelete'
 import { mediaFileEndpoint } from './mediaEndpoints/file'
-import { serverEnv } from '../utilities/env'
+import { getConfiguredServerURL } from '../utilities/env'
 import { mediaReferencesEndpoint } from './mediaEndpoints/references'
 
 export const Media: CollectionConfig = {
@@ -144,7 +144,7 @@ export const Media: CollectionConfig = {
     },
     mimeTypes: [...MEDIA_UPLOAD_POLICY.image.mimeTypes, ...MEDIA_UPLOAD_POLICY.video.mimeTypes],
     adminThumbnail: ({ doc }) =>
-      `${serverEnv.NEXT_PUBLIC_SERVER_URL}/api/media/${encodeURIComponent(String(doc.id))}/file`,
+      `${getConfiguredServerURL()}/api/media/${encodeURIComponent(String(doc.id))}/file`,
     crop: false,
     focalPoint: true,
   },

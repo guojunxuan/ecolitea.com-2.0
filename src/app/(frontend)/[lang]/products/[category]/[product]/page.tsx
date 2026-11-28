@@ -3,6 +3,7 @@ import { fallbackToEnglish } from '@/utilities/i18n/pageAccess'
 import type { Metadata } from 'next'
 import { draftMode } from 'next/headers'
 import { notFound } from 'next/navigation'
+import { connection } from 'next/server'
 import Link from '@/components/LocaleLink'
 import { PayloadRedirects } from '@/components/PayloadRedirects'
 import { LivePreviewListener } from '@/components/LivePreviewListener'
@@ -23,6 +24,7 @@ import { getRelatedProducts } from '@/utilities/products/getRelatedProducts'
 import { getProductStaticParams } from '@/utilities/products/getProductStaticParams'
 import { productCategoryPath, productPath } from '@/utilities/products/paths'
 import { getServerSideURL } from '@/utilities/getURL'
+import { getTurnstileSiteKey } from '@/utilities/env'
 import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
 import { getSiteIdentity } from '@/utilities/siteIdentity'
 import styles from './page.module.css'
@@ -38,7 +40,10 @@ export async function generateStaticParams(options: { params: { lang: string } }
 }
 export default async function ProductPage({ params }: Args) {
   const { category, product: slug, lang = 'en' } = await params
+  // Keep deployment configuration out of prerendered pages while retaining product data caches.
+  await connection()
   const { isEnabled: draft } = await draftMode()
+  const siteKey = getTurnstileSiteKey()
   const product = await getProductBySlug(slug, { draft, locale: lang })
   const url = productPath(category, slug)
   await fallbackToEnglish(product, lang, url, () => getProductBySlug(slug))
@@ -70,6 +75,7 @@ export default async function ProductPage({ params }: Args) {
           />
           <ProductActions
             downloads={product.downloads}
+            siteKey={siteKey}
             product={{
               title: product.title,
               slug: product.slug,

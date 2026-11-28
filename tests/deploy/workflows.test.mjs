@@ -33,9 +33,19 @@ test('release checks use isolated server and R2 environment values', () => {
   assert.match(environment, /R2_PUBLIC_URL: https:\/\/media\.example\.invalid/)
   assert.match(environment, /DISABLE_R2_STORAGE: "true"/)
   assert.doesNotMatch(environment, /R2_PUBLIC_URL: \$\{\{ vars\.R2_PUBLIC_URL \}\}/)
-  assert.match(workflow, /build-args:[\s\S]*R2_PUBLIC_URL=\$\{\{ vars\.R2_PUBLIC_URL \}\}/)
+  assert.doesNotMatch(workflow, /build-args:/)
 })
 
 test('R2 storage is disabled only when the test switch is explicitly true', () => {
   assert.match(plugins, /enabled: process\.env\.DISABLE_R2_STORAGE !== 'true'/)
+})
+
+test('the Docker build uses a media placeholder without deployment-specific arguments', () => {
+  const dockerfile = readFileSync(
+    fileURLToPath(new URL('../../Dockerfile', import.meta.url)),
+    'utf8',
+  )
+  assert.doesNotMatch(dockerfile, /^ARG (R2_PUBLIC_URL|NEXT_PUBLIC_TURNSTILE_SITE_KEY)\b/m)
+  assert.match(dockerfile, /R2_PUBLIC_URL=https:\/\/media\.example\.invalid/)
+  assert.doesNotMatch(dockerfile, /NEXT_PUBLIC_TURNSTILE_SITE_KEY/)
 })

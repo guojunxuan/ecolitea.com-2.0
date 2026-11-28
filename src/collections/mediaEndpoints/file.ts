@@ -4,7 +4,7 @@ import {
   buildCloudflareImageURL,
   buildCloudflareVideoPosterURL,
 } from '@/components/Media/cloudflare'
-import { serverEnv } from '@/utilities/env'
+import { getConfiguredServerURL, serverEnv } from '@/utilities/env'
 
 const privateHeaders = { 'Cache-Control': 'private, no-store' }
 const failure = (status: number) =>
@@ -66,7 +66,7 @@ export const mediaFileEndpoint: Endpoint = {
     if (!doc?.url) return failure(404)
     const source = trustedSource(
       doc.url,
-      req.payload.config.serverURL || serverEnv.NEXT_PUBLIC_SERVER_URL,
+      req.payload.config.serverURL || getConfiguredServerURL(),
       req.payload.config.routes.api,
     )
     if (!source) return failure(502)

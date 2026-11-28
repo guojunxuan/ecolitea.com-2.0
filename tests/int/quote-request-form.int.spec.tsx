@@ -10,15 +10,17 @@ import { QUOTE_LIMITS } from '@/utilities/quoteRequests/validate'
 // The real widget loads Cloudflare's script. This stand-in exposes the same contract.
 vi.mock('@/components/Products/QuoteRequest/TurnstileWidget', () => ({
   TurnstileWidget: ({
+    siteKey,
     onToken,
     onUnavailable,
     resetKey,
   }: {
+    siteKey: string
     onToken: (token: string | null) => void
     onUnavailable: () => void
     resetKey: number
   }) => (
-    <div data-testid="turnstile" data-reset-key={resetKey}>
+    <div data-testid="turnstile" data-site-key={siteKey} data-reset-key={resetKey}>
       <button type="button" onClick={() => onToken('tok-1')}>
         Pass verification
       </button>
@@ -49,7 +51,6 @@ const reply = (status: number, json: unknown) =>
 
 describe('QuoteRequestForm', () => {
   beforeEach(() => {
-    vi.stubEnv('NEXT_PUBLIC_TURNSTILE_SITE_KEY', 'test-site-key')
     window.dataLayer = []
   })
   afterEach(() => {
@@ -59,8 +60,14 @@ describe('QuoteRequestForm', () => {
     vi.unstubAllEnvs()
   })
 
+  it('passes the server-provided key to the widget instead of reading the client environment', () => {
+    vi.stubEnv('NEXT_PUBLIC_TURNSTILE_SITE_KEY', 'build-time-key')
+    render(<QuoteRequestForm siteKey="runtime-key" product={product} onSuccess={vi.fn()} />)
+    expect(screen.getByTestId('turnstile').getAttribute('data-site-key')).toBe('runtime-key')
+  })
+
   it('provides accessible required fields, placeholders and a live message count', () => {
-    render(<QuoteRequestForm product={product} onSuccess={vi.fn()} />)
+    render(<QuoteRequestForm siteKey="test-site-key" product={product} onSuccess={vi.fn()} />)
     const controls = [
       ['Name', 'Your full name'],
       ['Company', 'Company name'],
@@ -109,6 +116,7 @@ describe('QuoteRequestForm', () => {
     } as Media
     render(
       <QuoteRequestForm
+        siteKey="test-site-key"
         product={{ ...product, categoryTitle: 'Packaging', thumbnail }}
         onSuccess={vi.fn()}
       />,
@@ -121,7 +129,7 @@ describe('QuoteRequestForm', () => {
   })
 
   it('omits the thumbnail and category when unavailable', () => {
-    render(<QuoteRequestForm product={product} onSuccess={vi.fn()} />)
+    render(<QuoteRequestForm siteKey="test-site-key" product={product} onSuccess={vi.fn()} />)
     expect(screen.queryByRole('img')).toBeNull()
     expect(screen.queryByText('Packaging')).toBeNull()
     expect(screen.getByText('Paper Bag')).toBeTruthy()
@@ -129,7 +137,11 @@ describe('QuoteRequestForm', () => {
 
   it('keeps the category without reserving a missing thumbnail', () => {
     render(
-      <QuoteRequestForm product={{ ...product, categoryTitle: 'Packaging' }} onSuccess={vi.fn()} />,
+      <QuoteRequestForm
+        siteKey="test-site-key"
+        product={{ ...product, categoryTitle: 'Packaging' }}
+        onSuccess={vi.fn()}
+      />,
     )
     expect(screen.getByText('Packaging')).toBeTruthy()
     expect(screen.queryByRole('img')).toBeNull()
@@ -138,7 +150,7 @@ describe('QuoteRequestForm', () => {
   it('shows the product read-only and validates fields before sending', () => {
     const fetchSpy = vi.fn()
     vi.stubGlobal('fetch', fetchSpy)
-    render(<QuoteRequestForm product={product} onSuccess={vi.fn()} />)
+    render(<QuoteRequestForm siteKey="test-site-key" product={product} onSuccess={vi.fn()} />)
     expect(screen.getByText('Paper Bag')).toBeTruthy()
     fireEvent.click(screen.getByRole('button', { name: 'Pass verification' }))
     fireEvent.click(screen.getByRole('button', { name: 'Send request' }))
@@ -155,7 +167,7 @@ describe('QuoteRequestForm', () => {
   it('asks for verification before sending', () => {
     const fetchSpy = vi.fn()
     vi.stubGlobal('fetch', fetchSpy)
-    render(<QuoteRequestForm product={product} onSuccess={vi.fn()} />)
+    render(<QuoteRequestForm siteKey="test-site-key" product={product} onSuccess={vi.fn()} />)
     fillValid()
     fireEvent.click(screen.getByRole('button', { name: 'Send request' }))
     expect(screen.getByRole('alert').textContent).toContain('complete the verification')
@@ -167,7 +179,7 @@ describe('QuoteRequestForm', () => {
     const fetchSpy = reply(200, { ok: true })
     vi.stubGlobal('fetch', fetchSpy)
     const onSuccess = vi.fn()
-    render(<QuoteRequestForm product={product} onSuccess={onSuccess} />)
+    render(<QuoteRequestForm siteKey="test-site-key" product={product} onSuccess={onSuccess} />)
     fillValid()
     fireEvent.click(screen.getByRole('button', { name: 'Pass verification' }))
     fireEvent.click(screen.getByRole('button', { name: 'Send request' }))
@@ -194,7 +206,7 @@ describe('QuoteRequestForm', () => {
   ])('keeps entered values and resets verification on %s', async (code, status, message) => {
     vi.stubGlobal('fetch', reply(status, { ok: false, code }))
     const onSuccess = vi.fn()
-    render(<QuoteRequestForm product={product} onSuccess={onSuccess} />)
+    render(<QuoteRequestForm siteKey="test-site-key" product={product} onSuccess={onSuccess} />)
     fillValid()
     fireEvent.click(screen.getByRole('button', { name: 'Pass verification' }))
     fireEvent.click(screen.getByRole('button', { name: 'Send request' }))
@@ -220,7 +232,7 @@ describe('QuoteRequestForm', () => {
         fieldErrors: { email: 'Enter a valid email address.' },
       }),
     )
-    render(<QuoteRequestForm product={product} onSuccess={vi.fn()} />)
+    render(<QuoteRequestForm siteKey="test-site-key" product={product} onSuccess={vi.fn()} />)
     fillValid()
     fireEvent.click(screen.getByRole('button', { name: 'Pass verification' }))
     fireEvent.click(screen.getByRole('button', { name: 'Send request' }))
@@ -239,7 +251,7 @@ describe('QuoteRequestForm', () => {
         fieldErrors: { productSlug: 'Product not found.' },
       }),
     )
-    render(<QuoteRequestForm product={product} onSuccess={vi.fn()} />)
+    render(<QuoteRequestForm siteKey="test-site-key" product={product} onSuccess={vi.fn()} />)
     fillValid()
     fireEvent.click(screen.getByRole('button', { name: 'Pass verification' }))
     fireEvent.click(screen.getByRole('button', { name: 'Send request' }))
@@ -249,7 +261,7 @@ describe('QuoteRequestForm', () => {
   it('does not submit a previously issued token after verification becomes unavailable', () => {
     const fetchSpy = vi.fn()
     vi.stubGlobal('fetch', fetchSpy)
-    render(<QuoteRequestForm product={product} onSuccess={vi.fn()} />)
+    render(<QuoteRequestForm siteKey="test-site-key" product={product} onSuccess={vi.fn()} />)
     fillValid()
     fireEvent.click(screen.getByRole('button', { name: 'Pass verification' }))
     fireEvent.click(screen.getByRole('button', { name: 'Break verification' }))
@@ -263,7 +275,7 @@ describe('QuoteRequestForm', () => {
       'fetch',
       vi.fn(async () => Promise.reject(new TypeError('offline'))),
     )
-    render(<QuoteRequestForm product={product} onSuccess={vi.fn()} />)
+    render(<QuoteRequestForm siteKey="test-site-key" product={product} onSuccess={vi.fn()} />)
     fillValid()
     fireEvent.click(screen.getByRole('button', { name: 'Pass verification' }))
     fireEvent.click(screen.getByRole('button', { name: 'Send request' }))
@@ -277,12 +289,12 @@ describe('QuoteRequestForm', () => {
   })
 
   it('explains when verification cannot load or no site key is configured', () => {
-    render(<QuoteRequestForm product={product} onSuccess={vi.fn()} />)
+    render(<QuoteRequestForm siteKey="test-site-key" product={product} onSuccess={vi.fn()} />)
     fireEvent.click(screen.getByRole('button', { name: 'Break verification' }))
     expect(screen.getByRole('alert').textContent).toContain('Verification is unavailable')
     cleanup()
-    vi.stubEnv('NEXT_PUBLIC_TURNSTILE_SITE_KEY', '')
-    render(<QuoteRequestForm product={product} onSuccess={vi.fn()} />)
+    vi.stubEnv('NEXT_PUBLIC_TURNSTILE_SITE_KEY', 'unused-client-key')
+    render(<QuoteRequestForm siteKey={undefined} product={product} onSuccess={vi.fn()} />)
     expect(screen.getByRole('alert').textContent).toContain('Verification is unavailable')
     expect(screen.queryByTestId('turnstile')).toBeNull()
   })
@@ -292,7 +304,6 @@ describe('QuoteRequestDialog', () => {
   // jsdom has no modal dialog support, so model the open attribute and close event.
   beforeEach(() => {
     window.dataLayer = []
-    vi.stubEnv('NEXT_PUBLIC_TURNSTILE_SITE_KEY', 'test-site-key')
     HTMLDialogElement.prototype.showModal = function showModal() {
       this.setAttribute('open', '')
     }
@@ -310,7 +321,7 @@ describe('QuoteRequestDialog', () => {
   const dialogOf = () => document.querySelector('dialog')!
 
   it('mounts the form only while open, labels the dialog and returns focus on close', () => {
-    render(<QuoteRequestDialog product={product} />)
+    render(<QuoteRequestDialog siteKey="test-site-key" product={product} />)
     const trigger = screen.getByRole('button', { name: 'Request a quote' })
     expect(trigger.getAttribute('aria-haspopup')).toBe('dialog')
     expect(screen.queryByTestId('turnstile')).toBeNull()
@@ -323,7 +334,7 @@ describe('QuoteRequestDialog', () => {
       within(dialog).getByRole('heading', { name: 'Request a quote', hidden: true }).id,
     )
     expect(within(dialog).getByText('Paper Bag')).toBeTruthy()
-    expect(screen.getByTestId('turnstile')).toBeTruthy()
+    expect(screen.getByTestId('turnstile').getAttribute('data-site-key')).toBe('test-site-key')
     expect(screen.getByText('Get pricing')).toBeTruthy()
     expect(
       screen.getByText(
@@ -342,7 +353,7 @@ describe('QuoteRequestDialog', () => {
   })
 
   it('closes on a backdrop click but not on a click inside the panel', () => {
-    render(<QuoteRequestDialog product={product} />)
+    render(<QuoteRequestDialog siteKey="test-site-key" product={product} />)
     fireEvent.click(screen.getByRole('button', { name: 'Request a quote' }))
     const dialog = dialogOf()
     fireEvent.click(within(dialog).getByRole('heading', { name: 'Request a quote', hidden: true }))
@@ -362,7 +373,7 @@ describe('QuoteRequestDialog', () => {
           }),
       ),
     )
-    render(<QuoteRequestDialog product={product} />)
+    render(<QuoteRequestDialog siteKey="test-site-key" product={product} />)
     const trigger = screen.getByRole('button', { name: 'Request a quote' })
     fireEvent.click(trigger)
     fillValid()
@@ -382,7 +393,7 @@ describe('QuoteRequestDialog', () => {
     'confirms success with the full trimmed name (%s)',
     async (name) => {
       vi.stubGlobal('fetch', reply(200, { ok: true }))
-      render(<QuoteRequestDialog product={product} />)
+      render(<QuoteRequestDialog siteKey="test-site-key" product={product} />)
       fireEvent.click(screen.getByRole('button', { name: 'Request a quote' }))
       fillValid()
       fireEvent.change(screen.getByRole('textbox', { name: 'Name' }), {

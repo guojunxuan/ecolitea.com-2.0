@@ -9,7 +9,10 @@ const { env, path, tag } = vi.hoisted(() => ({
   path: vi.fn(),
   tag: vi.fn(),
 }))
-vi.mock('@/utilities/env', () => ({ serverEnv: env }))
+vi.mock('@/utilities/env', () => ({
+  serverEnv: env,
+  getConfiguredServerURL: () => env.NEXT_PUBLIC_SERVER_URL,
+}))
 vi.mock('next/cache', () => ({ revalidatePath: path, revalidateTag: tag }))
 import { POST } from '@/app/(frontend)/next/revalidate/route'
 import { createRevalidation, requestRevalidation } from '@/plugins/translation/revalidate'

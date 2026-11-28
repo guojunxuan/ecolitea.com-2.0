@@ -67,6 +67,7 @@ describe('business action events', () => {
   it('tracks the download link action rather than opening the resource dialog', () => {
     render(
       <ProductActions
+        siteKey={undefined}
         product={{ title: 'Paper Bag', slug: 'paper-bag' }}
         downloads={[
           {
